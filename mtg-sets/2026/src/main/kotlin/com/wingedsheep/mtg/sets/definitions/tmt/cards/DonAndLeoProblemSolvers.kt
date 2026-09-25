@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -37,18 +35,12 @@ val DonAndLeoProblemSolvers = card("Don & Leo, Problem Solvers") {
     // see each other's ETBs. Declined ("up to one") targets simply no-op.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val artifact = target(
-            "up to one target artifact you control",
-            TargetObject(count = 1, optional = true, filter = TargetFilter(GameObjectFilter.Artifact.youControl()))
-        )
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
-        )
-        effect = Effects.Move(artifact, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.EXILE))
-            .then(Effects.Move(artifact, Zone.BATTLEFIELD))
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
+        val artifact = target(TargetFilter(GameObjectFilter.Artifact.youControl()), optional = true)
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
+        effect = Effects.Move(artifact, Zone.EXILE) then
+            Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(artifact, Zone.BATTLEFIELD) then
+            Effects.Move(creature, Zone.BATTLEFIELD)
         description = "At the beginning of your end step, exile up to one target artifact you control and up to one target creature you control. Then return them to the battlefield under their owners' control."
     }
 

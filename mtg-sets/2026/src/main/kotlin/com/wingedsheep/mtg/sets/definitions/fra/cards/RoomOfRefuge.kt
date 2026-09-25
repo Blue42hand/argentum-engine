@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val RoomOfRefuge = card("Room of Refuge") {
     manaCost = ""
@@ -31,7 +31,7 @@ val RoomOfRefuge = card("Room of Refuge") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap, Costs.SacrificeSelf)
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
         timing = TimingRule.SorcerySpeed
     }

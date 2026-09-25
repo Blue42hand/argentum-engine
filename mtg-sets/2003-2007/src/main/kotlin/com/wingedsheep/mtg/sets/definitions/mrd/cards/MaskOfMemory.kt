@@ -29,12 +29,7 @@ val MaskOfMemory = card("Mask of Memory") {
     triggeredAbility {
         trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    Effects.DrawCards(2),
-                    Effects.Discard(1),
-                )
-            )
+            Effects.DrawCards(2) then Effects.Discard(1)
         )
     }
 

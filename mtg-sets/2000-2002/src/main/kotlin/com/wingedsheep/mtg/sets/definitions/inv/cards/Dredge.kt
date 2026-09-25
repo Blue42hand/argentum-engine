@@ -19,10 +19,7 @@ val Dredge = card("Dredge") {
     oracleText = "Sacrifice a creature or land.\nDraw a card."
 
     spell {
-        effect = Effects.Composite(
-            Effects.SacrificeOwn(GameObjectFilter.CreatureOrLand),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.SacrificeOwn(GameObjectFilter.CreatureOrLand) then Effects.DrawCards(1)
     }
 
     metadata {

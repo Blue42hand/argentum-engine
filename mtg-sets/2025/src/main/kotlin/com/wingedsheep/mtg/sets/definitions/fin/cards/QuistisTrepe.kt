@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Quistis Trepe — Final Fantasy #66
@@ -38,9 +37,7 @@ val QuistisTrepe = card("Quistis Trepe") {
         "put into a graveyard, exile it instead."
 
     triggeredAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter.InstantOrSorceryInGraveyard,
-        ))
+        val target = target(TargetFilter.InstantOrSorceryInGraveyard)
         trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Exile the targeted card from its graveyard.

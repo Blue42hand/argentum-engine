@@ -66,7 +66,7 @@ val VirtueOfCourage = card("Virtue of Courage") {
         oracleText = "Embereth Blaze deals 2 damage to any target. (Then exile this card. You may " +
             "cast the enchantment later from exile.)"
         spell {
-            val anyTarget = target("any target", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(2, anyTarget)
         }
     }

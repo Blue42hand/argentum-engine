@@ -12,8 +12,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Food Fight
@@ -34,7 +34,7 @@ val FoodFight = card("Food Fight") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
-                val anyTarget = target("target any", AnyTarget())
+                val anyTarget = target(Targets.Any)
                 effect = Effects.DealDamage(
                     1 + DynamicAmounts.count(
                         Player.You,

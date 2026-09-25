@@ -44,10 +44,7 @@ val TamObservantSequencer = card("Tam, Observant Sequencer") {
         typeLine = "Sorcery"
         oracleText = "You draw a card and gain 1 life."
         spell {
-            effect = Effects.Composite(
-                Effects.DrawCards(1),
-                Effects.GainLife(1),
-            )
+            effect = Effects.DrawCards(1) then Effects.GainLife(1)
         }
     }
 

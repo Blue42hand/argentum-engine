@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.dka.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Torch Fiend
@@ -23,7 +23,7 @@ val TorchFiend = card("Torch Fiend") {
     toughness = 1
 
     activatedAbility {
-        val artifact = target("target artifact", Targets.Artifact)
+        val artifact = target(TargetFilter.Artifact)
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
         effect = Effects.Destroy(artifact)
         description = "{R}, Sacrifice this creature: Destroy target artifact."

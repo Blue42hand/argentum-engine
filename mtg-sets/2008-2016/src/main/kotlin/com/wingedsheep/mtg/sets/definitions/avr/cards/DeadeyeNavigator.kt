@@ -50,8 +50,8 @@ val DeadeyeNavigator = card("Deadeye Navigator") {
             ability = ActivatedAbility(
                 id = AbilityId.next(),
                 cost = Costs.Mana("{1}{U}"),
-                effect = Effects.Move(EffectTarget.Self, Zone.EXILE)
-                    .then(Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)),
+                effect = Effects.Move(EffectTarget.Self, Zone.EXILE) then
+                    Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD),
                 descriptionOverride = "Exile this creature, then return it to the battlefield under your control"
             ),
             filter = GroupFilter.soulbondPair()

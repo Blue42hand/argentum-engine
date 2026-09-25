@@ -411,7 +411,7 @@ object MechanicPatterns {
      * spell {
      *     effect = Patterns.Mechanic.giftSpell(
      *         noGiftMode = Mode.noTarget(baseEffect, "Don't promise a gift — …"),
-     *         giftMode = Mode.noTarget(baseEffect.then(opponentDraws).then(Effects.GiftGiven()),
+     *         giftMode = Mode.noTarget(baseEffect then opponentDraws then Effects.GiftGiven(),
      *                                  "Promise a gift — …")
      *     )
      * }
@@ -422,8 +422,8 @@ object MechanicPatterns {
         ModalEffect.chooseOne(
             noGiftMode,
             giftMode.copy(
-                effect = ChooseOpponentForSourceEffect(prompt = "Choose an opponent to receive the gift")
-                    .then(giftMode.effect)
+                effect = ChooseOpponentForSourceEffect(prompt = "Choose an opponent to receive the gift") then
+                    giftMode.effect
             ),
             countsAsModalSpell = false
         )

@@ -51,7 +51,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
     // When Jadzi enters, draw two cards, then discard two cards.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.DrawCards(2).then(Effects.Discard(2))
+        effect = Effects.DrawCards(2) then Effects.Discard(2)
     }
 
     // Oracle's Gift — the prepare spell.
@@ -68,14 +68,12 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
                 colors = setOf(Color.GREEN, Color.BLUE),
                 creatureTypes = setOf(Subtype.FRACTAL.value),
                 imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
-            ).then(
-                Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.FRACTAL)).youControl(),
-                    Effects.AddDynamicCounters(
-                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                        amount = DynamicAmounts.xValue(),
-                        target = EffectTarget.IterationEntity,
-                    ),
+            ) then Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.FRACTAL)).youControl(),
+                Effects.AddDynamicCounters(
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                    amount = DynamicAmounts.xValue(),
+                    target = EffectTarget.IterationEntity,
                 ),
             )
         }

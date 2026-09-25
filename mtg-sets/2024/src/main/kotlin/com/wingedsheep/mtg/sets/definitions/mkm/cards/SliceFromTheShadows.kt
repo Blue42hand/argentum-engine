@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Slice from the Shadows — Murders at Karlov Manor #103
@@ -32,7 +32,7 @@ val SliceFromTheShadows = card("Slice from the Shadows") {
     cantBeCountered = true
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         val negX = -DynamicAmounts.xValue()
         effect = Effects.ModifyStats(negX, negX, creature)
     }

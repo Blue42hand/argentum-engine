@@ -89,7 +89,7 @@ val SorinTheMirthless = card("Sorin the Mirthless") {
 
     // −7: Sorin deals 13 damage to any target. You gain 13 life.
     loyaltyAbility(-7) {
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(13, victim) then Effects.GainLife(13)
         description = "Sorin deals 13 damage to any target. You gain 13 life."
     }

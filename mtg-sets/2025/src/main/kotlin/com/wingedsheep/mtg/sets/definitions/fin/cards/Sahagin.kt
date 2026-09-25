@@ -36,8 +36,8 @@ val Sahagin = card("Sahagin") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         interveningIf = Conditions.TriggeringSpellManaSpentAtLeast(4)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
     }
 
     metadata {

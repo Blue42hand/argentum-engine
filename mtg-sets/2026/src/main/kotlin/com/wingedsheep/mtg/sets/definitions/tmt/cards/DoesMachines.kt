@@ -41,9 +41,9 @@ val DoesMachines = card("Does Machines") {
     // Level 1: ETB mill 2, draw 2, then discard 2.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Patterns.Library.mill(2)
-            .then(Effects.DrawCards(2))
-            .then(Patterns.Hand.discardCards(2))
+        effect = Patterns.Library.mill(2) then
+            Effects.DrawCards(2) then
+            Patterns.Hand.discardCards(2)
     }
 
     // Level 2: "When this Class becomes level 2" — modeled as an EntersBattlefield trigger
@@ -66,22 +66,17 @@ val DoesMachines = card("Does Machines") {
     // control; a noncreature one also becomes a 0/0 Robot in addition to its other types.
     classLevel(3, "{4}{U}") {
         triggeredAbility {
-            val target = target("target", TargetObject(
-                count = 1,
-                filter = TargetFilter(GameObjectFilter.Artifact.youControl())
-            ))
+            val target = target(TargetFilter(GameObjectFilter.Artifact.youControl()))
             trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target)
-                .then(
-                    Effects.If(
-                        condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)),
-                        then = Effects.BecomeCreature(
-                            target = target,
-                            power = 0,
-                            toughness = 0,
-                            creatureTypes = setOf("Robot"),
-                            duration = Duration.Permanent
-                        )
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target) then
+                Effects.If(
+                    condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)),
+                    then = Effects.BecomeCreature(
+                        target = target,
+                        power = 0,
+                        toughness = 0,
+                        creatureTypes = setOf("Robot"),
+                        duration = Duration.Permanent
                     )
                 )
         }

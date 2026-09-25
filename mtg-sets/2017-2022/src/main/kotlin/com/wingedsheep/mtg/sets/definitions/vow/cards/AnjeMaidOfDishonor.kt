@@ -59,10 +59,7 @@ val AnjeMaidOfDishonor = card("Anje, Maid of Dishonor") {
                 GameObjectFilter.Creature or GameObjectFilter.Artifact.withSubtype("Blood")
             )
         )
-        effect = Effects.Composite(
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(2)
-        )
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
         description = "{2}, Sacrifice another creature or a Blood token: Each opponent loses 2 life " +
             "and you gain 2 life."
     }

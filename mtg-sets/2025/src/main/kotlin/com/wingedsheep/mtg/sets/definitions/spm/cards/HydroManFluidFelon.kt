@@ -46,8 +46,7 @@ val HydroManFluidFelon = card("Hydro-Man, Fluid Felon") {
     // End step: untap, then become a non-creature land with "{T}: Add {U}" until your next turn.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            Effects.Untap(EffectTarget.Self),
+        effect = Effects.Untap(EffectTarget.Self) then
             Effects.BecomeArtifact(
                 target = EffectTarget.Self,
                 cardTypes = setOf("LAND"),
@@ -61,7 +60,6 @@ val HydroManFluidFelon = card("Hydro-Man, Fluid Felon") {
                 ),
                 duration = Duration.UntilYourNextTurn
             )
-        )
     }
 
     metadata {

@@ -38,7 +38,7 @@ val DiscipleOfTheVault = card("Disciple of the Vault") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact).dies()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.May(
             Effects.LoseLife(1, opponent),
             descriptionOverride = "You may have target opponent lose 1 life"

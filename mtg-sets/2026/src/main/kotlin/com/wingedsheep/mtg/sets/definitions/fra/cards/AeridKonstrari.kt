@@ -38,14 +38,12 @@ val AeridKonstrari = card("Aerid Konstrari") {
 
     activatedAbility {
         cost = Costs.Mana("{6}")
-        effect = Effects.Composite(
-            Effects.CreateHeartwood(),
+        effect = Effects.CreateHeartwood() then
             Effects.ModifyStats(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
                 DynamicAmounts.fixed(0),
                 EffectTarget.Self,
-            ),
-        )
+            )
         description = "Create a Heartwood token. Then Aerid Konstrari gets +X/+0 until end of turn, where X is the number of artifacts you control."
     }
 

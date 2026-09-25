@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Disturbed Slumber
@@ -30,20 +29,15 @@ val DisturbedSlumber = card("Disturbed Slumber") {
     oracleText = "Until end of turn, target land you control becomes a 4/4 Dinosaur creature with reach and haste. It's still a land. It must be blocked this turn if able."
 
     spell {
-        val t = target(
-            "target land you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Land.youControl()))
-        )
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = t,
-                power = 4,
-                toughness = 4,
-                keywords = setOf(Keyword.REACH, Keyword.HASTE),
-                creatureTypes = setOf("Dinosaur")
-            ),
+        val t = target(TargetFilter(GameObjectFilter.Land.youControl()))
+        effect = Effects.BecomeCreature(
+            target = t,
+            power = 4,
+            toughness = 4,
+            keywords = setOf(Keyword.REACH, Keyword.HASTE),
+            creatureTypes = setOf("Dinosaur")
+        ) then
             Effects.MustBeBlocked(t, allCreatures = false)
-        )
     }
 
     metadata {

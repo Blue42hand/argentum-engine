@@ -25,7 +25,7 @@ class FilteredAnyTargetScenarioTest : ScenarioTestBase() {
         manaCost = "{R}"
         typeLine = "Instant"
         spell {
-            val recipient = target("damaged target", Targets.Any(filter))
+            val recipient = target(Targets.Any(filter))
             effect = Effects.DealDamage(1, recipient)
         }
     }

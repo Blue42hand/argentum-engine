@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * The eleven keywords Super-Adaptoid can absorb, each paired with the keyword counter (CR 122.1b)
@@ -96,7 +95,7 @@ val SuperAdaptoid = card("Super-Adaptoid") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        val otherCreature = target(TargetFilter.OtherCreature)
         effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid enters, choose another target creature. If that " +
             "creature has haste and Super-Adaptoid doesn't, put a haste counter on " +
@@ -106,7 +105,7 @@ val SuperAdaptoid = card("Super-Adaptoid") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        val otherCreature = target(TargetFilter.OtherCreature)
         effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid attacks, choose another target creature. If that " +
             "creature has haste and Super-Adaptoid doesn't, put a haste counter on " +

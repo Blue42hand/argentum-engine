@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Wellgabber Apothecary
@@ -33,14 +32,11 @@ val WellgabberApothecary = card("Wellgabber Apothecary") {
     activatedAbility {
         cost = Costs.Mana("{1}{W}")
         val t = target(
-            "target tapped Merfolk or Kithkin creature",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature
-                        .tapped()
-                        .withAnySubtype(Subtype.MERFOLK.value, Subtype.KITHKIN.value)
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature
+                    .tapped()
+                    .withAnySubtype(Subtype.MERFOLK.value, Subtype.KITHKIN.value)
+            ),
         )
         effect = Effects.PreventDamage(target = t)
         description = "Prevent all damage that would be dealt to target tapped Merfolk or Kithkin creature this turn."

@@ -34,10 +34,8 @@ val BalmorBattlemageCaptain = card("Balmor, Battlemage Captain") {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
-            )
         )
     }
     metadata {

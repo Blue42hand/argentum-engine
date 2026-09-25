@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -27,7 +26,7 @@ val ShamblingShell = card("Shambling Shell") {
     toughness = 1
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
     keywordAbility(KeywordAbility.dredge(3))

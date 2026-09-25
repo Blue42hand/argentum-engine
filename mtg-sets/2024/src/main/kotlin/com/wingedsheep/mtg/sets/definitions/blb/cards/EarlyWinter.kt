@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Early Winter
@@ -27,14 +28,14 @@ val EarlyWinter = card("Early Winter") {
     spell {
         modal(chooseCount = 1) {
             mode("Exile target creature") {
-                val t = target("target creature to exile", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.Exile(t)
             }
             mode("Target opponent exiles an enchantment they control") {
                 // The opponent is the target; THEY pick which of their enchantments to
                 // exile (so hexproof on the enchantment is irrelevant, and the mode is
                 // legal even if they control none).
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Pipeline {
                     val enchantments = gather(
                         CardSource.FromZone(Zone.BATTLEFIELD, opponent.asPlayer, GameObjectFilter.Enchantment)

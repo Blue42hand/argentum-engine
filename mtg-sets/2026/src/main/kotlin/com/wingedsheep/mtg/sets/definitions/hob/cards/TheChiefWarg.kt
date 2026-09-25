@@ -44,10 +44,7 @@ val TheChiefWarg = card("The Chief Warg") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         triggerRestriction = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         description = "Ferocious — Whenever you attack while you control a creature with power 4 or " +
             "greater, you draw a card and lose 1 life."
     }

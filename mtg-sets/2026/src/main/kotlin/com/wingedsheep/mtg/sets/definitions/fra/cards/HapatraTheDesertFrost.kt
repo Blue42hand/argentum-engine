@@ -4,14 +4,12 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * "For each opponent, … up to one target creature that player controls" is Kaya, Spirits'
@@ -31,14 +29,11 @@ val HapatraTheDesertFrost = card("Hapatra, the Desert Frost") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to one target creature each opponent controls",
-            TargetCreature(
-                filter = TargetFilter.CreatureOpponentControls,
-                optional = true,
-                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
-                differentControllers = true,
-            )
+        targets(
+            TargetFilter.CreatureOpponentControls,
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
+            differentControllers = true,
         )
         effect = Effects.ForEachTarget(
             Effects.Tap(EffectTarget.ContextTarget(0)),
@@ -50,7 +45,7 @@ val HapatraTheDesertFrost = card("Hapatra, the Desert Frost") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{U}")
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Untap(creature)
     }
 

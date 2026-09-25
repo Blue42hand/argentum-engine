@@ -28,7 +28,7 @@ val SerumVisionary = card("Serum Visionary") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.DrawCards(1).then(Patterns.Library.scry(2))
+        effect = Effects.DrawCards(1) then Patterns.Library.scry(2)
     }
 
     metadata {

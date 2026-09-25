@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Synchronized Charge — Tarkir: Dragonstorm #162
@@ -36,18 +35,16 @@ val SynchronizedCharge = card("Synchronized Charge") {
         "You may tap a creature you control to reduce that cost by {X}, where X is its power. Then exile this spell.)"
 
     spell {
-        target("targets", TargetCreature(count = 2, minCount = 1, filter = com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.CreatureYouControl))
-        effect = Effects.Composite(listOf(
-            Effects.DistributeCountersAmongTargets(totalCounters = 2),
+        targets(com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.CreatureYouControl, count = 2, minCount = 1)
+        effect = Effects.DistributeCountersAmongTargets(totalCounters = 2) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
                 effect = Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
-            ),
+            ) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
                 effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
-        ))
     }
 
     keywordAbility(KeywordAbility.harmonize("{4}{G}"))

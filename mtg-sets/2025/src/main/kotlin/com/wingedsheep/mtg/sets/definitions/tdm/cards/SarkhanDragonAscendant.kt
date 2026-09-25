@@ -48,11 +48,9 @@ val SarkhanDragonAscendant = card("Sarkhan, Dragon Ascendant") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON)).enters()
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.AddCreatureType("Dragon", EffectTarget.Self, Duration.EndOfTurn),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.AddCreatureType("Dragon", EffectTarget.Self, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self, Duration.EndOfTurn)
-        ))
         description = "Whenever a Dragon you control enters, put a +1/+1 counter on Sarkhan. " +
             "Until end of turn, Sarkhan becomes a Dragon in addition to its other types and gains flying."
     }

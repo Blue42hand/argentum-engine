@@ -66,22 +66,18 @@ val WormsOfTheEarth = card("Worms of the Earth") {
                             // their only way out is the 5-damage mode.
                             effect = Effects.If(
                                 condition = Conditions.ControlLandsAtLeast(2),
-                                then = Effects.Composite(
-                                    Effects.Sacrifice(
-                                        GameObjectFilter.Land,
-                                        count = 2,
-                                        target = EffectTarget.Controller,
-                                    ),
+                                then = Effects.Sacrifice(
+                                    GameObjectFilter.Land,
+                                    count = 2,
+                                    target = EffectTarget.Controller,
+                                ) then
                                     Effects.Destroy(EffectTarget.Self),
-                                ),
                             ),
                         ),
                         Mode(
                             description = "Take 5 damage from Worms of the Earth",
-                            effect = Effects.Composite(
-                                Effects.DealDamage(5, EffectTarget.Controller),
+                            effect = Effects.DealDamage(5, EffectTarget.Controller) then
                                 Effects.Destroy(EffectTarget.Self),
-                            ),
                         ),
                     ),
                     countsAsModalSpell = false,

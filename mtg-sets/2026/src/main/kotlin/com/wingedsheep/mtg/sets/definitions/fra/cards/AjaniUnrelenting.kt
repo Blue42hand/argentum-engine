@@ -63,12 +63,7 @@ val AjaniUnrelenting = card("Ajani Unrelenting") {
 
     // −2: Discard your hand, then draw a card for each creature you control.
     loyaltyAbility(-2) {
-        effect = Effects.Composite(
-            listOf(
-                Patterns.Hand.discardHand(),
-                Effects.DrawCards(DynamicAmounts.creaturesYouControl()),
-            )
-        )
+        effect = Patterns.Hand.discardHand() then Effects.DrawCards(DynamicAmounts.creaturesYouControl())
         description = "Discard your hand, then draw a card for each creature you control."
     }
 

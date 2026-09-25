@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Catapult Squad
@@ -29,7 +28,7 @@ val CatapultSquad = card("Catapult Squad") {
             count = 2,
             filter = GameObjectFilter.Permanent.withSubtype("Soldier")
         )
-        val t = target("target", TargetPermanent(filter = TargetFilter.AttackingOrBlockingCreature))
+        val t = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.DealDamage(2, t)
     }
 

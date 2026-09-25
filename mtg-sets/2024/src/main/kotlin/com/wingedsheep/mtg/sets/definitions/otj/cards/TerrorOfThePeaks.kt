@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 val TerrorOfThePeaks = card("Terror of the Peaks") {
@@ -33,7 +32,7 @@ val TerrorOfThePeaks = card("Terror of the Peaks") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.triggeringPower(),
             anyTarget

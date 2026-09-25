@@ -29,8 +29,7 @@ val SlimefootTheStowaway = card("Slimefoot, the Stowaway") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype("Saproling")).dies()
-        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
-                Effects.GainLife(1)
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     activatedAbility {

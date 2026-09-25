@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -27,7 +27,7 @@ val TelepathicSpies = card("Telepathic Spies") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.LookAtHand(t)
     }
     metadata {

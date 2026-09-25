@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * The Death of Gwen Stacy (SPM #54)
@@ -48,7 +48,7 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
 
     // I — Destroy target creature.
     sagaChapter(1) {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Destroy(creature)
     }
 
@@ -67,7 +67,7 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
 
     // III — Exile any number of target players' graveyards.
     sagaChapter(3) {
-        target("any number of target players", TargetPlayer(unlimited = true))
+        target(TargetPlayer(unlimited = true))
         effect = Effects.ForEachTarget(
             Effects.Pipeline {
             val gwenTargetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))

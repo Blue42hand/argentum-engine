@@ -49,14 +49,12 @@ val UnderwaterTunnelSlimyAquarium = card("Underwater Tunnel // Slimy Aquarium") 
 
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
-            effect = Effects.Composite(
-                Patterns.Library.manifestDread(),
+            effect = Patterns.Library.manifestDread() then
                 Effects.AddCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     1,
                     EffectTarget.PipelineTarget("manifestDreadManifested")
                 )
-            )
             description = "When you unlock this door, manifest dread, then put a +1/+1 counter on that creature."
         }
     }

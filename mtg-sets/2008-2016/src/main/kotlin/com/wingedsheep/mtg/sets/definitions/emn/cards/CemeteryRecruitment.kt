@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Cemetery Recruitment
@@ -31,13 +30,10 @@ val CemeteryRecruitment = card("Cemetery Recruitment") {
     oracleText = "Return target creature card from your graveyard to your hand. If it's a Zombie card, draw a card."
 
     spell {
-        val creature = target(
-            "creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val creature = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE), creature),
-            then = Effects.Move(creature, Zone.HAND).then(Effects.DrawCards(1)),
+            then = Effects.Move(creature, Zone.HAND) then Effects.DrawCards(1),
             otherwise = Effects.Move(creature, Zone.HAND)
         )
     }

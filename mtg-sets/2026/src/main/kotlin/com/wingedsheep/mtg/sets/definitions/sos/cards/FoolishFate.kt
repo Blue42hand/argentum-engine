@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Foolish Fate
@@ -27,7 +27,7 @@ val FoolishFate = card("Foolish Fate") {
         "Infusion — If you gained life this turn, that creature's controller loses 3 life."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Destroy(creature) then Effects.If(
             condition = Conditions.YouGainedLifeThisTurn,
             then = Effects.LoseLife(3, EffectTarget.TargetController),

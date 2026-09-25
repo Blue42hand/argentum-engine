@@ -24,18 +24,14 @@ val DeathFrenzy = card("Death Frenzy") {
     oracleText = "All creatures get -2/-2 until end of turn. Whenever a creature dies this turn, you gain 1 life."
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Patterns.Group.modifyStatsForAll(-2, -2, GroupFilter.AllCreatures),
-                Effects.CreateGlobalTriggeredAbility(
-                    duration = Duration.EndOfTurn,
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.a(GameObjectFilter.Creature).dies(),
-                        effect = Effects.GainLife(1, EffectTarget.Controller)
-                    )
+        effect = Patterns.Group.modifyStatsForAll(-2, -2, GroupFilter.AllCreatures) then
+            Effects.CreateGlobalTriggeredAbility(
+                duration = Duration.EndOfTurn,
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.a(GameObjectFilter.Creature).dies(),
+                    effect = Effects.GainLife(1, EffectTarget.Controller)
                 )
             )
-        )
     }
 
     metadata {

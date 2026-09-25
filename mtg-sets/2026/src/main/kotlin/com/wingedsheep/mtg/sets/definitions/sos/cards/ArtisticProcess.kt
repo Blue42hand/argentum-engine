@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -34,7 +33,7 @@ val ArtisticProcess = card("Artistic Process") {
     spell {
         modal(chooseCount = 1) {
             mode("Artistic Process deals 6 damage to target creature") {
-                val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+                val t = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(6, t)
             }
             mode("Artistic Process deals 2 damage to each creature you don't control") {
@@ -44,17 +43,15 @@ val ArtisticProcess = card("Artistic Process") {
                 )
             }
             mode("Create a 3/3 blue and red Elemental creature token with flying. It gains haste until end of turn") {
-                effect = Effects.Composite(
-                    Effects.CreateToken(
-                        power = 3,
-                        toughness = 3,
-                        colors = setOf(Color.BLUE, Color.RED),
-                        creatureTypes = setOf("Elemental"),
-                        keywords = setOf(Keyword.FLYING),
-                        imageUri = "https://cards.scryfall.io/normal/front/b/5/b5b2df9c-228f-4441-a962-46b335bb356e.jpg?1782723481"
-                    ),
+                effect = Effects.CreateToken(
+                    power = 3,
+                    toughness = 3,
+                    colors = setOf(Color.BLUE, Color.RED),
+                    creatureTypes = setOf("Elemental"),
+                    keywords = setOf(Keyword.FLYING),
+                    imageUri = "https://cards.scryfall.io/normal/front/b/5/b5b2df9c-228f-4441-a962-46b335bb356e.jpg?1782723481"
+                ) then
                     Effects.GrantKeyword(Keyword.HASTE, EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
-                )
             }
         }
     }

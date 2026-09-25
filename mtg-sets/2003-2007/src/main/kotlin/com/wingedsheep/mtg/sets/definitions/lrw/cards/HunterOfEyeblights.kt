@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Hunter of Eyeblights
@@ -33,19 +32,13 @@ val HunterOfEyeblights = card("Hunter of Eyeblights") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val marked = target(
-            "creature you don't control",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls),
-        )
+        val marked = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, marked)
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.Tap)
-        val prey = target(
-            "creature with a counter on it",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withAnyCounter())),
-        )
+        val prey = target(TargetFilter(GameObjectFilter.Creature.withAnyCounter()))
         effect = Effects.Destroy(prey)
     }
 

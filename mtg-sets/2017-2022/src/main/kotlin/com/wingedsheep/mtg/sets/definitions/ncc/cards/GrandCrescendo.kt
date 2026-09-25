@@ -30,19 +30,17 @@ val GrandCrescendo = card("Grand Crescendo") {
         "gain indestructible until end of turn."
 
     spell {
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                count = DynamicAmounts.xValue(),
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.GREEN, Color.WHITE),
-                creatureTypes = setOf("Citizen")
-            ),
+        effect = Effects.CreateToken(
+            count = DynamicAmounts.xValue(),
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.GREEN, Color.WHITE),
+            creatureTypes = setOf("Citizen")
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetChooser
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Confusion in the Ranks — Mirrodin #87 (canonical printing)
@@ -57,21 +56,18 @@ val ConfusionInTheRanks = card("Confusion in the Ranks") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.ArtifactCreatureOrEnchantment).enters()
         val swapped = target(
-            "permanent another player controls that shares a card type with it",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent
-                        .withControllerPredicate(
-                            ControllerPredicate.Not(
-                                ControllerPredicate.ControlledByReferencedPlayer(
-                                    EffectTarget.ControllerOfTriggeringEntity
-                                )
+            TargetFilter(
+                GameObjectFilter.Permanent
+                    .withControllerPredicate(
+                        ControllerPredicate.Not(
+                            ControllerPredicate.ControlledByReferencedPlayer(
+                                EffectTarget.ControllerOfTriggeringEntity
                             )
                         )
-                        .sharingCardTypeWith(EffectTarget.TriggeringEntity)
-                ),
-                chooser = TargetChooser.ControllerOfTriggeringEntity
-            )
+                    )
+                    .sharingCardTypeWith(EffectTarget.TriggeringEntity)
+            ),
+            chooser = TargetChooser.ControllerOfTriggeringEntity,
         )
         effect = Effects.ExchangeControl(EffectTarget.TriggeringEntity, swapped)
         description = "Whenever an artifact, creature, or enchantment enters, its controller " +

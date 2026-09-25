@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -36,7 +35,7 @@ val RideTheShoopuf = card("Ride the Shoopuf") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val t = target("target creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature you control."
     }

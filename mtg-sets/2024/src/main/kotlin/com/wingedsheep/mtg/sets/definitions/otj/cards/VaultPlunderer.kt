@@ -22,13 +22,8 @@ val VaultPlunderer = card("Vault Plunderer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1, t),
-                Effects.LoseLife(1, t),
-            )
-        )
+        val t = target(Targets.Player)
+        effect = Effects.DrawCards(1, t) then Effects.LoseLife(1, t)
     }
 
     metadata {

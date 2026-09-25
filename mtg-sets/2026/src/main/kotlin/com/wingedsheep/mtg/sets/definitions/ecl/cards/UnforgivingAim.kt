@@ -3,14 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Unforgiving Aim
@@ -31,14 +29,11 @@ val UnforgivingAim = card("Unforgiving Aim") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Destroy target creature with flying") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.withKeyword(Keyword.FLYING))
-                )
+                val creature = target(TargetFilter.Creature.withKeyword(Keyword.FLYING))
                 effect = Effects.Destroy(creature)
             },
             mode("Destroy target enchantment") {
-                val enchantment = target("target enchantment", Targets.Enchantment)
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             },
             Mode.noTarget(

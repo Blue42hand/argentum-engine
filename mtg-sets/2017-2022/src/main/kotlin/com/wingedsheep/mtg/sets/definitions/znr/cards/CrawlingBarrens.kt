@@ -40,8 +40,7 @@ val CrawlingBarrens = card("Crawling Barrens") {
 
     activatedAbility {
         cost = Costs.Mana("{4}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self) then
             Effects.May(
                 effect = Effects.BecomeCreature(
                     target = EffectTarget.Self,
@@ -50,8 +49,7 @@ val CrawlingBarrens = card("Crawling Barrens") {
                     creatureTypes = setOf("Elemental"),
                     duration = Duration.EndOfTurn,
                 ),
-            ),
-        )
+            )
         description = "Put two +1/+1 counters on this land. Then you may have it become a " +
             "0/0 Elemental creature until end of turn. It's still a land."
     }

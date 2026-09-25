@@ -52,10 +52,8 @@ val FelidarRetreat = card("Felidar Retreat") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = Effects.Composite(
-                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity) then
                         Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                    ),
                 ),
                 "Put a +1/+1 counter on each creature you control. Those creatures gain vigilance until end of turn",
             ),

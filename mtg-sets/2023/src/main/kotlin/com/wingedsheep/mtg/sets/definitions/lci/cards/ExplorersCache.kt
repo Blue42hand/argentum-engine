@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Explorer's Cache — The Lost Caverns of Ixalan #184
@@ -60,7 +60,7 @@ val ExplorersCache = card("Explorer's Cache") {
 
     // {T}: Move a +1/+1 counter from this artifact onto target creature. Activate only as a sorcery.
     activatedAbility {
-        val creature = target("target creature", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         cost = Costs.Tap
         effect = Effects.MoveCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,

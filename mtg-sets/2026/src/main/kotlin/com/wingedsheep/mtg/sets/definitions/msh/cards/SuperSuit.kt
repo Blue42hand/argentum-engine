@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Super Suit
@@ -37,10 +36,7 @@ val SuperSuit = card("Super Suit") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.Creature.youControl())
-        )
+        val creature = target(TargetFilter.Creature.youControl())
         effect = Effects.AttachEquipment(creature) then Effects.Untap(creature)
     }
 

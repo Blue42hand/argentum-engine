@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GrantSubtype
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Case of the Gorgon's Kiss — Murders at Karlov Manor #79
@@ -54,10 +53,7 @@ val CaseOfTheGorgonsKiss = card("Case of the Gorgon's Kiss") {
         "its other types."
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            optional = true,
-            filter = TargetFilter(GameObjectFilter.Creature.wasDealtDamageThisTurn())
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.wasDealtDamageThisTurn()), optional = true)
         trigger = Triggers.self.enters()
         effect = Effects.Destroy(creature)
     }

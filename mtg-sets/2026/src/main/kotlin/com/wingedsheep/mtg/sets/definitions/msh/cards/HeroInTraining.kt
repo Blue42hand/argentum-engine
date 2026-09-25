@@ -30,16 +30,14 @@ val HeroInTraining = card("Hero in Training") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
+        effect = Effects.DrawCards(1) then
             Effects.If(
                 condition = Conditions.YouControl(
                     GameObjectFilter.Permanent.withSubtype(Subtype.HERO),
                     excludeSelf = true,
                 ),
                 then = Effects.GainLife(2),
-            ),
-        )
+            )
     }
     metadata {
         rarity = Rarity.COMMON

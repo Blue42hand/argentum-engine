@@ -58,7 +58,7 @@ val GlacierwoodSiege = card("Glacierwood Siege") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         triggerRestriction = SourceChosenModeIs("temur")
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Patterns.Library.mill(4, t)
     }
 

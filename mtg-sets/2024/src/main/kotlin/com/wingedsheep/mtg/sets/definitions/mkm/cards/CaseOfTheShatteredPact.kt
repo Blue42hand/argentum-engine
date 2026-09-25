@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -67,13 +66,11 @@ val CaseOfTheShatteredPact = card("Case of the Shattered Pact") {
     )
 
     solvedTriggeredAbility {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val creature = target(TargetFilter.Creature.youControl())
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, target = creature),
-            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target = creature),
+        effect = Effects.GrantKeyword(Keyword.FLYING, target = creature) then
+            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target = creature) then
             Effects.GrantKeyword(Keyword.VIGILANCE, target = creature)
-        )
         description = "Solved — At the beginning of combat on your turn, target creature you " +
             "control gains flying, double strike, and vigilance until end of turn."
     }

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * The Mighty Thor, Jane Foster
@@ -58,15 +57,9 @@ val TheMightyThorJaneFoster = card("The Mighty Thor, Jane Foster") {
     // then return that card to the battlefield tapped under its owner's control.
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val blinked = target(
-            "nontoken artifact or creature",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.nontoken()),
-            ),
-        )
-        effect = Effects.Move(blinked, Zone.EXILE)
-            .then(Effects.Move(blinked, Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
+        val blinked = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.nontoken()), optional = true)
+        effect = Effects.Move(blinked, Zone.EXILE) then
+            Effects.Move(blinked, Zone.BATTLEFIELD, placement = ZonePlacement.Tapped)
         description = "Whenever The Mighty Thor attacks, exile up to one target nontoken artifact " +
             "or creature, then return that card to the battlefield tapped under its owner's control."
     }

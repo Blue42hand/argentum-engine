@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Flamewave Invoker
@@ -25,7 +25,7 @@ val FlamewaveInvoker = card("Flamewave Invoker") {
 
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{7}{R}"))
-        val t = target("target player or planeswalker", TargetPlayerOrPlaneswalker())
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(5, t)
     }
 

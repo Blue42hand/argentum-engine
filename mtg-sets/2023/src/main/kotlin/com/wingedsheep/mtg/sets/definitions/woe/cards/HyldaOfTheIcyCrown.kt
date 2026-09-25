@@ -70,7 +70,7 @@ val HyldaOfTheIcyCrown = card("Hylda of the Icy Crown") {
                     "Put a +1/+1 counter on each creature you control"
                 ),
                 Mode.noTarget(
-                    Patterns.Library.scry(2).then(Effects.DrawCards(1)),
+                    Patterns.Library.scry(2) then Effects.DrawCards(1),
                     "Scry 2, then draw a card"
                 ),
             ),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * The Coming of Galactus — Marvel Super Heroes #212
@@ -42,10 +41,7 @@ val TheComingOfGalactus = card("The Coming of Galactus") {
 
     // I — Destroy up to one target nonland permanent.
     sagaChapter(1) {
-        val victim = target(
-            "up to one target nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent),
-        )
+        val victim = target(TargetFilter.NonlandPermanent, optional = true)
         effect = Effects.Destroy(victim)
     }
 

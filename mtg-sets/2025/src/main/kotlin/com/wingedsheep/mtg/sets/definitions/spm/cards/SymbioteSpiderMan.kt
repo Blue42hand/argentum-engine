@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -75,15 +74,13 @@ val SymbioteSpiderMan = card("Symbiote Spider-Man") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U/B}"), Costs.ExileSelf)
-        val creature = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature) then
             Effects.GrantTriggeredAbility(
                 ability = symbioteCombatDamageTrigger(),
                 target = creature,
                 duration = Duration.Permanent,
-            ),
-        )
+            )
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
         description = "Find New Host — {2}{U/B}, Exile this card from your graveyard: Put a +1/+1 " +

@@ -39,10 +39,8 @@ val IngrisStingerquill = card("Ingris Stingerquill") {
 
     activatedAbility {
         cost = Costs.Mana("{4}")
-        effect = Effects.Composite(
-            Effects.CreateToken(power = 2, toughness = 2, name = "Cadet", creatureTypes = setOf("Wizard", "Soldier"), imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"),
-            Patterns.Group.grantKeywordToAll(Keyword.HASTE, GroupFilter.AllCreaturesYouControl),
-        )
+        effect = Effects.CreateToken(power = 2, toughness = 2, name = "Cadet", creatureTypes = setOf("Wizard", "Soldier"), imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318") then
+            Patterns.Group.grantKeywordToAll(Keyword.HASTE, GroupFilter.AllCreaturesYouControl)
         description = "Create a 2/2 colorless Wizard Soldier creature token named Cadet. Then creatures you control gain haste until end of turn."
     }
 

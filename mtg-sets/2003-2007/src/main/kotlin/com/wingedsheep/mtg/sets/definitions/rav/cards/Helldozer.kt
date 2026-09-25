@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Helldozer
@@ -39,7 +39,7 @@ val Helldozer = card("Helldozer") {
     toughness = 5
 
     activatedAbility {
-        val land = target("target land", Targets.Land)
+        val land = target(TargetFilter.Land)
         cost = Costs.Composite(Costs.Mana("{B}{B}{B}"), Costs.Tap)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonbasicLand, land),

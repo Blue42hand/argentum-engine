@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,6 +11,8 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Nurturing Presence
@@ -42,7 +43,7 @@ val NurturingPresence = card("Nurturing Presence") {
         "until end of turn.\"\n" +
         "When this Aura enters, create a 1/1 white Spirit creature token with flying."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     // Enchanted creature has "Whenever a creature you control enters, this creature gets +1/+1
     // until end of turn."

@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Garruk, Veiled Butcher
@@ -57,7 +57,7 @@ val GarrukVeiledButcher = card("Garruk, Veiled Butcher") {
 
     // +2: Up to one target creature gets -4/-1 until your next turn.
     loyaltyAbility(+2) {
-        val creature = target("up to one target creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.ModifyStats(-4, -1, creature, Duration.UntilYourNextTurn)
     }
 
@@ -68,18 +68,16 @@ val GarrukVeiledButcher = card("Garruk, Veiled Butcher") {
             GameObjectFilter.Creature,
             count = 1,
             target = EffectTarget.PlayerRef(Player.Each),
-        ).then(
-            Effects.If(
-                condition = Conditions.YouSacrificedThisWay,
-                then = Effects.CreateToken(
-                    power = 4,
-                    toughness = 4,
-                    colors = setOf(Color.GREEN),
-                    creatureTypes = setOf("Beast"),
-                    keywords = setOf(Keyword.TRAMPLE),
-                    imageUri = "https://cards.scryfall.io/normal/front/8/5/859bda9a-fa90-4ad3-b0c1-6fc62e27c12f.jpg?1789736256",
-                ),
-            )
+        ) then Effects.If(
+            condition = Conditions.YouSacrificedThisWay,
+            then = Effects.CreateToken(
+                power = 4,
+                toughness = 4,
+                colors = setOf(Color.GREEN),
+                creatureTypes = setOf("Beast"),
+                keywords = setOf(Keyword.TRAMPLE),
+                imageUri = "https://cards.scryfall.io/normal/front/8/5/859bda9a-fa90-4ad3-b0c1-6fc62e27c12f.jpg?1789736256",
+            ),
         )
     }
 
@@ -97,7 +95,7 @@ val GarrukVeiledButcher = card("Garruk, Veiled Butcher") {
                     moveType = MoveType.Discard
                 )
                 ifNotEmpty(garrukDiscarded, filter = GameObjectFilter.Nonland, minSize = 2) {
-                    run(Effects.Composite(emptyList()))
+                    run(Effects.Nothing)
                 } orElse {
                     run(Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ControllerOfSource)))
                 }

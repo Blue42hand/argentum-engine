@@ -23,7 +23,7 @@ val HomaridExplorer = card("Homarid Explorer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Patterns.Library.mill(4, t)
     }
 

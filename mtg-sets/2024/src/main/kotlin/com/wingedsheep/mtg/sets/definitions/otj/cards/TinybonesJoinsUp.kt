@@ -35,7 +35,7 @@ val TinybonesJoinsUp = card("Tinybones Joins Up") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("any number of target players", TargetPlayer(unlimited = true))
+        target(TargetPlayer(unlimited = true))
         effect = Effects.ForEachTarget(
             Effects.Discard(1, EffectTarget.PlayerRef(Player.ContextPlayer(0)))
         )
@@ -43,7 +43,7 @@ val TinybonesJoinsUp = card("Tinybones Joins Up") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.legendary().youControl()).enters()
-        target("any number of target players", TargetPlayer(unlimited = true))
+        target(TargetPlayer(unlimited = true))
         effect = Effects.ForEachTarget(
             Patterns.Library.mill(1, EffectTarget.PlayerRef(Player.ContextPlayer(0))),
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.ContextPlayer(0)))

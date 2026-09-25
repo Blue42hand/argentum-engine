@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Raft Security Officer — Marvel Super Heroes #33
@@ -40,7 +40,7 @@ val RaftSecurityOfficer = card("Raft Security Officer") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val restrained = target("target creature", TargetCreature())
+        val restrained = target(TargetFilter.Creature)
         effect = Effects.Tap(restrained)
         genericCostReduction = DynamicAmounts.conditional(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtMost(3), restrained),

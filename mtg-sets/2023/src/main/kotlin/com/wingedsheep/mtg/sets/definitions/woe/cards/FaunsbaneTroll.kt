@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Faunsbane Troll
@@ -55,11 +55,8 @@ val FaunsbaneTroll = card("Faunsbane Troll") {
             ),
         )
         timing = TimingRule.SorcerySpeed
-        val creature = target("target creature you don't control", Targets.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Fight(EffectTarget.Self, creature),
-            Effects.MarkExileOnDeath(creature),
-        )
+        val creature = target(TargetFilter.CreatureOpponentControls)
+        effect = Effects.Fight(EffectTarget.Self, creature) then Effects.MarkExileOnDeath(creature)
         description = "This creature fights target creature you don't control. If that creature " +
             "would die this turn, exile it instead. Activate only as a sorcery."
     }

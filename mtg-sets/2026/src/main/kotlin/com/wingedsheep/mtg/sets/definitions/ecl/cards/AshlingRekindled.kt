@@ -35,19 +35,15 @@ private val rummageMay = Effects.May(
     descriptionOverride = "You may discard a card. If you do, draw a card."
 )
 
-private val addRimeboundMana = Effects.Composite(
-    listOf(
-        Effects.ChooseColorForTarget(
-            target = EffectTarget.Self,
-            prompt = "Choose a color for Ashling's mana"
-        ),
-        Effects.AddManaOfChoice(
-            colorSet = ManaColorSet.SourceChosenColor,
-            amount = 2,
-            restriction = ManaRestriction.SpellsWithManaValueAtLeast(4)
-        )
+private val addRimeboundMana = Effects.ChooseColorForTarget(
+    target = EffectTarget.Self,
+    prompt = "Choose a color for Ashling's mana"
+) then
+    Effects.AddManaOfChoice(
+        colorSet = ManaColorSet.SourceChosenColor,
+        amount = 2,
+        restriction = ManaRestriction.SpellsWithManaValueAtLeast(4)
     )
-)
 
 private val AshlingRimebound = card("Ashling, Rimebound") {
     manaCost = ""

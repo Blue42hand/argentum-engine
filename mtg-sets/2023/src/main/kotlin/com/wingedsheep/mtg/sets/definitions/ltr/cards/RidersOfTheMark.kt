@@ -45,14 +45,12 @@ val RidersOfTheMark = card("Riders of the Mark") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.SourceAttackedThisTurn
-        effect = Effects.ReturnToHand(EffectTarget.Self).then(
-            Effects.CreateToken(
-                count = DynamicAmounts.sourceToughness(),
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.WHITE),
-                creatureTypes = setOf("Human", "Soldier")
-            )
+        effect = Effects.ReturnToHand(EffectTarget.Self) then Effects.CreateToken(
+            count = DynamicAmounts.sourceToughness(),
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.WHITE),
+            creatureTypes = setOf("Human", "Soldier")
         )
     }
 

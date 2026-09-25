@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ambrosia Whiteheart
@@ -35,13 +34,7 @@ val AmbrosiaWhiteheart = card("Ambrosia Whiteheart") {
     // When Ambrosia enters, you may return another permanent you control to its owner's hand.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "another permanent you control",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Permanent.youControl(), excludeSelf = true),
-            ),
-        )
+        val t = target(TargetFilter(GameObjectFilter.Permanent.youControl(), excludeSelf = true), optional = true)
         effect = Effects.ReturnToHand(t)
     }
 

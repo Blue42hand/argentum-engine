@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
@@ -29,13 +28,11 @@ val RazorRings = card("Razor Rings") {
         "life equal to the excess damage dealt this way."
 
     spell {
-        val creature = target("target attacking or blocking creature", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = Effects.Composite(
-            Effects.DealDamage(4, creature),
+        val creature = target(TargetFilter.AttackingOrBlockingCreature)
+        effect = Effects.DealDamage(4, creature) then
             Effects.GainLife(
                 DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage)
             )
-        )
     }
 
     metadata {

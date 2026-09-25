@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -25,7 +24,7 @@ val Blightcaster = card("Blightcaster") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Enchantment)
-        val victim = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val victim = target(TargetFilter.Creature)
         optional = true
         effect = Effects.ModifyStats(-2, -2, victim)
         description =

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -27,11 +26,9 @@ val RiteOfTheMoth = card("Rite of the Moth") {
     typeLine = "Sorcery"
     oracleText = "Return target creature card from your graveyard to the battlefield with a finality counter on it. (If a creature with a finality counter on it would die, exile it instead.)\nFlashback {3}{W}{W}{B} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+        val t = target(TargetFilter.CreatureInYourGraveyard)
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
             Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = t)
-        )
     }
     keywordAbility(KeywordAbility.flashback("{3}{W}{W}{B}"))
     metadata {

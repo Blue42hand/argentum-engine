@@ -14,6 +14,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Miles Morales // Ultimate Spider-Man — Marvel's Spider-Man #108 (mythic)
@@ -57,7 +59,7 @@ private val MilesMoralesFront = card("Miles Morales") {
     // When Miles Morales enters, put a +1/+1 counter on each of up to two target creatures.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target = Targets.UpToCreatures(2)
+        target = TargetObject(filter = TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
@@ -100,11 +102,9 @@ private val UltimateSpiderMan = card("Ultimate Spider-Man") {
     // colorless until end of turn.
     activatedAbility {
         cost = Costs.Mana("{2}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn) then
             Effects.ChangeColor(EffectTarget.Self, emptySet(), Duration.EndOfTurn)
-        )
         description = "Camouflage — Put a +1/+1 counter on Ultimate Spider-Man. He gains hexproof and becomes colorless until end of turn."
     }
 

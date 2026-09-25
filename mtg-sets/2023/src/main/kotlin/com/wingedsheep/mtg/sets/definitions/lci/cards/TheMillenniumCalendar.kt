@@ -68,10 +68,8 @@ val TheMillenniumCalendar = card("The Millennium Calendar") {
     // When there are 1,000 or more time counters on ~, sacrifice it and each opponent loses 1,000 life.
     stateTriggeredAbility {
         condition = Conditions.SourceCounterCountAtLeast(CounterType.TIME, 1000)
-        effect = Effects.Composite(
-            Effects.SacrificeTarget(EffectTarget.Self),
+        effect = Effects.SacrificeTarget(EffectTarget.Self) then
             Effects.LoseLife(1000, EffectTarget.PlayerRef(Player.EachOpponent))
-        )
         description = "When there are 1,000 or more time counters on The Millennium Calendar, " +
             "sacrifice it and each opponent loses 1,000 life."
     }

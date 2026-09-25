@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -40,7 +39,7 @@ val DourPortMage = card("Dour Port-Mage") {
             Costs.Mana("{1}{U}"),
             Costs.Tap
         )
-        val creature = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ReturnToHand(creature)
     }
 

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -24,11 +23,8 @@ val MawOfTheMire = card("Maw of the Mire") {
     typeLine = "Sorcery"
     oracleText = "Destroy target land. You gain 4 life."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.Land))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(4)
-        )
+        val t = target(TargetFilter.Land)
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(4)
     }
     metadata {
         rarity = Rarity.COMMON

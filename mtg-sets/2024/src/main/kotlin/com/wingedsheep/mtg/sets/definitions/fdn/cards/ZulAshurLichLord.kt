@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -48,13 +47,10 @@ val ZulAshurLichLord = card("Zul Ashur, Lich Lord") {
     activatedAbility {
         cost = Costs.Tap
         target(
-            "target Zombie creature card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE).ownedByYou(),
+                zone = Zone.GRAVEYARD,
+            ),
         )
         effect = Effects.Pipeline {
             val zulAshurTarget = gather(CardSource.ChosenTargets)

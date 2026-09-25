@@ -27,15 +27,13 @@ val PursueThePast = card("Pursue the Past") {
         "Then exile it.)"
 
     spell {
-        effect = Effects.GainLife(2)
-            .then(
-                Effects.May(
-                    effect = Effects.IfYouDo(
-                        action = Patterns.Hand.discardCards(1),
-                        then = Effects.DrawCards(2),
-                    ),
-                    descriptionOverride = "You may discard a card. If you do, draw two cards.",
+        effect = Effects.GainLife(2) then
+            Effects.May(
+                effect = Effects.IfYouDo(
+                    action = Patterns.Hand.discardCards(1),
+                    then = Effects.DrawCards(2),
                 ),
+                descriptionOverride = "You may discard a card. If you do, draw two cards.",
             )
     }
 

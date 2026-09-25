@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 
@@ -33,11 +32,9 @@ val RosaResoluteWhiteMage = card("Rosa, Resolute White Mage") {
     keywords(Keyword.REACH)
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+        val t = target(TargetFilter.Creature.youControl())
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
             Effects.GrantKeyword(Keyword.LIFELINK, t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

@@ -2,13 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Hexhaven Dueling Arena — Reality Fracture #181
@@ -37,10 +35,7 @@ val HexhavenDuelingArena = card("Hexhaven Dueling Arena") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val creature = target(
-            "target creature that attacked this turn",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.attackedThisTurn()))
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.attackedThisTurn()))
         effect = Effects.BecomePrepared(creature)
         timing = TimingRule.SorcerySpeed
         description = "{2}, {T}: Target creature that attacked this turn becomes prepared. Activate only as a sorcery."
@@ -48,7 +43,7 @@ val HexhavenDuelingArena = card("Hexhaven Dueling Arena") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.BecomePrepared(creature)
         description = "{4}, {T}: Target creature becomes prepared."
     }

@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fall of Gil-galad
@@ -35,21 +34,21 @@ val FallOfGilGalad = card("Fall of Gil-galad") {
     }
 
     sagaChapter(2) {
-        val creature = target("creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
     }
 
     sagaChapter(3) {
-        val mine = target("creature you control", Targets.CreatureYouControl)
-        val other = target("up to one other target creature", TargetCreature(optional = true))
+        val mine = target(TargetFilter.CreatureYouControl)
+        val other = target(TargetFilter.Creature, optional = true)
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.dies(),
                 effect = Effects.DrawCards(2)
             ),
             target = mine
-        )
-            .then(Effects.Fight(mine, other))
+        ) then
+            Effects.Fight(mine, other)
     }
 
     metadata {

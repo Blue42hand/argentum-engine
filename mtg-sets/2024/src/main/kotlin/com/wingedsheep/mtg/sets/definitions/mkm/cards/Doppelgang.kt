@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Doppelgang — Murders at Karlov Manor #198
@@ -45,11 +45,7 @@ val Doppelgang = card("Doppelgang") {
     oracleText = "For each of X target permanents, create X tokens that are copies of that permanent."
 
     spell {
-        target = TargetPermanent(
-            optional = true,
-            filter = TargetFilter.Permanent,
-            dynamicMaxCount = DynamicAmounts.xValue()
-        )
+        target = TargetObject(filter = TargetFilter.Permanent, optional = true, dynamicMaxCount = DynamicAmounts.xValue())
         effect = Effects.ForEachTarget(
             Effects.CreateTokenCopyOfTarget(
                 target = EffectTarget.ContextTarget(0),

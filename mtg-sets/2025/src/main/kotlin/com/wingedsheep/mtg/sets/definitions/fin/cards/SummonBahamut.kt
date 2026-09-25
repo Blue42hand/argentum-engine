@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Summon: Bahamut
@@ -39,11 +38,11 @@ val SummonBahamut = card("Summon: Bahamut") {
 
     // I, II — Destroy up to one target nonland permanent. ("up to one" → optional target.)
     sagaChapter(1) {
-        val t = target("target", TargetObject(optional = true, filter = TargetFilter.NonlandPermanent))
+        val t = target(TargetFilter.NonlandPermanent, optional = true)
         effect = Effects.Destroy(t)
     }
     sagaChapter(2) {
-        val t = target("target", TargetObject(optional = true, filter = TargetFilter.NonlandPermanent))
+        val t = target(TargetFilter.NonlandPermanent, optional = true)
         effect = Effects.Destroy(t)
     }
 

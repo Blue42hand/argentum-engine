@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Obsessive Pursuit
@@ -35,10 +35,7 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
 
     // "When this enchantment enters and at the beginning of your upkeep" — one ability that triggers
     // off two events; modeled as two triggered abilities sharing the same effect.
-    val loseLifeAndClue = Effects.Composite(
-        Effects.LoseLife(1, EffectTarget.Controller),
-        Effects.CreateClue(),
-    )
+    val loseLifeAndClue = Effects.LoseLife(1, EffectTarget.Controller) then Effects.CreateClue()
 
     triggeredAbility {
         trigger = Triggers.self.enters()
@@ -52,19 +49,17 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val attacker = target("attacking creature", Targets.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.AddDynamicCounters(
-                CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmounts.permanentsSacrificedThisTurn(),
-                attacker,
-            ),
+        val attacker = target(TargetFilter.AttackingCreature)
+        effect = Effects.AddDynamicCounters(
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.permanentsSacrificedThisTurn(),
+            attacker,
+        ) then
             // X is the per-controller "permanents sacrificed this turn" count; lifelink only when X >= 3.
             Effects.If(
                 condition = Conditions.YouSacrificedPermanentsThisTurn(atLeast = 3),
                 then = Effects.GrantKeyword(Keyword.LIFELINK, attacker),
-            ),
-        )
+            )
     }
 
     metadata {

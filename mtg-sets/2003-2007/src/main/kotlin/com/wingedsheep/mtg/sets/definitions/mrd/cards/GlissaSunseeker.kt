@@ -5,11 +5,11 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Glissa Sunseeker — Mirrodin #120
@@ -31,7 +31,7 @@ val GlissaSunseeker = card("Glissa Sunseeker") {
     keywords(Keyword.FIRST_STRIKE)
 
     activatedAbility {
-        val artifact = target("target artifact", Targets.Artifact)
+        val artifact = target(TargetFilter.Artifact)
         cost = Costs.Tap
         effect = Effects.If(
             condition = Conditions.CompareAmounts(

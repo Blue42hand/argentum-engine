@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedActivatedAbility
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rakish Crew — Outlaws of Thunder Junction #99
@@ -46,7 +46,7 @@ val RakishCrew = card("Rakish Crew") {
             activatedAbilities = listOf(
                 grantedActivatedAbility {
                     cost = AbilityCost.Tap
-                    val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                    val creatureYouControl = target(TargetFilter.CreatureYouControl)
                     effect = Effects.ModifyStats(1, 0, creatureYouControl)
                     timing = TimingRule.SorcerySpeed
                 }
@@ -59,12 +59,8 @@ val RakishCrew = card("Rakish Crew") {
 
     triggeredAbility {
         trigger = Triggers.a(Filters.OutlawCreature.youControl()).dies()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(1, EffectTarget.Controller),
-            )
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1, EffectTarget.Controller)
         description = "Whenever an outlaw you control dies, each opponent loses 1 life and you gain 1 life."
     }
 

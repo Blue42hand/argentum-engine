@@ -47,14 +47,10 @@ val MoltenSentry = card("Molten Sentry") {
     replacementEffect(
         OnEnterRun(
             Effects.FlipCoin(
-                wonEffect = Effects.Composite(
-                    Effects.SetBasePowerAndToughness(5, 2, EffectTarget.Self, Duration.Permanent),
+                wonEffect = Effects.SetBasePowerAndToughness(5, 2, EffectTarget.Self, Duration.Permanent) then
                     Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.Permanent),
-                ),
-                lostEffect = Effects.Composite(
-                    Effects.SetBasePowerAndToughness(2, 5, EffectTarget.Self, Duration.Permanent),
+                lostEffect = Effects.SetBasePowerAndToughness(2, 5, EffectTarget.Self, Duration.Permanent) then
                     Effects.GrantKeyword(Keyword.DEFENDER, EffectTarget.Self, Duration.Permanent),
-                ),
             )
         )
     )

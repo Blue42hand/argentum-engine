@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Metalhead
@@ -34,10 +33,7 @@ val Metalhead = card("Metalhead") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val perm = target(
-            "other artifact or creature",
-            TargetPermanent(optional = true, filter = TargetFilter.CreatureOrArtifact.other())
-        )
+        val perm = target(TargetFilter.CreatureOrArtifact.other(), optional = true)
         effect = Effects.ReturnToHand(perm)
     }
 
@@ -46,9 +42,9 @@ val Metalhead = card("Metalhead") {
             Costs.Mana("{R}"),
             Costs.SacrificeAnother(GameObjectFilter.Artifact)
         )
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)
     }
 
     metadata {

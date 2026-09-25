@@ -34,7 +34,7 @@ val AkoumBoulderfoot = card("Akoum Boulderfoot") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
         description = "When this creature enters, it deals 1 damage to any target."
     }

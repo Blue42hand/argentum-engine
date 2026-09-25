@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,7 +25,7 @@ val MakeshiftMunitions = card("Makeshift Munitions") {
     oracleText = "{1}, Sacrifice an artifact or creature: This enchantment deals 1 damage to any target."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Sacrifice(GameObjectFilter.CreatureOrArtifact))
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
     }
     metadata {

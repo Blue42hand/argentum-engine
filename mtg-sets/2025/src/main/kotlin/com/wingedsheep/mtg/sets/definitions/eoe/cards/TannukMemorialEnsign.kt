@@ -28,13 +28,11 @@ val TannukMemorialEnsign = card("Tannuk, Memorial Ensign") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.DrawCards(1)
-                )
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.DrawCards(1)
             )
         description = "Landfall — Whenever a land you control enters, Tannuk deals 1 damage to each opponent. If this is the second time this ability has resolved this turn, draw a card."
     }

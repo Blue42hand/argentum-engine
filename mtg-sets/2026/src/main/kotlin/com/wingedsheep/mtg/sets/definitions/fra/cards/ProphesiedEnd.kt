@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val ProphesiedEnd = card("Prophesied End") {
     manaCost = "{1}{W}"
@@ -15,16 +15,13 @@ val ProphesiedEnd = card("Prophesied End") {
     oracleText = "Destroy target creature. If it wasn't attacking, its controller draws a card."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         // The attacking check has to read the creature while it is still on the battlefield, so the
         // branch is picked first and each branch destroys before anything else. "Its controller"
         // then resolves through last-known information.
         effect = Effects.If(
             condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking(), creature)),
-            then = Effects.Composite(
-                Effects.Destroy(creature),
-                Effects.DrawCards(1, EffectTarget.TargetController),
-            ),
+            then = Effects.Destroy(creature) then Effects.DrawCards(1, EffectTarget.TargetController),
             otherwise = Effects.Destroy(creature),
         )
     }

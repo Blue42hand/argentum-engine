@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.MultiplyTokenCreation
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Elspeth, Storm Slayer — Tarkir: Dragonstorm #11
@@ -57,20 +56,15 @@ val ElspethStormSlayer = card("Elspeth, Storm Slayer") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-        ).then(
-            Effects.ForEachInGroup(
-                filter = GroupFilter.AllCreaturesYouControl,
-                effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
-            )
+        ) then Effects.ForEachInGroup(
+            filter = GroupFilter.AllCreaturesYouControl,
+            effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
         )
     }
 
     // −3: Destroy target creature an opponent controls with mana value 3 or greater.
     loyaltyAbility(-3) {
-        val victim = target(
-            "creature an opponent controls with mana value 3 or greater",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.opponentControls().manaValueAtLeast(3)))
-        )
+        val victim = target(TargetFilter(GameObjectFilter.Creature.opponentControls().manaValueAtLeast(3)))
         effect = Effects.Destroy(victim)
     }
 

@@ -27,7 +27,7 @@ val KindlesparkDuo = card("Kindlespark Duo") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(1, opponent)
     }
 

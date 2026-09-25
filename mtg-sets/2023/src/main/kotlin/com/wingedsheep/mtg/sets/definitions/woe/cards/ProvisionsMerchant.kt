@@ -57,13 +57,11 @@ val ProvisionsMerchant = card("Provisions Merchant") {
                 GameObjectFilter.Artifact.withSubtype("Food"),
                 count = 1,
                 target = EffectTarget.Controller
-            ).then(
-                Patterns.Group.pumpAndGrantToAll(
-                    power = 1,
-                    toughness = 1,
-                    keyword = Keyword.TRAMPLE,
-                    filter = Filters.Group.attackingCreatures
-                )
+            ) then Patterns.Group.pumpAndGrantToAll(
+                power = 1,
+                toughness = 1,
+                keyword = Keyword.TRAMPLE,
+                filter = Filters.Group.attackingCreatures
             ),
             // The Merchant attacks every turn; without a Food the question has no answer, so don't
             // ask it. Purely an engine-decidable precondition — it never pre-empts a real choice.

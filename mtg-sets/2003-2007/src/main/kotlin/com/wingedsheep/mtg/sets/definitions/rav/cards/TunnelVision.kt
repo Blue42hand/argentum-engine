@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Tunnel Vision — Ravnica: City of Guilds #72 (canonical printing)
@@ -44,7 +45,7 @@ val TunnelVision = card("Tunnel Vision") {
         "their library. Otherwise, the player shuffles."
 
     spell {
-        val victim = target("target player", TargetPlayer())
+        val victim = target(Targets.Player)
         effect = Effects.Pipeline {
             // 1. Name a card. Any name is legal, basic lands included.
             val chosenName = chooseCardName(prompt = "Choose a card name")

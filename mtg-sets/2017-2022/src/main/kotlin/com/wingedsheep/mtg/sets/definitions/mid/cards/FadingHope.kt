@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.mid.cards
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fading Hope
@@ -21,13 +21,11 @@ val FadingHope = card("Fading Hope") {
     oracleText = "Return target creature to its owner's hand. If its mana value was 3 or less, scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.ReturnToHand(creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
-                    then = Patterns.Library.scry(1)
-                )
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.ReturnToHand(creature) then
+            Effects.If(
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
+                then = Patterns.Library.scry(1)
             )
     }
 

@@ -14,10 +14,10 @@ val ExtendedAbsence = card("Extended Absence") {
     oracleText = "Exile target creature or planeswalker. Extended Absence deals 1 damage to each opponent and you gain 1 life."
 
     spell {
-        val permanent = target("target", Targets.CreatureOrPlaneswalker)
-        effect = Effects.Exile(permanent)
-            .then(Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)))
-            .then(Effects.GainLife(1))
+        val permanent = target(Targets.CreatureOrPlaneswalker)
+        effect = Effects.Exile(permanent) then
+            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1)
     }
 
     metadata {

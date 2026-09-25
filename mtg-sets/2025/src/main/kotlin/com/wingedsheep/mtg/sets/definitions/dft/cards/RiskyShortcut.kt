@@ -23,10 +23,7 @@ val RiskyShortcut = card("Risky Shortcut") {
     typeLine = "Sorcery"
     oracleText = "Draw two cards. Each player loses 2 life."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.Each))
-        )
+        effect = Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.PlayerRef(Player.Each))
     }
     metadata {
         rarity = Rarity.COMMON

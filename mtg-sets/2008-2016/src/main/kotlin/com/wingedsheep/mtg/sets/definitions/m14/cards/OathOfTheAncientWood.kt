@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Oath of the Ancient Wood
@@ -23,7 +22,7 @@ val OathOfTheAncientWood = card("Oath of the Ancient Wood") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
-        val recipient = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val recipient = target(TargetFilter.Creature)
         optional = true
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, recipient)
         description = "Whenever this enchantment or another enchantment you control enters, " +

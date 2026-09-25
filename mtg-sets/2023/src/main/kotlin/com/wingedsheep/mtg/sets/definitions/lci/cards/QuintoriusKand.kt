@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Quintorius Kand
@@ -45,8 +44,8 @@ val QuintoriusKand = card("Quintorius Kand") {
     // Whenever you cast a spell from exile, deal 2 damage to each opponent and gain 2 life.
     triggeredAbility {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
-        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
-            .then(Effects.GainLife(2))
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) then
+            Effects.GainLife(2)
     }
 
     // +1: Create a 3/2 red and white Spirit creature token.
@@ -68,13 +67,7 @@ val QuintoriusKand = card("Quintorius Kand") {
     // −6: Exile any number of target cards from your graveyard. Add {R} for each card exiled this
     // way. You may play those cards this turn.
     loyaltyAbility(-6) {
-        target(
-            "any number of target cards from your graveyard",
-            TargetObject(
-                unlimited = true,
-                filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
-            )
-        )
+        targets(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD), unlimited = true)
         effect = Effects.Pipeline {
             val kandGathered = gather(CardSource.ChosenTargets)
             val kandExiled = moveTracked(kandGathered, CardDestination.ToZone(Zone.EXILE))

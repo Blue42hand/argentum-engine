@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lifespark Spellbomb — Mirrodin #197
@@ -34,7 +34,7 @@ val LifesparkSpellbomb = card("Lifespark Spellbomb") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.SacrificeSelf)
-        val land = target("target land", Targets.Land)
+        val land = target(TargetFilter.Land)
         effect = Effects.AnimateLand(land, power = 3, toughness = 3)
         description = "{G}, Sacrifice this artifact: Until end of turn, target land becomes a 3/3 creature that's still a land."
     }

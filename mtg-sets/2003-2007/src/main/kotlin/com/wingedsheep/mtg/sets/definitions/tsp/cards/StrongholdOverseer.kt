@@ -38,16 +38,14 @@ val StrongholdOverseer = card("Stronghold Overseer") {
 
     activatedAbility {
         cost = Costs.Mana("{B}{B}")
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.SHADOW)),
-                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.SHADOW)),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.SHADOW)),
                 Effects.ModifyStats(-1, 0, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

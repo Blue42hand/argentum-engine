@@ -21,7 +21,7 @@ val HexhavenBattalion = card("Hexhaven Battalion") {
             name = "Cadet",
             creatureTypes = setOf("Wizard", "Soldier"),
             imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
-        ).then(Patterns.Mechanic.empowerJace(2))
+        ) then Patterns.Mechanic.empowerJace(2)
     }
 
     keywordAbility(KeywordAbility.basicLandcycling(ManaCost.parse("{2}")))

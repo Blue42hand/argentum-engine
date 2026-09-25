@@ -56,13 +56,11 @@ val ScytheOfTheWretched = card("Scythe of the Wretched") {
     // battlefield under your control. Attach this Equipment to that creature."
     triggeredAbility {
         trigger = Triggers.attached.damagedCreatureDies()
-        effect = Effects.Composite(
-            Effects.PutOntoBattlefieldFromGraveyard(
-                target = EffectTarget.TriggeringEntity,
-                underYourControl = true
-            ),
+        effect = Effects.PutOntoBattlefieldFromGraveyard(
+            target = EffectTarget.TriggeringEntity,
+            underYourControl = true
+        ) then
             Effects.AttachEquipment(EffectTarget.TriggeringEntity)
-        )
         description = "Whenever a creature dealt damage by equipped creature this turn dies, return " +
             "that card to the battlefield under your control. Attach this Equipment to that creature."
     }

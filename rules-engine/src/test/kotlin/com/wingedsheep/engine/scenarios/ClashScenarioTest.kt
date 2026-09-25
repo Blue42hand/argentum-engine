@@ -120,13 +120,11 @@ class ClashScenarioTest : FunSpec({
         power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.you.clashes()
-            effect = Effects.Composite(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
                 Effects.If(
                     Conditions.YouWonTheClash,
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
-            )
         }
     }
 

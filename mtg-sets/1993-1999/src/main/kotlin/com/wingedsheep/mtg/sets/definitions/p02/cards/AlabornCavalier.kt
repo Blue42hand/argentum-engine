@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.p02.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Alaborn Cavalier
@@ -25,7 +25,7 @@ val AlabornCavalier = card("Alaborn Cavalier") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target("target", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.May(Effects.Tap(creature))
     }
 

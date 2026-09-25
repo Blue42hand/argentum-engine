@@ -39,13 +39,12 @@ val HavengulRunebinder = card("Havengul Runebinder") {
                 Costs.ExileFromGraveyard(count = 1, filter = GameObjectFilter.Creature),
             ),
         )
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 2,
-                colors = setOf(Color.BLACK),
-                creatureTypes = setOf("Zombie"),
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 2,
+            colors = setOf(Color.BLACK),
+            creatureTypes = setOf("Zombie"),
+        ) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(
                     GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE).youControl(),
@@ -55,8 +54,7 @@ val HavengulRunebinder = card("Havengul Runebinder") {
                     1,
                     EffectTarget.IterationEntity,
                 ),
-            ),
-        )
+            )
     }
 
     metadata {

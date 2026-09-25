@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Foray of Orcs
@@ -32,10 +32,7 @@ val ForayOfOrcs = card("Foray of Orcs") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Amass(2, "Orc"),
             optional = false) {
-            val creatureOpponentControls = target(
-                "target creature opponent controls",
-                Targets.CreatureOpponentControls
-            )
+            val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
             effect = Effects.DealDamage(
                 amount = DynamicAmounts.powerOf(EffectTarget.AmassedArmy),
                 target = creatureOpponentControls

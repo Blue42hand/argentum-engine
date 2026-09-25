@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.one.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Veil of Assimilation
@@ -29,11 +29,8 @@ val VeilOfAssimilation = card("Veil of Assimilation") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
-        val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, creature),
-            Effects.GrantKeyword(Keyword.VIGILANCE, creature),
-        )
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(1, 1, creature) then Effects.GrantKeyword(Keyword.VIGILANCE, creature)
     }
 
     metadata {

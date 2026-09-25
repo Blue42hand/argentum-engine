@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val RefuteDestiny = card("Refute Destiny") {
     manaCost = "{1}{W}"
@@ -15,10 +14,8 @@ val RefuteDestiny = card("Refute Destiny") {
     oracleText = "Exile target creature or planeswalker that's green or blue. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     spell {
-        val permanent = target("green or blue creature or planeswalker",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker)
-                .withAnyColor(Color.GREEN, Color.BLUE)))
-        effect = Effects.Composite(Effects.Exile(permanent), Effects.Surveil(1))
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker) .withAnyColor(Color.GREEN, Color.BLUE))
+        effect = Effects.Exile(permanent) then Effects.Surveil(1)
     }
 
     metadata {

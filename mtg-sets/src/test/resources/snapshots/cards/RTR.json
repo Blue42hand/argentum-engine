@@ -9,7 +9,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target nonland permanent with mana value 3 or less"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -20,7 +20,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent mv<=3"
                 },
-                "id": "target nonland permanent with mana value 3 or less"
+                "id": "t0"
             }
         ],
         "cantBeCountered": true
@@ -52,7 +52,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature with flying"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -72,7 +72,7 @@
                 "filter": {
                     "baseFilter": "creature kw:flying"
                 },
-                "id": "target creature with flying"
+                "id": "t0"
             }
         ]
     },
@@ -126,7 +126,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -135,7 +135,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -249,7 +249,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -258,7 +258,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -335,7 +335,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target attacking or blocking creature"
+                            "name": "t0"
                         },
                         "destination": "Library",
                         "placement": "Top"
@@ -359,7 +359,7 @@
                                     ]
                                 }
                             },
-                            "id": "target attacking or blocking creature"
+                            "id": "t0"
                         }
                     ],
                     "description": "Put target attacking or blocking creature on top of its owner's library"
@@ -450,7 +450,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target artifact"
+                            "name": "t0"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -461,7 +461,7 @@
                     "filter": {
                         "baseFilter": "artifact"
                     },
-                    "id": "target artifact"
+                    "id": "t0"
                 }
             }
         ]
@@ -778,7 +778,7 @@
                                 },
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target player"
+                                    "name": "t0"
                                 },
                                 "isMill": true
                             },
@@ -792,7 +792,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target player"
+                                    "name": "t0"
                                 }
                             }
                         }
@@ -801,7 +801,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target player"
+                        "id": "t0"
                     }
                 ]
             },
@@ -825,7 +825,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target card in your graveyard"
+                        "name": "t1"
                     },
                     "destination": "Hand"
                 },
@@ -836,7 +836,7 @@
                             "baseFilter": "own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target card in your graveyard"
+                        "id": "t1"
                     }
                 ]
             }
@@ -1125,7 +1125,7 @@
                                     "zone": "Hand",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "target player"
+                                        "name": "t0"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -1152,7 +1152,7 @@
                                     "zone": "Graveyard",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "target player"
+                                        "name": "t0"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -1162,7 +1162,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetPlayer",
-                    "id": "target player"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature dies, you may pay {B}. If you do, target player discards a card."
             }
@@ -1193,7 +1193,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -1212,7 +1212,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -1239,7 +1239,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature or planeswalker"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -1247,7 +1247,7 @@
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target creature or planeswalker"
+                "id": "t0"
             }
         ]
     },
@@ -1315,13 +1315,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "any target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ]
     },
@@ -1363,7 +1363,7 @@
                     "baseFilter": {},
                     "zone": "Stack"
                 },
-                "id": "target spell"
+                "id": "t0"
             }
         ]
     },
@@ -1850,7 +1850,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target enchantment"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1861,7 +1861,7 @@
                         "filter": {
                             "baseFilter": "enchantment"
                         },
-                        "id": "target enchantment"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2261,12 +2261,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "any target"
+                    "id": "t0"
                 }
             }
         ]
@@ -2508,7 +2508,7 @@
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2517,7 +2517,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2622,14 +2622,14 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 }
@@ -2641,7 +2641,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2683,7 +2683,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -2691,7 +2691,7 @@
                                 "keyword": "TRAMPLE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             }
                         ]
@@ -2702,7 +2702,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target creature gets +2/+2 and gains trample until end of turn"
@@ -2712,7 +2712,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         },
                         "destination": "Exile"
                     },
@@ -2722,7 +2722,7 @@
                             "filter": {
                                 "baseFilter": "creature pow>=5"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Exile target creature with power 5 or greater"
@@ -3123,7 +3123,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target land"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -3147,7 +3147,7 @@
                 "filter": {
                     "baseFilter": "land"
                 },
-                "id": "target land"
+                "id": "t0"
             }
         ]
     },
@@ -3184,7 +3184,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -3192,7 +3192,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -3200,7 +3200,7 @@
                     "keyword": "LIFELINK",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 }
             ]
@@ -3211,7 +3211,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -3428,7 +3428,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target card in your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -3446,7 +3446,7 @@
                     "baseFilter": "own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target card in your graveyard"
+                "id": "t0"
             }
         ]
     },
@@ -3557,7 +3557,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target creature"
+                            "name": "t0"
                         },
                         "destination": "Hand"
                     }
@@ -3567,7 +3567,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t0"
                 }
             }
         ]

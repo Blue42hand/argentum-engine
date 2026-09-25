@@ -12,8 +12,8 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Practiced Offense — Secrets of Strixhaven #25
@@ -44,18 +44,17 @@ val PracticedOffense = card("Practiced Offense") {
         "Then exile it.)"
 
     spell {
-        val player = target("player", TargetPlayer())
-        val creature = target("creature", TargetCreature())
-        effect = Effects.Composite(
-            // Put a +1/+1 counter on each creature the target player controls.
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-                effect = Effects.AddCounters(
-                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    count = 1,
-                    target = EffectTarget.IterationEntity,
-                ),
+        val player = target(Targets.Player)
+        val creature = target(TargetFilter.Creature)
+        // Put a +1/+1 counter on each creature the target player controls.
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
+            effect = Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                count = 1,
+                target = EffectTarget.IterationEntity,
             ),
+        ) then
             // Target creature gains your choice of double strike or lifelink until end of turn.
             ModalEffect.chooseOne(
                 Mode.noTarget(
@@ -67,8 +66,7 @@ val PracticedOffense = card("Practiced Offense") {
                     "Lifelink",
                 ),
                 countsAsModalSpell = false,
-            ),
-        )
+            )
     }
 
     keywordAbility(KeywordAbility.flashback("{1}{W}"))

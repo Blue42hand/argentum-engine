@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -32,15 +30,7 @@ val ArashinSunshield = card("Arashin Sunshield") {
     // ETB: exile up to two target cards, both from the same graveyard (sameOwner).
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to two target cards from a single graveyard",
-            TargetObject(
-                count = 2,
-                optional = true,
-                filter = TargetFilter.CardInGraveyard,
-                sameOwner = true,
-            )
-        )
+        targets(TargetFilter.CardInGraveyard, count = 2, optional = true, sameOwner = true)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
         )
@@ -49,7 +39,7 @@ val ArashinSunshield = card("Arashin Sunshield") {
     // {W}, {T}: Tap target creature.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
-        val t = target("target creature", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.Tap(target = t)
     }
 

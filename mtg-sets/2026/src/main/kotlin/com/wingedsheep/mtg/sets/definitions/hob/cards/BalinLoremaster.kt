@@ -61,20 +61,18 @@ val BalinLoremaster = card("Balin, Loremaster") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.DWARF).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.May(
-                effect = Patterns.Hand.discardHand(),
-                descriptionOverride = "You may discard your hand.",
-            ),
-            Effects.DrawCards(Patterns.Hand.discardedHand.count),
+        effect = Effects.May(
+            effect = Patterns.Hand.discardHand(),
+            descriptionOverride = "You may discard your hand.",
+        ) then
+            Effects.DrawCards(Patterns.Hand.discardedHand.count) then
             Effects.If(
                 condition = Conditions.YouHaveEnduringStory,
                 then = Effects.DealDamage(
                     amount = Patterns.Hand.discardedHand.count,
                     target = EffectTarget.PlayerRef(Player.EachOpponent),
                 ),
-            ),
-        )
+            )
         description = "Whenever Balin or another Dwarf you control enters, you may discard your " +
             "hand. Draw X cards, where X is the number of cards discarded this way. If you have " +
             "an enduring story, Balin deals X damage to each opponent."

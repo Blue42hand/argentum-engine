@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Izzet Chronarch
@@ -26,7 +25,7 @@ val IzzetChronarch = card("Izzet Chronarch") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         // "from your graveyard" — restrict to instant/sorcery cards you own (oracle wording).
-        val t = target("target", TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()))
+        val t = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
         effect = Effects.Move(
             target = t,
             destination = Zone.HAND

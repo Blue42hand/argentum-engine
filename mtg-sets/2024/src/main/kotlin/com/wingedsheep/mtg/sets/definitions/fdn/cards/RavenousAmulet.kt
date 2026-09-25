@@ -40,10 +40,7 @@ val RavenousAmulet = card("Ravenous Amulet") {
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Creature)
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.AddCounters(CounterType.SOUL, 1, EffectTarget.Self)
-        )
+        effect = Effects.DrawCards(1) then Effects.AddCounters(CounterType.SOUL, 1, EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
     }
 

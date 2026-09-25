@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Niall Silvain
@@ -23,7 +23,7 @@ val NiallSilvain = card("Niall Silvain") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}{G}{G}{G}"), Costs.Tap)
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Regenerate(creature)
     }
 

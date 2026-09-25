@@ -42,12 +42,8 @@ val SelflessSafewright = card("Selfless Safewright") {
             run(Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Permanent.youControl(), excludeSelf = true)
                     .withChosenSubtype(chosenCreatureType),
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                        Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
-                    )
-                )
+                effect = Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn) then
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
             ))
         }
     }

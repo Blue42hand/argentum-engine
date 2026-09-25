@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Aquatic Alchemist // Bubble Up
@@ -71,12 +70,9 @@ val AquaticAlchemist = card("Aquatic Alchemist") {
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
             val card = target(
-                "target instant or sorcery card from your graveyard",
-                TargetObject(
-                    filter = TargetFilter(
-                        baseFilter = GameObjectFilter.InstantOrSorcery.ownedByYou(),
-                        zone = Zone.GRAVEYARD,
-                    ),
+                TargetFilter(
+                    baseFilter = GameObjectFilter.InstantOrSorcery.ownedByYou(),
+                    zone = Zone.GRAVEYARD,
                 ),
             )
             effect = Effects.Move(

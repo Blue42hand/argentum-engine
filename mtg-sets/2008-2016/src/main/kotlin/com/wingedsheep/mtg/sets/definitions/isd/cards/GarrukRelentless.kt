@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
@@ -17,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Garruk Relentless // Garruk, the Veil-Cursed — Innistrad #181
@@ -85,17 +85,15 @@ private val GarrukRelentlessFront = card("Garruk Relentless") {
     }
 
     loyaltyAbility(0) {
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, creature),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.DealDamage(3, creature) then
             // "That creature deals damage equal to its power to him" — attributed to the creature,
             // so its power is read at resolution and its damage keywords apply.
             Effects.DealDamage(
                 DynamicAmounts.powerOf(creature),
                 EffectTarget.Self,
                 damageSource = creature,
-            ),
-        )
+            )
         description = "Garruk deals 3 damage to target creature. That creature deals damage equal " +
             "to its power to him."
     }
@@ -168,14 +166,12 @@ private val GarrukTheVeilCursed = card("Garruk, the Veil-Cursed") {
     loyaltyAbility(-3) {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(
-                    DynamicAmounts.creatureCardsInYourGraveyard(),
-                    DynamicAmounts.creatureCardsInYourGraveyard(),
-                    EffectTarget.IterationEntity,
-                ),
+            Effects.ModifyStats(
+                DynamicAmounts.creatureCardsInYourGraveyard(),
+                DynamicAmounts.creatureCardsInYourGraveyard(),
+                EffectTarget.IterationEntity,
+            ) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
-            ),
         )
         description = "Creatures you control gain trample and get +X/+X until end of turn, where X " +
             "is the number of creature cards in your graveyard."

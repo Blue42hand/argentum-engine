@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Gastal Blockbuster — Aetherdrift #128
@@ -46,10 +45,7 @@ val GastalBlockbuster = card("Gastal Blockbuster") {
             descriptionOverride = "You may sacrifice a creature or Vehicle. When you do, destroy target " +
                 "artifact an opponent controls."
         ) {
-            val artifact = target(
-                "target artifact",
-                TargetPermanent(filter = TargetFilter.Artifact.opponentControls())
-            )
+            val artifact = target(TargetFilter.Artifact.opponentControls())
             effect = Effects.Destroy(artifact)
         }
         description = "When this creature enters, you may sacrifice a creature or Vehicle. When you do, " +

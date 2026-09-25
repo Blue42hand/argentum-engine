@@ -42,7 +42,7 @@ val JolenePlunderingPugilist = card("Jolene, Plundering Pugilist") {
             Costs.Mana("{1}{R}"),
             Costs.Sacrifice(GameObjectFilter.Artifact.withSubtype("Treasure"))
         )
-        val damageTarget = target("any target", Targets.Any)
+        val damageTarget = target(Targets.Any)
         effect = Effects.DealDamage(1, damageTarget)
         description = "{1}{R}, Sacrifice a Treasure: Jolene deals 1 damage to any target."
     }

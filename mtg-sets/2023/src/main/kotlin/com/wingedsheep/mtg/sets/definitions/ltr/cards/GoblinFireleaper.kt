@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Goblin Fireleaper
@@ -34,7 +34,7 @@ val GoblinFireleaper = card("Goblin Fireleaper") {
     // When this creature dies, it deals damage equal to its power to target creature an opponent controls.
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+        val creature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), creature)
     }
 

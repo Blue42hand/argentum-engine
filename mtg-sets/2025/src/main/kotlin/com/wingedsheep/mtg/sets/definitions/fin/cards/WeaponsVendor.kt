@@ -4,13 +4,11 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -49,14 +47,9 @@ val WeaponsVendor = card("Weapons Vendor") {
             GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
         )
         val equipment = target(
-            "target Equipment you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-                )
-            )
+            TargetFilter(baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
         )
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.AttachTargetEquipmentToCreature(equipment, creature)

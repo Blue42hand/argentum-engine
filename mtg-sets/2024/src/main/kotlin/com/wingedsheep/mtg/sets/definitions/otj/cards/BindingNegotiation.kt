@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Binding Negotiation
@@ -38,7 +38,7 @@ val BindingNegotiation = card("Binding Negotiation") {
         "If you do, they discard it. Otherwise, you may put a face-up exiled card they own into their graveyard."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // Reveal the opponent's hand.
             run(Effects.RevealHand(opponent))

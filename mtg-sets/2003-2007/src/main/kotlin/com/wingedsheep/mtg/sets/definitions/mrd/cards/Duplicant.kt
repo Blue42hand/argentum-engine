@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.HasCreatureTypesOf
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -58,10 +57,7 @@ val Duplicant = card("Duplicant") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val exiled = target(
-            "target nontoken creature",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken()))
-        )
+        val exiled = target(TargetFilter(GameObjectFilter.Creature.nontoken()))
         effect = Effects.ExileLinkedToSource(exiled)
         description = "Imprint — When this creature enters, you may exile target nontoken creature."
     }

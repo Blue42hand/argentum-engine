@@ -32,15 +32,13 @@ val LumraBellowOfTheWoods = card("Lumra, Bellow of the Woods") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Patterns.Library.mill(4)
-            .then(
-                Effects.Pipeline {
-                    val graveyardLands = gather(
-                        CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land)
-                    )
-                    move(graveyardLands, CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
-                }
-            )
+        effect = Patterns.Library.mill(4) then
+            Effects.Pipeline {
+                val graveyardLands = gather(
+                    CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land)
+                )
+                move(graveyardLands, CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
+            }
     }
 
     metadata {

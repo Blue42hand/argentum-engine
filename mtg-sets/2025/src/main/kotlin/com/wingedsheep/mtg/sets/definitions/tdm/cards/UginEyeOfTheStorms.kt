@@ -49,7 +49,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
 
     // When you cast this spell, exile up to one target colored permanent.
     triggeredAbility {
-        val target = target("target", exileUpToOneColoredPermanent())
+        val target = target(exileUpToOneColoredPermanent())
         trigger = Triggers.self.isCast()
         effect = Effects.Exile(target)
         description = "When you cast this spell, exile up to one target permanent that's one or more colors."
@@ -57,7 +57,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
 
     // Whenever you cast a colorless spell, exile up to one target colored permanent.
     triggeredAbility {
-        val target = target("target", exileUpToOneColoredPermanent())
+        val target = target(exileUpToOneColoredPermanent())
         trigger = Triggers.you.casts(colorlessSpell)
         effect = Effects.Exile(target)
         description = "Whenever you cast a colorless spell, exile up to one target permanent that's one or more colors."
@@ -66,7 +66,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
     // +2: You gain 3 life and draw a card.
     loyaltyAbility(+2) {
         description = "You gain 3 life and draw a card."
-        effect = Effects.Composite(listOf(Effects.GainLife(3), Effects.DrawCards(1)))
+        effect = Effects.GainLife(3) then Effects.DrawCards(1)
     }
 
     // 0: Add {C}{C}{C}.

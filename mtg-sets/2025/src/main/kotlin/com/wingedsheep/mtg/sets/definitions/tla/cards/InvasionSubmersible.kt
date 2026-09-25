@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Invasion Submersible
@@ -38,10 +37,7 @@ val InvasionSubmersible = card("Invasion Submersible") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "up to one other target nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.other(), optional = true)
         effect = Effects.ReturnToHand(permanent)
         description = "When this Vehicle enters, return up to one other target nonland permanent to its owner's hand."
     }
@@ -50,10 +46,8 @@ val InvasionSubmersible = card("Invasion Submersible") {
         isExhaust = true
         hasWaterbend = true
         cost = Costs.Mana("{3}")
-        effect = Effects.Composite(
-            Effects.AddCardType("Creature", EffectTarget.Self),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self),
-        )
+        effect = Effects.AddCardType("Creature", EffectTarget.Self) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self)
     }
 
     metadata {

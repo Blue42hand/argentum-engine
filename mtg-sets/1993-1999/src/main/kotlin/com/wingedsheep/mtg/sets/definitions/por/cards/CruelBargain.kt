@@ -25,13 +25,11 @@ val CruelBargain = card("Cruel Bargain") {
     typeLine = "Sorcery"
     oracleText = "Draw four cards. You lose half your life, rounded up."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(4),
+        effect = Effects.DrawCards(4) then
             Effects.LoseLife(
                 DynamicAmounts.lifeTotal(Player.You) divRoundedUp 2,
                 EffectTarget.Controller
             )
-        )
     }
     metadata {
         rarity = Rarity.RARE

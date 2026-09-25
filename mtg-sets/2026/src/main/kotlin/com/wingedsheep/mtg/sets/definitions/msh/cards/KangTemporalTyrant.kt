@@ -51,10 +51,7 @@ val KangTemporalTyrant = card("Kang, Temporal Tyrant") {
     // Whenever you draw your second card each turn, each opponent loses 1 life and you gain 1 life.
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
         description = "Whenever you draw your second card each turn, each opponent loses 1 life " +
             "and you gain 1 life."
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Daru Encampment
@@ -30,9 +29,7 @@ val DaruEncampment = card("Daru Encampment") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Soldier"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Soldier")))
         effect = Effects.ModifyStats(1, 1, t)
     }
 

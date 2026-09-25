@@ -39,14 +39,13 @@ val OldRutstein = card("Old Rutstein") {
         "way, create a 1/1 green Insect creature token. If a noncreature, nonland card is milled " +
         "this way, create a Blood token."
 
-    val millAndReact = Effects.Composite(
-        // Mill a card into the "milled" collection (then to the graveyard).
-        Patterns.Library.mill(1),
+    // Mill a card into the "milled" collection (then to the graveyard).
+    val millAndReact = Patterns.Library.mill(1) then
         // If a land card is milled this way, create a Treasure token.
         Effects.If(
             condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Land),
             then = Effects.CreateTreasure()
-        ),
+        ) then
         // If a creature card is milled this way, create a 1/1 green Insect creature token.
         Effects.If(
             condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Creature),
@@ -56,7 +55,7 @@ val OldRutstein = card("Old Rutstein") {
                 colors = setOf(Color.GREEN),
                 creatureTypes = setOf("Insect")
             )
-        ),
+        ) then
         // If a noncreature, nonland card is milled this way, create a Blood token.
         Effects.If(
             condition = Conditions.CollectionContainsMatch(Patterns.Library.milled,
@@ -64,7 +63,6 @@ val OldRutstein = card("Old Rutstein") {
             ),
             then = Effects.CreateBlood()
         )
-    )
 
     triggeredAbility {
         trigger = Triggers.self.enters()

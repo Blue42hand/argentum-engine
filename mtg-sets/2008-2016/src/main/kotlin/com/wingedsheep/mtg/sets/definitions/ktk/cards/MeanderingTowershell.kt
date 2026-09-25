@@ -35,21 +35,17 @@ val MeanderingTowershell = card("Meandering Towershell") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            listOf(
-                Effects.Move(EffectTarget.Self, Zone.EXILE),
-                Effects.CreateDelayedTrigger(
-                    step = Step.BEGIN_COMBAT,
-                    effect = Effects.Move(
-                        target = EffectTarget.Self,
-                        destination = Zone.BATTLEFIELD,
-                        placement = ZonePlacement.TappedAndAttacking,
-                        controllerOverride = EffectTarget.Controller
-                    ),
-                    fireOnPlayer = EffectTarget.PlayerRef(Player.You)
-                )
+        effect = Effects.Move(EffectTarget.Self, Zone.EXILE) then
+            Effects.CreateDelayedTrigger(
+                step = Step.BEGIN_COMBAT,
+                effect = Effects.Move(
+                    target = EffectTarget.Self,
+                    destination = Zone.BATTLEFIELD,
+                    placement = ZonePlacement.TappedAndAttacking,
+                    controllerOverride = EffectTarget.Controller
+                ),
+                fireOnPlayer = EffectTarget.PlayerRef(Player.You)
             )
-        )
     }
 
     metadata {

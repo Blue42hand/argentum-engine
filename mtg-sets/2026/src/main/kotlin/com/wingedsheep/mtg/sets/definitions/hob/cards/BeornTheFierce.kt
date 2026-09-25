@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -67,19 +66,15 @@ val BeornTheFierce = card("Beorn the Fierce") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.Creature.youControl())
-        )
-        effect = Effects.Composite(
-            Effects.ForEachTarget(
-                Effects.AddCounters(CounterType.TRAMPLE, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddSubtype(
-                    Subtype.BEAR.value,
-                    EffectTarget.ContextTarget(0),
-                    Duration.Permanent
-                )
-            ),
+        target(TargetFilter.Creature.youControl(), optional = true)
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.TRAMPLE, 1, EffectTarget.ContextTarget(0)),
+            Effects.AddSubtype(
+                Subtype.BEAR.value,
+                EffectTarget.ContextTarget(0),
+                Duration.Permanent
+            )
+        ) then
             Effects.If(
                 condition = Conditions.YouControlAtLeast(
                     3,
@@ -87,7 +82,6 @@ val BeornTheFierce = card("Beorn the Fierce") {
                 ),
                 then = Effects.DrawCards(2)
             )
-        )
         description = "At the beginning of combat on your turn, put a trample counter on up to one " +
             "target creature you control. It becomes a Bear in addition to its other types. Then " +
             "if you control three or more Bears, draw two cards."

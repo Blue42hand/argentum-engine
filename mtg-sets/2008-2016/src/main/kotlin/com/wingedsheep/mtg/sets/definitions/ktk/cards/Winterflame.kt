@@ -3,7 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Winterflame
@@ -26,11 +26,11 @@ val Winterflame = card("Winterflame") {
         // `SpellCastEvent.chosenModesCount`, and a copy effect changing modes would see three.
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Tap target creature") {
-                val t = target("creature to tap", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.Tap(t)
             }
             mode("Winterflame deals 2 damage to target creature") {
-                val t = target("creature to damage", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(2, t)
             }
         }

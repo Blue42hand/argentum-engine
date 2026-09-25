@@ -57,10 +57,8 @@ val DreyKeeper = card("Drey Keeper") {
         cost = Costs.Mana("{3}{B}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.SQUIRREL).youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity)
-            )
         )
     }
 

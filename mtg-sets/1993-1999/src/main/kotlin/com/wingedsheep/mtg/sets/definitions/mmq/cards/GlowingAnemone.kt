@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Glowing Anemone
@@ -29,7 +28,7 @@ val GlowingAnemone = card("Glowing Anemone") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target("target", TargetPermanent(filter = TargetFilter.Land))
+        val t = target(TargetFilter.Land)
         effect = Effects.Move(t, Zone.HAND)
     }
 

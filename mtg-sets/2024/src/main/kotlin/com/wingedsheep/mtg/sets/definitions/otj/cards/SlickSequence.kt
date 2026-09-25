@@ -23,7 +23,7 @@ val SlickSequence = card("Slick Sequence") {
     oracleText = "Slick Sequence deals 2 damage to any target. If you've cast another spell this turn, draw a card."
 
     spell {
-        val any = target("any target", Targets.Any)
+        val any = target(Targets.Any)
         effect = Effects.DealDamage(2, any) then
             Effects.If(
                 condition = Conditions.YouCastSpellsThisTurn(atLeast = 2),

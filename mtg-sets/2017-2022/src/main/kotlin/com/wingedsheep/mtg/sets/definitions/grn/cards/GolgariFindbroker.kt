@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Golgari Findbroker
@@ -24,7 +23,7 @@ val GolgariFindbroker = card("Golgari Findbroker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val card = target("target", TargetObject(filter = TargetFilter.PermanentInYourGraveyard))
+        val card = target(TargetFilter.PermanentInYourGraveyard)
         effect = Effects.ReturnToHand(card)
     }
 

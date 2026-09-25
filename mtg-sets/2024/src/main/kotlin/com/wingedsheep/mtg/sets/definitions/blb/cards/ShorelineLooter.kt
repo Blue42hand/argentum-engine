@@ -30,11 +30,11 @@ val ShorelineLooter = card("Shoreline Looter") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.DrawCards(1)
-            .then(Effects.If(
+        effect = Effects.DrawCards(1) then
+            Effects.If(
                 condition = Conditions.Not(Conditions.CardsInGraveyardAtLeast(7)),
                 then = Patterns.Hand.discardCards(1)
-            ))
+            )
     }
 
     metadata {

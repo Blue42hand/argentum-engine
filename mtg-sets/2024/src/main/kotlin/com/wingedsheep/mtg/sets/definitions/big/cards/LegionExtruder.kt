@@ -26,7 +26,7 @@ val LegionExtruder = card("Legion Extruder") {
     // ETB: deals 2 damage to any target (creature, player, or planeswalker).
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

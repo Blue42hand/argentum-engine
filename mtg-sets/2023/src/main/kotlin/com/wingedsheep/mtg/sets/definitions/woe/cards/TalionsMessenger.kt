@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Talion's Messenger
@@ -52,22 +51,18 @@ val TalionsMessenger = card("Talion's Messenger") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks(GameObjectFilter.Any.withSubtype("Faerie"))
-        effect = Effects.Composite(
-            Effects.DrawCards(1, EffectTarget.Controller),
+        effect = Effects.DrawCards(1, EffectTarget.Controller) then
             Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(1),
                 optional = false,
             ) {
-                val permanent = target("target permanent", TargetPermanent(
-                    filter = TargetFilter.Permanent.withSubtype("Faerie").youControl()
-                ))
+                val permanent = target(TargetFilter.Permanent.withSubtype("Faerie").youControl())
                 effect = Effects.AddCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     1,
                     permanent,
                 )
-            },
-        )
+            }
         description = "Whenever you attack with one or more Faeries, draw a card, then discard a " +
             "card. When you discard a card this way, put a +1/+1 counter on target Faerie you control."
     }

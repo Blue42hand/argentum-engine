@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Betrayer's Bargain
@@ -39,13 +39,13 @@ val BetrayersBargain = card("Betrayer's Bargain") {
         "this turn, exile it instead."
 
     fun dealFiveExilingOnDeath(creature: EffectTarget) =
-        Effects.MarkExileOnDeath(creature).then(Effects.DealDamage(5, creature))
+        Effects.MarkExileOnDeath(creature) then Effects.DealDamage(5, creature)
 
     spell {
         effect = ModalEffect.chooseOne(
             // Sacrifice a creature or enchantment
             mode("Sacrifice a creature or enchantment — deal 5 damage to target creature") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 additionalCosts = listOf(
                     Costs.additional.SacrificePermanent(filter = GameObjectFilter.CreatureOrEnchantment)
                 )
@@ -53,7 +53,7 @@ val BetrayersBargain = card("Betrayer's Bargain") {
             },
             // Pay {2}
             mode("Pay {2} — deal 5 damage to target creature") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 additionalManaCost = "{2}"
                 effect = dealFiveExilingOnDeath(creature)
             },

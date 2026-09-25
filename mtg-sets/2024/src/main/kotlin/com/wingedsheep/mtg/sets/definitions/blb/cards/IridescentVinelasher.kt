@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -43,7 +42,7 @@ val IridescentVinelasher = card("Iridescent Vinelasher") {
     // Landfall: whenever a land you control enters, deal 1 damage to target opponent
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(1, opponent)
     }
 

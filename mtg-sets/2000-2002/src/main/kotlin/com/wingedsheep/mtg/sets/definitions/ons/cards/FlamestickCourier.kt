@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Flamestick Courier
@@ -31,9 +30,7 @@ val FlamestickCourier = card("Flamestick Courier") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.Tap)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Goblin"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Goblin")))
         effect = Effects.ModifyStats(2, 2, t, Duration.WhileSourceTapped()) then
                 Effects.GrantKeyword(Keyword.HASTE, t, Duration.WhileSourceTapped())
     }

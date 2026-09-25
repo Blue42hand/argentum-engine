@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Nettlevine Blight
@@ -61,7 +61,7 @@ val NettlevineBlight = card("Nettlevine Blight") {
         "Enchanted permanent has \"At the beginning of your end step, sacrifice this permanent " +
         "and attach Nettlevine Blight to a creature or land you control.\""
 
-    auraTarget = TargetPermanent(filter = TargetFilter.CreatureOrLandPermanent)
+    auraTarget = TargetObject(filter = TargetFilter.CreatureOrLandPermanent)
 
     staticAbility {
         ability = GrantTriggeredAbility(

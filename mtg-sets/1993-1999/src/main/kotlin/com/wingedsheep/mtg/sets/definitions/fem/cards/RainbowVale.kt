@@ -26,8 +26,7 @@ val RainbowVale = card("Rainbow Vale") {
     activatedAbility {
         cost = Costs.Tap
         manaAbility = true
-        effect = Effects.Composite(
-            Effects.AddAnyColorMana(1),
+        effect = Effects.AddAnyColorMana(1) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.GiveControl(
@@ -35,7 +34,6 @@ val RainbowVale = card("Rainbow Vale") {
                     newController = EffectTarget.PlayerRef(Player.AnOpponent),
                 )
             )
-        )
         description = "{T}: Add one mana of any color. An opponent gains control of this land at the beginning of the next end step."
     }
 

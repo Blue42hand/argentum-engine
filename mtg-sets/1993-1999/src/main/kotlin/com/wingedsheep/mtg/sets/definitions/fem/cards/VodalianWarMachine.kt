@@ -48,10 +48,7 @@ val VodalianWarMachine = card("Vodalian War Machine") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.MERFOLK).untapped().youControl(),
             excludeSelf = true,
         )
-        effect = Effects.Composite(
-            Effects.CanAttackDespiteDefenderThisTurn(EffectTarget.Self),
-            deathRevengeOn(),
-        )
+        effect = Effects.CanAttackDespiteDefenderThisTurn(EffectTarget.Self) then deathRevengeOn()
         description = "Tap an untapped Merfolk you control: This creature can attack this turn as though it didn't have defender."
     }
 
@@ -61,10 +58,7 @@ val VodalianWarMachine = card("Vodalian War Machine") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.MERFOLK).untapped().youControl(),
             excludeSelf = true,
         )
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 1, EffectTarget.Self),
-            deathRevengeOn(),
-        )
+        effect = Effects.ModifyStats(2, 1, EffectTarget.Self) then deathRevengeOn()
         description = "Tap an untapped Merfolk you control: This creature gets +2/+1 until end of turn."
     }
 

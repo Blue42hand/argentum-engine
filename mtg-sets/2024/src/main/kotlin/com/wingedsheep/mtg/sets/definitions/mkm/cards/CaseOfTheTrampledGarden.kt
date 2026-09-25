@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Case of the Trampled Garden — Murders at Karlov Manor #156
@@ -52,11 +52,7 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target = TargetCreature(
-            count = 2,
-            minCount = 1,
-            filter = TargetFilter.Creature.youControl()
-        )
+        target = TargetObject(filter = TargetFilter.Creature.youControl(), count = 2, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(2, CounterType.PLUS_ONE_PLUS_ONE)
     }
 
@@ -72,12 +68,10 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
     )
 
     solvedTriggeredAbility {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.attacking()))
+        val creature = target(TargetFilter.Creature.attacking())
         trigger = Triggers.you.attacks()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
             Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-        )
         description = "Solved — Whenever you attack, put a +1/+1 counter on target attacking " +
             "creature. It gains trample until end of turn."
     }

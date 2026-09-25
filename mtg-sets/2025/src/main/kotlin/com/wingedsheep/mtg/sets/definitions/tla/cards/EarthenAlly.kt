@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Earthen Ally
@@ -59,7 +58,7 @@ val EarthenAlly = card("Earthen Ally") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{W}{U}{B}{R}{G}")
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(5, land)
     }
 

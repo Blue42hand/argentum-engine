@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tidy Conclusion
@@ -26,11 +26,9 @@ val TidyConclusion = card("Tidy Conclusion") {
     oracleText = "Destroy target creature. You gain 1 life for each artifact you control."
 
     spell {
-        val t = target("target", TargetCreature())
-        effect = Effects.Composite(
-            Effects.Destroy(t),
+        val t = target(TargetFilter.Creature)
+        effect = Effects.Destroy(t) then
             Effects.GainLife(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
-        )
     }
 
     metadata {

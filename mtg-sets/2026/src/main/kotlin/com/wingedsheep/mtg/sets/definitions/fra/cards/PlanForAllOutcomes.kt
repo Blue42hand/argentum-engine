@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Plan for All Outcomes
@@ -34,10 +33,7 @@ val PlanForAllOutcomes = card("Plan for All Outcomes") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "up to one other target nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.other(), optional = true)
         effect = Effects.PutOnTopOrBottomOfLibrary(permanent)
     }
 

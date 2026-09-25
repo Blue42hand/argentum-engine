@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -38,15 +37,7 @@ val FireNationEngineer = card("Fire Nation Engineer") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouAttackedThisTurn
-        val target = target(
-            "another target creature or Vehicle you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.CreatureOrVehicle.youControl(),
-                    excludeSelf = true
-                )
-            )
-        )
+        val target = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl(), excludeSelf = true))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "Raid — At the beginning of your end step, if you attacked this turn, put a " +
             "+1/+1 counter on another target creature or Vehicle you control."

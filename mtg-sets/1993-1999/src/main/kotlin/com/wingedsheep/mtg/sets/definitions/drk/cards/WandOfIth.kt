@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Wand of Ith
@@ -45,7 +45,7 @@ val WandOfIth = card("Wand of Ith") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        val victim = target("target player", TargetPlayer())
+        val victim = target(Targets.Player)
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
 
         val payer = victim

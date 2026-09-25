@@ -27,7 +27,7 @@ val EmberHauler = card("Ember Hauler") {
     oracleText = "{1}, Sacrifice this creature: It deals 2 damage to any target."
 
     activatedAbility {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         cost = Costs.Composite(
             Costs.Mana("{1}"),
             Costs.SacrificeSelf,

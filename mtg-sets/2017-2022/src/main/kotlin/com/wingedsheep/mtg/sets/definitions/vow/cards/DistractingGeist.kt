@@ -12,6 +12,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Distracting Geist // Clever Distraction (Innistrad: Crimson Vow #9 — the card's earliest
@@ -50,7 +52,7 @@ private val DistractingGeistFront = card("Distracting Geist") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val tapped = target("creature defending player controls", Targets.CreatureOpponentControls)
+        val tapped = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Tap(tapped)
     }
 
@@ -82,16 +84,13 @@ private val CleverDistraction = card("Clever Distraction") {
         "player controls.\"\n" +
         "If Clever Distraction would be put into a graveyard from anywhere, exile it instead."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.self.attacks()
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.Tap(creatureOpponentControls)
             }
         )

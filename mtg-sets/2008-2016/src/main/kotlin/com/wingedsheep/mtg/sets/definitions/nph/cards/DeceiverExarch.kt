@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Deceiver Exarch
@@ -43,14 +44,11 @@ val DeceiverExarch = card("Deceiver Exarch") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Untap target permanent you control.") {
-                val permanentYouControl = target("target permanent you control", Targets.PermanentYouControl)
+                val permanentYouControl = target(TargetFilter.PermanentYouControl)
                 effect = Effects.Untap(permanentYouControl)
             },
             mode("Tap target permanent an opponent controls.") {
-                val permanentOpponentControls = target(
-                    "target permanent opponent controls",
-                    Targets.PermanentOpponentControls
-                )
+                val permanentOpponentControls = target(TargetFilter.PermanentOpponentControls)
                 effect = Effects.Tap(permanentOpponentControls)
             }
         )

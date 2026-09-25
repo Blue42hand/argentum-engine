@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -29,12 +28,10 @@ val ExplosiveGetaway = card("Explosive Getaway") {
     typeLine = "Sorcery"
     oracleText = "Exile up to one target artifact or creature. Return it to the battlefield under its owner's control at the beginning of the next end step.\nExplosive Getaway deals 4 damage to each creature."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrArtifact))
-        effect = Effects.Composite(
-            Effects.Exile(t),
-            Effects.CreateDelayedTrigger(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD)),
+        val t = target(TargetFilter.CreatureOrArtifact)
+        effect = Effects.Exile(t) then
+            Effects.CreateDelayedTrigger(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD)) then
             Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(4, EffectTarget.IterationEntity))
-        )
     }
     metadata {
         rarity = Rarity.RARE

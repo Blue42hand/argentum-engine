@@ -55,12 +55,8 @@ val AOneRing = card("A-The One Ring") {
     // {1}, {T}: Put a burden counter on The One Ring, then draw a card for each burden counter on it.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddCounters(CounterType.BURDEN, 1, EffectTarget.Self),
-                Effects.DrawCards(DynamicAmounts.countersOnSelf(CounterType.BURDEN))
-            )
-        )
+        effect = Effects.AddCounters(CounterType.BURDEN, 1, EffectTarget.Self) then
+            Effects.DrawCards(DynamicAmounts.countersOnSelf(CounterType.BURDEN))
     }
 
     metadata {

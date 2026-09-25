@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spitebellows
@@ -33,7 +34,7 @@ val Spitebellows = card("Spitebellows") {
     evoke = "{1}{R}{R}"
 
     triggeredAbility {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         trigger = Triggers.self.leaves()
         effect = Effects.DealDamage(6, creature)
         description = "When this creature leaves the battlefield, it deals 6 damage to target creature."

@@ -20,10 +20,7 @@ val DreamsOfLaguna = card("Dreams of Laguna") {
     typeLine = "Instant"
     oracleText = "Surveil 1, then draw a card. (To surveil 1, look at the top card of your library. You may put it into your graveyard.)\nFlashback {3}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.surveil(1),
-            Effects.DrawCards(1)
-        )
+        effect = Patterns.Library.surveil(1) then Effects.DrawCards(1)
     }
     keywordAbility(KeywordAbility.flashback("{3}{U}"))
     metadata {

@@ -9,9 +9,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Mardu Charm
@@ -32,7 +31,7 @@ val MarduCharm = card("Mardu Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Mardu Charm deals 4 damage to target creature") {
-                val t = target("target", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(4, t)
             }
             mode("Create two 1/1 white Warrior creature tokens with first strike") {
@@ -47,7 +46,7 @@ val MarduCharm = card("Mardu Charm") {
                 )
             }
             mode("Target opponent reveals their hand, discard a noncreature, nonland card") {
-                val t = target("target", TargetOpponent())
+                val t = target(Targets.Opponent)
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(t))
                     val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))

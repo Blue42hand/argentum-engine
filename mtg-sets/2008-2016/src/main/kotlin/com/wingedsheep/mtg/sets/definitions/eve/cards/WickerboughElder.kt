@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.eve.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wickerbough Elder
@@ -39,7 +39,7 @@ val WickerboughElder = card("Wickerbough Elder") {
     )
 
     activatedAbility {
-        val artifactOrEnchantment = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
+        val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
         cost = Costs.Composite(
             Costs.Mana("{G}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)

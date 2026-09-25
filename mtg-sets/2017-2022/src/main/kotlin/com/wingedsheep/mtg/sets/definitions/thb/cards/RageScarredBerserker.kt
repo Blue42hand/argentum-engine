@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.thb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rage-Scarred Berserker
@@ -29,11 +29,9 @@ val RageScarredBerserker = card("Rage-Scarred Berserker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target", Targets.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
-        )
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
     }
 
     metadata {

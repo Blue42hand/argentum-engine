@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalSourceTriggers
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Annie Joins Up
@@ -33,10 +32,7 @@ val AnnieJoinsUp = card("Annie Joins Up") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target creature or planeswalker an opponent controls",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
         effect = Effects.DealDamage(5, t)
     }
 

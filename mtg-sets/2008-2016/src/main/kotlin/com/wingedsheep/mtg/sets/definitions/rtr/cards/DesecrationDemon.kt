@@ -44,8 +44,8 @@ val DesecrationDemon = card("Desecration Demon") {
         trigger = Triggers.anyPlayer.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.AnyPlayerMayPay(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Creature, count = 1),
-            consequence = Effects.Tap(EffectTarget.Self)
-                .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)),
+            consequence = Effects.Tap(EffectTarget.Self) then
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             eligiblePlayers = Player.EachOpponent
         )
     }

@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * End of the Hunt
@@ -40,7 +40,7 @@ val EndOfTheHunt = card("End of the Hunt") {
         "mana value among creatures and planeswalkers they control."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val controlled = gather(
                 CardSource.BattlefieldMatching(

@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.plus
@@ -12,7 +11,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Farrel's Mantle
@@ -36,27 +35,22 @@ val FarrelsMantle = card("Farrel's Mantle") {
         "Whenever enchanted creature attacks and isn't blocked, its controller may have it deal " +
         "damage equal to its power plus 2 to another target creature. If that player does, the " +
         "attacking creature assigns no combat damage this turn."
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
         trigger = Triggers.attached.attacksAndIsntBlocked()
-        val t = target(
-            "another target creature",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()))
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DealDamage(
-                    DynamicAmounts.enchantedCreaturePower() + 2,
-                    t,
-                    damageSource = EffectTarget.EnchantedPermanent,
-                ),
+            Effects.DealDamage(
+                DynamicAmounts.enchantedCreaturePower() + 2,
+                t,
+                damageSource = EffectTarget.EnchantedPermanent,
+            ) then
                 Effects.GrantKeyword(
                     AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.EnchantedPermanent,
                     Duration.EndOfTurn,
                 ),
-            ),
             // "Its controller may" — the *enchanted creature's* controller, who need not be the
             // Aura's controller: the Mantle can be put on an opponent's creature and the choice is
             // still theirs. The trigger binds the attacker as the triggering entity for this.

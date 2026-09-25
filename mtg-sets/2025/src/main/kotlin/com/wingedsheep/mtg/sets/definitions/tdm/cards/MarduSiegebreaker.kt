@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Mardu Siegebreaker — Tarkir: Dragonstorm #206
@@ -50,10 +49,7 @@ val MarduSiegebreaker = card("Mardu Siegebreaker") {
     // ETB: exile up to one other target creature you control until this leaves the battlefield.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one other target creature you control",
-            TargetCreature(count = 1, optional = true, filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val creature = target(TargetFilter.OtherCreatureYouControl, optional = true)
         effect = Effects.ExileUntilLeaves(creature)
     }
 

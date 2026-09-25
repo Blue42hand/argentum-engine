@@ -43,7 +43,7 @@ class BatchMayQuestionTest : FunSpec({
             "Batch Pinger deal 1 damage to any target."
         triggeredAbility {
             trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-            val t = target("target", Targets.Any)
+            val t = target(Targets.Any)
             effect = Effects.May(Effects.DealDamage(1, t))
         }
     }

@@ -31,7 +31,7 @@ val ResoundingThunder = card("Resounding Thunder") {
         "When you cycle this card, it deals 6 damage to any target."
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(3, t)
     }
 
@@ -39,7 +39,7 @@ val ResoundingThunder = card("Resounding Thunder") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(6, t)
     }
 

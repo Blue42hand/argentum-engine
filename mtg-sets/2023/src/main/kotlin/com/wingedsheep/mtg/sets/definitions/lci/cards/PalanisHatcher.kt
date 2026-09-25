@@ -60,12 +60,11 @@ val PalanisHatcher = card("Palani's Hatcher") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Egg"))
-        effect = Effects.Composite(listOf(
-            Effects.Sacrifice(
-                filter = GameObjectFilter.Creature.withSubtype("Egg"),
-                count = 1,
-                target = EffectTarget.PlayerRef(Player.You)
-            ),
+        effect = Effects.Sacrifice(
+            filter = GameObjectFilter.Creature.withSubtype("Egg"),
+            count = 1,
+            target = EffectTarget.PlayerRef(Player.You)
+        ) then
             Effects.CreateToken(
                 power = 3,
                 toughness = 3,
@@ -74,7 +73,6 @@ val PalanisHatcher = card("Palani's Hatcher") {
                 count = 1,
                 imageUri = "https://cards.scryfall.io/normal/front/2/b/2bbb7151-cf71-49bc-8d99-b0230d5465e5.jpg?1699017364"
             )
-        ))
     }
 
     metadata {

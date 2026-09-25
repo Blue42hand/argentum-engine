@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Witch's Mark
@@ -36,20 +35,15 @@ val WitchsMark = card("Witch's Mark") {
         "+1/+1. When this token is put into a graveyard, each opponent loses 1 life.)"
 
     spell {
-        val t = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
-        )
-        effect = Effects.Composite(
-            Effects.May(
-                effect = Effects.IfYouDo(
-                    action = Patterns.Hand.discardCards(1),
-                    then = Effects.DrawCards(2)
-                ),
-                descriptionOverride = "You may discard a card. If you do, draw two cards."
+        val t = target(TargetFilter.CreatureYouControl, optional = true)
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
+                action = Patterns.Hand.discardCards(1),
+                then = Effects.DrawCards(2)
             ),
+            descriptionOverride = "You may discard a card. If you do, draw two cards."
+        ) then
             Effects.CreateRoleToken("Wicked Role", t)
-        )
     }
 
     metadata {

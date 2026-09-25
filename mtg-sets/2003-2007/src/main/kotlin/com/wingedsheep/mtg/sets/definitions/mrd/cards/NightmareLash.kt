@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Nightmare Lash — Mirrodin #219
@@ -54,7 +54,7 @@ val NightmareLash = card("Nightmare Lash") {
     activatedAbility {
         isEquipAbility = true
         cost = Costs.PayLife(3)
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
         timing = TimingRule.SorcerySpeed
     }

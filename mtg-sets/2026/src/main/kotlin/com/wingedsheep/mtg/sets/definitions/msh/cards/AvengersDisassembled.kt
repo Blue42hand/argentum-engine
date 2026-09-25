@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Avengers Disassembled
@@ -49,7 +49,7 @@ val AvengersDisassembled = card("Avengers Disassembled") {
                 "Destroy target land. Its controller may search their library for a basic land " +
                     "card, put it onto the battlefield tapped, then shuffle."
             ) {
-                val land = target("target land", Targets.Land)
+                val land = target(TargetFilter.Land)
                 effect = Effects.Destroy(land) then Effects.May(
                     effect = Effects.Pipeline {
                         val searchable = gather(

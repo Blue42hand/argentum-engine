@@ -6,11 +6,11 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Invasion of Innistrad // Deluge of the Dead — March of the Machine #115 (canonical printing).
@@ -48,7 +48,7 @@ private val InvasionOfInnistradFront = card("Invasion of Innistrad") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ModifyStats(-13, -13, victim)
         description = "When this Siege enters, target creature an opponent controls gets -13/-13 until end of turn."
     }
@@ -94,9 +94,8 @@ private val DelugeOfTheDead = card("Deluge of the Dead") {
 
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{2}{B}"))
-        val exiled = target("target card in a graveyard", Targets.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.Exile(exiled),
+        val exiled = target(TargetFilter.CardInGraveyard)
+        effect = Effects.Exile(exiled) then
             // Reads the exiled card's printed type in exile, so it is true only when the card that
             // left the graveyard was a creature card — the Scavenging Ooze shape.
             Effects.If(
@@ -107,8 +106,7 @@ private val DelugeOfTheDead = card("Deluge of the Dead") {
                     colors = setOf(Color.BLACK),
                     creatureTypes = setOf("Zombie"),
                 ),
-            ),
-        )
+            )
         description = "{2}{B}: Exile target card from a graveyard. If it was a creature card, " +
             "create a 2/2 black Zombie creature token."
     }

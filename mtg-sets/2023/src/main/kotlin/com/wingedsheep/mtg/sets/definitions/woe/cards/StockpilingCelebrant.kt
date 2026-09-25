@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Stockpiling Celebrant
@@ -36,12 +35,7 @@ val StockpilingCelebrant = card("Stockpiling Celebrant") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target(
-            "target",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.NonlandPermanent.youControl(), excludeSelf = true)
-            )
-        )
+        val t = target(TargetFilter(GameObjectFilter.NonlandPermanent.youControl(), excludeSelf = true))
         effect = Effects.Move(t, Zone.HAND) then Effects.Scry(2)
     }
 

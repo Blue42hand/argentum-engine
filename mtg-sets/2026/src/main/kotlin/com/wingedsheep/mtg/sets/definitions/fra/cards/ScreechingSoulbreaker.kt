@@ -20,10 +20,7 @@ val ScreechingSoulbreaker = card("Screeching Soulbreaker") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     metadata {

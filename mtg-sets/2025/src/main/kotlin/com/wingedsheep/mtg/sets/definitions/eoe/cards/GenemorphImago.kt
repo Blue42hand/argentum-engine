@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Genemorph Imago
@@ -36,7 +36,7 @@ val GenemorphImago = card("Genemorph Imago") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.ControlLandsAtLeast(6),
             then = Effects.SetBasePowerAndToughness(6, 6, t, Duration.EndOfTurn),

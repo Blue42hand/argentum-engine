@@ -30,16 +30,14 @@ val LastMarchOfTheEnts = card("Last March of the Ents") {
     spell {
         effect = Effects.DrawCards(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxToughness()
-        ).then(
-            Effects.Pipeline {
-                val creatureCards = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature))
-                val toPlay = chooseAnyNumber(
-                    from = creatureCards,
-                    prompt = "Choose any number of creature cards to put onto the battlefield"
-                )
-                move(toPlay, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
-            }
-        )
+        ) then Effects.Pipeline {
+            val creatureCards = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature))
+            val toPlay = chooseAnyNumber(
+                from = creatureCards,
+                prompt = "Choose any number of creature cards to put onto the battlefield"
+            )
+            move(toPlay, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+        }
     }
 
     metadata {

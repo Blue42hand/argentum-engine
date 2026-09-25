@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Fatal Fissure
@@ -36,12 +34,12 @@ val FatalFissure = card("Fatal Fissure") {
         "Put four +1/+1 counters on it. When it dies or is exiled, return it to the battlefield tapped.)"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.self.dies(),
             watchedTarget = creature,
             expiry = DelayedTriggerExpiry.EndOfTurn) {
-            val land = target("target land", TargetObject(filter = TargetFilter.Land.youControl()))
+            val land = target(TargetFilter.Land.youControl())
             effect = Effects.Earthbend(4, land)
         }
     }

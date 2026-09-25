@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Donatello, Mutant Mechanic
@@ -35,23 +34,18 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
     toughness = 5
 
     activatedAbility {
-        val art = target(
-            "target artifact you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.youControl()))
-        )
+        val art = target(TargetFilter(GameObjectFilter.Artifact.youControl()))
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, art),
-                    then = Effects.BecomeCreature(
-                        target = art,
-                        power = 0,
-                        toughness = 0,
-                        creatureTypes = setOf("Robot"),
-                        duration = Duration.Permanent
-                    )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, art),
+                then = Effects.BecomeCreature(
+                    target = art,
+                    power = 0,
+                    toughness = 0,
+                    creatureTypes = setOf("Robot"),
+                    duration = Duration.Permanent
                 )
             )
         description = "{T}: Put three +1/+1 counters on target artifact you control. If it isn't a creature, it becomes a 0/0 Robot creature in addition to its other types. Activate only as a sorcery."
@@ -60,10 +54,7 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
     triggeredAbility {
         trigger = Triggers.self.matching(GameObjectFilter.Artifact.youControl()).dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
-        val dest = target(
-            "up to one target artifact or creature you control",
-            TargetPermanent(optional = true, filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()))
-        )
+        val dest = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()), optional = true)
         effect = Effects.MoveAllLastKnownCounters(dest)
         description = "Whenever an artifact you control is put into a graveyard from the battlefield, if it had counters on it, put those counters on up to one target artifact or creature you control."
     }

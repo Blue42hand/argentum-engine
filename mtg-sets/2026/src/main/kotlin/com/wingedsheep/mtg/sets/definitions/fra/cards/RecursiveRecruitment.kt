@@ -23,16 +23,15 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
         "Flashback {6}{U}{B} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                count = 2,
-                power = 2,
-                toughness = 2,
-                colors = emptySet(),
-                creatureTypes = setOf("Wizard", "Soldier"),
-                name = "Cadet",
-                imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318",
-            ),
+        effect = Effects.CreateToken(
+            count = 2,
+            power = 2,
+            toughness = 2,
+            colors = emptySet(),
+            creatureTypes = setOf("Wizard", "Soldier"),
+            name = "Cadet",
+            imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318",
+        ) then
             Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
                 then = Effects.AddCountersToCollection(
@@ -41,7 +40,6 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
                     DynamicAmounts.cardsInYourGraveyard() / 3
                 )
             )
-        )
     }
 
     keywordAbility(KeywordAbility.flashback("{6}{U}{B}"))

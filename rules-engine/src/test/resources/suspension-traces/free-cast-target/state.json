@@ -48,7 +48,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -160,7 +160,7 @@
                 "targetRequirements": [
                     {
                         "index": 0,
-                        "description": "target"
+                        "description": "target artifact or enchantment"
                     }
                 ],
                 "legalTargets": {

@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Failed Fording
@@ -29,15 +29,13 @@ val FailedFording = card("Failed Fording") {
         "surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     spell {
-        val permanent = target("target nonland permanent", Targets.NonlandPermanent)
-        effect = Effects.ReturnToHand(permanent)
-            .then(
-                Effects.If(
-                    condition = Conditions.YouControl(
-                        GameObjectFilter.Land.withSubtype(Subtype.DESERT)
-                    ),
-                    then = Patterns.Library.surveil(1)
-                )
+        val permanent = target(TargetFilter.NonlandPermanent)
+        effect = Effects.ReturnToHand(permanent) then
+            Effects.If(
+                condition = Conditions.YouControl(
+                    GameObjectFilter.Land.withSubtype(Subtype.DESERT)
+                ),
+                then = Patterns.Library.surveil(1)
             )
     }
 

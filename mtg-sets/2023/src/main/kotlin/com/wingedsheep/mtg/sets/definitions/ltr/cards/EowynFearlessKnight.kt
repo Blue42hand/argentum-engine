@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Éowyn, Fearless Knight
@@ -42,27 +41,22 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val victim = target(
-            "creature an opponent controls with greater power",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.opponentControls()
-                        .powerGreaterThanEntity(EffectTarget.Self)
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature.opponentControls()
+                    .powerGreaterThanEntity(EffectTarget.Self)
+            ),
         )
         // Grant before exile so the target's projected colors are read while it's still on the
         // battlefield. ForEachColorOf runs the inner grant once per color of the exiled creature,
         // feeding each color to GrantProtectionFromChosenColor via the chosen-color context.
-        effect = Effects.Composite(
-            Effects.ForEachColorOf(
-                source = victim,
-                effect = Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
-                    Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
-                )
-            ),
+        effect = Effects.ForEachColorOf(
+            source = victim,
+            effect = Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
+                Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
+            )
+        ) then
             Effects.Exile(victim)
-        )
     }
 
     metadata {

@@ -49,7 +49,7 @@ val HumanTorchJohnnyStorm = card("Human Torch, Johnny Storm") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         trigger = Triggers.you.draws()
         interveningIf = Conditions.YouControl(
             GameObjectFilter.Any.withSubtype(Subtype.HERO.value),

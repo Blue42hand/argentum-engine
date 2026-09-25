@@ -35,10 +35,8 @@ val LamplightPhoenix = card("Lamplight Phoenix") {
         trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
-            cost = Effects.Composite(
-                Effects.Exile(EffectTarget.Self, fromZone = Zone.GRAVEYARD),
+            cost = Effects.Exile(EffectTarget.Self, fromZone = Zone.GRAVEYARD) then
                 Effects.CollectEvidence(4),
-            ),
             then = Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
         )
         description = "When this creature dies, you may exile it and collect evidence 4. If you " +

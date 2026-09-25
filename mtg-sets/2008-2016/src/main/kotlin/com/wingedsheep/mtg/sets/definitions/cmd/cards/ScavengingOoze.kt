@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scavenging Ooze — Commander 2011 #170 (canonical printing)
@@ -33,17 +33,13 @@ val ScavengingOoze = card("Scavenging Ooze") {
 
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{G}"))
-        val exiled = target("target card in a graveyard", Targets.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.Exile(exiled),
+        val exiled = target(TargetFilter.CardInGraveyard)
+        effect = Effects.Exile(exiled) then
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                then = Effects.Composite(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
                     Effects.GainLife(1),
-                ),
-            ),
-        )
+            )
         description = "{G}: Exile target card from a graveyard. If it was a creature card, " +
             "put a +1/+1 counter on this creature and you gain 1 life."
     }

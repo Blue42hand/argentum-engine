@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Dwarven Mattock
@@ -36,10 +35,7 @@ val DwarvenMattock = card("Dwarven Mattock") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val dwarf = target(
-            "target Dwarf you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl.withSubtype(Subtype.DWARF))
-        )
+        val dwarf = target(TargetFilter.CreatureYouControl.withSubtype(Subtype.DWARF))
         effect = Effects.AttachEquipment(dwarf)
     }
 

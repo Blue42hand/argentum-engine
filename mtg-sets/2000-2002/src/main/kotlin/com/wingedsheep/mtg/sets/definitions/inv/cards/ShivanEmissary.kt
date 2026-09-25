@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Shivan Emissary
@@ -33,10 +32,7 @@ val ShivanEmissary = card("Shivan Emissary") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = WasKicked
-        val creature = target(
-            "target nonblack creature",
-            TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK))
-        )
+        val creature = target(TargetFilter.Creature.notColor(Color.BLACK))
         effect = Effects.CantBeRegenerated(creature) then Effects.Destroy(creature)
     }
 

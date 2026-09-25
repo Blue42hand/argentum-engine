@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Professor Zei, Anthropologist
@@ -33,7 +32,7 @@ val ProfessorZeiAnthropologist = card("Professor Zei, Anthropologist") {
     }
 
     activatedAbility {
-        val target = target("target", TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard))
+        val target = target(TargetFilter.InstantOrSorceryInYourGraveyard)
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.ReturnToHand(target)
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)

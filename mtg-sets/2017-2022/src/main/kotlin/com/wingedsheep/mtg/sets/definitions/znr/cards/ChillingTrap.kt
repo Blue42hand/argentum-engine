@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.znr.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Chilling Trap
@@ -25,13 +25,11 @@ val ChillingTrap = card("Chilling Trap") {
     oracleText = "Target creature gets -4/-0 until end of turn. If you control a Wizard, draw a card."
 
     spell {
-        val creature = target("creature", Targets.Creature)
-        effect = Effects.ModifyStats(-4, 0, creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.ControlPermanentOfType(Subtype("Wizard")),
-                    then = Effects.DrawCards(1),
-                )
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.ModifyStats(-4, 0, creature) then
+            Effects.If(
+                condition = Conditions.ControlPermanentOfType(Subtype("Wizard")),
+                then = Effects.DrawCards(1),
             )
     }
 

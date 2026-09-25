@@ -36,7 +36,7 @@ val ShadyInformant = card("Shady Informant") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(2, anyTarget)
         description = "When this creature dies, it deals 2 damage to any target."
     }

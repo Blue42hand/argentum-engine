@@ -54,12 +54,7 @@ val SwordOfWealthAndPower = card("Sword of Wealth and Power") {
     // then set up the "copy your next instant/sorcery this turn" delayed trigger.
     triggeredAbility {
         trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            listOf(
-                Effects.CreateTreasure(1),
-                Effects.CopyNextSpellCast()
-            )
-        )
+        effect = Effects.CreateTreasure(1) then Effects.CopyNextSpellCast()
     }
 
     equipAbility("{2}")

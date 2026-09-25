@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Zoraline, Cosmos Caller
@@ -78,25 +77,20 @@ val ZoralineCosmosCaller = card("Zoraline, Cosmos Caller") {
  * the "when you do" is the payment itself (the Fire Lord Sozin shape).
  */
 private fun zoralineReanimateEffect() = Effects.MayPay(
-    cost = Effects.Composite(
-        Effects.PayMana("{W}{B}"),
-        Effects.PayLife(2)
-    ),
+    cost = Effects.PayMana("{W}{B}") then Effects.PayLife(2),
     then = Effects.ReflexiveTrigger(
-        action = Effects.Composite(emptyList()),
+        action = Effects.Nothing,
         optional = false,
         descriptionOverride = "return target nonland permanent card with mana value 3 or less " +
             "from your graveyard to the battlefield with a finality counter on it"
     ) {
-        val nonlandPermanent = target("target nonland permanent", TargetObject(
-            filter = TargetFilter(
+        val nonlandPermanent = target(
+            TargetFilter(
                 GameObjectFilter.NonlandPermanent.ownedByYou().manaValueAtMost(3),
                 zone = Zone.GRAVEYARD
-            )
-        ))
-        effect = Effects.Composite(
-            Effects.PutOntoBattlefieldFromGraveyard(nonlandPermanent),
-            Effects.AddCounters(CounterType.FINALITY, 1, nonlandPermanent)
+            ),
         )
+        effect = Effects.PutOntoBattlefieldFromGraveyard(nonlandPermanent) then
+            Effects.AddCounters(CounterType.FINALITY, 1, nonlandPermanent)
     }
 )

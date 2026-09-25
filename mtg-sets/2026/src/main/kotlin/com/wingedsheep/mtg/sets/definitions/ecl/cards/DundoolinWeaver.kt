@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dundoolin Weaver
@@ -30,10 +29,7 @@ val DundoolinWeaver = card("Dundoolin Weaver") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.ControlCreaturesAtLeast(3)
-        val permanentCard = target(
-            "permanent card from your graveyard",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val permanentCard = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.ReturnToHand(permanentCard)
     }
 

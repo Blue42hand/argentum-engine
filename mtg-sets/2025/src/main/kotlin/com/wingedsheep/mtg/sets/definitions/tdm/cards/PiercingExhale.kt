@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Piercing Exhale
@@ -37,8 +38,8 @@ val PiercingExhale = card("Piercing Exhale") {
         "planeswalker. If a Dragon was beheld, surveil 2."
 
     spell {
-        val myCreature = target("target creature you control", Targets.CreatureYouControl)
-        val victim = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val myCreature = target(TargetFilter.CreatureYouControl)
+        val victim = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Pipeline {
             // Optional behold: gather your Dragons and choose up to one of them.
             val beholdable = gather(

@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val WhirlpoolWhelm = card("Whirlpool Whelm") {
     manaCost = "{1}{U}"
@@ -13,7 +13,7 @@ val WhirlpoolWhelm = card("Whirlpool Whelm") {
     oracleText = "Clash with an opponent, then return target creature to its owner's hand. If you win, you may put that creature on top of its owner's library instead. (Each clashing player reveals the top card of their library, then puts that card on their choice of the top or bottom. A player wins if their card had a greater mana value.)"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         val bounce = Effects.ReturnToHand(creature)
         effect = Patterns.Mechanic.clash(
             ifYouWin = Effects.May(

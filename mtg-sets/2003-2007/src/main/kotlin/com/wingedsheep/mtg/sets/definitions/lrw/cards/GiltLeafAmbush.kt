@@ -24,12 +24,10 @@ val GiltLeafAmbush = card("Gilt-Leaf Ambush") {
             colors = setOf(Color.GREEN),
             creatureTypes = setOf("Elf", "Warrior"),
             imageUri = "https://cards.scryfall.io/normal/front/2/7/27b171ac-b2ef-4a80-92d1-6d9e71f3e3ca.jpg?1783942838"
-        ).then(
-            Patterns.Mechanic.clash(
-                Effects.ForEachInCollection(
-                    CollectionSlot.CreatedTokens,
-                    Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
-                )
+        ) then Patterns.Mechanic.clash(
+            Effects.ForEachInCollection(
+                CollectionSlot.CreatedTokens,
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
             )
         )
     }

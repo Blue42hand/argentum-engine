@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scalding Viper // Steam Clean
@@ -48,7 +48,7 @@ val ScaldingViper = card("Scalding Viper") {
         oracleText = "Return target nonland permanent to its owner's hand. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            val t = target("target", Targets.NonlandPermanent)
+            val t = target(TargetFilter.NonlandPermanent)
             effect = Effects.ReturnToHand(t)
         }
     }

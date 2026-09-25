@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Grim Javelineer
@@ -37,18 +37,14 @@ val GrimJavelineer = card("Grim Javelineer") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val attacker = target("target attacking creature", Targets.AttackingCreature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(1, 0, attacker),
-                Effects.CreateDelayedTrigger(
-                    effect = Patterns.Library.surveil(1),
-                    trigger = Triggers.self.dies(),
-                    watchedTarget = attacker,
-                    expiry = DelayedTriggerExpiry.EndOfTurn
-                )
+        val attacker = target(TargetFilter.AttackingCreature)
+        effect = Effects.ModifyStats(1, 0, attacker) then
+            Effects.CreateDelayedTrigger(
+                effect = Patterns.Library.surveil(1),
+                trigger = Triggers.self.dies(),
+                watchedTarget = attacker,
+                expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        )
         description = "Whenever you attack, target attacking creature gets +1/+0 until end of turn. " +
             "When that creature dies this turn, surveil 1."
     }

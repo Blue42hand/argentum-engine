@@ -49,31 +49,27 @@ val RagingRavine = card("Raging Ravine") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{R}{G}")
-        effect = Effects.Composite(
-            listOf(
-                Effects.BecomeCreature(
-                    target = EffectTarget.Self,
-                    power = 3,
-                    toughness = 3,
-                    creatureTypes = setOf("Elemental"),
-                    colors = setOf(Color.RED.name, Color.GREEN.name),
-                    duration = Duration.EndOfTurn,
-                ),
-                Effects.GrantTriggeredAbility(
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.self.attacks(),
-                        effect = Effects.AddCounters(
-                            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                            count = 1,
-                            target = EffectTarget.Self,
-                        ),
-                        descriptionOverride = "Whenever this creature attacks, put a +1/+1 counter on it.",
+        effect = Effects.BecomeCreature(
+            target = EffectTarget.Self,
+            power = 3,
+            toughness = 3,
+            creatureTypes = setOf("Elemental"),
+            colors = setOf(Color.RED.name, Color.GREEN.name),
+            duration = Duration.EndOfTurn,
+        ) then
+            Effects.GrantTriggeredAbility(
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.self.attacks(),
+                    effect = Effects.AddCounters(
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                        count = 1,
+                        target = EffectTarget.Self,
                     ),
-                    target = EffectTarget.Self,
-                    duration = Duration.EndOfTurn,
+                    descriptionOverride = "Whenever this creature attacks, put a +1/+1 counter on it.",
                 ),
+                target = EffectTarget.Self,
+                duration = Duration.EndOfTurn,
             )
-        )
     }
 
     metadata {

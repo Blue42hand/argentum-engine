@@ -25,12 +25,8 @@ val AgateBladeAssassin = card("Agate-Blade Assassin") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.DefendingPlayer)),
-                Effects.GainLife(1, EffectTarget.Controller)
-            )
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.DefendingPlayer)) then
+            Effects.GainLife(1, EffectTarget.Controller)
     }
 
     metadata {

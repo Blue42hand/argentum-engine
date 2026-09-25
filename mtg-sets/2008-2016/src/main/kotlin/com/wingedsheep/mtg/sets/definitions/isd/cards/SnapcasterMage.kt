@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Snapcaster Mage
@@ -41,9 +40,7 @@ val SnapcasterMage = card("Snapcaster Mage") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
-        ))
+        val target = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
         trigger = Triggers.self.enters()
         effect = Effects.GrantFlashback(target)
         description = "When this creature enters, target instant or sorcery card in your " +

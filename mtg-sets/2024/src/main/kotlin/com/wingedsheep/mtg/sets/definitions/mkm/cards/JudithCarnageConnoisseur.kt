@@ -58,10 +58,8 @@ val JudithCarnageConnoisseur = card("Judith, Carnage Connoisseur") {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.Composite(
-                    Effects.GrantKeywordToSpell(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity),
-                    Effects.GrantKeywordToSpell(Keyword.LIFELINK, EffectTarget.TriggeringEntity)
-                ),
+                Effects.GrantKeywordToSpell(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity) then
+                    Effects.GrantKeywordToSpell(Keyword.LIFELINK, EffectTarget.TriggeringEntity),
                 "That spell gains deathtouch and lifelink"
             ),
             Mode.noTarget(

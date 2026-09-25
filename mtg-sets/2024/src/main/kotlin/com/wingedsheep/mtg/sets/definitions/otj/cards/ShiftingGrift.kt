@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Shifting Grift
@@ -44,8 +44,8 @@ val ShiftingGrift = card("Shifting Grift") {
             modes = listOf(
                 // + {2} — Exchange control of two target creatures.
                 mode("+ {2} — Exchange control of two target creatures.") {
-                    val firstCreature = target("target first creature", Targets.Creature)
-                    val secondCreature = target("target second creature", Targets.Creature)
+                    val firstCreature = target(TargetFilter.Creature)
+                    val secondCreature = target(TargetFilter.Creature)
                     additionalManaCost = "{2}"
                     effect = Effects.ExchangeControl(
                         firstCreature,
@@ -54,8 +54,8 @@ val ShiftingGrift = card("Shifting Grift") {
                 },
                 // + {1} — Exchange control of two target artifacts.
                 mode("+ {1} — Exchange control of two target artifacts.") {
-                    val firstArtifact = target("target first artifact", Targets.Artifact)
-                    val secondArtifact = target("target second artifact", Targets.Artifact)
+                    val firstArtifact = target(TargetFilter.Artifact)
+                    val secondArtifact = target(TargetFilter.Artifact)
                     additionalManaCost = "{1}"
                     effect = Effects.ExchangeControl(
                         firstArtifact,
@@ -64,8 +64,8 @@ val ShiftingGrift = card("Shifting Grift") {
                 },
                 // + {1} — Exchange control of two target enchantments.
                 mode("+ {1} — Exchange control of two target enchantments.") {
-                    val firstEnchantment = target("target first enchantment", Targets.Enchantment)
-                    val secondEnchantment = target("target second enchantment", Targets.Enchantment)
+                    val firstEnchantment = target(TargetFilter.Enchantment)
+                    val secondEnchantment = target(TargetFilter.Enchantment)
                     additionalManaCost = "{1}"
                     effect = Effects.ExchangeControl(
                         firstEnchantment,

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Peerless Ropemaster
@@ -30,7 +29,7 @@ val PeerlessRopemaster = card("Peerless Ropemaster") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("creature", TargetCreature(filter = TargetFilter.TappedCreature, optional = true))
+        val t = target(TargetFilter.TappedCreature, optional = true)
         effect = Effects.ReturnToHand(t)
         description = "When this creature enters, return up to one target tapped creature to its owner's hand."
     }

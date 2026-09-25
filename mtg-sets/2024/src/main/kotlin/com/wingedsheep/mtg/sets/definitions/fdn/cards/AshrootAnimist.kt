@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,11 +31,9 @@ val AshrootAnimist = card("Ashroot Animist") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
+        val t = target(TargetFilter.OtherCreatureYouControl)
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then
             Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

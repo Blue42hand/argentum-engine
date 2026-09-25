@@ -33,7 +33,7 @@ val SmolderInitiate = card("Smolder Initiate") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.withColor(Color.BLACK))
-        val player = target("target", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.LoseLife(1, player)

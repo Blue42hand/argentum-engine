@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 private val bloodFilter = GameObjectFilter.Artifact.withSubtype("Blood")
@@ -65,13 +64,7 @@ private val BloodbatSummoner = card("Bloodbat Summoner") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val blood = target(
-            "up to one target Blood token you control",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(bloodFilter.youControl()),
-            ),
-        )
+        val blood = target(TargetFilter(bloodFilter.youControl()), optional = true)
         effect = Effects.BecomeCreature(
             target = blood,
             power = 2,

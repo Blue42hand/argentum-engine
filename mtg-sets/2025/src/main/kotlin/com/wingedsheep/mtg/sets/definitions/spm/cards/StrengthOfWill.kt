@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Strength of Will
@@ -32,12 +31,8 @@ val StrengthOfWill = card("Strength of Will") {
         "\"Whenever this creature is dealt damage, put that many +1/+1 counters on it.\""
 
     spell {
-        val creature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.Creature.youControl())
-        )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
+        val creature = target(TargetFilter.Creature.youControl())
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.isDealtDamage(),
@@ -48,8 +43,7 @@ val StrengthOfWill = card("Strength of Will") {
                     ),
                 ),
                 target = creature,
-            ),
-        )
+            )
     }
 
     metadata {

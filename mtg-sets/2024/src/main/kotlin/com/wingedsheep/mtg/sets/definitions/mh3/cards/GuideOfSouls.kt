@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.mh3.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Guide of Souls
@@ -43,7 +43,7 @@ val GuideOfSouls = card("Guide of Souls") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        effect = Effects.GainLife(1).then(Effects.GetEnergy(1))
+        effect = Effects.GainLife(1) then Effects.GetEnergy(1)
     }
 
     triggeredAbility {
@@ -55,10 +55,10 @@ val GuideOfSouls = card("Guide of Souls") {
                 "and a flying counter on target attacking creature. It becomes an Angel in " +
                 "addition to its other types."
         ) {
-            val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
-            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, attackingCreature)
-                .then(Effects.AddCounters(CounterType.FLYING, 1, attackingCreature))
-                .then(Effects.AddCreatureType("Angel", attackingCreature))
+            val attackingCreature = target(TargetFilter.AttackingCreature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, attackingCreature) then
+                Effects.AddCounters(CounterType.FLYING, 1, attackingCreature) then
+                Effects.AddCreatureType("Angel", attackingCreature)
         }
     }
 

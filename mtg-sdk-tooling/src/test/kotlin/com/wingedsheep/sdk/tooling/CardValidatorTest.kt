@@ -31,7 +31,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.gift
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -39,6 +38,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Unit tests for post-deserialization card validation.
@@ -79,7 +80,7 @@ class CardValidatorTest : DescribeSpec({
                 name = "Holy Strength",
                 manaCost = ManaCost.parse("{W}"),
                 typeLine = TypeLine.aura(),
-                script = CardScript(auraTarget = TargetCreature()),
+                script = CardScript(auraTarget = TargetObject(filter = TargetFilter.Creature)),
             )
             CardValidator.validate(card).shouldBeEmpty()
         }
@@ -287,7 +288,7 @@ class CardValidatorTest : DescribeSpec({
                 name = "Non-Aura Enchantment",
                 manaCost = ManaCost.parse("{W}"),
                 typeLine = TypeLine.enchantment(),
-                script = CardScript(auraTarget = TargetCreature()),
+                script = CardScript(auraTarget = TargetObject(filter = TargetFilter.Creature)),
             )
             val errors = CardValidator.validate(card)
             errors shouldHaveSize 1
@@ -375,7 +376,7 @@ class CardValidatorTest : DescribeSpec({
                         destination = Zone.GRAVEYARD,
                         byDestruction = true,
                     ),
-                    targetRequirements = listOf(TargetCreature()),
+                    targetRequirements = listOf(TargetObject(filter = TargetFilter.Creature)),
                 ),
             )
             val errors = CardValidator.validate(card)

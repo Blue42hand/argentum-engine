@@ -27,11 +27,9 @@ val VolcanicFallout = card("Volcanic Fallout") {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreatures,
             Effects.DealDamage(2, EffectTarget.IterationEntity),
-        ).then(
-            Effects.ForEachPlayer(
-                Player.Each,
-                listOf(Effects.DealDamage(2, EffectTarget.Controller)),
-            )
+        ) then Effects.ForEachPlayer(
+            Player.Each,
+            listOf(Effects.DealDamage(2, EffectTarget.Controller)),
         )
     }
 

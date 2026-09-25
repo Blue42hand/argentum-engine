@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Greta, Sweettooth Scourge
@@ -54,7 +55,7 @@ val GretaSweettoothScourge = card("Greta, Sweettooth Scourge") {
             Costs.Sacrifice(GameObjectFilter.Any.withSubtype("Food")),
         )
         timing = TimingRule.SorcerySpeed
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "Put a +1/+1 counter on target creature. Activate only as a sorcery."
     }
@@ -64,10 +65,7 @@ val GretaSweettoothScourge = card("Greta, Sweettooth Scourge") {
             Costs.Mana("{1}{B}"),
             Costs.Sacrifice(GameObjectFilter.Any.withSubtype("Food")),
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller),
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         description = "You draw a card and you lose 1 life."
     }
 

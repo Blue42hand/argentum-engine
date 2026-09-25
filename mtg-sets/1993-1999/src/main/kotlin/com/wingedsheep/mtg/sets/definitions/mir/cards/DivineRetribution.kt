@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -26,7 +25,7 @@ val DivineRetribution = card("Divine Retribution") {
     typeLine = "Instant"
     oracleText = "Divine Retribution deals damage to target attacking creature equal to the number of attacking creatures."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.attacking()))
+        val t = target(TargetFilter.Creature.attacking())
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Creature.attacking()).count(),
             t

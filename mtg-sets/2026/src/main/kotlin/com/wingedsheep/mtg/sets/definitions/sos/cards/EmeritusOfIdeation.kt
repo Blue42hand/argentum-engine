@@ -11,8 +11,8 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.scripting.effects.WardCost
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Emeritus of Ideation // Ancestral Recall — Secrets of Strixhaven #45
@@ -78,7 +78,7 @@ val EmeritusOfIdeation = card("Emeritus of Ideation") {
         typeLine = "Instant"
         oracleText = "Target player draws three cards."
         spell {
-            val t = target("target", TargetPlayer())
+            val t = target(Targets.Player)
             effect = Effects.DrawCards(3, t)
         }
     }

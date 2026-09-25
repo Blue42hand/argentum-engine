@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Private Eye — Murders at Karlov Manor #223
@@ -55,10 +54,7 @@ val PrivateEye = card("Private Eye") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        val detective = target(
-            "detective",
-            TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.DETECTIVE))
-        )
+        val detective = target(TargetFilter.Creature.withSubtype(Subtype.DETECTIVE))
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, detective)
         description = "Whenever you draw your second card each turn, target Detective can't be " +
             "blocked this turn."

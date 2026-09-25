@@ -2,12 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Disruptive Stormbrood // Petty Revenge — Tarkir: Dragonstorm #178
@@ -36,10 +34,7 @@ val DisruptiveStormbrood = card("Disruptive Stormbrood") {
     // ETB: destroy up to one target artifact or enchantment.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val artifactOrEnchantment = target(
-            "up to one target artifact or enchantment",
-            TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment, count = 1, optional = true)
-        )
+        val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment, optional = true)
         effect = Effects.Destroy(artifactOrEnchantment)
     }
 
@@ -50,7 +45,7 @@ val DisruptiveStormbrood = card("Disruptive Stormbrood") {
         oracleText = "Destroy target creature with power 3 or less. " +
             "(Then shuffle this card into its owner's library.)"
         spell {
-            val creature = target("creature with power 3 or less", Targets.CreatureWithPowerAtMost(3))
+            val creature = target(TargetFilter.Creature.powerAtMost(3))
             effect = Effects.Destroy(creature)
         }
     }

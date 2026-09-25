@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Boltwing Marauder
@@ -36,7 +37,7 @@ val BoltwingMarauder = card("Boltwing Marauder") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(2, 0, creature)
     }
 

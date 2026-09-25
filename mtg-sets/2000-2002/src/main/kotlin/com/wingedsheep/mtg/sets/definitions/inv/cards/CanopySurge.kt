@@ -30,18 +30,14 @@ val CanopySurge = card("Canopy Surge") {
 
     keywordAbility(KeywordAbility.kicker("{2}"))
 
-    fun damageToFliersAndPlayers(amount: Int): Effect = Effects.Composite(
-        listOf(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
-                Effects.DealDamage(amount, EffectTarget.IterationEntity)
-            ),
-            Effects.ForEachPlayer(
-                players = Player.Each,
-                effect = Effects.DealDamage(amount, EffectTarget.Controller)
-            )
+    fun damageToFliersAndPlayers(amount: Int): Effect = Effects.ForEachInGroup(
+        GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
+        Effects.DealDamage(amount, EffectTarget.IterationEntity)
+    ) then
+        Effects.ForEachPlayer(
+            players = Player.Each,
+            effect = Effects.DealDamage(amount, EffectTarget.Controller)
         )
-    )
 
     spell {
         effect = Effects.If(

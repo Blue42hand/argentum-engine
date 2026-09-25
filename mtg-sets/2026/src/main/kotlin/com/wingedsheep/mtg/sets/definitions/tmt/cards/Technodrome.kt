@@ -52,8 +52,8 @@ val Technodrome = card("Technodrome") {
             Costs.Tap,
             Costs.SacrificeAnother(GameObjectFilter.Artifact)
         )
-        effect = Effects.DrawCards(1)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self))
+        effect = Effects.DrawCards(1) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -48,19 +47,8 @@ val BlacksmithsTalent = card("Blacksmith's Talent") {
     classLevel(2, "{2}{R}") {
         triggeredAbility {
             trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-            val equipment = target(
-                "Equipment you control",
-                TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl())
-                )
-            )
-            val creature = target(
-                "creature you control",
-                TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Creature.youControl()),
-                    optional = true
-                )
-            )
+            val equipment = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()))
+            val creature = target(TargetFilter(GameObjectFilter.Creature.youControl()), optional = true)
             effect = Effects.AttachTargetEquipmentToCreature(equipment, creature)
         }
     }

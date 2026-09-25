@@ -45,7 +45,7 @@ val RedcapMelee = card("Redcap Melee") {
         "permanent is dealt damage this way, you sacrifice a land."
 
     spell {
-        val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(4, t) then Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.notColor(Color.RED), t),
             then = Effects.SacrificeOwn(Filters.Land)

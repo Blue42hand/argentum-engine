@@ -28,15 +28,13 @@ val PeerPastTheVeil = card("Peer Past the Veil") {
     oracleText = "Discard your hand. Then draw X cards, where X is the number of card types among cards in your graveyard."
 
     spell {
-        effect = Effects.Composite(
-            Patterns.Hand.discardHand(EffectTarget.Controller),
+        effect = Patterns.Hand.discardHand(EffectTarget.Controller) then
             Effects.DrawCards(
                 DynamicAmounts.zone(
                     Player.You,
                     Zone.GRAVEYARD
                 ).distinctTypes()
             )
-        )
     }
 
     metadata {

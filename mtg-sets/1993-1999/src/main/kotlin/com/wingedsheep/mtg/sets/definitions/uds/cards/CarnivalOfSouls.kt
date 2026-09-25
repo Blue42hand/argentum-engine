@@ -26,10 +26,7 @@ val CarnivalOfSouls = card("Carnival of Souls") {
     oracleText = "Whenever a creature enters, you lose 1 life and add {B}."
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature).enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.Controller),
-            Effects.AddMana(Color.BLACK)
-        )
+        effect = Effects.LoseLife(1, EffectTarget.Controller) then Effects.AddMana(Color.BLACK)
     }
     metadata {
         rarity = Rarity.RARE

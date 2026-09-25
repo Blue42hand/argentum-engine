@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
@@ -20,6 +19,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Koh, the Face Stealer — {4}{B}{B} Legendary Creature — Shapeshifter Spirit (TLA #107).
@@ -69,7 +69,7 @@ class KohTheFaceStealerScenarioTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Destroy target creature."
         spell {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.Destroy(creature)
         }
     }

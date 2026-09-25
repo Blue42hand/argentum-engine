@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
@@ -41,13 +40,8 @@ val CryogenRelic = card("Cryogen Relic") {
             Costs.SacrificeSelf
         )
         val target = target(
-            "target tapped creature",
-            com.wingedsheep.sdk.scripting.targets.TargetPermanent(
-                filter = com.wingedsheep.sdk.scripting.filters.unified.TargetFilter(
-                    GameObjectFilter.Creature.tapped()
-                ),
-                optional = true
-            )
+            com.wingedsheep.sdk.scripting.filters.unified.TargetFilter(GameObjectFilter.Creature.tapped()),
+            optional = true,
         )
         effect = Effects.AddCounters(CounterType.STUN, 1, target)
     }

@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Surgespanner
@@ -37,7 +37,7 @@ val Surgespanner = card("Surgespanner") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
-        val permanent = target("target permanent", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{U}"),
             then = Effects.ReturnToHand(permanent),

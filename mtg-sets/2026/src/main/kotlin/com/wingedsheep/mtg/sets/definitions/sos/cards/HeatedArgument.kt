@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Heated Argument
@@ -31,7 +31,7 @@ val HeatedArgument = card("Heated Argument") {
         "graveyard. If you do, Heated Argument also deals 2 damage to that creature's controller."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.DealDamage(6, creature) then Effects.May(
             Effects.IfYouDo(
                 action = Effects.Pipeline {

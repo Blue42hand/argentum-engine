@@ -29,7 +29,7 @@ val TheBlackBreath = card("The Black Breath") {
                 target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )
-        ).then(Effects.TheRingTemptsYou())
+        ) then Effects.TheRingTemptsYou()
     }
 
     metadata {

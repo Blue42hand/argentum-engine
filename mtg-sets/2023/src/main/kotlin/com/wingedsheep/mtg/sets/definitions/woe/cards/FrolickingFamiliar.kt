@@ -47,7 +47,7 @@ val FrolickingFamiliar = card("Frolicking Familiar") {
         oracleText = "Blow Off Steam deals 1 damage to any target. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            val t = target("target", Targets.Any)
+            val t = target(Targets.Any)
             effect = Effects.DealDamage(1, t)
         }
     }

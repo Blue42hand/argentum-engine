@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Requiem Monolith
@@ -28,30 +28,22 @@ val RequiemMonolith = card("Requiem Monolith") {
     activatedAbility {
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
 
         val damage = DynamicAmounts.triggerDamageAmount()
         val grantedAbility = TriggeredAbility.create(
             trigger = Triggers.self.isDealtDamage(),
-            effect = Effects.Composite(
-                listOf(
-                    Effects.DrawCards(damage, EffectTarget.Controller),
-                    Effects.LoseLife(damage, EffectTarget.Controller)
-                )
-            ),
+            effect = Effects.DrawCards(damage, EffectTarget.Controller) then
+                Effects.LoseLife(damage, EffectTarget.Controller),
             descriptionOverride = "Whenever this creature is dealt damage, you draw that many cards and lose that much life"
         )
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantTriggeredAbility(ability = grantedAbility, target = creature),
-                Effects.May(
-                    effect = Effects.DealDamage(amount = 1, target = creature, damageSource = EffectTarget.Self),
-                    descriptionOverride = "Have Requiem Monolith deal 1 damage to that creature?",
-                    decisionMaker = EffectTarget.TargetController
-                )
+        effect = Effects.GrantTriggeredAbility(ability = grantedAbility, target = creature) then
+            Effects.May(
+                effect = Effects.DealDamage(amount = 1, target = creature, damageSource = EffectTarget.Self),
+                descriptionOverride = "Have Requiem Monolith deal 1 damage to that creature?",
+                decisionMaker = EffectTarget.TargetController
             )
-        )
     }
 
     metadata {

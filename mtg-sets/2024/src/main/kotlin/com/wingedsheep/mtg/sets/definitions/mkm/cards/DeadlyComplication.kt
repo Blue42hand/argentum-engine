@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Deadly Complication — Murders at Karlov Manor #195
@@ -47,22 +46,15 @@ val DeadlyComplication = card("Deadly Complication") {
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Destroy target creature") {
-                val victim = target("target creature", TargetCreature())
+                val victim = target(TargetFilter.Creature)
                 effect = Effects.Destroy(victim)
             }
             mode("Put a +1/+1 counter on target suspected creature you control") {
-                val suspect = target(
-                    "target suspected creature you control",
-                    TargetCreature(
-                        filter = TargetFilter(GameObjectFilter.Creature.youControl().suspected())
-                    )
-                )
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, suspect)
-                    .then(
-                        Effects.May(
-                            Effects.NoLongerSuspected(suspect),
-                            descriptionOverride = "Have it become no longer suspected?"
-                        )
+                val suspect = target(TargetFilter(GameObjectFilter.Creature.youControl().suspected()))
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, suspect) then
+                    Effects.May(
+                        Effects.NoLongerSuspected(suspect),
+                        descriptionOverride = "Have it become no longer suspected?"
                     )
             }
         }

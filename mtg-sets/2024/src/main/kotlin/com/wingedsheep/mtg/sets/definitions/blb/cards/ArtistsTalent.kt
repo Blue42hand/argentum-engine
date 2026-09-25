@@ -37,12 +37,7 @@ val ArtistsTalent = card("Artist's Talent") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    Patterns.Hand.discardCards(1),
-                    Effects.DrawCards(1, EffectTarget.Controller)
-                )
-            )
+            Patterns.Hand.discardCards(1) then Effects.DrawCards(1, EffectTarget.Controller)
         )
     }
 

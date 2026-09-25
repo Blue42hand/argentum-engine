@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Mind Roots
@@ -36,7 +37,7 @@ val MindRoots = card("Mind Roots") {
         "onto the battlefield tapped under your control."
 
     spell {
-        val player = target("player", TargetPlayer())
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             // Target player discards two cards (they choose).
             val hand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

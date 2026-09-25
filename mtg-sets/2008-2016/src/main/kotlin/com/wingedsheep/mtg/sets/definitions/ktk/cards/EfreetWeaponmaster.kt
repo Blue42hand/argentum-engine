@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Efreet Weaponmaster
@@ -29,13 +28,13 @@ val EfreetWeaponmaster = card("Efreet Weaponmaster") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ModifyStats(3, 0, t)
     }
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val t = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ModifyStats(3, 0, t)
     }
 

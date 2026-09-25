@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Paramecia Coloniex
@@ -42,10 +42,7 @@ val ParameciaColoniex = card("Paramecia Coloniex") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
             optional = true) {
-            val creatureCardInYourGraveyard = target(
-                "target creature card in your graveyard",
-                Targets.CreatureCardInYourGraveyard
-            )
+            val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.PutOnTopOfLibrary(creatureCardInYourGraveyard)
         }
         description = "When this creature dies, you may exile it. When you do, put target creature card from your graveyard on top of your library."

@@ -42,10 +42,8 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
                 ComparisonOperator.EQ,
                 0
             ),
-            then = Effects.Composite(listOf(
-                Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
+            then = Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true) then
                 Effects.AddCounters(CounterType.STUN, 2, EffectTarget.Self)
-            ))
         )
         description = "When this creature dies, if it had no counters on it, return it to the battlefield tapped under its owner's control with two stun counters on it."
     }

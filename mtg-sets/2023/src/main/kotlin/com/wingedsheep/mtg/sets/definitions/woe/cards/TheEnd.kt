@@ -43,7 +43,7 @@ val TheEnd = card("The End") {
     }
 
     spell {
-        target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Pipeline {
             val target = gather(CardSource.ChosenTargets, name = "target")
             val targetControllers = captureControllers(target, name = "targetControllers")

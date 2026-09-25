@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sunset Saboteur
@@ -32,7 +32,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val target = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+        val target = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "Whenever this creature attacks, put a +1/+1 counter on target creature an opponent controls."
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -34,9 +33,8 @@ val DeathmarkPrelate = card("Deathmark Prelate") {
             Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype("Zombie"))
         )
         timing = TimingRule.SorcerySpeed
-        val t = target("non-Zombie creature", TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Zombie")))))
-        effect = Effects.CantBeRegenerated(t) then
-                Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
+        val t = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Zombie"))))
+        effect = Effects.CantBeRegenerated(t) then Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
 
     metadata {

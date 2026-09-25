@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.events.Recipient
 
@@ -35,17 +34,8 @@ val MeneldorSwiftSavior = card("Meneldor, Swift Savior") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        val creature = target(
-            "up to one target creature you own",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.ownedByYou())
-            )
-        )
-        effect = Effects.Composite(listOf(
-            Effects.Move(creature, Zone.EXILE),
-            Effects.Move(creature, Zone.BATTLEFIELD)
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou()), optional = true)
+        effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
     }
 
     metadata {

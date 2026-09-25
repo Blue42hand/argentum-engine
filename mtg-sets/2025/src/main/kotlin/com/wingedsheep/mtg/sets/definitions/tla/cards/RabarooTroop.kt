@@ -34,10 +34,7 @@ val RabarooTroop = card("Rabaroo Troop") {
     // until end of turn and you gain 1 life.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
-            Effects.GainLife(1),
-        )
+        effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self) then Effects.GainLife(1)
     }
 
     // Plainscycling {2}

@@ -34,7 +34,7 @@ val TalasExplorer = card("Talas Explorer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.LookAtHand(opponent)
     }
 

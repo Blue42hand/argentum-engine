@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedLoyaltyAbility
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * The granted −10 is an ordinary loyalty ability on each planeswalker you control — the Jace token
@@ -34,7 +34,7 @@ val AvatarOfBurgeoningEchoes = card("Avatar of Burgeoning Echoes") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = grantedLoyaltyAbility(-10) {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.AddDynamicCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmounts.landsYouControl(),

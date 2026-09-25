@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Trusty Retriever
@@ -40,12 +39,9 @@ val TrustyRetriever = card("Trusty Retriever") {
                 "Put a +1/+1 counter on this creature",
             ),
             mode("Return target artifact or enchantment card from your graveyard to your hand") {
-                val artifactOrEnchantment = target("target artifact or enchantment", TargetObject(
-                    filter = TargetFilter(
-                        GameObjectFilter.ArtifactOrEnchantment.ownedByYou(),
-                        zone = Zone.GRAVEYARD,
-                    )
-                ))
+                val artifactOrEnchantment = target(
+                    TargetFilter(GameObjectFilter.ArtifactOrEnchantment.ownedByYou(), zone = Zone.GRAVEYARD),
+                )
                 effect = Effects.ReturnToHand(artifactOrEnchantment)
             },
         )

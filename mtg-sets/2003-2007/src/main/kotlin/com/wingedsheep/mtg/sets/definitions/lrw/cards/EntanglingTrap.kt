@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Entangling Trap
@@ -38,9 +38,8 @@ val EntanglingTrap = card("Entangling Trap") {
 
     triggeredAbility {
         trigger = Triggers.you.clashes()
-        val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Tap(creature),
+        val creature = target(TargetFilter.CreatureOpponentControls)
+        effect = Effects.Tap(creature) then
             Effects.If(
                 Conditions.YouWonTheClash,
                 Effects.GrantKeyword(
@@ -49,7 +48,6 @@ val EntanglingTrap = card("Entangling Trap") {
                     Duration.UntilAfterAffectedControllersNextUntap
                 )
             )
-        )
         description = "tap target creature an opponent controls. If you won, that creature " +
             "doesn't untap during its controller's next untap step."
     }

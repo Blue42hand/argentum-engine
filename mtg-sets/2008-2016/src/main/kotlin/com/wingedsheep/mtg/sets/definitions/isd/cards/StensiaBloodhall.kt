@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -31,7 +31,7 @@ val StensiaBloodhall = card("Stensia Bloodhall") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{B}{R}"), Costs.Tap)
-        val t = target("target", TargetPlayerOrPlaneswalker())
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(2, t)
     }
     metadata {

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Pearlspear Courier
@@ -31,9 +30,7 @@ val PearlspearCourier = card("Pearlspear Courier") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.Tap)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Soldier"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Soldier")))
         effect = Effects.ModifyStats(2, 2, t, Duration.WhileSourceTapped()) then
                 Effects.GrantKeyword(Keyword.VIGILANCE, t, Duration.WhileSourceTapped())
     }

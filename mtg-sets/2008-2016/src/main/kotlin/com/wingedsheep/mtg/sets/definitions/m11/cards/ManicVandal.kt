@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.m11.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Manic Vandal — Magic 2011 #151
@@ -27,7 +27,7 @@ val ManicVandal = card("Manic Vandal") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val artifact = target("target artifact", Targets.Artifact)
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.Destroy(artifact)
     }
 

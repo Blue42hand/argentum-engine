@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Trusted Pegasus — War of the Spark #36 (canonical printing)
@@ -36,10 +35,7 @@ val TrustedPegasus = card("Trusted Pegasus") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val grounded = target(
-            "target",
-            TargetCreature(filter = TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING))
-        )
+        val grounded = target(TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING))
         effect = Effects.GrantKeyword(Keyword.FLYING, grounded)
     }
 

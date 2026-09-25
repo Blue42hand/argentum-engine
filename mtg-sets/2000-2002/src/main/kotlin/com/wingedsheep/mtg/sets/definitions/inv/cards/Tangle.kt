@@ -23,15 +23,13 @@ val Tangle = card("Tangle") {
         "Each attacking creature doesn't untap during its controller's next untap step."
 
     spell {
-        effect = Effects.PreventAllCombatDamage()
-            .then(
-                Effects.ForEachInGroup(
-                    GroupFilter.AttackingCreatures,
-                    Effects.GrantKeyword(
-                        AbilityFlag.DOESNT_UNTAP,
-                        EffectTarget.IterationEntity,
-                        Duration.UntilAfterAffectedControllersNextUntap
-                    )
+        effect = Effects.PreventAllCombatDamage() then
+            Effects.ForEachInGroup(
+                GroupFilter.AttackingCreatures,
+                Effects.GrantKeyword(
+                    AbilityFlag.DOESNT_UNTAP,
+                    EffectTarget.IterationEntity,
+                    Duration.UntilAfterAffectedControllersNextUntap
                 )
             )
     }

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -15,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * The Skullspore Nexus {6}{G}{G}
@@ -76,7 +76,7 @@ val TheSkullsporeNexus = card("The Skullspore Nexus") {
     // "{2}, {T}: Double target creature's power until end of turn."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val creature = target("creature whose power to double", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.powerOf(creature),
             toughness = DynamicAmounts.fixed(0),

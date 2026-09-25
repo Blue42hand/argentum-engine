@@ -52,15 +52,13 @@ val DeepSpawn = card("Deep Spawn") {
 
     activatedAbility {
         cost = Costs.Mana("{U}")
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self) then
             Effects.GrantKeyword(
                 AbilityFlag.DOESNT_UNTAP,
                 EffectTarget.Self,
                 Duration.UntilAfterAffectedControllersNextUntap,
-            ),
-            Effects.Tap(EffectTarget.Self),
-        )
+            ) then
+            Effects.Tap(EffectTarget.Self)
         description = "{U}: This creature gains shroud until end of turn and doesn't untap during your next untap step. Tap this creature."
     }
 

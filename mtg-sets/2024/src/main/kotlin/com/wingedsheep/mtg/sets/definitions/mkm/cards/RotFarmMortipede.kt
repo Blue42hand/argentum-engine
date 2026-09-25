@@ -35,11 +35,9 @@ val RotFarmMortipede = card("Rot Farm Mortipede") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).leaveYourGraveyard()
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),
-        )
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
         description = "Whenever one or more creature cards leave your graveyard, this creature " +
             "gets +1/+0 and gains menace and lifelink until end of turn."
     }

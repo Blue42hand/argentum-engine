@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Cleanup Crew
@@ -37,21 +36,15 @@ val CleanupCrew = card("Cleanup Crew") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact") {
-                val artifact = target("target artifact", TargetObject(filter = TargetFilter.Artifact))
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Destroy(artifact)
             },
             mode("Destroy target enchantment") {
-                val enchantment = target(
-                    "target enchantment",
-                    TargetObject(filter = TargetFilter.Enchantment)
-                )
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             },
             mode("Exile target card from a graveyard") {
-                val cardInGraveyard = target(
-                    "target card in graveyard",
-                    TargetObject(filter = TargetFilter.CardInGraveyard)
-                )
+                val cardInGraveyard = target(TargetFilter.CardInGraveyard)
                 effect = Effects.Exile(cardInGraveyard)
             },
             Mode.noTarget(

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Absolving Lammasu — Murders at Karlov Manor #2
@@ -65,14 +64,8 @@ val AbsolvingLammasu = card("Absolving Lammasu") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val suspect = target(
-            "up to one target creature an opponent controls",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
-        )
-        effect = Effects.Composite(
-            Effects.GainLife(3),
-            Effects.Suspect(suspect)
-        )
+        val suspect = target(TargetFilter.CreatureOpponentControls, optional = true)
+        effect = Effects.GainLife(3) then Effects.Suspect(suspect)
         description = "When this creature dies, you gain 3 life and suspect up to one target " +
             "creature an opponent controls."
     }

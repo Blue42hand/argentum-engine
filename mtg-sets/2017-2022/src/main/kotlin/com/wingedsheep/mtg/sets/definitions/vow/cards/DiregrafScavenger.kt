@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Diregraf Scavenger
@@ -41,24 +40,15 @@ val DiregrafScavenger = card("Diregraf Scavenger") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to one target card from a graveyard",
-            TargetObject(
-                count = 1,
-                optional = true,
-                filter = TargetFilter.CardInGraveyard
-            )
-        )
+        target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Pipeline {
             val diregrafExiled = gather(CardSource.ChosenTargets)
             exile(diregrafExiled)
             ifNotEmpty(diregrafExiled, filter = GameObjectFilter.Creature) {
-                run(Effects.Composite(
-                    Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    Effects.GainLife(2)
-                ))
+                run(Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+                    Effects.GainLife(2))
             } orElse {
-                run(Effects.Composite(emptyList()))
+                run(Effects.Nothing)
             }
         }
         description = "When this creature enters, exile up to one target card from a graveyard. " +

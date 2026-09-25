@@ -30,10 +30,8 @@ val DimirCutpurse = card("Dimir Cutpurse") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Patterns.Hand.discardCards(1, EffectTarget.PlayerRef(Player.TriggeringPlayer)),
+        effect = Patterns.Hand.discardCards(1, EffectTarget.PlayerRef(Player.TriggeringPlayer)) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.RARE

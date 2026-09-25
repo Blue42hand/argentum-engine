@@ -49,8 +49,7 @@ val Timesifter = card("Timesifter") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.ExileTopCardContest(storeWinnerAs = WINNER),
+        effect = Effects.ExileTopCardContest(storeWinnerAs = WINNER) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.distinctEntitiesIn(WINNER),
@@ -59,7 +58,6 @@ val Timesifter = card("Timesifter") {
                 ),
                 then = Effects.TakeExtraTurn(target = EffectTarget.PipelineTarget(WINNER))
             )
-        )
         description = "At the beginning of each upkeep, each player exiles the top card of their " +
             "library. The player who exiled the card with the greatest mana value takes an extra " +
             "turn after this one. If two or more players' cards are tied for greatest, the tied " +

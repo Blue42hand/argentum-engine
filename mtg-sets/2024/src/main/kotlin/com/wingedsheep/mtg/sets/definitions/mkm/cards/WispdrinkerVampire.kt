@@ -35,19 +35,14 @@ val WispdrinkerVampire = card("Wispdrinker Vampire") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.powerAtMost(2).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
     activatedAbility {
         cost = Costs.Mana("{5}{W}{B}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.powerAtMost(2).youControl()),
-            Effects.Composite(
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity),
+            Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity)
-            )
         )
     }
     metadata {

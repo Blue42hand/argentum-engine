@@ -25,7 +25,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -35,7 +35,7 @@
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: Prevent the next 1 damage that would be dealt to any target this turn."
@@ -83,7 +83,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact card from your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -94,7 +94,7 @@
                             "baseFilter": "artifact own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target artifact card from your graveyard"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{W}{W}, {T}: Return target artifact card from your graveyard to your hand."
@@ -133,7 +133,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact creature"
+                        "name": "t0"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -146,7 +146,7 @@
                         "filter": {
                             "baseFilter": "artifact creature"
                         },
-                        "id": "target artifact creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn."
@@ -367,7 +367,7 @@
                     "baseFilter": "artifact",
                     "zone": "Stack"
                 },
-                "id": "artifact spell"
+                "id": "t0"
             }
         ]
     },
@@ -584,7 +584,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileSourceTapped",
@@ -597,7 +597,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target creature you control"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: Target creature you control gets +2/-2 for as long as this artifact remains tapped."
@@ -641,7 +641,7 @@
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target nonartifact creature"
+                                "name": "t0"
                             }
                         },
                         {
@@ -649,7 +649,7 @@
                             "cardType": "ARTIFACT",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target nonartifact creature"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -660,7 +660,7 @@
                         "filter": {
                             "baseFilter": "creature nonartifact"
                         },
-                        "id": "target nonartifact creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Sacrifice this artifact: Put a +1/+1 counter on target nonartifact creature. That creature becomes an artifact in addition to its other types."
@@ -824,7 +824,7 @@
                         "filter": {
                             "baseFilter": "land"
                         },
-                        "id": "target permanent",
+                        "id": "t0",
                         "dynamicMaxCount": "XValue"
                     }
                 ],
@@ -1199,7 +1199,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1208,7 +1208,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{3}, Discard a card at random: Target creature gets +2/+2 until end of turn."
@@ -1241,7 +1241,7 @@
                         "type": "EntityProperty",
                         "entity": {
                             "type": "BoundVariable",
-                            "name": "target artifact"
+                            "name": "t0"
                         },
                         "numericProperty": "ManaValue"
                     },
@@ -1254,14 +1254,14 @@
                             "type": "CantBeRegenerated",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target artifact"
+                                "name": "t0"
                             }
                         },
                         {
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target artifact"
+                                "name": "t0"
                             },
                             "destination": "Graveyard",
                             "byDestruction": true
@@ -1276,7 +1276,7 @@
                 "filter": {
                     "baseFilter": "artifact"
                 },
-                "id": "target artifact"
+                "id": "t0"
             }
         ]
     },
@@ -1377,14 +1377,14 @@
                             "type": "CantBeRegenerated",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "artifact with mana value X"
+                                "name": "t0"
                             }
                         },
                         {
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "artifact with mana value X"
+                                "name": "t0"
                             },
                             "destination": "Graveyard",
                             "byDestruction": true
@@ -1404,7 +1404,7 @@
                         ]
                     }
                 },
-                "id": "artifact with mana value X"
+                "id": "t0"
             }
         ]
     },
@@ -1451,7 +1451,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             },
             {
                 "type": "TargetObject",
@@ -1460,7 +1460,7 @@
                     "baseFilter": "artifact own:target-player",
                     "zone": "Graveyard"
                 },
-                "id": "any number of target artifact cards from that player's graveyard"
+                "id": "t1"
             }
         ]
     },
@@ -1555,7 +1555,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1564,7 +1564,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -1758,7 +1758,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1769,7 +1769,7 @@
                         "filter": {
                             "baseFilter": "artifact"
                         },
-                        "id": "target artifact"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -1846,7 +1846,7 @@
                             },
                             "zone": "Stack"
                         },
-                        "id": "target artifact spell you control"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Flip a coin. If you win the flip, draw a card. If you lose the flip, counter target artifact spell you control that isn't the target of an ability from another creature named Goblin Artisans."
@@ -1957,7 +1957,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature with flying"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1966,7 +1966,7 @@
                         "filter": {
                             "baseFilter": "creature kw:flying"
                         },
-                        "id": "target creature with flying"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2070,7 +2070,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ]
     },
@@ -2331,7 +2331,7 @@
                                 },
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target player"
+                                    "name": "t0"
                                 },
                                 "isMill": true
                             },
@@ -2345,7 +2345,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target player"
+                                    "name": "t0"
                                 }
                             }
                         }
@@ -2354,7 +2354,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target player"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: Target player mills two cards."
@@ -2436,7 +2436,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Assembly-Worker creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2445,7 +2445,7 @@
                         "filter": {
                             "baseFilter": "creature Assembly-Worker"
                         },
-                        "id": "target Assembly-Worker creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Target Assembly-Worker creature gets +1/+1 until end of turn."
@@ -2591,7 +2591,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target permanent you both own and control"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -2612,7 +2612,7 @@
                                 }
                             }
                         },
-                        "id": "target permanent you both own and control"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{6}, {T}: Return target permanent you both own and control to your hand."
@@ -2705,13 +2705,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Sacrifice an artifact: This creature deals 2 damage to any target."
@@ -2777,7 +2777,7 @@
                             "type": "TapUntap",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target artifact"
+                                "name": "t0"
                             }
                         },
                         {
@@ -2785,7 +2785,7 @@
                             "keyword": "DOESNT_UNTAP",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target artifact"
+                                "name": "t0"
                             },
                             "duration": {
                                 "type": "WhileSourceTapped",
@@ -2800,7 +2800,7 @@
                         "filter": {
                             "baseFilter": "artifact"
                         },
-                        "id": "target artifact"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Tap target artifact. It doesn't untap during its controller's untap step for as long as this creature remains tapped."
@@ -3123,7 +3123,7 @@
                             "type": "PreventDamageShield",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "any target"
+                                "name": "t0"
                             },
                             "amount": {
                                 "type": "Fixed",
@@ -3144,7 +3144,7 @@
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}: Prevent the next 1 damage that would be dealt to any target this turn. Return this artifact to its owner's hand at the beginning of the next end step."
@@ -3173,7 +3173,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target artifact card from your graveyard"
+                "name": "t0"
             },
             "destination": "Hand"
         },
@@ -3184,7 +3184,7 @@
                     "baseFilter": "artifact own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target artifact card from your graveyard"
+                "id": "t0"
             }
         ]
     },
@@ -3259,7 +3259,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "any target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -3277,7 +3277,7 @@
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -3493,7 +3493,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3502,7 +3502,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{3}, {T}: Target creature gets -2/-0 until end of turn."
@@ -3553,7 +3553,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target land"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -3564,7 +3564,7 @@
                         "filter": {
                             "baseFilter": "land"
                         },
-                        "id": "target land"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Sacrifice this land: Destroy target land."
@@ -3715,7 +3715,7 @@
                     "type": "ExileWithAurasNotingCounters",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3724,7 +3724,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{3}, {T}: Exile target creature and all Auras attached to it, noting its counters."
@@ -3769,7 +3769,7 @@
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature with power 2 or less"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3778,7 +3778,7 @@
                         "filter": {
                             "baseFilter": "creature pow<=2"
                         },
-                        "id": "target creature with power 2 or less"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: Target creature with power 2 or less can't be blocked this turn."
@@ -3833,7 +3833,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileSourceTapped",
@@ -3846,7 +3846,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: Target creature gets +1/+1 for as long as this artifact remains tapped."
@@ -4353,13 +4353,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Remove a +1/+1 counter from this creature: It deals 1 damage to any target."
@@ -4884,7 +4884,7 @@
                     "type": "BecomeCreature",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target noncreature artifact"
+                        "name": "t0"
                     },
                     "power": {
                         "type": "Fixed",
@@ -4923,7 +4923,7 @@
                                 ]
                             }
                         },
-                        "id": "target noncreature artifact"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Until your next upkeep, target noncreature artifact becomes an artifact creature with power and toughness each equal to its mana value."

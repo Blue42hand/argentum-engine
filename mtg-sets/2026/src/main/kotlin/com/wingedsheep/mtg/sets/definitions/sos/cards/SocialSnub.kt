@@ -40,14 +40,12 @@ val SocialSnub = card("Social Snub") {
     }
 
     spell {
-        effect = Effects.Composite(
-            Effects.Sacrifice(
-                filter = GameObjectFilter.Creature,
-                target = EffectTarget.PlayerRef(Player.Each),
-            ),
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1),
-        )
+        effect = Effects.Sacrifice(
+            filter = GameObjectFilter.Creature,
+            target = EffectTarget.PlayerRef(Player.Each),
+        ) then
+            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1)
     }
 
     metadata {

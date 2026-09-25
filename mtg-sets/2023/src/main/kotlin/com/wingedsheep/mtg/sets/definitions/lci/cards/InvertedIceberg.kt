@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Inverted Iceberg // Iceberg Titan (CR 702.167, The Lost Caverns of Ixalan #60)
@@ -49,10 +50,7 @@ private val InvertedIcebergFront = card("Inverted Iceberg") {
     // When this artifact enters, mill a card, then draw a card.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(1),
-            Effects.DrawCards(1)
-        )
+        effect = Patterns.Library.mill(1) then Effects.DrawCards(1)
     }
 
     // Craft with artifact {4}{U}{U} — exactly one artifact material.
@@ -86,7 +84,7 @@ private val IcebergTitan = card("Iceberg Titan") {
     // stack, then the tap/untap choice is made at resolution.
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val permanent = target("target artifact or creature", Targets.CreatureOrArtifact)
+        val permanent = target(TargetFilter.CreatureOrArtifact)
         effect = Effects.May(
             Effects.ChooseAction(
                 listOf(

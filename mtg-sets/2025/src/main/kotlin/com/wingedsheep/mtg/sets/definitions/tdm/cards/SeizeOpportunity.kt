@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -9,6 +8,8 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Seize Opportunity
@@ -43,7 +44,7 @@ val SeizeOpportunity = card("Seize Opportunity") {
                 effect = Effects.ForEachTarget(
                     Effects.ModifyStats(2, 1, EffectTarget.ContextTarget(0))
                 ),
-                targetRequirements = listOf(Targets.UpToCreatures(2)),
+                targetRequirements = listOf(TargetObject(filter = TargetFilter.Creature, count = 2, optional = true)),
                 description = "Up to two target creatures each get +2/+1 until end of turn"
             )
         )

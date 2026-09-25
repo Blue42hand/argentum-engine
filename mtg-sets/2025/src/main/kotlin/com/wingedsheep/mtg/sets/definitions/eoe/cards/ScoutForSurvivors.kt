@@ -29,14 +29,11 @@ val ScoutForSurvivors = card("Scout for Survivors") {
     oracleText = "Return up to three target creature cards with total mana value 3 or less from your graveyard to the battlefield. Put a +1/+1 counter on each of them."
 
     spell {
-        target(
-            "up to three target creature cards with total mana value 3 or less from your graveyard",
-            TargetObject(
-                count = 3,
-                optional = true,
-                filter = TargetFilter.CreatureInYourGraveyard,
-                totalManaValueAtMost = DynamicAmounts.fixed(3)
-            )
+        targets(
+            TargetFilter.CreatureInYourGraveyard,
+            count = 3,
+            optional = true,
+            totalManaValueAtMost = DynamicAmounts.fixed(3),
         )
         effect = Effects.Pipeline {
             val survivors = gather(CardSource.ChosenTargets)

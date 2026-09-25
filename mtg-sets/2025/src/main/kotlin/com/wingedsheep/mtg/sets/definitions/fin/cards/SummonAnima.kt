@@ -31,19 +31,14 @@ val SummonAnima = card("Summon: Anima") {
 
     keywords(Keyword.MENACE)
 
-    val pain = Effects.Composite(
-        Effects.DrawCards(1),
-        Effects.LoseLife(1, EffectTarget.Controller),
-    )
+    val pain = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
 
     sagaChapter(1) { effect = pain }
     sagaChapter(2) { effect = pain }
     sagaChapter(3) { effect = pain }
     sagaChapter(4) {
-        effect = Effects.Composite(
-            Effects.Sacrifice(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)),
-        )
+        effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 
     metadata {

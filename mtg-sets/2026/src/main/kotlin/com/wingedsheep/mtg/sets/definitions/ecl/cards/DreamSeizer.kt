@@ -31,8 +31,7 @@ val DreamSeizer = card("Dream Seizer") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.May(
-            effect = Patterns.Mechanic.blight(1)
-                .then(Effects.EachOpponentDiscards(1)),
+            effect = Patterns.Mechanic.blight(1) then Effects.EachOpponentDiscards(1),
             descriptionOverride = "You may blight 1. If you do, each opponent discards a card."
         )
     }

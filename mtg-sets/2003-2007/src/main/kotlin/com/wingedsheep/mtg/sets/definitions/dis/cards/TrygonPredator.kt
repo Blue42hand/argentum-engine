@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -41,10 +40,7 @@ val TrygonPredator = card("Trygon Predator") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        val t = target(
-            "target artifact or enchantment that player controls",
-            TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment.opponentControls()),
-        )
+        val t = target(TargetFilter.ArtifactOrEnchantment.opponentControls())
         effect = Effects.May(Effects.Destroy(t))
     }
 

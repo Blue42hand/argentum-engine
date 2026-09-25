@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Piety Charm
@@ -29,7 +27,7 @@ val PietyCharm = card("Piety Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Destroy target Aura attached to a creature") {
-                val t = target("target", TargetPermanent(filter = TargetFilter.Enchantment.withSubtype("Aura")))
+                val t = target(TargetFilter.Enchantment.withSubtype("Aura"))
                 effect = Effects.Move(
                     target = t,
                     destination = Zone.GRAVEYARD,
@@ -37,7 +35,7 @@ val PietyCharm = card("Piety Charm") {
                 )
             }
             mode("Target Soldier creature gets +2/+2 until end of turn") {
-                val t = target("target", TargetCreature(filter = TargetFilter.Creature.withSubtype("Soldier")))
+                val t = target(TargetFilter.Creature.withSubtype("Soldier"))
                 effect = Effects.ModifyStats(2, 2, t)
             }
             mode("Creatures you control gain vigilance until end of turn") {

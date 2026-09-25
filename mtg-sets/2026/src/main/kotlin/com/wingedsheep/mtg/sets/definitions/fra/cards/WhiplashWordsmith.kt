@@ -40,7 +40,7 @@ val WhiplashWordsmith = card("Whiplash Wordsmith") {
         typeLine = "Sorcery"
         oracleText = "Vicious Verse deals 1 damage to target opponent."
         spell {
-            val opponent = target("target opponent", Targets.Opponent)
+            val opponent = target(Targets.Opponent)
             effect = Effects.DealDamage(1, opponent)
         }
     }

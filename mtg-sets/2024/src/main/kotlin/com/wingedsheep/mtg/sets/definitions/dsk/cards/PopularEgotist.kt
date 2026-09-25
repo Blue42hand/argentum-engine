@@ -44,20 +44,15 @@ val PopularEgotist = card("Popular Egotist") {
             Costs.Mana("{1}{B}"),
             Costs.SacrificeAnother(GameObjectFilter.CreatureOrEnchantment)
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn),
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn) then
             Effects.Tap(EffectTarget.Self)
-        )
         description = "This creature gains indestructible until end of turn. Tap it."
     }
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Permanent, batch = true)
-        val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, opponent),
-            Effects.GainLife(1)
-        )
+        val opponent = target(Targets.Opponent)
+        effect = Effects.LoseLife(1, opponent) then Effects.GainLife(1)
         description = "Whenever you sacrifice a permanent, target opponent loses 1 life and you gain 1 life."
     }
 

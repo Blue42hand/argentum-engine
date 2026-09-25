@@ -56,10 +56,7 @@ val FlotsamJetsam = card("Flotsam // Jetsam") {
             "\"{2}, Sacrifice this token: Draw a card.\")"
 
         spell {
-            effect = Effects.Composite(
-                Patterns.Library.mill(3),
-                Effects.Investigate()
-            )
+            effect = Patterns.Library.mill(3) then Effects.Investigate()
         }
     }
 
@@ -71,8 +68,7 @@ val FlotsamJetsam = card("Flotsam // Jetsam") {
             "be put into a graveyard, exile it instead."
 
         spell {
-            effect = Effects.Composite(
-                Patterns.Library.mill(3, EffectTarget.PlayerRef(Player.EachOpponent)),
+            effect = Patterns.Library.mill(3, EffectTarget.PlayerRef(Player.EachOpponent)) then
                 Effects.ForEachPlayer(
                     Player.EachOpponent,
                     Effects.Pipeline {
@@ -99,7 +95,6 @@ val FlotsamJetsam = card("Flotsam // Jetsam") {
                         ))
                     }
                 )
-            )
         }
     }
 

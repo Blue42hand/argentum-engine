@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -39,10 +38,7 @@ val ColiseumBehemoth = card("Coliseum Behemoth") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact or enchantment") {
-                val artifactOrEnchantment = target(
-                    "target artifact or enchantment",
-                    TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment)
-                )
+                val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Move(artifactOrEnchantment, Zone.GRAVEYARD, byDestruction = true)
             },
             Mode.noTarget(Effects.DrawCards(1), "Draw a card")

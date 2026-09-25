@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,7 +31,7 @@ val BenBenAkkiHermit = card("Ben-Ben, Akki Hermit") {
     toughness = 1
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.attacking()))
+        val t = target(TargetFilter.Creature.attacking())
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(
                 Player.You,

@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rustler Rampage {W}
@@ -37,7 +38,7 @@ val RustlerRampage = card("Rustler Rampage") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("+ {1} — Untap all creatures target player controls.") {
-                    val player = target("target player", Targets.Player)
+                    val player = target(Targets.Player)
                     additionalManaCost = "{1}"
                     effect = Effects.ForEachInGroup(
                         filter = GroupFilter(
@@ -47,7 +48,7 @@ val RustlerRampage = card("Rustler Rampage") {
                     )
                 },
                 mode("+ {1} — Target creature gains double strike until end of turn.") {
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     additionalManaCost = "{1}"
                     effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature)
                 }

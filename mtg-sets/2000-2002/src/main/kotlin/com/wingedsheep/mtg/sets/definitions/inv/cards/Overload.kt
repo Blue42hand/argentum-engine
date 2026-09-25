@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Overload
@@ -41,7 +41,7 @@ val Overload = card("Overload") {
     keywordAbility(KeywordAbility.kicker("{2}"))
 
     spell {
-        val artifact = target("target artifact", Targets.Artifact)
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.If(
             condition = WasKicked,
             then = destroyIfManaValueAtMost(artifact, 5),

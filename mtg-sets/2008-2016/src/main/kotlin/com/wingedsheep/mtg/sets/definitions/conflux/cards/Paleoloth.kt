@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Paleoloth
@@ -34,7 +35,7 @@ val Paleoloth = card("Paleoloth") {
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.powerAtLeast(5).youControl()).enters()
         optional = true
-        val recurred = target("target", Targets.CreatureCardInYourGraveyard)
+        val recurred = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.ReturnToHand(recurred)
     }
 

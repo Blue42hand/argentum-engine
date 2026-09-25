@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Flash Thompson, Spider-Fan
@@ -44,11 +44,11 @@ val FlashThompsonSpiderFan = card("Flash Thompson, Spider-Fan") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("Heckle — Tap target creature.") {
-                    val creature = target("target creature", TargetCreature())
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.Tap(creature)
                 },
                 mode("Hero Worship — Untap target creature.") {
-                    val creature = target("target creature", TargetCreature())
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.Untap(creature)
                 }
             ),

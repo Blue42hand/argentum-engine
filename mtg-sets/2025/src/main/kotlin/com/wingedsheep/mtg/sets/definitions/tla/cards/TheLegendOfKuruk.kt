@@ -86,18 +86,12 @@ private val TheLegendOfKurukFront = card("The Legend of Kuruk") {
 
     // I — Scry 2, then draw a card.
     sagaChapter(1) {
-        effect = Effects.Composite(
-            Effects.Scry(2),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.Scry(2) then Effects.DrawCards(1)
     }
 
     // II — Scry 2, then draw a card.
     sagaChapter(2) {
-        effect = Effects.Composite(
-            Effects.Scry(2),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.Scry(2) then Effects.DrawCards(1)
     }
 
     // III — Exile this Saga, then return it to the battlefield transformed under your control.

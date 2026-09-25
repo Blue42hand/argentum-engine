@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -29,7 +28,7 @@ val WhiteAuracite = card("White Auracite") {
     oracleText = "When this artifact enters, exile target nonland permanent an opponent controls until this artifact leaves the battlefield.\n{T}: Add {W}."
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls))
+        val t = target(TargetFilter.NonlandPermanentOpponentControls)
         effect = Effects.ExileUntilLeaves(t)
     }
     activatedAbility {

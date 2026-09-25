@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
@@ -12,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Hivespine Wolverine
@@ -41,24 +39,21 @@ val HivespineWolverine = card("Hivespine Wolverine") {
         effect = ModalEffect.chooseOne(
             // Mode 1: Put a +1/+1 counter on target creature you control
             mode("Put a +1/+1 counter on target creature you control") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
             },
             // Mode 2: This creature fights target creature token
             mode("This creature fights target creature token") {
-                val creature = target("target creature", TargetCreature(
-                    filter = TargetFilter(
+                val creature = target(
+                    TargetFilter(
                         GameObjectFilter(cardPredicates = listOf(CardPredicate.IsCreature, CardPredicate.IsToken))
-                    )
-                ))
+                    ),
+                )
                 effect = Effects.Fight(EffectTarget.Self, creature)
             },
             // Mode 3: Destroy target artifact or enchantment
             mode("Destroy target artifact or enchantment") {
-                val artifactOrEnchantment = target(
-                    "target artifact or enchantment",
-                    Targets.ArtifactOrEnchantment
-                )
+                val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Destroy(artifactOrEnchantment)
             }
         )

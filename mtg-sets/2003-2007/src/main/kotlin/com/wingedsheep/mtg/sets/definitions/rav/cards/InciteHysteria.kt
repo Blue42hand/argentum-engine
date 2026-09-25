@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Incite Hysteria
@@ -31,7 +31,7 @@ val InciteHysteria = card("Incite Hysteria") {
         "shares a color with it gain \"This creature can't block.\""
 
     spell {
-        val radiant = target("target creature", Targets.Creature)
+        val radiant = target(TargetFilter.Creature)
         effect = Effects.CantBlock(radiant) then
             Effects.ForEachInGroup(
                 GroupFilter(

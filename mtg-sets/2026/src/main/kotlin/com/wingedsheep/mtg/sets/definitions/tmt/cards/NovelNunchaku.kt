@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Novel Nunchaku
@@ -31,16 +30,9 @@ val NovelNunchaku = card("Novel Nunchaku") {
     // up to one opponent creature — the Chelonian Tackle "X then fights up to one" shape.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val yourCreature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl)
-        )
-        val opponentCreature = target(
-            "up to one target creature an opponent controls",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
-        )
-        effect = Effects.AttachEquipment(yourCreature)
-            .then(Effects.Fight(yourCreature, opponentCreature))
+        val yourCreature = target(TargetFilter.CreatureYouControl)
+        val opponentCreature = target(TargetFilter.CreatureOpponentControls, optional = true)
+        effect = Effects.AttachEquipment(yourCreature) then Effects.Fight(yourCreature, opponentCreature)
         description = "When this Equipment enters, attach it to target creature you control. When you do, equipped creature fights up to one target creature an opponent controls."
     }
 

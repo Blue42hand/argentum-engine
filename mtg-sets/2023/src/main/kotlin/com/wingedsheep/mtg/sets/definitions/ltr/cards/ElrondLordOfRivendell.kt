@@ -34,13 +34,11 @@ val ElrondLordOfRivendell = card("Elrond, Lord of Rivendell") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
-        effect = Patterns.Library.scry(1)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.TheRingTemptsYou()
-                )
+        effect = Patterns.Library.scry(1) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.TheRingTemptsYou()
             )
     }
 

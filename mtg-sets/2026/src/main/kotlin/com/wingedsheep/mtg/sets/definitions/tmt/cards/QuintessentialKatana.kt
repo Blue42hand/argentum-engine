@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -37,8 +36,7 @@ val QuintessentialKatana = card("Quintessential Katana") {
         ability = GrantTriggeredAbility(
             TriggeredAbility.create(
                 trigger = Triggers.self.dealsCombatDamage(),
-                effect = Effects.Untap(EffectTarget.Self)
-                    .then(Effects.GainLife(2))
+                effect = Effects.Untap(EffectTarget.Self) then Effects.GainLife(2)
             )
         )
     }

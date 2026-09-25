@@ -70,7 +70,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -107,7 +107,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -125,7 +125,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -373,7 +373,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Hand"
                     }
@@ -384,7 +384,7 @@
                         "baseFilter": "enchantment own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -438,7 +438,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -460,7 +460,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -503,7 +503,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -513,7 +513,7 @@
                     "filter": {
                         "baseFilter": "enchantment"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -748,7 +748,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -757,7 +757,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -794,7 +794,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -805,7 +805,7 @@
                 "filter": {
                     "baseFilter": "artifact"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1114,7 +1114,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1127,7 +1127,7 @@
                                         "zone": "Hand",
                                         "player": {
                                             "type": "BoundVariable",
-                                            "name": "target"
+                                            "name": "t0"
                                         }
                                     },
                                     "storeAs": "hand"
@@ -1154,7 +1154,7 @@
                                         "zone": "Graveyard",
                                         "player": {
                                             "type": "BoundVariable",
-                                            "name": "target"
+                                            "name": "t0"
                                         }
                                     },
                                     "moveType": "Discard"
@@ -1166,7 +1166,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1210,7 +1210,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1223,7 +1223,7 @@
                                         "zone": "Hand",
                                         "player": {
                                             "type": "BoundVariable",
-                                            "name": "target"
+                                            "name": "t0"
                                         }
                                     },
                                     "storeAs": "hand"
@@ -1250,7 +1250,7 @@
                                         "zone": "Graveyard",
                                         "player": {
                                             "type": "BoundVariable",
-                                            "name": "target"
+                                            "name": "t0"
                                         }
                                     },
                                     "moveType": "Discard"
@@ -1262,7 +1262,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1304,7 +1304,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1321,7 +1321,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1454,7 +1454,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Exile"
         },
@@ -1465,7 +1465,7 @@
                     "baseFilter": {},
                     "zone": "Graveyard"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1525,7 +1525,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -1536,7 +1536,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1717,17 +1717,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLUE"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLACK"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "BLUE"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLACK"
                         },
                         {
                             "type": "DrawCards",
@@ -1929,7 +1924,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Hand"
         },
@@ -1939,7 +1934,7 @@
                 "filter": {
                     "baseFilter": "permanent"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1964,7 +1959,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -1975,7 +1970,7 @@
                 "filter": {
                     "baseFilter": "artifact|land"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2031,7 +2026,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -2041,7 +2036,7 @@
                         "filter": {
                             "baseFilter": "land"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2132,7 +2127,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2143,7 +2138,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2193,7 +2188,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2204,7 +2199,7 @@
                         "filter": {
                             "baseFilter": "enchantment"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2369,7 +2364,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -2380,7 +2375,7 @@
                 "filter": {
                     "baseFilter": "land"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2495,25 +2490,20 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "CantBeRegenerated",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "target"
-                            }
-                        },
-                        {
-                            "type": "MoveToZone",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "target"
-                            },
-                            "destination": "Graveyard",
-                            "byDestruction": true
-                        }
-                    ]
+                    "type": "CantBeRegenerated",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
                 },
                 {
                     "type": "DrawCards",
@@ -2530,7 +2520,7 @@
                 "filter": {
                     "baseFilter": "creature white"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2620,7 +2610,7 @@
                     "baseFilter": {},
                     "zone": "Stack"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2660,13 +2650,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2696,13 +2686,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2971,13 +2961,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3111,7 +3101,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -3121,7 +3111,7 @@
                         "filter": {
                             "baseFilter": "creature attacking"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3174,13 +3164,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3368,7 +3358,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -3379,7 +3369,7 @@
                             "baseFilter": "creature own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3543,7 +3533,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -3558,7 +3548,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -3592,7 +3582,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Hand"
         },
@@ -3603,7 +3593,7 @@
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -3645,17 +3635,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "RED"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "GREEN"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "GREEN"
                         },
                         {
                             "type": "DrawCards",
@@ -3775,7 +3760,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3784,7 +3769,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3871,7 +3856,7 @@
                     "keyword": "HASTE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3880,7 +3865,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4110,7 +4095,7 @@
                     "type": "LookAtTargetHand",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -4125,7 +4110,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -4203,7 +4188,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -4214,7 +4199,7 @@
                             "baseFilter": "land own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4444,7 +4429,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -4455,7 +4440,7 @@
                 "filter": {
                     "baseFilter": "artifact|enchantment"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -4500,7 +4485,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -4508,7 +4493,7 @@
                     "keyword": "HASTE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 }
             ]
@@ -4519,7 +4504,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -4544,7 +4529,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Library",
             "placement": "Top"
@@ -4555,7 +4540,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -4640,7 +4625,7 @@
                                 "zone": "Hand",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             },
                             "storeAs": "hand"
@@ -4667,7 +4652,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             },
                             "moveType": "Discard"
@@ -4677,7 +4662,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -4720,13 +4705,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetPlayerOrPlaneswalker",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -4800,7 +4785,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -4819,7 +4804,7 @@
                 "filter": {
                     "baseFilter": "creature attacking"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -4862,17 +4847,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLACK"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "RED"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "BLACK"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
                         },
                         {
                             "type": "DrawCards",
@@ -5030,7 +5010,7 @@
                         "zone": "Hand",
                         "player": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "storeAs": "hand"
@@ -5057,7 +5037,7 @@
                         "zone": "Graveyard",
                         "player": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "moveType": "Discard"
@@ -5067,7 +5047,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -5110,17 +5090,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "WHITE"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLUE"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "WHITE"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE"
                         },
                         {
                             "type": "DrawCards",
@@ -5229,7 +5204,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -5257,7 +5232,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -5361,7 +5336,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -5372,7 +5347,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             },
@@ -5395,7 +5370,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t1"
                     },
                     "destination": "Exile"
                 },
@@ -5406,7 +5381,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t1"
                     }
                 ]
             }
@@ -5450,17 +5425,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "GREEN"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "WHITE"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "GREEN"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "WHITE"
                         },
                         {
                             "type": "DrawCards",
@@ -5572,7 +5542,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -5580,7 +5550,7 @@
                     "keyword": "TRAMPLE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 }
             ]
@@ -5591,7 +5561,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -5870,7 +5840,7 @@
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -5888,7 +5858,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -6135,7 +6105,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature card from your graveyard"
+                "name": "t0"
             },
             "destination": "Battlefield",
             "fromZone": "Graveyard"
@@ -6147,7 +6117,7 @@
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target creature card from your graveyard"
+                "id": "t0"
             }
         ]
     },

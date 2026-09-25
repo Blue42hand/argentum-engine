@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -23,11 +22,8 @@ val ViciousHunger = card("Vicious Hunger") {
     typeLine = "Sorcery"
     oracleText = "Vicious Hunger deals 2 damage to target creature and you gain 2 life."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Effects.GainLife(2)
-        )
+        val t = target(TargetFilter.Creature)
+        effect = Effects.DealDamage(2, t) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

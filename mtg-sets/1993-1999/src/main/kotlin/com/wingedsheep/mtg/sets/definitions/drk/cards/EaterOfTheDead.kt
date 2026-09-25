@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Eater of the Dead
@@ -38,14 +38,12 @@ val EaterOfTheDead = card("Eater of the Dead") {
         "and untap this creature."
 
     activatedAbility {
-        val creatureCardInGraveyard = target("target creature card in graveyard", Targets.CreatureCardInGraveyard)
+        val creatureCardInGraveyard = target(TargetFilter.CreatureInGraveyard)
         cost = Costs.Free
         effect = Effects.If(
             condition = Conditions.SourceIsTapped,
-            then = Effects.Composite(
-                Effects.Exile(creatureCardInGraveyard, fromZone = Zone.GRAVEYARD),
+            then = Effects.Exile(creatureCardInGraveyard, fromZone = Zone.GRAVEYARD) then
                 Effects.Untap(EffectTarget.Self),
-            ),
         )
         description = "{0}: If this creature is tapped, exile target creature card from a " +
             "graveyard and untap this creature."

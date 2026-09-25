@@ -47,22 +47,18 @@ val DarigaazTheIgniter = card("Darigaaz, the Igniter") {
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{R}"),
             then = Effects.ChooseColorThen(
-                then = Effects.Composite(
-                    listOf(
-                        Effects.RevealHand(EffectTarget.PlayerRef(Player.TriggeringPlayer)),
-                        Effects.DealDamage(
-                            amount = DynamicAmounts.zone(
-                                player = Player.TriggeringPlayer,
-                                zone = Zone.HAND,
-                                filter = GameObjectFilter(
-                                    cardPredicates = listOf(CardPredicate.HasChosenColor),
-                                ),
-                            ).count(),
-                            target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
-                            damageSource = EffectTarget.Self,
-                        ),
+                then = Effects.RevealHand(EffectTarget.PlayerRef(Player.TriggeringPlayer)) then
+                    Effects.DealDamage(
+                        amount = DynamicAmounts.zone(
+                            player = Player.TriggeringPlayer,
+                            zone = Zone.HAND,
+                            filter = GameObjectFilter(
+                                cardPredicates = listOf(CardPredicate.HasChosenColor),
+                            ),
+                        ).count(),
+                        target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
+                        damageSource = EffectTarget.Self,
                     ),
-                ),
                 prompt = "Choose a color",
             ),
         )

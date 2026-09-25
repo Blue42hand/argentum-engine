@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -23,7 +22,7 @@ val ChokingTethers = card("Choking Tethers") {
     oracleText = "Tap up to four target creatures.\nCycling {1}{U}\nWhen you cycle Choking Tethers, you may tap target creature."
 
     spell {
-        val creature = target("target creature", TargetCreature(count = 4, optional = true, filter = TargetFilter.Creature))
+        targets(TargetFilter.Creature, count = 4, optional = true)
         effect = Effects.TapEachTarget()
     }
 
@@ -32,7 +31,7 @@ val ChokingTethers = card("Choking Tethers") {
     triggeredAbility {
         trigger = Triggers.self.isCycled()
         optional = true
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Tap(t)
     }
 

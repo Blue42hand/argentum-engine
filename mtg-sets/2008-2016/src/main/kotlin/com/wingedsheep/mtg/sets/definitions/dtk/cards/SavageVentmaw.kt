@@ -36,10 +36,7 @@ val SavageVentmaw = card("Savage Ventmaw") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.AddMana(Color.RED, 3),
-            Effects.AddMana(Color.GREEN, 3),
-        )
+        effect = Effects.AddMana(Color.RED, 3) then Effects.AddMana(Color.GREEN, 3)
     }
 
     metadata {

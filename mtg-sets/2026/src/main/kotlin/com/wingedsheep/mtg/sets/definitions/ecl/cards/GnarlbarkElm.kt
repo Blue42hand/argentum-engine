@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gnarlbark Elm
@@ -40,7 +40,7 @@ val GnarlbarkElm = card("Gnarlbark Elm") {
             Costs.Mana("{2}{B}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE, count = 2)
         )
-        val creature = target("target creature to weaken", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(-2, -2, creature)
         timing = TimingRule.SorcerySpeed
     }

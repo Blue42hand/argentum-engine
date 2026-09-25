@@ -20,10 +20,8 @@ val WreckingGecko = card("Wrecking Gecko") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     activatedAbility {
         cost = Costs.Mana("{6}{G}{G}")
-        effect = Effects.Composite(
-            Effects.ModifyStats(4, 4, EffectTarget.Self),
+        effect = Effects.ModifyStats(4, 4, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
-        )
     }
 
     metadata {

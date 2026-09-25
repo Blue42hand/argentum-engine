@@ -24,7 +24,7 @@ val PlasmaBolt = card("Plasma Bolt") {
         "this turn or a spell was warped this turn."
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.conditional(
                 condition = Conditions.Void,

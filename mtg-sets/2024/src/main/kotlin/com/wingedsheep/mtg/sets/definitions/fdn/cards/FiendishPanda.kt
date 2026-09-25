@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Fiendish Panda
@@ -50,18 +49,14 @@ val FiendishPanda = card("Fiendish Panda") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         val t = target(
-            "another target non-Bear creature card with mana value less than or equal to " +
-                "this creature's power from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter.Creature.ownedByYou()
                         .notSubtype(Subtype.BEAR)
                         .manaValueAtMostDynamic(
                             DynamicAmounts.sourcePower()
                         ),
                     zone = Zone.GRAVEYARD,
-                ).other()
-            )
+                ).other(),
         )
         effect = Effects.PutOntoBattlefield(t)
         description = "When this creature dies, return another target non-Bear creature card with " +

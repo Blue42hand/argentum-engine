@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Bartz and Boko
@@ -40,7 +40,7 @@ val BartzAndBoko = card("Bartz and Boko") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl.withSubtype(Subtype.BIRD).other(),
             effect = Effects.DealDamage(

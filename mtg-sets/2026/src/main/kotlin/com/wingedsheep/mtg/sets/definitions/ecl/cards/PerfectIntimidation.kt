@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 /**
  * Perfect Intimidation
  * {3}{B}
@@ -46,11 +47,11 @@ val PerfectIntimidation = card("Perfect Intimidation") {
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Target opponent exiles two cards from their hand") {
-                val opponent = target("opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = opponentExilesTwo(opponent)
             }
             mode("Remove all counters from target creature") {
-                val creature = target("creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.RemoveAllCounters(creature)
             }
         }

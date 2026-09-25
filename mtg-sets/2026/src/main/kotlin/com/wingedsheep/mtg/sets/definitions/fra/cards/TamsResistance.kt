@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val TamsResistance = card("Tam's Resistance") {
     manaCost = "{1}{G/U}"
@@ -16,12 +16,10 @@ val TamsResistance = card("Tam's Resistance") {
         "Empower Jace 4. (Put four loyalty counters on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        val creature = target("up to one target creature", TargetCreature(optional = true))
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.GrantKeyword(Keyword.VIGILANCE, creature),
+        val creature = target(TargetFilter.Creature, optional = true)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, creature) then
             Patterns.Mechanic.empowerJace(4)
-        )
     }
 
     metadata {

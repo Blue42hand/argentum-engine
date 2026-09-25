@@ -24,10 +24,7 @@ val VampiricRites = card("Vampiric Rites") {
     oracleText = "{1}{B}, Sacrifice a creature: You gain 1 life and draw a card."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.Sacrifice(GameObjectFilter.Creature))
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(1) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

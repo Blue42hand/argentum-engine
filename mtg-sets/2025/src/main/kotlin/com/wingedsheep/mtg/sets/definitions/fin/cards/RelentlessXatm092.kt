@@ -40,10 +40,8 @@ val RelentlessXatm092 = card("Relentless X-ATM092") {
 
     activatedAbility {
         cost = Costs.Mana("{8}")
-        effect = Effects.Composite(
-            Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.Self, tapped = true),
+        effect = Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.Self, tapped = true) then
             Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.Self)
-        )
         activateFromZone = Zone.GRAVEYARD
     }
 

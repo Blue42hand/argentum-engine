@@ -56,7 +56,7 @@ private val VisageOfDreadFront = card("Visage of Dread") {
     // card from it; that player discards that card.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

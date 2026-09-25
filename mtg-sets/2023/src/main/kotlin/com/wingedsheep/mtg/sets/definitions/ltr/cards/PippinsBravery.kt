@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Pippin's Bravery
@@ -30,7 +30,7 @@ val PippinsBravery = card("Pippin's Bravery") {
     oracleText = "You may sacrifice a Food. If you do, target creature gets +4/+4 until end of turn. Otherwise, that creature gets +2/+2 until end of turn."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.IfYouDo(
             action = Effects.Pipeline {
                 val controlledFood = gather(GameObjectFilter.Any.withSubtype("Food"), player = Player.You)

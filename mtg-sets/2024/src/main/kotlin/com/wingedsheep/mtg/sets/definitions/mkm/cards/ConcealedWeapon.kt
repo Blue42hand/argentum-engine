@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Concealed Weapon — Murders at Karlov Manor #117
@@ -54,7 +54,7 @@ val ConcealedWeapon = card("Concealed Weapon") {
     disguise = "{2}{R}"
 
     triggeredAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         trigger = Triggers.self.turnedFaceUp()
         effect = Effects.AttachEquipment(target = creatureYouControl)
         description = "When this Equipment is turned face up, attach it to target creature you control."

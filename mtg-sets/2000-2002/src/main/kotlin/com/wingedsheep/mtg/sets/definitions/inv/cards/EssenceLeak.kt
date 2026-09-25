@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
@@ -15,6 +14,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Essence Leak
@@ -40,7 +41,7 @@ val EssenceLeak = card("Essence Leak") {
         "As long as enchanted permanent is red or green, it has \"At the beginning of your " +
         "upkeep, sacrifice this permanent unless you pay its mana cost.\""
 
-    auraTarget = Targets.Permanent
+    auraTarget = TargetObject(filter = TargetFilter.Permanent)
 
     staticAbility {
         ability = ConditionalStaticAbility(

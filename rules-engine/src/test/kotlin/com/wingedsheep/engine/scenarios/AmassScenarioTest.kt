@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
@@ -20,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Substrate tests for the Amass mechanic (CR 701.47): "amass [subtype] N" creates a 0/0 black Army
@@ -100,7 +100,7 @@ class AmassScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Destroy target creature."
         spell {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.Destroy(creature)
         }
     }

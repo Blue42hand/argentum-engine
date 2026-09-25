@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Pyreswipe Hawk
@@ -50,10 +49,7 @@ val PyreswipeHawk = card("Pyreswipe Hawk") {
 
     triggeredAbility {
         trigger = Triggers.you.expends(6)
-        val artifact = target(
-            "up to one target artifact",
-            TargetPermanent(optional = true, filter = TargetFilter.Artifact)
-        )
+        val artifact = target(TargetFilter.Artifact, optional = true)
         effect = Effects.GainControl(
             target = artifact,
             duration = Duration.WhileSourceOnBattlefield("Pyreswipe Hawk")

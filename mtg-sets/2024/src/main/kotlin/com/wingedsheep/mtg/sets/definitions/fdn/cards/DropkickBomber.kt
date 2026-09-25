@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Dropkick Bomber
@@ -58,16 +56,12 @@ val DropkickBomber = card("Dropkick Bomber") {
     activatedAbility {
         cost = Costs.Mana("{R}")
         val goblin = target(
-            "another target Goblin you control",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl(),
-                    excludeSelf = true
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl(),
+                excludeSelf = true
+            ),
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn),
+        effect = Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.dealsCombatDamage(),
@@ -77,7 +71,6 @@ val DropkickBomber = card("Dropkick Bomber") {
                 target = goblin,
                 duration = Duration.EndOfTurn
             )
-        )
         description = "Until end of turn, another target Goblin you control gains flying and " +
             "\"When this creature deals combat damage, sacrifice it.\""
     }

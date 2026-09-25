@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Swordsman, Sharp Scoundrel — Marvel Super Heroes #116
@@ -49,15 +47,10 @@ val SwordsmanSharpScoundrel = card("Swordsman, Sharp Scoundrel") {
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
         val equipment = target(
-            "up to one target Equipment you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-                ),
-                optional = true
-            )
+            TargetFilter(baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
+            optional = true,
         )
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AttachTargetEquipmentToCreature(equipment, creature)
     }
 

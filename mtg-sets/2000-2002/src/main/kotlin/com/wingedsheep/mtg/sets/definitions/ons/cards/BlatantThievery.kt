@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Blatant Thievery
@@ -21,7 +20,7 @@ val BlatantThievery = card("Blatant Thievery") {
     oracleText = "For each opponent, gain control of target permanent that player controls."
 
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.PermanentOpponentControls))
+        val t = target(TargetFilter.PermanentOpponentControls)
         effect = Effects.GainControl(t)
     }
 

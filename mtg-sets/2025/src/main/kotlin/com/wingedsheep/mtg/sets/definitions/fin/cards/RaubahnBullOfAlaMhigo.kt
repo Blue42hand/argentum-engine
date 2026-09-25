@@ -4,14 +4,12 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -49,15 +47,10 @@ val RaubahnBullOfAlaMhigo = card("Raubahn, Bull of Ala Mhigo") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val equipment = target(
-            "up to one target Equipment you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-                ),
-                optional = true
-            )
+            TargetFilter(baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
+            optional = true,
         )
-        val creature = target("target attacking creature", Targets.AttackingCreature)
+        val creature = target(TargetFilter.AttackingCreature)
         effect = Effects.AttachTargetEquipmentToCreature(equipment, creature)
     }
 

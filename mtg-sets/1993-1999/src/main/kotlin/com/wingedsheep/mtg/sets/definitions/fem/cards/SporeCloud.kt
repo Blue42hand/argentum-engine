@@ -31,9 +31,8 @@ val SporeCloud = card("Spore Cloud") {
         "controller's next untap step."
 
     spell {
-        effect = Effects.Composite(
-            Patterns.Group.tapAll(GroupFilter(GameObjectFilter.Creature.blocking())),
-            Effects.PreventAllCombatDamage(),
+        effect = Patterns.Group.tapAll(GroupFilter(GameObjectFilter.Creature.blocking())) then
+            Effects.PreventAllCombatDamage() then
             Effects.ForEachInGroup(
                 filter = GroupFilter(
                     GameObjectFilter.Creature.attacking() or GameObjectFilter.Creature.blocking()
@@ -44,7 +43,6 @@ val SporeCloud = card("Spore Cloud") {
                     Duration.UntilAfterAffectedControllersNextUntap,
                 )
             )
-        )
     }
 
     metadata {

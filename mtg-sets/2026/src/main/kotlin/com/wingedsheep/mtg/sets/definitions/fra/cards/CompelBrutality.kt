@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Compel Brutality
@@ -41,16 +39,8 @@ val CompelBrutality = card("Compel Brutality") {
                 "Target creature you control deals damage equal to its power to target creature " +
                     "or planeswalker an opponent controls"
             ) {
-                val yours = target(
-                    "target creature you control",
-                    TargetCreature(filter = TargetFilter.Creature.youControl()),
-                )
-                val theirs = target(
-                    "target creature or planeswalker an opponent controls",
-                    TargetPermanent(
-                        filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())
-                    ),
-                )
+                val yours = target(TargetFilter.Creature.youControl())
+                val theirs = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.powerOf(yours),
                     target = theirs,
@@ -62,16 +52,8 @@ val CompelBrutality = card("Compel Brutality") {
                 "Target planeswalker you control deals damage equal to its loyalty to target " +
                     "creature or planeswalker an opponent controls"
             ) {
-                val yours = target(
-                    "target planeswalker you control",
-                    TargetPermanent(filter = TargetFilter.Planeswalker.youControl()),
-                )
-                val theirs = target(
-                    "target creature or planeswalker an opponent controls",
-                    TargetPermanent(
-                        filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())
-                    ),
-                )
+                val yours = target(TargetFilter.Planeswalker.youControl())
+                val theirs = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.countersOn(yours, CounterType.LOYALTY),
                     target = theirs,

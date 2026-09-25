@@ -33,7 +33,7 @@ val HiredClaw = card("Hired Claw") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks(GameObjectFilter.Creature.withSubtype(Subtype.LIZARD))
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(1, opponent)
     }
 

@@ -52,27 +52,19 @@ val ContestedGameBall = card("Contested Game Ball") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).dealCombatDamageToYou()
-        effect = Effects.Composite(
-            Effects.GainControlByActivePlayer(EffectTarget.Self),
-            Effects.Untap(EffectTarget.Self),
-        )
+        effect = Effects.GainControlByActivePlayer(EffectTarget.Self) then Effects.Untap(EffectTarget.Self)
         description = "Whenever you're dealt combat damage, the attacking player gains control of " +
             "this artifact and untaps it."
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.AddCounters(CounterType.POINT, 1, EffectTarget.Self),
+        effect = Effects.DrawCards(1) then
+            Effects.AddCounters(CounterType.POINT, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.POINT, 5),
-                then = Effects.Composite(
-                    Effects.SacrificeTarget(EffectTarget.Self),
-                    Effects.CreateTreasure(1),
-                ),
-            ),
-        )
+                then = Effects.SacrificeTarget(EffectTarget.Self) then Effects.CreateTreasure(1),
+            )
         description = "{2}, {T}: Draw a card and put a point counter on this artifact. Then if it " +
             "has five or more point counters on it, sacrifice it and create a Treasure token."
     }

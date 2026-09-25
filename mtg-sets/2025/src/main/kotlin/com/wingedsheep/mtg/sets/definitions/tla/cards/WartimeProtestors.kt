@@ -33,10 +33,8 @@ val WartimeProtestors = card("Wartime Protestors") {
     keywords(Keyword.HASTE)
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.withSubtype(Subtype.ALLY).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.TriggeringEntity),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.TriggeringEntity) then
             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.TriggeringEntity)
-        )
     }
     metadata {
         rarity = Rarity.RARE

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Undo
@@ -24,7 +23,7 @@ val Undo = card("Undo") {
     oracleText = "Return two target creatures to their owners' hands."
 
     spell {
-        target("target", TargetObject(count = 2, filter = TargetFilter.Creature))
+        targets(TargetFilter.Creature, count = 2)
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )

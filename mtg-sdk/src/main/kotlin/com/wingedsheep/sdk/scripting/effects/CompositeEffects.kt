@@ -42,6 +42,10 @@ data class CompositeEffect(
     override val description: String =
         descriptionOverride ?: effects.joinToString(". ") { it.description }
 
+    /** No override, no early stop: a sequence [Effect.then] may extend in place. */
+    internal fun isPlainSequence(): Boolean =
+        !stopOnError && descriptionOverride == null && descriptionAmounts.isEmpty()
+
     override fun runtimeDescription(resolver: (DynamicAmount) -> Int?): String {
         val template = descriptionOverride
             ?: return effects.joinToString(". ") { it.runtimeDescription(resolver) }
@@ -114,8 +118,8 @@ data class Mode(
  * ```kotlin
  * ModalEffect(
  *     modes = listOf(
- *         Mode.withTarget(CounterSpellEffect, TargetSpell(), "Counter target spell"),
- *         Mode.withTarget(MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.Hand), TargetPermanent(), "Return target permanent to its owner's hand"),
+ *         Mode.withTarget(CounterSpellEffect, TargetObject(filter = TargetFilter.SpellOnStack), "Counter target spell"),
+ *         Mode.withTarget(MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.Hand), TargetObject(filter = TargetFilter.Permanent), "Return target permanent to its owner's hand"),
  *         Mode.noTarget(TapAllCreaturesEffect(CreatureGroupFilter.OpponentsControl), "Tap all creatures your opponents control"),
  *         Mode.noTarget(DrawCardsEffect(1), "Draw a card")
  *     ),

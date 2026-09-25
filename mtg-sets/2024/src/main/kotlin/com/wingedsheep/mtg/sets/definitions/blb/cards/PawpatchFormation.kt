@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Pawpatch Formation
@@ -32,25 +32,17 @@ val PawpatchFormation = card("Pawpatch Formation") {
         effect = ModalEffect.chooseOne(
             // Mode 1: Destroy target creature with flying
             mode("Destroy target creature with flying") {
-                val creatureWithKeyword = target(
-                    "target creature with keyword",
-                    Targets.CreatureWithKeyword(Keyword.FLYING)
-                )
+                val creatureWithKeyword = target(TargetFilter.Creature.withKeyword(Keyword.FLYING))
                 effect = Effects.Destroy(creatureWithKeyword)
             },
             // Mode 2: Destroy target enchantment
             mode("Destroy target enchantment") {
-                val enchantment = target("target enchantment", Targets.Enchantment)
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             },
             // Mode 3: Draw a card, create a Food token
             Mode.noTarget(
-                Effects.Composite(
-                    listOf(
-                        Effects.DrawCards(1),
-                        Effects.CreateFood()
-                    )
-                ),
+                Effects.DrawCards(1) then Effects.CreateFood(),
                 "Draw a card. Create a Food token."
             )
         )

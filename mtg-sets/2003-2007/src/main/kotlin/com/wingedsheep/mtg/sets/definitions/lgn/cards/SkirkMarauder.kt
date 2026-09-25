@@ -24,7 +24,7 @@ val SkirkMarauder = card("Skirk Marauder") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

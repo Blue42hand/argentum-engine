@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -27,7 +26,7 @@ val MeteorGolem = card("Meteor Golem") {
         trigger = Triggers.self.enters()
         // "an opponent controls" is part of the printed text, not flavour: without it the golem
         // can be pointed at your own board, and the engine would offer those as legal targets.
-        val t = target("target", TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls))
+        val t = target(TargetFilter.NonlandPermanentOpponentControls)
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     metadata {

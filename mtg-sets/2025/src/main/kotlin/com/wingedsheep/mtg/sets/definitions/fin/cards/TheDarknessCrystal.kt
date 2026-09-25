@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Darkness Crystal
@@ -67,22 +66,14 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
     // battlefield tapped under your control with two additional +1/+1 counters on it.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{B}{B}"), Costs.Tap)
-        val t = target(
-            "target creature card exiled with The Darkness Crystal",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.exiledWithSource(),
-                    zone = Zone.EXILE,
-                ),
-            ),
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.exiledWithSource(), zone = Zone.EXILE))
         effect = Effects.Move(
             target = t,
             destination = Zone.BATTLEFIELD,
             placement = ZonePlacement.Tapped,
             controllerOverride = EffectTarget.Controller,
             fromZone = Zone.EXILE,
-        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
+        ) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
     }
 
     metadata {

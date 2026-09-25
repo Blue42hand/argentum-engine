@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.mom.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ravenous Sailback
@@ -42,10 +42,7 @@ val RavenousSailback = card("Ravenous Sailback") {
                     description = "This creature gains haste until end of turn."
                 ),
                 mode("Destroy target artifact or enchantment.") {
-                    val artifactOrEnchantment = target(
-                        "target artifact or enchantment",
-                        Targets.ArtifactOrEnchantment
-                    )
+                    val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                     effect = Effects.Destroy(artifactOrEnchantment)
                 }
             ),

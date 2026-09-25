@@ -17,6 +17,8 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Gap 12 substrate: `DynamicAmount.EntityProperty(EffectTarget.AmassedArmy, …)` reads the
@@ -43,7 +45,7 @@ class AmassedArmyReferenceScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Amass Orcs 2. Then this deals damage equal to the amassed Army's power to target player."
         spell {
-            val player = target("target player", Targets.Player)
+            val player = target(Targets.Player)
             effect = CompositeEffect(listOf(
                 Effects.Amass(2, "Orc"),
                 Effects.DealDamage(amassedArmyPower, player)
@@ -58,7 +60,7 @@ class AmassedArmyReferenceScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Amass Orcs 1. Then this deals damage equal to the amassed Army's power to target player."
         spell {
-            val player = target("target player", Targets.Player)
+            val player = target(Targets.Player)
             effect = CompositeEffect(listOf(
                 Effects.Amass(1, "Orc"),
                 Effects.DealDamage(amassedArmyPower, player)
@@ -81,7 +83,7 @@ class AmassedArmyReferenceScenarioTest : FunSpec({
                 action = Effects.Amass(2, "Orc"),
                 optional = false,
                 reflexiveEffect = Effects.DealDamage(amassedArmyPower, EffectTarget.ContextTarget(0)),
-                reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)
+                reflexiveTargetRequirements = listOf(TargetObject(filter = TargetFilter.CreatureOpponentControls))
             )
         }
     }

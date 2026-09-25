@@ -32,8 +32,8 @@ val HazelsNocturne = card("Hazel's Nocturne") {
         )
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
-        ).then(Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)))
-            .then(Effects.GainLife(2))
+        ) then Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(2)
     }
 
     metadata {

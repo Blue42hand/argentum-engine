@@ -1096,7 +1096,7 @@ class ManaSolver(
             }
             // Extra mana produced by the SAME tap when one mana ability adds more than one mana of
             // different kinds via a CompositeEffect — Gruul Turf's "{T}: Add {R}{G}" and Mossfire
-            // Valley's "{1}, {T}: Add {R}{G}" are `AddMana(RED).then(AddMana(GREEN))`. `producesColors`
+            // Valley's "{1}, {T}: Add {R}{G}" are `AddMana(RED) then AddMana(GREEN)`. `producesColors`
             // models a *choice* of one color, so it can't hold "R AND G on one tap"; the additional
             // leaves are folded into the bonus-mana channel that auras already use (the solver knows
             // how to spend it — see useSource / spendBonusMana / payColoredPipFromAuraBonus). Without
@@ -1632,7 +1632,7 @@ class ManaSolver(
 
     /**
      * Total fixed self-damage a mana ability's effect chain deals to its controller
-     * (Battlefield Forge: `AddMana(RED).then(DealDamage(1, PlayerRef(You)))`). Dynamic
+     * (Battlefield Forge: `AddMana(RED) then DealDamage(1, PlayerRef(You))`). Dynamic
      * amounts are ignored (no printed mana ability self-damages a dynamic amount).
      */
     private fun selfDamageAmount(effect: Effect): Int = when (effect) {
@@ -2640,7 +2640,7 @@ class ManaSolver(
 
                 // Recurse into the effect so multi-mana sacrifice abilities expressed as a
                 // CompositeEffect (e.g. Irrigation Ditch's "{T}, Sacrifice: Add {G}{U}",
-                // `Effects.Composite(AddMana(GREEN), AddMana(BLUE))`) are counted in full
+                // `AddMana(GREEN) then AddMana(BLUE)`) are counted in full
                 // rather than dropping to the unhandled `else` branch and contributing zero.
                 val produced = manaProducedByEffect(ability.effect)
                 bySource[entityId] = (bySource[entityId] ?: TapPermanentsBonusMana()) + produced
@@ -2654,7 +2654,7 @@ class ManaSolver(
      * Mana produced by a single mana-ability effect, recursing into [CompositeEffect].
      *
      * Used by the "bonus mana" affordability helpers (e.g. [sacrificeSelfManaBySource])
-     * so an ability that adds several mana via `Effects.Composite(AddMana(...), AddMana(...))`
+     * so an ability that adds several mana via `AddMana(...) then AddMana(...)`
      * is counted in full. Without the recursion such an effect falls into the `else` branch and
      * contributes nothing, so a spell payable only by that ability is wrongly reported
      * unaffordable (Irrigation Ditch's {G}{U} → casting Nomadic Elf, {1}{G}).

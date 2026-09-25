@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -30,13 +29,10 @@ val MirkwoodChanneler = card("Mirkwood Channeler") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val elf = target(
-            "target Elf you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl.withSubtype(Subtype("Elf")))
-        )
+        val elf = target(TargetFilter.CreatureYouControl.withSubtype(Subtype("Elf")))
         val forestCount = DynamicAmounts.landsWithSubtype(Subtype("Forest"))
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, elf)
-            .then(Effects.ModifyStats(forestCount, forestCount, elf))
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, elf) then
+            Effects.ModifyStats(forestCount, forestCount, elf)
     }
 
     metadata {

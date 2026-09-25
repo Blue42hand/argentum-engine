@@ -13,7 +13,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -22,7 +22,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -52,13 +52,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "any target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ],
         "additionalCosts": [
@@ -376,7 +376,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -387,7 +387,7 @@
                     "filter": {
                         "baseFilter": "creature mv<=3"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -468,12 +468,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "target"
+                    "id": "t0"
                 },
                 "triggerRestriction": {
                     "type": "SourceChosenModeIs",
@@ -529,7 +529,7 @@
                         "keyword": "INDESTRUCTIBLE",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
@@ -538,7 +538,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target creature gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)"
@@ -548,7 +548,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -559,7 +559,7 @@
                             "filter": {
                                 "baseFilter": "creature tou>=4"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target creature with toughness 4 or greater"

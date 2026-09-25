@@ -30,10 +30,8 @@ val VitosInquisitor = card("Vito's Inquisitor") {
     toughness = 3
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.SacrificeAnother(GameObjectFilter.CreatureOrArtifact))
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

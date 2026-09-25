@@ -8,9 +8,8 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,7 +24,7 @@ val Dogpile = card("Dogpile") {
     typeLine = "Instant"
     oracleText = "Dogpile deals damage to any target equal to the number of attacking creatures you control."
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.attackingCreaturesYouControl(),
             t

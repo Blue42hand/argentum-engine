@@ -31,10 +31,7 @@ val CallousInspector = card("Callous Inspector") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.Controller),
-            Effects.CreateClue(),
-        )
+        effect = Effects.DealDamage(1, EffectTarget.Controller) then Effects.CreateClue()
     }
 
     metadata {

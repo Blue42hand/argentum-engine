@@ -29,10 +29,7 @@ val InspiringOverseer = card("Inspiring Overseer") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(1) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

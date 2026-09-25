@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Distended Mindbender
@@ -50,7 +50,7 @@ val DistendedMindbender = card("Distended Mindbender") {
 
     triggeredAbility {
         trigger = Triggers.self.isCast()
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

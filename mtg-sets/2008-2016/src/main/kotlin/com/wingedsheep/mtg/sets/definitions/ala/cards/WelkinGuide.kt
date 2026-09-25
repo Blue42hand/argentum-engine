@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Welkin Guide
@@ -34,9 +35,8 @@ val WelkinGuide = card("Welkin Guide") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Creature)
-        effect = Effects.ModifyStats(2, 2, t)
-            .then(Effects.GrantKeyword(Keyword.FLYING, t))
+        val t = target(TargetFilter.Creature)
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.FLYING, t)
     }
 
     metadata {

@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Quag Feast
@@ -33,21 +31,14 @@ val QuagFeast = card("Quag Feast") {
         "your graveyard."
 
     spell {
-        val creaturePlaneswalkerOrVehicle = target(
-            "creature, planeswalker, or Vehicle",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.CreatureOrVehicle or GameObjectFilter.Planeswalker),
+        val creaturePlaneswalkerOrVehicle = target(TargetFilter(GameObjectFilter.CreatureOrVehicle or GameObjectFilter.Planeswalker))
+        effect = Patterns.Library.mill(2) then Effects.If(
+            condition = Conditions.CompareAmounts(
+                left = DynamicAmounts.manaValueOf(creaturePlaneswalkerOrVehicle),
+                operator = ComparisonOperator.LTE,
+                right = DynamicAmounts.cardsInYourGraveyard(),
             ),
-        )
-        effect = Patterns.Library.mill(2).then(
-            Effects.If(
-                condition = Conditions.CompareAmounts(
-                    left = DynamicAmounts.manaValueOf(creaturePlaneswalkerOrVehicle),
-                    operator = ComparisonOperator.LTE,
-                    right = DynamicAmounts.cardsInYourGraveyard(),
-                ),
-                then = Effects.Destroy(creaturePlaneswalkerOrVehicle),
-            ),
+            then = Effects.Destroy(creaturePlaneswalkerOrVehicle),
         )
     }
 

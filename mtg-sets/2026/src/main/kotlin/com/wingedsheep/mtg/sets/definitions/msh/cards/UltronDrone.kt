@@ -35,8 +35,7 @@ val UltronDrone = card("Ultron Drone") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{6}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self) then
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,
@@ -44,7 +43,6 @@ val UltronDrone = card("Ultron Drone") {
                 artifactToken = true,
                 imageUri = "https://cards.scryfall.io/normal/front/8/e/8eb1de03-fc45-45bd-bd1f-5b164104426e.jpg?1783902799"
             )
-        )
     }
 
     metadata {

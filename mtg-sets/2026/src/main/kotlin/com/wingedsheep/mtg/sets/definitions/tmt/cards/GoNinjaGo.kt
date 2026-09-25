@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Go Ninja Go
@@ -29,12 +29,11 @@ val GoNinjaGo = card("Go Ninja Go") {
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Exile target creature you control, then return it to the battlefield under its owner's control") {
-                val creature = target("target creature you control", Targets.CreatureYouControl)
-                effect = Effects.Move(creature, Zone.EXILE)
-                    .then(Effects.Move(creature, Zone.BATTLEFIELD))
+                val creature = target(TargetFilter.CreatureYouControl)
+                effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
             }
             mode("Go Ninja Go deals damage equal to the greatest power among creatures you control to target creature an opponent controls") {
-                val opponentCreature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+                val opponentCreature = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.DealDamage(
                     DynamicAmounts.battlefield(
                         Player.You,

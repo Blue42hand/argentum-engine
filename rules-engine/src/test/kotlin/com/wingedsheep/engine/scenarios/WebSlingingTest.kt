@@ -42,6 +42,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tests for the Web-slinging [cost] keyword (CR 702.188, Marvel's Spider-Man).
@@ -144,7 +145,7 @@ class WebSlingingTest : FunSpec({
         manaCost = "{1}{U}"
         typeLine = "Instant"
         spell {
-            target("target instant/sorcery/triggered ability", Targets.InstantSorceryOrTriggeredAbility)
+            target(TargetFilter.InstantSorcerySpellOrTriggeredAbilityOnStack)
             effect = Effects.CounterSpellOrAbility()
         }
     }

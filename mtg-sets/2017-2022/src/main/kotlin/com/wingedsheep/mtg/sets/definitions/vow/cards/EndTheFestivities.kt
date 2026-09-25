@@ -20,15 +20,13 @@ val EndTheFestivities = card("End the Festivities") {
     typeLine = "Sorcery"
     oracleText = "End the Festivities deals 1 damage to each opponent and each creature and planeswalker they control."
     spell {
-        effect = Effects.Composite(
-            // 1 damage to each opponent
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+        // 1 damage to each opponent
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
             // 1 damage to each creature and planeswalker those opponents control
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()),
                 Effects.DealDamage(1, EffectTarget.IterationEntity)
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

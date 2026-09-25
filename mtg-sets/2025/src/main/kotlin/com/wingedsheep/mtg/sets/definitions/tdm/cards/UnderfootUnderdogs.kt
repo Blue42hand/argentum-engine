@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -46,12 +45,7 @@ val UnderfootUnderdogs = card("Underfoot Underdogs") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        val t = target(
-            "target",
-            TargetCreature(
-                filter = TargetFilter(GameObjectFilter.Creature.powerAtMost(2).youControl())
-            )
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.powerAtMost(2).youControl()))
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
         description = "{1}, {T}: Target creature you control with power 2 or less can't be blocked this turn."
     }

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantAdditionalLandDrop
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Thranduil's Company
@@ -52,12 +51,9 @@ val ThranduilsCompany = card("Thranduil's Company") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val t = target(
-            "target creature you control to get two +1/+1 counters and vigilance",
-            TargetCreature(filter = TargetFilter.CreatureYouControl)
-        )
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
-            .then(Effects.GrantKeyword(Keyword.VIGILANCE, t))
+        val t = target(TargetFilter.CreatureYouControl)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, t)
         description = "Landfall — Whenever a land you control enters, put two +1/+1 counters on " +
             "target creature you control. It gains vigilance until end of turn."
     }

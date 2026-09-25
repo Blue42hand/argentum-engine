@@ -25,17 +25,15 @@ val Wildfire = card("Wildfire") {
     oracleText = "Each player sacrifices four lands of their choice. Wildfire deals 4 damage to each creature."
 
     spell {
-        effect = Effects.Composite(
-            Effects.Sacrifice(
-                GameObjectFilter.Land,
-                4,
-                EffectTarget.PlayerRef(Player.Each)
-            ),
+        effect = Effects.Sacrifice(
+            GameObjectFilter.Land,
+            4,
+            EffectTarget.PlayerRef(Player.Each)
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
                 Effects.DealDamage(4, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

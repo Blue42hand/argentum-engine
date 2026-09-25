@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -42,25 +40,15 @@ val SalvationSwan = card("Salvation Swan") {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype(Subtype("Bird"))).enters()
 
         // Target up to one creature you control without flying
-        val creature = target(
-            "creature you control without flying",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter.Creature.youControl().withoutKeyword(Keyword.FLYING)
-            )
-        )
+        val creature = target(TargetFilter.Creature.youControl().withoutKeyword(Keyword.FLYING), optional = true)
 
         // Exile target, then return with flying counter at end step
-        effect = Effects.Composite(listOf(
-            Effects.Move(creature, Zone.EXILE),
+        effect = Effects.Move(creature, Zone.EXILE) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
-                effect = Effects.Composite(listOf(
-                    Effects.Move(creature, Zone.BATTLEFIELD),
+                effect = Effects.Move(creature, Zone.BATTLEFIELD) then
                     Effects.AddCounters(CounterType.FLYING, 1, creature)
-                ))
             )
-        ))
     }
 
     metadata {

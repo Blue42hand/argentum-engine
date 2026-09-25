@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scarwood Hag
@@ -33,14 +33,14 @@ val ScarwoodHag = card("Scarwood Hag") {
         "{T}: Target creature loses forestwalk until end of turn."
 
     activatedAbility {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         cost = Costs.Composite(Costs.Mana("{G}{G}{G}{G}"), Costs.Tap)
         effect = Effects.GrantKeyword(Keyword.FORESTWALK, target = creature)
         description = "{G}{G}{G}{G}, {T}: Target creature gains forestwalk until end of turn."
     }
 
     activatedAbility {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         cost = Costs.Tap
         effect = Effects.RemoveKeyword(Keyword.FORESTWALK, target = creature)
         description = "{T}: Target creature loses forestwalk until end of turn."

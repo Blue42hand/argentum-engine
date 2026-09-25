@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Splash Lasher
@@ -44,9 +44,8 @@ val SplashLasher = card("Splash Lasher") {
     // ETB: tap up to one target creature and put a stun counter on it
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("creature", Targets.UpToCreatures(1))
-        effect = Effects.Tap(t)
-            .then(Effects.AddCounters(CounterType.STUN, 1, t))
+        val t = target(TargetFilter.Creature, optional = true)
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
 
     metadata {

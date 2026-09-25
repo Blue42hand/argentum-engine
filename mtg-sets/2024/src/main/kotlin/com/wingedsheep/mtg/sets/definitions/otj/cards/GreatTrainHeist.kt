@@ -53,12 +53,10 @@ val GreatTrainHeist = card("Great Train Heist") {
         effect = Effects.Modal(
             modes = listOf(
                 Mode(
-                    effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl)
-                        .then(
-                            Effects.If(
-                                condition = Conditions.IsInPhase(Phase.COMBAT, yoursOnly = true),
-                                then = Effects.AddCombatPhase
-                            )
+                    effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl) then
+                        Effects.If(
+                            condition = Conditions.IsInPhase(Phase.COMBAT, yoursOnly = true),
+                            then = Effects.AddCombatPhase
                         ),
                     description = "+ {2}{R} — Untap all creatures you control. If it's your combat phase, there is an additional combat phase after this phase.",
                     additionalManaCost = "{2}{R}"
@@ -71,7 +69,7 @@ val GreatTrainHeist = card("Great Train Heist") {
                     additionalManaCost = "{2}"
                 ),
                 mode("+ {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token.") {
-                    val opponent = target("target opponent", Targets.Opponent)
+                    val opponent = target(Targets.Opponent)
                     additionalManaCost = "{R}"
                     effect = Effects.CreateDelayedTrigger(
                         trigger = Triggers.self.matching(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer),

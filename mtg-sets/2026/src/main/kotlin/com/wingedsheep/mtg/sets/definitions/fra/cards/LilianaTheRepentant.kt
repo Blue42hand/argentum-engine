@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Liliana the Repentant — the exhaust ability's only target is the graveyard card, so if that card
@@ -38,16 +37,9 @@ val LilianaTheRepentant = card("Liliana the Repentant") {
         cost = Costs.Mana("{5}{B}")
         isExhaust = true
         timing = TimingRule.SorcerySpeed
-        val card = target(
-            "target creature or planeswalker card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.ownedByYou(), zone = Zone.GRAVEYARD)
-            ),
-        )
-        effect = Effects.Composite(
-            Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-        )
+        val card = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.ownedByYou(), zone = Zone.GRAVEYARD))
+        effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Return target creature or planeswalker card from your graveyard to the battlefield. " +
             "Put a +1/+1 counter on Liliana."
     }

@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Thunder Lasso
@@ -35,7 +35,7 @@ val ThunderLasso = card("Thunder Lasso") {
     // ETB: attach to target creature you control
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
     }
 
@@ -47,7 +47,7 @@ val ThunderLasso = card("Thunder Lasso") {
     // Whenever equipped creature attacks, tap target creature defending player controls
     triggeredAbility {
         trigger = Triggers.attached.attacks()
-        val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
+        val creature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Tap(creature)
     }
 

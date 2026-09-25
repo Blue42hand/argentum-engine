@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * S.H.I.E.L.D. Flying Car — Marvel Super Heroes #74 (rare)
@@ -52,21 +51,12 @@ val ShieldFlyingCar = card("S.H.I.E.L.D. Flying Car") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(
-                count = 1,
-                optional = true,
-                filter = TargetFilter.CreatureYouControl
-            )
-        )
-        effect = Effects.Composite(
-            Effects.Exile(creature),
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
+        effect = Effects.Exile(creature) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(creature, Zone.BATTLEFIELD)
             )
-        )
     }
 
     keywordAbility(KeywordAbility.crew(1))

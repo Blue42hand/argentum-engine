@@ -37,13 +37,8 @@ val IronFistPulverizer = card("Iron-Fist Pulverizer") {
 
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)
-        val opponent = target("opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(2, opponent),
-                Patterns.Library.scry(1),
-            ),
-        )
+        val opponent = target(Targets.Opponent)
+        effect = Effects.DealDamage(2, opponent) then Patterns.Library.scry(1)
         description = "Whenever you cast your second spell each turn, this creature deals 2 damage " +
             "to target opponent. Scry 1."
     }

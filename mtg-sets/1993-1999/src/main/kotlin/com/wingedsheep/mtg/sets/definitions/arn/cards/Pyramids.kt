@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.arn.cards
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Pyramids
@@ -35,20 +33,20 @@ val Pyramids = card("Pyramids") {
         cost = Costs.Mana("{2}")
         effect = ModalEffect.chooseOne(
             mode("Destroy target Aura attached to a land") {
-                val enchantment = target("target enchantment", TargetPermanent(
-                    filter = TargetFilter(
+                val enchantment = target(
+                    TargetFilter(
                         GameObjectFilter.Enchantment.withSubtype("Aura").copy(
                             statePredicates = listOf(
                                 StatePredicate.AttachedToCardType(CardType.LAND)
                             )
                         )
-                    )
-                ))
+                    ),
+                )
                 effect = Effects.Destroy(enchantment)
             },
             mode("The next time target land would be destroyed this turn, " +
                 "remove all damage marked on it instead") {
-                val land = target("target land", Targets.Land)
+                val land = target(TargetFilter.Land)
                 effect = Effects.RemoveDamageShield(land)
             }
         )

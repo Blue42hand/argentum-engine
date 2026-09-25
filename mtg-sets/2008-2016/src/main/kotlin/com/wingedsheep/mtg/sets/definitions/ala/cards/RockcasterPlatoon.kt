@@ -32,16 +32,14 @@ val RockcasterPlatoon = card("Rockcaster Platoon") {
 
     activatedAbility {
         cost = Costs.Mana("{4}{G}")
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
-                Effects.DealDamage(2, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
+            Effects.DealDamage(2, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(2, EffectTarget.Controller))
             )
-        )
     }
 
     metadata {

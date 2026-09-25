@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -18,8 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Eddie Brock // Venom, Lethal Protector — Marvel's Spider-Man #55 (mythic)
@@ -69,15 +66,7 @@ private val EddieBrockFront = card("Eddie Brock") {
     // graveyard to the battlefield.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val reanimated = target(
-            "target creature card with mana value 1 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.ownedByYou().manaValueAtMost(1),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val reanimated = target(TargetFilter(GameObjectFilter.Creature.ownedByYou().manaValueAtMost(1), zone = Zone.GRAVEYARD))
         effect = Effects.Move(reanimated, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
         description = "When Eddie Brock enters, return target creature card with mana value 1 or " +
             "less from your graveyard to the battlefield."
@@ -120,12 +109,7 @@ private val VenomLethalProtector = card("Venom, Lethal Protector") {
     // X is the sacrificed creature's mana value.
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val sacrificed = target(
-            "another creature",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.Creature.youControl()).other()
-            )
-        )
+        val sacrificed = target(TargetFilter(GameObjectFilter.Creature.youControl()).other())
         // X = the sacrificed creature's mana value (last-known info via EffectTarget.SacrificedAsCost).
         val x = DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost(0))
         effect = Effects.May(

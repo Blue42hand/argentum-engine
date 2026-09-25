@@ -9,8 +9,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Hawkeye, Master Marksman — Marvel Super Heroes #130
@@ -74,18 +74,15 @@ val HawkeyeMasterMarksman = card("Hawkeye, Master Marksman") {
             reflexiveEffect = Effects.Modal(
                 modes = listOf(
                     mode("Net — Target creature can't block this turn.") {
-                        val creature = target("target creature", TargetCreature())
+                        val creature = target(TargetFilter.Creature)
                         effect = Effects.CantBlock(creature)
                     },
                     mode("Explosive — Hawkeye deals 2 damage to target player.") {
-                        val player = target("target player", TargetPlayer())
+                        val player = target(Targets.Player)
                         effect = Effects.DealDamage(2, player)
                     },
                     Mode.noTarget(
-                        effect = Effects.Composite(
-                            Patterns.Hand.discardCards(1),
-                            Effects.DrawCards(1)
-                        ),
+                        effect = Patterns.Hand.discardCards(1) then Effects.DrawCards(1),
                         description = "Boomerang — Discard a card, then draw a card."
                     )
                 ),

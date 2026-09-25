@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Garruk, Curse Breaker
@@ -52,10 +51,7 @@ val GarrukCurseBreaker = card("Garruk, Curse Breaker") {
 
     // +2: Untap up to two target lands.
     loyaltyAbility(+2) {
-        target(
-            "up to two target lands",
-            TargetPermanent(count = 2, optional = true, filter = TargetFilter(GameObjectFilter.Land)),
-        )
+        targets(TargetFilter(GameObjectFilter.Land), count = 2, optional = true)
         effect = Effects.ForEachTarget(Effects.Untap(EffectTarget.ContextTarget(0)))
         description = "Untap up to two target lands."
     }

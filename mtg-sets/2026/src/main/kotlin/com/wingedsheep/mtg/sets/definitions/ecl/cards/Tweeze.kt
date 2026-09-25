@@ -20,9 +20,8 @@ val Tweeze = card("Tweeze") {
     oracleText = "Tweeze deals 3 damage to any target. You may discard a card. If you do, draw a card."
 
     spell {
-        val damageTarget = target("target to deal 3 damage", Targets.Any)
-        effect = Effects.Composite(listOf(
-            Effects.DealDamage(3, damageTarget),
+        val damageTarget = target(Targets.Any)
+        effect = Effects.DealDamage(3, damageTarget) then
             Effects.May(
                 effect = Effects.IfYouDo(
                     action = Patterns.Hand.discardCards(1),
@@ -30,7 +29,6 @@ val Tweeze = card("Tweeze") {
                 ),
                 descriptionOverride = "You may discard a card. If you do, draw a card."
             )
-        ))
     }
 
     metadata {

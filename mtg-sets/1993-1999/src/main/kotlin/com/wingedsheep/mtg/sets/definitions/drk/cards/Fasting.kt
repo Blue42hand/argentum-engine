@@ -42,14 +42,12 @@ val Fasting = card("Fasting") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.HUNGER, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.HUNGER, 1, EffectTarget.Self) then
             // Checked after the counter goes on, so the fifth upkeep is the last one.
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.HUNGER, 5),
                 then = Effects.Destroy(EffectTarget.Self),
-            ),
-        )
+            )
         description = "At the beginning of your upkeep, put a hunger counter on this enchantment. " +
             "Then destroy this enchantment if it has five or more hunger counters on it."
     }
@@ -57,10 +55,7 @@ val Fasting = card("Fasting") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
-        effect = Effects.Composite(
-            Effects.SkipNextDrawStep(EffectTarget.Controller),
-            Effects.GainLife(2),
-        )
+        effect = Effects.SkipNextDrawStep(EffectTarget.Controller) then Effects.GainLife(2)
         description = "If you would begin your draw step, you may skip that step instead. If you " +
             "do, you gain 2 life."
     }

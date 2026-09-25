@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Ore Gorger
@@ -37,7 +36,7 @@ val OreGorger = card("Ore Gorger") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
-        val land = target("target", TargetPermanent(filter = TargetFilter.NonbasicLand))
+        val land = target(TargetFilter.NonbasicLand)
         effect = Effects.Destroy(land)
         optional = true
         description = "Whenever you cast a Spirit or Arcane spell, you may destroy target " +

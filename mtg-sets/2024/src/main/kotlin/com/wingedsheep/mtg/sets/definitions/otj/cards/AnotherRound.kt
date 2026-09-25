@@ -55,12 +55,7 @@ val AnotherRound = card("Another Round") {
             move(returning, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
         }
 
-        effect = Effects.Composite(
-            listOf(
-                oneRound,
-                Effects.Repeat(amount = DynamicAmounts.xValue(), body = oneRound)
-            )
-        )
+        effect = oneRound then Effects.Repeat(amount = DynamicAmounts.xValue(), body = oneRound)
     }
 
     metadata {

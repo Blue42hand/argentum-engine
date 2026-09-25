@@ -49,14 +49,12 @@ private val BloodswornSquireFront = card("Bloodsworn Squire") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.Discard())
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
-            Effects.Tap(EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self) then
+            Effects.Tap(EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.CreatureCardsInGraveyardAtLeast(4),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "This creature gains indestructible until end of turn. Tap it. Then if there " +
             "are four or more creature cards in your graveyard, transform this creature."
     }
@@ -90,10 +88,8 @@ private val BloodswornKnight = card("Bloodsworn Knight") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.Discard())
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
-            Effects.Tap(EffectTarget.Self),
-        )
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self) then
+            Effects.Tap(EffectTarget.Self)
         description = "This creature gains indestructible until end of turn. Tap it."
     }
 

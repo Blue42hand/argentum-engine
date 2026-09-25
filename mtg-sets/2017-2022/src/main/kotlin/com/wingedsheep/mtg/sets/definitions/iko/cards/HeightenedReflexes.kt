@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Heightened Reflexes
@@ -23,11 +23,9 @@ val HeightenedReflexes = card("Heightened Reflexes") {
     oracleText = "Target creature gets +1/+0 until end of turn. Put a first strike counter on it."
 
     spell {
-        val creature = target("target", TargetCreature())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.ModifyStats(1, 0, creature) then
             Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature)
-        )
     }
 
     metadata {

@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Collective Brutality — Eldritch Moon #85.
@@ -39,7 +39,7 @@ val CollectiveBrutality = card("Collective Brutality") {
             additionalCostPerExtraMode = CostAtom.Discard(1),
         ) {
             mode("Target opponent reveals their hand. You choose an instant or sorcery card from it. That player discards that card.") {
-                val opponent = target("reveal opponent", TargetOpponent())
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(opponent))
                     val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
@@ -56,15 +56,12 @@ val CollectiveBrutality = card("Collective Brutality") {
                 }
             }
             mode("Target creature gets -2/-2 until end of turn.") {
-                val creature = target("weakened creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(-2, -2, creature)
             }
             mode("Target opponent loses 2 life and you gain 2 life.") {
-                val opponent = target("drained opponent", TargetOpponent())
-                effect = Effects.Composite(
-                    Effects.LoseLife(2, opponent),
-                    Effects.GainLife(2),
-                )
+                val opponent = target(Targets.Opponent)
+                effect = Effects.LoseLife(2, opponent) then Effects.GainLife(2)
             }
         }
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
@@ -44,7 +43,7 @@ val ArwensGift = card("Arwen's Gift") {
     }
 
     spell {
-        effect = Patterns.Library.scry(2).then(Effects.DrawCards(2))
+        effect = Patterns.Library.scry(2) then Effects.DrawCards(2)
     }
 
     metadata {

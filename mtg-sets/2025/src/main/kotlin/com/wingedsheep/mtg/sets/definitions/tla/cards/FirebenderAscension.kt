@@ -77,8 +77,7 @@ val FirebenderAscension = card("Firebender Ascension") {
     // on it, you may copy that ability. You may choose new targets for the copy.
     triggeredAbility {
         trigger = Triggers.you.attackTriggersAbility()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
                 then = Effects.May(
@@ -86,7 +85,6 @@ val FirebenderAscension = card("Firebender Ascension") {
                     descriptionOverride = "Copy that triggered ability? You may choose new targets for the copy."
                 )
             )
-        )
         description = "Whenever a creature you control attacking causes a triggered ability of that creature to trigger, put a quest counter on this enchantment. Then if it has four or more quest counters on it, you may copy that ability. You may choose new targets for the copy."
     }
 

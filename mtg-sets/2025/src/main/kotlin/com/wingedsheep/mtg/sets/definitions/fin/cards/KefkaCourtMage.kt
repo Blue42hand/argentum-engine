@@ -134,16 +134,12 @@ private val KefkaCourtMageFrontFace = card("Kefka, Court Mage") {
     activatedAbility {
         cost = Costs.Mana("{8}")
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            listOf(
-                Effects.Sacrifice(
-                    GameObjectFilter.Any,
-                    1,
-                    EffectTarget.PlayerRef(Player.EachOpponent)
-                ),
-                Effects.Transform(EffectTarget.Self)
-            )
-        )
+        effect = Effects.Sacrifice(
+            GameObjectFilter.Any,
+            1,
+            EffectTarget.PlayerRef(Player.EachOpponent)
+        ) then
+            Effects.Transform(EffectTarget.Self)
         description = "{8}: Each opponent sacrifices a permanent of their choice. Transform " +
             "Kefka. Activate only as a sorcery."
     }

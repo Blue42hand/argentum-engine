@@ -191,7 +191,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target permanent"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -202,7 +202,7 @@
                         "filter": {
                             "baseFilter": "permanent"
                         },
-                        "id": "target permanent"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{7}, {T}, Sacrifice this artifact: Destroy target permanent."

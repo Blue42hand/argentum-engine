@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Sunset Strikemaster — Tarkir: Dragonstorm #126
@@ -47,10 +46,7 @@ val SunsetStrikemaster = card("Sunset Strikemaster") {
             AbilityCost.Tap,
             AbilityCost.SacrificeSelf,
         )
-        val t = target(
-            "target creature with flying",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING))),
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)))
         effect = Effects.DealDamage(6, t)
         description = "{2}{R}, {T}, Sacrifice this creature: It deals 6 damage to target creature with flying."
     }

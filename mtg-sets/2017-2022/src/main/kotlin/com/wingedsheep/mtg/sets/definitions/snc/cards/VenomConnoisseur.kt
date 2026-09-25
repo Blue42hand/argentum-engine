@@ -37,15 +37,13 @@ val VenomConnoisseur = card("Venom Connoisseur") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.ForEachInGroup(
-                        GroupFilter.AllCreaturesYouControl,
-                        Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
-                    )
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.ForEachInGroup(
+                    GroupFilter.AllCreaturesYouControl,
+                    Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
                 )
             )
         description = "Alliance — Whenever another creature you control enters, this creature gains deathtouch until end of turn."

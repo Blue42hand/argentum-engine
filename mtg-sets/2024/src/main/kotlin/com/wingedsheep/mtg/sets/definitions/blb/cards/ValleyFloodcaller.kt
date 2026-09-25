@@ -56,12 +56,8 @@ val ValleyFloodcaller = card("Valley Floodcaller") {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.ForEachInGroup(
             filter = creatureFilter,
-            effect = Effects.Composite(
-                listOf(
-                    Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
-                    Effects.Untap(EffectTarget.IterationEntity)
-                )
-            )
+            effect = Effects.ModifyStats(1, 1, EffectTarget.IterationEntity) then
+                Effects.Untap(EffectTarget.IterationEntity)
         )
     }
 

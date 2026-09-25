@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Y'shtola Rhul
@@ -38,14 +38,12 @@ val YshtolaRhul = card("Y'shtola Rhul") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
-            .then(
-                Effects.If(
-                    condition = Conditions.IsFirstEndStepOfTurn,
-                    then = Effects.AddAdditionalEndSteps(1)
-                )
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD) then
+            Effects.If(
+                condition = Conditions.IsFirstEndStepOfTurn,
+                then = Effects.AddAdditionalEndSteps(1)
             )
         description = "At the beginning of your end step, exile target creature you control, then " +
             "return it to the battlefield under its owner's control. Then if it's the first end " +

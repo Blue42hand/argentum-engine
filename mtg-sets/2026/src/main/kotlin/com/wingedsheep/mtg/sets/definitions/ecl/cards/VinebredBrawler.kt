@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Vinebred Brawler
@@ -33,10 +32,7 @@ val VinebredBrawler = card("Vinebred Brawler") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val elf = target(
-            "another target Elf you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl.withSubtype(Subtype.ELF))
-        )
+        val elf = target(TargetFilter.OtherCreatureYouControl.withSubtype(Subtype.ELF))
         effect = Effects.ModifyStats(2, 1, elf)
     }
 

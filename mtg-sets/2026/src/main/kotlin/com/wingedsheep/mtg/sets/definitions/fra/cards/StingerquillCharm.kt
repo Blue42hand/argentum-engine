@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val StingerquillCharm = card("Stingerquill Charm") {
     manaCost = "{B}{R}"
@@ -20,27 +21,23 @@ val StingerquillCharm = card("Stingerquill Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Stingerquill Charm deals 3 damage to any target") {
-                val t = target("any target", Targets.Any)
+                val t = target(Targets.Any)
                 effect = Effects.DealDamage(3, t)
             }
             mode("Target creature gains first strike and deathtouch until end of turn") {
-                val t = target("target creature", Targets.Creature)
-                effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+                val t = target(TargetFilter.Creature)
+                effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
                     Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
-                )
             }
             mode("Create a 2/2 colorless Wizard Soldier creature token named Cadet. It gains haste until end of turn") {
-                effect = Effects.Composite(
-                    Effects.CreateToken(
-                        power = 2,
-                        toughness = 2,
-                        name = "Cadet",
-                        creatureTypes = setOf("Wizard", "Soldier"),
-                        imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
-                    ),
+                effect = Effects.CreateToken(
+                    power = 2,
+                    toughness = 2,
+                    name = "Cadet",
+                    creatureTypes = setOf("Wizard", "Soldier"),
+                    imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                ) then
                     Effects.GrantKeyword(Keyword.HASTE, EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
-                )
             }
         }
     }

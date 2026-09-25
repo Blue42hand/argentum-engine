@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Irradiate — Mirrodin #67
@@ -31,7 +31,7 @@ val Irradiate = card("Irradiate") {
     oracleText = "Target creature gets -1/-1 until end of turn for each artifact you control."
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         val negArtifacts = -DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
         effect = Effects.ModifyStats(negArtifacts, negArtifacts, t)
     }

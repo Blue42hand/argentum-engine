@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Oblivion Ring
@@ -32,10 +31,7 @@ val OblivionRing = card("Oblivion Ring") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val exiled = target(
-            "another target nonland permanent",
-            TargetPermanent(filter = TargetFilter.OtherNonlandPermanent),
-        )
+        val exiled = target(TargetFilter.OtherNonlandPermanent)
         effect = Effects.ExileUntilLeaves(exiled)
     }
 

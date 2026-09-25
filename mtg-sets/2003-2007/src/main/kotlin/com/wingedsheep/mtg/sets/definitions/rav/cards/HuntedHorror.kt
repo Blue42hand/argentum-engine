@@ -50,7 +50,7 @@ val HuntedHorror = card("Hunted Horror") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.CreateToken(
             power = 3,
             toughness = 3,

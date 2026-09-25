@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Jill, Shiva's Dominant // Shiva, Warden of Ice
@@ -45,20 +44,18 @@ private val ShivaWardenOfIce = card("Shiva, Warden of Ice") {
 
     // I, II — Mesmerize — Target creature can't be blocked this turn.
     sagaChapter(1) {
-        val t = target("creature", TargetObject(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
     sagaChapter(2) {
-        val t = target("creature", TargetObject(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
 
     // III — Cold Snap — Tap all lands your opponents control, then flip Shiva back to Jill.
     sagaChapter(3) {
-        effect = Effects.Composite(
-            Patterns.Group.tapAll(GroupFilter(GameObjectFilter.Land.opponentControls())),
-            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-        )
+        effect = Patterns.Group.tapAll(GroupFilter(GameObjectFilter.Land.opponentControls())) then
+            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT)
     }
 
     metadata {
@@ -83,13 +80,7 @@ private val JillShivasDominantFront = card("Jill, Shiva's Dominant") {
     // When Jill enters, return up to one other target nonland permanent to its owner's hand.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "nonland permanent",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.NonlandPermanent, excludeSelf = true),
-            ),
-        )
+        val t = target(TargetFilter(GameObjectFilter.NonlandPermanent, excludeSelf = true), optional = true)
         effect = Effects.ReturnToHand(t)
     }
 

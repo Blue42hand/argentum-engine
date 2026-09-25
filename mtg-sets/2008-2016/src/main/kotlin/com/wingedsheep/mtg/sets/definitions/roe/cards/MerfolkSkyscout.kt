@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Merfolk Skyscout
@@ -44,13 +45,13 @@ val MerfolkSkyscout = card("Merfolk Skyscout") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val permanent = target("target permanent", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         effect = Effects.Untap(permanent)
     }
 
     triggeredAbility {
         trigger = Triggers.self.blocks()
-        val permanent = target("target permanent", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         effect = Effects.Untap(permanent)
     }
 

@@ -5,13 +5,13 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Essence Channeler
@@ -56,7 +56,7 @@ val EssenceChanneler = card("Essence Channeler") {
     // When this creature dies, put its counters on target creature you control.
     // Per the Bloomburrow ruling, this moves *all* counter kinds, not just +1/+1.
     triggeredAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         trigger = Triggers.self.dies()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }

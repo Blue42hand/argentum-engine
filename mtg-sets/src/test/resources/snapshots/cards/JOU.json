@@ -16,7 +16,7 @@
                     "type": "ExileUntilLeaves",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -24,7 +24,7 @@
                     "filter": {
                         "baseFilter": "nonland permanent ctrl:opponent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             },
             {
@@ -270,12 +270,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "any target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this Aura enters, it deals 2 damage to any target."
             }

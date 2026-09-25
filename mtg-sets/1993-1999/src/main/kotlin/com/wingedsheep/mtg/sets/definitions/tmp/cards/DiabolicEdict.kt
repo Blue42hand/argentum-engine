@@ -19,7 +19,7 @@ val DiabolicEdict = card("Diabolic Edict") {
     oracleText = "Target player sacrifices a creature of their choice."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, player)
     }
 

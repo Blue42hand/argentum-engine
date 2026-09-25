@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 
@@ -37,17 +36,11 @@ val TheBathSong = card("The Bath Song") {
     }
 
     sagaChapter(3) {
-        target(
-            "target cards from your graveyard",
-            TargetObject(
-                unlimited = true,
-                filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
-            )
-        )
+        targets(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD), unlimited = true)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY)
-        ).then(Effects.ShuffleLibrary())
-            .then(Effects.AddMana(Color.BLUE, 2))
+        ) then Effects.ShuffleLibrary() then
+            Effects.AddMana(Color.BLUE, 2)
     }
 
     metadata {

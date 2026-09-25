@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Malamet Veteran — {4}{G}
@@ -46,7 +46,7 @@ val MalametVeteran = card("Malamet Veteran") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(4, GameObjectFilter.Permanent)
-        val t = target("target creature", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 

@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Daring Discovery
@@ -19,11 +19,9 @@ val DaringDiscovery = card("Daring Discovery") {
     typeLine = "Sorcery"
     oracleText = "Up to three target creatures can't block this turn.\nDiscover 4."
     spell {
-        target("up to three target creatures", TargetCreature(count = 3, optional = true))
-        effect = Effects.Composite(
-            Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))),
+        targets(TargetFilter.Creature, count = 3, optional = true)
+        effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))) then
             Effects.Discover(4)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

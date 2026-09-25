@@ -41,12 +41,8 @@ val YawgmothDemon = card("Yawgmoth Demon") {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         effect = Effects.SacrificeOwn(GameObjectFilter.Artifact)
-        elseEffect = Effects.Composite(
-            listOf(
-                Effects.Tap(EffectTarget.Self),
-                Effects.DealDamage(2, EffectTarget.Controller, damageSource = EffectTarget.Self)
-            )
-        )
+        elseEffect = Effects.Tap(EffectTarget.Self) then
+            Effects.DealDamage(2, EffectTarget.Controller, damageSource = EffectTarget.Self)
     }
 
     metadata {

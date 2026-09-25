@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Do or Die
@@ -28,7 +29,7 @@ val DoOrDie = card("Do or Die") {
     oracleText = "Separate all creatures target player controls into two piles. Destroy all creatures in the pile of that player's choice. They can't be regenerated."
 
     spell {
-        val player = target("target player", TargetPlayer())
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             // 1. Gather every creature the target player controls (projected).
             val creatures = gather(

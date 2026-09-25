@@ -30,7 +30,7 @@ val CloseQuarters = card("Close Quarters") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).becomesBlocked()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
     }
 

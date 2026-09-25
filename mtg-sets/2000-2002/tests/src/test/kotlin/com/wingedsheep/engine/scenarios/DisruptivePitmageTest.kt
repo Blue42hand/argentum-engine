@@ -8,7 +8,6 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.*
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -24,6 +23,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.util.UUID
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Subtype
 
 /**
  * Tests for Disruptive Pitmage.
@@ -50,7 +52,7 @@ class DisruptivePitmageTest : FunSpec({
                 id = pitmageAbilityId,
                 cost = AbilityCost.Tap,
                 effect = Effects.CounterUnlessPays("{1}"),
-                targetRequirement = Targets.Spell
+                targetRequirement = TargetObject(filter = TargetFilter.SpellOnStack)
             )
         )
     )

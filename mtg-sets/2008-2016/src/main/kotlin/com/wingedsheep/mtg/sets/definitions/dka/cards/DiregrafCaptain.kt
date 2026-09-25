@@ -46,7 +46,7 @@ val DiregrafCaptain = card("Diregraf Captain") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE).youControl()).dies()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.LoseLife(1, opponent)
     }
 

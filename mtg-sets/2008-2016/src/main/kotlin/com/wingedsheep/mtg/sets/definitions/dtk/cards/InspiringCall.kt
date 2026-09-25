@@ -28,13 +28,11 @@ val InspiringCall = card("Inspiring Call") {
     typeLine = "Instant"
     oracleText = "Draw a card for each creature you control with a +1/+1 counter on it. Those creatures gain indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy them.)"
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(DynamicAmounts.creaturesYouControl()),
+        effect = Effects.DrawCards(DynamicAmounts.creaturesYouControl()) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()),
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

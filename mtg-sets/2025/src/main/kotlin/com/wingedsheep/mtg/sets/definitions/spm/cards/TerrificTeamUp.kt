@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostGating
@@ -14,7 +13,6 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Terrific Team-Up
@@ -55,15 +53,8 @@ val TerrificTeamUp = card("Terrific Team-Up") {
 
     spell {
         // Declared first so the victim is a stable target across the per-creature loop.
-        val creatureOpponentControls = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        target(
-            "one or two creatures you control",
-            TargetCreature(
-                count = 2,
-                minCount = 1,
-                filter = TargetFilter(GameObjectFilter.Creature.youControl()),
-            ),
-        )
+        val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
+        targets(TargetFilter(GameObjectFilter.Creature.youControl()), count = 2, minCount = 1)
 
         effect = Effects.Pipeline {
             // Gather every chosen target, then keep only the creatures you control (the victim is

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Reenact the Crime — Murders at Karlov Manor #70
@@ -28,15 +27,7 @@ val ReenactTheCrime = card("Reenact the Crime") {
         "turn. Copy it. You may cast the copy without paying its mana cost."
 
     spell {
-        val reenacted = target(
-            "target nonland card in a graveyard that was put there from anywhere this turn",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Nonland.putIntoGraveyardThisTurn(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val reenacted = target(TargetFilter(GameObjectFilter.Nonland.putIntoGraveyardThisTurn(), zone = Zone.GRAVEYARD))
         effect = Effects.Pipeline {
             run(Effects.Move(reenacted, Zone.EXILE, fromZone = Zone.GRAVEYARD))
             val copy = copyCard(reenacted)

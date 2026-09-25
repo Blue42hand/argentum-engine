@@ -33,10 +33,7 @@ val TrainedArynx = card("Trained Arynx") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self),
-            Patterns.Library.scry(1)
-        )
+        effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self) then Patterns.Library.scry(1)
     }
     keywordAbility(KeywordAbility.saddle(2))
     metadata {

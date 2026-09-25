@@ -26,16 +26,14 @@ val PureReflection = card("Pure Reflection") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.casts(GameObjectFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DestroyAll(GameObjectFilter.Creature.withSubtype("Reflection")),
+        effect = Effects.DestroyAll(GameObjectFilter.Creature.withSubtype("Reflection")) then
             Effects.CreateDynamicToken(
                 dynamicPower = DynamicAmounts.triggeringManaValue(),
                 dynamicToughness = DynamicAmounts.triggeringManaValue(),
                 colors = setOf(Color.WHITE),
                 creatureTypes = setOf("Reflection"),
                 controller = EffectTarget.PlayerRef(Player.TriggeringPlayer),
-            ),
-        )
+            )
     }
 
     metadata {

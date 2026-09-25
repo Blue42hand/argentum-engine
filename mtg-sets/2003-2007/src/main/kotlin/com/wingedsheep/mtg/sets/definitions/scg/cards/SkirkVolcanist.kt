@@ -5,8 +5,9 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Skirk Volcanist
@@ -27,7 +28,7 @@ val SkirkVolcanist = card("Skirk Volcanist") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        target = TargetCreature(count = 3, minCount = 1)
+        target = TargetObject(filter = TargetFilter.Creature, count = 3, minCount = 1)
         effect = Effects.DividedDamage(
             total = 3,
             minTargets = 1,

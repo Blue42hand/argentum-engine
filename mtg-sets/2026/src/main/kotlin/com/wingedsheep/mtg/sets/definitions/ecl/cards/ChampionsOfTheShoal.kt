@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Champions of the Shoal
@@ -37,14 +37,14 @@ val ChampionsOfTheShoal = card("Champions of the Shoal") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("creature", TargetCreature(optional = true))
-        effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
+        val victim = target(TargetFilter.Creature, optional = true)
+        effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
     }
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
-        val victim = target("creature", TargetCreature(optional = true))
-        effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
+        val victim = target(TargetFilter.Creature, optional = true)
+        effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
     }
 
     triggeredAbility {

@@ -76,13 +76,10 @@ private val PhoenixWardenOfFire = card("Phoenix, Warden of Fire") {
     // value 6 or less from your graveyard to the battlefield. Exile Phoenix, then return it
     // to the battlefield (front face up).
     sagaChapter(3) {
-        target(
-            "any number of target creature cards with total mana value 6 or less from your graveyard",
-            TargetObject(
-                unlimited = true,
-                filter = TargetFilter.CreatureInYourGraveyard,
-                totalManaValueAtMost = DynamicAmounts.fixed(6),
-            )
+        targets(
+            TargetFilter.CreatureInYourGraveyard,
+            unlimited = true,
+            totalManaValueAtMost = DynamicAmounts.fixed(6),
         )
         effect = Effects.Pipeline {
             val toBattlefield = gather(CardSource.ChosenTargets)

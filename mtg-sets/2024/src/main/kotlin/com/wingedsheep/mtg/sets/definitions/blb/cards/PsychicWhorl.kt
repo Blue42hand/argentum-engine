@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Psychic Whorl
@@ -21,12 +21,12 @@ val PsychicWhorl = card("Psychic Whorl") {
     oracleText = "Target opponent discards two cards. Then if you control a Rat, surveil 2."
 
     spell {
-        val t = target("target opponent", TargetOpponent())
-        effect = Patterns.Hand.discardCards(2, t)
-            .then(Effects.If(
+        val t = target(Targets.Opponent)
+        effect = Patterns.Hand.discardCards(2, t) then
+            Effects.If(
                 condition = Conditions.ControlCreatureOfType(Subtype("Rat")),
                 then = Patterns.Library.surveil(2)
-            ))
+            )
     }
 
     metadata {

@@ -20,10 +20,7 @@ val WayOfTheParadox = card("Way of the Paradox") {
 
     triggeredAbility {
         trigger = Triggers.you.activatesAbility(loyalty = true)
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.PlayAdditionalLands(count = 1),
-        )
+        effect = Effects.GainLife(1) then Effects.PlayAdditionalLands(count = 1)
     }
 
     metadata {

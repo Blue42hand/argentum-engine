@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.shm.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Trip Noose
@@ -23,7 +23,7 @@ val TripNoose = card("Trip Noose") {
     oracleText = "{2}, {T}: Tap target creature."
 
     activatedAbility {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = Effects.Tap(creature)
     }

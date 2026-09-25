@@ -25,10 +25,10 @@ val RabbitResponse = card("Rabbit Response") {
         effect = Patterns.Group.modifyStatsForAll(
             2, 1,
             GroupFilter(GameObjectFilter.Creature.youControl())
-        ).then(Effects.If(
+        ) then Effects.If(
             condition = Conditions.ControlPermanentOfType(Subtype("Rabbit")),
             then = Patterns.Library.scry(2)
-        ))
+        )
     }
 
     metadata {

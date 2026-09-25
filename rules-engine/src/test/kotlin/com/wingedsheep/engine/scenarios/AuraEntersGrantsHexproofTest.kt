@@ -9,16 +9,16 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Regression test for Rule 608.2b as it applies to hexproof granted by an Aura's
@@ -39,7 +39,7 @@ class AuraEntersGrantsHexproofTest : FunSpec({
         typeLine = "Enchantment — Aura"
 
         keywords(Keyword.FLASH)
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         triggeredAbility {
             trigger = Triggers.self.enters()
@@ -53,7 +53,7 @@ class AuraEntersGrantsHexproofTest : FunSpec({
         typeLine = "Instant"
 
         spell {
-            val t = target("target creature", TargetCreature())
+            val t = target(TargetFilter.Creature)
             effect = MoveToZoneEffect(t, Zone.GRAVEYARD, byDestruction = true)
         }
     }

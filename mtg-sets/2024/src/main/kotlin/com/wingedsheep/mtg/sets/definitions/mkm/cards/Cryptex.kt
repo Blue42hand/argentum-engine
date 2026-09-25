@@ -52,10 +52,7 @@ val Cryptex = card("Cryptex") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.CollectEvidence(3))
         manaAbility = true
-        effect = Effects.Composite(
-            Effects.AddManaOfChoice(),
-            Effects.AddCounters(CounterType.UNLOCK, 1, EffectTarget.Self),
-        )
+        effect = Effects.AddManaOfChoice() then Effects.AddCounters(CounterType.UNLOCK, 1, EffectTarget.Self)
         description = "Add one mana of any color. Put an unlock counter on this artifact."
     }
 
@@ -66,10 +63,7 @@ val Cryptex = card("Cryptex") {
                 Conditions.SourceCounterCountAtLeast(CounterType.UNLOCK, 5)
             )
         )
-        effect = Effects.Composite(
-            Effects.Surveil(3),
-            Effects.DrawCards(3),
-        )
+        effect = Effects.Surveil(3) then Effects.DrawCards(3)
         description = "Surveil 3, then draw three cards."
     }
 

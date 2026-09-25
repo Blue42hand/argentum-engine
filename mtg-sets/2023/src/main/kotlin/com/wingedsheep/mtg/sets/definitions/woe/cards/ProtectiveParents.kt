@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Protective Parents
@@ -34,10 +33,7 @@ val ProtectiveParents = card("Protective Parents") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val t = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
-        )
+        val t = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.CreateRoleToken("Young Hero Role", t)
     }
 

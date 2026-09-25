@@ -35,7 +35,7 @@ val KilnmouthDragon = card("Kilnmouth Dragon") {
 
     activatedAbility {
         cost = Costs.Tap
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
             target = t

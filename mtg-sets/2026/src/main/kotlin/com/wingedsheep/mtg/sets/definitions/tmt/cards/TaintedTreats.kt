@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Tainted Treats
@@ -24,16 +23,11 @@ val TaintedTreats = card("Tainted Treats") {
     oracleText = "Destroy target artifact or creature. If its mana value was 4 or less, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")"
 
     spell {
-        val target = target(
-            "artifact or creature",
-            TargetPermanent(filter = TargetFilter.CreatureOrArtifact)
-        )
-        effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4), target),
-                    then = Effects.CreateFood()
-                )
+        val target = target(TargetFilter.CreatureOrArtifact)
+        effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.If(
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4), target),
+                then = Effects.CreateFood()
             )
     }
 

@@ -89,7 +89,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Battlefield",
                         "fromZone": "Graveyard"
@@ -102,7 +102,7 @@
                         "baseFilter": "enchantment own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature dies, you may return target enchantment card from your graveyard to the battlefield."
             }
@@ -258,14 +258,14 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
                             "type": "CantBlockTargetCreatures",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -276,7 +276,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -403,7 +403,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -411,7 +411,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Constellation — Whenever an enchantment you control enters, tap target creature an opponent controls."
             }
@@ -465,7 +465,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -473,7 +473,7 @@
                     "filter": {
                         "baseFilter": "creature|planeswalker ctrl:opponent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature dies, it deals 2 damage to target creature or planeswalker an opponent controls."
             }
@@ -513,7 +513,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -528,7 +528,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -602,7 +602,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -615,7 +615,7 @@
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -662,7 +662,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -670,7 +670,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -834,7 +834,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -846,7 +846,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -928,7 +928,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Exile"
         },
@@ -938,7 +938,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -968,7 +968,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -977,7 +977,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "additionalCosts": [
@@ -1032,7 +1032,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -1040,7 +1040,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature dies, target creature an opponent controls gets -1/-1 until end of turn."
             }
@@ -1079,7 +1079,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -1088,7 +1088,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -1169,7 +1169,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -1177,7 +1177,7 @@
                     "filter": {
                         "baseFilter": "creature|planeswalker ctrl:opponent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ],
@@ -1232,7 +1232,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target artifact"
+                                    "name": "t0"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -1243,7 +1243,7 @@
                                     "filter": {
                                         "baseFilter": "artifact"
                                     },
-                                    "id": "target artifact"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Destroy target artifact."
@@ -1367,7 +1367,7 @@
                     "baseFilter": {},
                     "zone": "Stack"
                 },
-                "id": "target spell"
+                "id": "t0"
             }
         ]
     },
@@ -1407,29 +1407,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "GainLife",
@@ -1799,7 +1794,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -1809,7 +1804,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ],
@@ -1872,12 +1867,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ],
@@ -2051,13 +2046,13 @@
                         "filter": "creature",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target opponent sacrifices a creature of their choice"
@@ -2068,13 +2063,13 @@
                         "filter": "enchantment",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target opponent sacrifices an enchantment of their choice"
@@ -2125,7 +2120,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -2133,7 +2128,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Constellation — Whenever an enchantment you control enters, target creature gets +1/+1 until end of turn."
             }
@@ -2197,7 +2192,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -2205,7 +2200,7 @@
                             "keyword": "INDESTRUCTIBLE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -2215,7 +2210,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -2325,7 +2320,7 @@
                                 },
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 },
                                 "isMill": true
                             },
@@ -2339,7 +2334,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             }
                         }
@@ -2347,7 +2342,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetPlayer",
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Constellation — Whenever an enchantment you control enters, target player mills two cards."
             }
@@ -2536,7 +2531,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -2546,7 +2541,7 @@
                         "baseFilter": {},
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ],
@@ -2780,7 +2775,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Hand"
         },
@@ -2790,7 +2785,7 @@
                 "filter": {
                     "baseFilter": "creature|enchantment ctrl:opponent"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2931,58 +2926,53 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "DevotionTo",
-                                            "colors": [
-                                                "BLUE"
-                                            ]
-                                        }
-                                    },
-                                    "storeAs": "gathered0"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "gathered0",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "selected1",
-                                    "storeRemainder": "remainder1",
-                                    "prompt": "Put up to one card on top of your library",
-                                    "selectedLabel": "Put on top of library",
-                                    "remainderLabel": "Put on the bottom in a random order"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "selected1",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Library",
-                                        "placement": "Top"
-                                    },
-                                    "order": "ControllerChooses"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "remainder1",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Library",
-                                        "placement": "Bottom"
-                                    },
-                                    "order": "Random"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "DevotionTo",
+                                    "colors": [
+                                        "BLUE"
+                                    ]
                                 }
-                            ]
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
+                            "prompt": "Put up to one card on top of your library",
+                            "selectedLabel": "Put on top of library",
+                            "remainderLabel": "Put on the bottom in a random order"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            },
+                            "order": "ControllerChooses"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
                         },
                         {
                             "type": "Gated",
@@ -3163,7 +3153,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -3183,7 +3173,7 @@
                 "filter": {
                     "baseFilter": "creature pow>=4"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },

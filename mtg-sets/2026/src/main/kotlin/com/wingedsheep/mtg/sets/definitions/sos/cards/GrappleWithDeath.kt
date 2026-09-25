@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -24,11 +23,8 @@ val GrappleWithDeath = card("Grapple with Death") {
     typeLine = "Sorcery"
     oracleText = "Destroy target artifact or creature. You gain 1 life."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrArtifact))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(1)
-        )
+        val t = target(TargetFilter.CreatureOrArtifact)
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.COMMON

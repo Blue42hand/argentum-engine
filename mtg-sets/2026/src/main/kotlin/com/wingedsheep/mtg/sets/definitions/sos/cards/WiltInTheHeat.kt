@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wilt in the Heat — Secrets of Strixhaven #243
@@ -42,7 +42,7 @@ val WiltInTheHeat = card("Wilt in the Heat") {
     }
 
     spell {
-        val t = target("target creature", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.DealDamage(5, t) then Effects.MarkExileOnDeath(t)
     }
 

@@ -82,42 +82,37 @@ val RottenmouthViper = card("Rottenmouth Viper") {
  * Put a blight counter on it, then for each blight counter,
  * each opponent chooses: sacrifice nonland permanent, discard, or lose 4 life.
  */
-private fun rottenmouthViperEffect(): Effect = Effects.Composite(
-    listOf(
-        // Step 1: Put a blight counter on Rottenmouth Viper
-        Effects.AddCounters(CounterType.BLIGHT, 1, EffectTarget.Self),
-
-        // Step 2: For each blight counter, each opponent chooses
-        Effects.Repeat(
-            amount = DynamicAmounts.countersOnSelf(CounterType.BLIGHT),
-            body = Effects.ForEachPlayer(
-                players = Player.EachOpponent,
-                effect = Effects.ChooseAction(
-                    choices = listOf(
-                        EffectChoice(
-                            label = "Sacrifice a nonland permanent",
-                            effect = Effects.Sacrifice(
-                                filter = GameObjectFilter.NonlandPermanent,
-                                count = 1,
-                                target = EffectTarget.Controller
-                            ),
-                            feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
-                                GameObjectFilter.NonlandPermanent
-                            )
+// Step 1: Put a blight counter on Rottenmouth Viper
+private fun rottenmouthViperEffect(): Effect = Effects.AddCounters(CounterType.BLIGHT, 1, EffectTarget.Self) then
+    // Step 2: For each blight counter, each opponent chooses
+    Effects.Repeat(
+        amount = DynamicAmounts.countersOnSelf(CounterType.BLIGHT),
+        body = Effects.ForEachPlayer(
+            players = Player.EachOpponent,
+            effect = Effects.ChooseAction(
+                choices = listOf(
+                    EffectChoice(
+                        label = "Sacrifice a nonland permanent",
+                        effect = Effects.Sacrifice(
+                            filter = GameObjectFilter.NonlandPermanent,
+                            count = 1,
+                            target = EffectTarget.Controller
                         ),
-                        EffectChoice(
-                            label = "Discard a card",
-                            effect = Patterns.Hand.discardCards(1, EffectTarget.Controller),
-                            feasibilityCheck = FeasibilityCheck.HasCardsInZone(Zone.HAND)
-                        ),
-                        EffectChoice(
-                            label = "Lose 4 life",
-                            effect = Effects.LoseLife(4, EffectTarget.Controller)
+                        feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
+                            GameObjectFilter.NonlandPermanent
                         )
                     ),
-                    player = EffectTarget.Controller
-                )
+                    EffectChoice(
+                        label = "Discard a card",
+                        effect = Patterns.Hand.discardCards(1, EffectTarget.Controller),
+                        feasibilityCheck = FeasibilityCheck.HasCardsInZone(Zone.HAND)
+                    ),
+                    EffectChoice(
+                        label = "Lose 4 life",
+                        effect = Effects.LoseLife(4, EffectTarget.Controller)
+                    )
+                ),
+                player = EffectTarget.Controller
             )
         )
     )
-)

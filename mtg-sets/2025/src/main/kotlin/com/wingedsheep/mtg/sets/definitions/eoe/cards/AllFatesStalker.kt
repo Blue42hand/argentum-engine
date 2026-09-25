@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * All-Fates Stalker — {3}{W}
@@ -27,13 +26,7 @@ val AllFatesStalker = card("All-Fates Stalker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one target non-Assassin creature",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Assassin")))
-            )
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Assassin"))), optional = true)
         effect = Effects.ExileUntilLeaves(creature)
         description = "When this creature enters, exile up to one target non-Assassin creature until this creature leaves the battlefield."
     }

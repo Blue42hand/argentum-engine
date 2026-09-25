@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -30,7 +30,7 @@ val HeartfireImmolator = card("Heartfire Immolator") {
     prowess()
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
-        val t = target("target", TargetCreatureOrPlaneswalker())
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), t)
     }
     metadata {

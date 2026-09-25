@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Abomination, Terrifying Titan — Marvel Super Heroes #198 (uncommon)
@@ -44,14 +43,9 @@ val AbominationTerrifyingTitan = card("Abomination, Terrifying Titan") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{5}{R/G}{R/G}")
-        val foe = target(
-            "up to one target creature an opponent controls",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
-        )
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        val foe = target(TargetFilter.CreatureOpponentControls, optional = true)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.Fight(EffectTarget.Self, foe)
-        )
     }
 
     metadata {

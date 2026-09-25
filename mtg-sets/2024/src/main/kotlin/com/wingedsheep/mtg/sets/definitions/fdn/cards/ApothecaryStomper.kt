@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -39,10 +38,7 @@ val ApothecaryStomper = card("Apothecary Stomper") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Put two +1/+1 counters on target creature you control") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.youControl())
-                )
+                val creature = target(TargetFilter.Creature.youControl())
                 effect = Effects.AddCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 2,

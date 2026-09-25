@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Arcbound Mouser — Modern Horizons 2 #3
@@ -60,7 +59,7 @@ val ArcboundMouser = card("Arcbound Mouser") {
 
     // Modular, half two: "When it dies, you may put its +1/+1 counters on target artifact creature."
     triggeredAbility {
-        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactCreature)))
+        val permanent = target(TargetFilter(GameObjectFilter.ArtifactCreature))
         trigger = Triggers.self.dies()
         optional = true
         effect = Effects.AddDynamicCounters(

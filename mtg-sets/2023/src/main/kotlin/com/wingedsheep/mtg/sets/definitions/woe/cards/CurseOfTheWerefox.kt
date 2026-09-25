@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Curse of the Werefox
@@ -36,7 +34,7 @@ val CurseOfTheWerefox = card("Curse of the Werefox") {
         "Creatures that fight each deal damage equal to their power to the other.)"
 
     spell {
-        val host = target("target creature you control", Targets.CreatureYouControl)
+        val host = target(TargetFilter.CreatureYouControl)
         effect = Effects.Pipeline(
             descriptionOverride = "Create a Monster Role token attached to target creature you " +
                 "control. When you do, that creature fights up to one target creature you don't control."
@@ -49,10 +47,7 @@ val CurseOfTheWerefox = card("Curse of the Werefox") {
                     descriptionOverride = "When you do, that creature fights up to one target " +
                         "creature you don't control."
                 ) {
-                    val creatureOpponentControls = target(
-                        "target creature opponent controls",
-                        TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
-                    )
+                    val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls, optional = true)
                     effect = Effects.Fight(
                         enchanted.asTarget,
                         creatureOpponentControls

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -33,10 +32,7 @@ val ChromeCompanion = card("Chrome Companion") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val cardInGraveyard = target(
-            "target card from a graveyard",
-            TargetObject(filter = TargetFilter.CardInGraveyard)
-        )
+        val cardInGraveyard = target(TargetFilter.CardInGraveyard)
         effect = Effects.Move(
             target = cardInGraveyard,
             destination = Zone.LIBRARY,

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Bumi, King of Three Trials
@@ -75,14 +74,14 @@ val BumiKingOfThreeTrials = card("Bumi, King of Three Trials") {
             ),
             // Mode 2 — target player scries 3.
             mode("Target player scries 3.") {
-                val player = target("target player", Targets.Player)
+                val player = target(Targets.Player)
                 effect = Effects.Scry(3, player)
             },
             // Mode 3 — Earthbend 3.
             mode("Earthbend 3. (Target land you control becomes a 0/0 creature with " +
                 "haste that's still a land. Put three +1/+1 counters on it. When it dies or is " +
                 "exiled, return it to the battlefield tapped.)") {
-                val land = target("target land", TargetObject(filter = TargetFilter.Land.youControl()))
+                val land = target(TargetFilter.Land.youControl())
                 effect = Effects.Earthbend(3, land)
             }
         )

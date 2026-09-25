@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Reflecting Mirror
@@ -41,7 +41,7 @@ val ReflectingMirror = card("Reflecting Mirror") {
         "is you. The new target must be a player. X is twice the mana value of that spell."
 
     activatedAbility {
-        val spellOrAbilityWithSingleTarget = target("target spell or ability with single target", Targets.SpellOrAbilityWithSingleTarget)
+        val spellOrAbilityWithSingleTarget = target(TargetFilter.SpellOrAbilityOnStack)
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(

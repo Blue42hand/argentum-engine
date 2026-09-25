@@ -35,14 +35,12 @@ val MoonshakerCavalry = card("Moonshaker Cavalry") {
         trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity),
+            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity) then
                 Effects.ModifyStats(
                     DynamicAmounts.creaturesYouControl(),
                     DynamicAmounts.creaturesYouControl(),
                     EffectTarget.IterationEntity
                 )
-            )
         )
     }
     metadata {

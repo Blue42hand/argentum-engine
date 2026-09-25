@@ -54,8 +54,8 @@ val ResplendentAngel = card("Resplendent Angel") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{W}{W}{W}")
-        effect = Effects.ModifyStats(2, 2, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self))
+        effect = Effects.ModifyStats(2, 2, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
     }
 
     metadata {

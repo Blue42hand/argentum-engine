@@ -40,7 +40,7 @@ val SoulSearch = card("Soul Search") {
         "creature token with flying."
 
     spell {
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val exiledCard = runStoringCollection {
                 Patterns.Hand.revealHandAndExileChosen(storeExiledAs = it, target = opponent)

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Eagle of Deliverance
@@ -33,10 +32,7 @@ val EagleOfDeliverance = card("Eagle of Deliverance") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "another target creature you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, creature) then
             Effects.If(
                 condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2), creature),

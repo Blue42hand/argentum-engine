@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Selfless Police Captain
@@ -39,7 +39,7 @@ val SelflessPoliceCaptain = card("Selfless Police Captain") {
     ))
 
     triggeredAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         trigger = Triggers.self.leaves()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When this creature leaves the battlefield, put its +1/+1 counters on target creature you control."

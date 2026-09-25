@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -28,7 +28,7 @@ val GolgariRotwurm = card("Golgari Rotwurm") {
     toughness = 4
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Sacrifice(GameObjectFilter.Creature))
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.LoseLife(1, t)
     }
     metadata {

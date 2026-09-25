@@ -25,7 +25,7 @@ val StrategicBetrayal = card("Strategic Betrayal") {
     oracleText = "Target opponent exiles a creature they control and their graveyard."
 
     spell {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val creaturesCanExile = gather(
                 CardSource.BattlefieldMatching(

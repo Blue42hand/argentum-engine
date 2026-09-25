@@ -41,8 +41,7 @@ internal class CardActiveEffectsProjector(
      * Build a list of active effects on a card for display as badges.
      *
      * [projectedState] is null for a face-down permanent seen by someone who may not know what it
-     * is: the badges read off the projection (type, colour and creature-type changes) are then
-     * withheld.
+     * is: the badges read off the projection (type, colour and creature-type changes) are then * withheld.
      */
     fun project(
         state: GameState,

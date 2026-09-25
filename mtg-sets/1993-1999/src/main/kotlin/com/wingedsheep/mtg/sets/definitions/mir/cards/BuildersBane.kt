@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -47,11 +47,7 @@ val BuildersBane = card("Builder's Bane") {
         "equal to the number of artifacts they controlled that were put into a graveyard this way."
 
     spell {
-        val permanent = target("target permanent", TargetPermanent(
-            optional = true,
-            filter = TargetFilter.Artifact,
-            dynamicMaxCount = DynamicAmounts.xValue()
-        ))
+        targets(TargetFilter.Artifact, optional = true, dynamicMaxCount = DynamicAmounts.xValue())
         effect = Effects.Pipeline {
             val targets = gather(CardSource.ChosenTargets)
             val preControllers = captureControllers(targets)

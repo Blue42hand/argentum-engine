@@ -60,8 +60,8 @@ class EmpowerJaceScenarioTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            effect = CreatePredefinedTokenEffect("Jace")
-                .then(Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.LOYALTY, 1))
+            effect = CreatePredefinedTokenEffect("Jace") then
+                Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.LOYALTY, 1)
         }
     }
 

@@ -44,9 +44,7 @@ val VoraciousFellBeast = card("Voracious Fell Beast") {
             GameObjectFilter.Creature,
             1,
             EffectTarget.PlayerRef(Player.EachOpponent)
-        ).then(
-            Effects.CreateFood(DynamicAmounts.permanentsSacrificedThisWay())
-        )
+        ) then Effects.CreateFood(DynamicAmounts.permanentsSacrificedThisWay())
     }
 
     metadata {

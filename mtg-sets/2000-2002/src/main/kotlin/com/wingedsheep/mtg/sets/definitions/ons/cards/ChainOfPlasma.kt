@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CopyRecipient
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Chain of Plasma
@@ -22,12 +23,12 @@ val ChainOfPlasma = card("Chain of Plasma") {
     oracleText = "Chain of Plasma deals 3 damage to any target. Then that player or that permanent's controller may discard a card. If the player does, they may copy this spell and may choose a new target for that copy."
 
     spell {
-        val t = target("any target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.ChainCopy(
             action = Effects.DealDamage(3, t),
             target = t,
             offerTo = CopyRecipient.AFFECTED_PLAYER,
-            copyTarget = AnyTarget(),
+            copyTarget = Targets.Any,
             copyCost = Costs.pay.Discard()
         )
     }

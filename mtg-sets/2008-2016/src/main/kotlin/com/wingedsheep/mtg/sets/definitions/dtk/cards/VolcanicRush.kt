@@ -28,10 +28,8 @@ val VolcanicRush = card("Volcanic Rush") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter.AttackingCreatures,
-            Effects.Composite(
-                Effects.ModifyStats(2, 0, EffectTarget.IterationEntity),
+            Effects.ModifyStats(2, 0, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
-            )
         )
     }
 

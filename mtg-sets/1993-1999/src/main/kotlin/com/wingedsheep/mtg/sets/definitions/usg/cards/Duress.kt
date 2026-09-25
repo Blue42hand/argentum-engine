@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
  * Duress
@@ -25,7 +24,7 @@ val Duress = card("Duress") {
     oracleText = "Target opponent reveals their hand. You choose a noncreature, nonland card from it. That player discards that card."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

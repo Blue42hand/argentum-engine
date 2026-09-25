@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -23,12 +23,10 @@ val BroadsideBarrage = card("Broadside Barrage") {
     typeLine = "Instant"
     oracleText = "Broadside Barrage deals 5 damage to target creature or planeswalker. Draw a card, then discard a card."
     spell {
-        val t = target("target", TargetCreatureOrPlaneswalker())
-        effect = Effects.Composite(
-            Effects.DealDamage(5, t),
-            Effects.DrawCards(1),
+        val t = target(Targets.CreatureOrPlaneswalker)
+        effect = Effects.DealDamage(5, t) then
+            Effects.DrawCards(1) then
             Patterns.Hand.discardCards(1)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

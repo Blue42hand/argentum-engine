@@ -3,14 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tale of Tinúviel
@@ -32,7 +29,7 @@ val TaleOfTinuviel = card("Tale of Tinúviel") {
         "III — Up to two target creatures you control each gain lifelink until end of turn."
 
     sagaChapter(1) {
-        val creature = target("creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(
             Keyword.INDESTRUCTIBLE,
             creature,
@@ -41,10 +38,7 @@ val TaleOfTinuviel = card("Tale of Tinúviel") {
     }
 
     sagaChapter(2) {
-        val creatureCardFromYourGraveyard = target(
-            "creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val creatureCardFromYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Move(
             creatureCardFromYourGraveyard,
             Zone.BATTLEFIELD,
@@ -53,10 +47,7 @@ val TaleOfTinuviel = card("Tale of Tinúviel") {
     }
 
     sagaChapter(3) {
-        target(
-            "up to two target creatures you control",
-            TargetCreature(count = 2, optional = true, filter = TargetFilter.CreatureYouControl)
-        )
+        targets(TargetFilter.CreatureYouControl, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.ContextTarget(0))
         )

@@ -31,25 +31,21 @@ val ErrandRiderOfGondor = card("Errand-Rider of Gondor") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1),
-                Effects.If(
-                    condition = Conditions.Not(
-                        Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.legendary())
-                    ),
-                    then = Effects.Pipeline {
-                        val handCards = gather(CardSource.FromZone(Zone.HAND, Player.You))
-                        val chosen = chooseExactly(
-                            1,
-                            from = handCards,
-                            prompt = "Put a card from your hand on the bottom of your library"
-                        )
-                        toLibraryBottom(chosen, order = CardOrder.Preserve)
-                    }
-                )
+        effect = Effects.DrawCards(1) then
+            Effects.If(
+                condition = Conditions.Not(
+                    Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.legendary())
+                ),
+                then = Effects.Pipeline {
+                    val handCards = gather(CardSource.FromZone(Zone.HAND, Player.You))
+                    val chosen = chooseExactly(
+                        1,
+                        from = handCards,
+                        prompt = "Put a card from your hand on the bottom of your library"
+                    )
+                    toLibraryBottom(chosen, order = CardOrder.Preserve)
+                }
             )
-        )
     }
 
     metadata {

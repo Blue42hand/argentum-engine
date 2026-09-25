@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
@@ -53,10 +52,7 @@ class CrewSaddleContributorsScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.self.attacks()
             triggerRestriction = Conditions.SourceIsSaddled
-            val saddler = target(
-                "target creature that saddled it this turn",
-                TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))
-            )
+            val saddler = target(TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, saddler)
         }
     }

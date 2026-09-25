@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Annie Flash, the Veteran
@@ -52,13 +51,7 @@ val AnnieFlashTheVeteran = card("Annie Flash, the Veteran") {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         val card = target(
-            "permanent card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3),
-                    zone = Zone.GRAVEYARD,
-                ),
-            ),
+            TargetFilter(GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD),
         )
         effect = Effects.PutOntoBattlefield(card, tapped = true)
         description = "When Annie Flash enters, if you cast it, return target permanent card with " +

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -31,14 +30,12 @@ val MoldgrafMillipede = card("Moldgraf Millipede") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(3),
+        effect = Patterns.Library.mill(3) then
             Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.creatureCardsInYourGraveyard(),
                 target = EffectTarget.Self
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

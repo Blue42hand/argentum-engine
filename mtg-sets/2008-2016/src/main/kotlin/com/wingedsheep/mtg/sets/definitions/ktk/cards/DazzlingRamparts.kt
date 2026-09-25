@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dazzling Ramparts
@@ -27,7 +27,7 @@ val DazzlingRamparts = card("Dazzling Ramparts") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap)
-        val t = target("target", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.Tap(
             target = t
         )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -32,12 +31,7 @@ val TesharAncestorsApostle = card("Teshar, Ancestor's Apostle") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Historic)
-        val t = target("target", TargetObject(
-            filter = TargetFilter(
-                GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3),
-                zone = Zone.GRAVEYARD
-            )
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD))
         // The graveyard guard: the move is skipped if the card has left the graveyard by the time
         // this resolves. The target requirement's own `zone` decides legality on announcement only.
         effect = Effects.PutOntoBattlefieldFromGraveyard(t)

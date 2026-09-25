@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
 /**
@@ -23,7 +22,7 @@ val RemoveSoul = card("Remove Soul") {
     typeLine = "Instant"
     oracleText = "Counter target creature spell."
     spell {
-        val t = target("target", TargetSpell(filter = TargetFilter.CreatureSpellOnStack))
+        val t = target(TargetFilter.CreatureSpellOnStack)
         effect = Effects.CounterSpell()
     }
     metadata {

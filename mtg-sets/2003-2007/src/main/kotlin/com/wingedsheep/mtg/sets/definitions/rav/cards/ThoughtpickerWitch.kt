@@ -37,7 +37,7 @@ val ThoughtpickerWitch = card("Thoughtpicker Witch") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Sacrifice(GameObjectFilter.Creature))
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val peeked = gather(CardSource.TopOfLibrary(2, opponent.asPlayer))
             val (toExile, toTop) = chooseExactlySplit(

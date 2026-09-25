@@ -31,11 +31,8 @@ val VengefulBloodwitch = card("Vengeful Bloodwitch") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
-        val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, opponent),
-            Effects.GainLife(1)
-        )
+        val opponent = target(Targets.Opponent)
+        effect = Effects.LoseLife(1, opponent) then Effects.GainLife(1)
     }
 
     metadata {

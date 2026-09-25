@@ -51,21 +51,17 @@ val AllOutAssault = card("All-Out Assault") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.IsYourMainPhase
-        effect = Effects.Composite(
-            listOf(
-                // "there is an additional combat phase after this phase followed by an
-                // additional main phase"
-                Effects.AddCombatPhase,
-                Effects.AddMainPhase,
-                // "When you next attack this turn, untap each creature you control."
-                Effects.CreateDelayedTrigger(
-                    trigger = Triggers.you.attacks(),
-                    fireOnce = true,
-                    effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl),
-                    expiry = DelayedTriggerExpiry.EndOfTurn
-                )
+        // "there is an additional combat phase after this phase followed by an
+        // additional main phase"
+        effect = Effects.AddCombatPhase then
+            Effects.AddMainPhase then
+            // "When you next attack this turn, untap each creature you control."
+            Effects.CreateDelayedTrigger(
+                trigger = Triggers.you.attacks(),
+                fireOnce = true,
+                effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl),
+                expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        )
         description = "When this enchantment enters, if it's your main phase, there is an " +
             "additional combat phase after this phase followed by an additional main phase. " +
             "When you next attack this turn, untap each creature you control."

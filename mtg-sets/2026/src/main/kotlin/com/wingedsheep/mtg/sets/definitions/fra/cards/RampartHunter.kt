@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val RampartHunter = card("Rampart Hunter") {
     manaCost = "{3}{B}"
@@ -19,11 +19,8 @@ val RampartHunter = card("Rampart Hunter") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, creature),
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
-        )
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
     }
 
     metadata {

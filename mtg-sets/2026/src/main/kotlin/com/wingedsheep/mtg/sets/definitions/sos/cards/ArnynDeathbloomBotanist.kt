@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -36,11 +35,8 @@ val ArnynDeathbloomBotanist = card("Arnyn, Deathbloom Botanist") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerOrToughnessAtMost(1)).dies()
-        val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(2, opponent),
-            Effects.GainLife(2),
-        )
+        val opponent = target(Targets.Opponent)
+        effect = Effects.LoseLife(2, opponent) then Effects.GainLife(2)
         description = "Whenever a creature you control with power or toughness 1 or less dies, target opponent loses 2 life and you gain 2 life."
     }
 

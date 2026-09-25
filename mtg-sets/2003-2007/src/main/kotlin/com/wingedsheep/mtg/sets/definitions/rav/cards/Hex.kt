@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -25,7 +24,7 @@ val Hex = card("Hex") {
     typeLine = "Sorcery"
     oracleText = "Destroy six target creatures."
     spell {
-        val t = target("target", TargetCreature(count = 6, filter = TargetFilter.Creature))
+        targets(TargetFilter.Creature, count = 6)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
         )

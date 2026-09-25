@@ -28,8 +28,7 @@ val SiegeRhino = card("Siege Rhino") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.GainLife(3))
+        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(3)
     }
 
     metadata {

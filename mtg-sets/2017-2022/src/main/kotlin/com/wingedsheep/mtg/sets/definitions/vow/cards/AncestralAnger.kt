@@ -4,13 +4,13 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ancestral Anger
@@ -32,7 +32,7 @@ val AncestralAnger = card("Ancestral Anger") {
         "plus the number of cards named Ancestral Anger in your graveyard.\nDraw a card."
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         val pump = 1 + DynamicAmounts.count(
             Player.You,
             Zone.GRAVEYARD,
@@ -40,11 +40,9 @@ val AncestralAnger = card("Ancestral Anger") {
                 cardPredicates = listOf(CardPredicate.NameEquals("Ancestral Anger")),
             ),
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.ModifyStats(pump, DynamicAmounts.fixed(0), t),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.ModifyStats(pump, DynamicAmounts.fixed(0), t) then
+            Effects.DrawCards(1)
     }
 
     metadata {

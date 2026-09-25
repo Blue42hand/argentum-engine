@@ -51,7 +51,7 @@ val RealmScorcherHellkite = card("Realm-Scorcher Hellkite") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        val target = target("any target", Targets.Any)
+        val target = target(Targets.Any)
         effect = Effects.DealDamage(1, target)
         description = "This creature deals 1 damage to any target."
     }

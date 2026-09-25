@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -49,7 +49,7 @@ class StaticsTest : StringSpec({
     "the enchant line is the aura's attachment restriction" {
         fragment("Enchant creature") shouldBe CardFragment(
             script = CardScript(
-                auraTarget = TargetPermanent(
+                auraTarget = TargetObject(
                     filter = TargetFilter(GameObjectFilter.Creature),
                     id = Targets.SLOT,
                 )

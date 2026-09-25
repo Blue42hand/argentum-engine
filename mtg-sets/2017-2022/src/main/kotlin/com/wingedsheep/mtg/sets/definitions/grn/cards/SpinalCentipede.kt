@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.grn.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spinal Centipede
@@ -24,7 +24,7 @@ val SpinalCentipede = card("Spinal Centipede") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val creature = target("target", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 

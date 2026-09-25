@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Longstalk Brawl
@@ -37,20 +37,14 @@ val LongstalkBrawl = card("Longstalk Brawl") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — just fight
             mode("Don't promise a gift — target creature you control fights target creature you don't control") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.Fight(creatureYouControl, creatureOpponentControls)
             },
             // Mode 2: Gift a tapped Fish — token + counter + fight
             mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, +1/+1 counter on your creature, then fight") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.CreateToken(
                     count = 1,
                     power = 1,
@@ -60,10 +54,10 @@ val LongstalkBrawl = card("Longstalk Brawl") {
                     tapped = true,
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                )
-                    .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl))
-                    .then(Effects.Fight(creatureYouControl, creatureOpponentControls))
-                    .then(Effects.GiftGiven())
+                ) then
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl) then
+                    Effects.Fight(creatureYouControl, creatureOpponentControls) then
+                    Effects.GiftGiven()
             }
         )
     }

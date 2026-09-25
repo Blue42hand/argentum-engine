@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Rag Man
@@ -37,7 +37,7 @@ val RagMan = card("Rag Man") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}{B}{B}"), Costs.Tap)
-        val victim = target("target opponent", TargetOpponent())
+        val victim = target(Targets.Opponent)
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(victim))

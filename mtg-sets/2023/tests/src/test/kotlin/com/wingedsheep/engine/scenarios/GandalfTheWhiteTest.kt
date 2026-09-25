@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Supertype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -24,6 +23,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gandalf the White ({3}{W}{W} Legendary Creature — Avatar Wizard 4/5):
@@ -135,7 +135,7 @@ class GandalfTheWhiteTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Target creature becomes an artifact in addition to its other types."
         spell {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.AddCardType("ARTIFACT", creature)
         }
     }

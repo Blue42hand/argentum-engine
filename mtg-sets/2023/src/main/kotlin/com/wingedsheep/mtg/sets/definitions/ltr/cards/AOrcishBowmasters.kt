@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * A-Orcish Bowmasters (Alchemy rebalance of Orcish Bowmasters)
@@ -33,11 +33,8 @@ val AOrcishBowmasters = card("A-Orcish Bowmasters") {
 
     triggeredAbility {
         trigger = Triggers.anOpponent.draws(true)
-        val t = target("target", AnyTarget())
-        effect = Effects.Composite(
-            Effects.DealDamage(1, t),
-            Effects.Amass(1, "Orc")
-        )
+        val t = target(Targets.Any)
+        effect = Effects.DealDamage(1, t) then Effects.Amass(1, "Orc")
     }
 
     metadata {

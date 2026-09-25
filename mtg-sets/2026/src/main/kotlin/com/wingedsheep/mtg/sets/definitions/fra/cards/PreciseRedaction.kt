@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 val PreciseRedaction = card("Precise Redaction") {
     manaCost = "{1}{U}"
@@ -14,7 +13,7 @@ val PreciseRedaction = card("Precise Redaction") {
     oracleText = "Counter target white or black spell."
 
     spell {
-        val spell = target("target spell", TargetSpell(filter = TargetFilter.SpellOnStack.withAnyColor(Color.WHITE, Color.BLACK)))
+        val spell = target(TargetFilter.SpellOnStack.withAnyColor(Color.WHITE, Color.BLACK))
         effect = Effects.CounterSpell()
     }
 

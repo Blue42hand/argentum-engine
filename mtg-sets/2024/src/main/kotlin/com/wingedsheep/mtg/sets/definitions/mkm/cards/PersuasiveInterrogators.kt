@@ -49,7 +49,7 @@ val PersuasiveInterrogators = card("Persuasive Interrogators") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact.withSubtype("Clue"))
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.AddCounters(CounterType.POISON, 2, opponent)
         description = "Whenever you sacrifice a Clue, target opponent gets two poison counters."
     }

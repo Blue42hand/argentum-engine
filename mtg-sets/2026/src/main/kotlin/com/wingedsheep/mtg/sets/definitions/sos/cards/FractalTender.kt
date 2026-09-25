@@ -46,22 +46,18 @@ val FractalTender = card("Fractal Tender") {
         interveningIf = Conditions.SourceReceivedCounterThisTurn()
         // Create the 0/0 Fractal (publishing it to the CREATED_TOKENS pipeline collection), then put
         // three +1/+1 counters on that just-created token via PipelineTarget(CREATED_TOKENS, 0).
-        effect = Effects.Composite(
-            listOf(
-                Effects.CreateToken(
-                    power = 0,
-                    toughness = 0,
-                    colors = setOf(Color.GREEN, Color.BLUE),
-                    creatureTypes = setOf("Fractal"),
-                    imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
-                ),
-                Effects.AddCounters(
-                    CounterType.PLUS_ONE_PLUS_ONE,
-                    3,
-                    EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
-                )
+        effect = Effects.CreateToken(
+            power = 0,
+            toughness = 0,
+            colors = setOf(Color.GREEN, Color.BLUE),
+            creatureTypes = setOf("Fractal"),
+            imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
+        ) then
+            Effects.AddCounters(
+                CounterType.PLUS_ONE_PLUS_ONE,
+                3,
+                EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
-        )
         description = "At the beginning of each end step, if you put a counter on this creature " +
             "this turn, create a 0/0 green and blue Fractal creature token and put three +1/+1 " +
             "counters on it."

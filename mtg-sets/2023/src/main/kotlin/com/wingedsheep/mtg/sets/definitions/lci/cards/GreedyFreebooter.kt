@@ -27,10 +27,7 @@ val GreedyFreebooter = card("Greedy Freebooter") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.self.dies()
-        effect = Effects.Composite(
-            Patterns.Library.scry(1),
-            Effects.CreateTreasure()
-        )
+        effect = Patterns.Library.scry(1) then Effects.CreateTreasure()
     }
     metadata {
         rarity = Rarity.COMMON

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Monoist Circuit-Feeder
@@ -33,19 +32,13 @@ val MonoistCircuitFeeder = card("Monoist Circuit-Feeder") {
     triggeredAbility {
         trigger = Triggers.self.enters()
 
-        val ally = target(
-            "creature you control get +X/+0",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
-        )
-        val enemy = target(
-            "creature an opponent controls get -0/-X",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.opponentControls()))
-        )
+        val ally = target(TargetFilter(GameObjectFilter.Creature.youControl()))
+        val enemy = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
 
         val artifactCount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
 
-        effect = Effects.ModifyStats(artifactCount, DynamicAmounts.fixed(0), ally)
-            .then(Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - artifactCount, enemy))
+        effect = Effects.ModifyStats(artifactCount, DynamicAmounts.fixed(0), ally) then
+            Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - artifactCount, enemy)
     }
 
     metadata {

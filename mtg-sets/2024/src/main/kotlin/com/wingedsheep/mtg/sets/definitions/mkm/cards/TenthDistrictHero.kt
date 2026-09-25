@@ -83,8 +83,7 @@ val TenthDistrictHero = card("Tenth District Hero") {
             condition = Conditions.SourceMatches(
                 GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE)
             ),
-            then = Effects.Composite(
-                Effects.AddCardType("LEGENDARY", EffectTarget.Self, Duration.Permanent),
+            then = Effects.AddCardType("LEGENDARY", EffectTarget.Self, Duration.Permanent) then
                 Effects.BecomeArtifact(
                     target = EffectTarget.Self,
                     cardTypes = null,
@@ -99,14 +98,13 @@ val TenthDistrictHero = card("Tenth District Hero") {
                         ),
                     ),
                     duration = Duration.Permanent,
-                ),
+                ) then
                 Effects.SetBasePowerAndToughness(
                     power = 5,
                     toughness = 5,
                     target = EffectTarget.Self,
                     duration = Duration.Permanent,
                 ),
-            ),
         )
         description = "If this creature is a Detective, it becomes a legendary creature named " +
             "Mileva, the Stalwart, it has base power and toughness 5/5, and it gains \"Other " +

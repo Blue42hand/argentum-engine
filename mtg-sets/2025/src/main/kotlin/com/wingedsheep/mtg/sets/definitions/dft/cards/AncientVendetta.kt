@@ -41,7 +41,7 @@ val AncientVendetta = card("Ancient Vendetta") {
         "up to four cards with that name and exile them. Then that player shuffles."
 
     spell {
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // 1. Choose a card name.
             val chosenName = chooseOption(

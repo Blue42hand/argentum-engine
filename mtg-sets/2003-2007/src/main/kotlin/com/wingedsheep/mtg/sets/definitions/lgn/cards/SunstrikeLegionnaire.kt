@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Sunstrike Legionnaire
@@ -37,7 +36,7 @@ val SunstrikeLegionnaire = card("Sunstrike Legionnaire") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3)))
+        val t = target(TargetFilter.Creature.manaValueAtMost(3))
         effect = Effects.Tap(t)
     }
 

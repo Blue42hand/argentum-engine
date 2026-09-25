@@ -50,7 +50,7 @@ val SpiderMan2099 = card("Spider-Man 2099") {
             Conditions.YouPlayedLandFromNonHandThisTurn,
             Conditions.YouCastSpellsThisTurn(atLeast = 1, fromZoneOtherThan = Zone.HAND)
         )
-        val target = target("any target", Targets.Any)
+        val target = target(Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), target)
     }
 

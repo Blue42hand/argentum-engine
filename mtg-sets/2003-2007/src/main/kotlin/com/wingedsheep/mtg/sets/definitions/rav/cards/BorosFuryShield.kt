@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Boros Fury-Shield — Ravnica: City of Guilds #5
@@ -40,15 +39,13 @@ val BorosFuryShield = card("Boros Fury-Shield") {
         "to that creature's controller equal to the creature's power."
 
     spell {
-        val creature = target("target attacking or blocking creature", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = Effects.PreventAllDamageDealtBy(creature, scope = PreventionScope.CombatOnly)
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredRed = 1),
-                    then = Effects.DealDamage(
-                        DynamicAmounts.powerOf(creature),
-                        EffectTarget.TargetController
-                    )
+        val creature = target(TargetFilter.AttackingOrBlockingCreature)
+        effect = Effects.PreventAllDamageDealtBy(creature, scope = PreventionScope.CombatOnly) then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredRed = 1),
+                then = Effects.DealDamage(
+                    DynamicAmounts.powerOf(creature),
+                    EffectTarget.TargetController
                 )
             )
     }

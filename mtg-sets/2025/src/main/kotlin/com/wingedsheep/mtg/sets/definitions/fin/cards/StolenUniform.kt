@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.ControlChangeDirection
 
 /**
@@ -43,19 +41,13 @@ val StolenUniform = card("Stolen Uniform") {
         "that Equipment this turn, if it's attached to a creature you control, unattach it."
 
     spell {
-        val creature = target("target creature you control", Targets.CreatureYouControl)
-        val equipment = target(
-            "target Equipment",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT))
-            )
-        )
-        effect = Effects.Composite(
-            Effects.GainControl(equipment, Duration.EndOfTurn),
+        val creature = target(TargetFilter.CreatureYouControl)
+        val equipment = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)))
+        effect = Effects.GainControl(equipment, Duration.EndOfTurn) then
             Effects.AttachTargetEquipmentToCreature(
                 equipmentTarget = equipment,
                 creatureTarget = creature
-            ),
+            ) then
             Effects.CreateDelayedTrigger(
                 trigger = Triggers.self.controlChanges(ControlChangeDirection.LOST),
                 watchedTarget = equipment,
@@ -69,7 +61,6 @@ val StolenUniform = card("Stolen Uniform") {
                     then = Effects.UnattachEquipment(EffectTarget.TriggeringEntity)
                 )
             )
-        )
     }
 
     metadata {

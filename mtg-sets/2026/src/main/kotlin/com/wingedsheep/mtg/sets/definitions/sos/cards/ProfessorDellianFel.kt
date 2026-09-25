@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Professor Dellian Fel
@@ -41,14 +42,12 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
 
     // 0: You draw a card and lose 1 life.
     loyaltyAbility(0) {
-        effect = Effects.DrawCards(1).then(
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     // −3: Destroy target creature.
     loyaltyAbility(-3) {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Destroy(creature)
     }
 
@@ -57,7 +56,7 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.you.gainsLife()
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.LoseLife(
                     amount = DynamicAmounts.triggerLifeGained(),
                     target = opponent

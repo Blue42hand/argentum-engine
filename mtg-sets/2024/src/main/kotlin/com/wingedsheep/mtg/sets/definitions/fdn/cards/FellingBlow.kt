@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -25,12 +24,10 @@ val FellingBlow = card("Felling Blow") {
     typeLine = "Sorcery"
     oracleText = "Put a +1/+1 counter on target creature you control. Then that creature deals damage equal to its power to target creature an opponent controls."
     spell {
-        val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1),
+        val t1 = target(TargetFilter.Creature.youControl())
+        val t2 = target(TargetFilter.Creature.opponentControls())
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1) then
             Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

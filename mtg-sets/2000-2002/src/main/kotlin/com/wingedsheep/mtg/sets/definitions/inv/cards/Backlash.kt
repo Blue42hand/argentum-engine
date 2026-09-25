@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Backlash
@@ -25,7 +24,7 @@ val Backlash = card("Backlash") {
     oracleText = "Tap target untapped creature. That creature deals damage equal to its power to its controller."
 
     spell {
-        val creature = target("target untapped creature", TargetCreature(filter = TargetFilter.UntappedCreature))
+        val creature = target(TargetFilter.UntappedCreature)
         effect = Effects.Tap(creature) then
             Effects.DealDamage(
                 DynamicAmounts.powerOf(creature),

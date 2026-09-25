@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Proteus Staff
@@ -46,9 +46,8 @@ val ProteusStaff = card("Proteus Staff") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.Tap)
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.PutOnBottomOfLibrary(creature),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.PutOnBottomOfLibrary(creature) then
             Effects.ForEachPlayer(
                 Player.ControllerOf("that creature"),
                 Effects.Pipeline {
@@ -59,7 +58,6 @@ val ProteusStaff = card("Proteus Staff") {
                     toLibraryBottom(proteusRest)
                 }
             )
-        )
         timing = TimingRule.SorcerySpeed
     }
 

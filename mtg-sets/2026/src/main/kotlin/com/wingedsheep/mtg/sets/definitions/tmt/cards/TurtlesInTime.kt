@@ -27,34 +27,30 @@ val TurtlesInTime = card("Turtles in Time") {
     oracleText = "Return all creatures to their owners' hands. Each player may shuffle their hand and graveyard into their library, then each player who does draws seven cards.\nExile Turtles in Time."
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Patterns.Group.returnAllToHand(GroupFilter.AllCreatures),
-                // ForEachPlayer sets the iterated player as the controller, so Player.You inside
-                // resolves to each player in turn — the gather/shuffle/draw is theirs, and the
-                // "may" lets each player decide independently ("each player who does draws seven").
-                Effects.ForEachPlayer(
-                    Player.Each,
-                    listOf(
-                        Effects.May(
-                            Effects.Pipeline {
-                                val turtlesInTimeShuffle = gather(
-                                    CardSource.FromMultipleZones(
-                                        zones = listOf(Zone.HAND, Zone.GRAVEYARD),
-                                        player = Player.You
-                                    )
+        effect = Patterns.Group.returnAllToHand(GroupFilter.AllCreatures) then
+            // ForEachPlayer sets the iterated player as the controller, so Player.You inside
+            // resolves to each player in turn — the gather/shuffle/draw is theirs, and the
+            // "may" lets each player decide independently ("each player who does draws seven").
+            Effects.ForEachPlayer(
+                Player.Each,
+                listOf(
+                    Effects.May(
+                        Effects.Pipeline {
+                            val turtlesInTimeShuffle = gather(
+                                CardSource.FromMultipleZones(
+                                    zones = listOf(Zone.HAND, Zone.GRAVEYARD),
+                                    player = Player.You
                                 )
-                                move(
-                                    turtlesInTimeShuffle,
-                                    CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Shuffled)
-                                )
-                                run(Effects.DrawCards(7))
-                            }
-                        )
+                            )
+                            move(
+                                turtlesInTimeShuffle,
+                                CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Shuffled)
+                            )
+                            run(Effects.DrawCards(7))
+                        }
                     )
                 )
             )
-        )
         selfExile()
     }
 

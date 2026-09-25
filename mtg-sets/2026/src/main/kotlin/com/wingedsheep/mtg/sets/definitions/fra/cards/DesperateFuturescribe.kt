@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Desperate Futurescribe — the scry/surveil check is made as the trigger resolves, and picks
@@ -29,7 +29,7 @@ val DesperateFuturescribe = card("Desperate Futurescribe") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.If(
             condition = Conditions.ScriedOrSurveiledThisTurn,
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),

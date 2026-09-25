@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Polymorph
@@ -25,7 +25,7 @@ val Polymorph = card("Polymorph") {
     oracleText = "Destroy target creature. It can't be regenerated. Its controller reveals cards from the top of their library until they reveal a creature card. The player puts that card onto the battlefield, then shuffles all other cards revealed this way into their library."
 
     spell {
-        val t = target("target creature", TargetCreature())
+        val t = target(TargetFilter.Creature)
         val controllerOfTarget = Player.ControllerOf("target creature")
         effect = Effects.Pipeline {
             run(Effects.CantBeRegenerated(t))

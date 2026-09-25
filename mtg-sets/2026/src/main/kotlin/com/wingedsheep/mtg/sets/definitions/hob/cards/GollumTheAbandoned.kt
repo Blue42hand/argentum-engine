@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Gollum the Abandoned — The Hobbit #72
@@ -52,13 +51,7 @@ val GollumTheAbandoned = card("Gollum the Abandoned") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val exiled = target(
-            "card in an opponent's graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD)
-            )
-        )
+        val exiled = target(TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD), optional = true)
         effect = Effects.Move(exiled, Zone.EXILE) then
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "When Gollum the Abandoned enters, exile up to one target card from an " +

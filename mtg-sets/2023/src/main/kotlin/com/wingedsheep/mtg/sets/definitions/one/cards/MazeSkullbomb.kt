@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.one.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Maze Skullbomb
@@ -29,13 +29,11 @@ val MazeSkullbomb = card("Maze Skullbomb") {
     }
 
     activatedAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, creatureYouControl),
-            Effects.GrantKeyword(Keyword.TRAMPLE, creatureYouControl),
+        effect = Effects.ModifyStats(3, 3, creatureYouControl) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, creatureYouControl) then
             Effects.DrawCards(1)
-        )
         timing = TimingRule.SorcerySpeed
     }
 

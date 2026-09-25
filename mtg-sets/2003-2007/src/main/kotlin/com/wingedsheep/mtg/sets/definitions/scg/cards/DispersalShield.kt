@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dispersal Shield
@@ -22,7 +22,7 @@ val DispersalShield = card("Dispersal Shield") {
     oracleText = "Counter target spell if its mana value is less than or equal to the greatest mana value among permanents you control."
 
     spell {
-        val spell = target("target spell", Targets.Spell)
+        val spell = target(TargetFilter.SpellOnStack)
         effect = Effects.If(
             condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.battlefield(Player.You).maxManaValue(), spell),
             then = Effects.CounterSpell()

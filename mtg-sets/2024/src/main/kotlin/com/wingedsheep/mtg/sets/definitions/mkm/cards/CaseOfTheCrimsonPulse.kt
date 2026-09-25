@@ -37,10 +37,7 @@ val CaseOfTheCrimsonPulse = card("Case of the Crimson Pulse") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.Discard(1),
-            Effects.DrawCards(2)
-        )
+        effect = Effects.Discard(1) then Effects.DrawCards(2)
         description = "When this Case enters, discard a card, then draw two cards."
     }
 
@@ -48,10 +45,7 @@ val CaseOfTheCrimsonPulse = card("Case of the Crimson Pulse") {
 
     solvedTriggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Patterns.Hand.discardHand(),
-            Effects.DrawCards(2)
-        )
+        effect = Patterns.Hand.discardHand() then Effects.DrawCards(2)
         description = "Solved — At the beginning of your upkeep, discard your hand, then draw two cards."
     }
 

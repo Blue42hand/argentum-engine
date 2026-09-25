@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -55,17 +53,15 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
     // is legendary, draw a card.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creature = target("creature", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn),
+        val creature = target(TargetFilter.OtherCreatureYouControl)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn) then
             Effects.If(
                 // "If that creature is legendary, draw a card." The +1/+1 target is the first (only)
                 // chosen target, so test it via ContextTarget(0) like Blessing of Belzenlok.
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
                 then = Effects.DrawCards(1),
-            ),
-        )
+            )
     }
 
     metadata {
@@ -100,11 +96,8 @@ private val VenatHeartOfHydaelynFront = card("Venat, Heart of Hydaelyn") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{7}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        val victim = target("nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
-        effect = Effects.Composite(
-            Effects.Exile(victim),
-            Effects.Transform(EffectTarget.Self),
-        )
+        val victim = target(TargetFilter.NonlandPermanent)
+        effect = Effects.Exile(victim) then Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

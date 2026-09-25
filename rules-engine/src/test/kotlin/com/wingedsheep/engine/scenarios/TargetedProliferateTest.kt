@@ -53,7 +53,7 @@ class TargetedProliferateTest : ScenarioTestBase() {
         oracleText = "For each kind of counter on target permanent or player, give that permanent " +
             "or player another counter of that kind."
         spell {
-            val recipient = target("target permanent or player", Targets.PermanentOrPlayer)
+            val recipient = target(Targets.PermanentOrPlayer)
             effect = Effects.Proliferate(recipient)
         }
     }
@@ -77,10 +77,7 @@ class TargetedProliferateTest : ScenarioTestBase() {
         oracleText = "For each kind of counter on target artifact or player, give it another " +
             "counter of that kind."
         spell {
-            val recipient = target(
-                "target artifact or player",
-                TargetPermanentOrPlayer(permanentFilter = TargetFilter.Artifact)
-            )
+            val recipient = target(TargetPermanentOrPlayer(permanentFilter = TargetFilter.Artifact))
             effect = Effects.Proliferate(recipient)
         }
     }
@@ -93,12 +90,9 @@ class TargetedProliferateTest : ScenarioTestBase() {
         oracleText = "For each kind of counter on each of two target permanents or players, give " +
             "it another counter of that kind."
         spell {
-            val first = target("first recipient", Targets.PermanentOrPlayer)
-            val second = target("second recipient", Targets.PermanentOrPlayer)
-            effect = Effects.Composite(
-                Effects.Proliferate(first),
-                Effects.Proliferate(second),
-            )
+            val first = target(Targets.PermanentOrPlayer)
+            val second = target(Targets.PermanentOrPlayer)
+            effect = Effects.Proliferate(first) then Effects.Proliferate(second)
         }
     }
 

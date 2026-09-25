@@ -50,7 +50,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature with defender"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -61,7 +61,7 @@
                 "filter": {
                     "baseFilter": "creature kw:defender"
                 },
-                "id": "target creature with defender"
+                "id": "t0"
             }
         ]
     },
@@ -164,42 +164,37 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Library",
-                                        "filter": "land Gate"
-                                    },
-                                    "storeAs": "searchable",
-                                    "search": true
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "searchable",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "found"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "found",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    }
-                                },
-                                "ShuffleLibrary",
-                                "EmitLibrarySearchedEvent"
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "land Gate"
+                            },
+                            "storeAs": "searchable",
+                            "search": true
                         },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "Gated",
                             "gate": {

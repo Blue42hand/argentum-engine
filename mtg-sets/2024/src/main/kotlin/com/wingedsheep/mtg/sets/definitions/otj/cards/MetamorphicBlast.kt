@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Metamorphic Blast {U}
@@ -41,7 +42,7 @@ val MetamorphicBlast = card("Metamorphic Blast") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("+ {1} — Until end of turn, target creature becomes a white Rabbit with base power and toughness 0/1.") {
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     additionalManaCost = "{1}"
                     effect = Effects.BecomeCreature(
                         target = creature,
@@ -54,7 +55,7 @@ val MetamorphicBlast = card("Metamorphic Blast") {
                     )
                 },
                 mode("+ {3} — Target player draws two cards.") {
-                    val player = target("target player", Targets.Player)
+                    val player = target(Targets.Player)
                     additionalManaCost = "{3}"
                     effect = Effects.DrawCards(2, player)
                 }

@@ -16,7 +16,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -31,7 +31,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ]
     },
@@ -279,7 +279,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature or planeswalker that's black or red"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -295,7 +295,7 @@
                 "filter": {
                     "baseFilter": "creature|planeswalker black|red"
                 },
-                "id": "target creature or planeswalker that's black or red"
+                "id": "t0"
             }
         ]
     },
@@ -340,7 +340,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "any target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -351,7 +351,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "up to two other targets[0]"
+                                "name": "t1[0]"
                             }
                         },
                         {
@@ -362,14 +362,14 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "up to two other targets[1]"
+                                "name": "t1[1]"
                             }
                         }
                     ]
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "any target"
+                    "id": "t0"
                 },
                 "additionalTargetRequirements": [
                     {
@@ -379,7 +379,7 @@
                             "count": 2,
                             "minCount": 0
                         },
-                        "id": "up to two other targets"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "Whenever Drakuseth attacks, it deals 4 damage to any target and 3 damage to each of up to two other targets."
@@ -619,7 +619,7 @@
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -629,7 +629,7 @@
                             "baseFilter": "creature pow<=2",
                             "excludeSelf": true
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Another target creature with power 2 or less can't be blocked this turn."
@@ -704,7 +704,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -714,7 +714,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -770,7 +770,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -779,7 +779,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -990,13 +990,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target player"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target player"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{1}{R}{R}: This creature deals 1 damage to target player."
@@ -1161,7 +1161,7 @@
                             "keyword": "DEATHTOUCH",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1169,7 +1169,7 @@
                             "keyword": "LIFELINK",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1180,7 +1180,7 @@
                                     "type": "EntityMatches",
                                     "entity": {
                                         "type": "BoundVariable",
-                                        "name": "creature you control"
+                                        "name": "t0"
                                     },
                                     "filter": "creature Vampire"
                                 }
@@ -1191,7 +1191,7 @@
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "creature you control"
+                                    "name": "t0"
                                 }
                             }
                         }
@@ -1203,7 +1203,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "creature you control"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -1250,7 +1250,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target any"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -1265,7 +1265,7 @@
                     "reflexiveTargetRequirements": [
                         {
                             "type": "AnyTarget",
-                            "id": "target any"
+                            "id": "t1"
                         }
                     ],
                     "descriptionOverride": "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to any target and you gain 3 life."

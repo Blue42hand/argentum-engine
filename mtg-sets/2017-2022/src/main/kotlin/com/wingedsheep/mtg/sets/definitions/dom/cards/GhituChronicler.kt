@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 /**
  * Ghitu Chronicler
@@ -31,10 +30,7 @@ val GhituChronicler = card("Ghitu Chronicler") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = WasKicked
-        val t = target(
-            "instant or sorcery card in your graveyard",
-            TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard)
-        )
+        val t = target(TargetFilter.InstantOrSorceryInYourGraveyard)
         effect = Effects.Move(
             target = t,
             destination = Zone.HAND

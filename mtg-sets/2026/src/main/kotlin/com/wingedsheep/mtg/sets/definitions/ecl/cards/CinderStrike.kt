@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Cinder Strike
@@ -29,7 +29,7 @@ val CinderStrike = card("Cinder Strike") {
     additionalCost(Costs.additional.BlightOrPay(blightAmount = 1, alternativeManaCost = ""))
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.BlightWasPaid,
             then = Effects.DealDamage(4, creature),

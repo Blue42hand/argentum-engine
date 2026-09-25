@@ -30,11 +30,9 @@ val GravebornMuse = card("Graveborn Muse") {
         effect = Effects.DrawCards(
             count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")).count(),
             target = EffectTarget.Controller
-        ).then(
-            Effects.LoseLife(
-                amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")).count(),
-                target = EffectTarget.Controller
-            )
+        ) then Effects.LoseLife(
+            amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")).count(),
+            target = EffectTarget.Controller
         )
     }
 

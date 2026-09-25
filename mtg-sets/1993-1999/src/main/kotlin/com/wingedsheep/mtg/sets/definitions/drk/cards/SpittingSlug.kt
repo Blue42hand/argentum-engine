@@ -48,21 +48,17 @@ val SpittingSlug = card("Spitting Slug") {
 
     triggeredAbility {
         trigger = Triggers.self.blocksOrBecomesBlocked()
-        effect = Effects.Composite(
-            // Runs whether or not the cost is paid; the unpaid branch below hands first strike to
-            // the partners instead, so the Slug never keeps it for free.
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self),
+        // Runs whether or not the cost is paid; the unpaid branch below hands first strike to
+        // the partners instead, so the Slug never keeps it for free.
+        effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self) then
             Effects.PayOrSuffer(
                 cost = Costs.pay.Mana("{1}{G}"),
-                suffer = Effects.Composite(
-                    Effects.RemoveKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self),
+                suffer = Effects.RemoveKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self) then
                     Patterns.Group.grantKeywordToAll(
                         Keyword.FIRST_STRIKE,
                         GroupFilter(GameObjectFilter.Creature.blockingOrBlockedBySource())
                     ),
-                ),
-            ),
-        )
+            )
         description = "Whenever this creature blocks or becomes blocked, you may pay {1}{G}. If " +
             "you do, this creature gains first strike until end of turn. Otherwise, each " +
             "creature blocking or blocked by this creature gains first strike until end of turn."

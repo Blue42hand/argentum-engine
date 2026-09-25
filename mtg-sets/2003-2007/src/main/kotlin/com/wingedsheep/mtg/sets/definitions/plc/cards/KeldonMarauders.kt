@@ -31,13 +31,13 @@ val KeldonMarauders = card("Keldon Marauders") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.PlayerOrPlaneswalker)
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, t)
     }
 
     triggeredAbility {
         trigger = Triggers.self.leaves()
-        val t = target("target", Targets.PlayerOrPlaneswalker)
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, t)
     }
 

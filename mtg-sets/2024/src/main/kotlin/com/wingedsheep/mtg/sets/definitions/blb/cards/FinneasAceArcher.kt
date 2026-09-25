@@ -48,25 +48,21 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
             excludeSelf = true
         )
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachInGroup(
-                    filter = otherTokenOrRabbitYouControl,
-                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+        effect = Effects.ForEachInGroup(
+            filter = otherTokenOrRabbitYouControl,
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+        ) then
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    left = DynamicAmounts.battlefield(
+                        Player.You,
+                        GameObjectFilter.Creature
+                    ).sumPower(),
+                    operator = ComparisonOperator.GTE,
+                    right = 10
                 ),
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        left = DynamicAmounts.battlefield(
-                            Player.You,
-                            GameObjectFilter.Creature
-                        ).sumPower(),
-                        operator = ComparisonOperator.GTE,
-                        right = 10
-                    ),
-                    then = Effects.DrawCards(1, EffectTarget.Controller)
-                )
+                then = Effects.DrawCards(1, EffectTarget.Controller)
             )
-        )
     }
 
     metadata {

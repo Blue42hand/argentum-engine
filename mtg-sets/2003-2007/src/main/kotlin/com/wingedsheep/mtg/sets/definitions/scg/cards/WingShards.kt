@@ -22,7 +22,7 @@ val WingShards = card("Wing Shards") {
     oracleText = "Target player sacrifices an attacking creature of their choice.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Sacrifice(GameObjectFilter.Creature.attacking(), 1, player)
     }
 

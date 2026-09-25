@@ -32,10 +32,7 @@ val TarnishedCitadel = card("Tarnished Citadel") {
     }
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddManaOfChoice(),
-            Effects.DealDamage(3, EffectTarget.PlayerRef(Player.You))
-        )
+        effect = Effects.AddManaOfChoice() then Effects.DealDamage(3, EffectTarget.PlayerRef(Player.You))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.HealOtherDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Wolverine, Fierce Fighter — Marvel Super Heroes #240 (rare)
@@ -51,10 +50,7 @@ val WolverineFierceFighter = card("Wolverine, Fierce Fighter") {
     // When Wolverine enters, he fights up to one other target creature.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val foe = target(
-            "up to one other target creature",
-            TargetObject(optional = true, filter = TargetFilter.OtherCreature)
-        )
+        val foe = target(TargetFilter.OtherCreature, optional = true)
         effect = Effects.Fight(EffectTarget.Self, foe)
     }
 

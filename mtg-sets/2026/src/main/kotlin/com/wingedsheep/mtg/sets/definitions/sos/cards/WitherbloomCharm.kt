@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Witherbloom Charm
@@ -59,10 +58,7 @@ val WitherbloomCharm = card("Witherbloom Charm") {
                 effect = Effects.GainLife(5)
             }
             mode("Destroy target nonland permanent with mana value 2 or less") {
-                val t = target(
-                    "target nonland permanent with mana value 2 or less",
-                    TargetPermanent(filter = TargetFilter(GameObjectFilter.NonlandPermanent.manaValueAtMost(2))),
-                )
+                val t = target(TargetFilter(GameObjectFilter.NonlandPermanent.manaValueAtMost(2)))
                 effect = Effects.Destroy(t)
             }
         }

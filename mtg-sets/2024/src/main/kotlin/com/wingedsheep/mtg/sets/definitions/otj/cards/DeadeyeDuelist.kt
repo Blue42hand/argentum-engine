@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -30,7 +30,7 @@ val DeadeyeDuelist = card("Deadeye Duelist") {
     keywords(Keyword.REACH)
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.DealDamage(1, t)
     }
     metadata {

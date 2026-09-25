@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Nantuko Vigilante
@@ -26,7 +25,7 @@ val NantukoVigilante = card("Nantuko Vigilante") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val t = target("artifact or enchantment", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment)))
+        val t = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment))
         effect = Effects.Destroy(t)
     }
 

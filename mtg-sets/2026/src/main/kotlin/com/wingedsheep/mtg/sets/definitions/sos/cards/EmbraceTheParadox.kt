@@ -22,10 +22,8 @@ val EmbraceTheParadox = card("Embrace the Paradox") {
     typeLine = "Instant"
     oracleText = "Draw three cards. You may put a land card from your hand onto the battlefield tapped."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(3),
+        effect = Effects.DrawCards(3) then
             Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land, entersTapped = true))
-        )
     }
     metadata {
         rarity = Rarity.COMMON

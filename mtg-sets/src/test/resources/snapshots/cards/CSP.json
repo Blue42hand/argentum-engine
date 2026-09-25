@@ -9,7 +9,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -20,7 +20,7 @@
                 "filter": {
                     "baseFilter": "creature green|white"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -94,7 +94,7 @@
                     "baseFilter": "red|green",
                     "zone": "Stack"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -149,7 +149,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target enchantment"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -160,7 +160,7 @@
                         "filter": {
                             "baseFilter": "enchantment"
                         },
-                        "id": "target enchantment"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Sacrifice this creature: Destroy target enchantment."

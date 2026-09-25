@@ -9,9 +9,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Pinnacle Kill-Ship
@@ -33,7 +33,7 @@ val PinnacleKillShip = card("Pinnacle Kill-Ship") {
     // ETB: deals 10 damage to up to one target creature
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val target = target("up to one target creature", TargetCreature(optional = true))
+        val target = target(TargetFilter.Creature, optional = true)
         effect = Effects.DealDamage(10, target)
     }
 

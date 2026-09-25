@@ -34,22 +34,18 @@ val AragornAndArwenWed = card("Aragorn and Arwen, Wed") {
 
     keywords(Keyword.VIGILANCE)
 
-    val effectBody = Effects.Composite(
-        listOf(
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-            ),
-            Effects.GainLife(
-                DynamicAmounts.battlefield(
-                    Player.You,
-                    GameObjectFilter.Creature,
-                    excludeSelf = true
-                ).count(),
-                EffectTarget.Controller
-            )
+    val effectBody = Effects.ForEachInGroup(
+        filter = GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+    ) then
+        Effects.GainLife(
+            DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature,
+                excludeSelf = true
+            ).count(),
+            EffectTarget.Controller
         )
-    )
 
     triggeredAbility {
         trigger = Triggers.self.enters()

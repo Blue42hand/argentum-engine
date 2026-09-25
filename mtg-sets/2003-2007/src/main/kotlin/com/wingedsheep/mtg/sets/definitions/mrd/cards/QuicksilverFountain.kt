@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetChooser
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Quicksilver Fountain — Mirrodin #233 (canonical printing)
@@ -72,15 +71,8 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         val land = target(
-            "non-Island land they control",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Land
-                        .notSubtype(Subtype.ISLAND)
-                        .controlledByTriggeringPlayer()
-                ),
-                chooser = TargetChooser.TriggeringPlayer
-            )
+            TargetFilter(GameObjectFilter.Land .notSubtype(Subtype.ISLAND) .controlledByTriggeringPlayer()),
+            chooser = TargetChooser.TriggeringPlayer,
         )
         effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
         description = "At the beginning of each player's upkeep, that player puts a flood counter " +

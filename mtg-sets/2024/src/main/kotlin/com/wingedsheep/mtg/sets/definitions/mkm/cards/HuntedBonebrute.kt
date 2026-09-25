@@ -51,7 +51,7 @@ val HuntedBonebrute = card("Hunted Bonebrute") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

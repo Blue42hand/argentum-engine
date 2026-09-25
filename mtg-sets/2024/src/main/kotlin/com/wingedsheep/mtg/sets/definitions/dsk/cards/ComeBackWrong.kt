@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Come Back Wrong
@@ -43,7 +43,7 @@ val ComeBackWrong = card("Come Back Wrong") {
         "next end step."
 
     spell {
-        target("target creature", Targets.Creature)
+        target(TargetFilter.Creature)
         effect = Effects.Pipeline {
             val comeBackTargets = gather(CardSource.ChosenTargets)
             val died = moveTracked(

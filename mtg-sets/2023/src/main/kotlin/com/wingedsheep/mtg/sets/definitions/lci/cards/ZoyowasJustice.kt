@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Zoyowa's Justice
@@ -35,10 +34,7 @@ val ZoyowasJustice = card("Zoyowa's Justice") {
         "on the bottom in a random order.)"
 
     spell {
-        val permanent = target(
-            "target artifact or creature",
-            TargetPermanent(filter = TargetFilter.CreatureOrArtifact.manaValueAtLeast(1))
-        )
+        val permanent = target(TargetFilter.CreatureOrArtifact.manaValueAtLeast(1))
         effect = Effects.ForEachPlayer(
             Player.OwnerOf("target artifact or creature"),
             listOf(

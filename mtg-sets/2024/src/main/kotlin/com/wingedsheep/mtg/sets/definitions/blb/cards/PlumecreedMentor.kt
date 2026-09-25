@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Plumecreed Mentor
@@ -34,14 +33,7 @@ val PlumecreedMentor = card("Plumecreed Mentor") {
     // Whenever this creature or another creature you control with flying enters
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withKeyword(Keyword.FLYING)).enters()
-        val creatureWithoutFlying = target(
-            "creature you control without flying",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.youControl().withoutKeyword(Keyword.FLYING)
-                )
-            )
-        )
+        val creatureWithoutFlying = target(TargetFilter(GameObjectFilter.Creature.youControl().withoutKeyword(Keyword.FLYING)))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureWithoutFlying)
     }
 

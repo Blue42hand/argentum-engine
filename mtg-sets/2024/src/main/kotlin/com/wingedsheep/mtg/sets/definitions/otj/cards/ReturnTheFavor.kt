@@ -6,6 +6,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Return the Favor
@@ -45,17 +47,14 @@ val ReturnTheFavor = card("Return the Favor") {
                 // + {1} — Copy target instant/sorcery spell, activated ability, or triggered ability.
                 mode("+ {1} — Copy target instant spell, sorcery spell, activated " +
                     "ability, or triggered ability. You may choose new targets for the copy.") {
-                    val instantSorcerySpellOrAbility = target(
-                        "target instant sorcery spell or ability",
-                        Targets.InstantSorcerySpellOrAbility
-                    )
+                    val instantSorcerySpellOrAbility = target(TargetFilter.InstantSorcerySpellOrAbilityOnStack)
                     additionalManaCost = "{1}"
                     effect = Effects.CopyTargetSpellOrAbility(target = instantSorcerySpellOrAbility)
                 },
                 // + {1} — Change the target of target spell or ability with a single target.
                 Mode(
                     effect = Effects.ChangeTarget(),
-                    targetRequirements = listOf(Targets.SpellOrAbilityWithSingleTarget),
+                    targetRequirements = listOf(TargetObject(filter = TargetFilter.SpellOrAbilityOnStack)),
                     description = "+ {1} — Change the target of target spell or ability with a " +
                         "single target.",
                     additionalManaCost = "{1}"

@@ -43,14 +43,13 @@ val LanternFlare = card("Lantern Flare") {
     spell {
         // Printed (brackets present): X = the number of creatures you control.
         val printedX = DynamicAmounts.creaturesYouControl()
-        val target = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        effect = Effects.DealDamage(printedX, target)
-            .then(Effects.GainLife(printedX))
+        val target = target(Targets.CreatureOrPlaneswalker)
+        effect = Effects.DealDamage(printedX, target) then Effects.GainLife(printedX)
 
         // Cleaved (brackets removed): X is the amount paid for the {X} in the cleave cost.
-        val cleaveTarget = cleaveTarget("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        cleaveEffect = Effects.DealDamage(DynamicAmounts.xValue(), cleaveTarget)
-            .then(Effects.GainLife(DynamicAmounts.xValue()))
+        val cleaveTarget = cleaveTarget(Targets.CreatureOrPlaneswalker)
+        cleaveEffect = Effects.DealDamage(DynamicAmounts.xValue(), cleaveTarget) then
+            Effects.GainLife(DynamicAmounts.xValue())
     }
 
     metadata {

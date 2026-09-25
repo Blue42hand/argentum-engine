@@ -32,7 +32,7 @@ val LonghornSharpshooter = card("Longhorn Sharpshooter") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesPlotted()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

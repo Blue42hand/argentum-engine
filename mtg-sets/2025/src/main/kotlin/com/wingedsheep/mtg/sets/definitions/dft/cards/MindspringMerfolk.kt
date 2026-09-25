@@ -37,13 +37,11 @@ val MindspringMerfolk = card("Mindspring Merfolk") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}{U}{U}"), Costs.Tap)
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.DrawCards(DynamicAmounts.xValue()),
+        effect = Effects.DrawCards(DynamicAmounts.xValue()) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype("Merfolk").youControl()),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

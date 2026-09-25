@@ -25,7 +25,7 @@ val BurstLightning = card("Burst Lightning") {
     keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.DealDamage(4, t),

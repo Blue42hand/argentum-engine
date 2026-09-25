@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Captain of the Mists
@@ -47,7 +47,7 @@ val CaptainOfTheMists = card("Captain of the Mists") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
-        val t = target("target permanent", TargetPermanent())
+        val t = target(TargetFilter.Permanent)
         effect = Effects.May(
             Effects.Modal(
                 modes = listOf(

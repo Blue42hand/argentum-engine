@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Volatile Fault
@@ -49,10 +48,7 @@ val VolatileFault = card("Volatile Fault") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap, Costs.SacrificeSelf)
-        val land = target(
-            "target nonbasic land an opponent controls",
-            TargetPermanent(filter = TargetFilter.NonbasicLand.opponentControls())
-        )
+        val land = target(TargetFilter.NonbasicLand.opponentControls())
         effect = Effects.Destroy(land) then
             Effects.ForEachPlayer(
                 Player.ControllerOf("the destroyed land"),

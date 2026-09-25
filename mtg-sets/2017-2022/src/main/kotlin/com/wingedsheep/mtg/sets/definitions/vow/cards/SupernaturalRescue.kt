@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Supernatural Rescue
@@ -50,21 +49,18 @@ val SupernaturalRescue = card("Supernatural Rescue") {
         GameObjectFilter.Permanent.withSubtype(Subtype.SPIRIT)
     )
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     triggeredAbility {
         trigger = Triggers.self.isCast()
-        target(
-            "up to two target creatures you don't control",
-            TargetCreature(
-                optional = true,
-                count = 2,
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.withControllerPredicate(
-                        ControllerPredicate.Not(ControllerPredicate.ControlledByYou)
-                    )
+        targets(
+            TargetFilter(
+                GameObjectFilter.Creature.withControllerPredicate(
+                    ControllerPredicate.Not(ControllerPredicate.ControlledByYou)
                 )
-            )
+            ),
+            count = 2,
+            optional = true,
         )
         effect = Effects.TapEachTarget()
         description = "When you cast this spell, tap up to two target creatures you don't control."

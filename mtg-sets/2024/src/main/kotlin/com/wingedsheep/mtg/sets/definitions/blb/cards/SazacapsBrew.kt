@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sazacap's Brew
@@ -39,36 +40,32 @@ val SazacapsBrew = card("Sazacap's Brew") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — target player draws 2
             mode("Don't promise a gift — target player draws two cards") {
-                val player = target("target player", Targets.Player)
+                val player = target(Targets.Player)
                 effect = Effects.DrawCards(2, player)
             },
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, target player draws 2,
             // target creature you control gets +2/+0 until end of turn
             mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, target player draws two cards, target creature you control gets +2/+0 until end of turn") {
-                val player = target("target player", Targets.Player)
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.CreateToken(
-                            count = 1,
-                            power = 1,
-                            toughness = 1,
-                            colors = setOf(Color.BLUE),
-                            creatureTypes = setOf("Fish"),
-                            tapped = true,
-                            controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
-                            imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                        ),
-                        Effects.DrawCards(2, player),
-                        Effects.ModifyStats(
-                            power = 2,
-                            toughness = 0,
-                            target = creatureYouControl,
-                            duration = Duration.EndOfTurn
-                        ),
-                        Effects.GiftGiven()
-                    )
-                )
+                val player = target(Targets.Player)
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                effect = Effects.CreateToken(
+                    count = 1,
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.BLUE),
+                    creatureTypes = setOf("Fish"),
+                    tapped = true,
+                    controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
+                    imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
+                ) then
+                    Effects.DrawCards(2, player) then
+                    Effects.ModifyStats(
+                        power = 2,
+                        toughness = 0,
+                        target = creatureYouControl,
+                        duration = Duration.EndOfTurn
+                    ) then
+                    Effects.GiftGiven()
             }
         )
     }

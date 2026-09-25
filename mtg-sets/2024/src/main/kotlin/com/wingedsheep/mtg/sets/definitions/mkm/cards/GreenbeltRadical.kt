@@ -49,10 +49,8 @@ val GreenbeltRadical = card("Greenbelt Radical") {
         trigger = Triggers.self.turnedFaceUp()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
-            ),
         )
         description = "When this creature is turned face up, put a +1/+1 counter on each creature " +
             "you control. Creatures you control gain trample until end of turn."

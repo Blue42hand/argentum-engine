@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Grave Researcher // Reanimate — Secrets of Strixhaven #85
@@ -45,11 +45,9 @@ val GraveResearcher = card("Grave Researcher") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Patterns.Library.surveil(1).then(
-            Effects.If(
-                condition = Conditions.CreatureCardsInGraveyardAtLeast(3),
-                then = Effects.BecomePrepared(),
-            )
+        effect = Patterns.Library.surveil(1) then Effects.If(
+            condition = Conditions.CreatureCardsInGraveyardAtLeast(3),
+            then = Effects.BecomePrepared(),
         )
         description = "At the beginning of your upkeep, surveil 1. Then if there are three or more " +
             "creature cards in your graveyard, this creature becomes prepared."
@@ -62,14 +60,12 @@ val GraveResearcher = card("Grave Researcher") {
         oracleText = "Put target creature card from a graveyard onto the battlefield under your " +
             "control. You lose life equal to that card's mana value."
         spell {
-            val creatureCardInGraveyard = target("target creature card in graveyard", Targets.CreatureCardInGraveyard)
-            effect = Effects.Composite(
-                Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD),
+            val creatureCardInGraveyard = target(TargetFilter.CreatureInGraveyard)
+            effect = Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD) then
                 Effects.LoseLife(
                     DynamicAmounts.manaValueOf(creatureCardInGraveyard),
                     EffectTarget.Controller,
-                ),
-            )
+                )
         }
     }
 

@@ -56,14 +56,13 @@ val GreatHallOfTheBiblioplex = card("Great Hall of the Biblioplex") {
         cost = Costs.Mana("{5}")
         effect = Effects.If(
             condition = Conditions.Not(Conditions.SourceMatches(GameObjectFilter.Creature)),
-            then = Effects.Composite(
-                Effects.BecomeCreature(
-                    target = EffectTarget.Self,
-                    power = 2,
-                    toughness = 4,
-                    creatureTypes = setOf("Wizard"),
-                    duration = Duration.Permanent,
-                ),
+            then = Effects.BecomeCreature(
+                target = EffectTarget.Self,
+                power = 2,
+                toughness = 4,
+                creatureTypes = setOf("Wizard"),
+                duration = Duration.Permanent,
+            ) then
                 Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery),
@@ -73,7 +72,6 @@ val GreatHallOfTheBiblioplex = card("Great Hall of the Biblioplex") {
                     target = EffectTarget.Self,
                     duration = Duration.Permanent,
                 ),
-            ),
         )
     }
 

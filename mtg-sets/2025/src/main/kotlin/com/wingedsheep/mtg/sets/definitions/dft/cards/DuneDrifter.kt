@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dune Drifter
@@ -43,15 +42,12 @@ val DuneDrifter = card("Dune Drifter") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "target artifact or creature card with mana value X or less in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.CreatureOrArtifact
-                        .ownedByYou()
-                        .manaValueAtMostDynamic(DynamicAmounts.castX()),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(
+                baseFilter = GameObjectFilter.CreatureOrArtifact
+                    .ownedByYou()
+                    .manaValueAtMostDynamic(DynamicAmounts.castX()),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.PutOntoBattlefield(card)
         description = "When this Vehicle enters, return target artifact or creature card with mana " +

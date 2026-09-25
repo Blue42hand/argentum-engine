@@ -146,8 +146,8 @@ class MjolnirHammerOfThorScenarioTest : ScenarioTestBase() {
                     equip!!.isAffordable shouldBe true
                 }
 
-                withClue("the target label is what the prompt shows the player") {
-                    equip!!.targetDescription shouldBe "worthy creature you control"
+                withClue("the target label spells out what \"worthy\" admits") {
+                    equip!!.targetDescription shouldBe "target legendary non-Villain red or white creature you control"
                 }
 
                 withClue(

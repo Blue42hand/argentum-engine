@@ -48,14 +48,12 @@ val SerendibDjinn = card("Serendib Djinn") {
             GameObjectFilter.Land,
             count = 1,
             target = EffectTarget.Controller
-        ).then(
-            Effects.If(
-                condition = Conditions.SacrificedHadSubtype("Island"),
-                then = Effects.DealDamage(
-                    3,
-                    EffectTarget.Controller,
-                    damageSource = EffectTarget.Self
-                )
+        ) then Effects.If(
+            condition = Conditions.SacrificedHadSubtype("Island"),
+            then = Effects.DealDamage(
+                3,
+                EffectTarget.Controller,
+                damageSource = EffectTarget.Self
             )
         )
         description = "At the beginning of your upkeep, sacrifice a land. " +

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Perigee Beckoner
@@ -35,10 +34,7 @@ val PerigeeBeckoner = card("Perigee Beckoner") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "another target creature you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val creature = target(TargetFilter.OtherCreatureYouControl)
 
         val diesReturnTapped = TriggeredAbility.create(
             trigger = Triggers.self.dies(),
@@ -51,16 +47,12 @@ val PerigeeBeckoner = card("Perigee Beckoner") {
             descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control."
         )
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 0, creature),
-                Effects.GrantTriggeredAbility(
-                    ability = diesReturnTapped,
-                    target = creature,
-                    duration = Duration.EndOfTurn,
-                ),
+        effect = Effects.ModifyStats(2, 0, creature) then
+            Effects.GrantTriggeredAbility(
+                ability = diesReturnTapped,
+                target = creature,
+                duration = Duration.EndOfTurn,
             )
-        )
         description = "When this creature enters, until end of turn, another target creature you control " +
             "gets +2/+0 and gains \"When this creature dies, return it to the battlefield tapped under " +
             "its owner's control.\""

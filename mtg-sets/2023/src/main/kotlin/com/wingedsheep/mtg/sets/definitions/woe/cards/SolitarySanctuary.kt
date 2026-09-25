@@ -2,13 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Solitary Sanctuary
@@ -41,10 +39,7 @@ val SolitarySanctuary = card("Solitary Sanctuary") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.Creature.opponentControls())
-        )
+        val victim = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
         description = "When this enchantment enters, tap target creature an opponent controls and " +
             "put a stun counter on it."
@@ -52,7 +47,7 @@ val SolitarySanctuary = card("Solitary Sanctuary") {
 
     triggeredAbility {
         trigger = Triggers.you.taps(GameObjectFilter.Creature.opponentControls())
-        val ally = target("target creature you control", Targets.CreatureYouControl)
+        val ally = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, ally)
         description = "Whenever you tap an untapped creature an opponent controls, put a +1/+1 " +
             "counter on target creature you control."

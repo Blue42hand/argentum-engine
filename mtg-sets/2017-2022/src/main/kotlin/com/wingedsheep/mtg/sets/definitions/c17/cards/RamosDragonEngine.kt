@@ -40,13 +40,11 @@ val RamosDragonEngine = card("Ramos, Dragon Engine") {
     activatedAbility {
         cost = Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, 5)
         restrictions = listOf(ActivationRestriction.OncePerTurn)
-        effect = Effects.Composite(
-            Effects.AddMana(Color.WHITE, 2),
-            Effects.AddMana(Color.BLUE, 2),
-            Effects.AddMana(Color.BLACK, 2),
-            Effects.AddMana(Color.RED, 2),
+        effect = Effects.AddMana(Color.WHITE, 2) then
+            Effects.AddMana(Color.BLUE, 2) then
+            Effects.AddMana(Color.BLACK, 2) then
+            Effects.AddMana(Color.RED, 2) then
             Effects.AddMana(Color.GREEN, 2)
-        )
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

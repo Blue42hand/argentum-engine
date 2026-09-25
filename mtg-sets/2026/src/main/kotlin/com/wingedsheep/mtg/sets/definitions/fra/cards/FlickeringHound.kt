@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -34,12 +33,8 @@ val FlickeringHound = card("Flickering Hound") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature)
-        val creature = target(
-            "up to one other target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl),
-        )
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
+        val creature = target(TargetFilter.OtherCreatureYouControl, optional = true)
+        effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
     }
 
     metadata {

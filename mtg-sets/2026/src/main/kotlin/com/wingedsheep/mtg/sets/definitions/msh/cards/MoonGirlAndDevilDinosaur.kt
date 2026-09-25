@@ -56,9 +56,7 @@ val MoonGirlAndDevilDinosaur = card("Moon Girl and Devil Dinosaur") {
             toughness = 6,
             target = EffectTarget.Self,
             duration = Duration.EndOfTurn,
-        ).then(
-            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn)
-        )
+        ) then Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn)
         description = "Whenever you draw your second card each turn, until end of turn, Moon Girl " +
             "and Devil Dinosaur's base power and toughness become 6/6 and they gain trample."
     }

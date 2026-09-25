@@ -39,7 +39,7 @@ val AlaniaDivergentStorm = card("Alania, Divergent Storm") {
                     .notNamed("Alania, Divergent Storm")
             )
         )
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.ReflexiveTrigger(
             action = Effects.DrawCards(1, opponent),
             optional = true,

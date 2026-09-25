@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Bloodtithe Harvester
@@ -38,7 +37,7 @@ val BloodtitheHarvester = card("Bloodtithe Harvester") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         // X is twice the number of Blood tokens you control; apply as -X/-X.
         val bloodCount = DynamicAmounts.battlefield(
             Player.You,

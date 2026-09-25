@@ -29,13 +29,11 @@ val IridescentTiger = card("Iridescent Tiger") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
-        effect = Effects.Composite(
-            Effects.AddMana(Color.WHITE),
-            Effects.AddMana(Color.BLUE),
-            Effects.AddMana(Color.BLACK),
-            Effects.AddMana(Color.RED),
+        effect = Effects.AddMana(Color.WHITE) then
+            Effects.AddMana(Color.BLUE) then
+            Effects.AddMana(Color.BLACK) then
+            Effects.AddMana(Color.RED) then
             Effects.AddMana(Color.GREEN)
-        )
     }
 
     metadata {

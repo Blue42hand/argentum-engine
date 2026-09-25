@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Vayne's Treachery
@@ -31,7 +31,7 @@ val VaynesTreachery = card("Vayne's Treachery") {
     keywordAbility(KeywordAbility.kicker(Costs.additional.SacrificePermanent(filter = GameObjectFilter.CreatureOrArtifact)))
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.ModifyStats(-6, -6, t, Duration.EndOfTurn),

@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Claim the Kingdom — Marvel Super Heroes #163
@@ -43,11 +43,9 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on " +
             "target creature you control and a plan counter on this enchantment."
     }
@@ -61,7 +59,7 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
             descriptionOverride = "Sacrifice this enchantment. When you do, put an indestructible " +
                 "counter on target creature you control.",
         ) {
-            val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+            val creatureYouControl = target(TargetFilter.CreatureYouControl)
             effect = Effects.AddCounters(
                 CounterType.INDESTRUCTIBLE,
                 1,

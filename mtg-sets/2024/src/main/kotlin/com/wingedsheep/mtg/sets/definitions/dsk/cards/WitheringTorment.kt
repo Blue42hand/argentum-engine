@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -25,11 +24,9 @@ val WitheringTorment = card("Withering Torment") {
     typeLine = "Instant"
     oracleText = "Destroy target creature or enchantment. You lose 2 life."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrEnchantment))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
+        val t = target(TargetFilter.CreatureOrEnchantment)
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
             Effects.LoseLife(2, EffectTarget.Controller)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

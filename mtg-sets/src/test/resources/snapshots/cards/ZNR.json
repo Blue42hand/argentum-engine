@@ -131,7 +131,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target artifact, enchantment, or creature with flying"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -167,7 +167,7 @@
                         ]
                     }
                 },
-                "id": "target artifact, enchantment, or creature with flying"
+                "id": "t0"
             }
         ]
     },
@@ -265,7 +265,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -295,7 +295,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ]
     },
@@ -735,7 +735,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -743,7 +743,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target creature you control"
+                    "id": "t0"
                 }
             }
         ]
@@ -914,7 +914,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature card from your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Battlefield"
                 },
@@ -924,7 +924,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target creature card from your graveyard"
+                    "id": "t0"
                 },
                 "interveningIf": "WasKicked",
                 "descriptionOverride": "When this creature enters, if it was kicked, return target creature card from your graveyard to the battlefield."

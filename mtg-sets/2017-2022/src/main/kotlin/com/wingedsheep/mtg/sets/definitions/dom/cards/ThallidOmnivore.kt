@@ -29,11 +29,11 @@ val ThallidOmnivore = card("Thallid Omnivore") {
             Costs.Mana("{1}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        effect = Effects.ModifyStats(2, 2, EffectTarget.Self)
-            .then(Effects.If(
+        effect = Effects.ModifyStats(2, 2, EffectTarget.Self) then
+            Effects.If(
                 condition = Conditions.SacrificedHadSubtype("Saproling"),
                 then = Effects.GainLife(2)
-            ))
+            )
     }
 
     metadata {

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Scrapyard Recombiner
@@ -67,7 +66,7 @@ val ScrapyardRecombiner = card("Scrapyard Recombiner") {
 
     // Modular, half two: "When it dies, you may put its +1/+1 counters on target artifact creature."
     triggeredAbility {
-        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactCreature)))
+        val permanent = target(TargetFilter(GameObjectFilter.ArtifactCreature))
         trigger = Triggers.self.dies()
         optional = true
         effect = Effects.AddDynamicCounters(

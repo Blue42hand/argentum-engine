@@ -29,8 +29,8 @@ val MushroomWatchdogs = card("Mushroom Watchdogs") {
 
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Any.withSubtype("Food"))
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
     }
 

@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val CutPropulsion = card("Cut Propulsion") {
     manaCost = "{2}{R}"
@@ -17,7 +17,7 @@ val CutPropulsion = card("Cut Propulsion") {
     oracleText = "Target creature deals damage to itself equal to its power. If that creature has flying, it deals twice that much damage to itself instead."
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         val power = DynamicAmounts.powerOf(creature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.conditional(

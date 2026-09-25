@@ -357,7 +357,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -368,7 +368,7 @@
                         "filter": {
                             "baseFilter": "permanent"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }

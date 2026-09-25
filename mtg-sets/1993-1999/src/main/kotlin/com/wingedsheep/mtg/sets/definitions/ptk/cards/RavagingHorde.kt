@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ptk.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ravaging Horde
@@ -21,7 +21,7 @@ val RavagingHorde = card("Ravaging Horde") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val land = target("target", Targets.Land)
+        val land = target(TargetFilter.Land)
         effect = Effects.Destroy(land)
     }
 

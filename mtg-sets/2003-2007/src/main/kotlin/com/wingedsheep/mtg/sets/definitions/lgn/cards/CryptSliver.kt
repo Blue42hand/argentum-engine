@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Crypt Sliver
@@ -32,9 +31,7 @@ val CryptSliver = card("Crypt Sliver") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val creature = target("target creature", TargetCreature(
-                    filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Sliver"))
-                ))
+                val creature = target(TargetFilter(GameObjectFilter.Permanent.withSubtype("Sliver")))
                 effect = Effects.Regenerate(creature)
             },
             filter = sliverFilter

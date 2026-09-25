@@ -21,7 +21,7 @@ val SunscorchedDesert = card("Sunscorched Desert") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("target", Targets.PlayerOrPlaneswalker)
+        val victim = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, victim)
     }
 

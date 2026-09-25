@@ -31,7 +31,7 @@ val GutsplitterGang = card("Gutsplitter Gang") {
         trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = Patterns.Mechanic.blight(2),
-            then = Effects.Composite(emptyList()),
+            then = Effects.Nothing,
             otherwise = Effects.LoseLife(3, EffectTarget.Controller),
             descriptionOverride = "You may blight 2. If you don't, you lose 3 life"
         )

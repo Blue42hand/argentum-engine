@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Kami of Fire's Roar
@@ -33,7 +32,7 @@ val KamiOfFiresRoar = card("Kami of Fire's Roar") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.CantBlock(t)
     }
     metadata {

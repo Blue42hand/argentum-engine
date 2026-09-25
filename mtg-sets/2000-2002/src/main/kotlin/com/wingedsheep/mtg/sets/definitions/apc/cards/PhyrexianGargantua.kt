@@ -27,10 +27,7 @@ val PhyrexianGargantua = card("Phyrexian Gargantua") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Effects.LoseLife(2, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.Controller)
     }
     metadata {
         rarity = Rarity.UNCOMMON

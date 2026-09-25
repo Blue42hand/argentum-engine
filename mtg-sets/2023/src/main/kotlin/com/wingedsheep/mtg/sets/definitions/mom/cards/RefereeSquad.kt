@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Referee Squad
@@ -38,10 +37,7 @@ val RefereeSquad = card("Referee Squad") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.Creature.opponentControls())
-        )
+        val victim = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
     }
 

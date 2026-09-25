@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Morcant's Loyalist
@@ -43,14 +42,11 @@ val MorcantsLoyalist = card("Morcant's Loyalist") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         val elfCard = target(
-            "another target Elf card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Any.withSubtype("Elf").ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                    excludeSelf = true
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Any.withSubtype("Elf").ownedByYou(),
+                zone = Zone.GRAVEYARD,
+                excludeSelf = true
+            ),
         )
         effect = Effects.ReturnToHand(elfCard)
     }

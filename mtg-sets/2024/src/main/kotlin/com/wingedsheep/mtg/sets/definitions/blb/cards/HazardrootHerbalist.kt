@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Hazardroot Herbalist
@@ -28,12 +27,12 @@ val HazardrootHerbalist = card("Hazardroot Herbalist") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val creature = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.If(
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Token, creature),
                 then = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
-            ))
+            )
     }
 
     metadata {

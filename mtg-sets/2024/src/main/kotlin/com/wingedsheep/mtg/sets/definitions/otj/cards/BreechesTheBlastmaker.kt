@@ -50,7 +50,7 @@ val BreechesTheBlastmaker = card("Breeches, the Blastmaker") {
 
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)
-        val damageTarget = target("any target", Targets.Any)
+        val damageTarget = target(Targets.Any)
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),
             then = Effects.FlipCoin(

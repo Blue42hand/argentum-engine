@@ -15,11 +15,11 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * [DynamicAmount.SpellsCastThisTurn] — counts the spells a player has cast this turn,
@@ -49,7 +49,7 @@ class SpellsCastThisTurnAmountTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Deals damage to target creature equal to 2 plus the number of other spells you've cast this turn."
         spell {
-            val t = target("target", TargetCreature())
+            val t = target(TargetFilter.Creature)
             effect = DealDamageEffect(
                 DynamicAmount.Add(
                     DynamicAmount.Fixed(2),
@@ -68,7 +68,7 @@ class SpellsCastThisTurnAmountTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Deals damage to target creature equal to the number of noncreature spells you've cast this turn."
         spell {
-            val t = target("target", TargetCreature())
+            val t = target(TargetFilter.Creature)
             effect = DealDamageEffect(
                 DynamicAmount.SpellsCastThisTurn(Player.You, GameObjectFilter.Noncreature),
                 t

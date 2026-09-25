@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Giantfall
@@ -26,11 +26,8 @@ val Giantfall = card("Giantfall") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Target creature you control deals damage equal to its power to target creature an opponent controls") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.powerOf(creatureYouControl),
                     target = creatureOpponentControls,
@@ -38,7 +35,7 @@ val Giantfall = card("Giantfall") {
                 )
             },
             mode("Destroy target artifact") {
-                val artifact = target("target artifact", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Destroy(artifact)
             }
         )

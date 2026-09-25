@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Restoration Magic
@@ -34,32 +34,26 @@ val RestorationMagic = card("Restoration Magic") {
     spell {
         tiered {
             tier("Cure", "{0}", "Target permanent gains hexproof and indestructible until end of turn.") {
-                val permanent = target("target permanent", Targets.Permanent)
-                effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.HEXPROOF, permanent),
+                val permanent = target(TargetFilter.Permanent)
+                effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent) then
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent)
-                )
             }
             tier(
                 "Cura", "{1}",
                 "Target permanent gains hexproof and indestructible until end of turn. You gain 3 life."
             ) {
-                val permanent = target("target permanent", Targets.Permanent)
-                effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.HEXPROOF, permanent),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent),
+                val permanent = target(TargetFilter.Permanent)
+                effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent) then
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent) then
                     Effects.GainLife(3)
-                )
             }
             tier(
                 "Curaga", "{3}{W}",
                 "Permanents you control gain hexproof and indestructible until end of turn. You gain 6 life."
             ) {
-                effect = Effects.Composite(
-                    Patterns.Group.grantKeywordToAll(Keyword.HEXPROOF, Filters.Group.permanentsYouControl),
-                    Patterns.Group.grantKeywordToAll(Keyword.INDESTRUCTIBLE, Filters.Group.permanentsYouControl),
+                effect = Patterns.Group.grantKeywordToAll(Keyword.HEXPROOF, Filters.Group.permanentsYouControl) then
+                    Patterns.Group.grantKeywordToAll(Keyword.INDESTRUCTIBLE, Filters.Group.permanentsYouControl) then
                     Effects.GainLife(6)
-                )
             }
         }
     }

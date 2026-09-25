@@ -27,26 +27,22 @@ val EntishRestoration = card("Entish Restoration") {
     oracleText = "Sacrifice a land. Search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle. If you control a creature with power 4 or greater, instead search your library for up to three basic land cards, put them onto the battlefield tapped, then shuffle."
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Effects.SacrificeOwn(filter = GameObjectFilter.Land),
-                Effects.If(
-                    condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-                    then = Patterns.Library.searchLibrary(
-                        filter = GameObjectFilter.BasicLand,
-                        count = 3,
-                        destination = SearchDestination.BATTLEFIELD,
-                        entersTapped = true
-                    ),
-                    otherwise = Patterns.Library.searchLibrary(
-                        filter = GameObjectFilter.BasicLand,
-                        count = 2,
-                        destination = SearchDestination.BATTLEFIELD,
-                        entersTapped = true
-                    )
+        effect = Effects.SacrificeOwn(filter = GameObjectFilter.Land) then
+            Effects.If(
+                condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
+                then = Patterns.Library.searchLibrary(
+                    filter = GameObjectFilter.BasicLand,
+                    count = 3,
+                    destination = SearchDestination.BATTLEFIELD,
+                    entersTapped = true
+                ),
+                otherwise = Patterns.Library.searchLibrary(
+                    filter = GameObjectFilter.BasicLand,
+                    count = 2,
+                    destination = SearchDestination.BATTLEFIELD,
+                    entersTapped = true
                 )
             )
-        )
     }
 
     metadata {

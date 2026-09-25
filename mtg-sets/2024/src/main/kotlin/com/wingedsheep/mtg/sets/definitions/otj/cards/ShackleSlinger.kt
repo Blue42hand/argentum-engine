@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Shackle Slinger
@@ -35,7 +34,7 @@ val ShackleSlinger = card("Shackle Slinger") {
 
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t = target(TargetFilter.Creature.opponentControls())
         effect = Effects.If(
             condition = Conditions.TargetIsTapped(),
             then = Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t),

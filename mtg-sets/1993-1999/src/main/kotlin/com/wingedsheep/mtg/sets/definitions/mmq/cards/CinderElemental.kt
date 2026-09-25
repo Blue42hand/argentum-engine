@@ -24,7 +24,7 @@ val CinderElemental = card("Cinder Elemental") {
     toughness = 2
 
     activatedAbility {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         cost = Costs.Composite(Costs.Mana("{X}{R}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.DealDamage(DynamicAmounts.xValue(), anyTarget)
         description = "{X}{R}, {T}, Sacrifice this creature: It deals X damage to any target."

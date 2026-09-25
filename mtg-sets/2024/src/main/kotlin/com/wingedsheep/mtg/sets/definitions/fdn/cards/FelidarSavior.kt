@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Felidar Savior
@@ -38,10 +37,7 @@ val FelidarSavior = card("Felidar Savior") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to two other target creatures you control",
-            TargetCreature(count = 2, optional = true, filter = TargetFilter.OtherCreatureYouControl),
-        )
+        targets(TargetFilter.OtherCreatureYouControl, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
         )

@@ -41,12 +41,11 @@ val VexingDevil = card("Vexing Devil") {
             Player.EachOpponent,
             listOf(
                 Effects.May(
-                    effect = Effects.Composite(
-                        Effects.DealDamage(
-                            amount = 4,
-                            target = EffectTarget.PlayerRef(Player.You),
-                            damageSource = EffectTarget.Self,
-                        ),
+                    effect = Effects.DealDamage(
+                        amount = 4,
+                        target = EffectTarget.PlayerRef(Player.You),
+                        damageSource = EffectTarget.Self,
+                    ) then
                         // `ForEachPlayer` rebinds the resolving controller to the opponent being
                         // asked, so the sacrifice has to name the Devil's *own* controller as the
                         // actor — otherwise the control mismatch silently skips it.
@@ -54,7 +53,6 @@ val VexingDevil = card("Vexing Devil") {
                             target = EffectTarget.Self,
                             sacrificedByItsController = true,
                         ),
-                    ),
                     decisionMaker = EffectTarget.PlayerRef(Player.You),
                     // Shown to the opponent being asked, so it reads from their perspective.
                     descriptionOverride = "Have Vexing Devil deal 4 damage to you? " +

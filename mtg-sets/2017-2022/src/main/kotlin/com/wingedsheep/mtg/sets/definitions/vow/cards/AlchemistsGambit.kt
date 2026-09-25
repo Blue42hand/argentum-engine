@@ -58,16 +58,10 @@ val AlchemistsGambit = card("Alchemist's Gambit") {
         )
 
         // Printed (brackets present): extra turn, no prevention, lose at that turn's end step.
-        effect = Effects.Composite(
-            Effects.TakeExtraTurn(loseAtEndStep = true),
-            damageCantBePrevented,
-        )
+        effect = Effects.TakeExtraTurn(loseAtEndStep = true) then damageCantBePrevented
 
         // Cleaved (brackets removed): extra turn, no prevention, but no lose-the-game drawback.
-        cleaveEffect = Effects.Composite(
-            Effects.TakeExtraTurn(loseAtEndStep = false),
-            damageCantBePrevented,
-        )
+        cleaveEffect = Effects.TakeExtraTurn(loseAtEndStep = false) then damageCantBePrevented
 
         // "Exile Alchemist's Gambit." — outside the brackets, so it applies to both modes.
         selfExile()

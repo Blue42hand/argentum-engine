@@ -36,10 +36,7 @@ val VaultbornTyrant = card("Vaultborn Tyrant") {
     // "This or another creature you control with power 4+ enters" — ANY binding so self counts.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerAtLeast(4)).enters()
-        effect = Effects.Composite(listOf(
-            Effects.GainLife(3),
-            Effects.DrawCards(1)
-        ))
+        effect = Effects.GainLife(3) then Effects.DrawCards(1)
     }
 
     // When this dies, if it's not a token, create an artifact copy of it.

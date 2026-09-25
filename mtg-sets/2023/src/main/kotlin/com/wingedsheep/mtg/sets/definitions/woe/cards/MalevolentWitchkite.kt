@@ -40,7 +40,7 @@ val MalevolentWitchkite = card("Malevolent Witchkite") {
             filter = GameObjectFilter.Artifact.or(GameObjectFilter.Enchantment).or(
                 GameObjectFilter.Any.withCardPredicate(CardPredicate.IsToken)
             ),
-        ).then(Effects.DrawCards(DynamicAmounts.permanentsSacrificedThisWay()))
+        ) then Effects.DrawCards(DynamicAmounts.permanentsSacrificedThisWay())
         description = "When this creature enters, sacrifice any number of artifacts, enchantments, " +
             "and/or tokens, then draw that many cards."
     }

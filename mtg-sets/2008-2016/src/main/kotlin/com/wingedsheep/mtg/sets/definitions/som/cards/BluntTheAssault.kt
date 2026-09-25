@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -26,10 +25,7 @@ val BluntTheAssault = card("Blunt the Assault") {
     oracleText = "You gain 1 life for each creature on the battlefield. Prevent all combat damage that would be dealt this turn."
 
     spell {
-        effect = Effects.Composite(
-            Effects.GainLife(DynamicAmounts.allCreatures()),
-            Effects.PreventAllCombatDamage(),
-        )
+        effect = Effects.GainLife(DynamicAmounts.allCreatures()) then Effects.PreventAllCombatDamage()
     }
 
     metadata {

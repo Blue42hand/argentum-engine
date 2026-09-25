@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedLoyaltyAbility
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Kiora of Salt and Sand
@@ -38,11 +38,8 @@ val KioraOfSaltAndSand = card("Kiora of Salt and Sand") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         interveningIf = Conditions.YouActivatedLoyaltyAbilityThisTurn()
-        val attacker = target("target attacking creature", Targets.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.Untap(attacker),
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker),
-        )
+        val attacker = target(TargetFilter.AttackingCreature)
+        effect = Effects.Untap(attacker) then Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker)
         description = "Whenever you attack, if you've activated a loyalty ability this turn, untap " +
             "target attacking creature. It can't be blocked this turn."
     }

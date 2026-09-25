@@ -25,10 +25,8 @@ val SteamBlast = card("Steam Blast") {
     typeLine = "Sorcery"
     oracleText = "Steam Blast deals 2 damage to each creature and each player."
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(2, EffectTarget.IterationEntity)),
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(2, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(2, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -28,11 +28,8 @@ val WatcherOfTheWayside = card("Watcher of the Wayside") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
-        effect = Effects.Composite(
-            Patterns.Library.mill(2, player),
-            Effects.GainLife(2, EffectTarget.Controller)
-        )
+        val player = target(Targets.Player)
+        effect = Patterns.Library.mill(2, player) then Effects.GainLife(2, EffectTarget.Controller)
     }
 
     metadata {

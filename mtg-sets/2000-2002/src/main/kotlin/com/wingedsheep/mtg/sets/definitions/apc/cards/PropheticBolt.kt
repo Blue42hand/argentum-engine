@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -27,16 +27,14 @@ val PropheticBolt = card("Prophetic Bolt") {
     typeLine = "Instant"
     oracleText = "Prophetic Bolt deals 4 damage to any target. Look at the top four cards of your library. Put one of those cards into your hand and the rest on the bottom of your library in any order."
     spell {
-        val t = target("target", AnyTarget())
-        effect = Effects.Composite(
-            Effects.DealDamage(4, t),
+        val t = target(Targets.Any)
+        effect = Effects.DealDamage(4, t) then
             Patterns.Library.lookAtTopAndKeep(
                 count = 4,
                 keepCount = 1,
                 restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
                 restOrder = CardOrder.ControllerChooses
             )
-        )
     }
     metadata {
         rarity = Rarity.RARE

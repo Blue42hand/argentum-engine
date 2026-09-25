@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Krosan Groundshaker
@@ -26,9 +25,7 @@ val KrosanGroundshaker = card("Krosan Groundshaker") {
 
     activatedAbility {
         cost = Costs.Mana("{G}")
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Beast"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Beast")))
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 

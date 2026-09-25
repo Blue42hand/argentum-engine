@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Throw from the Saddle
@@ -32,8 +32,8 @@ val ThrowFromTheSaddle = card("Throw from the Saddle") {
         "creature you don't control."
 
     spell {
-        val mine = target("creature you control", Targets.CreatureYouControl)
-        val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
+        val mine = target(TargetFilter.CreatureYouControl)
+        val theirs = target(TargetFilter.CreatureOpponentControls)
 
         val boost = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype("Mount")), mine),
@@ -47,7 +47,7 @@ val ThrowFromTheSaddle = card("Throw from the Saddle") {
             damageSource = mine
         )
 
-        effect = boost.then(damage)
+        effect = boost then damage
     }
 
     metadata {

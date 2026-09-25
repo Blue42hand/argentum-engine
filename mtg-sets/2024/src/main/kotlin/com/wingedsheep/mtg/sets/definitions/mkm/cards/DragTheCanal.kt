@@ -34,22 +34,18 @@ val DragTheCanal = card("Drag the Canal") {
         "artifact with \"{2}, Sacrifice this token: Draw a card.\")"
 
     spell {
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 2,
-                colors = setOf(Color.WHITE, Color.BLUE),
-                creatureTypes = setOf("Detective")
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 2,
+            colors = setOf(Color.WHITE, Color.BLUE),
+            creatureTypes = setOf("Detective")
+        ) then
             Effects.If(
                 condition = Conditions.CreatureDiedThisTurn,
-                then = Effects.Composite(
-                    Effects.GainLife(2),
-                    Effects.Surveil(2),
+                then = Effects.GainLife(2) then
+                    Effects.Surveil(2) then
                     Effects.Investigate()
-                )
             )
-        )
     }
 
     metadata {

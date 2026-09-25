@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Mind Meanderer — vigilance is not printed, so it is a [ConditionalStaticAbility] over the source
@@ -42,10 +41,7 @@ val MindMeanderer = card("Mind Meanderer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val foe = target(
-            "up to one target creature an opponent controls",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls),
-        )
+        val foe = target(TargetFilter.CreatureOpponentControls, optional = true)
         effect = Effects.Fight(EffectTarget.Self, foe)
         description = "When this creature enters, it fights up to one target creature an opponent controls."
     }

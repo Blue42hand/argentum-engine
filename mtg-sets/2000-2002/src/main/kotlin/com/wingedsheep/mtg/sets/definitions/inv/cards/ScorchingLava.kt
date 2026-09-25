@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Scorching Lava
@@ -27,15 +27,10 @@ val ScorchingLava = card("Scorching Lava") {
     keywordAbility(KeywordAbility.kicker("{R}"))
 
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t) then Effects.If(
             condition = WasKicked,
-            then = Effects.Composite(
-                listOf(
-                    Effects.CantBeRegenerated(t),
-                    Effects.MarkExileOnDeath(t),
-                )
-            )
+            then = Effects.CantBeRegenerated(t) then Effects.MarkExileOnDeath(t)
         )
     }
 

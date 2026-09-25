@@ -33,10 +33,8 @@ val InkshapeDemonstrator = card("Inkshape Demonstrator") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Backslide
@@ -22,9 +21,7 @@ val Backslide = card("Backslide") {
     oracleText = "Turn target creature with a morph ability face down.\nCycling {U}"
 
     spell {
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withMorph().faceUp())
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withMorph().faceUp()))
         effect = Effects.TurnFaceDown(t)
     }
 

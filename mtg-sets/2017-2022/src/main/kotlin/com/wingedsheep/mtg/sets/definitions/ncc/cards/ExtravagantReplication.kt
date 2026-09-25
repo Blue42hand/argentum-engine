@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -29,10 +28,7 @@ val ExtravagantReplication = card("Extravagant Replication") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        val copyTarget = target(
-            "another target nonland permanent you control",
-            TargetObject(filter = TargetFilter.OtherNonlandPermanent.youControl())
-        )
+        val copyTarget = target(TargetFilter.OtherNonlandPermanent.youControl())
         effect = Effects.CreateTokenCopyOfTarget(copyTarget)
     }
 

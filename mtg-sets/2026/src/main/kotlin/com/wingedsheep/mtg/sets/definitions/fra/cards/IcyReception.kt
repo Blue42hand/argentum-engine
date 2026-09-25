@@ -2,12 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 val IcyReception = card("Icy Reception") {
     manaCost = "{1}{U}"
@@ -21,18 +19,15 @@ val IcyReception = card("Icy Reception") {
         modal(chooseCount = 1) {
             mode("Counter target creature or legendary spell unless its controller pays {3}") {
                 target(
-                    "target creature or legendary spell",
-                    TargetSpell(
-                        filter = TargetFilter(
-                            GameObjectFilter.Creature or GameObjectFilter.Any.legendary(),
-                            zone = Zone.STACK
-                        )
-                    )
+                    TargetFilter(
+                        GameObjectFilter.Creature or GameObjectFilter.Any.legendary(),
+                        zone = Zone.STACK
+                    ),
                 )
                 effect = Effects.CounterUnlessPays("{3}")
             }
             mode("Target creature gets -5/-0 until end of turn") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(-5, 0, creature)
             }
         }

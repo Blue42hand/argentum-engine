@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
 /**
@@ -26,7 +25,7 @@ val Deathgrip = card("Deathgrip") {
     oracleText = "{B}{B}: Counter target green spell."
     activatedAbility {
         cost = Costs.Mana("{B}{B}")
-        val t = target("target", TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.GREEN)))
+        val t = target(TargetFilter.SpellOnStack.withColor(Color.GREEN))
         effect = Effects.CounterSpell()
     }
     metadata {

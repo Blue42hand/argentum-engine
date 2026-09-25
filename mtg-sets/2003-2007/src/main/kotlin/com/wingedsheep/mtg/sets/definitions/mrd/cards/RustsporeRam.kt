@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -31,10 +30,7 @@ val RustsporeRam = card("Rustspore Ram") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     metadata {

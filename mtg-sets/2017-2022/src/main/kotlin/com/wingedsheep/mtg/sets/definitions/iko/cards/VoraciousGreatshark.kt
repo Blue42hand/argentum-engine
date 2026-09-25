@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 /**
  * Voracious Greatshark
@@ -36,10 +35,7 @@ val VoraciousGreatshark = card("Voracious Greatshark") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "target artifact or creature spell",
-            TargetSpell(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact, zone = Zone.STACK))
-        )
+        target(TargetFilter(GameObjectFilter.CreatureOrArtifact, zone = Zone.STACK))
         effect = Effects.CounterSpell()
     }
 

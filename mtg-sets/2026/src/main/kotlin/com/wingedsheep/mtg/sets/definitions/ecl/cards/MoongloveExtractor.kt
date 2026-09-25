@@ -24,8 +24,7 @@ val MoongloveExtractor = card("Moonglove Extractor") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.DrawCards(1)
-            .then(Effects.LoseLife(1, EffectTarget.Controller))
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     metadata {

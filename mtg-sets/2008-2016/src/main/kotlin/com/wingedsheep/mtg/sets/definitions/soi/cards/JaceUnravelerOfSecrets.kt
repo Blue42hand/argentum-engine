@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.soi.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Jace, Unraveler of Secrets - {3}{U}{U}
@@ -38,11 +38,11 @@ val JaceUnravelerOfSecrets = card("Jace, Unraveler of Secrets") {
         "counter that spell.\""
 
     loyaltyAbility(+1) {
-        effect = Patterns.Library.scry(1).then(Effects.DrawCards(1))
+        effect = Patterns.Library.scry(1) then Effects.DrawCards(1)
     }
 
     loyaltyAbility(-2) {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ReturnToHand(creature)
     }
 

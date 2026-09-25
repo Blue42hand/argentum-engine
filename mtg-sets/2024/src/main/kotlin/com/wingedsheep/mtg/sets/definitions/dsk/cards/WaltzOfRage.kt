@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Waltz of Rage
@@ -43,17 +43,16 @@ val WaltzOfRage = card("Waltz of Rage") {
         "You may play it until the end of your next turn."
 
     spell {
-        val chosen = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.Composite(
-            // Target creature you control deals damage equal to its power to each other creature.
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(chosen),
-                    target = EffectTarget.IterationEntity,
-                    damageSource = chosen
-                )
-            ),
+        val chosen = target(TargetFilter.CreatureYouControl)
+        // Target creature you control deals damage equal to its power to each other creature.
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
+            effect = Effects.DealDamage(
+                amount = DynamicAmounts.powerOf(chosen),
+                target = EffectTarget.IterationEntity,
+                damageSource = chosen
+            )
+        ) then
             // Until end of turn, whenever a creature you control dies, exile the top card of your
             // library. You may play it until the end of your next turn.
             Effects.CreateDelayedTrigger(
@@ -66,7 +65,6 @@ val WaltzOfRage = card("Waltz of Rage") {
                     run(Effects.GrantMayPlayFromExile(waltzExiled, MayPlayExpiry.UntilEndOfNextTurn))
                 }
             )
-        )
     }
 
     metadata {

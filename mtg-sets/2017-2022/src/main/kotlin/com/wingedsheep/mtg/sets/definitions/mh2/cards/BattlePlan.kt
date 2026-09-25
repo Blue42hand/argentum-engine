@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Battle Plan — Modern Horizons 2 #114
@@ -33,7 +34,7 @@ val BattlePlan = card("Battle Plan") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target creature you control", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.ModifyStats(2, 0, t)
     }
 

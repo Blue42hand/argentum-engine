@@ -29,8 +29,7 @@ val SplitskinDoll = card("Splitskin Doll") {
         // "draw a card. Then discard a card unless you control another creature with power 2 or
         // less." Modeled as draw, then a conditional discard gated on NOT controlling such a
         // creature — the discard only happens when the "unless" clause is unmet.
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
+        effect = Effects.DrawCards(1) then
             Effects.If(
                 condition = Conditions.Not(
                     Conditions.YouControl(
@@ -40,7 +39,6 @@ val SplitskinDoll = card("Splitskin Doll") {
                 ),
                 then = Patterns.Hand.discardCards(1)
             )
-        )
     }
 
     metadata {

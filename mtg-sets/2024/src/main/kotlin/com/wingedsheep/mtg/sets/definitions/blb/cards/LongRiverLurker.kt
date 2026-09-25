@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Long River Lurker
@@ -52,22 +52,17 @@ val LongRiverLurker = card("Long River Lurker") {
     // creature deals combat damage this turn, you may exile it and return it.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature),
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature) then
             Effects.CreateDelayedTrigger(
                 effect = Effects.May(
-                    effect = Effects.Composite(listOf(
-                        Effects.Move(creature, Zone.EXILE),
-                        Effects.Move(creature, Zone.BATTLEFIELD)
-                    )),
+                    effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD),
                     descriptionOverride = "You may exile that creature. If you do, return it to the battlefield under its owner's control."
                 ),
                 trigger = Triggers.self.dealsCombatDamage(),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        ))
     }
 
     metadata {

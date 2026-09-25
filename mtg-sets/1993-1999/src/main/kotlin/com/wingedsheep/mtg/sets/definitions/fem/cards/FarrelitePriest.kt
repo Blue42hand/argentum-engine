@@ -36,13 +36,11 @@ val FarrelitePriest = card("Farrelite Priest") {
         cost = Costs.Mana("{1}")
         manaAbility = true
         trackActivations = true
-        effect = Effects.AddMana(Color.WHITE).then(
-            Effects.If(
-                condition = Conditions.ThisAbilityActivatedThisTurnAtLeast(4),
-                then = Effects.CreateDelayedTrigger(
-                    step = Step.END,
-                    effect = SacrificeSelfEffect,
-                )
+        effect = Effects.AddMana(Color.WHITE) then Effects.If(
+            condition = Conditions.ThisAbilityActivatedThisTurnAtLeast(4),
+            then = Effects.CreateDelayedTrigger(
+                step = Step.END,
+                effect = SacrificeSelfEffect,
             )
         )
         description = "{1}: Add {W}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step."

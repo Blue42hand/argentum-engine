@@ -19,7 +19,7 @@ val FinalPunishment = card("Final Punishment") {
     oracleText = "Target player loses life equal to the damage already dealt to that player this turn."
 
     spell {
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Effects.LoseLife(DynamicAmounts.damageReceivedThisTurn(t.asPlayer), t)
     }
 

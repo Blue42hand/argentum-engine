@@ -43,13 +43,11 @@ val GeistOfSaintTraft = card("Geist of Saint Traft") {
             keywords = setOf(Keyword.FLYING),
             tapped = true,
             attacking = true,
-        ).then(
-            Effects.CreateDelayedTrigger(
-                step = Step.END_COMBAT,
-                effect = Effects.Move(
-                    target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-                    destination = Zone.EXILE,
-                ),
+        ) then Effects.CreateDelayedTrigger(
+            step = Step.END_COMBAT,
+            effect = Effects.Move(
+                target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
+                destination = Zone.EXILE,
             ),
         )
     }

@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Caretaker's Talent
@@ -46,10 +44,7 @@ val CaretakersTalent = card("Caretaker's Talent") {
     classLevel(2, "{W}") {
         triggeredAbility {
             trigger = Triggers.self.enters()
-            val token = target(
-                "token you control",
-                TargetObject(filter = TargetFilter(GameObjectFilter.Token.youControl()))
-            )
+            val token = target(TargetFilter(GameObjectFilter.Token.youControl()))
             effect = Effects.CreateTokenCopyOfTarget(token)
         }
     }

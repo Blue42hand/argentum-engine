@@ -32,13 +32,11 @@ val Wargling = card("Wargling") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

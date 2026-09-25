@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -26,7 +25,7 @@ val DiligentExcavator = card("Diligent Excavator") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Historic)
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Patterns.Library.mill(2, t)
     }
 

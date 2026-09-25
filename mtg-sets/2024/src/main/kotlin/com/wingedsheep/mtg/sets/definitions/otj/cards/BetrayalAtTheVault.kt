@@ -38,28 +38,20 @@ val BetrayalAtTheVault = card("Betrayal at the Vault") {
 
     spell {
         // Target 0: the source — a creature you control.
-        val creatureYouControl = target("creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         // Targets 1 & 2: two other target creatures (distinct from the source and each other).
-        val firstOtherCreature = target(
-            "first other target creature",
-            TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature))
-        )
-        val secondOtherCreature = target(
-            "second other target creature",
-            TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature))
-        )
+        val firstOtherCreature = target(TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature)))
+        val secondOtherCreature = target(TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature)))
 
         val sourcePower = DynamicAmounts.powerOf(creatureYouControl)
         effect = Effects.DealDamage(
             amount = sourcePower,
             target = firstOtherCreature,
             damageSource = creatureYouControl
-        ).then(
-            Effects.DealDamage(
-                amount = sourcePower,
-                target = secondOtherCreature,
-                damageSource = creatureYouControl
-            )
+        ) then Effects.DealDamage(
+            amount = sourcePower,
+            target = secondOtherCreature,
+            damageSource = creatureYouControl
         )
     }
 

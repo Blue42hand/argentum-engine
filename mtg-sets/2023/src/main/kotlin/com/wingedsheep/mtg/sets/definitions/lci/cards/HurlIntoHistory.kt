@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 /**
  * Hurl into History
@@ -24,10 +23,7 @@ val HurlIntoHistory = card("Hurl into History") {
     typeLine = "Instant"
     oracleText = "Counter target artifact or creature spell. Discover X, where X is that spell's mana value."
     spell {
-        val artifactOrCreatureSpell = target(
-            "target artifact or creature spell",
-            TargetSpell(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature, zone = Zone.STACK))
-        )
+        val artifactOrCreatureSpell = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature, zone = Zone.STACK))
         effect = Effects.CounterSpell() then Effects.Discover(
             DynamicAmounts.manaValueOf(artifactOrCreatureSpell)
         )

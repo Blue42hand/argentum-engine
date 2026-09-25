@@ -862,7 +862,7 @@ data class GrantSpellsCantBeCounteredEffect(
  * chosen earlier in a pipeline (via [ChooseCreatureTypeEffect]). When the executor resolves, it
  * captures the chosen type so the emblem can re-evaluate the filter against future battlefield state.
  *
- * Composes with `Effects.Composite(ChooseCreatureTypeEffect, CreatePermanentEmblem(...))`.
+ * Composes with `ChooseCreatureTypeEffect then CreatePermanentEmblem(...)`.
  *
  * An emblem whose text affects its **controller** rather than a group of permanents ("You may cast
  * spells from your hand without paying their mana costs" — Tamiyo, Field Researcher's −7) carries

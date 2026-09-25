@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.big.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lost Jitte
@@ -55,11 +55,11 @@ val LostJitte = card("Lost Jitte") {
         cost = Costs.RemoveCounterFromSelf(CounterType.CHARGE)
         effect = ModalEffect.chooseOne(
             mode("Untap target land") {
-                val land = target("target land", Targets.Land)
+                val land = target(TargetFilter.Land)
                 effect = Effects.Untap(land)
             },
             mode("Target creature can't block this turn") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.CantBlock(creature)
             },
             Mode.noTarget(

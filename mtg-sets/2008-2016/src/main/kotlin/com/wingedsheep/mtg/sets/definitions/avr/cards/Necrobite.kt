@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Necrobite
@@ -26,11 +26,8 @@ val Necrobite = card("Necrobite") {
         "it.)"
 
     spell {
-        val creature = target("target", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
-            Effects.Regenerate(creature)
-        )
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature) then Effects.Regenerate(creature)
     }
 
     metadata {

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Silver Sable, Mercenary Leader
@@ -29,21 +28,18 @@ val SilverSableMercenaryLeader = card("Silver Sable, Mercenary Leader") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.OtherCreature))
+        val t = target(TargetFilter.OtherCreature)
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val t = target(
-            "target",
-            TargetCreature(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Creature.youControl().copy(
-                        statePredicates = GameObjectFilter.Creature.youControl().statePredicates +
-                            StatePredicate.IsModified
-                    )
+            TargetFilter(
+                baseFilter = GameObjectFilter.Creature.youControl().copy(
+                    statePredicates = GameObjectFilter.Creature.youControl().statePredicates +
+                        StatePredicate.IsModified
                 )
-            )
+            ),
         )
         effect = Effects.GrantKeyword(Keyword.LIFELINK, t)
     }

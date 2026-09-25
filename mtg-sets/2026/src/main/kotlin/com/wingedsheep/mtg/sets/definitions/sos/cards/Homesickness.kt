@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Homesickness
@@ -35,15 +35,13 @@ val Homesickness = card("Homesickness") {
         "it instead.)"
 
     spell {
-        val player = target("target player", TargetPlayer())
-        target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = Effects.DrawCards(2, player).then(
-            Effects.ForEachTarget(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                    then = Effects.Tap(EffectTarget.ContextTarget(0))
-                        .then(Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))),
-                )
+        val player = target(Targets.Player)
+        targets(TargetFilter.Creature, count = 2, optional = true)
+        effect = Effects.DrawCards(2, player) then Effects.ForEachTarget(
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
+                then = Effects.Tap(EffectTarget.ContextTarget(0)) then
+                    Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0)),
             )
         )
     }

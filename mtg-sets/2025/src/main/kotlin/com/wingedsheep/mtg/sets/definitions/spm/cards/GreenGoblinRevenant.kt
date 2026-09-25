@@ -32,10 +32,7 @@ val GreenGoblinRevenant = card("Green Goblin, Revenant") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.Discard(1),
-            Effects.DrawCards(DynamicAmounts.cardsDiscardedThisTurn()),
-        )
+        effect = Effects.Discard(1) then Effects.DrawCards(DynamicAmounts.cardsDiscardedThisTurn())
     }
 
     metadata {

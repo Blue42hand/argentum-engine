@@ -25,7 +25,7 @@ val PitchburnDevils = card("Pitchburn Devils") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val damaged = target("target", Targets.Any)
+        val damaged = target(Targets.Any)
         effect = Effects.DealDamage(3, damaged)
     }
 

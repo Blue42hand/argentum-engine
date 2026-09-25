@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Rally the Monastery — Tarkir: Dragonstorm #19
@@ -71,20 +71,13 @@ val RallyTheMonastery = card("Rally the Monastery") {
                     Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
                 ),
                 targetRequirements = listOf(
-                    TargetCreature(
-                        count = 2,
-                        optional = true,
-                        filter = TargetFilter(GameObjectFilter.Creature.youControl())
-                    )
+                    TargetObject(filter = TargetFilter(GameObjectFilter.Creature.youControl()), count = 2, optional = true)
                 ),
                 description = "Up to two target creatures you control each get +2/+2 until end of turn"
             ),
             // Destroy target creature with power 4 or greater.
             mode("Destroy target creature with power 4 or greater") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.powerAtLeast(4)))
-                )
+                val creature = target(TargetFilter(GameObjectFilter.Creature.powerAtLeast(4)))
                 effect = Effects.Destroy(creature)
             }
         )

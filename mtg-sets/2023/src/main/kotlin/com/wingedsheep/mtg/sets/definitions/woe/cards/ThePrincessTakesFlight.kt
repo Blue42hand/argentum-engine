@@ -3,13 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * The Princess Takes Flight
@@ -42,17 +40,13 @@ val ThePrincessTakesFlight = card("The Princess Takes Flight") {
         "III — Return the exiled card to the battlefield under its owner's control."
 
     sagaChapter(1) {
-        val creature = target(
-            "up to one target creature",
-            TargetCreature(optional = true, filter = TargetFilter.Creature)
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.Move(creature, Zone.EXILE, linkToSource = true)
     }
 
     sagaChapter(2) {
-        val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.FLYING, creature))
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.FLYING, creature)
     }
 
     sagaChapter(3) {

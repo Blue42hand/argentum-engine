@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.decayed
 import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rot-Curse Rakshasa — Tarkir: Dragonstorm #87
@@ -44,7 +44,7 @@ val RotCurseRakshasa = card("Rot-Curse Rakshasa") {
     decayed()
 
     renew("{X}{B}{B}") {
-        target("creatures", TargetCreature(dynamicMaxCount = DynamicAmounts.xValue()))
+        targets(TargetFilter.Creature, dynamicMaxCount = DynamicAmounts.xValue())
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.DECAYED, 1, EffectTarget.ContextTarget(0))
         )

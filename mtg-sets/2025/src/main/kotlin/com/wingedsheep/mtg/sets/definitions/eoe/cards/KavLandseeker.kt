@@ -41,19 +41,15 @@ val KavLandseeker = card("Kav Landseeker") {
     // upcoming turn rather than an intervening opponent turn.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.CreateLander(),
-                Effects.CreateDelayedTrigger(
-                    step = Step.END,
-                    effect = Effects.SacrificeTarget(
-                        target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
-                    ),
-                    fireOnPlayer = EffectTarget.PlayerRef(Player.You),
-                    timing = DelayedTriggerTiming.NEXT_TURN
-                )
+        effect = Effects.CreateLander() then
+            Effects.CreateDelayedTrigger(
+                step = Step.END,
+                effect = Effects.SacrificeTarget(
+                    target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
+                ),
+                fireOnPlayer = EffectTarget.PlayerRef(Player.You),
+                timing = DelayedTriggerTiming.NEXT_TURN
             )
-        )
     }
 
     metadata {

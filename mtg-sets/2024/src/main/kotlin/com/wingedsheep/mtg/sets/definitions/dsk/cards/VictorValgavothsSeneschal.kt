@@ -83,18 +83,17 @@ val VictorValgavothsSeneschal = card("Victor, Valgavoth's Seneschal") {
  * The shared Eerie payoff: increment the source's per-turn resolution count, then run exactly one
  * tier based on whether this is the 1st / 2nd / 3rd resolution this turn.
  */
-private fun eerieEscalation(): Effect = Effects.Composite(
-    IncrementAbilityResolutionCountEffect,
+private fun eerieEscalation(): Effect = IncrementAbilityResolutionCountEffect then
     // 1st time — surveil 2.
     Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(1),
         then = Patterns.Library.surveil(2),
-    ),
+    ) then
     // 2nd time — each opponent discards a card.
     Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(2),
         then = Effects.EachOpponentDiscards(1),
-    ),
+    ) then
     // 3rd time — put a creature card from a graveyard onto the battlefield under your control.
     Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(3),
@@ -110,5 +109,4 @@ private fun eerieEscalation(): Effect = Effects.Composite(
             )
             move(victorReanimated, CardDestination.ToZone(Zone.BATTLEFIELD))
         },
-    ),
-)
+    )

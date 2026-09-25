@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Ruinous Wrecking Crew
@@ -74,20 +73,17 @@ val TheRuinousWreckingCrew = card("The Ruinous Wrecking Crew") {
             dynamicMax = DynamicAmounts.castX(),
             // Mode 1 — rummage, unconditionally ("then", not "if you do").
             Mode.noTarget(
-                Patterns.Hand.discardCards(1).then(Effects.DrawCards(1)),
+                Patterns.Hand.discardCards(1) then Effects.DrawCards(1),
                 description = "Discard a card, then draw a card."
             ),
             // Mode 2 — target opponent loses 2 life.
             mode("Target opponent loses 2 life.") {
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.LoseLife(2, opponent)
             },
             // Mode 3 — destroy target token (any token permanent).
             mode("Destroy target token.") {
-                val permanent = target(
-                    "target permanent",
-                    TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.token()))
-                )
+                val permanent = target(TargetFilter(GameObjectFilter.Permanent.token()))
                 effect = Effects.Destroy(permanent)
             },
             // Mode 4 — edict on every player, each choosing their own creature.

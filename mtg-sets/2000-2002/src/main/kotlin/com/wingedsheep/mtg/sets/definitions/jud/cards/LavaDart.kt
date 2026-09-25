@@ -25,7 +25,7 @@ val LavaDart = card("Lava Dart") {
     oracleText = "Lava Dart deals 1 damage to any target.\nFlashback—Sacrifice a Mountain. (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(1, anyTarget)
     }
 

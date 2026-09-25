@@ -68,11 +68,9 @@ val IzoniCenterOfTheWeb = card("Izoni, Center of the Web") {
 
     activatedAbility {
         cost = Costs.SacrificeMultiple(4, GameObjectFilter.Token)
-        effect = Effects.Composite(
-            Patterns.Library.surveil(2),
-            Effects.DrawCards(2),
+        effect = Patterns.Library.surveil(2) then
+            Effects.DrawCards(2) then
             Effects.GainLife(2)
-        )
         description = "Sacrifice four tokens: Surveil 2, then draw two cards. You gain 2 life."
     }
 

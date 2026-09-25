@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Glen Elendra Guardian
@@ -40,13 +40,12 @@ val GlenElendraGuardian = card("Glen Elendra Guardian") {
     ))
 
     activatedAbility {
-        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
+        val noncreatureSpell = target(TargetFilter.NoncreatureSpellOnStack)
         cost = Costs.Composite(
             Costs.Mana("{1}{U}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)
         )
-        effect = Effects.CounterSpell()
-            .then(Effects.DrawCards(1, target = EffectTarget.TargetController))
+        effect = Effects.CounterSpell() then Effects.DrawCards(1, target = EffectTarget.TargetController)
     }
 
     metadata {

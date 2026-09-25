@@ -11,8 +11,8 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Ill-Tempered Loner // Howlpack Avenger (Innistrad: Crimson Vow)
@@ -53,7 +53,7 @@ private val IllTemperedLonerFront = card("Ill-Tempered Loner") {
 
     triggeredAbility {
         trigger = Triggers.self.isDealtDamage()
-        val victim = target("any target", AnyTarget())
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = victim,
@@ -90,7 +90,7 @@ private val HowlpackAvenger = card("Howlpack Avenger") {
 
     triggeredAbility {
         trigger = Triggers.a().dealsDamage(Recipient.PermanentYouControl)
-        val victim = target("any target", AnyTarget())
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = victim,

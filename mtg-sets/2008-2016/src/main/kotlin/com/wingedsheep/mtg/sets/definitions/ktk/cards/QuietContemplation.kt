@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Quiet Contemplation
@@ -25,7 +25,7 @@ val QuietContemplation = card("Quiet Contemplation") {
     oracleText = "Whenever you cast a noncreature spell, you may pay {1}. If you do, tap target creature an opponent controls. It doesn't untap during its controller's next untap step."
 
     triggeredAbility {
-        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
+        val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),

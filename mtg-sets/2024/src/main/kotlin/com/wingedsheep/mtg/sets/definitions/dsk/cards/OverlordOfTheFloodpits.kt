@@ -44,7 +44,7 @@ val OverlordOfTheFloodpits = card("Overlord of the Floodpits") {
     keywords(Keyword.FLYING)
 
     // "Draw two cards, then discard a card." Shared by the enters and attacks triggers.
-    val drawTwoDiscardOne: Effect = Effects.DrawCards(2).then(Effects.Discard(1))
+    val drawTwoDiscardOne: Effect = Effects.DrawCards(2) then Effects.Discard(1)
 
     triggeredAbility {
         trigger = Triggers.self.enters()

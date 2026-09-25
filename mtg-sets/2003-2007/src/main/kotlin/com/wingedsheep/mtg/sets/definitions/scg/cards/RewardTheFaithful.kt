@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
@@ -23,7 +22,7 @@ val RewardTheFaithful = card("Reward the Faithful") {
     oracleText = "Any number of target players each gain life equal to the greatest mana value among permanents you control."
 
     spell {
-        target("players", TargetPlayer(count = 2, optional = true))
+        target(TargetPlayer(count = 2, optional = true))
         effect = Effects.ForEachTarget(
             Effects.GainLife(
                 amount = DynamicAmounts.battlefield(Player.You).maxManaValue(),

@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Nettle Guard
@@ -36,7 +36,7 @@ val NettleGuard = card("Nettle Guard") {
     // {1}, Sacrifice: Destroy target artifact or enchantment
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
-        val t = target("artifact or enchantment", Targets.ArtifactOrEnchantment)
+        val t = target(TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Destroy(t)
     }
 

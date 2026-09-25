@@ -32,13 +32,11 @@ val FanaticOfTheHarrowing = card("Fanatic of the Harrowing") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Hand.eachOpponentDiscards(1),
+        effect = Patterns.Hand.eachOpponentDiscards(1) then
             Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
                 then = Effects.DrawCards(1),
-            ),
-        )
+            )
         description = "When this creature enters, each player discards a card. If you discarded a " +
             "card this way, draw a card."
     }

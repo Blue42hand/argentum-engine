@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Idol of the Deep King // Sovereign's Macuahuitl (CR 702.167, The Lost Caverns of Ixalan)
@@ -55,7 +54,7 @@ private val IdolOfTheDeepKingFront = card("Idol of the Deep King") {
     // ETB: it deals 2 damage to any target.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(2, anyTarget)
     }
 
@@ -87,7 +86,7 @@ private val SovereignsMacuahuitl = card("Sovereign's Macuahuitl") {
     // ETB: attach it to target creature you control.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val creature = target(TargetFilter.Creature.youControl())
         effect = Effects.AttachEquipment(creature)
     }
 

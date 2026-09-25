@@ -16,8 +16,8 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * The Rise of Sozin // Fire Lord Sozin (TLA #117)
@@ -87,7 +87,7 @@ private val FireLordSozin = card("Fire Lord Sozin") {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPayX(
             then = Effects.ReflexiveTrigger(
-                action = Effects.Composite(emptyList()),
+                action = Effects.Nothing,
                 optional = false,
                 reflexiveTargetRequirements = listOf(
                     TargetObject(
@@ -137,7 +137,7 @@ private val TheRiseOfSozinFront = card("The Rise of Sozin") {
     // II — Choose a card name. Search target opponent's graveyard, hand, and library for up to four
     // cards with that name and exile them. Then that player shuffles.
     sagaChapter(2) {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // Choose a card name.
             val sozinChosenName = chooseCardName(prompt = "Choose a card name")

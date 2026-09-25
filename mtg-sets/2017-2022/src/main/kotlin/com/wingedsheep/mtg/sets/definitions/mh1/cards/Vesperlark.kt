@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Vesperlark
@@ -37,10 +36,7 @@ val Vesperlark = card("Vesperlark") {
 
     triggeredAbility {
         trigger = Triggers.self.leaves()
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard.powerAtMost(1))
-        )
+        val t = target(TargetFilter.CreatureInYourGraveyard.powerAtMost(1))
         effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
         description = "When this creature leaves the battlefield, return target creature card with " +
             "power 1 or less from your graveyard to the battlefield."

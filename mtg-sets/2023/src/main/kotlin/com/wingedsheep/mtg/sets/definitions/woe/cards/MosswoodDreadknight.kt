@@ -73,10 +73,7 @@ val MosswoodDreadknight = card("Mosswood Dreadknight") {
         oracleText = "You draw a card and you lose 1 life. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            effect = Effects.Composite(listOf(
-                Effects.DrawCards(1),
-                Effects.LoseLife(1, EffectTarget.Controller)
-            ))
+            effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         }
     }
 

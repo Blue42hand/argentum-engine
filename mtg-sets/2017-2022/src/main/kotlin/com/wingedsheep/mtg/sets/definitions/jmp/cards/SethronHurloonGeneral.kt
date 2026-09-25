@@ -47,9 +47,9 @@ val SethronHurloonGeneral = card("Sethron, Hurloon General") {
         cost = Costs.Mana("{2}{B/R}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.MINOTAUR).youControl()),
-            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)
-                .then(Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity))
-                .then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity),
         )
         description = "{2}{B/R}: Minotaurs you control get +1/+0 and gain menace and haste until end of turn."
     }

@@ -33,11 +33,9 @@ val KeenBuccaneer = card("Keen Buccaneer") {
     activatedAbility {
         cost = Costs.Mana("{1}{U}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1),
+        effect = Effects.DrawCards(1) then
+            Patterns.Hand.discardCards(1) then
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

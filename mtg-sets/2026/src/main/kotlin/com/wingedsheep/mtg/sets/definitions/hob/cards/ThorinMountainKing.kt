@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Thorin, Mountain-king
@@ -75,15 +72,10 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         // Declared first so its ContextTarget index stays stable ahead of the unbounded slot.
-        val equippedCreature = target("target creature you control", Targets.CreatureYouControl)
-        target(
-            "any number of target Equipment you control",
-            TargetPermanent(
-                unlimited = true,
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-                )
-            )
+        val equippedCreature = target(TargetFilter.CreatureYouControl)
+        targets(
+            TargetFilter(baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
+            unlimited = true,
         )
 
         effect = Effects.Pipeline {
@@ -114,7 +106,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                             "one or more Equipment become attached to it this way, it deals damage " +
                             "equal to its power to up to one target creature."
                     ) {
-                        val creature2 = target("target creature", TargetCreature(optional = true))
+                        val creature2 = target(TargetFilter.Creature, optional = true)
                         effect = Effects.ForEachInCollection(
                             collection = creature,
                             effect = Effects.DealDamage(

@@ -6,9 +6,9 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Soul Separator
@@ -37,26 +37,21 @@ val SoulSeparator = card("Soul Separator") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap, Costs.SacrificeSelf)
-        val graveyardCreature = target(
-            "target creature card from your graveyard",
-            Targets.CreatureCardInYourGraveyard
-        )
-        effect = Effects.Composite(listOf(
-            Effects.Exile(graveyardCreature),
+        val graveyardCreature = target(TargetFilter.CreatureInYourGraveyard)
+        effect = Effects.Exile(graveyardCreature) then
             Effects.CreateTokenCopyOfTarget(
                 target = graveyardCreature,
                 overridePower = 1,
                 overrideToughness = 1,
                 addedSubtypes = setOf(Subtype("Spirit")),
                 addedKeywords = setOf(Keyword.FLYING)
-            ),
+            ) then
             Effects.CreateDynamicToken(
                 dynamicPower = DynamicAmounts.powerOf(graveyardCreature),
                 dynamicToughness = DynamicAmounts.toughnessOf(graveyardCreature),
                 colors = setOf(Color.BLACK),
                 creatureTypes = setOf("Zombie")
             )
-        ))
     }
 
     metadata {

@@ -28,7 +28,7 @@ val FuriousAssault = card("Furious Assault") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature)
-        val t = target("target", Targets.PlayerOrPlaneswalker)
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, t)
     }
 

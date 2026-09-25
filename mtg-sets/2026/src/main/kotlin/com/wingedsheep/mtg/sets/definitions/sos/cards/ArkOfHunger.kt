@@ -36,10 +36,8 @@ val ArkOfHunger = card("Ark of Hunger") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self),
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) then
             Effects.GainLife(1)
-        )
     }
 
     activatedAbility {

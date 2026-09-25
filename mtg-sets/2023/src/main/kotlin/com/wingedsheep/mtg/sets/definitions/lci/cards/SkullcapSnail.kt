@@ -28,7 +28,7 @@ val SkullcapSnail = card("Skullcap Snail") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.exileFromHand(1, opponent)
     }
 

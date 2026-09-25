@@ -70,15 +70,11 @@ private val AangMasterOfElements = card("Aang, Master of Elements") {
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    Effects.Transform(EffectTarget.Self),
-                    Effects.GainLife(4),
-                    Effects.DrawCards(4),
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self),
-                    Effects.DealDamage(4, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
-                )
-            ),
+            Effects.Transform(EffectTarget.Self) then
+                Effects.GainLife(4) then
+                Effects.DrawCards(4) then
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self) then
+                Effects.DealDamage(4, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self),
             descriptionOverride = "You may transform Aang, Master of Elements. If you do, you gain 4 " +
                 "life, draw four cards, put four +1/+1 counters on him, and he deals 4 damage to each opponent."
         )
@@ -110,19 +106,15 @@ private val AvatarAangFront = card("Avatar Aang") {
     // DISTINCT_BENDS, so the fourth distinct bend of the turn sees the count at 4 here.
     triggeredAbility {
         trigger = Triggers.you.bends()
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1),
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        DynamicAmounts.distinctBendsThisTurn(Player.You),
-                        ComparisonOperator.GTE,
-                        4
-                    ),
-                    then = Effects.Transform(EffectTarget.Self)
-                )
+        effect = Effects.DrawCards(1) then
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.distinctBendsThisTurn(Player.You),
+                    ComparisonOperator.GTE,
+                    4
+                ),
+                then = Effects.Transform(EffectTarget.Self)
             )
-        )
     }
 
     metadata {

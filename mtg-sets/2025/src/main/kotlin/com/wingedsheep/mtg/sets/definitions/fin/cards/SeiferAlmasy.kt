@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -60,9 +59,7 @@ val SeiferAlmasy = card("Seifer Almasy") {
     }
 
     triggeredAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter.InstantOrSorceryInYourGraveyard.manaValueAtMost(3),
-        ))
+        val target = target(TargetFilter.InstantOrSorceryInYourGraveyard.manaValueAtMost(3))
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             // Exile the targeted card from your graveyard so the free-cast grant keys off it.

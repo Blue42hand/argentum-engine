@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
@@ -11,6 +10,8 @@ import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * With Great Power . . . — Marvel's Spider-Man #24
@@ -31,7 +32,7 @@ val WithGreatPower = card("With Great Power . . .") {
         "Enchanted creature gets +2/+2 for each Aura and Equipment attached to it.\n" +
         "All damage that would be dealt to you is dealt to enchanted creature instead."
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     // Enchanted creature gets +2/+2 for each Aura and Equipment attached to it.
     staticAbility {

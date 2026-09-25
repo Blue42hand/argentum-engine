@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.vividCostReduction
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rime Chill
@@ -29,11 +29,11 @@ val RimeChill = card("Rime Chill") {
     vividCostReduction()
 
     spell {
-        target("up to two target creatures", TargetCreature(count = 2, optional = true))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.Tap(EffectTarget.ContextTarget(0)),
             Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
-        ).then(Effects.DrawCards(1))
+        ) then Effects.DrawCards(1)
     }
 
     metadata {

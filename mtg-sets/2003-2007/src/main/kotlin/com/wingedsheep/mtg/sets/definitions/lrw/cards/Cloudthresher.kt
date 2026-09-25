@@ -40,16 +40,14 @@ val Cloudthresher = card("Cloudthresher") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-                Effects.DealDamage(2, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
+            Effects.DealDamage(2, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(2, EffectTarget.Controller))
             )
-        )
         description = "it deals 2 damage to each creature with flying and each player."
     }
 

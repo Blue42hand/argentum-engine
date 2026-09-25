@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
@@ -14,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rediscover the Way — Tarkir: Dragonstorm #215
@@ -57,7 +57,7 @@ val RediscoverTheWay = card("Rediscover the Way") {
             trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
             fireOnce = false,
             expiry = DelayedTriggerExpiry.EndOfTurn) {
-            val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+            val creatureYouControl = target(TargetFilter.CreatureYouControl)
             effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target = creatureYouControl)
         }
     }

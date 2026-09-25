@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Extraordinary Journey
@@ -48,11 +47,7 @@ val ExtraordinaryJourney = card("Extraordinary Journey") {
         "or was cast from exile, you draw a card. This ability triggers only once each turn."
 
     triggeredAbility {
-        val permanent = target("target permanent", TargetPermanent(
-            optional = true,
-            filter = TargetFilter.Creature,
-            dynamicMaxCount = DynamicAmounts.castX()
-        ))
+        targets(TargetFilter.Creature, optional = true, dynamicMaxCount = DynamicAmounts.castX())
         trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val extraordinaryJourneyExiled = gather(CardSource.ChosenTargets)

@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Boiling Rock Rioter
@@ -47,7 +47,7 @@ val BoilingRockRioter = card("Boiling Rock Rioter") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.ALLY).youControl(),
             excludeSelf = false,
         )
-        val t = target("target", Targets.CardInGraveyard)
+        val t = target(TargetFilter.CardInGraveyard)
         effect = Effects.ExileLinkedToSource(t)
     }
 

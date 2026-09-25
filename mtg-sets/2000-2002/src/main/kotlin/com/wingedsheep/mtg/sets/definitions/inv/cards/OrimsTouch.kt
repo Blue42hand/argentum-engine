@@ -29,7 +29,7 @@ val OrimsTouch = card("Orim's Touch") {
     keywordAbility(KeywordAbility.kicker("{1}"))
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.PreventNextDamage(4, anyTarget),

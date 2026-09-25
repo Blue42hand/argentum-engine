@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Necrite
@@ -35,22 +34,16 @@ val Necrite = card("Necrite") {
     triggeredAbility {
         trigger = Triggers.self.attacksAndIsntBlocked()
         val t = target(
-            "target creature defending player controls",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.copy(
-                        controllerPredicate = ControllerPredicate.ControlledByReferencedPlayer(
-                            EffectTarget.PlayerRef(Player.DefendingPlayer)
-                        )
+            TargetFilter(
+                GameObjectFilter.Creature.copy(
+                    controllerPredicate = ControllerPredicate.ControlledByReferencedPlayer(
+                        EffectTarget.PlayerRef(Player.DefendingPlayer)
                     )
                 )
-            )
+            ),
         )
         effect = Effects.May(
-            Effects.Composite(
-                SacrificeSelfEffect,
-                Effects.Destroy(t, noRegenerate = true)
-            ),
+            SacrificeSelfEffect then Effects.Destroy(t, noRegenerate = true),
             descriptionOverride = "sacrifice this creature. If you do, destroy target creature " +
                 "defending player controls. It can't be regenerated",
         )

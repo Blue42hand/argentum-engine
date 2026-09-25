@@ -127,16 +127,14 @@ private val SinnersJudgment = card("Sinner's Judgment") {
     // three or more judgment counters on it, enchanted player loses the game.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.JUDGMENT, 3),
                 then = Effects.LoseGame(
                     target = EffectTarget.PlayerRef(Player.EnchantedPlayer),
                     message = "Sinner's Judgment"
                 ),
-            ),
-        )
+            )
         description = "At the beginning of your upkeep, put a judgment counter on this Aura. Then " +
             "if there are three or more judgment counters on it, enchanted player loses the game."
     }

@@ -93,12 +93,8 @@ val SmugglersSurprise = card("Smuggler's Surprise") {
                         filter = GroupFilter(
                             baseFilter = GameObjectFilter.Creature.youControl().powerAtLeast(4)
                         ),
-                        effect = Effects.Composite(
-                            listOf(
-                                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
-                            )
-                        )
+                        effect = Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn) then
+                            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
                     ),
                     description = "+ {1} — Creatures you control with power 4 or greater gain " +
                         "hexproof and indestructible until end of turn.",

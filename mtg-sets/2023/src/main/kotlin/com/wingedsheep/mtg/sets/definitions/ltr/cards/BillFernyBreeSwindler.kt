@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Bill Ferny, Bree Swindler
@@ -43,16 +42,14 @@ val BillFernyBreeSwindler = card("Bill Ferny, Bree Swindler") {
             ),
             // Mode 2: Target opponent gains control of target Horse you control.
             mode("Target opponent gains control of target Horse you control. If they do, remove Bill Ferny from combat and create three Treasure tokens") {
-                val opponent = target("target opponent", Targets.Opponent)
-                val creature = target("target creature", TargetCreature(
-                    filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Horse").youControl())
-                ))
+                val opponent = target(Targets.Opponent)
+                val creature = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Horse").youControl()))
                 effect = Effects.GiveControl(
                     permanent = creature,
                     newController = opponent
-                )
-                    .then(Effects.RemoveFromCombat(EffectTarget.Self))
-                    .then(Effects.CreateTreasure(3))
+                ) then
+                    Effects.RemoveFromCombat(EffectTarget.Self) then
+                    Effects.CreateTreasure(3)
             }
         )
     }

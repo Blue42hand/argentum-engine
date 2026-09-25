@@ -38,7 +38,7 @@ val SpinerockTyrant = card("Spinerock Tyrant") {
             effect = Effects.CopyTargetSpell(
                 target = EffectTarget.TriggeringEntity,
                 keywordsForCopy = listOf(Keyword.WITHER)
-            ).then(Effects.GrantKeywordToSpell(Keyword.WITHER, EffectTarget.TriggeringEntity)),
+            ) then Effects.GrantKeywordToSpell(Keyword.WITHER, EffectTarget.TriggeringEntity),
             descriptionOverride = "You may copy it. If you do, those spells gain wither. " +
                 "You may choose new targets for the copy."
         )

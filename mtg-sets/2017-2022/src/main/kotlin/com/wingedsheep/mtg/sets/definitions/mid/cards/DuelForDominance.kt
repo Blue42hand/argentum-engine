@@ -4,13 +4,13 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Duel for Dominance
@@ -35,8 +35,8 @@ val DuelForDominance = card("Duel for Dominance") {
         "equal to its power to the other.)"
 
     spell {
-        val mine = target("creature you control", Targets.CreatureYouControl)
-        val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
+        val mine = target(TargetFilter.CreatureYouControl)
+        val theirs = target(TargetFilter.CreatureOpponentControls)
 
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
@@ -48,7 +48,7 @@ val DuelForDominance = card("Duel for Dominance") {
                 right = 3,
             ),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
-        ).then(Effects.Fight(mine, theirs))
+        ) then Effects.Fight(mine, theirs)
     }
 
     metadata {

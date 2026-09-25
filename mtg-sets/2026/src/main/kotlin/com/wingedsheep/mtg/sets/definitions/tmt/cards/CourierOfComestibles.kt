@@ -38,7 +38,7 @@ val CourierOfComestibles = card("Courier of Comestibles") {
                 shuffleAfter = true,
                 reveal = true
             ),
-            then = Effects.Composite(),
+            then = Effects.Nothing,
             otherwise = Effects.CreateFood()
         )
         description = "When this creature enters, you may search your library for a Food card, reveal it, put it into your hand, then shuffle. If you don't put a card into your hand this way, create a Food token."

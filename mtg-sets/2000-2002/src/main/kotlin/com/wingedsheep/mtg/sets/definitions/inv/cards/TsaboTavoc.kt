@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -41,10 +40,7 @@ val TsaboTavoc = card("Tsabo Tavoc") {
 
     activatedAbility {
         cost = Costs.Tap
-        val legendaryCreature = target(
-            "target legendary creature",
-            TargetObject(filter = TargetFilter(baseFilter = GameObjectFilter.Creature.legendary())),
-        )
+        val legendaryCreature = target(TargetFilter(baseFilter = GameObjectFilter.Creature.legendary()))
         effect = Effects.Destroy(legendaryCreature)
     }
 

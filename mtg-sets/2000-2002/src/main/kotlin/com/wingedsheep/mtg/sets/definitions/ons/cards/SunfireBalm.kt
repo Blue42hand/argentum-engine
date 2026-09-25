@@ -22,7 +22,7 @@ val SunfireBalm = card("Sunfire Balm") {
     oracleText = "Prevent the next 4 damage that would be dealt to any target this turn.\nCycling {1}{W}\nWhen you cycle Sunfire Balm, you may prevent the next 1 damage that would be dealt to any target this turn."
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.PreventNextDamage(4, t)
     }
 
@@ -30,7 +30,7 @@ val SunfireBalm = card("Sunfire Balm") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.May(Effects.PreventNextDamage(1, t))
     }
 

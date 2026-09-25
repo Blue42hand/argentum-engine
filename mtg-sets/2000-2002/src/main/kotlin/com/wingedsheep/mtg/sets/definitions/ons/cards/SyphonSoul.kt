@@ -21,8 +21,7 @@ val SyphonSoul = card("Syphon Soul") {
     oracleText = "Syphon Soul deals 2 damage to each other player. You gain life equal to the damage dealt this way."
 
     spell {
-        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
-                Effects.GainLife(2)
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
 
     metadata {

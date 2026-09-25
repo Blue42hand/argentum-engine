@@ -34,13 +34,11 @@ val DraconauticsEngineer = card("Draconautics Engineer") {
     activatedAbility {
         cost = Costs.Mana("{R}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
+            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
+        ) then
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
-        )
     }
     activatedAbility {
         cost = Costs.Mana("{3}{R}")

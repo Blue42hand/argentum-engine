@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Subtle Strike
@@ -30,11 +30,11 @@ val SubtleStrike = card("Subtle Strike") {
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Target creature gets -1/-1 until end of turn") {
-                val t = target("target", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(-1, -1, t)
             }
             mode("Put a +1/+1 counter on target creature") {
-                val t = target("target", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
             }
         }

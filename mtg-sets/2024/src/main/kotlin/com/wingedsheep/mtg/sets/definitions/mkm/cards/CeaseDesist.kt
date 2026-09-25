@@ -26,16 +26,8 @@ val CeaseDesist = card("Cease // Desist") {
         oracleText = "Exile up to two target cards from a single graveyard. Target player gains 2 life and draws a card."
 
         spell {
-            target(
-                "up to two target cards from a single graveyard",
-                TargetObject(
-                    count = 2,
-                    optional = true,
-                    filter = TargetFilter.CardInGraveyard,
-                    sameOwner = true,
-                ),
-            )
-            val player = target("target player", Targets.Player)
+            targets(TargetFilter.CardInGraveyard, count = 2, optional = true, sameOwner = true)
+            val player = target(Targets.Player)
             effect = Effects.Pipeline {
                 val ceaseTargets = gather(CardSource.ChosenTargets)
                 exile(ceaseTargets)

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * High Priest of Penance
@@ -29,10 +28,7 @@ val HighPriestOfPenance = card("High Priest of Penance") {
 
     triggeredAbility {
         trigger = Triggers.self.isDealtDamage()
-        val t = target(
-            "target nonland permanent",
-            TargetPermanent(filter = TargetFilter.NonlandPermanent),
-        )
+        val t = target(TargetFilter.NonlandPermanent)
         effect = Effects.May(Effects.Destroy(t))
         description = "Whenever this creature is dealt damage, you may destroy target nonland permanent."
     }

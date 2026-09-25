@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Boomerang Basics
@@ -29,10 +29,10 @@ val BoomerangBasics = card("Boomerang Basics") {
     oracleText = "Return target nonland permanent to its owner's hand. If you controlled that permanent, draw a card."
 
     spell {
-        val permanent = target("target nonland permanent", Targets.NonlandPermanent)
+        val permanent = target(TargetFilter.NonlandPermanent)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonlandPermanent.youControl(), permanent),
-            then = Effects.ReturnToHand(permanent).then(Effects.DrawCards(1)),
+            then = Effects.ReturnToHand(permanent) then Effects.DrawCards(1),
             otherwise = Effects.ReturnToHand(permanent),
         )
     }

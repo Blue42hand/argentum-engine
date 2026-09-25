@@ -42,22 +42,18 @@ val Cyclone = card("Cyclone") {
 
         val windCount = DynamicAmounts.countersOnSelf(CounterType.WIND)
 
-        val dealDamageToAll = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreatures,
-                Effects.DealDamage(windCount, EffectTarget.IterationEntity)
-            ),
+        val dealDamageToAll = Effects.ForEachInGroup(
+            GroupFilter.AllCreatures,
+            Effects.DealDamage(windCount, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(windCount, EffectTarget.Controller)))
-        )
 
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.WIND, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.WIND, 1, EffectTarget.Self) then
             Effects.MayPay(
                 cost = Effects.PayDynamicMana(windCount, color = Color.GREEN),
                 then = dealDamageToAll,
                 otherwise = Effects.SacrificeTarget(EffectTarget.Self)
             )
-        )
         description = "At the beginning of your upkeep, put a wind counter on this enchantment, then " +
             "sacrifice this enchantment unless you pay {G} for each wind counter on it. If you pay, " +
             "this enchantment deals damage equal to the number of wind counters on it to each creature and each player."

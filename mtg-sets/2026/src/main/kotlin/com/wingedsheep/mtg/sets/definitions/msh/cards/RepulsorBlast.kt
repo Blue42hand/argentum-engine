@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.teamwork
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Repulsor Blast — Marvel Super Heroes #150
@@ -36,12 +35,10 @@ val RepulsorBlast = card("Repulsor Blast") {
     teamwork(2)
 
     spell {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.DealDamage(5, creature).then(
-            Effects.If(
-                condition = Conditions.TeamworkWasPaid,
-                then = Effects.DealDamage(2, EffectTarget.TargetController),
-            ),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.DealDamage(5, creature) then Effects.If(
+            condition = Conditions.TeamworkWasPaid,
+            then = Effects.DealDamage(2, EffectTarget.TargetController),
         )
     }
 

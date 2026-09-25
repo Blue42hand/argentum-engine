@@ -31,13 +31,12 @@ val TellahGreatSage = card("Tellah, Great Sage") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                creatureTypes = setOf("Hero"),
-                imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
-            ),
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            creatureTypes = setOf("Hero"),
+            imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
+        ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.manaSpentOnTriggeringSpell(),
@@ -45,22 +44,19 @@ val TellahGreatSage = card("Tellah, Great Sage") {
                     4
                 ),
                 then = Effects.DrawCards(2)
-            ),
+            ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.manaSpentOnTriggeringSpell(),
                     ComparisonOperator.GTE,
                     8
                 ),
-                then = Effects.Composite(
-                    SacrificeSelfEffect,
+                then = SacrificeSelfEffect then
                     Effects.DealDamage(
                         DynamicAmounts.manaSpentOnTriggeringSpell(),
                         EffectTarget.PlayerRef(Player.EachOpponent)
                     )
-                )
             )
-        )
     }
     metadata {
         rarity = Rarity.RARE

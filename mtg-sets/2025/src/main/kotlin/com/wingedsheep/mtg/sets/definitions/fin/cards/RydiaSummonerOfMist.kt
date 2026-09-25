@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Rydia, Summoner of Mist — Final Fantasy #239
@@ -61,17 +60,14 @@ val RydiaSummonerOfMist = card("Rydia, Summoner of Mist") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         val saga = target(
-            "target Saga card with mana value X in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Any.withSubtype(Subtype.SAGA).ownedByYou().manaValueEqualsX(),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                GameObjectFilter.Any.withSubtype(Subtype.SAGA).ownedByYou().manaValueEqualsX(),
+                zone = Zone.GRAVEYARD,
             ),
         )
-        effect = Effects.Move(saga, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.FINALITY, 1, saga))
-            .then(Effects.GrantKeyword(Keyword.HASTE, saga, Duration.EndOfTurn))
+        effect = Effects.Move(saga, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.FINALITY, 1, saga) then
+            Effects.GrantKeyword(Keyword.HASTE, saga, Duration.EndOfTurn)
         timing = TimingRule.SorcerySpeed
         description = "Summon — {X}, {T}: Return target Saga card with mana value X from your graveyard to " +
             "the battlefield with a finality counter on it. It gains haste until end of turn. Activate only " +

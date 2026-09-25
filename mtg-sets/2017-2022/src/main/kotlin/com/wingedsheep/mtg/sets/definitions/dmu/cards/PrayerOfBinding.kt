@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -28,14 +27,8 @@ val PrayerOfBinding = card("Prayer of Binding") {
     keywords(Keyword.FLASH)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
-        )
-        effect = Effects.Composite(
-            Effects.ExileUntilLeaves(t),
-            Effects.GainLife(2)
-        )
+        val t = target(TargetFilter.NonlandPermanentOpponentControls, optional = true)
+        effect = Effects.ExileUntilLeaves(t) then Effects.GainLife(2)
     }
     triggeredAbility {
         trigger = Triggers.self.leaves()

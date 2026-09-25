@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Biblioplex Tomekeeper — Secrets of Strixhaven #247
@@ -37,11 +37,11 @@ val BiblioplexTomekeeper = card("Biblioplex Tomekeeper") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("Target creature becomes prepared") {
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.BecomePrepared(creature)
                 },
                 mode("Target creature becomes unprepared") {
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.Unprepare(creature)
                 }
             ),

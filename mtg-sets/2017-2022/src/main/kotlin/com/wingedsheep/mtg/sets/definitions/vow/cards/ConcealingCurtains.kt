@@ -79,7 +79,7 @@ private val RevealingEye = card("Revealing Eye") {
 
     triggeredAbility {
         trigger = Triggers.self.transforms(true)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Wirewood Lodge
@@ -30,9 +29,7 @@ val WirewoodLodge = card("Wirewood Lodge") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.Tap)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Elf"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Permanent.withSubtype("Elf")))
         effect = Effects.Untap(
             target = t
         )

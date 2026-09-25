@@ -4,13 +4,13 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Hapatra, Vizier of Poisons
@@ -39,7 +39,7 @@ val HapatraVizierOfPoisons = card("Hapatra, Vizier of Poisons") {
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         optional = true
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)
     }
 

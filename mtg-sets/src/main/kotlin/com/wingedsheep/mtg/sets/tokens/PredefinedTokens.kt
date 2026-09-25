@@ -29,6 +29,8 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Predefined token CardDefinitions.
@@ -95,7 +97,7 @@ object PredefinedTokens {
 
         triggeredAbility {
             trigger = Triggers.self.enters()
-            val anyTarget = target("any target", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(2, anyTarget, damageSource = EffectTarget.Self)
             description = "When this token enters, it deals 2 damage to any target."
         }
@@ -190,10 +192,7 @@ object PredefinedTokens {
                 Costs.Mana("{2}"),
                 Costs.SacrificeSelf
             )
-            effect = Effects.Composite(
-                Effects.Scry(1),
-                Effects.DrawCards(1)
-            )
+            effect = Effects.Scry(1) then Effects.DrawCards(1)
         }
 
         metadata {
@@ -342,7 +341,7 @@ object PredefinedTokens {
         typeLine = "Enchantment — Aura Role"
         oracleText = "Enchant creature\nEnchanted creature gets +1/+1 and has \"Whenever this creature attacks, scry 1.\""
 
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         staticAbility {
             ability = ModifyStats(+1, +1, Filters.EnchantedCreature)
@@ -370,7 +369,7 @@ object PredefinedTokens {
         typeLine = "Enchantment — Aura Role"
         oracleText = "Enchant creature\nEnchanted creature gets +1/+1 and has trample."
 
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         staticAbility {
             ability = ModifyStats(+1, +1, Filters.EnchantedCreature)
@@ -395,7 +394,7 @@ object PredefinedTokens {
         typeLine = "Enchantment — Aura Role"
         oracleText = "Enchant creature\nEnchanted creature gets +1/+1 and has ward {1}."
 
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         staticAbility {
             ability = ModifyStats(+1, +1, Filters.EnchantedCreature)
@@ -419,7 +418,7 @@ object PredefinedTokens {
         typeLine = "Enchantment — Aura Role"
         oracleText = "Enchant creature\nEnchanted creature has base power and toughness 1/1."
 
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         staticAbility {
             ability = SetBasePowerToughnessStatic(1, 1)
@@ -443,7 +442,7 @@ object PredefinedTokens {
         oracleText = "Enchant creature\nEnchanted creature gets +1/+1.\n" +
             "When this Role is put into a graveyard, each opponent loses 1 life."
 
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         staticAbility {
             ability = ModifyStats(+1, +1, Filters.EnchantedCreature)
@@ -473,7 +472,7 @@ object PredefinedTokens {
         oracleText = "Enchant creature\nEnchanted creature has \"Whenever this creature attacks, " +
             "if its toughness is 3 or less, put a +1/+1 counter on it.\""
 
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         // The granted ability is modeled as an ATTACHED-bound trigger on the Role watching its
         // enchanted creature attack; the intervening-if re-checks the toughness at resolution (CR 603.4).
@@ -548,7 +547,7 @@ object PredefinedTokens {
         typeLine = "Artifact — Map"
 
         activatedAbility {
-            val creature = target("target creature you control", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             cost = Costs.Composite(
                 Costs.Mana("{1}"),
                 Costs.Tap,
@@ -622,7 +621,7 @@ object PredefinedTokens {
         typeLine = "Artifact"
 
         triggeredAbility {
-            val anyTarget = target("any target", Targets.Any)
+            val anyTarget = target(Targets.Any)
             trigger = Triggers.self.leaves()
             effect = Effects.DealDamage(2, anyTarget)
             description = "When this token leaves the battlefield, it deals 2 damage to any target."
@@ -645,7 +644,7 @@ object PredefinedTokens {
         typeLine = "Artifact — Mutagen"
 
         activatedAbility {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             cost = Costs.Composite(
                 Costs.Mana("{1}"),
                 Costs.Tap,
@@ -846,7 +845,7 @@ object PredefinedTokens {
 
         triggeredAbility {
             trigger = Triggers.self.attacks()
-            val land = target("target land", Targets.Land)
+            val land = target(TargetFilter.Land)
             effect = Effects.Destroy(land)
             description = "Whenever Galactus attacks, destroy target land."
         }

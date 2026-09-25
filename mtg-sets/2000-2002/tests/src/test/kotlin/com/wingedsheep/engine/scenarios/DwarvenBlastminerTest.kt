@@ -15,13 +15,14 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.UUID
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Subtype
 
 /**
  * Tests for Dwarven Blastminer.
@@ -50,16 +51,14 @@ class DwarvenBlastminerTest : FunSpec({
                     listOf(Costs.Mana(ManaCost.parse("{2}{R}")), AbilityCost.Tap)
                 ),
                 effect = MoveToZoneEffect(EffectTarget.BoundVariable("target"), Zone.GRAVEYARD, byDestruction = true),
-                targetRequirement = TargetPermanent(id = "target",
-                    filter = TargetFilter(
+                targetRequirement = TargetObject(filter = TargetFilter(
                         GameObjectFilter(
                             cardPredicates = listOf(
                                 CardPredicate.IsLand,
                                 CardPredicate.Not(CardPredicate.IsBasicLand)
                             )
                         )
-                    )
-                )
+                    ), id = "target")
             )
         )
     )

@@ -30,10 +30,8 @@ val SunscorchRegent = card("Sunscorch Regent") {
 
     triggeredAbility {
         trigger = Triggers.anOpponent.casts()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.GainLife(1)
-        )
     }
 
     metadata {

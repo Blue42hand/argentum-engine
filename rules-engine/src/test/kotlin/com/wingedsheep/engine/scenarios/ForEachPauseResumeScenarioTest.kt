@@ -59,11 +59,9 @@ class ForEachPauseResumeScenarioTest : FunSpec({
                     filter = GameObjectFilter.Creature
                 ),
                 storeAs = "creatures"
-            ).then(
-                ForEachInCollectionEffect(
-                    collection = "creatures",
-                    effect = Effects.May(Effects.DrawCards(1))
-                )
+            ) then ForEachInCollectionEffect(
+                collection = "creatures",
+                effect = Effects.May(Effects.DrawCards(1))
             )
         }
     }

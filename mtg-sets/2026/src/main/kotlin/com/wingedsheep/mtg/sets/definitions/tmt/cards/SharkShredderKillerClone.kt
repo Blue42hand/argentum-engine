@@ -52,11 +52,8 @@ val SharkShredderKillerClone = card("Shark Shredder, Killer Clone") {
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val creatureCard = target(
-            "up to one target creature card in that player's graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.ownedByOpponent(), zone = Zone.GRAVEYARD)
-            )
+            TargetFilter(GameObjectFilter.Creature.ownedByOpponent(), zone = Zone.GRAVEYARD),
+            optional = true,
         )
         effect = Effects.Move(
             target = creatureCard,

@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Armament Corps
@@ -25,7 +25,7 @@ val ArmamentCorps = card("Armament Corps") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target = TargetCreature(count = 2, minCount = 1, filter = TargetFilter.CreatureYouControl)
+        target = TargetObject(filter = TargetFilter.CreatureYouControl, count = 2, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 2)
     }
 

@@ -32,7 +32,7 @@ val TerrapactIntimidator = card("Terrapact Intimidator") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.ChooseAction(
             choices = listOf(
                 EffectChoice(

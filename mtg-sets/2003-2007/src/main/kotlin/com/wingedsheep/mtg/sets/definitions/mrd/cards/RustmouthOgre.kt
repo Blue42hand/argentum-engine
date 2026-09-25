@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -34,10 +33,7 @@ val RustmouthOgre = card("Rustmouth Ogre") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        val t = target(
-            "target",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))
         effect = Effects.May(Effects.Destroy(t))
     }
 

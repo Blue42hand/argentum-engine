@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Elite Interceptor // Rejoinder — Secrets of Strixhaven #12
@@ -43,24 +43,22 @@ val EliteInterceptor = card("Elite Interceptor") {
         typeLine = "Sorcery"
         oracleText = "You may tap or untap target creature.\nDraw a card."
         spell {
-            val creature = target("target creature", Targets.Creature)
-            effect = Effects.Composite(
-                Effects.May(
-                    ModalEffect.chooseOne(
-                        Mode.noTarget(
-                            Effects.Tap(creature),
-                            "Tap that creature"
-                        ),
-                        Mode.noTarget(
-                            Effects.Untap(creature),
-                            "Untap that creature"
-                        ),
-                        countsAsModalSpell = false
+            val creature = target(TargetFilter.Creature)
+            effect = Effects.May(
+                ModalEffect.chooseOne(
+                    Mode.noTarget(
+                        Effects.Tap(creature),
+                        "Tap that creature"
                     ),
-                    descriptionOverride = "You may tap or untap target creature."
+                    Mode.noTarget(
+                        Effects.Untap(creature),
+                        "Untap that creature"
+                    ),
+                    countsAsModalSpell = false
                 ),
+                descriptionOverride = "You may tap or untap target creature."
+            ) then
                 Effects.DrawCards(1)
-            )
         }
     }
 

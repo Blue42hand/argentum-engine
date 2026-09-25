@@ -9,10 +9,8 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -31,7 +29,7 @@ val ElderOfLaurels = card("Elder of Laurels") {
     toughness = 3
     activatedAbility {
         cost = Costs.Mana("{3}{G}")
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(
             DynamicAmounts.creaturesYouControl(),
             DynamicAmounts.creaturesYouControl(),

@@ -46,14 +46,13 @@ val RebellionOfTheFlamekin = card("Rebellion of the Flamekin") {
         trigger = Triggers.you.clashes()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{1}"),
-            then = Effects.Composite(
-                Effects.CreateToken(
-                    power = 3,
-                    toughness = 1,
-                    colors = setOf(Color.RED),
-                    creatureTypes = setOf("Elemental", "Shaman"),
-                    imageUri = "https://cards.scryfall.io/normal/front/a/2/a280aee2-e15a-4625-b429-4032eae08a41.jpg?1783942839"
-                ),
+            then = Effects.CreateToken(
+                power = 3,
+                toughness = 1,
+                colors = setOf(Color.RED),
+                creatureTypes = setOf("Elemental", "Shaman"),
+                imageUri = "https://cards.scryfall.io/normal/front/a/2/a280aee2-e15a-4625-b429-4032eae08a41.jpg?1783942839"
+            ) then
                 Effects.If(
                     Conditions.YouWonTheClash,
                     Effects.GrantKeyword(
@@ -62,7 +61,6 @@ val RebellionOfTheFlamekin = card("Rebellion of the Flamekin") {
                         Duration.EndOfTurn
                     )
                 )
-            )
         )
         description = "you may pay {1}. If you do, create a 3/1 red Elemental Shaman creature " +
             "token. If you won, that token gains haste until end of turn."

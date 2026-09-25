@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sandbender Scavengers
@@ -63,13 +62,13 @@ val SandbenderScavengers = card("Sandbender Scavengers") {
                 "card with mana value less than or equal to this creature's power from your " +
                 "graveyard to the battlefield."
         ) {
-            val creature = target("target creature", TargetObject(
-                filter = TargetFilter(
+            val creature = target(
+                TargetFilter(
                     baseFilter = GameObjectFilter.Creature.ownedByYou()
                         .manaValueAtMostDynamic(DynamicAmounts.sourcePower()),
                     zone = Zone.GRAVEYARD
-                )
-            ))
+                ),
+            )
             effect = Effects.PutOntoBattlefield(creature)
         }
         description = "When this creature dies, you may exile it. When you do, return target creature " +

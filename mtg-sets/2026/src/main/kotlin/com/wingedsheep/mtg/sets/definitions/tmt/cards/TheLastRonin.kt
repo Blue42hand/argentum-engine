@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Last Ronin
@@ -46,9 +45,7 @@ val TheLastRonin = card("The Last Ronin") {
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
             optional = false) {
-            val creature = target("target creature", TargetObject(
-                filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
-            ))
+            val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
             effect = Effects.ReturnToHand(creature)
         }
     }
@@ -59,14 +56,10 @@ val TheLastRonin = card("The Last Ronin") {
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone)),
             expiry = DelayedTriggerExpiry.EndOfTurn,
-            effect = Effects.Composite(
-                listOf(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
-                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)
-                )
-            )
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)
         )
     }
 

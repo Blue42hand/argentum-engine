@@ -23,7 +23,7 @@ val PyroclasticElemental = card("Pyroclastic Elemental") {
     toughness = 4
 
     activatedAbility {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         cost = Costs.Mana("{1}{R}{R}")
         effect = Effects.DealDamage(1, player)
         description = "{1}{R}{R}: This creature deals 1 damage to target player."

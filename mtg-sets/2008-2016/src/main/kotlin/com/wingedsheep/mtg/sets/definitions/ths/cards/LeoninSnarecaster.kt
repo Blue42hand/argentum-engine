@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Leonin Snarecaster
@@ -25,7 +24,7 @@ val LeoninSnarecaster = card("Leonin Snarecaster") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Tap(t)
     }
 

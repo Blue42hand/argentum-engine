@@ -44,11 +44,9 @@ val TwistedSewerWitch = card("Twisted Sewer-Witch") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = woeRatToken().then(
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Rat").youControl()),
-                effect = Effects.CreateRoleToken("Wicked Role", EffectTarget.IterationEntity),
-            )
+        effect = woeRatToken() then Effects.ForEachInGroup(
+            filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Rat").youControl()),
+            effect = Effects.CreateRoleToken("Wicked Role", EffectTarget.IterationEntity),
         )
         description = "When this creature enters, create a 1/1 black Rat creature token with " +
             "\"This creature can't block.\" Then for each Rat you control, create a Wicked Role " +

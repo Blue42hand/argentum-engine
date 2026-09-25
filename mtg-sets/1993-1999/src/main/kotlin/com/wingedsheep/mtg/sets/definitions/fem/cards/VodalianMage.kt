@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Vodalian Mage
@@ -22,7 +22,7 @@ val VodalianMage = card("Vodalian Mage") {
     toughness = 1
 
     activatedAbility {
-        val spell = target("target spell", TargetSpell())
+        val spell = target(TargetFilter.SpellOnStack)
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.Tap)
         effect = Effects.CounterUnlessPays("{1}")
     }

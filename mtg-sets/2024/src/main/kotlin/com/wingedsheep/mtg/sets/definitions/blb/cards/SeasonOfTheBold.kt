@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
@@ -9,8 +8,8 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Season of the Bold {3}{R}{R}
@@ -59,7 +58,7 @@ val SeasonOfTheBold = card("Season of the Bold") {
                     effect = Effects.CreateGlobalTriggeredAbility(
                         ability = grantedTriggeredAbility {
                             trigger = Triggers.you.casts()
-                            val creature = target("target creature", TargetCreature(optional = true))
+                            val creature = target(TargetFilter.Creature, optional = true)
                             effect = Effects.DealDamage(
                                 amount = 2,
                                 target = creature

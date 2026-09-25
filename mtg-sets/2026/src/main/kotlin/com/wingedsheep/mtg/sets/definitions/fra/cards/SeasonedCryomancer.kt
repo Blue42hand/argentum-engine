@@ -10,7 +10,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Seasoned Cryomancer — "When you discard one or more nonland cards this way" is a reflexive
@@ -38,14 +39,14 @@ val SeasonedCryomancer = card("Seasoned Cryomancer") {
             val discardedNonland = filter(Patterns.Hand.discarded, GameObjectFilter.Nonland)
             ifNotEmpty(discardedNonland) {
                 run(Effects.ReflexiveTrigger(
-                    action = Effects.Composite(emptyList()),
+                    action = Effects.Nothing,
                     optional = false,
                     reflexiveEffect = Effects.ForEachTarget(
                         Effects.Tap(EffectTarget.ContextTarget(0)),
                         Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
                     ),
                     reflexiveTargetRequirements = listOf(
-                        TargetCreature(optional = true, dynamicMaxCount = discardedNonland.count)
+                        TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = discardedNonland.count)
                     ),
                     descriptionOverride = "When you discard one or more nonland cards this way, tap up " +
                         "to that many target creatures and put a stun counter on each of them."

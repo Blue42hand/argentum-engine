@@ -94,10 +94,8 @@ class SourceZoneIdentityTest : FunSpec({
             val ref = d.state.objectRef(source)!!
             val context = EffectContext(sourceId = source, controllerId = d.player1,
                 objectReferences = ObjectReferenceEnvironment(captured = true, origin = ref, source = ref, resolutionKey = "identity-inline-resolution"))
-            val effect = Effects.Composite(
-                Effects.Exile(EffectTarget.Self),
-                GatedEffect(Gate.MayDecide("Continue?"), Effects.ReturnToHand(EffectTarget.Self)),
-            )
+            val effect = Effects.Exile(EffectTarget.Self) then
+                GatedEffect(Gate.MayDecide("Continue?"), Effects.ReturnToHand(EffectTarget.Self))
             val result = d.services.effectExecutorRegistry.execute(d.state, effect, context)
             result.error shouldBe null
             d.replaceState(result.state)
@@ -302,11 +300,10 @@ class SourceZoneIdentityTest : FunSpec({
         val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val ref = d.state.objectRef(source)!!
         val result = d.services.effectExecutorRegistry.execute(d.state,
-            Effects.Composite(
-                com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect(
-                    cost = Costs.pay.Sacrifice(com.wingedsheep.sdk.dsl.Filters.Creature),
-                    consequence = GatedEffect(Gate.MayDecide("Draw?"), Effects.DrawCards(1))),
-                Effects.ReturnToHandFromGraveyard(EffectTarget.Self)),
+            com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect(
+                cost = Costs.pay.Sacrifice(com.wingedsheep.sdk.dsl.Filters.Creature),
+                consequence = GatedEffect(Gate.MayDecide("Draw?"), Effects.DrawCards(1))) then
+                Effects.ReturnToHandFromGraveyard(EffectTarget.Self),
             EffectContext(sourceId = source, controllerId = d.player1,
                 objectReferences = ObjectReferenceEnvironment(captured = true, origin = ref, source = ref,
                     resolutionKey = "identity-sacrifice-consequence")))
@@ -373,8 +370,8 @@ class SourceZoneIdentityTest : FunSpec({
                 manaCost = "{U}"; typeLine = "Enchantment — Aura"
                 triggeredAbility {
                     trigger = Triggers.attached.dies()
-                    effect = Effects.Composite(Effects.ReturnToHandFromGraveyard(EffectTarget.Self),
-                        Effects.ReturnToHandFromGraveyard(EffectTarget.TriggeringEntity))
+                    effect = Effects.ReturnToHandFromGraveyard(EffectTarget.Self) then
+                        Effects.ReturnToHandFromGraveyard(EffectTarget.TriggeringEntity)
                 }
             }
             val sweep = card("Identity Sweep") {
@@ -458,9 +455,8 @@ class SourceZoneIdentityTest : FunSpec({
                 triggeredAbility {
                     trigger = Triggers.self.enters()
                     effect = com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect(
-                        action = if (pauseAction) Effects.Composite(
-                            GatedEffect(Gate.MayDecide("Draw?"), Effects.DrawCards(1)), Effects.SacrificeTarget(EffectTarget.Self)
-                        ) else Effects.SacrificeTarget(EffectTarget.Self),
+                        action = if (pauseAction) (GatedEffect(Gate.MayDecide("Draw?"), Effects.DrawCards(1)) then
+                            Effects.SacrificeTarget(EffectTarget.Self)) else Effects.SacrificeTarget(EffectTarget.Self),
                         optional = false,
                         reflexiveEffect = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)
                     )

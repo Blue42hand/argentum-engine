@@ -40,10 +40,7 @@ val DerelictAtticWidowsWalk = card("Derelict Attic // Widow's Walk") {
 
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
-            effect = Effects.Composite(
-                Effects.DrawCards(2),
-                Effects.LoseLife(2, EffectTarget.Controller),
-            )
+            effect = Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.Controller)
         }
     }
 
@@ -55,10 +52,8 @@ val DerelictAtticWidowsWalk = card("Derelict Attic // Widow's Walk") {
 
         triggeredAbility {
             trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone))
-            effect = Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.TriggeringEntity),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity),
-            )
+            effect = Effects.ModifyStats(1, 0, EffectTarget.TriggeringEntity) then
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity)
         }
     }
 

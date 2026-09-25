@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -39,17 +38,15 @@ val BulwarkOx = card("Bulwark Ox") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     activatedAbility {
         cost = Costs.SacrificeSelf
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity),
+            Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
-            )
         )
     }
     keywordAbility(KeywordAbility.saddle(1))

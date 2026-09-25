@@ -27,16 +27,14 @@ val SquallLine = card("Squall Line") {
     oracleText = "Squall Line deals X damage to each creature with flying and each player."
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
-                Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
+            Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.Controller))
             )
-        )
     }
 
     metadata {

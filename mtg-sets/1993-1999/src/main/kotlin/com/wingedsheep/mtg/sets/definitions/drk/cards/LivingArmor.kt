@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Living Armor
@@ -27,7 +27,7 @@ val LivingArmor = card("Living Armor") {
         "where X is that creature's mana value."
 
     activatedAbility {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ZERO_PLUS_ONE,

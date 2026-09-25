@@ -69,12 +69,10 @@ val LongListOfTheEnts = card("Long List of the Ents") {
  * turn. A fresh instance is built per chapter so each chapter spawns its own
  * `DelayedTriggeredAbility`.
  */
-private fun noteAndBuff(): Effect = Effects.Composite(
-    Effects.NoteCreatureType("notedType"),
+private fun noteAndBuff(): Effect = Effects.NoteCreatureType("notedType") then
     Effects.CreateDelayedTrigger(
         trigger = Triggers.you.casts(GameObjectFilter.Creature.withSubtypeFromVariable("notedType")),
         fireOnce = true,
         expiry = DelayedTriggerExpiry.EndOfTurn,
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)
     )
-)

@@ -31,7 +31,7 @@ val SageOfMysteries = card("Sage of Mysteries") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Patterns.Library.mill(2, t)
         description = "Constellation — Whenever an enchantment you control enters, target player mills two cards."
     }

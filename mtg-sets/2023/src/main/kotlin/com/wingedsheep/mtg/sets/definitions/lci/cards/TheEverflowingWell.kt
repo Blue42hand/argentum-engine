@@ -16,8 +16,8 @@ import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Everflowing Well // The Myriad Pools (The Lost Caverns of Ixalan)
@@ -57,10 +57,7 @@ private val TheEverflowingWellFront = card("The Everflowing Well") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
-            Effects.DrawCards(2),
-        )
+        effect = Patterns.Library.mill(2) then Effects.DrawCards(2)
         description = "When The Everflowing Well enters, mill two cards, then draw two cards."
     }
 
@@ -97,16 +94,9 @@ private val TheMyriadPools = card("The Myriad Pools") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Permanent, requires = setOf(SpellCastPredicate.PaidWithManaFromSource))
-        val t = target(
-            "up to one other target permanent you control",
-            TargetOther(
-                baseRequirement = TargetPermanent(
-                    count = 1,
-                    optional = true,
-                    filter = TargetFilter(GameObjectFilter.Permanent.youControl()),
-                ),
-            ),
-        )
+        val t = target(TargetOther(
+                baseRequirement = TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.youControl()), optional = true),
+            ))
         effect = Effects.EachPermanentBecomesCopyOfTarget(
             target = EffectTarget.TriggeringEntity,
             affected = t,

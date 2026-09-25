@@ -31,10 +31,7 @@ val SneeringShadewriter = card("Sneering Shadewriter") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(2)
-        )
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

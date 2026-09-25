@@ -9,8 +9,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Smaug the Magnificent — The Hobbit #110
@@ -41,7 +41,7 @@ val SmaugTheMagnificent = card("Smaug the Magnificent") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        val target = target("target", AnyTarget())
+        val target = target(Targets.Any)
         trigger = Triggers.self.attacks()
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(

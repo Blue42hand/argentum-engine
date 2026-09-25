@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wispmare
@@ -32,7 +32,7 @@ val Wispmare = card("Wispmare") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val enchantment = target("target enchantment", Targets.Enchantment)
+        val enchantment = target(TargetFilter.Enchantment)
         effect = Effects.Destroy(enchantment)
         description = "destroy target enchantment."
     }

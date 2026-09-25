@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
@@ -31,10 +30,7 @@ class NonartifactTargetFilterTest : FunSpec({
         manaCost = "{1}{B}"
         typeLine = "Instant"
         spell {
-            val t = target(
-                "target",
-                TargetCreature(filter = TargetFilter.Creature.nonartifact().notColor(Color.BLACK))
-            )
+            val t = target(TargetFilter.Creature.nonartifact().notColor(Color.BLACK))
             effect = Effects.Destroy(t, noRegenerate = true)
         }
     }

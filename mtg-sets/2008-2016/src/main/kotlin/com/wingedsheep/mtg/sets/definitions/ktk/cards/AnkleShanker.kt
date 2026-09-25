@@ -31,11 +31,9 @@ val AnkleShanker = card("Ankle Shanker") {
         effect = Patterns.Group.grantKeywordToAll(
             keyword = Keyword.FIRST_STRIKE,
             filter = GroupFilter.AllCreaturesYouControl
-        ).then(
-            Patterns.Group.grantKeywordToAll(
-                keyword = Keyword.DEATHTOUCH,
-                filter = GroupFilter.AllCreaturesYouControl
-            )
+        ) then Patterns.Group.grantKeywordToAll(
+            keyword = Keyword.DEATHTOUCH,
+            filter = GroupFilter.AllCreaturesYouControl
         )
     }
 

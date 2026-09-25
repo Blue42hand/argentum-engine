@@ -28,10 +28,7 @@ val AgentVenom = card("Agent Venom") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl().nontoken()).dies()
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     metadata {

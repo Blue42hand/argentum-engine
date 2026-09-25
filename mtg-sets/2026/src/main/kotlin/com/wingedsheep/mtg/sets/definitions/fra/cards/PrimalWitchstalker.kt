@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The land is targeted by a reflexive trigger after the mill (CR 603.12), so a land milled by
@@ -32,10 +31,7 @@ val PrimalWitchstalker = card("Primal Witchstalker") {
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
             optional = false) {
-            val land = target(
-                "target land",
-                TargetObject(filter = TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
-            )
+            val land = target(TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
             effect = Effects.PutOntoBattlefield(land, tapped = true)
         }
     }

@@ -206,14 +206,14 @@
                             "type": "CantBeRegenerated",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             },
                             "destination": "Graveyard",
                             "byDestruction": true
@@ -225,7 +225,7 @@
                     "filter": {
                         "baseFilter": "creature pow>=4"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -264,13 +264,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Target player loses 1 life."
@@ -395,7 +395,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -404,7 +404,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -634,7 +634,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Hand"
                     },
@@ -645,7 +645,7 @@
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Return target creature card from your graveyard to your hand"
@@ -656,7 +656,7 @@
                         "keyword": "FLYING",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -665,7 +665,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gains flying until end of turn"
@@ -897,13 +897,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target player gains 3 life"
@@ -913,7 +913,7 @@
                         "type": "PreventDamageShield",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         },
                         "amount": {
                             "type": "Fixed",
@@ -923,7 +923,7 @@
                     "targetRequirements": [
                         {
                             "type": "AnyTarget",
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Prevent the next 3 damage that would be dealt to any target this turn"
@@ -1076,12 +1076,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetPlayerOrPlaneswalker",
-                    "id": "target"
+                    "id": "t0"
                 }
             },
             {
@@ -1098,12 +1098,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetPlayerOrPlaneswalker",
-                    "id": "target"
+                    "id": "t1"
                 }
             }
         ]
@@ -1365,7 +1365,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -1383,7 +1383,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Midnight Charm deals 1 damage to target creature and you gain 1 life"
@@ -1394,7 +1394,7 @@
                         "keyword": "FIRST_STRIKE",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -1403,7 +1403,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gains first strike until end of turn"
@@ -1413,7 +1413,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t2"
                         }
                     },
                     "targetRequirements": [
@@ -1422,7 +1422,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t2"
                         }
                     ],
                     "description": "Tap target creature"
@@ -1874,7 +1874,7 @@
                         "keyword": "ISLANDWALK",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
@@ -1883,7 +1883,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target creature gains islandwalk until end of turn"
@@ -1901,7 +1901,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -1910,7 +1910,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets +2/-1 until end of turn"
@@ -1926,7 +1926,7 @@
                                     "zone": "Hand",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "target"
+                                        "name": "t2"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -1953,7 +1953,7 @@
                                     "zone": "Graveyard",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "target"
+                                        "name": "t2"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -1963,7 +1963,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "target"
+                            "id": "t2"
                         }
                     ],
                     "description": "Target player discards a card"
@@ -2067,13 +2067,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2276,7 +2276,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2285,7 +2285,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{B}, {T}: Tap target creature."
@@ -2453,7 +2453,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -2461,7 +2461,7 @@
                             "keyword": "FIRST_STRIKE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -2472,7 +2472,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{1}{B}, {T}, Discard a card: Target creature gets +1/+0 and gains first strike until end of turn."
@@ -2501,7 +2501,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -2520,7 +2520,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2563,7 +2563,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2572,7 +2572,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Target creature gets -2/-0 until end of turn."
@@ -2605,7 +2605,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2616,7 +2616,7 @@
                         "filter": {
                             "baseFilter": "artifact|enchantment"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Sacrifice this enchantment: Destroy target artifact or enchantment."
@@ -2742,7 +2742,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -2751,7 +2751,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2846,7 +2846,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -2863,7 +2863,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2980,7 +2980,7 @@
                     "keyword": "HASTE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2989,7 +2989,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Sacrifice a Saproling: Target creature gains haste until end of turn."

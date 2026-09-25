@@ -6,12 +6,12 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * High Sentinels of Arashin
@@ -52,7 +52,7 @@ val HighSentinelsOfArashin = card("High Sentinels of Arashin") {
     // {3}{W}: Put a +1/+1 counter on target creature
     activatedAbility {
         cost = Costs.Mana("{3}{W}")
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,

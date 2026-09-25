@@ -51,14 +51,12 @@ val WitnessTheFuture = card("Witness the Future") {
         )
         effect = Effects.ForEachTarget(
             Effects.ShuffleIntoLibrary(EffectTarget.ContextTarget(0))
-        ).then(
-            Patterns.Library.lookAtTopAndKeep(
-                count = 4,
-                keepCount = 1,
-                keepDestination = CardDestination.ToZone(Zone.HAND),
-                restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                restOrder = CardOrder.Random
-            )
+        ) then Patterns.Library.lookAtTopAndKeep(
+            count = 4,
+            keepCount = 1,
+            keepDestination = CardDestination.ToZone(Zone.HAND),
+            restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
+            restOrder = CardOrder.Random
         )
     }
 

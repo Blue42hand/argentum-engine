@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Metamorphose
@@ -27,7 +27,7 @@ val Metamorphose = card("Metamorphose") {
     oracleText = "Put target permanent an opponent controls on top of its owner's library. That opponent may put an artifact, creature, enchantment, or land card from their hand onto the battlefield."
 
     spell {
-        val permanent = target("permanent an opponent controls", Targets.PermanentOpponentControls)
+        val permanent = target(TargetFilter.PermanentOpponentControls)
         effect = Effects.Pipeline {
             // Put targeted permanent on top of its owner's library
             run(Effects.PutOnTopOfLibrary(permanent))

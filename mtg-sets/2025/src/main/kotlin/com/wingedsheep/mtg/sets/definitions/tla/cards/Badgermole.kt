@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Badgermole
@@ -31,7 +30,7 @@ val Badgermole = card("Badgermole") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(2, land)
         description = "When this creature enters, earthbend 2."
     }

@@ -44,13 +44,11 @@ val AnzragTheQuakeMole = card("Anzrag, the Quake-Mole") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesBlocked()
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.IterationEntity),
-            ),
-            Effects.AddCombatPhase,
-        )
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.youControl()),
+            Effects.Untap(EffectTarget.IterationEntity),
+        ) then
+            Effects.AddCombatPhase
         description = "Whenever Anzrag becomes blocked, untap each creature you control. After " +
             "this phase, there is an additional combat phase."
     }

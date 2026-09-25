@@ -6,13 +6,13 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Huntmaster of the Fells // Ravager of the Fells (DKA #140).
@@ -30,7 +30,7 @@ class HuntmasterOfTheFellsScenarioTest : ScenarioTestBase() {
             manaCost = "{0}"
             typeLine = "Instant"
             spell {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = TransformEffect(creature)
             }
         })

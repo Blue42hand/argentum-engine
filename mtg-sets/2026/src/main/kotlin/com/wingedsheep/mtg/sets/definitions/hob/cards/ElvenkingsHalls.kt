@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Elvenking's Halls — The Hobbit #182
@@ -49,10 +48,7 @@ val ElvenkingsHalls = card("Elvenking's Halls") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{G}{U}"), Costs.Tap, Costs.SacrificeSelf)
-        val elf = target(
-            "target Elf you control",
-            TargetCreature(filter = TargetFilter.PermanentYouControl.withSubtype(Subtype.ELF))
-        )
+        val elf = target(TargetFilter.PermanentYouControl.withSubtype(Subtype.ELF))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, elf)
         timing = TimingRule.SorcerySpeed
         description = "Put two +1/+1 counters on target Elf you control."

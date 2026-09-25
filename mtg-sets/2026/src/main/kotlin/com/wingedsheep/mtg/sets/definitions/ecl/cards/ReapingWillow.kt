@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -50,15 +49,7 @@ val ReapingWillow = card("Reaping Willow") {
             Costs.Mana("{1}{W/B}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE, count = 2)
         )
-        val creature = target(
-            "target creature card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD))
         effect = Effects.Move(
             target = creature,
             destination = Zone.BATTLEFIELD

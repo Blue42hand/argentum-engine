@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.collectEvidence
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 
 /**
@@ -48,14 +48,12 @@ val CrimestopperSprite = card("Crimestopper Sprite") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature", TargetCreature())
-        effect = Effects.Composite(
-            Effects.Tap(creature),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.Tap(creature) then
             Effects.If(
                 condition = Conditions.WasEvidenceCollected,
                 then = Effects.AddCounters(CounterType.STUN, 1, creature),
-            ),
-        )
+            )
         description = "When this creature enters, tap target creature. If evidence was collected, " +
             "put a stun counter on it."
     }

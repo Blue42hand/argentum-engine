@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Thunder Magic
@@ -30,15 +30,15 @@ val ThunderMagic = card("Thunder Magic") {
     spell {
         tiered {
             tier("Thunder", "{0}", "Thunder Magic deals 2 damage to target creature.") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(2, creature)
             }
             tier("Thundara", "{3}", "Thunder Magic deals 4 damage to target creature.") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(4, creature)
             }
             tier("Thundaga", "{5}{R}", "Thunder Magic deals 8 damage to target creature.") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(8, creature)
             }
         }

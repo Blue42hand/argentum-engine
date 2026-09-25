@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Harvestrite Host
@@ -32,14 +32,12 @@ val HarvestriteHost = card("Harvestrite Host") {
         trigger = Triggers.a(GameObjectFilter.Creature
                     .withSubtype(Subtype("Rabbit"))
                     .youControl()).enters()
-        val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.DrawCards(1)
-                )
+        val creature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(1, 0, creature) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.DrawCards(1)
             )
     }
 

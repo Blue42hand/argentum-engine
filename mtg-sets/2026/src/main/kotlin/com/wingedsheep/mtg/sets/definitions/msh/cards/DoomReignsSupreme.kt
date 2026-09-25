@@ -69,11 +69,9 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Whenever a Villain you control enters, each opponent loses 1 life and you " +
             "gain 1 life. Put a plan counter on this enchantment."
     }

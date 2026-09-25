@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Jet, Freedom Fighter
@@ -38,10 +37,7 @@ val JetFreedomFighter = card("Jet, Freedom Fighter") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls)
-        )
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.DealDamage(DynamicAmounts.creaturesYouControl(), t)
         description = "When Jet enters, he deals damage equal to the number of creatures you control " +
             "to target creature an opponent controls."
@@ -49,10 +45,7 @@ val JetFreedomFighter = card("Jet, Freedom Fighter") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        target(
-            "up to two target creatures",
-            TargetCreature(count = 2, optional = true)
-        )
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )

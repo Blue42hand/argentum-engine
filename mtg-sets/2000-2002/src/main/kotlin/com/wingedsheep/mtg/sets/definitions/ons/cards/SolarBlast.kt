@@ -22,7 +22,7 @@ val SolarBlast = card("Solar Blast") {
     oracleText = "Solar Blast deals 3 damage to any target.\nCycling {1}{R}{R}\nWhen you cycle Solar Blast, you may have it deal 1 damage to any target."
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(3, t)
     }
 
@@ -30,7 +30,7 @@ val SolarBlast = card("Solar Blast") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.May(
             Effects.DealDamage(1, t)
         )

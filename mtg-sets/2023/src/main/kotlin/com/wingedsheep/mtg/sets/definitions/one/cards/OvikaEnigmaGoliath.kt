@@ -54,20 +54,18 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
     // where X is the mana value of that spell. They gain haste until end of turn.
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(listOf(
-            Effects.CreateToken(
-                count = DynamicAmounts.triggeringManaValue(),
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.RED),
-                creatureTypes = setOf("Phyrexian", "Goblin"),
-                imageUri = "https://cards.scryfall.io/normal/front/3/6/3663e79b-2bf9-44af-a638-c0ad9067d8d4.jpg?1783918169",
-            ),
+        effect = Effects.CreateToken(
+            count = DynamicAmounts.triggeringManaValue(),
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.RED),
+            creatureTypes = setOf("Phyrexian", "Goblin"),
+            imageUri = "https://cards.scryfall.io/normal/front/3/6/3663e79b-2bf9-44af-a638-c0ad9067d8d4.jpg?1783918169",
+        ) then
             Effects.ForEachInCollection(
                 CollectionSlot.CreatedTokens,
                 Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity),
-            ),
-        ))
+            )
     }
 
     metadata {

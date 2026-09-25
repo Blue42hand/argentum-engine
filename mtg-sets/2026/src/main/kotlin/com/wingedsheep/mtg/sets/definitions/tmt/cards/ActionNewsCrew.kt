@@ -41,7 +41,7 @@ val ActionNewsCrew = card("Action News Crew") {
                 count = 1,
                 target = EffectTarget.IterationEntity
             )
-        ).then(Effects.DrawCards(1))
+        ) then Effects.DrawCards(1)
         description = "Channel — {6}, Discard this card: Put a +1/+1 counter on each creature you control. Draw a card."
     }
 

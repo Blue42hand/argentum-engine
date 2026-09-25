@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Farrel's Zealot
@@ -34,16 +33,14 @@ val FarrelsZealot = card("Farrel's Zealot") {
 
     triggeredAbility {
         trigger = Triggers.self.attacksAndIsntBlocked()
-        val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DealDamage(3, t),
+            Effects.DealDamage(3, t) then
                 Effects.GrantKeyword(
                     AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.Self,
                     Duration.EndOfTurn,
                 ),
-            ),
             descriptionOverride = "have this creature deal 3 damage to that creature. If you do, it assigns no combat damage this turn",
         )
         description = "Whenever this creature attacks and isn't blocked, you may have it deal 3 damage to target creature. If you do, this creature assigns no combat damage this turn."

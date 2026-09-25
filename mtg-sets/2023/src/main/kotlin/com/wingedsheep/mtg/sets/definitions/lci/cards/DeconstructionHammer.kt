@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Deconstruction Hammer (LCI #9) — {W} Artifact — Equipment (common)
@@ -51,10 +52,7 @@ val DeconstructionHammer = card("Deconstruction Hammer") {
                     Costs.Tap,
                     Costs.SacrificeGrantingPermanent
                 )
-                val artifactOrEnchantment = target(
-                    "target artifact or enchantment",
-                    Targets.ArtifactOrEnchantment
-                )
+                val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Destroy(artifactOrEnchantment)
                 description = "{3}, {T}, Sacrifice Deconstruction Hammer: Destroy target artifact or enchantment."
             },

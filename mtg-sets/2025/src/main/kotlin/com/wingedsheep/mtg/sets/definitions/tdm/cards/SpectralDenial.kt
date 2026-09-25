@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostModification
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spectral Denial
@@ -31,7 +31,7 @@ val SpectralDenial = card("Spectral Denial") {
         "4 or greater.\nCounter target spell unless its controller pays {X}."
 
     spell {
-        val spell = target("target spell", Targets.Spell)
+        val spell = target(TargetFilter.SpellOnStack)
         effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue())
     }
 

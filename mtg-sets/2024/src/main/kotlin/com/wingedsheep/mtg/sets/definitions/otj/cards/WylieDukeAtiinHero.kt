@@ -29,10 +29,7 @@ val WylieDukeAtiinHero = card("Wylie Duke, Atiin Hero") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(1) then Effects.DrawCards(1)
     }
 
     metadata {

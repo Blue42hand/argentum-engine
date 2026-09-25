@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Host of the Hereafter — Tarkir: Dragonstorm #193
@@ -38,10 +37,7 @@ val HostOfTheHereafter = card("Host of the Hereafter") {
     replacementEffect(EntersWithCounters(count = 2, selfOnly = true))
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            optional = true,
-            filter = TargetFilter(GameObjectFilter.Creature.youControl())
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.youControl()), optional = true)
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
         effect = Effects.MoveAllLastKnownCounters(creature)

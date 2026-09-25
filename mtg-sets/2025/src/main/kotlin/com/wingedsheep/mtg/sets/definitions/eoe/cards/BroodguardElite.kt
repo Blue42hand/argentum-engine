@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Broodguard Elite
@@ -37,7 +37,7 @@ val BroodguardElite = card("Broodguard Elite") {
 
     // When this creature leaves the battlefield, put its counters on target creature you control.
     triggeredAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         trigger = Triggers.self.leaves()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }

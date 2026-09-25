@@ -30,10 +30,7 @@ val FangFearlessLCie = card("Fang, Fearless l'Cie") {
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
         oncePerTurn = true
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
     metadata {
         rarity = Rarity.UNCOMMON

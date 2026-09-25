@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Beetle, Legacy Criminal
@@ -29,11 +28,9 @@ val BeetleLegacyCriminal = card("Beetle, Legacy Criminal") {
     keywords(Keyword.FLYING)
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.ExileSelf)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+        val t = target(TargetFilter.Creature)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
             Effects.GrantKeyword(Keyword.FLYING, t)
-        )
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
     }

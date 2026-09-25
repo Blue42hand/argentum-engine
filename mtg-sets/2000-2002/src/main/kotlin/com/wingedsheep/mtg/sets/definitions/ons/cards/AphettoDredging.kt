@@ -27,15 +27,7 @@ val AphettoDredging = card("Aphetto Dredging") {
     oracleText = "Return up to three target creature cards of the creature type of your choice from your graveyard to your hand."
 
     spell {
-        target(
-            "up to three target creature cards of the creature type of your choice from your graveyard",
-            TargetObject(
-                count = 3,
-                optional = true,
-                filter = TargetFilter.CreatureInYourGraveyard,
-                sameCreatureType = true
-            )
-        )
+        targets(TargetFilter.CreatureInYourGraveyard, count = 3, optional = true, sameCreatureType = true)
         effect = Effects.ForEachTarget(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
     }
 

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * "For each opponent, … up to one target creature that player controls" is Kaya, Spirits'
@@ -29,14 +28,11 @@ val HapatraTheDesertFang = card("Hapatra, the Desert Fang") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to one target creature each opponent controls",
-            TargetCreature(
-                filter = TargetFilter.CreatureOpponentControls,
-                optional = true,
-                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
-                differentControllers = true,
-            )
+        targets(
+            TargetFilter.CreatureOpponentControls,
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
+            differentControllers = true,
         )
         effect = Effects.ForEachTarget(
             Effects.AddDynamicCounters(

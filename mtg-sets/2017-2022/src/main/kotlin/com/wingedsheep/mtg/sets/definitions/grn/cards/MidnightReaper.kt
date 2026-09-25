@@ -31,10 +31,8 @@ val MidnightReaper = card("Midnight Reaper") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).dies()
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.Controller, damageSource = EffectTarget.Self),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.DealDamage(1, EffectTarget.Controller, damageSource = EffectTarget.Self) then
+            Effects.DrawCards(1)
     }
 
     metadata {

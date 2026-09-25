@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dai Li Agents
@@ -48,14 +47,9 @@ val DaiLiAgents = card("Dai Li Agents") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val firstLand = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
-        val secondLand = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
-        effect = Effects.Composite(
-            listOf(
-                Effects.Earthbend(1, firstLand),
-                Effects.Earthbend(1, secondLand),
-            )
-        )
+        val firstLand = target(TargetFilter.Land.youControl())
+        val secondLand = target(TargetFilter.Land.youControl())
+        effect = Effects.Earthbend(1, firstLand) then Effects.Earthbend(1, secondLand)
         description = "When this creature enters, earthbend 1, then earthbend 1."
     }
 
@@ -66,12 +60,8 @@ val DaiLiAgents = card("Dai Li Agents") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(xAmount, EffectTarget.Controller),
-            )
-        )
+        effect = Effects.LoseLife(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(xAmount, EffectTarget.Controller)
         description = "Whenever this creature attacks, each opponent loses X life and you gain X " +
             "life, where X is the number of creatures you control with +1/+1 counters on them."
     }

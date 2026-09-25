@@ -27,7 +27,7 @@ val PiranhaMarsh = card("Piranha Marsh") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(1, player)
         description = "When this land enters, target player loses 1 life."
     }

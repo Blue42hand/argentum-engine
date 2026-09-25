@@ -222,7 +222,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target card in a graveyard"
+                                "name": "t0"
                             },
                             "destination": "Exile"
                         },
@@ -260,7 +260,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "target card in a graveyard"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{G}: Exile target card from a graveyard. If it was a creature card, put a +1/+1 counter on this creature and you gain 1 life."

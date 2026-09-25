@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -27,7 +27,7 @@ val MournfulZombie = card("Mournful Zombie") {
     toughness = 1
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.GainLife(1, t)
     }
     metadata {

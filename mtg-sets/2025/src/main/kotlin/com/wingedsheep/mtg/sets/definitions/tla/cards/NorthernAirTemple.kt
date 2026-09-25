@@ -38,8 +38,7 @@ val NorthernAirTemple = card("Northern Air Temple") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Any.withSubtype("Shrine").youControl()).enters()
-        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
-            Effects.GainLife(1)
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     metadata {

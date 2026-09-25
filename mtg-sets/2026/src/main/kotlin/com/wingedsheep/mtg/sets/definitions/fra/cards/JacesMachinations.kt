@@ -23,12 +23,10 @@ val JacesMachinations = card("Jace's Machinations") {
         "Empower Jace 8. (Put eight loyalty counters on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        effect = Effects.Composite(
-            Effects.InstantSpeedLoyaltyAbilities(
-                planeswalkerFilter = GameObjectFilter.Planeswalker.withSubtype("Jace").youControl(),
-            ),
-            Patterns.Mechanic.empowerJace(8),
-        )
+        effect = Effects.InstantSpeedLoyaltyAbilities(
+            planeswalkerFilter = GameObjectFilter.Planeswalker.withSubtype("Jace").youControl(),
+        ) then
+            Patterns.Mechanic.empowerJace(8)
     }
 
     metadata {

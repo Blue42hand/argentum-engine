@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
@@ -44,7 +43,7 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             // 1. Gather the target player's hand.
             val klawHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

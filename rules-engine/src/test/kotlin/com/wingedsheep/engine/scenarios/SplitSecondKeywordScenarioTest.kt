@@ -44,7 +44,7 @@ class SplitSecondKeywordScenarioTest : FunSpec({
         oracleText = "Split second\nSudden Jolt deals 2 damage to any target."
         keywords(Keyword.SPLIT_SECOND)
         spell {
-            val t = target("target", Targets.Any)
+            val t = target(Targets.Any)
             effect = Effects.DealDamage(2, t)
         }
     }
@@ -57,7 +57,7 @@ class SplitSecondKeywordScenarioTest : FunSpec({
         oracleText = "{T}: This creature deals 1 damage to any target."
         activatedAbility {
             cost = Costs.Tap
-            val t = target("target", Targets.Any)
+            val t = target(Targets.Any)
             effect = Effects.DealDamage(1, t)
         }
     }
@@ -78,7 +78,7 @@ class SplitSecondKeywordScenarioTest : FunSpec({
         oracleText = "Test Cycler deals 1 damage to any target.\nCycling {R}"
         keywordAbility(KeywordAbility.cycling("{R}"))
         spell {
-            val t = target("target", Targets.Any)
+            val t = target(Targets.Any)
             effect = Effects.DealDamage(1, t)
         }
     }

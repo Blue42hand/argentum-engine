@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -69,13 +68,10 @@ val AureliasVindicator = card("Aurelia's Vindicator") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        target(
-            "up to X other target creatures from the battlefield and/or creature cards from graveyards",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter.OtherCreature.or(TargetFilter.CreatureInGraveyard),
-                dynamicMaxCount = DynamicAmounts.xValue(),
-            ),
+        targets(
+            TargetFilter.OtherCreature.or(TargetFilter.CreatureInGraveyard),
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.xValue(),
         )
         effect = Effects.Pipeline {
             val vindicated = gather(CardSource.ChosenTargets)

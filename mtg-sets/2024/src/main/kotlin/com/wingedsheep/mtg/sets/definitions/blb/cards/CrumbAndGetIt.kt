@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Crumb and Get It
@@ -37,16 +37,16 @@ val CrumbAndGetIt = card("Crumb and Get It") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — +2/+2 until end of turn
             mode("Don't promise a gift — target creature you control gets +2/+2 until end of turn") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
                 effect = pump(creatureYouControl)
             },
             // Mode 2: Gift a Food — opponent creates Food, +2/+2 and indestructible until end of turn
             mode("Promise a gift — opponent creates a Food token, target creature you control gets +2/+2 and gains indestructible until end of turn") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
-                    .then(pump(creatureYouControl))
-                    .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creatureYouControl))
-                    .then(Effects.GiftGiven())
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    pump(creatureYouControl) then
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creatureYouControl) then
+                    Effects.GiftGiven()
             }
         )
     }

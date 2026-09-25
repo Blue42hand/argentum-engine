@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -89,10 +88,7 @@ class DayNightMechanicScenarioTest : ScenarioTestBase() {
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            val target = target(
-                "target creature card in your graveyard",
-                TargetObject(filter = TargetFilter.CreatureInYourGraveyard),
-            )
+            val target = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.Move(target, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
         }
     }

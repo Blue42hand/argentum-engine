@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sinister Cryologist
@@ -26,7 +25,7 @@ val SinisterCryologist = card("Sinister Cryologist") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val target = target("creature an opponent controls", Targets.CreatureOpponentControls)
+        val target = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ModifyStats(-3, 0, target)
     }
 

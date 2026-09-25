@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Stonesplitter Bolt
@@ -45,7 +45,7 @@ val StonesplitterBolt = card("Stonesplitter Bolt") {
     bargain()
 
     spell {
-        val victim = target("target creature or planeswalker", TargetCreatureOrPlaneswalker())
+        val victim = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.conditional(
                 condition = Conditions.WasBargained,

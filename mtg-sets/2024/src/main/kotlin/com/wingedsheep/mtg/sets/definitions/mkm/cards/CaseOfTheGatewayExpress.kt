@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Case of the Gateway Express — Murders at Karlov Manor #8
@@ -46,7 +45,7 @@ val CaseOfTheGatewayExpress = card("Case of the Gateway Express") {
         "Solved — Creatures you control get +1/+0."
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val creature = target(TargetFilter.Creature.opponentControls())
         trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = Filters.AllControlledCreatures,

@@ -15,12 +15,13 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tests for Dragonfire Blade (TDM) — exercises gap item 18:
@@ -131,7 +132,7 @@ class DragonfireBladeTest : FunSpec({
 
         val validator = TargetValidator(PredicateEvaluator(cardRegistry = null))
         val target = listOf<ChosenTarget>(ChosenTarget.Permanent(beast))
-        val req = listOf(TargetCreature())
+        val req = listOf(TargetObject(filter = TargetFilter.Creature))
 
         // A monocolored opponent's source can't target it.
         validator.validateTargets(

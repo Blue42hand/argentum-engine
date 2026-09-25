@@ -12,13 +12,13 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Engine coverage for the "one per other player" distribution shape —
@@ -46,13 +46,7 @@ class OneTargetPerOtherPlayerTest : FunSpec({
     }
 
     /** The −2's second requirement, exactly as the card declares it. */
-    val perOtherPlayer = TargetCreature(
-        filter = TargetFilter.CreatureOpponentControls,
-        optional = true,
-        dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
-        differentControllers = true,
-        id = "one target creature each other player controls",
-    )
+    val perOtherPlayer = TargetObject(filter = TargetFilter.CreatureOpponentControls, optional = true, dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent), differentControllers = true, id = "one target creature each other player controls")
 
     fun driverWith(seats: Int): GameTestDriver {
         val driver = GameTestDriver()

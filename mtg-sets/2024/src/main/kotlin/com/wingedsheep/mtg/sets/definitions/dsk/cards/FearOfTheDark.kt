@@ -44,10 +44,8 @@ val FearOfTheDark = card("Fear of the Dark") {
             ComparisonOperator.EQ,
             0
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
-        )
     }
 
     metadata {

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Mischievous Pup
@@ -30,10 +29,7 @@ val MischievousPup = card("Mischievous Pup") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "other permanent you control",
-            TargetPermanent(optional = true, filter = TargetFilter.PermanentYouControl.other())
-        )
+        val permanent = target(TargetFilter.PermanentYouControl.other(), optional = true)
         effect = Effects.ReturnToHand(permanent)
     }
 

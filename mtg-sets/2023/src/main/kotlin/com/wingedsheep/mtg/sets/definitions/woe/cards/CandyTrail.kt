@@ -30,10 +30,7 @@ val CandyTrail = card("Candy Trail") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.GainLife(3),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(3) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

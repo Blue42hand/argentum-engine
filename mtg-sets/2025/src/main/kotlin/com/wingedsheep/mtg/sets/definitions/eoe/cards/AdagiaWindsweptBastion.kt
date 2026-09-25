@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -53,10 +52,7 @@ val AdagiaWindsweptBastion = card("Adagia, Windswept Bastion") {
             Costs.Mana("{3}{W}"),
             Costs.Tap
         )
-        val targetPermanent = target(
-            "target artifact or enchantment you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrEnchantment.youControl()))
-        )
+        val targetPermanent = target(TargetFilter(GameObjectFilter.ArtifactOrEnchantment.youControl()))
         effect = Effects.CreateTokenCopyOfTarget(
             target = targetPermanent,
             addedSupertypes = setOf(Supertype.LEGENDARY)

@@ -26,7 +26,7 @@ val CranialArchive = card("Cranial Archive") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.ExileSelf)
-        target("player", Targets.Player)
+        target(Targets.Player)
         effect = Effects.Pipeline {
             val graveyardCards = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))
             move(graveyardCards, CardDestination.ToZone(Zone.LIBRARY, Player.TargetPlayer, ZonePlacement.Shuffled))

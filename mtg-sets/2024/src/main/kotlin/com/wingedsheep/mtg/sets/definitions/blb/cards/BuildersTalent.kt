@@ -5,15 +5,12 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Builder's Talent {1}{W}
@@ -59,7 +56,7 @@ val BuildersTalent = card("Builder's Talent") {
     classLevel(2, "{W}") {
         triggeredAbility {
             trigger = Triggers.oneOrMore(GameObjectFilter.Noncreature and GameObjectFilter.Nonland).enter()
-            val creature = target("creature you control", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         }
     }
@@ -70,13 +67,10 @@ val BuildersTalent = card("Builder's Talent") {
         triggeredAbility {
             trigger = Triggers.self.enters()
             val card = target(
-                "noncreature, nonland permanent card in your graveyard",
-                TargetObject(
-                    filter = TargetFilter(
-                        baseFilter = (GameObjectFilter.NoncreaturePermanent and GameObjectFilter.Nonland).ownedByYou(),
-                        zone = Zone.GRAVEYARD
-                    )
-                )
+                TargetFilter(
+                    baseFilter = (GameObjectFilter.NoncreaturePermanent and GameObjectFilter.Nonland).ownedByYou(),
+                    zone = Zone.GRAVEYARD
+                ),
             )
             effect = Effects.PutOntoBattlefield(card)
         }

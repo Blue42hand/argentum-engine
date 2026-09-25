@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Lake-town — The Hobbit #186
@@ -51,10 +50,7 @@ val LakeTown = card("Lake-town") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{W}{U}"), Costs.Tap, Costs.SacrificeSelf)
-        val human = target(
-            "target Human you control",
-            TargetCreature(filter = TargetFilter.PermanentYouControl.withSubtype(Subtype.HUMAN))
-        )
+        val human = target(TargetFilter.PermanentYouControl.withSubtype(Subtype.HUMAN))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, human)
         timing = TimingRule.SorcerySpeed
         description = "Put two +1/+1 counters on target Human you control."

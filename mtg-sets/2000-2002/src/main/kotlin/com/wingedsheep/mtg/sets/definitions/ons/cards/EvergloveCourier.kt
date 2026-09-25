@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Everglove Courier
@@ -31,9 +30,7 @@ val EvergloveCourier = card("Everglove Courier") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Elf"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Elf")))
         effect = Effects.ModifyStats(2, 2, t, Duration.WhileSourceTapped()) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, t, Duration.WhileSourceTapped())
     }

@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,7 +25,7 @@ val ChainersEdict = card("Chainer's Edict") {
     typeLine = "Sorcery"
     oracleText = "Target player sacrifices a creature of their choice.\nFlashback {5}{B}{B} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, t)
     }
     keywordAbility(KeywordAbility.flashback("{5}{B}{B}"))

@@ -53,15 +53,13 @@ val BoomScholar = card("Boom Scholar") {
     activatedAbility {
         cost = Costs.Mana("{4}{R}{G}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(
-                    (GameObjectFilter.Creature or GameObjectFilter.Any.withSubtype("Vehicle")).youControl()
-                ),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
+        effect = Effects.ForEachInGroup(
+            GroupFilter(
+                (GameObjectFilter.Creature or GameObjectFilter.Any.withSubtype("Vehicle")).youControl()
             ),
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
+        ) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
-        )
         description = "Creatures and Vehicles you control gain trample until end of turn. Put two " +
             "+1/+1 counters on this creature."
     }

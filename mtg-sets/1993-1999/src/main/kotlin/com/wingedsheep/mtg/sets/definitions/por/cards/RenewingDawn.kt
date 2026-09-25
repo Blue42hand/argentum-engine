@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -27,7 +28,7 @@ val RenewingDawn = card("Renewing Dawn") {
     typeLine = "Sorcery"
     oracleText = "You gain 2 life for each Mountain target opponent controls."
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(
                 Player.TargetOpponent,

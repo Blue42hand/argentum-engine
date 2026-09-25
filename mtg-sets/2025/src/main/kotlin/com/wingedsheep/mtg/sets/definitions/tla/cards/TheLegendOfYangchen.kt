@@ -12,8 +12,8 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * The Legend of Yangchen // Avatar Yangchen (TLA #27)
@@ -73,16 +73,13 @@ private val AvatarYangchen = card("Avatar Yangchen") {
     // Whenever you cast your second spell each turn, airbend up to one other target nonland permanent.
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)
-        target(
-            "up to one other target nonland permanent",
-            TargetOther(
+        target(TargetOther(
                 baseRequirement = TargetObject(
                     count = 1,
                     optional = true,
                     filter = TargetFilter.NonlandPermanent
                 )
-            )
-        )
+            ))
         effect = Effects.Airbend()
         description = "Whenever you cast your second spell each turn, airbend up to one other " +
             "target nonland permanent."
@@ -149,12 +146,9 @@ private val TheLegendOfYangchenFront = card("The Legend of Yangchen") {
 
     // II — You may have target opponent draw three cards. If you do, draw three cards.
     sagaChapter(2) {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DrawCards(3, opponent),
-                Effects.DrawCards(3)
-            )
+            Effects.DrawCards(3, opponent) then Effects.DrawCards(3)
         )
     }
 

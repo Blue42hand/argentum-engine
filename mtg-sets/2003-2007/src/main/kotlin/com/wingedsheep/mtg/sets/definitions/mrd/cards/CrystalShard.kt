@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Crystal Shard — Mirrodin #159 (canonical printing)
@@ -39,14 +39,14 @@ val CrystalShard = card("Crystal Shard") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = bounceUnlessControllerPays(creature)
         description = "{3}, {T}: Return target creature to its owner's hand unless its controller pays {1}."
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.Tap)
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = bounceUnlessControllerPays(creature)
         description = "{U}, {T}: Return target creature to its owner's hand unless its controller pays {1}."
     }
@@ -67,7 +67,7 @@ private fun bounceUnlessControllerPays(creature: EffectTarget) = Effects.MayPay(
             payer = Player.ControllerOf("target creature")
         ),
     decisionMaker = EffectTarget.TargetController,
-    then = Effects.Composite(emptyList()),
+    then = Effects.Nothing,
     otherwise = Effects.ReturnToHand(creature),
     descriptionOverride = "Return target creature to its owner's hand unless its controller pays {1}."
 )

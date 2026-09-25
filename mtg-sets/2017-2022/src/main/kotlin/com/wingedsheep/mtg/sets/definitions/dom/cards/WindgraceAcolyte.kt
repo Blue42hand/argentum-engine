@@ -27,8 +27,7 @@ val WindgraceAcolyte = card("Windgrace Acolyte") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Patterns.Library.mill(3)
-            .then(Effects.GainLife(3))
+        effect = Patterns.Library.mill(3) then Effects.GainLife(3)
     }
 
     metadata {

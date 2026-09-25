@@ -73,20 +73,15 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
     // total is less than or equal to half your starting life total, untap Cecil and transform it.
     triggeredAbility {
         trigger = Triggers.self.dealsDamage()
-        effect = Effects.Composite(listOf(
-            Effects.LoseLife(DynamicAmounts.triggerDamageAmount(), EffectTarget.Controller),
+        effect = Effects.LoseLife(DynamicAmounts.triggerDamageAmount(), EffectTarget.Controller) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.lifeTotal(Player.You),
                     ComparisonOperator.LTE,
                     DynamicAmounts.startingLifeTotal(Player.You) / 2
                 ),
-                then = Effects.Composite(listOf(
-                    Effects.Untap(EffectTarget.Self),
-                    Effects.Transform(EffectTarget.Self)
-                ))
+                then = Effects.Untap(EffectTarget.Self) then Effects.Transform(EffectTarget.Self)
             )
-        ))
     }
 
     metadata {

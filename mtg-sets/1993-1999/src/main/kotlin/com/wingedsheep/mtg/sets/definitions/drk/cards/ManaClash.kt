@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Mana Clash
@@ -39,27 +39,25 @@ val ManaClash = card("Mana Clash") {
         "heads on the same flip."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         val myHeads = DynamicAmounts.storedNumber("manaClashMine")
         val theirHeads = DynamicAmounts.storedNumber("manaClashTheirs")
 
         effect = Effects.RepeatWhile(
-            body = Effects.Composite(
-                Effects.FlipCoins(1, storeHeadsAs = "manaClashMine"),
-                Effects.FlipCoins(1, storeHeadsAs = "manaClashTheirs"),
+            body = Effects.FlipCoins(1, storeHeadsAs = "manaClashMine") then
+                Effects.FlipCoins(1, storeHeadsAs = "manaClashTheirs") then
                 Effects.If(
                     condition = Conditions.CompareAmounts(
                         myHeads, ComparisonOperator.EQ, 0
                     ),
                     then = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)),
-                ),
+                ) then
                 Effects.If(
                     condition = Conditions.CompareAmounts(
                         theirHeads, ComparisonOperator.EQ, 0
                     ),
                     then = Effects.DealDamage(1, opponent),
                 ),
-            ),
             repeatCondition = RepeatCondition.WhileCondition(
                 Conditions.Not(
                     Conditions.All(

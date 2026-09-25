@@ -48,10 +48,7 @@ private val ForebodingStatueFront = card("Foreboding Statue") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddAnyColorMana(1),
-            Effects.AddCounters(CounterType.OMEN, 1, EffectTarget.Self)
-        )
+        effect = Effects.AddAnyColorMana(1) then Effects.AddCounters(CounterType.OMEN, 1, EffectTarget.Self)
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "{T}: Add one mana of any color. Put an omen counter on this creature."

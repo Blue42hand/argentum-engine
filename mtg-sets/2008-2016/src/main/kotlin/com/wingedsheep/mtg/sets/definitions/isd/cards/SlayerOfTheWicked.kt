@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,14 +31,11 @@ val SlayerOfTheWicked = card("Slayer of the Wicked") {
         trigger = Triggers.self.enters()
         optional = true
         val t = target(
-            "target",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.withSubtype(
-                        "Vampire"
-                    ) or GameObjectFilter.Creature.withSubtype("Werewolf") or GameObjectFilter.Creature.withSubtype("Zombie")
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature.withSubtype(
+                    "Vampire"
+                ) or GameObjectFilter.Creature.withSubtype("Werewolf") or GameObjectFilter.Creature.withSubtype("Zombie")
+            ),
         )
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

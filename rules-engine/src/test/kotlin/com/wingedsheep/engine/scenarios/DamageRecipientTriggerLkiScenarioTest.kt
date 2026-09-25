@@ -4,7 +4,6 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Regression for the recipient-based damage-trigger last-known-information gap: a creature that
@@ -65,7 +65,7 @@ class DamageRecipientTriggerLkiScenarioTest : FunSpec({
     val Bolt = card("LKI Bolt") {
         manaCost = "{0}"; typeLine = "Sorcery"; oracleText = "Deal 5 damage to target creature."
         spell {
-            val c = target("target creature", Targets.Creature)
+            val c = target(TargetFilter.Creature)
             effect = Effects.DealDamage(5, c)
         }
     }

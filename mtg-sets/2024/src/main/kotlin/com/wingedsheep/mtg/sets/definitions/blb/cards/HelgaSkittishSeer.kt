@@ -37,17 +37,13 @@ val HelgaSkittishSeer = card("Helga, Skittish Seer") {
     // Triggered ability: whenever you cast a creature spell with MV 4+
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature.manaValueAtLeast(4))
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1),
-                Effects.GainLife(1),
-                Effects.AddCounters(
-                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    count = 1,
-                    target = EffectTarget.Self
-                )
+        effect = Effects.DrawCards(1) then
+            Effects.GainLife(1) then
+            Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                count = 1,
+                target = EffectTarget.Self
             )
-        )
     }
 
     // Mana ability: {T}: Add X mana of any one color, where X is Helga's power

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -49,14 +48,9 @@ val JenovaAncientCalamity = card("Jenova, Ancient Calamity") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         // "Up to one other target" — both the counters and the type grant no-op if no target
         // is chosen, which faithfully matches "up to one".
-        val t = target(
-            "up to one other target creature",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreature)
-        )
-        effect = Effects.Composite(listOf(
-            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.sourcePower(), t),
+        val t = target(TargetFilter.OtherCreature, optional = true)
+        effect = Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.sourcePower(), t) then
             Effects.AddCreatureType("Mutant", t)
-        ))
     }
 
     triggeredAbility {

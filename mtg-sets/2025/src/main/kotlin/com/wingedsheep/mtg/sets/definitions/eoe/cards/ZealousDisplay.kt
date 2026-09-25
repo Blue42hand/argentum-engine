@@ -20,23 +20,19 @@ val ZealousDisplay = card("Zealous Display") {
     oracleText = "Creatures you control get +2/+0 until end of turn. If it's not your turn, untap those creatures."
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                // Creatures you control get +2/+0 until end of turn
-                Effects.ForEachInGroup(
+        // Creatures you control get +2/+0 until end of turn
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreaturesYouControl,
+            Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
+        ) then
+            // If it's not your turn, untap those creatures
+            Effects.If(
+                condition = IsNotYourTurn,
+                then = Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
-                ),
-                // If it's not your turn, untap those creatures
-                Effects.If(
-                    condition = IsNotYourTurn,
-                    then = Effects.ForEachInGroup(
-                        GroupFilter.AllCreaturesYouControl,
-                        Effects.Untap(EffectTarget.IterationEntity)
-                    )
+                    Effects.Untap(EffectTarget.IterationEntity)
                 )
             )
-        )
     }
 
     metadata {

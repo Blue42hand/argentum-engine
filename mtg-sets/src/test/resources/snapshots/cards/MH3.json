@@ -40,7 +40,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target permanent"
+                            "name": "t0"
                         }
                     },
                     "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
@@ -50,7 +50,7 @@
                     "filter": {
                         "baseFilter": "artifact creature"
                     },
-                    "id": "target permanent"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
             },
@@ -74,7 +74,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature opponent controls"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -82,7 +82,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target creature opponent controls"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever another artifact you control enters, target creature an opponent controls gets -1/-1 until end of turn."
             }
@@ -332,7 +332,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 }
             ]
@@ -340,7 +340,7 @@
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -428,7 +428,7 @@
                                 "count": 2,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target attacking creature"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -437,7 +437,7 @@
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target attacking creature"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -445,7 +445,7 @@
                                 "subtype": "Angel",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target attacking creature"
+                                    "name": "t0"
                                 }
                             }
                         ]
@@ -456,7 +456,7 @@
                             "filter": {
                                 "baseFilter": "creature attacking"
                             },
-                            "id": "target attacking creature"
+                            "id": "t0"
                         }
                     ],
                     "descriptionOverride": "You may pay {E}{E}{E}. When you do, put two +1/+1 counters and a flying counter on target attacking creature. It becomes an Angel in addition to its other types."
@@ -846,7 +846,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -855,7 +855,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{3}{R}, Sacrifice this creature: It deals 4 damage to target creature."
@@ -993,7 +993,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target creature"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
@@ -1002,7 +1002,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target creature"
+                            "id": "t0"
                         }
                     ],
                     "description": "Thraben Charm deals damage equal to twice the number of creatures you control to target creature"
@@ -1012,7 +1012,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target enchantment"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -1023,7 +1023,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "target enchantment"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target enchantment"
@@ -1062,7 +1062,7 @@
                         {
                             "type": "TargetPlayer",
                             "unlimited": true,
-                            "id": "any number of target players"
+                            "id": "t2"
                         }
                     ],
                     "description": "Exile any number of target players' graveyards"
@@ -1287,7 +1287,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1296,7 +1296,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1311,7 +1311,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },

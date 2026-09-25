@@ -5,13 +5,11 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Unexpected Request
@@ -44,18 +42,14 @@ val UnexpectedRequest = card("Unexpected Request") {
 
     spell {
         // creature = ContextTarget(0), equipment = ContextTarget(1) (declaration order).
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         val equipment = target(
-            "an Equipment you control",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
-                optional = true
-            )
+            TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
+            optional = true,
         )
-        effect = Effects.Composite(
-            Effects.GainControl(creature, Duration.EndOfTurn),
-            Effects.Untap(creature),
-            Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn),
+        effect = Effects.GainControl(creature, Duration.EndOfTurn) then
+            Effects.Untap(creature) then
+            Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn) then
             Effects.If(
                 // "If you do" — the ConditionEvaluator only dispatches ContextTarget (not the
                 // bound-variable handle), so gate on the equipment's positional slot.
@@ -63,18 +57,15 @@ val UnexpectedRequest = card("Unexpected Request") {
                     equipment,
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
                 ),
-                then = Effects.Composite(
-                    Effects.AttachTargetEquipmentToCreature(
-                        equipmentTarget = equipment,
-                        creatureTarget = creature
-                    ),
+                then = Effects.AttachTargetEquipmentToCreature(
+                    equipmentTarget = equipment,
+                    creatureTarget = creature
+                ) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.UnattachEquipment(equipment)
                     )
-                )
             )
-        )
     }
 
     metadata {

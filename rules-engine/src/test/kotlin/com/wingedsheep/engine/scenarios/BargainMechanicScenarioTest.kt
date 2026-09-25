@@ -25,11 +25,11 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Bargain (CR 702.166, Wilds of Eldraine) end to end.
@@ -79,14 +79,12 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
             "bargained, it deals 4 damage to that creature instead."
         bargain()
         spell {
-            val damaged = target("target creature", TargetCreature())
-            effect = Effects.Composite(
-                Effects.DealDamage(2, damaged),
+            val damaged = target(TargetFilter.Creature)
+            effect = Effects.DealDamage(2, damaged) then
                 Effects.If(
                     condition = Conditions.WasBargained,
                     then = Effects.DealDamage(2, damaged),
-                ),
-            )
+                )
         }
     }
 
@@ -138,11 +136,8 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         bargain()
         spell {
             effect = Effects.GainLife(1)
-            val pumped = kickerTarget("target creature", TargetCreature())
-            kickerEffect = Effects.Composite(
-                Effects.ModifyStats(3, 3, pumped),
-                Effects.GainLife(1),
-            )
+            val pumped = kickerTarget(TargetFilter.Creature)
+            kickerEffect = Effects.ModifyStats(3, 3, pumped) then Effects.GainLife(1)
         }
     }
 

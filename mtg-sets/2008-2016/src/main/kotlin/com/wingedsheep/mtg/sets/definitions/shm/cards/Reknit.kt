@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Reknit
@@ -26,7 +27,7 @@ val Reknit = card("Reknit") {
     oracleText = "Regenerate target permanent."
 
     spell {
-        val t = target("target", Targets.Permanent)
+        val t = target(TargetFilter.Permanent)
         effect = Effects.Regenerate(t)
     }
 

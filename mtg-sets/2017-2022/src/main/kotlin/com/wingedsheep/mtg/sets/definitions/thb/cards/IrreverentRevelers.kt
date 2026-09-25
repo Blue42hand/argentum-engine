@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.thb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Irreverent Revelers
@@ -35,7 +35,7 @@ val IrreverentRevelers = card("Irreverent Revelers") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact.") {
-                val artifact = target("target artifact", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Destroy(artifact)
             },
             Mode.noTarget(

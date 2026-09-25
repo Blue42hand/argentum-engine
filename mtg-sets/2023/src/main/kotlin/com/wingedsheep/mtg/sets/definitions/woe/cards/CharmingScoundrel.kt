@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Charming Scoundrel
@@ -46,7 +45,7 @@ val CharmingScoundrel = card("Charming Scoundrel") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.Discard(1).then(Effects.DrawCards(1)),
+                Effects.Discard(1) then Effects.DrawCards(1),
                 "Discard a card, then draw a card."
             ),
             Mode.noTarget(
@@ -54,10 +53,7 @@ val CharmingScoundrel = card("Charming Scoundrel") {
                 "Create a Treasure token."
             ),
             mode("Create a Wicked Role token attached to target creature you control.") {
-                val creatureYouControl = target(
-                    "target creature you control",
-                    TargetCreature(filter = TargetFilter.CreatureYouControl)
-                )
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
                 effect = Effects.CreateRoleToken("Wicked Role", creatureYouControl)
             }
         )

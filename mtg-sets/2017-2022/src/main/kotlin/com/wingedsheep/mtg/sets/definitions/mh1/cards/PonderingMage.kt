@@ -28,11 +28,9 @@ val PonderingMage = card("Pondering Mage") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.lookAtTopAndReorder(count = 3),
-            Effects.May(Effects.ShuffleLibrary()),
-            Effects.DrawCards(1),
-        )
+        effect = Patterns.Library.lookAtTopAndReorder(count = 3) then
+            Effects.May(Effects.ShuffleLibrary()) then
+            Effects.DrawCards(1)
         description = "When this creature enters, look at the top three cards of your library, then put them back in any order. You may shuffle. Draw a card."
     }
 

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -49,7 +48,7 @@ val ScreamingSwarm = card("Screaming Swarm") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val victim = target("target", Targets.Player)
+        val victim = target(Targets.Player)
         effect = Patterns.Library.mill(
             DynamicAmounts.attackingCreaturesYouControl(),
             victim

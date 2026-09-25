@@ -23,16 +23,14 @@ val UrzasTome = card("Urza's Tome") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        effect = Effects.DrawCards(1)
-            .then(
-                Effects.PayOrSuffer(
-                    cost = Costs.pay.Exile(
-                        filter = GameObjectFilter.Historic,
-                        zone = Zone.GRAVEYARD,
-                        count = 1
-                    ),
-                    suffer = Patterns.Hand.discardCards(1)
-                )
+        effect = Effects.DrawCards(1) then
+            Effects.PayOrSuffer(
+                cost = Costs.pay.Exile(
+                    filter = GameObjectFilter.Historic,
+                    zone = Zone.GRAVEYARD,
+                    count = 1
+                ),
+                suffer = Patterns.Hand.discardCards(1)
             )
     }
 

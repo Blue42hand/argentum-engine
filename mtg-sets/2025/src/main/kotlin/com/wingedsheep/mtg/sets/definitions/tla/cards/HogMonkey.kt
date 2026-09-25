@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -40,8 +39,7 @@ val HogMonkey = card("Hog-Monkey") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target(
-            "target creature you control with a +1/+1 counter on it",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)))
+            TargetFilter(GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)),
         )
         effect = Effects.GrantKeyword(Keyword.MENACE, creature)
         description = "At the beginning of combat on your turn, target creature you control with a +1/+1 counter on it gains menace until end of turn."

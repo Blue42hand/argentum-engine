@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -69,15 +68,11 @@ val AlacrianArmory = card("Alacrian Armory") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val permanent = target(
-            "up to one target Mount or Vehicle you control",
-            TargetPermanent(optional = true, filter = TargetFilter(MountOrVehicleYouControl))
-        )
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.TargetMatchesFilter(Mount, permanent),
-                then = Effects.BecomeSaddled(permanent)
-            ),
+        val permanent = target(TargetFilter(MountOrVehicleYouControl), optional = true)
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(Mount, permanent),
+            then = Effects.BecomeSaddled(permanent)
+        ) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(Vehicle, permanent),
                 then = Effects.AddCardType(
@@ -85,8 +80,7 @@ val AlacrianArmory = card("Alacrian Armory") {
                     target = permanent,
                     duration = Duration.EndOfTurn
                 )
-            ),
-        )
+            )
         description = "At the beginning of combat on your turn, choose up to one target Mount or " +
             "Vehicle you control. Until end of turn, that permanent becomes saddled if it's a " +
             "Mount and becomes an artifact creature if it's a Vehicle."

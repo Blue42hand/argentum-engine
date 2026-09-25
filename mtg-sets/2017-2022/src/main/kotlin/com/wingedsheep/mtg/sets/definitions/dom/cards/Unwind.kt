@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Unwind
@@ -21,16 +21,16 @@ val Unwind = card("Unwind") {
     oracleText = "Counter target noncreature spell. Untap up to three lands."
 
     spell {
-        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
-        effect = Effects.CounterSpell()
-            .then(Effects.Pipeline {
+        val noncreatureSpell = target(TargetFilter.NoncreatureSpellOnStack)
+        effect = Effects.CounterSpell() then
+            Effects.Pipeline {
                 val lands = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Land))
                 val toUntap = chooseUpTo(3, from = lands)
                 run(Effects.TapCollection(
                     collection = toUntap,
                     tap = false
                 ))
-            })
+            }
     }
 
     metadata {

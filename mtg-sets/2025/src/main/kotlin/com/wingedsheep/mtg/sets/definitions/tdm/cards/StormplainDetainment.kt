@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Stormplain Detainment
@@ -26,10 +25,7 @@ val StormplainDetainment = card("Stormplain Detainment") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "nonland permanent an opponent controls",
-            TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls)
-        )
+        val permanent = target(TargetFilter.NonlandPermanentOpponentControls)
         effect = Effects.ExileUntilLeaves(permanent)
     }
 

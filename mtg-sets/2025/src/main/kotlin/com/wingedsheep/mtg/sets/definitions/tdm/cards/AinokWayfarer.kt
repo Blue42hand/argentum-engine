@@ -57,7 +57,7 @@ val AinokWayfarer = card("Ainok Wayfarer") {
                     )
                     toHand(chosen, revealed = true)
                 },
-                then = Effects.Composite(),
+                then = Effects.Nothing,
                 otherwise = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             ))
         }

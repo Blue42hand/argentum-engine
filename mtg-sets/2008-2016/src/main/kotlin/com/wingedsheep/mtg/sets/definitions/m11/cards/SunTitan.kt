@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sun Titan
@@ -41,13 +40,7 @@ val SunTitan = card("Sun Titan") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val permanentCard = target(
-            "permanent card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3),
-                    zone = Zone.GRAVEYARD,
-                ),
-            ),
+            TargetFilter(GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD),
         )
         effect = Effects.PutOntoBattlefieldFromGraveyard(permanentCard)
         optional = true
@@ -57,13 +50,7 @@ val SunTitan = card("Sun Titan") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val permanentCard = target(
-            "permanent card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3),
-                    zone = Zone.GRAVEYARD,
-                ),
-            ),
+            TargetFilter(GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD),
         )
         effect = Effects.PutOntoBattlefieldFromGraveyard(permanentCard)
         optional = true

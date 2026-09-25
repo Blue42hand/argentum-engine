@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Weaver of Lies
@@ -28,10 +27,7 @@ val WeaverOfLies = card("Weaver of Lies") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val t = target("creatures with morph abilities other than this creature", TargetPermanent(
-            unlimited = true,
-            filter = TargetFilter(GameObjectFilter.Creature.withMorph().faceUp()).other()
-        ))
+        targets(TargetFilter(GameObjectFilter.Creature.withMorph().faceUp()).other(), unlimited = true)
         effect = Effects.ForEachTarget(
             Effects.TurnFaceDown(EffectTarget.ContextTarget(0))
         )

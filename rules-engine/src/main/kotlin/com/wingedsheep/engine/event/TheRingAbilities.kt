@@ -31,10 +31,7 @@ object TheRingAbilities {
         id = AbilityId("the_ring_attack_loot"),
         trigger = Triggers.self.attacks().event,
         binding = TriggerBinding.SELF,
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.Discard(1, EffectTarget.Controller)
-        ),
+        effect = Effects.DrawCards(1) then Effects.Discard(1, EffectTarget.Controller),
         descriptionOverride = "Whenever your Ring-bearer attacks, draw a card, then discard a card."
     )
 

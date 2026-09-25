@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Toph, Hardheaded Teacher
@@ -36,10 +35,7 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
     // ETB: optional discard; if you do, return the targeted instant/sorcery from your graveyard.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val spellCard = target(
-            "target instant or sorcery card from your graveyard",
-            TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard),
-        )
+        val spellCard = target(TargetFilter.InstantOrSorceryInYourGraveyard)
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
@@ -51,17 +47,12 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
     // Whenever you cast a spell: earthbend 1, with an extra +1/+1 counter on that land if it's a Lesson.
     triggeredAbility {
         trigger = Triggers.you.casts()
-        val land = target(
-            "target land you control",
-            TargetObject(filter = TargetFilter.Land.youControl()),
-        )
-        effect = Effects.Composite(
-            Effects.Earthbend(1, land),
+        val land = target(TargetFilter.Land.youControl())
+        effect = Effects.Earthbend(1, land) then
             Effects.If(
                 Conditions.TriggeringSpellMatches(GameObjectFilter.Any.withSubtype("Lesson")),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, land),
-            ),
-        )
+            )
     }
 
     metadata {

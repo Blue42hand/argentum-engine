@@ -70,7 +70,7 @@ val TheGooseMother = card("The Goose Mother") {
                 GameObjectFilter.Artifact.withSubtype("Food"),
                 count = 1,
                 target = EffectTarget.Controller,
-            ).then(Effects.DrawCards(1)),
+            ) then Effects.DrawCards(1),
             feasibility = FeasibilityCheck.ControlsPermanentMatching(
                 GameObjectFilter.Artifact.withSubtype("Food")
             ),

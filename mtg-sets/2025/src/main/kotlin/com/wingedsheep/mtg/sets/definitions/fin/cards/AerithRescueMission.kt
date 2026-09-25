@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Aerith Rescue Mission
@@ -61,7 +61,7 @@ val AerithRescueMission = card("Aerith Rescue Mission") {
             mode(
                 "Take 59 Flights of Stairs — Tap up to three target creatures. Put a stun counter on one of them."
             ) {
-                target("creatures", TargetCreature(count = 3, optional = true))
+                targets(TargetFilter.Creature, count = 3, optional = true)
                 effect = Effects.Pipeline {
                     run(Effects.TapEachTarget())
                     val aerithTapped = gather(CardSource.ChosenTargets)

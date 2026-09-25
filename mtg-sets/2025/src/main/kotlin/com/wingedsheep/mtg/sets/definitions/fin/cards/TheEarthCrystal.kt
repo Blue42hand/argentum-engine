@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Earth Crystal
@@ -58,7 +58,7 @@ val TheEarthCrystal = card("The Earth Crystal") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{G}{G}"), Costs.Tap)
-        target = TargetCreature(count = 2, minCount = 1, filter = TargetFilter.CreatureYouControl)
+        target = TargetObject(filter = TargetFilter.CreatureYouControl, count = 2, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 2)
     }
 

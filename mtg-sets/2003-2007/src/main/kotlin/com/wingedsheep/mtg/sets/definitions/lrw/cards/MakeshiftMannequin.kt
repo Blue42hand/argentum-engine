@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Makeshift Mannequin — Lorwyn #124
@@ -44,20 +44,18 @@ val MakeshiftMannequin = card("Makeshift Mannequin") {
         "has \"When this creature becomes the target of a spell or ability, sacrifice it.\""
 
     spell {
-        val creature = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
-        effect = Effects.PutOntoBattlefieldFromGraveyard(creature)
-            .then(Effects.AddCounters(CounterType.MANNEQUIN, 1, creature))
-            .then(
-                Effects.GrantTriggeredAbility(
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.self.becomesTarget(),
-                        effect = Effects.SacrificeTarget(EffectTarget.Self),
-                        descriptionOverride = "When this creature becomes the target of a spell " +
-                            "or ability, sacrifice it."
-                    ),
-                    target = creature,
-                    duration = Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN)
-                )
+        val creature = target(TargetFilter.CreatureInYourGraveyard)
+        effect = Effects.PutOntoBattlefieldFromGraveyard(creature) then
+            Effects.AddCounters(CounterType.MANNEQUIN, 1, creature) then
+            Effects.GrantTriggeredAbility(
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.self.becomesTarget(),
+                    effect = Effects.SacrificeTarget(EffectTarget.Self),
+                    descriptionOverride = "When this creature becomes the target of a spell " +
+                        "or ability, sacrifice it."
+                ),
+                target = creature,
+                duration = Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN)
             )
     }
 

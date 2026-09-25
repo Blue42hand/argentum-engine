@@ -2,12 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Trickster's Stratagem
@@ -36,11 +34,8 @@ val TrickstersStratagem = card("Trickster's Stratagem") {
         "+1/+1 counter on that creature.)"
 
     spell {
-        val victim = target("target creature an opponent controls", Targets.CreatureOpponentControls)
-        val conniver = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
-        )
+        val victim = target(TargetFilter.CreatureOpponentControls)
+        val conniver = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.PutSecondFromTopOrBottomOfLibrary(victim) then Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, conniver),
             then = Effects.Connive(conniver),

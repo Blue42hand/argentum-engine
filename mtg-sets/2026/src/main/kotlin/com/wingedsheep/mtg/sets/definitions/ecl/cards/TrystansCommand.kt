@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Trystan's Command
@@ -36,10 +36,7 @@ val TrystansCommand = card("Trystan's Command") {
     spell {
         modal(chooseCount = 2) {
             mode("Create a token that's a copy of target Elf you control") {
-                val elf = target(
-                    "an Elf you control",
-                    TargetObject(filter = TargetFilter(GameObjectFilter.Creature.youControl().withSubtype("Elf")))
-                )
+                val elf = target(TargetFilter(GameObjectFilter.Creature.youControl().withSubtype("Elf")))
                 effect = Effects.CreateTokenCopyOfTarget(elf)
             }
             mode("Return one or two target permanent cards from your graveyard to your hand") {
@@ -53,14 +50,11 @@ val TrystansCommand = card("Trystan's Command") {
                 )
             }
             mode("Destroy target creature or enchantment") {
-                val perm = target(
-                    "a creature or enchantment",
-                    TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrEnchantment))
-                )
+                val perm = target(TargetFilter(GameObjectFilter.CreatureOrEnchantment))
                 effect = Effects.Destroy(perm)
             }
             mode("Creatures target player controls get +3/+3 until end of turn. Untap them") {
-                val player = target("target player", TargetPlayer())
+                val player = target(Targets.Player)
                 effect = Patterns.Group.modifyStatsForAll(
                     power = 3,
                     toughness = 3,

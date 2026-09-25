@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Consumed by Greed {1}{B}{B}
@@ -37,24 +38,17 @@ val ConsumedByGreed = card("Consumed by Greed") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — target opponent sacrifices creature with greatest power
             mode("Don't promise a gift — target opponent sacrifices a creature with the greatest power") {
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = sacrificeGreatestPower(opponent)
             },
             // Mode 2: Gift a card — opponent draws, sacrifice, return creature from graveyard
             mode("Promise a gift — opponent draws a card, target opponent sacrifices a creature with the greatest power, return target creature card from your graveyard to your hand") {
-                val opponent = target("target opponent", Targets.Opponent)
-                val creatureCardInYourGraveyard = target(
-                    "target creature card in your graveyard",
-                    Targets.CreatureCardInYourGraveyard
-                )
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                        sacrificeGreatestPower(opponent),
-                        Effects.ReturnToHand(creatureCardInYourGraveyard),
-                        Effects.GiftGiven()
-                    )
-                )
+                val opponent = target(Targets.Opponent)
+                val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    sacrificeGreatestPower(opponent) then
+                    Effects.ReturnToHand(creatureCardInYourGraveyard) then
+                    Effects.GiftGiven()
             }
         )
     }

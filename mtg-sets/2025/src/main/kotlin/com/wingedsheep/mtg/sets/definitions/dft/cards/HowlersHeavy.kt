@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Howler's Heavy — Aetherdrift #46
@@ -39,10 +38,7 @@ val HowlersHeavy = card("Howler's Heavy") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val victim = target(
-            "target creature or Vehicle an opponent controls",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.opponentControls()))
-        )
+        val victim = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.opponentControls()))
         effect = Effects.ModifyStats(-3, 0, victim)
         description = "When you cycle this card, target creature or Vehicle an opponent controls " +
             "gets -3/-0 until end of turn."

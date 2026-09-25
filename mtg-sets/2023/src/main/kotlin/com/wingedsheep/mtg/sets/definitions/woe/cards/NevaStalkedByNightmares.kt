@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Neva, Stalked by Nightmares
@@ -59,12 +58,9 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "target creature or enchantment card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.CreatureOrEnchantment.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                baseFilter = GameObjectFilter.CreatureOrEnchantment.ownedByYou(),
+                zone = Zone.GRAVEYARD,
             ),
         )
         effect = Effects.ReturnToHand(card)
@@ -74,10 +70,8 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).dies()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Patterns.Library.scry(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Patterns.Library.scry(1)
         description = "Whenever an enchantment you control is put into a graveyard from the " +
             "battlefield, put a +1/+1 counter on Neva, then scry 1."
     }

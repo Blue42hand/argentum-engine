@@ -31,13 +31,11 @@ val HammerfistGiant = card("Hammerfist Giant") {
     toughness = 4
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                Effects.DealDamage(4, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
+            Effects.DealDamage(4, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(4, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.RARE

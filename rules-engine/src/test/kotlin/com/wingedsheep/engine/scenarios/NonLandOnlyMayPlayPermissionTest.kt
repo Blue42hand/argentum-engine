@@ -45,19 +45,15 @@ class NonLandOnlyMayPlayPermissionTest : ScenarioTestBase() {
             toughness = 1
             triggeredAbility {
                 trigger = Triggers.self.enters()
-                effect = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.You),
-                            storeAs = "exiled"
-                        ),
-                        MoveCollectionEffect(
-                            from = "exiled",
-                            destination = CardDestination.ToZone(Zone.EXILE, player = Player.You)
-                        ),
-                        Effects.GrantMayPlayFromExile(from = "exiled", nonLandOnly = true)
-                    )
-                )
+                effect = GatherCardsEffect(
+                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.You),
+                    storeAs = "exiled"
+                ) then
+                    MoveCollectionEffect(
+                        from = "exiled",
+                        destination = CardDestination.ToZone(Zone.EXILE, player = Player.You)
+                    ) then
+                    Effects.GrantMayPlayFromExile(from = "exiled", nonLandOnly = true)
             }
         }
 
@@ -69,19 +65,15 @@ class NonLandOnlyMayPlayPermissionTest : ScenarioTestBase() {
             toughness = 1
             triggeredAbility {
                 trigger = Triggers.self.enters()
-                effect = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.You),
-                            storeAs = "exiled"
-                        ),
-                        MoveCollectionEffect(
-                            from = "exiled",
-                            destination = CardDestination.ToZone(Zone.EXILE, player = Player.You)
-                        ),
-                        Effects.GrantMayPlayFromExile(from = "exiled")
-                    )
-                )
+                effect = GatherCardsEffect(
+                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.You),
+                    storeAs = "exiled"
+                ) then
+                    MoveCollectionEffect(
+                        from = "exiled",
+                        destination = CardDestination.ToZone(Zone.EXILE, player = Player.You)
+                    ) then
+                    Effects.GrantMayPlayFromExile(from = "exiled")
             }
         }
 

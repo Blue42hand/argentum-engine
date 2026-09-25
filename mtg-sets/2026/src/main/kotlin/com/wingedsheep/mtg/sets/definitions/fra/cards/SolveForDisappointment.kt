@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 val SolveForDisappointment = card("Solve for Disappointment") {
     manaCost = "{1}{B}"
@@ -18,7 +18,7 @@ val SolveForDisappointment = card("Solve for Disappointment") {
         "Empower Jace 1. (Put a loyalty counter on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

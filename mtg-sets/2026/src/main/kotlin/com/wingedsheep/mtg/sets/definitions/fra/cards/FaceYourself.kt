@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Face Yourself — Reality Fracture #83
@@ -48,7 +48,7 @@ val FaceYourself = card("Face Yourself") {
     )
 
     spell {
-        target("target player", TargetPlayer())
+        target(Targets.Player)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls()),
             effect = Effects.CreateTokenCopyOfTarget(

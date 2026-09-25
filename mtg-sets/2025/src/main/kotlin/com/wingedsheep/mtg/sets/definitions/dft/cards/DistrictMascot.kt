@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -39,7 +38,7 @@ val DistrictMascot = card("District Mascot") {
     replacementEffect(EntersWithCounters(count = 1, selfOnly = true))
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, 2))
-        val t = target("target", TargetPermanent(filter = TargetFilter.Artifact))
+        val t = target(TargetFilter.Artifact)
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     triggeredAbility {

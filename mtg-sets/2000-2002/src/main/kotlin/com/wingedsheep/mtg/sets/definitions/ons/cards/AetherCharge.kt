@@ -23,7 +23,7 @@ val AetherCharge = card("Aether Charge") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype("Beast")).youControl()).enters()
-        val t = target("target", Targets.Opponent)
+        val t = target(Targets.Opponent)
         effect = Effects.May(
             Effects.DealDamage(4, t)
         )

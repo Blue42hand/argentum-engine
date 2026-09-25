@@ -30,15 +30,13 @@ val BondOfFlourishing = card("Bond of Flourishing") {
         "in any order. You gain 3 life."
 
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.lookAtTopRevealMatchingToHand(
-                count = 3,
-                filter = GameObjectFilter.Permanent,
-                prompt = "You may reveal a permanent card from among them and put it into your hand",
-                restOrder = CardOrder.ControllerChooses
-            ),
+        effect = Patterns.Library.lookAtTopRevealMatchingToHand(
+            count = 3,
+            filter = GameObjectFilter.Permanent,
+            prompt = "You may reveal a permanent card from among them and put it into your hand",
+            restOrder = CardOrder.ControllerChooses
+        ) then
             Effects.GainLife(3)
-        )
     }
 
     metadata {

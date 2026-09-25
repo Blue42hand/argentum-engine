@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Yenna, Redtooth Regent
@@ -56,14 +55,11 @@ val YennaRedtoothRegent = card("Yenna, Redtooth Regent") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
         val enchantment = target(
-            "enchantment you control that doesn't have the same name as another permanent you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Enchantment
-                        .youControl()
-                        .nameNotSharedWithAnotherControlledPermanent()
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Enchantment
+                    .youControl()
+                    .nameNotSharedWithAnotherControlledPermanent()
+            ),
         )
         effect = Effects.CreateTokenCopyOfTarget(
             target = enchantment,

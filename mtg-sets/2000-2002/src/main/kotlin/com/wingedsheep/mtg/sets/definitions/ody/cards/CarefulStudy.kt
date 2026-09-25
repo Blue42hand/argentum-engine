@@ -22,10 +22,7 @@ val CarefulStudy = card("Careful Study") {
     typeLine = "Sorcery"
     oracleText = "Draw two cards, then discard two cards."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Patterns.Hand.discardCards(2)
-        )
+        effect = Effects.DrawCards(2) then Patterns.Hand.discardCards(2)
     }
     metadata {
         rarity = Rarity.COMMON

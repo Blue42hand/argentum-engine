@@ -25,12 +25,10 @@ val PlanarGuide = card("Planar Guide") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{W}"), Costs.ExileSelf)
-        effect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures)
-            .then(
-                Effects.CreateDelayedTrigger(
-                    step = Step.END,
-                    effect = Effects.ReturnLinkedExileUnderOwnersControl()
-                )
+        effect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures) then
+            Effects.CreateDelayedTrigger(
+                step = Step.END,
+                effect = Effects.ReturnLinkedExileUnderOwnersControl()
             )
     }
 

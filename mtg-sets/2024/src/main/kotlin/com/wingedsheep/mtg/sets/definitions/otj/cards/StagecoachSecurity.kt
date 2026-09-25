@@ -34,10 +34,8 @@ val StagecoachSecurity = card("Stagecoach Security") {
         trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
-            )
         )
     }
     keywordAbility(KeywordAbility.plot("{3}{W}"))

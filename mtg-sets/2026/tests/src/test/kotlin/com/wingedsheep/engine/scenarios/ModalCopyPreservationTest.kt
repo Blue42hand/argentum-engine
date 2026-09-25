@@ -24,7 +24,6 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.Deck
@@ -34,6 +33,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tests G1 / G2 from [`backlog/modal-cast-time-choices-plan.md`]: rule 700.2g —
@@ -63,7 +64,7 @@ class ModalCopyPreservationTest : FunSpec({
         oracleText = "Copy target instant or sorcery spell.",
         script = CardScript.spell(
             effect = Effects.CopyTargetSpell(target = EffectTarget.ContextTarget(0)),
-            Targets.InstantOrSorcerySpell
+            TargetObject(filter = TargetFilter.InstantOrSorcerySpellOnStack)
         )
     )
 

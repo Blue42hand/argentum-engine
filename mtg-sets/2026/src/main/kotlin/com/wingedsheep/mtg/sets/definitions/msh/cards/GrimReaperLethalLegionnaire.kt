@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Grim Reaper, Lethal Legionnaire — Marvel Super Heroes #98
@@ -52,10 +52,7 @@ val GrimReaperLethalLegionnaire = card("Grim Reaper, Lethal Legionnaire") {
         ) {
             // "When you do, return target creature card from your graveyard to the battlefield
             // tapped and attacking with a finality counter on it."
-            val creatureCardInYourGraveyard = target(
-                "target creature card in your graveyard",
-                Targets.CreatureCardInYourGraveyard
-            )
+            val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.Move(
                 target = creatureCardInYourGraveyard,
                 destination = Zone.BATTLEFIELD,

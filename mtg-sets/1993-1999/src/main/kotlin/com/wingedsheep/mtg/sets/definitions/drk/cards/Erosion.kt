@@ -3,11 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Erosion
@@ -35,7 +36,7 @@ val Erosion = card("Erosion") {
     oracleText = "Enchant land\n" +
         "At the beginning of the upkeep of enchanted land's controller, destroy that land unless " +
         "that player pays {1} or 1 life."
-    auraTarget = Targets.Land
+    auraTarget = TargetObject(filter = TargetFilter.Land)
 
     triggeredAbility {
         trigger = Triggers.attached.beginningOf(Step.UPKEEP)

@@ -78,8 +78,7 @@ val GollumRiddleMaster = card("Gollum, Riddle Master") {
             "Put a +1/+1 counter on Gollum",
         ),
         Mode.noTarget(
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
-                .then(Effects.GainLife(2)),
+            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2),
             "Each opponent loses 2 life and you gain 2 life",
         ),
         Mode.noTarget(

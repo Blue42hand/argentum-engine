@@ -44,14 +44,12 @@ val AureliaTheLawAbove = card("Aurelia, the Law Above") {
 
     triggeredAbility {
         trigger = Triggers.a().attacks(setOf(AttackPredicate.AttackerCountAtLeast(5)))
-        effect = Effects.Composite(
-            Effects.DealDamage(
-                3,
-                EffectTarget.PlayerRef(Player.EachOpponent),
-                damageSource = EffectTarget.Self
-            ),
+        effect = Effects.DealDamage(
+            3,
+            EffectTarget.PlayerRef(Player.EachOpponent),
+            damageSource = EffectTarget.Self
+        ) then
             Effects.GainLife(3)
-        )
         description = "Whenever a player attacks with five or more creatures, Aurelia deals 3 " +
             "damage to each of your opponents and you gain 3 life."
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Singing Tree
@@ -27,10 +26,7 @@ val SingingTree = card("Singing Tree") {
 
     activatedAbility {
         cost = Costs.Tap
-        val creature = target(
-            "target attacking creature",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.attacking()))
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.attacking()))
         effect = Effects.SetBasePower(creature, DynamicAmounts.fixed(0), Duration.EndOfTurn)
     }
 

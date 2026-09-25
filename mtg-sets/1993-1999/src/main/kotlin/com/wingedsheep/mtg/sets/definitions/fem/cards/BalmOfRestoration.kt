@@ -35,7 +35,7 @@ val BalmOfRestoration = card("Balm of Restoration") {
                 "You gain 2 life"
             ),
             mode("Prevent the next 2 damage that would be dealt to any target this turn") {
-                val anyTarget = target("target any", Targets.Any)
+                val anyTarget = target(Targets.Any)
                 effect = Effects.PreventNextDamage(2, anyTarget)
             },
             countsAsModalSpell = false

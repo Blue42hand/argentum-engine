@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Bathe in Light
@@ -38,7 +38,7 @@ val BatheInLight = card("Bathe in Light") {
         "a color with it gain protection from the chosen color until end of turn."
 
     spell {
-        val radiant = target("target creature", Targets.Creature)
+        val radiant = target(TargetFilter.Creature)
         effect = Effects.ChooseColorThen(
             Effects.GrantProtectionFromChosenColor(radiant) then
                 Effects.ForEachInGroup(

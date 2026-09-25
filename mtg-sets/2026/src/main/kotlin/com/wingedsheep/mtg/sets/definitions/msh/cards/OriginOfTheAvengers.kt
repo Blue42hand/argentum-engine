@@ -52,7 +52,7 @@ val OriginOfTheAvengers = card("Origin of the Avengers") {
                 count = 1,
                 prompt = "You may put a Hero creature card with mana value 3 or less onto the battlefield",
             ),
-            then = Effects.Composite(),
+            then = Effects.Nothing,
             otherwise = Effects.DrawCards(1),
         )
     }

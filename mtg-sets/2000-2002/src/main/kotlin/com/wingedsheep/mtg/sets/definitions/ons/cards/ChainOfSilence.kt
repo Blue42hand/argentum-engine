@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CopyRecipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Chain of Silence
@@ -24,8 +24,8 @@ val ChainOfSilence = card("Chain of Silence") {
     oracleText = "Prevent all damage target creature would deal this turn. That creature's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy."
 
     spell {
-        val creature = TargetPermanent(filter = TargetFilter.Creature)
-        val t = target("target creature", creature)
+        val creature = TargetObject(filter = TargetFilter.Creature)
+        val t = target(creature)
         effect = Effects.ChainCopy(
             action = Effects.PreventAllDamageDealtBy(t),
             target = t,

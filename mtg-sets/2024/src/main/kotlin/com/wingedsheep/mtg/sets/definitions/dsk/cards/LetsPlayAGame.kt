@@ -59,10 +59,7 @@ val LetsPlayAGame = card("Let's Play a Game") {
             )
             mode(
                 "Each opponent loses 3 life and you gain 3 life.",
-                Effects.Composite(
-                    Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    Effects.GainLife(3)
-                )
+                Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(3)
             )
         }
     }

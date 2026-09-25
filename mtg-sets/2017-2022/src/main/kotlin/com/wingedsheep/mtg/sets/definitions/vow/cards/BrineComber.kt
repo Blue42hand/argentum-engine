@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.disturb
@@ -15,6 +14,8 @@ import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Brine Comber // Brinebound Gift (Innistrad: Crimson Vow #233 — the card's earliest printing)
@@ -94,7 +95,7 @@ private val BrineboundGift = card("Brinebound Gift") {
         "create a 1/1 white Spirit creature token with flying.\n" +
         "If this Aura would be put into a graveyard from anywhere, exile it instead."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
         trigger = Triggers.self.enters()

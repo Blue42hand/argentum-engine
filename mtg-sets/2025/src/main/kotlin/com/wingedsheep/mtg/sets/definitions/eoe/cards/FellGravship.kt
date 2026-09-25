@@ -38,35 +38,31 @@ val FellGravship = card("Fell Gravship") {
     // ETB: Mill 3 cards, then return a creature or Spacecraft card from graveyard to hand
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                // Mill 3 cards
-                Patterns.Library.mill(3),
-                // Return a creature or Spacecraft card from graveyard to hand
-                Effects.Pipeline {
-                    val creatureOrSpacecraftCards = gather(
-                        CardSource.FromZone(
-                            zone = com.wingedsheep.sdk.core.Zone.GRAVEYARD,
-                            player = com.wingedsheep.sdk.scripting.references.Player.You,
-                            filter = GameObjectFilter(
-                                cardPredicates = listOf(
-                                    CardPredicate.Or(listOf(
-                                        CardPredicate.IsCreature,
-                                        CardPredicate.HasSubtype(Subtype("Spacecraft"))
-                                    ))
-                                )
+        // Mill 3 cards
+        effect = Patterns.Library.mill(3) then
+            // Return a creature or Spacecraft card from graveyard to hand
+            Effects.Pipeline {
+                val creatureOrSpacecraftCards = gather(
+                    CardSource.FromZone(
+                        zone = com.wingedsheep.sdk.core.Zone.GRAVEYARD,
+                        player = com.wingedsheep.sdk.scripting.references.Player.You,
+                        filter = GameObjectFilter(
+                            cardPredicates = listOf(
+                                CardPredicate.Or(listOf(
+                                    CardPredicate.IsCreature,
+                                    CardPredicate.HasSubtype(Subtype("Spacecraft"))
+                                ))
                             )
                         )
                     )
-                    val chosen = chooseUpTo(
-                        1,
-                        from = creatureOrSpacecraftCards,
-                        prompt = "Return a creature or Spacecraft card from your graveyard to your hand"
-                    )
-                    move(chosen, CardDestination.ToZone(com.wingedsheep.sdk.core.Zone.HAND))
-                }
-            )
-        )
+                )
+                val chosen = chooseUpTo(
+                    1,
+                    from = creatureOrSpacecraftCards,
+                    prompt = "Return a creature or Spacecraft card from your graveyard to your hand"
+                )
+                move(chosen, CardDestination.ToZone(com.wingedsheep.sdk.core.Zone.HAND))
+            }
         description = "When this Spacecraft enters, mill three cards, then return a creature or Spacecraft card from your graveyard to your hand."
     }
 

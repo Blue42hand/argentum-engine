@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Orcish Captain
@@ -31,10 +29,7 @@ val OrcishCaptain = card("Orcish Captain") {
 
     activatedAbility {
         cost = Costs.Mana("{1}")
-        val t = target(
-            "target Orc creature",
-            TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.ORC))
-        )
+        val t = target(TargetFilter.Creature.withSubtype(Subtype.ORC))
         effect = Effects.FlipCoin(
             wonEffect = Effects.ModifyStats(2, 0, t),
             lostEffect = Effects.ModifyStats(0, -2, t),

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.emerge
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Elder Deep-Fiend
@@ -42,10 +41,7 @@ val ElderDeepFiend = card("Elder Deep-Fiend") {
 
     triggeredAbility {
         trigger = Triggers.self.isCast()
-        target(
-            "up to four target permanents",
-            TargetPermanent(count = 4, optional = true, filter = TargetFilter.Permanent),
-        )
+        targets(TargetFilter.Permanent, count = 4, optional = true)
         effect = Effects.TapEachTarget()
         description = "When you cast this spell, tap up to four target permanents."
     }

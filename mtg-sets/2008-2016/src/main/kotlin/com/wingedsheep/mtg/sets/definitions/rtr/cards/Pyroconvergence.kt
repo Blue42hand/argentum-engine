@@ -27,7 +27,7 @@ val Pyroconvergence = card("Pyroconvergence") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Multicolored)
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

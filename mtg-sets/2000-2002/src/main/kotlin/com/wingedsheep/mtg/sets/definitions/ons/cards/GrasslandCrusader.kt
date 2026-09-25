@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Grassland Crusader
@@ -25,11 +24,11 @@ val GrasslandCrusader = card("Grassland Crusader") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(
+        val t = target(
+            TargetFilter(
                 GameObjectFilter.Creature.withSubtype("Elf") or GameObjectFilter.Creature.withSubtype("Soldier")
-            )
-        ))
+            ),
+        )
         effect = Effects.ModifyStats(
             power = 2,
             toughness = 2,

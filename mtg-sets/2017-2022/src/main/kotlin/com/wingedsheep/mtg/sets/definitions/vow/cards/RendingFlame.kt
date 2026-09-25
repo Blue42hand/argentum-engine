@@ -31,14 +31,12 @@ val RendingFlame = card("Rending Flame") {
         "permanent is a Spirit, Rending Flame also deals 2 damage to that permanent's controller."
 
     spell {
-        val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, permanent),
+        val permanent = target(Targets.CreatureOrPlaneswalker)
+        effect = Effects.DealDamage(5, permanent) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.SPIRIT), permanent),
                 then = Effects.DealDamage(2, EffectTarget.TargetController)
             )
-        )
     }
 
     metadata {

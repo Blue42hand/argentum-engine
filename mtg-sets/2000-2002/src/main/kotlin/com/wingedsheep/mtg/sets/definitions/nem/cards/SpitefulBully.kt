@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 
@@ -29,7 +28,7 @@ val SpitefulBully = card("Spiteful Bully") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = Effects.DealDamage(3, t)
     }
     metadata {

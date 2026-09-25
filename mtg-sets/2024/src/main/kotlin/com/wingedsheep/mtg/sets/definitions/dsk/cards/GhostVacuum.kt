@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ghost Vacuum
@@ -52,10 +51,7 @@ val GhostVacuum = card("Ghost Vacuum") {
     // {T}: Exile target card from a graveyard (linked to this artifact).
     activatedAbility {
         cost = Costs.Tap
-        val t = target(
-            "target card in a graveyard",
-            TargetObject(filter = TargetFilter.CardInGraveyard),
-        )
+        val t = target(TargetFilter.CardInGraveyard)
         effect = Effects.Move(t, Zone.EXILE, linkToSource = true)
         description = "Exile target card from a graveyard."
     }
@@ -80,15 +76,13 @@ val GhostVacuum = card("Ghost Vacuum") {
             // Each of them is a 1/1 Spirit in addition to its other types (lasting).
             run(Effects.ForEachInCollection(
                 spirits,
-                Effects.Composite(
-                    Effects.SetBasePowerAndToughness(
-                        power = 1,
-                        toughness = 1,
-                        target = EffectTarget.IterationEntity,
-                        duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
-                    ),
+                Effects.SetBasePowerAndToughness(
+                    power = 1,
+                    toughness = 1,
+                    target = EffectTarget.IterationEntity,
+                    duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
+                ) then
                     Effects.AddCreatureType("Spirit", EffectTarget.IterationEntity),
-                ),
             ))
             // Sacrifice this artifact (modeled in-effect; see KDoc).
             run(Effects.SacrificeTarget(EffectTarget.Self))

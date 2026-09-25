@@ -18,7 +18,7 @@ val TimeWarp = card("Time Warp") {
     oracleText = "Target player takes an extra turn after this one."
 
     spell {
-        val player = target("player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.TakeExtraTurn(target = player)
     }
 

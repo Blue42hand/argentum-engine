@@ -51,6 +51,7 @@ object AbilityIdScope {
 
     private class Scope(val owner: String) {
         var count = 0
+        var targetSlots = 0
     }
 
     private val active = ThreadLocal<Scope?>()
@@ -74,4 +75,11 @@ object AbilityIdScope {
         scope.count += 1
         return AbilityId("${scope.owner}:${scope.count}")
     }
+
+    /**
+     * The next target-binding slot of the card being built, or null outside a card. Target ids are
+     * unique per *card*, not per declaring block: a reflexive or delayed trigger's targets are
+     * resolved alongside the enclosing ability's, so two blocks each minting `t0` would collide.
+     */
+    internal fun nextTargetSlot(): Int? = active.get()?.let { it.targetSlots++ }
 }

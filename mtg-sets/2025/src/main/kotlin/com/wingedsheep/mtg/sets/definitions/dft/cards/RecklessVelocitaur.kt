@@ -21,10 +21,8 @@ val RecklessVelocitaur = card("Reckless Velocitaur") {
     triggeredAbility {
         trigger = Triggers.or(Triggers.self.saddles(), Triggers.self.crews())
         triggerRestriction = Conditions.IsYourMainPhase
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.TriggeringEntity),
+        effect = Effects.ModifyStats(2, 0, EffectTarget.TriggeringEntity) then
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity)
-        )
     }
 
     metadata {

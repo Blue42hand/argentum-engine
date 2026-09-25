@@ -43,12 +43,11 @@ val SitaVarmaMaskedRacer = card("Sita Varma, Masked Racer") {
     activatedAbility {
         cost = Costs.Mana("{X}{G}{G}{U}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.AddDynamicCounters(
-                CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmounts.xValue(),
-                EffectTarget.Self
-            ),
+        effect = Effects.AddDynamicCounters(
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.xValue(),
+            EffectTarget.Self
+        ) then
             Effects.May(
                 Effects.ForEachInGroup(
                     filter = GroupFilter.OtherCreaturesYouControl,
@@ -61,8 +60,7 @@ val SitaVarmaMaskedRacer = card("Sita Varma, Masked Racer") {
                 ),
                 descriptionOverride = "You may have the base power and toughness of each other " +
                     "creature you control become equal to Sita Varma's power until end of turn."
-            ),
-        )
+            )
         description = "Exhaust — {X}{G}{G}{U}: Put X +1/+1 counters on Sita Varma. Then you may " +
             "have the base power and toughness of each other creature you control become equal " +
             "to Sita Varma's power until end of turn."

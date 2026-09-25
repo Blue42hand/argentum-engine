@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Archon of Falling Stars
@@ -43,10 +42,7 @@ val ArchonOfFallingStars = card("Archon of Falling Stars") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val enchantment = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD)),
-        )
+        val enchantment = target(TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD))
         optional = true
         effect = Effects.PutOntoBattlefieldFromGraveyard(enchantment)
         description = "When this creature dies, you may return target enchantment card from your " +

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val YourFateEndsHere = card("Your Fate Ends Here") {
     manaCost = "{2}{W}"
@@ -14,9 +13,8 @@ val YourFateEndsHere = card("Your Fate Ends Here") {
     oracleText = "Destroy target creature or planeswalker with mana value 3 or greater. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     spell {
-        val permanent = target("target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker).manaValueAtLeast(3)))
-        effect = Effects.Composite(Effects.Destroy(permanent), Effects.Surveil(1))
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker).manaValueAtLeast(3))
+        effect = Effects.Destroy(permanent) then Effects.Surveil(1)
     }
 
     metadata {

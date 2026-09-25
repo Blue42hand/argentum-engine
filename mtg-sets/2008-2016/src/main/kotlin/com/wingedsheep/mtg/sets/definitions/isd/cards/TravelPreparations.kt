@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Travel Preparations
@@ -24,10 +23,7 @@ val TravelPreparations = card("Travel Preparations") {
         "Flashback {1}{W} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        target(
-            "up to two target creatures",
-            TargetCreature(count = 2, optional = true, filter = TargetFilter.Creature)
-        )
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )

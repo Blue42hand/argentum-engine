@@ -35,9 +35,7 @@ val IfhBiffEfreet = card("Ifh-Bíff Efreet") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
             Effects.DealDamage(1, EffectTarget.IterationEntity),
-        ).then(
-            Effects.ForEachPlayer(Player.Each, Effects.DealDamage(1, EffectTarget.Controller))
-        )
+        ) then Effects.ForEachPlayer(Player.Each, Effects.DealDamage(1, EffectTarget.Controller))
         restrictions = listOf(ActivationRestriction.AnyPlayerMay)
     }
 

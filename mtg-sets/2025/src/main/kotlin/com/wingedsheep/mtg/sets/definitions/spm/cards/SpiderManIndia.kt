@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.webSlinging
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spider-Man India — Marvel's Spider-Man #151
@@ -33,7 +33,7 @@ val SpiderManIndia = card("Spider-Man India") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature)
-        val t = target("target creature you control", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
             Effects.GrantKeyword(Keyword.FLYING, t)
         description = "Pavitr's Sevā — Whenever you cast a creature spell, put a +1/+1 counter on " +

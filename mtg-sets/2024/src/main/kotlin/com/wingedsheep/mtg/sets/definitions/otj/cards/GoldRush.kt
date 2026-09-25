@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gold Rush
@@ -28,7 +28,7 @@ val GoldRush = card("Gold Rush") {
     oracleText = "Create a Treasure token. Until end of turn, up to one target creature gets +2/+2 for each Treasure you control."
 
     spell {
-        val creature = target("target creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         // Per-Treasure buff: 2 x (number of Treasures you control). Evaluated and locked at
         // resolution by ModifyStatsExecutor. The Treasure created above is on the battlefield
         // before this runs, so it is included in the count.
@@ -36,10 +36,7 @@ val GoldRush = card("Gold Rush") {
             Player.You,
             GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE)
         ).count() * 2
-        effect = Effects.Composite(
-            Effects.CreateTreasure(1),
-            Effects.ModifyStats(perTreasure, perTreasure, creature)
-        )
+        effect = Effects.CreateTreasure(1) then Effects.ModifyStats(perTreasure, perTreasure, creature)
     }
 
     metadata {

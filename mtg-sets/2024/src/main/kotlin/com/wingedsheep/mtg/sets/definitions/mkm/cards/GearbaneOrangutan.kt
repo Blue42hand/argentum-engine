@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Gearbane Orangutan — Murders at Karlov Manor #129
@@ -53,10 +52,7 @@ val GearbaneOrangutan = card("Gearbane Orangutan") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy up to one target artifact") {
-                val artifact = target(
-                    "target artifact",
-                    TargetPermanent(optional = true, filter = TargetFilter.Artifact)
-                )
+                val artifact = target(TargetFilter.Artifact, optional = true)
                 effect = Effects.Destroy(artifact)
             },
             Mode.noTarget(

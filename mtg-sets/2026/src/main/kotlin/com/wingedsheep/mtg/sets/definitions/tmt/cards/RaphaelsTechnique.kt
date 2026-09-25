@@ -37,10 +37,7 @@ val RaphaelsTechnique = card("Raphael's Technique") {
             players = Player.Each,
             effect = Effects.May(
                 decisionMaker = EffectTarget.Controller,
-                effect = Effects.Composite(
-                    Patterns.Hand.discardHand(EffectTarget.Controller),
-                    Effects.DrawCards(7)
-                )
+                effect = Patterns.Hand.discardHand(EffectTarget.Controller) then Effects.DrawCards(7)
             )
         )
     }

@@ -100,7 +100,7 @@
                     "baseFilter": "noncreature",
                     "zone": "Stack"
                 },
-                "id": "target noncreature spell"
+                "id": "t0"
             }
         ]
     },
@@ -167,7 +167,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature to get +4/+3"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -176,7 +176,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature to get +4/+3"
+                "id": "t0"
             }
         ]
     },
@@ -262,7 +262,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -270,7 +270,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature enters, put a +1/+1 counter on target creature."
             }
@@ -549,7 +549,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -557,7 +557,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -593,13 +593,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Cabaretti Charm deals damage equal to the number of creatures you control to target creature or planeswalker"
@@ -808,7 +808,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -817,7 +817,7 @@
                     "filter": {
                         "baseFilter": "creature|land"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -859,7 +859,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target artifact"
+                                    "name": "t0"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -870,7 +870,7 @@
                                     "filter": {
                                         "baseFilter": "artifact"
                                     },
-                                    "id": "target artifact"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Destroy target artifact"
@@ -880,7 +880,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target enchantment"
+                                    "name": "t1"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -891,7 +891,7 @@
                                     "filter": {
                                         "baseFilter": "enchantment"
                                     },
-                                    "id": "target enchantment"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Destroy target enchantment"
@@ -901,7 +901,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target card in graveyard"
+                                    "name": "t2"
                                 },
                                 "destination": "Exile"
                             },
@@ -912,7 +912,7 @@
                                         "baseFilter": {},
                                         "zone": "Graveyard"
                                     },
-                                    "id": "target card in graveyard"
+                                    "id": "t2"
                                 }
                             ],
                             "description": "Exile target card from a graveyard"
@@ -1125,7 +1125,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature to get +1/+0 and first strike"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1133,7 +1133,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature to get +1/+0 and first strike"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1148,7 +1148,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature to get +1/+0 and first strike"
+                "id": "t0"
             }
         ]
     },
@@ -1379,7 +1379,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1410,7 +1410,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 }
             ]
@@ -1421,7 +1421,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -1528,7 +1528,7 @@
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1576,7 +1576,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "At the beginning of combat on your turn, put a +1/+1 counter on target creature you control. Then if you control a creature with power 7 or greater, you may play the exiled card without paying its mana cost."
             }
@@ -1963,7 +1963,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "duration": "EndOfTurn"
                 },
@@ -1971,7 +1971,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -1980,7 +1980,7 @@
                     "keyword": "HASTE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1995,7 +1995,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2157,7 +2157,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -2188,7 +2188,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "staticAbilities": [
@@ -2242,13 +2242,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2419,7 +2419,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2428,7 +2428,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2561,13 +2561,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Ready to Rumble deals 5 damage to target creature or planeswalker"
@@ -2577,7 +2577,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -2588,7 +2588,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -2863,13 +2863,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature or planeswalker"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target creature or planeswalker"
+                "id": "t0"
             }
         ]
     },
@@ -3069,7 +3069,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -3080,7 +3080,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "cantBeCountered": true
@@ -3110,55 +3110,50 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 5
-                                }
-                            },
-                            "storeAs": "looked"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "looked",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "filter": "creature",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
-                            "prompt": "You may reveal a creature card from among them and put it into your hand",
-                            "showAllCards": true
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "kept",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Hand"
-                            },
-                            "revealed": true
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "rest",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Library",
-                                "placement": "Bottom"
-                            },
-                            "order": "Random"
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
                         }
-                    ]
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "creature",
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "prompt": "You may reveal a creature card from among them and put it into your hand",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "Random"
                 },
                 {
                     "type": "CreateToken",
@@ -3274,7 +3269,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -3283,7 +3278,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "staticAbilities": [

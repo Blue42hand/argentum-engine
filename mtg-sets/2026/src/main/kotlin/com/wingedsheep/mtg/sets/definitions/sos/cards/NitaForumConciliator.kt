@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Nita, Forum Conciliator — Secrets of Strixhaven #206
@@ -57,9 +56,7 @@ val NitaForumConciliator = card("Nita, Forum Conciliator") {
     }
 
     activatedAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByOpponent(),
-        ))
+        val target = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByOpponent())
         cost = Costs.Composite(
             Costs.Mana("{2}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature),

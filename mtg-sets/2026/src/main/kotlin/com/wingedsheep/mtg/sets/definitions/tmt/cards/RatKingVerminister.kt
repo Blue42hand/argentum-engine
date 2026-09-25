@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -44,15 +43,12 @@ val RatKingVerminister = card("Rat King, Verminister") {
             toughness = 1,
             colors = setOf(Color.BLACK),
             creatureTypes = setOf("Rat")
-        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self))
+        ) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, create a 1/1 black Rat creature token and put a +1/+1 counter on Rat King."
     }
 
     activatedAbility {
-        val creatureCardInYourGraveyard = target(
-            "target creature card in your graveyard",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val creatureCardInYourGraveyard = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
         cost = Costs.Composite(
             Costs.Tap,
             Costs.SacrificeMultiple(3, GameObjectFilter.Creature.withSubtype(Subtype("Rat")))

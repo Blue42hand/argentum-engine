@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -24,7 +24,7 @@ val FlameJet = card("Flame Jet") {
     typeLine = "Sorcery"
     oracleText = "Flame Jet deals 3 damage to target player or planeswalker.\nCycling {2} ({2}, Discard this card: Draw a card.)"
     spell {
-        val t = target("target", TargetPlayerOrPlaneswalker())
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(3, t)
     }
     keywordAbility(KeywordAbility.cycling("{2}"))

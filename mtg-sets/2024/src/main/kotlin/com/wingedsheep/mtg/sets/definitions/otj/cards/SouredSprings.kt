@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -30,7 +30,7 @@ val SouredSprings = card("Soured Springs") {
     replacementEffect(EntersTapped())
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.DealDamage(1, t)
     }
     activatedAbility {

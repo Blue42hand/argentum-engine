@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scolding Administrator — Secrets of Strixhaven #224
@@ -49,7 +49,7 @@ val ScoldingAdministrator = card("Scolding Administrator") {
 
     // When this creature dies, if it had counters on it, move those counters to up to one target creature.
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         trigger = Triggers.self.dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
         effect = Effects.MoveAllLastKnownCounters(creature)

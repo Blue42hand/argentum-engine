@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val EssenceBurn = card("Essence Burn") {
     manaCost = "{1}{R}"
@@ -16,18 +15,8 @@ val EssenceBurn = card("Essence Burn") {
         "If that permanent would die this turn, exile it instead."
 
     spell {
-        val permanent = target(
-            "target black or green creature or planeswalker",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLACK, Color.GREEN)
-                )
-            )
-        )
-        effect = Effects.Composite(
-            Effects.DealDamage(5, permanent),
-            Effects.MarkExileOnDeath(permanent)
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLACK, Color.GREEN)))
+        effect = Effects.DealDamage(5, permanent) then Effects.MarkExileOnDeath(permanent)
     }
 
     metadata {

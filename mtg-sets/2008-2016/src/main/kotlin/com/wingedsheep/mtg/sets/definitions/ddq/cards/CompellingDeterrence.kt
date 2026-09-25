@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Compelling Deterrence
@@ -26,7 +25,7 @@ val CompellingDeterrence = card("Compelling Deterrence") {
         "Then that player discards a card if you control a Zombie."
 
     spell {
-        val t = target("target nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
+        val t = target(TargetFilter.NonlandPermanent)
         effect = Effects.ReturnToHand(t) then
             Effects.If(
                 condition = Conditions.YouControl(GameObjectFilter.Permanent.withSubtype(Subtype.ZOMBIE)),

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -28,12 +27,9 @@ val AethershieldArtificer = card("Aethershield Artificer") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creature = target(
-            "artifact creature you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactCreature.youControl()))
-        )
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn))
+        val creature = target(TargetFilter(GameObjectFilter.ArtifactCreature.youControl()))
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
     }
 
     metadata {

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Orim's Chant
@@ -31,7 +31,7 @@ val OrimsChant = card("Orim's Chant") {
     keywordAbility(KeywordAbility.kicker("{W}"))
 
     spell {
-        val opponent = target("target player", TargetPlayer())
+        val opponent = target(Targets.Player)
         effect = Effects.CantCastSpells(opponent) then
             Effects.If(
                 condition = WasKicked,

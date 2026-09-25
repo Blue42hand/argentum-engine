@@ -37,12 +37,12 @@ val MeandersGuide = card("Meanders Guide") {
                 run(Effects.Tap(merfolkToTap.asTarget))
             },
             optional = true) {
-            val creature = target("target creature", TargetObject(
-                filter = TargetFilter(
+            val creature = target(
+                TargetFilter(
                     GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3),
                     zone = Zone.GRAVEYARD
-                )
-            ))
+                ),
+            )
             effect = Effects.Move(
                 target = creature,
                 destination = Zone.BATTLEFIELD

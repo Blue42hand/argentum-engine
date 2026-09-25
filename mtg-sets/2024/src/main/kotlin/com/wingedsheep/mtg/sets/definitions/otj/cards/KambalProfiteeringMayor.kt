@@ -57,10 +57,7 @@ val KambalProfiteeringMayor = card("Kambal, Profiteering Mayor") {
     // Whenever one or more tokens you control enter, each opponent loses 1 life and you gain 1 life.
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Token).enter()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     metadata {

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val MabelValleyHero = card("Mabel, Valley Hero") {
     manaCost = "{1}{R}{W}"
@@ -19,10 +18,7 @@ val MabelValleyHero = card("Mabel, Valley Hero") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
-        val t = target(
-            "target creature that entered this turn",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.enteredThisTurn()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.enteredThisTurn()))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "Whenever Mabel or another creature you control enters, put a +1/+1 counter on target creature that entered this turn."
     }

@@ -28,7 +28,7 @@ val AppetiteForBrains = card("Appetite for Brains") {
         "4 or greater and exile that card."
 
     spell {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
 
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))

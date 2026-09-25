@@ -68,15 +68,13 @@ val MsMarvelKamalaKhan = card("Ms. Marvel, Kamala Khan") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.youControl())))
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
+        effect = Effects.DrawCards(1) then
             Effects.SetBasePower(
                 target = EffectTarget.Self,
                 power = DynamicAmounts.cardsInYourHand(),
                 duration = Duration.EndOfTurn,
                 reevaluateContinuously = true,
-            ),
-        )
+            )
         description = "Embiggen Fist — Whenever you cast a spell that targets a creature you " +
             "control, draw a card. Until end of turn, Ms. Marvel gains \"Ms. Marvel's base power " +
             "is equal to the number of cards in your hand.\""

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -28,12 +27,10 @@ val Devastate = card("Devastate") {
     typeLine = "Sorcery"
     oracleText = "Destroy target land. Devastate deals 1 damage to each creature and each player."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.Land))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(1, EffectTarget.IterationEntity)),
+        val t = target(TargetFilter.Land)
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(1, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.COMMON

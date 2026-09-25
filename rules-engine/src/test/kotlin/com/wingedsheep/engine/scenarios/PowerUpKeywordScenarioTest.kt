@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivationRestriction
@@ -24,6 +23,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Feature tests for the **Power-up** keyword (CR 702.193) — "Power-up — [Cost]: [Effect]" means
@@ -127,7 +127,7 @@ class PowerUpKeywordScenarioTest : ScenarioTestBase() {
         typeLine = "Sorcery"
         oracleText = "Return target creature to its owner's hand."
         spell {
-            val t = target("target creature", Targets.Creature)
+            val t = target(TargetFilter.Creature)
             effect = Effects.ReturnToHand(t)
         }
     }

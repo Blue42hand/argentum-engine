@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sandbenders' Storm
@@ -36,17 +35,11 @@ val SandbendersStorm = card("Sandbenders' Storm") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Destroy target creature with power 4 or greater") {
-                val creature = target("target creature", TargetObject(
-                    filter = TargetFilter.Creature.powerAtLeast(4),
-                    id = "target creature with power 4 or greater",
-                ))
+                val creature = target(TargetFilter.Creature.powerAtLeast(4))
                 effect = Effects.Destroy(creature)
             },
             mode("Earthbend 3") {
-                val land = target("target land", TargetObject(
-                    filter = TargetFilter.Land.youControl(),
-                    id = "target land you control",
-                ))
+                val land = target(TargetFilter.Land.youControl())
                 effect = Effects.Earthbend(3, land)
             },
         )

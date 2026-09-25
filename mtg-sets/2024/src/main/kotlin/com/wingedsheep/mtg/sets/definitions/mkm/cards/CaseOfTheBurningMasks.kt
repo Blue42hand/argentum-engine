@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Case of the Burning Masks — Murders at Karlov Manor #113
@@ -47,7 +46,7 @@ val CaseOfTheBurningMasks = card("Case of the Burning Masks") {
         "them. You may play that card this turn."
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val creature = target(TargetFilter.Creature.opponentControls())
         trigger = Triggers.self.enters()
         effect = Effects.DealDamage(3, creature)
     }

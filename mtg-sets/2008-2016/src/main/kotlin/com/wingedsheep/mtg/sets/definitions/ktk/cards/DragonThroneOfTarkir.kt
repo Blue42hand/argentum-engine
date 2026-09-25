@@ -45,18 +45,14 @@ val DragonThroneOfTarkir = card("Dragon Throne of Tarkir") {
             ability = ActivatedAbility(
                 id = AbilityId.next(),
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap),
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.ForEachInGroup(
-                            GroupFilter.OtherCreaturesYouControl,
-                            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
-                        ),
-                        Effects.ForEachInGroup(
-                            GroupFilter.OtherCreaturesYouControl,
-                            Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), EffectTarget.IterationEntity)
-                        )
-                    )
-                ),
+                effect = Effects.ForEachInGroup(
+                    GroupFilter.OtherCreaturesYouControl,
+                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
+                ) then
+                    Effects.ForEachInGroup(
+                        GroupFilter.OtherCreaturesYouControl,
+                        Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), EffectTarget.IterationEntity)
+                    ),
                 descriptionOverride = "{2}, {T}: Other creatures you control gain trample and get +X/+X until end of turn, where X is this creature's power."
             )
         )

@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Divest
@@ -23,7 +23,7 @@ val Divest = card("Divest") {
     oracleText = "Target player reveals their hand. You choose an artifact or creature card from it. That player discards that card."
 
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(t))
             val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))

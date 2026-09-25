@@ -27,11 +27,9 @@ val PsychicDrain = card("Psychic Drain") {
     oracleText = "Target player mills X cards and you gain X life."
 
     spell {
-        val player = target("target player", Targets.Player)
-        effect = Effects.Composite(
-            Patterns.Library.mill(DynamicAmounts.xValue(), player),
+        val player = target(Targets.Player)
+        effect = Patterns.Library.mill(DynamicAmounts.xValue(), player) then
             Effects.GainLife(DynamicAmounts.xValue())
-        )
     }
 
     metadata {

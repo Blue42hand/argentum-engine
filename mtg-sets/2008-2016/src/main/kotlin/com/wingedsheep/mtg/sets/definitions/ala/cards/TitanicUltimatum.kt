@@ -31,12 +31,10 @@ val TitanicUltimatum = card("Titanic Ultimatum") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.Composite(
-                Effects.ModifyStats(5, 5, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
+            Effects.ModifyStats(5, 5, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity)
-            )
         )
     }
 

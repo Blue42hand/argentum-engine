@@ -21,12 +21,12 @@ val HealingGrace = card("Healing Grace") {
     oracleText = "Prevent the next 3 damage that would be dealt to any target this turn by a source of your choice. You gain 3 life."
 
     spell {
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.PreventDamage(
             target = t,
             sources = PreventionSourceFilter.Chosen(),
             amount = DynamicAmounts.fixed(3)
-        ).then(Effects.GainLife(3))
+        ) then Effects.GainLife(3)
     }
 
     metadata {

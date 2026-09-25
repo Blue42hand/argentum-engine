@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Thornplate Intimidator {3}{B}
@@ -49,7 +48,7 @@ val ThornplateIntimidator = card("Thornplate Intimidator") {
     // ETB: target opponent chooses sacrifice, discard, or lose 3 life
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.ChooseAction(
             choices = listOf(
                 EffectChoice(

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sparksmith
@@ -27,7 +27,7 @@ val Sparksmith = card("Sparksmith") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        val t = target("target", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.DealDamage(
             DynamicAmounts.creaturesWithSubtype(Subtype("Goblin")),
             t

@@ -60,21 +60,17 @@ val LastLightOfDurinsDay = card("Last Light of Durin's Day") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 6),
-                then = Effects.Composite(
-                    Effects.SacrificeTarget(EffectTarget.Self),
+                then = Effects.SacrificeTarget(EffectTarget.Self) then
                     Patterns.Library.searchMultipleZones(
                         zones = listOf(Zone.HAND, Zone.LIBRARY),
                         filter = GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
                         count = 1,
                         destination = SearchDestination.BATTLEFIELD
                     )
-                )
             )
-        )
         description = "Whenever a Mountain you control enters, put a quest counter on this " +
             "enchantment. If it has six or more quest counters on it, sacrifice it. If you do, " +
             "search your hand and/or library for a Dragon card and put it onto the battlefield. " +

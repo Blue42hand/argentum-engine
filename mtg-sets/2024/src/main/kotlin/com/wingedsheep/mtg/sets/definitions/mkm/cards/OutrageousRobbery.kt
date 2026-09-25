@@ -28,7 +28,7 @@ val OutrageousRobbery = card("Outrageous Robbery") {
         "this way, you may spend mana as though it were mana of any type to cast it."
 
     spell {
-        target("target opponent", Targets.Opponent)
+        target(Targets.Opponent)
         effect = Effects.Pipeline {
             val robbedCards = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue(), Player.TargetOpponent))
             exile(robbedCards, Player.TargetOpponent, faceDown = FaceDownMode.HIDDEN)

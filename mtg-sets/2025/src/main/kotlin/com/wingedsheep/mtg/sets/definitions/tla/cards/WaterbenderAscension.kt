@@ -5,13 +5,13 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Waterbender Ascension
@@ -44,13 +44,11 @@ val WaterbenderAscension = card("Waterbender Ascension") {
     // enchantment. Then if it has four or more quest counters on it, draw a card.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
                 then = Effects.DrawCards(1)
             )
-        )
         description = "Whenever a creature you control deals combat damage to a player, put a quest counter on this enchantment. Then if it has four or more quest counters on it, draw a card."
     }
 
@@ -58,7 +56,7 @@ val WaterbenderAscension = card("Waterbender Ascension") {
     activatedAbility {
         cost = Costs.Mana("{4}")
         hasWaterbend = true
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
         description = "Waterbend {4}: Target creature can't be blocked this turn."
     }

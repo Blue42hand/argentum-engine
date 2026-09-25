@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Formidable Speaker
@@ -49,10 +48,7 @@ val FormidableSpeaker = card("Formidable Speaker") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        val targetPermanent = target(
-            "another target permanent",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent, excludeSelf = true))
-        )
+        val targetPermanent = target(TargetFilter(GameObjectFilter.Permanent, excludeSelf = true))
         effect = Effects.Untap(targetPermanent)
     }
 

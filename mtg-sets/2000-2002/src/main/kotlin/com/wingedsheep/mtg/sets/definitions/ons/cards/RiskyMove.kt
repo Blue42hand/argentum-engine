@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,6 +8,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.ControlChangeDirection
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Risky Move
@@ -38,7 +38,7 @@ val RiskyMove = card("Risky Move") {
     // you control and an opponent. Flip a coin. If you lose, opponent gets the creature.
     triggeredAbility {
         trigger = Triggers.self.controlChanges(ControlChangeDirection.GAINED)
-        val t = target("target", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         // "Choose ... an opponent" is a non-targeted choice; until the multiplayer
         // choose-an-opponent flow exists (backlog/multiplayer.md), AnOpponent resolves
         // to the first opponent in turn order — exact in two-player games.

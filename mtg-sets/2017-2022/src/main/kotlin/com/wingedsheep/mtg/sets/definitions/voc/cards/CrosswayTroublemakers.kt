@@ -49,12 +49,7 @@ val CrosswayTroublemakers = card("Crossway Troublemakers") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl()).dies()
         effect = Effects.May(
-            effect = Effects.Composite(
-                listOf(
-                    Effects.LoseLife(2, EffectTarget.Controller),
-                    Effects.DrawCards(1),
-                )
-            ),
+            effect = Effects.LoseLife(2, EffectTarget.Controller) then Effects.DrawCards(1),
             descriptionOverride = "You may pay 2 life. If you do, draw a card."
         )
     }

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /** Sentinel of Lost Lore — Wilds of Eldraine #184. */
 val SentinelOfLostLore = card("Sentinel of Lost Lore") {
@@ -30,20 +29,16 @@ val SentinelOfLostLore = card("Sentinel of Lost Lore") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("Return target card you own in exile that has an Adventure to your hand.") {
-                    val targetedObject = target("target targeted object", TargetObject(
-                        filter = TargetFilter(Filters.HasAdventure.ownedByYou(), zone = Zone.EXILE),
-                    ))
+                    val targetedObject = target(TargetFilter(Filters.HasAdventure.ownedByYou(), zone = Zone.EXILE))
                     effect = Effects.ReturnToHand(targetedObject)
                 },
                 mode("Put target card you don't own in exile that has an Adventure " +
                     "on the bottom of its owner's library.") {
-                    val targetedObject = target("target targeted object", TargetObject(
-                        filter = TargetFilter(Filters.HasAdventure.ownedByOpponent(), zone = Zone.EXILE),
-                    ))
+                    val targetedObject = target(TargetFilter(Filters.HasAdventure.ownedByOpponent(), zone = Zone.EXILE))
                     effect = Effects.PutOnBottomOfLibrary(targetedObject)
                 },
                 mode("Exile target player's graveyard.") {
-                    val player = target("target player", Targets.Player)
+                    val player = target(Targets.Player)
                     effect = Effects.Pipeline {
                         val sentinelTargetGraveyard = gather(
                             CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer)

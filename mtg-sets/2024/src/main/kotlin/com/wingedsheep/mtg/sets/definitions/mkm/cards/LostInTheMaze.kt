@@ -12,7 +12,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Lost in the Maze — Murders at Karlov Manor #64
@@ -67,19 +68,17 @@ val LostInTheMaze = card("Lost in the Maze") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target = TargetCreature(optional = true, dynamicMaxCount = DynamicAmounts.castX())
-        effect = Effects.TapEachTarget()
-            .then(
-                Effects.ForEachTarget(
-                    Effects.If(
-                        condition = Conditions.TargetMatchesFilter(
-                                GameObjectFilter.Creature.opponentControls()
-                            ),
-                        then = Effects.AddCounters(
-                            CounterType.STUN,
-                            1,
-                            EffectTarget.ContextTarget(0)
-                        )
+        target = TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = DynamicAmounts.castX())
+        effect = Effects.TapEachTarget() then
+            Effects.ForEachTarget(
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(
+                            GameObjectFilter.Creature.opponentControls()
+                        ),
+                    then = Effects.AddCounters(
+                        CounterType.STUN,
+                        1,
+                        EffectTarget.ContextTarget(0)
                     )
                 )
             )

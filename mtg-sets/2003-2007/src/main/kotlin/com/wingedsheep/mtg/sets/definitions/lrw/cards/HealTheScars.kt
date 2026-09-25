@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Heal the Scars
@@ -26,13 +26,11 @@ val HealTheScars = card("Heal the Scars") {
     oracleText = "Regenerate target creature. You gain life equal to that creature's toughness."
 
     spell {
-        val t = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.Regenerate(t),
+        val t = target(TargetFilter.Creature)
+        effect = Effects.Regenerate(t) then
             Effects.GainLife(
                 DynamicAmounts.toughnessOf(t)
             )
-        )
     }
 
     metadata {

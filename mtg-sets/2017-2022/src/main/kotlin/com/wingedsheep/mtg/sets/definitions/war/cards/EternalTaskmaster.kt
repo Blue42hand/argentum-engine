@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.war.cards
 
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Eternal Taskmaster
@@ -29,7 +29,7 @@ val EternalTaskmaster = card("Eternal Taskmaster") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val card = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
+        val card = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),
             then = Effects.ReturnToHand(card),

@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Meat Locker // Drowned Diner (DSK 65) — split-layout Room (CR 709.5).
@@ -32,8 +32,8 @@ val MeatLockerDrownedDiner = card("Meat Locker // Drowned Diner") {
 
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
-            val t = target("up to one target creature", Targets.UpToCreatures(1))
-            effect = Effects.Tap(t).then(Effects.AddCounters(CounterType.STUN, 2, t))
+            val t = target(TargetFilter.Creature, optional = true)
+            effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 2, t)
             description = "When you unlock this door, tap up to one target creature and put two stun counters on it."
         }
     }

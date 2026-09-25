@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Prismabasher
@@ -40,13 +39,10 @@ val Prismabasher = card("Prismabasher") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to X target creatures you control",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter.CreatureYouControl,
-                dynamicMaxCount = DynamicAmounts.colorsAmongPermanents()
-            )
+        targets(
+            TargetFilter.CreatureYouControl,
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.colorsAmongPermanents(),
         )
         effect = Effects.ForEachTarget(
             Effects.ModifyStats(

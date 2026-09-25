@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * J. Jonah Jameson
@@ -29,10 +29,7 @@ val JJonahJameson = card("J. Jonah Jameson") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "up to one target creature",
-            TargetCreature(count = 1, optional = true)
-        )
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.Suspect(t)
     }
 

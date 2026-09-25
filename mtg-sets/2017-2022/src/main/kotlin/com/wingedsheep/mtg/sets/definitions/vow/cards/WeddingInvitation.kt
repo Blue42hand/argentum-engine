@@ -6,12 +6,12 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wedding Invitation
@@ -37,14 +37,12 @@ val WeddingInvitation = card("Wedding Invitation") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature, Duration.EndOfTurn),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature, Duration.EndOfTurn) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype("Vampire")), creature),
                 then = Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
-            ),
-        )
+            )
         description = "{T}, Sacrifice this artifact: Target creature can't be blocked this turn. " +
             "If it's a Vampire, it also gains lifelink until end of turn."
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Kaervek, the Punisher
@@ -54,14 +53,8 @@ val KaervekThePunisher = card("Kaervek, the Punisher") {
         description = "Whenever you commit a crime, exile up to one target black card from your " +
             "graveyard and copy it. You may cast the copy. If you do, you lose 2 life."
         val exiledCard = target(
-            "up to one target black card from your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Any.withColor(Color.BLACK).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
+            TargetFilter(GameObjectFilter.Any.withColor(Color.BLACK).ownedByYou(), zone = Zone.GRAVEYARD),
+            optional = true,
         )
         effect = Effects.Pipeline {
             run(Effects.Move(exiledCard, Zone.EXILE))

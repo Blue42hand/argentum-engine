@@ -23,11 +23,8 @@ val FearOfLostTeeth = card("Fear of Lost Teeth") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val damaged = target("any target", Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, damaged),
-            Effects.GainLife(1)
-        )
+        val damaged = target(Targets.Any)
+        effect = Effects.DealDamage(1, damaged) then Effects.GainLife(1)
     }
 
     metadata {

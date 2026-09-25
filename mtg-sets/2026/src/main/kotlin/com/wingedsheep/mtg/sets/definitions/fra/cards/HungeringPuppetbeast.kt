@@ -31,8 +31,7 @@ val HungeringPuppetbeast = card("Hungering Puppetbeast") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeAnother(GameObjectFilter.Artifact))
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.Modal(
                 modes = listOf(
                     Mode.noTarget(
@@ -50,8 +49,7 @@ val HungeringPuppetbeast = card("Hungering Puppetbeast") {
                 ),
                 chooseCount = 1,
                 countsAsModalSpell = false
-            ),
-        )
+            )
         description = "Put a +1/+1 counter on this creature. It gains your choice of trample, hexproof, or haste until end of turn."
     }
 

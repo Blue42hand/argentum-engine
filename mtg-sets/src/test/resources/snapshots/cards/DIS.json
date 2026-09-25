@@ -16,7 +16,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "a land you control"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -25,7 +25,7 @@
                     "filter": {
                         "baseFilter": "land ctrl:you"
                     },
-                    "id": "a land you control"
+                    "id": "t0"
                 }
             }
         ],
@@ -201,7 +201,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact or enchantment"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -211,7 +211,7 @@
                     "filter": {
                         "baseFilter": "artifact|enchantment"
                     },
-                    "id": "target artifact or enchantment"
+                    "id": "t0"
                 }
             }
         ]
@@ -296,7 +296,7 @@
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -329,7 +329,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "a land you control"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -338,7 +338,7 @@
                     "filter": {
                         "baseFilter": "land ctrl:you"
                     },
-                    "id": "a land you control"
+                    "id": "t0"
                 }
             }
         ],
@@ -402,7 +402,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "a land you control"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -411,7 +411,7 @@
                     "filter": {
                         "baseFilter": "land ctrl:you"
                     },
-                    "id": "a land you control"
+                    "id": "t0"
                 }
             }
         ],
@@ -570,7 +570,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target artifact or enchantment that player controls"
+                            "name": "t0"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -581,7 +581,7 @@
                     "filter": {
                         "baseFilter": "artifact|enchantment ctrl:opponent"
                     },
-                    "id": "target artifact or enchantment that player controls"
+                    "id": "t0"
                 }
             }
         ]

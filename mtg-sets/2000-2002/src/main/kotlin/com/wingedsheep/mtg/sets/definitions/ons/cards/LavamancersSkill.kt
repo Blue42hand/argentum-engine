@@ -4,14 +4,14 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureHasSubtype
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Lavamancer's Skill
@@ -30,13 +30,13 @@ val LavamancersSkill = card("Lavamancer's Skill") {
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature has \"{T}: This creature deals 1 damage to target creature.\"\nAs long as enchanted creature is a Wizard, it has \"{T}: This creature deals 2 damage to target creature.\" instead."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     staticAbility {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.conditional(
                         condition = EnchantedCreatureHasSubtype(Subtype("Wizard")),

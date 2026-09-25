@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Graf Reaver
@@ -37,7 +38,7 @@ val GrafReaver = card("Graf Reaver") {
         "At the beginning of your upkeep, this creature deals 1 damage to you."
 
     exploit {
-        val planeswalker = target("target planeswalker", Targets.Planeswalker)
+        val planeswalker = target(TargetFilter.Planeswalker)
         effect = Effects.Destroy(planeswalker)
     }
 

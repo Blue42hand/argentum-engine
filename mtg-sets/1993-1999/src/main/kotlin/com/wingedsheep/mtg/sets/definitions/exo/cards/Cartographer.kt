@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -31,10 +30,7 @@ val Cartographer = card("Cartographer") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(t, Zone.HAND)
     }
     metadata {

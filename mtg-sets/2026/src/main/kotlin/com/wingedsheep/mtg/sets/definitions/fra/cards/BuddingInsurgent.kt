@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Budding Insurgent — "If that permanent was a legendary enchantment" is checked after the destroy,
@@ -30,14 +30,12 @@ val BuddingInsurgent = card("Budding Insurgent") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val permanent = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
+        val permanent = target(TargetFilter.ArtifactOrEnchantment)
+        effect = Effects.Destroy(permanent) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment.legendary(), permanent),
                 then = Effects.DrawCards(1),
-            ),
-        )
+            )
         timing = TimingRule.SorcerySpeed
         description = "Destroy target artifact or enchantment. If that permanent was a legendary " +
             "enchantment, draw a card."

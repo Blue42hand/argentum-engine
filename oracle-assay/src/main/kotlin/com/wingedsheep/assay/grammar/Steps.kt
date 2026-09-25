@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets as SdkTargets
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -57,6 +56,7 @@ import com.wingedsheep.sdk.scripting.effects.SurveilEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import com.wingedsheep.sdk.core.ManaCost
@@ -758,7 +758,7 @@ object Steps {
         run {
             val script = CardScript(
                 spellEffect = Effects.ChangeTarget(),
-                targetRequirements = listOf(SdkTargets.SpellOrAbilityWithSingleTarget),
+                targetRequirements = listOf(TargetObject(filter = TargetFilter.SpellOrAbilityOnStack)),
             )
             phrase<CardScript>(
                 "change the target of target spell or ability with a single target",
@@ -773,11 +773,9 @@ object Steps {
         // first sentence's slot and neither half denotes anything alone.
         run {
             val script = CardScript(
-                spellEffect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures).then(
-                    CreateDelayedTriggerEffect(
-                        step = Step.END,
-                        effect = Effects.ReturnLinkedExileUnderOwnersControl(),
-                    )
+                spellEffect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures) then CreateDelayedTriggerEffect(
+                    step = Step.END,
+                    effect = Effects.ReturnLinkedExileUnderOwnersControl(),
                 )
             )
             phrase<CardScript>(
@@ -2348,15 +2346,11 @@ object Steps {
         fixed: DynamicAmount?,
     ): Phrase<CardScript> {
         fun scriptFor(value: DynamicAmount, filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.Composite(
-                listOf(
-                    Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.IterationEntity)),
-                    Effects.ForEachPlayer(
-                        Player.Each,
-                        listOf(Effects.DealDamage(value, EffectTarget.Controller)),
-                    ),
+            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.IterationEntity)) then
+                Effects.ForEachPlayer(
+                    Player.Each,
+                    listOf(Effects.DealDamage(value, EffectTarget.Controller)),
                 )
-            )
         )
         return phrase(template, name = name) {
             slot("self", Primitives.self)

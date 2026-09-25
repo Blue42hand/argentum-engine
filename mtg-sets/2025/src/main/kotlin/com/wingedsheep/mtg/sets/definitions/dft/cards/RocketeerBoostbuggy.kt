@@ -45,15 +45,13 @@ val RocketeerBoostbuggy = card("Rocketeer Boostbuggy") {
     activatedAbility {
         cost = Costs.Mana("{3}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = EffectTarget.Self,
-                power = 3,
-                toughness = 2,
-                duration = Duration.Permanent
-            ),
+        effect = Effects.BecomeCreature(
+            target = EffectTarget.Self,
+            power = 3,
+            toughness = 2,
+            duration = Duration.Permanent
+        ) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
         description = "Exhaust — {3}: This Vehicle becomes an artifact creature. " +
             "Put a +1/+1 counter on it."
     }

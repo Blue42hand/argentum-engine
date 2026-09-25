@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -31,7 +30,7 @@ val FleshBurrower = card("Flesh Burrower") {
     keywords(Keyword.DEATHTOUCH)
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
     }
     metadata {

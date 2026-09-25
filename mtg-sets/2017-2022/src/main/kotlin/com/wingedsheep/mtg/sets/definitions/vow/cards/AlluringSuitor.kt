@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Alluring Suitor // Deadly Dancer — Innistrad: Crimson Vow #141
@@ -104,24 +103,15 @@ private val DeadlyDancer = card("Deadly Dancer") {
 
     triggeredAbility {
         trigger = Triggers.self.transforms(true)
-        effect = Effects.Composite(
-            Effects.AddMana(Color.RED, 2),
-            Effects.RetainUnspentMana(Color.RED),
-        )
+        effect = Effects.AddMana(Color.RED, 2) then Effects.RetainUnspentMana(Color.RED)
         description = "When this creature transforms into Deadly Dancer, add {R}{R}. Until end of " +
             "turn, you don't lose this mana as steps and phases end."
     }
 
     activatedAbility {
         cost = Costs.Mana("{R}{R}")
-        val partner = target(
-            "another target creature",
-            TargetCreature(filter = TargetFilter.OtherCreature)
-        )
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
-            Effects.ModifyStats(1, 0, partner),
-        )
+        val partner = target(TargetFilter.OtherCreature)
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then Effects.ModifyStats(1, 0, partner)
         description = "This creature and another target creature each get +1/+0 until end of turn."
     }
 

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Cauldron Dance
@@ -35,7 +35,7 @@ val CauldronDance = card("Cauldron Dance") {
         "Its controller sacrifices it at the beginning of the next end step."
 
     spell {
-        val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
+        val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
         castOnlyDuring(Phase.COMBAT)
 
         effect = Effects.Pipeline {
@@ -44,17 +44,15 @@ val CauldronDance = card("Cauldron Dance") {
             val reanimated = gather(CardSource.ChosenTargets)
             move(reanimated, CardDestination.ToZone(Zone.BATTLEFIELD))
             ifNotEmpty(reanimated) {
-                run(Effects.Composite(
-                    Effects.GrantKeyword(
-                        keyword = Keyword.HASTE,
-                        target = reanimated.asTarget,
-                        duration = Duration.Permanent
-                    ),
+                run(Effects.GrantKeyword(
+                    keyword = Keyword.HASTE,
+                    target = reanimated.asTarget,
+                    duration = Duration.Permanent
+                ) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.ReturnToHand(reanimated.asTarget)
-                    )
-                ))
+                    ))
             }
 
             // Part 2 — optionally drop a creature from hand, give it haste, and sacrifice it

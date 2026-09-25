@@ -64,7 +64,7 @@ class OrcishBowmastersTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Instant"
         oracleText = "Draw a card. Draw a card."
-        spell { effect = Effects.Composite(Effects.DrawCards(1), Effects.DrawCards(1)) }
+        spell { effect = Effects.DrawCards(1) then Effects.DrawCards(1) }
         metadata { rarity = Rarity.COMMON; collectorNumber = "T03" }
     }
     // Plain OpponentDraws (no draw-step exemption) — the for-turn draw fires it too.

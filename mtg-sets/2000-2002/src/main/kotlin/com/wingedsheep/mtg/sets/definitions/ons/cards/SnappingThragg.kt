@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Snapping Thragg
@@ -26,7 +26,7 @@ val SnappingThragg = card("Snapping Thragg") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        val t = target("target", Targets.CreatureOpponentControls)
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.May(Effects.DealDamage(3, t))
     }
 

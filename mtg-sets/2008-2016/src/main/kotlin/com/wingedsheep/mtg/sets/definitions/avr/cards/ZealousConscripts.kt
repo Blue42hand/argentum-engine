@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 
 /**
@@ -31,12 +31,10 @@ val ZealousConscripts = card("Zealous Conscripts") {
     keywords(Keyword.HASTE)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetPermanent())
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
+        val t = target(TargetFilter.Permanent)
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

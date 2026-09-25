@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Rakdos Joins Up
@@ -38,17 +36,14 @@ val RakdosJoinsUp = card("Rakdos Joins Up") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
-        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
+        val t = target(TargetFilter.CreatureInYourGraveyard)
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
     }
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.legendary().youControl()).dies()
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(DynamicAmounts.triggeringPower(), opponent)
     }
 

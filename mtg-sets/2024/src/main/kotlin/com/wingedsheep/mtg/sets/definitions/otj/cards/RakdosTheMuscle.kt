@@ -63,7 +63,7 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Creature, batch = true)
-        val targetPlayer = target("target player", Targets.Player)
+        val targetPlayer = target(Targets.Player)
         effect = Effects.Pipeline {
             val rakdosExiled = gather(
                 CardSource.TopOfLibrary(
@@ -85,8 +85,8 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
 
     activatedAbility {
         cost = Costs.SacrificeAnother(GameObjectFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn)
-            .then(Effects.Tap(EffectTarget.Self))
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn) then
+            Effects.Tap(EffectTarget.Self)
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "Sacrifice another creature: Rakdos gains indestructible until end of turn. Tap it."
     }

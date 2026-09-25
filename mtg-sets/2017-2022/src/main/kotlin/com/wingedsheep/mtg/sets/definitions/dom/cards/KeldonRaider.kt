@@ -24,10 +24,7 @@ val KeldonRaider = card("Keldon Raider") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.May(
-            Effects.Composite(listOf(
-                Patterns.Hand.discardCards(1),
-                Effects.DrawCards(1)
-            ))
+            Patterns.Hand.discardCards(1) then Effects.DrawCards(1)
         )
     }
 

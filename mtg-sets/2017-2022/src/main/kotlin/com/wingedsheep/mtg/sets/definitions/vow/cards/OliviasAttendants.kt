@@ -51,7 +51,7 @@ val OliviasAttendants = card("Olivia's Attendants") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(1, anyTarget)
         description = "This creature deals 1 damage to any target."
     }

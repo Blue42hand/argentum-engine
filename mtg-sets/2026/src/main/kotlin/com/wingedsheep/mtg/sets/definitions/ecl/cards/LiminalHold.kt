@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Liminal Hold
@@ -22,12 +21,8 @@ val LiminalHold = card("Liminal Hold") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "up to one nonland permanent an opponent controls",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
-        )
-        effect = Effects.ExileUntilLeaves(permanent)
-            .then(Effects.GainLife(2))
+        val permanent = target(TargetFilter.NonlandPermanentOpponentControls, optional = true)
+        effect = Effects.ExileUntilLeaves(permanent) then Effects.GainLife(2)
     }
 
     triggeredAbility {

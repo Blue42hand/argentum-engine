@@ -42,14 +42,12 @@ val StubbornBurrowfiend = card("Stubborn Burrowfiend") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesSaddled(true)
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
+        effect = Patterns.Library.mill(2) then
             Effects.ModifyStats(
                 power = DynamicAmounts.creatureCardsInYourGraveyard(),
                 toughness = DynamicAmounts.creatureCardsInYourGraveyard(),
                 target = EffectTarget.Self
             )
-        )
         description = "Whenever this creature becomes saddled for the first time each turn, mill " +
             "two cards, then this creature gets +X/+X until end of turn, where X is the number of " +
             "creature cards in your graveyard."

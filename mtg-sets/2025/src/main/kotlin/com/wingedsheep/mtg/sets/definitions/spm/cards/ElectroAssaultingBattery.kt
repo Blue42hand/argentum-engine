@@ -51,7 +51,7 @@ val ElectroAssaultingBattery = card("Electro, Assaulting Battery") {
     // When Electro leaves the battlefield, you may pay {X}. When you do, he deals X damage to a player.
     triggeredAbility {
         trigger = Triggers.self.leaves()
-        val target = target("target player", Targets.Player)
+        val target = target(Targets.Player)
         effect = Effects.MayPayX(
             then = Effects.DealDamage(DynamicAmounts.xValue(), target)
         )

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Inquisition
@@ -31,9 +31,8 @@ val Inquisition = card("Inquisition") {
         "to the number of white cards in their hand."
 
     spell {
-        val victim = target("target player", TargetPlayer())
-        effect = Effects.Composite(
-            Effects.RevealHand(victim),
+        val victim = target(Targets.Player)
+        effect = Effects.RevealHand(victim) then
             Effects.DealDamage(
                 DynamicAmounts.count(
                     victim.asPlayer,
@@ -41,8 +40,7 @@ val Inquisition = card("Inquisition") {
                     GameObjectFilter.Any.withColor(Color.WHITE),
                 ),
                 victim,
-            ),
-        )
+            )
     }
 
     metadata {

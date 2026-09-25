@@ -22,11 +22,9 @@ val Ponder = card("Ponder") {
     typeLine = "Sorcery"
     oracleText = "Look at the top three cards of your library, then put them back in any order. You may shuffle.\nDraw a card."
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.lookAtTopAndReorder(count = 3),
-            Effects.May(Effects.ShuffleLibrary()),
+        effect = Patterns.Library.lookAtTopAndReorder(count = 3) then
+            Effects.May(Effects.ShuffleLibrary()) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

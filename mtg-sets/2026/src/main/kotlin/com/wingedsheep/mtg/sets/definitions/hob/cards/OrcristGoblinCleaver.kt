@@ -56,8 +56,7 @@ val OrcristGoblinCleaver = card("Orcrist, Goblin-cleaver") {
 
     triggeredAbility {
         trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            ChooseCreatureTypeEffect,
+        effect = ChooseCreatureTypeEffect then
             Effects.CreateTreasure(
                 count = DynamicAmounts.count(
                     Player.You,
@@ -65,7 +64,6 @@ val OrcristGoblinCleaver = card("Orcrist, Goblin-cleaver") {
                     GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType")
                 )
             )
-        )
         description = "Whenever equipped creature deals combat damage to a player, choose a " +
             "creature type. Create a Treasure token for each creature you control of that type."
     }

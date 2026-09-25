@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Chandra, Torch of Defiance — Kaladesh #110
@@ -63,7 +64,7 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
                     ))
                 }
             },
-            then = Effects.Composite(emptyList()),
+            then = Effects.Nothing,
             otherwise = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             successCriterion = SuccessCriterion.CollectionNonEmpty("chandraCast"),
         )
@@ -79,7 +80,7 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
 
     // −3: Chandra deals 4 damage to target creature.
     loyaltyAbility(-3) {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.DealDamage(4, creature)
     }
 
@@ -88,7 +89,7 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.you.casts()
-                val anyTarget = target("any target", Targets.Any)
+                val anyTarget = target(Targets.Any)
                 effect = Effects.DealDamage(5, anyTarget)
                 description = "Whenever you cast a spell, this emblem deals 5 damage to any target."
             },

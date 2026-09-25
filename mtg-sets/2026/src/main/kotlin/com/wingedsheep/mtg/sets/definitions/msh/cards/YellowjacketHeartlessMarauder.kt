@@ -35,10 +35,8 @@ val YellowjacketHeartlessMarauder = card("Yellowjacket, Heartless Marauder") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
-        )
     }
 
     metadata {

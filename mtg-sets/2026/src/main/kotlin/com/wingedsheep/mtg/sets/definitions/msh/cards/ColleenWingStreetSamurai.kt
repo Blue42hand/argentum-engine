@@ -36,10 +36,7 @@ val ColleenWingStreetSamurai = card("Colleen Wing, Street Samurai") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.youControl())))
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.Scry(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then Effects.Scry(1)
         description = "Whenever you cast a spell that targets a creature you control, put a " +
             "+1/+1 counter on Colleen Wing. Scry 1."
     }

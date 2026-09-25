@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.bro.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fallaji Vanguard
@@ -34,7 +34,7 @@ val FallajiVanguard = card("Fallaji Vanguard") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(2, 0, creature)
     }
 

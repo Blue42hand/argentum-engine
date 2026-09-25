@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Dread Fugue
@@ -44,7 +44,7 @@ val DreadFugue = card("Dread Fugue") {
     keywordAbility(KeywordAbility.cleave("{2}{B}"))
 
     spell {
-        val player = target("target player", TargetPlayer())
+        val player = target(Targets.Player)
 
         // Printed (brackets present): choose a nonland card with mana value 2 or less to discard.
         effect = Effects.Pipeline {

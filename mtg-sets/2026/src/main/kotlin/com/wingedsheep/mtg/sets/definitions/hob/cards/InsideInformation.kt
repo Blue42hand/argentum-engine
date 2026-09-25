@@ -30,7 +30,7 @@ val InsideInformation = card("Inside Information") {
         "pay its mana cost."
 
     spell {
-        target("target opponent", Targets.Opponent)
+        target(Targets.Opponent)
         effect = Effects.Pipeline {
             val insideInformationExiled = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue(), Player.TargetOpponent))
             exile(insideInformationExiled, Player.TargetOpponent)

@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Predatory Nightstalker
@@ -31,7 +31,7 @@ val PredatoryNightstalker = card("Predatory Nightstalker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.May(Effects.Sacrifice(GameObjectFilter.Creature, 1, opponent))
     }
 

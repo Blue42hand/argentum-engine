@@ -57,24 +57,22 @@ val TheMistyMountainsCold = card("The Misty Mountains Cold") {
 
 /** The one chapter ability shared by I, II, III and IV. */
 private fun mistyMountainsChapter(): Effect =
-    Effects.CreateTreasure()
-        .then(
-            Effects.If(
-                condition = Conditions.YouControlAtLeast(
-                    4,
-                    GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE)
+    Effects.CreateTreasure() then
+        Effects.If(
+            condition = Conditions.YouControlAtLeast(
+                4,
+                GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE)
+            ),
+            then = Effects.IfYouDo(
+                action = Effects.SacrificeTarget(EffectTarget.Self),
+                then = Effects.CreateToken(
+                    power = 6,
+                    toughness = 6,
+                    colors = setOf(Color.RED),
+                    creatureTypes = setOf("Dragon"),
+                    keywords = setOf(Keyword.FLYING),
+                    controller = EffectTarget.Controller,
                 ),
-                then = Effects.IfYouDo(
-                    action = Effects.SacrificeTarget(EffectTarget.Self),
-                    then = Effects.CreateToken(
-                        power = 6,
-                        toughness = 6,
-                        colors = setOf(Color.RED),
-                        creatureTypes = setOf("Dragon"),
-                        keywords = setOf(Keyword.FLYING),
-                        controller = EffectTarget.Controller,
-                    ),
-                    successCriterion = SuccessCriterion.PermanentsSacrificed,
-                )
+                successCriterion = SuccessCriterion.PermanentsSacrificed,
             )
         )

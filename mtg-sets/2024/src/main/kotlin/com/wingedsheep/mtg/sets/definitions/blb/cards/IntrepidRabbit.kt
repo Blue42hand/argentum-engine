@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Intrepid Rabbit
@@ -42,7 +41,7 @@ val IntrepidRabbit = card("Intrepid Rabbit") {
     // ETB: target creature you control gets +1/+1 until end of turn
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature you control to get +1/+1", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.ModifyStats(1, 1, creature)
     }
 

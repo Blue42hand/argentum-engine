@@ -1,14 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ala.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Resounding Silence
@@ -34,7 +32,7 @@ val ResoundingSilence = card("Resounding Silence") {
         "When you cycle this card, exile up to two target attacking creatures."
 
     spell {
-        val t = target("target", Targets.AttackingCreature)
+        val t = target(TargetFilter.AttackingCreature)
         effect = Effects.Exile(t)
     }
 
@@ -42,10 +40,7 @@ val ResoundingSilence = card("Resounding Silence") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        target(
-            "target",
-            TargetCreature(count = 2, optional = true, filter = TargetFilter.AttackingCreature)
-        )
+        targets(TargetFilter.AttackingCreature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.Exile(EffectTarget.ContextTarget(0))
         )

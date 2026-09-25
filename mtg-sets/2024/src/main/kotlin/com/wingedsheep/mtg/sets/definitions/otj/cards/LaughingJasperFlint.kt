@@ -63,7 +63,7 @@ val LaughingJasperFlint = card("Laughing Jasper Flint") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val stolenCards = gather(
                 CardSource.TopOfLibrary(

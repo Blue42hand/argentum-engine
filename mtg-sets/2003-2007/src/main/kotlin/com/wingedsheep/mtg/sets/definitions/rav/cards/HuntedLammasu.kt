@@ -35,7 +35,7 @@ val HuntedLammasu = card("Hunted Lammasu") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.CreateToken(
             power = 4,
             toughness = 4,

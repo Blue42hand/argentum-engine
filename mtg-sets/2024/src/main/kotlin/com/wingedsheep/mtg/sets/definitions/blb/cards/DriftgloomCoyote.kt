@@ -4,13 +4,11 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Driftgloom Coyote
@@ -37,15 +35,12 @@ val DriftgloomCoyote = card("Driftgloom Coyote") {
     // ETB: exile target opponent creature until this leaves + conditional +1/+1 counter
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "creature an opponent controls",
-            TargetCreature(filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.opponentControls()))
-        )
+        val creature = target(TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.opponentControls()))
         // Check power condition first (while creature is still on battlefield), then exile
         effect = Effects.If(
             condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2), creature),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        ).then(Effects.ExileUntilLeaves(creature))
+        ) then Effects.ExileUntilLeaves(creature)
     }
 
     // LTB: return exiled card

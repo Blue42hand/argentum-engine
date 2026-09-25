@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Nightmare Sower
@@ -33,10 +33,7 @@ val NightmareSower = card("Nightmare Sower") {
     triggeredAbility {
         trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
-        val creature = target(
-            "creature to put a -1/-1 counter on",
-            TargetCreature(count = 1, optional = true)
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature)
     }
 

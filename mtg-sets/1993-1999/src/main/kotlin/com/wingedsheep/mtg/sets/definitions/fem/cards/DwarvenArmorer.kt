@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dwarven Armorer
@@ -28,7 +28,7 @@ val DwarvenArmorer = card("Dwarven Armorer") {
     toughness = 2
 
     activatedAbility {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Tap, Costs.DiscardCard)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(

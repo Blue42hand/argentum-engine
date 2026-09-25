@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Hide on the Ceiling
@@ -25,7 +25,7 @@ val HideOnTheCeiling = card("Hide on the Ceiling") {
         // Pattern shared with Wave of Indifference / Icy Blast: a high static
         // count + optional stands in for X targets until the SDK gains a
         // proper DynamicAmount-driven target count.
-        target = TargetPermanent(count = 20, optional = true, filter = TargetFilter.CreatureOrArtifact)
+        target = TargetObject(filter = TargetFilter.CreatureOrArtifact, count = 20, optional = true)
         effect = Effects.ForEachTarget(
             Patterns.Exile.exileUntilEndStep(EffectTarget.ContextTarget(0))
         )

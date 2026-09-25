@@ -25,10 +25,7 @@ val FulminousForte = card("Fulminous Forte") {
                 description = "Deal 1 damage to each creature and planeswalker your opponents control."
             ),
             mode("Deal 5 damage to target creature or planeswalker.") {
-                val creatureOrPlaneswalker = target(
-                    "target creature or planeswalker",
-                    Targets.CreatureOrPlaneswalker
-                )
+                val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
                 effect = Effects.DealDamage(5, creatureOrPlaneswalker)
             }
         )

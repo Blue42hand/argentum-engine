@@ -28,10 +28,7 @@ val VampireSpawn = card("Vampire Spawn") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(2)
-        )
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.training
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Gryffwing Cavalry
@@ -50,10 +49,7 @@ val GryffwingCavalry = card("Gryffwing Cavalry") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val flyer = target(
-            "target attacking creature without flying",
-            TargetCreature(filter = TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING)),
-        )
+        val flyer = target(TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING))
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{W}"),
             then = Effects.GrantKeyword(Keyword.FLYING, flyer),

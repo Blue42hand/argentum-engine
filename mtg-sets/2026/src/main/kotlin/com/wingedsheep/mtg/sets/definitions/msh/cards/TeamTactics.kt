@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.teamwork
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Team Tactics — Marvel Super Heroes #155
@@ -34,12 +33,10 @@ val TeamTactics = card("Team Tactics") {
     teamwork(1)
 
     spell {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature).then(
-            Effects.If(
-                condition = Conditions.TeamworkWasPaid,
-                then = Effects.GrantKeyword(Keyword.TRAMPLE, creature),
-            ),
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature) then Effects.If(
+            condition = Conditions.TeamworkWasPaid,
+            then = Effects.GrantKeyword(Keyword.TRAMPLE, creature),
         )
     }
 

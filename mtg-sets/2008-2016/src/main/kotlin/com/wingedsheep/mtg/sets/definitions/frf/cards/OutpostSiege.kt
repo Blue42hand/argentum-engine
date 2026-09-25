@@ -75,7 +75,7 @@ val OutpostSiege = card("Outpost Siege") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).leaves()
         triggerRestriction = SourceChosenModeIs("dragons")
-        val any = target("target", Targets.Any)
+        val any = target(Targets.Any)
         effect = Effects.DealDamage(1, any)
     }
 

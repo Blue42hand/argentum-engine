@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Deadly Precision
@@ -30,13 +30,13 @@ val DeadlyPrecision = card("Deadly Precision") {
         effect = ModalEffect.chooseOne(
             // Pay {4}
             mode("Pay {4} — destroy target creature") {
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 additionalManaCost = "{4}"
                 effect = Effects.Destroy(creature)
             },
             // Sacrifice an artifact or creature
             mode("Sacrifice an artifact or creature — destroy target creature") {
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 additionalCosts = listOf(
                     Costs.additional.SacrificePermanent(
                         filter = GameObjectFilter.Artifact.or(GameObjectFilter.Creature)

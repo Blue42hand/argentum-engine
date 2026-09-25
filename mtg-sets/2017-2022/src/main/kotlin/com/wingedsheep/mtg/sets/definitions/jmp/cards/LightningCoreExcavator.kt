@@ -23,7 +23,7 @@ val LightningCoreExcavator = card("Lightning-Core Excavator") {
     toughness = 3
 
     activatedAbility {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.DealDamage(3, anyTarget)
         description = "{5}, {T}, Sacrifice this creature: It deals 3 damage to any target."

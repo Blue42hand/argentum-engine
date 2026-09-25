@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Galuf's Final Act
@@ -42,11 +43,11 @@ val GalufsFinalAct = card("Galuf's Final Act") {
         "target creature.\""
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
 
         val diesGrantCounters = grantedTriggeredAbility {
             trigger = Triggers.self.dies()
-            val upToCreatures = target("target up to creatures", Targets.UpToCreatures(1))
+            val upToCreatures = target(TargetFilter.Creature, optional = true)
             effect = Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.sourcePower(),
@@ -56,10 +57,8 @@ val GalufsFinalAct = card("Galuf's Final Act") {
                 "equal to its power on up to one target creature."
         }
 
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t, Duration.EndOfTurn),
+        effect = Effects.ModifyStats(1, 0, t, Duration.EndOfTurn) then
             Effects.GrantTriggeredAbility(diesGrantCounters, t, Duration.EndOfTurn)
-        )
     }
 
     metadata {

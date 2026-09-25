@@ -23,7 +23,7 @@ val Panacea = card("Panacea") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}{X}"), Costs.Tap)
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.PreventNextDamage(DynamicAmounts.xValue(), t)
     }
 

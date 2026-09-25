@@ -44,11 +44,10 @@ val AngelOfGlorysRise = card("Angel of Glory's Rise") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Permanent.withSubtype("Zombie")),
-                Effects.Exile(EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Permanent.withSubtype("Zombie")),
+            Effects.Exile(EffectTarget.IterationEntity)
+        ) then
             Effects.Pipeline {
                 val graveyardLands = gather(
                     CardSource.FromZone(
@@ -59,7 +58,6 @@ val AngelOfGlorysRise = card("Angel of Glory's Rise") {
                 )
                 move(graveyardLands, CardDestination.ToZone(Zone.BATTLEFIELD))
             }
-        )
     }
 
     metadata {

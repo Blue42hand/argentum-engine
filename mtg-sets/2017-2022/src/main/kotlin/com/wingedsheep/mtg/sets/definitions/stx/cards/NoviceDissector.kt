@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.stx.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Novice Dissector — Strixhaven: School of Mages #79 (canonical printing)
@@ -34,7 +34,7 @@ val NoviceDissector = card("Novice Dissector") {
             Costs.Mana("{1}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature),
         )
-        val creature = target("target", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         timing = TimingRule.SorcerySpeed
         description = "{1}, Sacrifice another creature: Put a +1/+1 counter on target creature. " +

@@ -28,8 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
- * Effect patterns for creature-type-choice-based effects: choose a type then
- * apply effects based on it.
+ * Effect patterns for creature-type-choice-based effects: choose a type then * apply effects based on it.
  */
 object CreatureTypePatterns {
 

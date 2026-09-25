@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * The Fire Nation Drill
@@ -43,26 +43,21 @@ val TheFireNationDrill = card("The Fire Nation Drill") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Tap(EffectTarget.Self),
             optional = true) {
-            val creatureWithPowerAtMost = target(
-                "target creature with power at most",
-                Targets.CreatureWithPowerAtMost(4)
-            )
+            val creatureWithPowerAtMost = target(TargetFilter.Creature.powerAtMost(4))
             effect = Effects.Destroy(creatureWithPowerAtMost)
         }
     }
 
     activatedAbility {
         cost = Costs.Mana("{1}")
-        effect = Effects.Composite(
-            Patterns.Group.removeKeywordFromAll(
-                Keyword.HEXPROOF,
-                Filters.Group.permanents { opponentControls() }
-            ),
+        effect = Patterns.Group.removeKeywordFromAll(
+            Keyword.HEXPROOF,
+            Filters.Group.permanents { opponentControls() }
+        ) then
             Patterns.Group.removeKeywordFromAll(
                 Keyword.INDESTRUCTIBLE,
                 Filters.Group.permanents { opponentControls() }
             )
-        )
     }
 
     keywordAbility(KeywordAbility.crew(2))

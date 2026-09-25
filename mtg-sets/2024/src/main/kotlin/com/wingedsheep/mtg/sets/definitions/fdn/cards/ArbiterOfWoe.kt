@@ -37,15 +37,13 @@ val ArbiterOfWoe = card("Arbiter of Woe") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.EachOpponentDiscards(1),
+        effect = Effects.EachOpponentDiscards(1) then
             Effects.ForEachPlayer(
                 Player.EachOpponent,
                 listOf(Effects.LoseLife(2, EffectTarget.Controller))
-            ),
-            Effects.DrawCards(1),
+            ) then
+            Effects.DrawCards(1) then
             Effects.GainLife(2)
-        )
         description = "When this creature enters, each opponent discards a card and loses 2 life. " +
             "You draw a card and gain 2 life."
     }

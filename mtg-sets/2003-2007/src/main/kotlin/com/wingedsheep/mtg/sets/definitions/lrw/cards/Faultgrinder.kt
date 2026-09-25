@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Faultgrinder
@@ -32,7 +32,7 @@ val Faultgrinder = card("Faultgrinder") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val land = target("target land", Targets.Land)
+        val land = target(TargetFilter.Land)
         effect = Effects.Destroy(land)
         description = "destroy target land."
     }

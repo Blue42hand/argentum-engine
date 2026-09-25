@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Icewrought Sentry
@@ -51,10 +50,7 @@ val IcewroughtSentry = card("Icewrought Sentry") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayMana("{1}{U}"),
             optional = true) {
-            val creature = target(
-                "target creature",
-                TargetCreature(filter = TargetFilter.Creature.opponentControls())
-            )
+            val creature = target(TargetFilter.Creature.opponentControls())
             effect = Effects.Tap(creature)
         }
         description = "Whenever this creature attacks, you may pay {1}{U}. When you do, tap target " +

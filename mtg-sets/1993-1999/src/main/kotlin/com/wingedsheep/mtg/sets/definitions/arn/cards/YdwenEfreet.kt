@@ -31,8 +31,8 @@ val YdwenEfreet = card("Ydwen Efreet") {
         trigger = Triggers.self.blocks()
         effect = Effects.FlipCoin(
             lostEffect = Effects
-                .RemoveFromCombat(EffectTarget.Self, unblockSoleBlockedAttackers = true)
-                .then(Effects.CantBlock(EffectTarget.Self)),
+                .RemoveFromCombat(EffectTarget.Self, unblockSoleBlockedAttackers = true) then
+                Effects.CantBlock(EffectTarget.Self),
         )
     }
 

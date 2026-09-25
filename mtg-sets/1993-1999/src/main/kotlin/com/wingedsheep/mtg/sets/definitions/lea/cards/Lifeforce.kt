@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
 /**
@@ -26,7 +25,7 @@ val Lifeforce = card("Lifeforce") {
     oracleText = "{G}{G}: Counter target black spell."
     activatedAbility {
         cost = Costs.Mana("{G}{G}")
-        val t = target("target", TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.BLACK)))
+        val t = target(TargetFilter.SpellOnStack.withColor(Color.BLACK))
         effect = Effects.CounterSpell()
     }
     metadata {

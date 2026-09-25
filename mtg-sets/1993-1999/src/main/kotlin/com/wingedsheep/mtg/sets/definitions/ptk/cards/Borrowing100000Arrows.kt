@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Borrowing 100,000 Arrows
@@ -26,7 +27,7 @@ val Borrowing100000Arrows = card("Borrowing 100,000 Arrows") {
     oracleText = "Draw a card for each tapped creature target opponent controls."
 
     spell {
-        target("target", TargetOpponent())
+        target(Targets.Opponent)
         effect = Effects.DrawCards(
             DynamicAmounts.battlefield(
                 Player.TargetOpponent,

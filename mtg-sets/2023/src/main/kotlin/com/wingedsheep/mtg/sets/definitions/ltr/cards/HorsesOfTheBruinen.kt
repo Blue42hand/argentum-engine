@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Horses of the Bruinen
@@ -21,12 +21,12 @@ val HorsesOfTheBruinen = card("Horses of the Bruinen") {
     oracleText = "Return up to two target creatures to their owners' hands. Scry 1. The Ring tempts you."
 
     spell {
-        target("up to two target creatures", Targets.UpToCreatures(2))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))
-        )
-            .then(Patterns.Library.scry(1))
-            .then(Effects.TheRingTemptsYou())
+        ) then
+            Patterns.Library.scry(1) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

@@ -35,14 +35,13 @@ val TendTheSprigs = card("Tend the Sprigs") {
         val landsAndTreefolk =
             GameObjectFilter.Land or GameObjectFilter.Permanent.withSubtype(Subtype.TREEFOLK)
 
-        effect = Effects.Composite(
-            Patterns.Library.searchLibrary(
-                filter = GameObjectFilter.BasicLand,
-                count = 1,
-                destination = SearchDestination.BATTLEFIELD,
-                entersTapped = true,
-                shuffleAfter = true
-            ),
+        effect = Patterns.Library.searchLibrary(
+            filter = GameObjectFilter.BasicLand,
+            count = 1,
+            destination = SearchDestination.BATTLEFIELD,
+            entersTapped = true,
+            shuffleAfter = true
+        ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, landsAndTreefolk).count(),
@@ -58,7 +57,6 @@ val TendTheSprigs = card("Tend the Sprigs") {
                     imageUri = "https://cards.scryfall.io/normal/front/8/2/82e01706-ab45-4e52-9ee1-7070567234fd.jpg?1767955530"
                 )
             )
-        )
     }
 
     metadata {

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Riverwheel Sweep
@@ -34,24 +33,22 @@ val RiverwheelSweep = card("Riverwheel Sweep") {
         "you may play that card."
 
     spell {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(CounterType.STUN, 3, creature))
-            .then(
-                Effects.Pipeline {
-                    val exiled = gather(CardSource.TopOfLibrary(2))
-                    exile(exiled)
-                    val chosen = chooseExactly(
-                        1,
-                        from = exiled,
-                        prompt = "Choose a card you may play until the end of your next turn"
-                    )
-                    run(Effects.GrantMayPlayFromExile(
-                        from = chosen,
-                        expiry = MayPlayExpiry.UntilEndOfNextTurn
-                    ))
-                }
-            )
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.Tap(creature) then
+            Effects.AddCounters(CounterType.STUN, 3, creature) then
+            Effects.Pipeline {
+                val exiled = gather(CardSource.TopOfLibrary(2))
+                exile(exiled)
+                val chosen = chooseExactly(
+                    1,
+                    from = exiled,
+                    prompt = "Choose a card you may play until the end of your next turn"
+                )
+                run(Effects.GrantMayPlayFromExile(
+                    from = chosen,
+                    expiry = MayPlayExpiry.UntilEndOfNextTurn
+                ))
+            }
     }
 
     metadata {

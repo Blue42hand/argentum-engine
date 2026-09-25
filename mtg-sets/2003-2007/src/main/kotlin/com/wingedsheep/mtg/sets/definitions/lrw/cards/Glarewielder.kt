@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Glarewielder
@@ -38,7 +37,7 @@ val Glarewielder = card("Glarewielder") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0)))
         description = "up to two target creatures can't block this turn."
     }

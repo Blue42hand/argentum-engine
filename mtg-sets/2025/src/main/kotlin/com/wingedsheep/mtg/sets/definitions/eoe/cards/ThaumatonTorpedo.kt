@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Thaumaton Torpedo
@@ -26,10 +25,7 @@ val ThaumatonTorpedo = card("Thaumaton Torpedo") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}"), Costs.Tap, Costs.SacrificeSelf)
-        val permanent = target(
-            "target nonland permanent",
-            TargetPermanent(filter = TargetFilter.NonlandPermanent)
-        )
+        val permanent = target(TargetFilter.NonlandPermanent)
         effect = Effects.Destroy(permanent)
         genericCostReduction = DynamicAmounts.conditional(
             condition = Conditions.YouAttackedWithCreaturesThisTurn(

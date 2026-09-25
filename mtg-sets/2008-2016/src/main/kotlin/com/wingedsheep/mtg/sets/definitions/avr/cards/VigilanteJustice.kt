@@ -27,7 +27,7 @@ val VigilanteJustice = card("Vigilante Justice") {
     oracleText = "Whenever a Human you control enters, this enchantment deals 1 damage to any target."
 
     triggeredAbility {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Human").youControl()).enters()
         effect = Effects.DealDamage(1, anyTarget)
     }

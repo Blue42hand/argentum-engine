@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * War Machine, Legacy of Iron — Marvel Super Heroes #238 (uncommon)
@@ -41,7 +42,7 @@ val WarMachineLegacyOfIron = card("War Machine, Legacy of Iron") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val boosted = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val boosted = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ModifyStats(
             DynamicAmounts.sourcePower(),
             DynamicAmounts.fixed(0),

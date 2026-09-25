@@ -44,7 +44,7 @@ val PyreZombie = card("Pyre Zombie") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}{R}"), Costs.SacrificeSelf)
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

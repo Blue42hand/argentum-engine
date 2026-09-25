@@ -37,15 +37,11 @@ import com.wingedsheep.sdk.core.Step
  *   At the beginning of your first main phase, you may pay {G}. If you do, transform Trystan.
  */
 
-private val millThenGainLifeIfElf = Effects.Composite(
-    listOf(
-        Patterns.Library.mill(3),
-        Effects.If(
-            condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
-            then = Effects.GainLife(2)
-        )
+private val millThenGainLifeIfElf = Patterns.Library.mill(3) then
+    Effects.If(
+        condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
+        then = Effects.GainLife(2)
     )
-)
 
 private val millThenExileElfThenDrain = Effects.Pipeline {
     run(Patterns.Library.mill(3))

@@ -29,10 +29,7 @@ val PactdollTerror = card("Pactdoll Terror") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.COMMON

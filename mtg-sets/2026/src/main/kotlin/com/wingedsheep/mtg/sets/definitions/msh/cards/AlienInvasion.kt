@@ -43,23 +43,21 @@ val AlienInvasion = card("Alien Invasion") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.RED),
-                creatureTypes = setOf(Subtype.ALIEN.value),
-                keywords = setOf(Keyword.HASTE),
-                staticAbilities = listOf(MustAttack(GroupFilter.source())),
-                imageUri = "https://cards.scryfall.io/normal/front/e/c/eca87cbb-5958-4775-93ce-b1d4c7ef3a99.jpg?1783902802",
-            ),
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.RED),
+            creatureTypes = setOf(Subtype.ALIEN.value),
+            keywords = setOf(Keyword.HASTE),
+            staticAbilities = listOf(MustAttack(GroupFilter.source())),
+            imageUri = "https://cards.scryfall.io/normal/front/e/c/eca87cbb-5958-4775-93ce-b1d4c7ef3a99.jpg?1783902802",
+        ) then
             Effects.AddCountersToCollection(
                 CREATED_TOKENS,
                 CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.countersOnSelf(CounterType.INVASION),
-            ),
-            Effects.AddCounters(CounterType.INVASION, 1, EffectTarget.Self),
-        )
+            ) then
+            Effects.AddCounters(CounterType.INVASION, 1, EffectTarget.Self)
         description = "At the beginning of combat on your turn, create a 1/1 red Alien creature " +
             "token with haste and \"This token attacks each combat if able.\" Put a +1/+1 counter " +
             "on it for each invasion counter on this enchantment, then put an invasion counter on " +

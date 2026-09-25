@@ -166,7 +166,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "permanent"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -192,7 +192,7 @@
                 "filter": {
                     "baseFilter": "permanent"
                 },
-                "id": "permanent"
+                "id": "t0"
             }
         ]
     },
@@ -806,7 +806,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "permanent"
+                        "name": "t0"
                     },
                     "destination": "Library",
                     "placement": "Shuffled"
@@ -851,7 +851,7 @@
                 "filter": {
                     "baseFilter": "permanent"
                 },
-                "id": "permanent"
+                "id": "t0"
             }
         ]
     },
@@ -880,7 +880,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -889,7 +889,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t1"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -898,7 +898,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target enchantment"
+                        "name": "t2"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -907,7 +907,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target land"
+                        "name": "t3"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -920,28 +920,28 @@
                 "filter": {
                     "baseFilter": "artifact"
                 },
-                "id": "target artifact"
+                "id": "t0"
             },
             {
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t1"
             },
             {
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "enchantment"
                 },
-                "id": "target enchantment"
+                "id": "t2"
             },
             {
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "land"
                 },
-                "id": "target land"
+                "id": "t3"
             }
         ]
     },
@@ -1423,7 +1423,7 @@
                             "target1": "Self",
                             "target2": {
                                 "type": "BoundVariable",
-                                "name": "target grothama"
+                                "name": "t0"
                             }
                         }
                     },
@@ -1432,7 +1432,7 @@
                         "filter": {
                             "baseFilter": "creature name:Grothama, All-Devouring"
                         },
-                        "id": "target grothama"
+                        "id": "t0"
                     }
                 },
                 "filter": {
@@ -1717,7 +1717,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "up to one target artifact"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileSourceOnBattlefield",
@@ -1730,7 +1730,7 @@
                     "filter": {
                         "baseFilter": "artifact"
                     },
-                    "id": "up to one target artifact"
+                    "id": "t0"
                 }
             }
         ]
@@ -1813,7 +1813,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "any target"
+                                "name": "t0"
                             },
                             "damageSource": "Self"
                         }
@@ -1821,7 +1821,7 @@
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "any target"
+                    "id": "t0"
                 }
             }
         ],
@@ -1931,7 +1931,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1940,7 +1940,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2278,13 +2278,13 @@
                         "type": "EntityProperty",
                         "entity": {
                             "type": "BoundVariable",
-                            "name": "creature"
+                            "name": "t0"
                         },
                         "numericProperty": "Power"
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -2292,7 +2292,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             },
             {
@@ -2376,7 +2376,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "permanent card from your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -2387,7 +2387,7 @@
                         "baseFilter": "permanent own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "permanent card from your graveyard"
+                    "id": "t0"
                 }
             }
         ],

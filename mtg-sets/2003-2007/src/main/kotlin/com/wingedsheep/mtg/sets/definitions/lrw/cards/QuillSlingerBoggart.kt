@@ -34,7 +34,7 @@ val QuillSlingerBoggart = card("Quill-Slinger Boggart") {
     triggeredAbility {
         trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.withSubtype(Subtype.KITHKIN))
         optional = true
-        val p = target("target player", Targets.Player)
+        val p = target(Targets.Player)
         effect = Effects.LoseLife(1, p)
         description = "Whenever a player casts a Kithkin spell, you may have target player lose 1 life."
     }

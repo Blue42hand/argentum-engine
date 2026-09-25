@@ -3,14 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Anti-Venom, Horrifying Healer — Marvel's Spider-Man #1
@@ -40,7 +39,7 @@ val AntiVenomHorrifyingHealer = card("Anti-Venom, Horrifying Healer") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
-        val creature = target("target creature card", Targets.CreatureCardInYourGraveyard)
+        val creature = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.PutOntoBattlefield(creature)
     }
 

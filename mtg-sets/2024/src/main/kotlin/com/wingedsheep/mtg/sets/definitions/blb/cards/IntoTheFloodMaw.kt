@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -34,18 +32,12 @@ val IntoTheFloodMaw = card("Into the Flood Maw") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — return target creature an opponent controls to hand
             mode("Don't promise a gift — return target creature an opponent controls to its owner's hand") {
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.ReturnToHand(creatureOpponentControls)
             },
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, then return target nonland permanent to hand
             mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, then return target nonland permanent an opponent controls to its owner's hand") {
-                val nonlandPermanentOpponentControls = target(
-                    "target nonland permanent opponent controls",
-                    TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls)
-                )
+                val nonlandPermanentOpponentControls = target(TargetFilter.NonlandPermanentOpponentControls)
                 effect = Effects.CreateToken(
                     count = 1,
                     power = 1,
@@ -55,8 +47,8 @@ val IntoTheFloodMaw = card("Into the Flood Maw") {
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     tapped = true,
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                ).then(Effects.ReturnToHand(nonlandPermanentOpponentControls))
-                    .then(Effects.GiftGiven())
+                ) then Effects.ReturnToHand(nonlandPermanentOpponentControls) then
+                    Effects.GiftGiven()
             }
         )
     }

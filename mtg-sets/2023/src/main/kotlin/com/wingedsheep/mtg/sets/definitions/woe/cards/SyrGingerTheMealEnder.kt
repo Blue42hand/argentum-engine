@@ -74,10 +74,8 @@ val SyrGingerTheMealEnder = card("Syr Ginger, the Meal Ender") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Artifact.youControl()).dies()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Patterns.Library.scry(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Patterns.Library.scry(1)
         description = "Whenever another artifact you control is put into a graveyard from the " +
             "battlefield, put a +1/+1 counter on Syr Ginger and scry 1."
     }

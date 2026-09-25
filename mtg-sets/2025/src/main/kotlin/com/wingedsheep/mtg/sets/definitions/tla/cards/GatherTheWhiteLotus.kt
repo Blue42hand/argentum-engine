@@ -30,20 +30,18 @@ val GatherTheWhiteLotus = card("Gather the White Lotus") {
         "and the rest on top in any order.)"
 
     spell {
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                count = DynamicAmounts.count(
-                    Player.You,
-                    Zone.BATTLEFIELD,
-                    GameObjectFilter.Land.withSubtype("Plains"),
-                ),
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.WHITE),
-                creatureTypes = setOf("Ally"),
+        effect = Effects.CreateToken(
+            count = DynamicAmounts.count(
+                Player.You,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Land.withSubtype("Plains"),
             ),
-            Effects.Scry(2),
-        )
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.WHITE),
+            creatureTypes = setOf("Ally"),
+        ) then
+            Effects.Scry(2)
     }
 
     metadata {

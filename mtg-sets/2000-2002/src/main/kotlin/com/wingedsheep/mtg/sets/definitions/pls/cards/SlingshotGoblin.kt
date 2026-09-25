@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -29,7 +28,7 @@ val SlingshotGoblin = card("Slingshot Goblin") {
     toughness = 2
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Tap)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.withColor(Color.BLUE)))
+        val t = target(TargetFilter.Creature.withColor(Color.BLUE))
         effect = Effects.DealDamage(2, t)
     }
     metadata {

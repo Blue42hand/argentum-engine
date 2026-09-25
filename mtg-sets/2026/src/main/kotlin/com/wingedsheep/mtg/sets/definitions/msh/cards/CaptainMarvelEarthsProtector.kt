@@ -45,10 +45,8 @@ val CaptainMarvelEarthsProtector = card("Captain Marvel, Earth's Protector") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{5}{W}{W}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, EffectTarget.Self)
-        )
     }
 
     metadata {

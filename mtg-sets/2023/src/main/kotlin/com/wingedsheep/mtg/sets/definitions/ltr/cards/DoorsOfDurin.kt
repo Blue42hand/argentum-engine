@@ -33,39 +33,37 @@ val DoorsOfDurin = card("Doors of Durin") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        effect = Patterns.Library.scry(2).then(
-            Effects.May(
-                effect = Effects.Pipeline {
-                    val top = gather(CardSource.TopOfLibrary(1, Player.You))
-                    reveal(top)
-                    val topCreature = filter(top, GameObjectFilter.Creature)
-                    move(
-                        topCreature,
-                        CardDestination.ToZone(
-                            Zone.BATTLEFIELD,
-                            Player.You,
-                            ZonePlacement.TappedAndAttacking
-                        )
+        effect = Patterns.Library.scry(2) then Effects.May(
+            effect = Effects.Pipeline {
+                val top = gather(CardSource.TopOfLibrary(1, Player.You))
+                reveal(top)
+                val topCreature = filter(top, GameObjectFilter.Creature)
+                move(
+                    topCreature,
+                    CardDestination.ToZone(
+                        Zone.BATTLEFIELD,
+                        Player.You,
+                        ZonePlacement.TappedAndAttacking
                     )
-                    run(Effects.If(
-                        condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Dwarf")),
-                        then = Effects.GrantKeyword(
-                            Keyword.TRAMPLE,
-                            topCreature.asTarget,
-                            Duration.UntilYourNextTurn
-                        )
-                    ))
-                    run(Effects.If(
-                        condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Elf")),
-                        then = Effects.GrantKeyword(
-                            Keyword.HEXPROOF,
-                            topCreature.asTarget,
-                            Duration.UntilYourNextTurn
-                        )
-                    ))
-                },
-                descriptionOverride = "You may reveal the top card of your library. If it's a creature card, put it onto the battlefield tapped and attacking. Until your next turn, it gains trample if you control a Dwarf and hexproof if you control an Elf."
-            )
+                )
+                run(Effects.If(
+                    condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Dwarf")),
+                    then = Effects.GrantKeyword(
+                        Keyword.TRAMPLE,
+                        topCreature.asTarget,
+                        Duration.UntilYourNextTurn
+                    )
+                ))
+                run(Effects.If(
+                    condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Elf")),
+                    then = Effects.GrantKeyword(
+                        Keyword.HEXPROOF,
+                        topCreature.asTarget,
+                        Duration.UntilYourNextTurn
+                    )
+                ))
+            },
+            descriptionOverride = "You may reveal the top card of your library. If it's a creature card, put it onto the battlefield tapped and attacking. Until your next turn, it gains trample if you control a Dwarf and hexproof if you control an Elf."
         )
     }
 

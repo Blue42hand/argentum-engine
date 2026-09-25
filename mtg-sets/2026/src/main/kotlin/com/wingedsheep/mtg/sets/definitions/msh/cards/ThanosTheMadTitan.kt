@@ -50,8 +50,7 @@ val ThanosTheMadTitan = card("Thanos, the Mad Titan") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{C}{W}{U}{B}{R}{G}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self) then
             Effects.Modal(
                 modes = listOf(
                     Mode.noTarget(
@@ -69,7 +68,6 @@ val ThanosTheMadTitan = card("Thanos, the Mad Titan") {
                 ),
                 chooseCount = 1
             )
-        )
     }
 
     metadata {

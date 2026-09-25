@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Bespoke Bō
@@ -29,10 +28,7 @@ val BespokeBo = card("Bespoke Bō") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "other nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.other(), optional = true)
         effect = Effects.ReturnToHand(permanent)
     }
 

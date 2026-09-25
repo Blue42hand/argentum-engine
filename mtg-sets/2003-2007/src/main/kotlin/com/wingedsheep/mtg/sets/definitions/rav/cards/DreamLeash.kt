@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ControlEnchantedPermanent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dream Leash
@@ -30,8 +29,8 @@ val DreamLeash = card("Dream Leash") {
         "You can't choose an untapped permanent as this spell's target as you cast it.\n" +
         "You control enchanted permanent."
 
-    auraTarget = Targets.Permanent
-    auraCastTarget = TargetPermanent(filter = TargetFilter.Permanent.tapped())
+    auraTarget = TargetObject(filter = TargetFilter.Permanent)
+    auraCastTarget = TargetObject(filter = TargetFilter.Permanent.tapped())
 
     staticAbility {
         ability = ControlEnchantedPermanent

@@ -60,13 +60,9 @@ val KainTraitorousDragoon = card("Kain, Traitorous Dragoon") {
                 permanent = EffectTarget.Self,
                 newController = EffectTarget.PlayerRef(Player.TriggeringPlayer),
             ),
-            then = Effects.Composite(
-                listOf(
-                    Effects.DrawCards(damageDealt),
-                    Effects.CreateTreasure(count = damageDealt, tapped = true),
-                    Effects.LoseLife(amount = damageDealt, target = EffectTarget.PlayerRef(Player.You)),
-                ),
-            ),
+            then = Effects.DrawCards(damageDealt) then
+                Effects.CreateTreasure(count = damageDealt, tapped = true) then
+                Effects.LoseLife(amount = damageDealt, target = EffectTarget.PlayerRef(Player.You)),
             successCriterion = SuccessCriterion.ControlChanged,
         )
     }

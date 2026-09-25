@@ -15,6 +15,8 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * [ContextPropertyKey.TARGETS_TOTAL_MANA_VALUE] — "the total mana value of the permanents this spell
@@ -34,7 +36,7 @@ class TargetsTotalManaValueTest : FunSpec({
         manaCost = "{1}"
         typeLine = "Instant"
         spell {
-            target = Targets.Creature
+            target = TargetObject(filter = TargetFilter.Creature)
             effect = Effects.DrawCards(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TARGETS_TOTAL_MANA_VALUE)
             )

@@ -39,15 +39,7 @@ val GriffnautTracker = card("Griffnaut Tracker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to two target cards from a single graveyard",
-            TargetObject(
-                count = 2,
-                optional = true,
-                filter = TargetFilter.CardInGraveyard,
-                sameOwner = true,
-            )
-        )
+        targets(TargetFilter.CardInGraveyard, count = 2, optional = true, sameOwner = true)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
         )

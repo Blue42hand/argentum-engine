@@ -75,17 +75,14 @@ val MoseoVeinsNewDean = card("Moseo, Vein's New Dean") {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurn
         val t = target(
-            "up to one target creature card with mana value X or less from your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.ownedByYou()
-                        .manaValueAtMostDynamic(
-                            DynamicAmounts.lifeGainedThisTurn(Player.You)
-                        ),
-                    zone = Zone.GRAVEYARD,
-                ),
-            )
+            TargetFilter(
+                GameObjectFilter.Creature.ownedByYou()
+                    .manaValueAtMostDynamic(
+                        DynamicAmounts.lifeGainedThisTurn(Player.You)
+                    ),
+                zone = Zone.GRAVEYARD,
+            ),
+            optional = true,
         )
         effect = Effects.PutOntoBattlefield(t)
         description = "Infusion — At the beginning of your end step, if you gained life this turn, " +

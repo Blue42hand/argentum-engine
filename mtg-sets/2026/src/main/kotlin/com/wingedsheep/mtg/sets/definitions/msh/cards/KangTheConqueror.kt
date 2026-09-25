@@ -49,10 +49,8 @@ val KangTheConqueror = card("Kang the Conqueror") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{5}{U}{U}{U}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.TakeExtraTurn(powerUpAbilitiesCantBeActivated = true)
-        )
     }
 
     metadata {

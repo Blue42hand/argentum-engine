@@ -34,10 +34,8 @@ val FretworkColony = card("Fretwork Colony") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.LoseLife(1, EffectTarget.Controller),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     staticAbility {

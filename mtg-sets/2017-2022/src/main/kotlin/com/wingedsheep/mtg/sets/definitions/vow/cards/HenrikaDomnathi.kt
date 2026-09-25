@@ -74,7 +74,7 @@ private val HenrikaDomnathiFront = card("Henrika Domnathi") {
             ),
             // • You draw a card and you lose 1 life.
             Mode.noTarget(
-                Effects.DrawCards(1).then(Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You))),
+                Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)),
                 "You draw a card and you lose 1 life",
             ),
             // • Transform Henrika.

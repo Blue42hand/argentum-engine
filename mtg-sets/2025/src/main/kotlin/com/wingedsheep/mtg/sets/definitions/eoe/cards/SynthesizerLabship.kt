@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -51,14 +50,8 @@ val SynthesizerLabship = card("Synthesizer Labship") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         triggerRestriction = charge2
         val targetArtifact = target(
-            "up to one other target artifact you control",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Artifact.youControl(),
-                    excludeSelf = true
-                )
-            )
+            TargetFilter(baseFilter = GameObjectFilter.Artifact.youControl(), excludeSelf = true),
+            optional = true,
         )
         effect = Effects.BecomeCreature(
             target = targetArtifact,

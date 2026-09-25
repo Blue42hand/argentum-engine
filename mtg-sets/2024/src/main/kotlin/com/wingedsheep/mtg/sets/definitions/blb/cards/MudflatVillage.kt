@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Mudflat Village
@@ -47,22 +46,19 @@ val MudflatVillage = card("Mudflat Village") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target(
-            "Bat, Lizard, Rat, or Squirrel card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature
-                        .withAnyOfSubtypes(
-                            listOf(
-                                Subtype("Bat"),
-                                Subtype("Lizard"),
-                                Subtype("Rat"),
-                                Subtype("Squirrel")
-                            )
+            TargetFilter(
+                GameObjectFilter.Creature
+                    .withAnyOfSubtypes(
+                        listOf(
+                            Subtype("Bat"),
+                            Subtype("Lizard"),
+                            Subtype("Rat"),
+                            Subtype("Squirrel")
                         )
-                        .ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+                    )
+                    .ownedByYou(),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.ReturnToHand(t)
     }

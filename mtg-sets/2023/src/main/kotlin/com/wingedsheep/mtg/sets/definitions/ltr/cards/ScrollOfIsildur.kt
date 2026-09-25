@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Scroll of Isildur
@@ -50,21 +48,13 @@ val ScrollOfIsildur = card("Scroll of Isildur") {
         "III — Draw a card for each tapped creature target opponent controls."
 
     sagaChapter(1) {
-        val artifact = target(
-            "up to one target artifact",
-            TargetPermanent(optional = true, filter = TargetFilter.Artifact)
-        )
-        effect = Effects.Composite(
-            Effects.GainControl(artifact, Duration.WhileYouControlSource("Scroll of Isildur")),
+        val artifact = target(TargetFilter.Artifact, optional = true)
+        effect = Effects.GainControl(artifact, Duration.WhileYouControlSource("Scroll of Isildur")) then
             Effects.TheRingTemptsYou()
-        )
     }
 
     sagaChapter(2) {
-        target(
-            "up to two target creatures",
-            TargetCreature(count = 2, optional = true)
-        )
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.Tap(EffectTarget.ContextTarget(0)),
             Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
@@ -72,7 +62,7 @@ val ScrollOfIsildur = card("Scroll of Isildur") {
     }
 
     sagaChapter(3) {
-        target("target opponent", Targets.Opponent)
+        target(Targets.Opponent)
         effect = Effects.DrawCards(
             count = DynamicAmounts.count(
                 Player.TargetOpponent,

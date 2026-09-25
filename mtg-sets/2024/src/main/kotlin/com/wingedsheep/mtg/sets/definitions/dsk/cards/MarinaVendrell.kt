@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Marina Vendrell — Duskmourn: House of Horror #221
@@ -55,10 +54,7 @@ val MarinaVendrell = card("Marina Vendrell") {
     activatedAbility {
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
-        val room = target(
-            "target Room",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl())),
-        )
+        val room = target(TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl()))
         effect = Effects.LockOrUnlockDoor(room)
         description = "{T}: Lock or unlock a door of target Room you control. Activate only as a sorcery."
     }

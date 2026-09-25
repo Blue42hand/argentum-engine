@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Galepowder Mage
@@ -46,17 +45,12 @@ val GalepowderMage = card("Galepowder Mage") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "another target creature",
-            TargetCreature(filter = TargetFilter.OtherCreature)
-        )
-        effect = Effects.Composite(
-            Effects.Exile(creature),
+        val creature = target(TargetFilter.OtherCreature)
+        effect = Effects.Exile(creature) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(creature, Zone.BATTLEFIELD)
             )
-        )
         description = "exile another target creature. Return that card to the battlefield " +
             "under its owner's control at the beginning of the next end step."
     }

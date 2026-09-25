@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,9 +44,7 @@ val OldManOfTheSea = card("Old Man of the Sea") {
 
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.powerAtMostEntity(EffectTarget.Self))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.powerAtMostEntity(EffectTarget.Self)))
         effect = Effects.GainControl(
             t,
             Duration.WhileSourceTappedAndAffectedPowerAtMostSource("Old Man of the Sea")

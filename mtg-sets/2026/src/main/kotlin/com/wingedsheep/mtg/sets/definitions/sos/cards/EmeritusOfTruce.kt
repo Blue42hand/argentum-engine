@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Emeritus of Truce // Swords to Plowshares — Secrets of Strixhaven #13
@@ -53,7 +54,7 @@ val EmeritusOfTruce = card("Emeritus of Truce") {
     // Then if an opponent controls more creatures than you, it becomes prepared.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val recipient = target("target player", Targets.Player)
+        val recipient = target(Targets.Player)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -76,7 +77,7 @@ val EmeritusOfTruce = card("Emeritus of Truce") {
         typeLine = "Instant"
         oracleText = "Exile target creature. Its controller gains life equal to its power."
         spell {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.GainLife(
                 com.wingedsheep.sdk.dsl.DynamicAmounts.targetPower(0),
                 EffectTarget.TargetController,

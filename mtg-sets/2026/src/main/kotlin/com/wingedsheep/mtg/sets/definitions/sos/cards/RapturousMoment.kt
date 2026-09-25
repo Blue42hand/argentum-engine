@@ -23,11 +23,9 @@ val RapturousMoment = card("Rapturous Moment") {
     typeLine = "Sorcery"
     oracleText = "Draw three cards, then discard two cards. Add {U}{U}{R}{R}{R}."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(3),
-            Patterns.Hand.discardCards(2),
-            Effects.Composite(Effects.AddMana(Color.BLUE, 2), Effects.AddMana(Color.RED, 3))
-        )
+        effect = Effects.DrawCards(3) then
+            Patterns.Hand.discardCards(2) then
+            Effects.AddMana(Color.BLUE, 2) then Effects.AddMana(Color.RED, 3)
     }
     metadata {
         rarity = Rarity.UNCOMMON

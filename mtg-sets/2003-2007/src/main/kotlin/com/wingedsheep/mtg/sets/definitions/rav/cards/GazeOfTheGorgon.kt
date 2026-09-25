@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gaze of the Gorgon — Ravnica: City of Guilds #246
@@ -35,9 +35,8 @@ val GazeOfTheGorgon = card("Gaze of the Gorgon") {
         "or were blocked by it this turn."
 
     spell {
-        val gazer = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.Regenerate(gazer),
+        val gazer = target(TargetFilter.Creature)
+        effect = Effects.Regenerate(gazer) then
             Effects.CreateDelayedTrigger(
                 step = Step.END_COMBAT,
                 timing = DelayedTriggerTiming.THIS_TURN_ONLY,
@@ -46,7 +45,6 @@ val GazeOfTheGorgon = card("Gaze of the Gorgon") {
                     GameObjectFilter.Creature.blockedOrWasBlockedByThisTurn(EffectTarget.TriggeringEntity)
                 )
             )
-        )
     }
 
     metadata {

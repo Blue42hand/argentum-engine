@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Zone
 
 /**
@@ -52,12 +51,9 @@ val SummonTitan = card("Summon: Titan") {
     }
 
     sagaChapter(3) {
-        val ally = target("creature", TargetObject(filter = TargetFilter.OtherCreatureYouControl))
+        val ally = target(TargetFilter.OtherCreatureYouControl)
         val lands = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land).count()
-        effect = Effects.Composite(
-            Effects.ModifyStats(lands, lands, ally),
-            Effects.GrantKeyword(Keyword.TRAMPLE, ally),
-        )
+        effect = Effects.ModifyStats(lands, lands, ally) then Effects.GrantKeyword(Keyword.TRAMPLE, ally)
     }
 
     metadata {

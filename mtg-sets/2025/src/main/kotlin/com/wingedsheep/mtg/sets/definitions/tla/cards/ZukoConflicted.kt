@@ -49,32 +49,28 @@ val ZukoConflicted = card("Zuko, Conflicted") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • Draw a card.
             Mode.noTarget(
-                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))
-                    .then(Effects.DrawCards(1)),
+                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You)) then Effects.DrawCards(1),
                 "Draw a card"
             ),
             // • Put a +1/+1 counter on Zuko.
             Mode.noTarget(
-                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))
-                    .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)),
+                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You)) then
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 "Put a +1/+1 counter on Zuko"
             ),
             // • Add {R}.
             Mode.noTarget(
-                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))
-                    .then(Effects.AddMana(Color.RED)),
+                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You)) then Effects.AddMana(Color.RED),
                 "Add {R}"
             ),
             // • Exile Zuko, then return him to the battlefield under an opponent's control.
             Mode.noTarget(
-                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))
-                    .then(Effects.Move(EffectTarget.Self, Zone.EXILE))
-                    .then(
-                        Effects.Move(
-                            target = EffectTarget.Self,
-                            destination = Zone.BATTLEFIELD,
-                            controllerOverride = EffectTarget.PlayerRef(Player.AnOpponent)
-                        )
+                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You)) then
+                    Effects.Move(EffectTarget.Self, Zone.EXILE) then
+                    Effects.Move(
+                        target = EffectTarget.Self,
+                        destination = Zone.BATTLEFIELD,
+                        controllerOverride = EffectTarget.PlayerRef(Player.AnOpponent)
                     ),
                 "Exile Zuko, then return him to the battlefield under an opponent's control"
             )

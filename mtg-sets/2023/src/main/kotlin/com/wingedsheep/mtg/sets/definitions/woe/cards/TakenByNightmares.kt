@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -26,14 +25,12 @@ val TakenByNightmares = card("Taken by Nightmares") {
     typeLine = "Instant"
     oracleText = "Exile target creature. If you control an enchantment, scry 2."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Composite(
-            Effects.Exile(t),
+        val t = target(TargetFilter.Creature)
+        effect = Effects.Exile(t) then
             Effects.If(
                 condition = Conditions.YouControl(GameObjectFilter.Enchantment),
                 then = Patterns.Library.scry(2)
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -8,10 +8,10 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 class DependentTargetSelectionTest : FunSpec({
     val cards = TestCards.all
@@ -45,8 +45,8 @@ class DependentTargetSelectionTest : FunSpec({
         d.putCreatureOnBattlefield(d.player1, "Hill Giant")
         val partner = d.putCreatureOnBattlefield(d.player2, "Llanowar Elves")
         val requirements = listOf(
-            TargetCreature(filter = TargetFilter.CreatureYouControl),
-            TargetCreature(filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.opponentControls().sharingColorWith(EffectTarget.ContextTarget(0)))),
+            TargetObject(filter = TargetFilter.CreatureYouControl),
+            TargetObject(filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.opponentControls().sharingColorWith(EffectTarget.ContextTarget(0)))),
         )
         val context = PredicateContext(controllerId = d.player1)
         DependentTargetSelection.isRequired(requirements) shouldBe true
@@ -60,9 +60,9 @@ class DependentTargetSelectionTest : FunSpec({
         val large = d.putCreatureOnBattlefield(d.player1, "Hill Giant")
         val middle = d.putCreatureOnBattlefield(d.player2, "Grizzly Bears")
         val requirements = listOf(
-            TargetCreature(filter = TargetFilter.CreatureYouControl),
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls.powerLessThanEntity(EffectTarget.ContextTarget(0))),
-            TargetCreature(filter = TargetFilter.CreatureYouControl.powerLessThanEntity(EffectTarget.ContextTarget(1))),
+            TargetObject(filter = TargetFilter.CreatureYouControl),
+            TargetObject(filter = TargetFilter.CreatureOpponentControls.powerLessThanEntity(EffectTarget.ContextTarget(0))),
+            TargetObject(filter = TargetFilter.CreatureYouControl.powerLessThanEntity(EffectTarget.ContextTarget(1))),
         )
         val context = PredicateContext(controllerId = d.player1)
         DependentTargetSelection.legalNext(d.state, requirements, emptyList(), context, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))) shouldBe listOf(large)

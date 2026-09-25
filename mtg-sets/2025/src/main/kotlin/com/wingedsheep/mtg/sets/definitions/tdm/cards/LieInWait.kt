@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lie in Wait — Tarkir: Dragonstorm #203
@@ -28,18 +28,14 @@ val LieInWait = card("Lie in Wait") {
         "damage equal to that card's power to target creature."
 
     spell {
-        val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ReturnToHand(creatureCardInYourGraveyard),
-                Effects.DealDamage(
-                    DynamicAmounts.powerOf(creatureCardInYourGraveyard),
-                    creature,
-                    damageSource = EffectTarget.Self
-                )
+        val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.ReturnToHand(creatureCardInYourGraveyard) then
+            Effects.DealDamage(
+                DynamicAmounts.powerOf(creatureCardInYourGraveyard),
+                creature,
+                damageSource = EffectTarget.Self
             )
-        )
     }
 
     metadata {

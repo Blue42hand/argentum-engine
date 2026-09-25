@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Steer Clear
@@ -31,7 +30,7 @@ val SteerClear = card("Steer Clear") {
 
     spell {
         captureAtCast("controlledMount", Conditions.ControlCreatureOfType(Subtype("Mount")))
-        val creature = target("target", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
+        val creature = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.If(
             condition = Conditions.CapturedAtCast("controlledMount"),
             then = Effects.DealDamage(4, creature),

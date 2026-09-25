@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * D'Avenant Trapper
@@ -24,7 +24,7 @@ val DAvenantTrapper = card("D'Avenant Trapper") {
     oracleText = "Whenever you cast a historic spell, tap target creature an opponent controls. (Artifacts, legendaries, and Sagas are historic.)"
 
     triggeredAbility {
-        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
+        val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
         trigger = Triggers.you.casts(GameObjectFilter.Historic)
         effect = Effects.Tap(creatureOpponentControls)
     }

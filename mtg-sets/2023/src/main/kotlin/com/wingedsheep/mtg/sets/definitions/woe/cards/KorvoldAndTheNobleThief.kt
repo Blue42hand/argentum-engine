@@ -41,7 +41,7 @@ val KorvoldAndTheNobleThief = card("Korvold and the Noble Thief") {
     }
 
     sagaChapter(3) {
-        target("target opponent", Targets.Opponent)
+        target(Targets.Opponent)
         effect = Effects.Pipeline {
             val korvoldExiled = gather(
                 CardSource.TopOfLibrary(

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Mystical Tether
@@ -36,10 +35,7 @@ val MysticalTether = card("Mystical Tether") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "artifact or creature an opponent controls",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
         effect = Effects.ExileUntilLeaves(permanent)
     }
 

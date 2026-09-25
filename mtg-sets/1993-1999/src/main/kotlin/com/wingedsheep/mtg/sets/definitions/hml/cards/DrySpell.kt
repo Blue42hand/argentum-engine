@@ -24,10 +24,8 @@ val DrySpell = card("Dry Spell") {
     colorIdentity = "B"
     typeLine = "Sorcery"
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(1, EffectTarget.IterationEntity)),
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(1, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.COMMON

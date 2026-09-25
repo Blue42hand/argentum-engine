@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedByCreaturesWithLessPower
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Elusive Otter // Grove's Bounty
@@ -49,13 +48,10 @@ val ElusiveOtter = card("Elusive Otter") {
         oracleText = "Distribute X +1/+1 counters among any number of target creatures you control. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            target(
-                "any number of target creatures you control",
-                TargetObject(
-                    filter = TargetFilter.CreatureYouControl,
-                    unlimited = true,
-                    dynamicMaxCount = DynamicAmounts.xValue(),
-                ),
+            targets(
+                TargetFilter.CreatureYouControl,
+                unlimited = true,
+                dynamicMaxCount = DynamicAmounts.xValue(),
             )
             effect = Effects.DistributeCountersAmongTargets(DynamicAmounts.xValue())
         }

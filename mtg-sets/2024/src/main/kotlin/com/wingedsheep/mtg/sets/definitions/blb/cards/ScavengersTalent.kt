@@ -55,7 +55,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
     classLevel(2, "{1}{B}") {
         triggeredAbility {
             trigger = Triggers.you.sacrifices(batch = true)
-            val player = target("target player", Targets.Player)
+            val player = target(Targets.Player)
             effect = Patterns.Library.mill(2, player)
         }
     }

@@ -302,7 +302,7 @@
                     "keyword": "BANDING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -311,7 +311,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -432,7 +432,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -441,7 +441,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             },
@@ -474,7 +474,7 @@
                             "baseFilter": "creature",
                             "zone": "Stack"
                         },
-                        "id": "target"
+                        "id": "t1"
                     }
                 ]
             }
@@ -542,7 +542,7 @@
                             },
                             "zone": "Stack"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{1}{G}, {T}: Counter target activated ability from an artifact source."
@@ -676,7 +676,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -685,7 +685,7 @@
                         "filter": {
                             "baseFilter": "creature kw:flying"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -749,14 +749,14 @@
                     "type": "CantBeRegenerated",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -777,7 +777,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -926,7 +926,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -934,7 +934,7 @@
                     "keyword": "TRAMPLE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 }
             ]
@@ -945,7 +945,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1084,7 +1084,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1093,7 +1093,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1140,7 +1140,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -1150,7 +1150,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1303,7 +1303,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "tap": false
                     }
@@ -1313,7 +1313,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever a player casts a red spell, you may pay {3}. If you do, untap target permanent."
             }
@@ -1549,7 +1549,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -1559,7 +1559,7 @@
                         "filter": {
                             "baseFilter": "land"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1689,7 +1689,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1698,7 +1698,7 @@
                         "filter": {
                             "baseFilter": "creature green"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2051,7 +2051,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "tap": false
                     }
@@ -2061,7 +2061,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever a player casts a blue spell, you may pay {3}. If you do, untap target permanent."
             }
@@ -2183,7 +2183,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "tap": false
                     }
@@ -2193,7 +2193,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever a player casts a green spell, you may pay {3}. If you do, untap target permanent."
             }
@@ -2291,7 +2291,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "tap": false
                     }
@@ -2301,7 +2301,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever a player casts a white spell, you may pay {3}. If you do, untap target permanent."
             }
@@ -2408,7 +2408,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "tap": false
                     }
@@ -2418,7 +2418,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever a player casts a black spell, you may pay {3}. If you do, untap target permanent."
             }
@@ -2617,14 +2617,14 @@
                             "type": "CantBeRegenerated",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             },
                             "destination": "Graveyard",
                             "byDestruction": true
@@ -2648,7 +2648,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3030,13 +3030,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3213,7 +3213,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3222,7 +3222,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3279,13 +3279,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3515,7 +3515,7 @@
             "keyword": "CANT_BE_BLOCKED",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -3524,7 +3524,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -3773,7 +3773,7 @@
                     "keyword": "TRAMPLE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3782,7 +3782,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3809,7 +3809,7 @@
             "type": "PreventDamageShield",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "scope": "CombatOnly",
             "direction": "FromTarget"
@@ -3820,7 +3820,7 @@
                 "filter": {
                     "baseFilter": "creature attacking"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -3863,7 +3863,7 @@
                     "keyword": "FLYING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3872,7 +3872,7 @@
                         "filter": {
                             "baseFilter": "creature pow<=3"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4036,7 +4036,7 @@
                                 "zone": "Hand",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             },
                             "storeAs": "hand"
@@ -4063,7 +4063,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target"
+                                    "name": "t0"
                                 }
                             },
                             "moveType": "Discard"
@@ -4073,7 +4073,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -4154,13 +4154,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }

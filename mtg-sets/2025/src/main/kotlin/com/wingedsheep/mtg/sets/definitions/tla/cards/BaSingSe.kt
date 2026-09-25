@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ba Sing Se — Land — Rare
@@ -46,7 +45,7 @@ val BaSingSe = card("Ba Sing Se") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(2, land)
     }
 

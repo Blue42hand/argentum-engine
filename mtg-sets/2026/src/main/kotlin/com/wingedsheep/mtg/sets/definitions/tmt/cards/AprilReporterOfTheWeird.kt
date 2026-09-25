@@ -26,12 +26,7 @@ val AprilReporterOfTheWeird = card("April, Reporter of the Weird") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(DynamicAmounts.triggerDamageAmount()),
-                Effects.Discard(1)
-            )
-        )
+        effect = Effects.DrawCards(DynamicAmounts.triggerDamageAmount()) then Effects.Discard(1)
     }
 
     metadata {

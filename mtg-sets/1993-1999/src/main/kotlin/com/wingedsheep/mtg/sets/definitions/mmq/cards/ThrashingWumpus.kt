@@ -30,16 +30,14 @@ val ThrashingWumpus = card("Thrashing Wumpus") {
 
     activatedAbility {
         cost = Costs.Mana("{B}")
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature),
-                Effects.DealDamage(1, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature),
+            Effects.DealDamage(1, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(1, EffectTarget.Controller))
             )
-        )
     }
 
     metadata {

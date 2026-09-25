@@ -48,17 +48,13 @@ val RalCracklingWit = card("Ral, Crackling Wit") {
 
     // −3: Draw three cards, then discard two cards.
     loyaltyAbility(-3) {
-        effect = Effects.DrawCards(3).then(Patterns.Hand.discardCards(2))
+        effect = Effects.DrawCards(3) then Patterns.Hand.discardCards(2)
     }
 
     // −10: Draw three cards. You get an emblem with "Instant and sorcery spells you cast have storm."
     loyaltyAbility(-10) {
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(3),
-                Effects.GrantSpellKeyword(Keyword.STORM, GameObjectFilter.InstantOrSorcery)
-            )
-        )
+        effect = Effects.DrawCards(3) then
+            Effects.GrantSpellKeyword(Keyword.STORM, GameObjectFilter.InstantOrSorcery)
     }
 
     metadata {

@@ -48,10 +48,8 @@ val RustElemental = card("Rust Elemental") {
         effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Artifact, excludeSelf = true),
             then = Effects.SacrificeOwn(GameObjectFilter.Artifact, excludeSource = true),
-            otherwise = Effects.Composite(
-                Effects.Tap(EffectTarget.Self),
+            otherwise = Effects.Tap(EffectTarget.Self) then
                 Effects.LoseLife(4, EffectTarget.PlayerRef(Player.You))
-            )
         )
     }
 

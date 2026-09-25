@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Three Bowls of Porridge
@@ -38,20 +38,17 @@ val ThreeBowlsOfPorridge = card("Three Bowls of Porridge") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • This artifact deals 2 damage to target creature.
             mode("This artifact deals 2 damage to target creature") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(2, creature, damageSource = EffectTarget.Self)
             },
             // • Tap target creature.
             mode("Tap target creature") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Tap(creature)
             },
             // • Sacrifice this artifact. You gain 3 life.
             Mode.noTarget(
-                Effects.Composite(
-                    SacrificeSelfEffect,
-                    Effects.GainLife(3)
-                ),
+                SacrificeSelfEffect then Effects.GainLife(3),
                 "Sacrifice this artifact. You gain 3 life"
             )
         )

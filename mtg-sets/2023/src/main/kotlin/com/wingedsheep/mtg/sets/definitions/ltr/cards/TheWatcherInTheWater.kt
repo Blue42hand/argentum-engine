@@ -11,9 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * The Watcher in the Water
@@ -66,24 +63,9 @@ val TheWatcherInTheWater = card("The Watcher in the Water") {
     // a stun counter on up to one target nonland permanent.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.withSubtype("Tentacle").youControl()).dies()
-        val kraken = target(
-            "up to one target Kraken",
-            TargetCreature(
-                count = 1,
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Kraken"))
-            )
-        )
-        val permanent = target(
-            "up to one target nonland permanent",
-            TargetPermanent(
-                count = 1,
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.NonlandPermanent)
-            )
-        )
-        effect = Effects.Untap(kraken)
-            .then(Effects.AddCounters(CounterType.STUN, 1, permanent))
+        val kraken = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Kraken")), optional = true)
+        val permanent = target(TargetFilter(GameObjectFilter.NonlandPermanent), optional = true)
+        effect = Effects.Untap(kraken) then Effects.AddCounters(CounterType.STUN, 1, permanent)
         description = "Whenever a Tentacle you control dies, untap up to one target Kraken and put a stun counter on up to one target nonland permanent."
     }
 

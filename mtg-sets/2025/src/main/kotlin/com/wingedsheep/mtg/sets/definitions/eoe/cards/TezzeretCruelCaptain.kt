@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -47,16 +46,11 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
 
     // 0: Untap target artifact or creature. If it's an artifact creature, put a +1/+1 counter on it.
     loyaltyAbility(0) {
-        val target = target(
-            "artifact or creature",
-            TargetPermanent(filter = TargetFilter.CreatureOrArtifact)
-        )
-        effect = Effects.Untap(target)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature, target),
-                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
-                )
+        val target = target(TargetFilter.CreatureOrArtifact)
+        effect = Effects.Untap(target) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature, target),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
             )
     }
 
@@ -79,23 +73,19 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-                val artifact = target("target artifact", TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Artifact.youControl())
-                ))
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact.youControl()))
                 effect = Effects.AddCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     3,
                     artifact
-                ).then(
-                    Effects.If(
-                        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, artifact),
-                        then = Effects.BecomeCreature(
-                            target = artifact,
-                            power = 0,
-                            toughness = 0,
-                            creatureTypes = setOf("Robot"),
-                            duration = Duration.Permanent
-                        )
+                ) then Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, artifact),
+                    then = Effects.BecomeCreature(
+                        target = artifact,
+                        power = 0,
+                        toughness = 0,
+                        creatureTypes = setOf("Robot"),
+                        duration = Duration.Permanent
                     )
                 )
             },

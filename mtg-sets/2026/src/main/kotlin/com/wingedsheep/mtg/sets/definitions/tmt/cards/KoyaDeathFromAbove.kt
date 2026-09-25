@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Koya, Death from Above
@@ -39,23 +38,18 @@ val KoyaDeathFromAbove = card("Koya, Death from Above") {
     // return the linked-exiled card to its owner's control (read by Koya's linked exile).
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one other target creature",
-            TargetCreature(optional = true, filter = TargetFilter(GameObjectFilter.Creature, excludeSelf = true))
-        )
-        effect = Effects.Move(creature, Zone.EXILE, linkToSource = true)
-            .then(
-                Effects.CreateDelayedTrigger(
-                    step = Step.END,
-                    effect = Effects.PayOrSuffer(
-                        cost = Costs.pay.Mana("{3}{B}"),
-                        suffer = Effects.Pipeline {
-                            val koyaExile = gather(CardSource.FromLinkedExile())
-                            // The exiled creature returns under its *owner's* control, not Koya's
-                            // controller's — it may be a creature an opponent owns.
-                            move(koyaExile, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
-                        }
-                    )
+        val creature = target(TargetFilter(GameObjectFilter.Creature, excludeSelf = true), optional = true)
+        effect = Effects.Move(creature, Zone.EXILE, linkToSource = true) then
+            Effects.CreateDelayedTrigger(
+                step = Step.END,
+                effect = Effects.PayOrSuffer(
+                    cost = Costs.pay.Mana("{3}{B}"),
+                    suffer = Effects.Pipeline {
+                        val koyaExile = gather(CardSource.FromLinkedExile())
+                        // The exiled creature returns under its *owner's* control, not Koya's
+                        // controller's — it may be a creature an opponent owns.
+                        move(koyaExile, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
+                    }
                 )
             )
         description = "When Koya enters, exile up to one other target creature. At the beginning of the next end step, you may pay {3}{B}. If you don't, return that card to the battlefield under its owner's control."

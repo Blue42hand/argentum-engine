@@ -57,7 +57,7 @@ data class RemoveDamageShieldEffect(
  * Mark target as unable to regenerate.
  * "It can't be regenerated."
  *
- * Designed to be used BEFORE a destroy effect via .then() for cards like Smother.
+ * Designed to be used BEFORE a destroy effect via `then` for cards like Smother.
  * Places a floating effect that prevents regeneration shields from being used.
  */
 @SerialName("CantBeRegenerated")
@@ -72,7 +72,7 @@ data class CantBeRegeneratedEffect(
  * Mark target creature so that if it would die this turn, it goes to exile instead of graveyard.
  * "If it would die this turn, exile it instead."
  *
- * Designed to be composed with damage/destroy effects via .then() for cards like Carbonize.
+ * Designed to be composed with damage/destroy effects via `then` for cards like Carbonize.
  * Only applies to creatures — if the target is a player, this effect does nothing.
  */
 @SerialName("MarkExileOnDeath")

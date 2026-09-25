@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Courier Bat
@@ -30,7 +29,7 @@ val CourierBat = card("Courier Bat") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouGainedLifeThisTurn
-        val t = target("target", TargetObject(optional = true, filter = TargetFilter.CreatureInYourGraveyard))
+        val t = target(TargetFilter.CreatureInYourGraveyard, optional = true)
         effect = Effects.Move(t, Zone.HAND)
     }
     metadata {

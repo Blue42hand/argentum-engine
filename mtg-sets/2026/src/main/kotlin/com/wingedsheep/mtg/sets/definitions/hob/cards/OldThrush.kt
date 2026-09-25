@@ -32,8 +32,7 @@ val OldThrush = card("Old Thrush") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.GainLife(2),
+        effect = Effects.GainLife(2) then
             Effects.May(
                 Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand,
@@ -41,7 +40,6 @@ val OldThrush = card("Old Thrush") {
                     reveal = true
                 )
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

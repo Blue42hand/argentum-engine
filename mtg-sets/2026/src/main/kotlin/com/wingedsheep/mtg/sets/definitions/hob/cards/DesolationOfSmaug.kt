@@ -38,16 +38,14 @@ val DesolationOfSmaug = card("Desolation of Smaug") {
         "Add four mana in any combination of colors. Spend this mana only to cast Dragon spells."
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.DRAGON)),
-                Effects.DealDamage(3, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.DRAGON)),
+            Effects.DealDamage(3, EffectTarget.IterationEntity)
+        ) then
             Effects.AddManaInAnyCombination(
                 amount = 4,
                 restriction = ManaRestriction.SubtypeSpellsOnly(setOf("Dragon"))
             )
-        )
     }
 
     metadata {

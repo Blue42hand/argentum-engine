@@ -80,29 +80,27 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
     // Then if you control four or more Wizards, transform Kuja.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 0,
-                toughness = 1,
-                colors = setOf(Color.BLACK),
-                creatureTypes = setOf("Wizard"),
-                tapped = true,
-                imageUri = "https://cards.scryfall.io/normal/front/1/8/187fe54c-7d0c-4225-9d46-3affbead897d.jpg?1782725378",
-                triggeredAbilities = listOf(
-                    TriggeredAbility.create(
-                        trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
-                        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    ),
+        effect = Effects.CreateToken(
+            power = 0,
+            toughness = 1,
+            colors = setOf(Color.BLACK),
+            creatureTypes = setOf("Wizard"),
+            tapped = true,
+            imageUri = "https://cards.scryfall.io/normal/front/1/8/187fe54c-7d0c-4225-9d46-3affbead897d.jpg?1782725378",
+            triggeredAbilities = listOf(
+                TriggeredAbility.create(
+                    trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
+                    effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
                 ),
             ),
+        ) then
             Effects.If(
                 condition = Conditions.YouControlAtLeast(
                     4,
                     GameObjectFilter.Creature.withSubtype("Wizard")
                 ),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
     }
 
     metadata {

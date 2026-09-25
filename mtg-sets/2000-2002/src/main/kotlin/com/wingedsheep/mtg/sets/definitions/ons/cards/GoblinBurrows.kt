@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Goblin Burrows
@@ -30,9 +29,7 @@ val GoblinBurrows = card("Goblin Burrows") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.Tap)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Goblin"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Goblin")))
         effect = Effects.ModifyStats(2, 0, t)
     }
 

@@ -21,11 +21,11 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.StormCopyEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Loki Laufeyson (MSH #143) — {1}{R} Legendary Creature — God Sorcerer Villain, 2/1.
@@ -108,7 +108,7 @@ class LokiLaufeysonScenarioTest : FunSpec({
                 Zone.GRAVEYARD,
                 byDestruction = true
             ),
-            TargetCreature(filter = TargetFilter.Creature, id = "target")
+            TargetObject(filter = TargetFilter.Creature, id = "target")
         )
     )
 

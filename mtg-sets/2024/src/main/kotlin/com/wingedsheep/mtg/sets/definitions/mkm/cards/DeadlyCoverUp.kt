@@ -85,10 +85,8 @@ val DeadlyCoverUp = card("Deadly Cover-Up") {
             }
         }
 
-        effect = Effects.Composite(
-            Effects.DestroyAll(GameObjectFilter.Creature),
-            Effects.If(Conditions.WasEvidenceCollected, extraction),
-        )
+        effect = Effects.DestroyAll(GameObjectFilter.Creature) then
+            Effects.If(Conditions.WasEvidenceCollected, extraction)
     }
 
     metadata {

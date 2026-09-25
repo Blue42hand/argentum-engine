@@ -29,19 +29,17 @@ val UnitedFront = card("United Front") {
     oracleText = "Create X 1/1 white Ally creature tokens, then put a +1/+1 counter on each creature you control."
 
     spell {
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                count = DynamicAmounts.xValue(),
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.WHITE),
-                creatureTypes = setOf("Ally"),
-            ),
+        effect = Effects.CreateToken(
+            count = DynamicAmounts.xValue(),
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.WHITE),
+            creatureTypes = setOf("Ally"),
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
-            ),
-        )
+            )
     }
 
     metadata {

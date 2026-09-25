@@ -5,9 +5,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownLookScope
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Spy Network
@@ -24,16 +24,14 @@ val SpyNetwork = card("Spy Network") {
     oracleText = "Look at target player's hand, the top card of that player's library, and any face-down creatures they control. Look at the top four cards of your library, then put them back in any order."
 
     spell {
-        val t = target("target", TargetPlayer())
-        effect = Effects.LookAtHand(t)
-            .then(
-                Effects.Pipeline {
-                    val targetTop = gather(CardSource.TopOfLibrary(1, t.asPlayer))
-                    toLibraryTop(targetTop, t.asPlayer)
-                }
-            )
-            .then(Effects.LookAtFaceDown(t, FaceDownLookScope.ALL_CONTROLLED_BY_TARGET_PLAYER))
-            .then(Patterns.Library.lookAtTopAndReorder(4))
+        val t = target(Targets.Player)
+        effect = Effects.LookAtHand(t) then
+            Effects.Pipeline {
+                val targetTop = gather(CardSource.TopOfLibrary(1, t.asPlayer))
+                toLibraryTop(targetTop, t.asPlayer)
+            } then
+            Effects.LookAtFaceDown(t, FaceDownLookScope.ALL_CONTROLLED_BY_TARGET_PLAYER) then
+            Patterns.Library.lookAtTopAndReorder(4)
     }
 
     metadata {

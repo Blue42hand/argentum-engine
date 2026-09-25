@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivationRestriction
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -33,7 +33,7 @@ val CapriciousSorcerer = card("Capricious Sorcerer") {
             ActivationRestriction.OnlyDuringYourTurn,
             ActivationRestriction.BeforeStep(Step.DECLARE_ATTACKERS)
         )
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
     }
     metadata {

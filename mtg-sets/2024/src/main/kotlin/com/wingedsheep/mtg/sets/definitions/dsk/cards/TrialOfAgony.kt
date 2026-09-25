@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -39,11 +38,7 @@ val TrialOfAgony = card("Trial of Agony") {
         "the other can't block this turn."
 
     spell {
-        val creature = target("target creature", TargetCreature(
-            count = 2,
-            sameController = true,
-            filter = TargetFilter.CreatureOpponentControls
-        ))
+        targets(TargetFilter.CreatureOpponentControls, count = 2, sameController = true)
         effect = Effects.Pipeline {
             // 1. Reference the two targeted creatures.
             val trialCreatures = gather(CardSource.ChosenTargets)

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -50,10 +49,7 @@ val PrideOfTheRoad = card("Pride of the Road") {
     maxSpeed {
         triggeredAbility {
             trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-            val t = target(
-                "creature or Vehicle you control",
-                TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl()))
-            )
+            val t = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl()))
             effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, t)
             description = "At the beginning of combat on your turn, target creature or Vehicle " +
                 "you control gains double strike until end of turn."

@@ -29,14 +29,13 @@ val OathOfTheGreyHost = card("Oath of the Grey Host") {
         "III — Create three tapped 1/1 white Spirit creature tokens with flying."
 
     sagaChapter(1) {
-        val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.CreateFood()
-            .then(Effects.CreateFood(controller = opponent))
+        val opponent = target(Targets.Opponent)
+        effect = Effects.CreateFood() then Effects.CreateFood(controller = opponent)
     }
 
     sagaChapter(2) {
-        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.CreateTreasure())
+        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.CreateTreasure()
     }
 
     sagaChapter(3) {

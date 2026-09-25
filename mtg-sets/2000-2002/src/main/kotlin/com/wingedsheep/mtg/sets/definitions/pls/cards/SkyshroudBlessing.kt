@@ -26,13 +26,11 @@ val SkyshroudBlessing = card("Skyshroud Blessing") {
     typeLine = "Instant"
     oracleText = "All lands gain shroud until end of turn. (They can't be the targets of spells or abilities.)\nDraw a card."
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Land),
-                Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Land),
+            Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.IterationEntity)
+        ) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

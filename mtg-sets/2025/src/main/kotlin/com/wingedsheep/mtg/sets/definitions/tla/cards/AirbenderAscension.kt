@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -43,7 +42,7 @@ val AirbenderAscension = card("Airbender Ascension") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("up to one target creature", Targets.UpToCreatures(1))
+        target(TargetFilter.Creature, optional = true)
         effect = Effects.Airbend()
     }
 

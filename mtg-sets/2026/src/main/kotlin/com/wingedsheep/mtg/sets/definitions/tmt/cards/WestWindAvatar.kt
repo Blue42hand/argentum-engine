@@ -40,8 +40,8 @@ val WestWindAvatar = card("West Wind Avatar") {
         )
     )
     val sacrificeForLife = Effects.May(
-        Effects.Sacrifice(tokenOrLand, count = 1, target = EffectTarget.Controller)
-            .then(Effects.GainLife(3))
+        Effects.Sacrifice(tokenOrLand, count = 1, target = EffectTarget.Controller) then
+            Effects.GainLife(3)
     )
 
     triggeredAbility {

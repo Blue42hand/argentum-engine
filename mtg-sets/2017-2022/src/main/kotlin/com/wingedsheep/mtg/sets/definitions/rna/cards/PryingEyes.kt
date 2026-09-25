@@ -22,10 +22,7 @@ val PryingEyes = card("Prying Eyes") {
     typeLine = "Instant"
     oracleText = "Draw four cards, then discard two cards."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(4),
-            Patterns.Hand.discardCards(2)
-        )
+        effect = Effects.DrawCards(4) then Patterns.Hand.discardCards(2)
     }
     metadata {
         rarity = Rarity.COMMON

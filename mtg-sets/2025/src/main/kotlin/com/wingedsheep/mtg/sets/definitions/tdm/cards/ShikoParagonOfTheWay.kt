@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Shiko, Paragon of the Way — Tarkir: Dragonstorm #223
@@ -49,15 +48,7 @@ val ShikoParagonOfTheWay = card("Shiko, Paragon of the Way") {
         trigger = Triggers.self.enters()
         description = "When Shiko enters, exile target nonland card with mana value 3 or less " +
             "from your graveyard. Copy it, then you may cast the copy without paying its mana cost."
-        val exiledCard = target(
-            "target nonland card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Nonland.manaValueAtMost(3).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
-        )
+        val exiledCard = target(TargetFilter(GameObjectFilter.Nonland.manaValueAtMost(3).ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Pipeline {
             run(Effects.Move(exiledCard, Zone.EXILE))
             val copy = copyCard(exiledCard)

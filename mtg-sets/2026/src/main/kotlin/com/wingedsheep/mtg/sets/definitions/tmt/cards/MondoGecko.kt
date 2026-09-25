@@ -34,12 +34,8 @@ val MondoGecko = card("Mondo Gecko") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Discard())
         effect = Effects.ChooseColorThen(
-            Effects.Composite(
-                listOf(
-                    Effects.ChangeColorToChosen(EffectTarget.Self, Duration.EndOfTurn),
-                    Effects.GrantHexproofFromChosenColor(EffectTarget.Self, Duration.EndOfTurn)
-                )
-            )
+            Effects.ChangeColorToChosen(EffectTarget.Self, Duration.EndOfTurn) then
+                Effects.GrantHexproofFromChosenColor(EffectTarget.Self, Duration.EndOfTurn)
         )
         description = "{1}, Discard a card: Until end of turn, Mondo Gecko becomes the color of your choice and gains hexproof from that color."
     }

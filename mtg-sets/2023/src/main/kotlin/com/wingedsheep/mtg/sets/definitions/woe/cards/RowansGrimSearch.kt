@@ -51,25 +51,23 @@ val RowansGrimSearch = card("Rowan's Grim Search") {
     bargain()
 
     spell {
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.WasBargained,
-                then = Effects.Pipeline {
-                    val looked = gather(CardSource.TopOfLibrary(4))
-                    val (kept, rest) = chooseUpToSplit(
-                        2,
-                        from = looked,
-                        prompt = "Put up to two cards back on top of your library",
-                        selectedLabel = "Put on top",
-                        remainderLabel = "Put in graveyard",
-                    )
-                    toLibraryTop(kept)
-                    toGraveyard(rest)
-                },
-            ),
-            Effects.DrawCards(2),
-            Effects.LoseLife(2, EffectTarget.Controller),
-        )
+        effect = Effects.If(
+            condition = Conditions.WasBargained,
+            then = Effects.Pipeline {
+                val looked = gather(CardSource.TopOfLibrary(4))
+                val (kept, rest) = chooseUpToSplit(
+                    2,
+                    from = looked,
+                    prompt = "Put up to two cards back on top of your library",
+                    selectedLabel = "Put on top",
+                    remainderLabel = "Put in graveyard",
+                )
+                toLibraryTop(kept)
+                toGraveyard(rest)
+            },
+        ) then
+            Effects.DrawCards(2) then
+            Effects.LoseLife(2, EffectTarget.Controller)
     }
 
     metadata {

@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Addle
@@ -25,7 +25,7 @@ val Addle = card("Addle") {
         "that color from it. That player discards that card."
 
     spell {
-        val targetPlayer = target("target player", TargetPlayer())
+        val targetPlayer = target(Targets.Player)
         effect = Effects.ChooseColorThen(
             then = Effects.Pipeline {
                 run(Effects.RevealHand(targetPlayer))

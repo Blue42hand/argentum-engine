@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rite of the Serpent
@@ -27,7 +27,7 @@ val RiteOfTheSerpent = card("Rite of the Serpent") {
     oracleText = "Destroy target creature. If that creature had a +1/+1 counter on it, create a 1/1 green Snake creature token."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         // Check counter condition before destroying (counters are removed on zone change)
         effect = Effects.If(
             condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE, creature),

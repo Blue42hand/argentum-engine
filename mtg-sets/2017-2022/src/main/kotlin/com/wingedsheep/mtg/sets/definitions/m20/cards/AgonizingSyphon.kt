@@ -19,9 +19,8 @@ val AgonizingSyphon = card("Agonizing Syphon") {
     oracleText = "Agonizing Syphon deals 3 damage to any target and you gain 3 life."
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
-        effect = Effects.DealDamage(3, anyTarget)
-            .then(Effects.GainLife(3))
+        val anyTarget = target(Targets.Any)
+        effect = Effects.DealDamage(3, anyTarget) then Effects.GainLife(3)
     }
 
     metadata {

@@ -74,7 +74,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
     // −12: Target opponent chooses a permanent they control and returns it to its owner's
     //      hand. Then they shuffle each nonland permanent they control into its owner's library.
     loyaltyAbility(-12) {
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // Target opponent picks a permanent they control; return it to its owner's hand.
             val theirPermanents = gather(CardSource.ControlledPermanents(opponent.asPlayer))

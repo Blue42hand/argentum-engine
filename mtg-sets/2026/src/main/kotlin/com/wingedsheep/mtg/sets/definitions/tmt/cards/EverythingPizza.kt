@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Everything Pizza
@@ -42,21 +42,19 @@ val EverythingPizza = card("Everything Pizza") {
     }
 
     activatedAbility {
-        val player = target("target player", Targets.Player)
-        val anyTarget = target("any target", Targets.Any)
-        val creature = target("up to one target creature", TargetCreature(optional = true))
+        val player = target(Targets.Player)
+        val anyTarget = target(Targets.Any)
+        val creature = target(TargetFilter.Creature, optional = true)
         cost = Costs.Composite(
             Costs.Mana("{2}{W}{U}{B}{R}{G}"),
             Costs.Tap,
             Costs.SacrificeSelf
         )
-        effect = Effects.Composite(
-            Effects.GainLife(3, player),
-            Effects.DrawCards(1, player),
-            Effects.EachOpponentDiscards(1),
-            Effects.DealDamage(3, anyTarget, damageSource = EffectTarget.Self),
+        effect = Effects.GainLife(3, player) then
+            Effects.DrawCards(1, player) then
+            Effects.EachOpponentDiscards(1) then
+            Effects.DealDamage(3, anyTarget, damageSource = EffectTarget.Self) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
-        )
     }
 
     metadata {

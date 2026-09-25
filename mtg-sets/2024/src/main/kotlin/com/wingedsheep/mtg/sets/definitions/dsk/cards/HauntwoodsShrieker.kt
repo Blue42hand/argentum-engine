@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Hauntwoods Shrieker
@@ -49,17 +48,12 @@ val HauntwoodsShrieker = card("Hauntwoods Shrieker") {
     // {1}{G}: Reveal target face-down permanent. If it's a creature card, you may turn it face up.
     activatedAbility {
         cost = Costs.Mana("{1}{G}")
-        val t = target(
-            "target",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent.faceDown()))
-        )
-        effect = Effects.Composite(
-            Effects.RevealFaceDownPermanent(t),
+        val t = target(TargetFilter(GameObjectFilter.Permanent.faceDown()))
+        effect = Effects.RevealFaceDownPermanent(t) then
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
                 then = Effects.May(Effects.TurnFaceUp(t)),
-            ),
-        )
+            )
         description = "{1}{G}: Reveal target face-down permanent. If it's a creature card, you may " +
             "turn it face up."
     }

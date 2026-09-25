@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Théoden, King of Rohan
@@ -28,9 +27,7 @@ val TheodenKingOfRohan = card("Théoden, King of Rohan") {
     oracleText = "Whenever Théoden or another Human you control enters, target creature gains double strike until end of turn."
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature)
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature))
         trigger = Triggers.a(GameObjectFilter.Permanent.youControl().withSubtype("Human")).enters()
         effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)
     }

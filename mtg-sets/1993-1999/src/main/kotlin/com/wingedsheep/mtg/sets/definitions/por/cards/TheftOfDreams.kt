@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,7 +26,7 @@ val TheftOfDreams = card("Theft of Dreams") {
     typeLine = "Sorcery"
     oracleText = "Draw a card for each tapped creature target opponent controls."
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.DrawCards(
             DynamicAmounts.battlefield(Player.TargetOpponent, GameObjectFilter.Creature.tapped()).count()
         )

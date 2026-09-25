@@ -50,10 +50,8 @@ class WildRicochetScenarioTest : FunSpec({
         typeLine = TypeLine.parse("Instant"),
         oracleText = "Split Shock deals 1 damage to target creature and 1 damage to another target creature.",
         script = CardScript.spell(
-            Effects.Composite(
-                Effects.DealDamage(1, EffectTarget.ContextTarget(0)),
+            Effects.DealDamage(1, EffectTarget.ContextTarget(0)) then
                 Effects.DealDamage(1, EffectTarget.ContextTarget(1)),
-            ),
             TargetObject(filter = TargetFilter.Creature),
             TargetObject(filter = TargetFilter.Creature),
         )

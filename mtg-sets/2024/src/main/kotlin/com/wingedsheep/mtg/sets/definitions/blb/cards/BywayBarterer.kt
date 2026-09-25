@@ -28,7 +28,7 @@ val BywayBarterer = card("Byway Barterer") {
     triggeredAbility {
         trigger = Triggers.you.expends(4)
         effect = Effects.May(
-            Patterns.Hand.discardHand().then(Effects.DrawCards(2))
+            Patterns.Hand.discardHand() then Effects.DrawCards(2)
         )
     }
 

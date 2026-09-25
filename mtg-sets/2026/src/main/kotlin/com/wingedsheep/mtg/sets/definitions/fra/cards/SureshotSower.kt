@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val SureshotSower = card("Sureshot Sower") {
     manaCost = "{1}{G}"
@@ -21,7 +20,7 @@ val SureshotSower = card("Sureshot Sower") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{G}"), Costs.DiscardSelf)
         activateFromZone = Zone.HAND
-        val creature = target("creature with flying", TargetObject(filter = TargetFilter.Creature.withKeyword(Keyword.FLYING)))
+        val creature = target(TargetFilter.Creature.withKeyword(Keyword.FLYING))
         effect = Effects.Destroy(creature)
     }
 

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Fever Charm
@@ -25,15 +24,15 @@ val FeverCharm = card("Fever Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Target creature gains haste until end of turn") {
-                val t = target("target", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.GrantKeyword(Keyword.HASTE, t)
             }
             mode("Target creature gets +2/+0 until end of turn") {
-                val t = target("target", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(2, 0, t)
             }
             mode("Fever Charm deals 3 damage to target Wizard creature") {
-                val t = target("target", TargetCreature(filter = TargetFilter.Creature.withSubtype("Wizard")))
+                val t = target(TargetFilter.Creature.withSubtype("Wizard"))
                 effect = Effects.DealDamage(3, t)
             }
         }

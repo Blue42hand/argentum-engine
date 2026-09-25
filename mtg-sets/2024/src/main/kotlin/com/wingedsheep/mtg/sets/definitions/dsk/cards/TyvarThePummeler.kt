@@ -32,10 +32,8 @@ val TyvarThePummeler = card("Tyvar, the Pummeler") {
     // "Tap it" refers to Tyvar — he taps himself as part of the effect (see Drudge Sentinel pattern).
     activatedAbility {
         cost = Costs.TapAnotherPermanent(GameObjectFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self) then
             Effects.Tap(EffectTarget.Self)
-        )
         description = "Tyvar gains indestructible until end of turn. Tap it."
     }
 

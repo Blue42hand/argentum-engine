@@ -37,7 +37,7 @@ val TrumpetingCarnosaur = card("Trumpeting Carnosaur") {
     // {2}{R}, Discard this card (from hand): it deals 3 damage to target creature or planeswalker.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.DiscardSelf)
-        val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(3, t, damageSource = EffectTarget.Self)
         activateFromZone = Zone.HAND
     }

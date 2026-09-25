@@ -4,12 +4,11 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Whirlwing Stormbrood // Dynamic Soar — Tarkir: Dragonstorm #234
@@ -51,7 +50,7 @@ val WhirlwingStormbrood = card("Whirlwing Stormbrood") {
         oracleText = "Put three +1/+1 counters on target creature you control. " +
             "(Then shuffle this card into its owner's library.)"
         spell {
-            val creature = target("creature you control", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
         }
     }

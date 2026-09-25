@@ -32,8 +32,8 @@ val ElectricEel = card("Electric Eel") {
 
     activatedAbility {
         cost = Costs.Mana("{R}{R}")
-        effect = Effects.ModifyStats(2, 0, EffectTarget.Self)
-            .then(Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)))
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
+            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Mabel, Bitter Recluse — "remove up to three counters" is [Effects.RemoveCountersUpTo]: the
@@ -27,10 +26,7 @@ val MabelBitterRecluse = card("Mabel, Bitter Recluse") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target(
-            "another target creature or planeswalker",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker).other()),
-        )
+        val victim = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker).other())
         effect = Effects.RemoveCountersUpTo(3, victim)
         description = "When Mabel enters, remove up to three counters from another target creature or planeswalker."
     }

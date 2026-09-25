@@ -31,12 +31,11 @@ val CallTheMountainChocobo = card("Call the Mountain Chocobo") {
     typeLine = "Sorcery"
     oracleText = "Search your library for a Mountain card, reveal it, put it into your hand, then shuffle. Create a 2/2 green Bird creature token with \"Whenever a land you control enters, this token gets +1/+0 until end of turn.\"\nFlashback {5}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.searchLibrary(
-                filter = GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN),
-                destination = SearchDestination.HAND,
-                reveal = true
-            ),
+        effect = Patterns.Library.searchLibrary(
+            filter = GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN),
+            destination = SearchDestination.HAND,
+            reveal = true
+        ) then
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,
@@ -50,7 +49,6 @@ val CallTheMountainChocobo = card("Call the Mountain Chocobo") {
                     )
                 )
             )
-        )
     }
     keywordAbility(KeywordAbility.flashback("{5}{R}"))
     metadata {

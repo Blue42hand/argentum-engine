@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -44,7 +43,7 @@ val RuthlessLawbringer = card("Ruthless Lawbringer") {
             optional = true,
             descriptionOverride = "You may sacrifice another creature. When you do, destroy target nonland permanent."
         ) {
-            val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+            val nonlandPermanent = target(TargetFilter.NonlandPermanent)
             effect = Effects.Destroy(nonlandPermanent)
         }
         description = "When this creature enters, you may sacrifice another creature. When you do, destroy target nonland permanent."

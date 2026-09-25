@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Braided Net // Braided Quipu (CR 702.167, The Lost Caverns of Ixalan #47)
@@ -84,9 +85,8 @@ private val BraidedNetFront = card("Braided Net") {
     // Its activated abilities can't be activated for as long as it remains tapped.
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(CounterType.NET, 1))
-        val netted = target("nonland permanent to tap", Targets.OtherNonlandPermanent)
-        effect = Effects.Composite(
-            Effects.Tap(netted),
+        val netted = target(TargetFilter.OtherNonlandPermanent)
+        effect = Effects.Tap(netted) then
             // "Its activated abilities can't be activated …" — the grant is anchored to the
             // target, and the self-scoped filter locks the holder's own abilities (mana
             // abilities included; the printed line has no mana-ability carve-out). One-way
@@ -96,7 +96,6 @@ private val BraidedNetFront = card("Braided Net") {
                 target = netted,
                 duration = Duration.WhileAffectedTapped
             )
-        )
         description = "{T}, Remove a net counter from this artifact: Tap another target " +
             "nonland permanent. Its activated abilities can't be activated for as long " +
             "as it remains tapped."
@@ -130,12 +129,10 @@ private val BraidedQuipu = card("Braided Quipu") {
     // into its owner's library third from the top.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{U}"), Costs.Tap)
-        effect = Effects.Composite(
-            Effects.DrawCards(
-                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
-            ),
+        effect = Effects.DrawCards(
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
+        ) then
             Effects.PutIntoLibraryNthFromTop(EffectTarget.Self, positionFromTop = 2)
-        )
         description = "{3}{U}, {T}: Draw a card for each artifact you control, " +
             "then put this artifact into its owner's library third from the top."
     }

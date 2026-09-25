@@ -48,18 +48,14 @@ private val TreasureMapFront = card("Treasure Map") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        effect = Effects.Composite(
-            Effects.Scry(1),
-            Effects.AddCounters(CounterType.LANDMARK, 1, EffectTarget.Self),
+        effect = Effects.Scry(1) then
+            Effects.AddCounters(CounterType.LANDMARK, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.LANDMARK, 3),
-                then = Effects.Composite(
-                    Effects.RemoveCounters(CounterType.LANDMARK, 3, EffectTarget.Self),
-                    Effects.Transform(EffectTarget.Self),
+                then = Effects.RemoveCounters(CounterType.LANDMARK, 3, EffectTarget.Self) then
+                    Effects.Transform(EffectTarget.Self) then
                     Effects.CreateTreasure(3),
-                ),
-            ),
-        )
+            )
     }
 
     metadata {

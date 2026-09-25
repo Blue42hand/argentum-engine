@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -26,7 +25,7 @@ val Swelter = card("Swelter") {
     typeLine = "Sorcery"
     oracleText = "Swelter deals 2 damage to each of two target creatures."
     spell {
-        val t = target("target", TargetCreature(count = 2, filter = TargetFilter.Creature))
+        targets(TargetFilter.Creature, count = 2)
         effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Permanent), Effects.DealDamage(2, EffectTarget.IterationEntity))
     }
     metadata {

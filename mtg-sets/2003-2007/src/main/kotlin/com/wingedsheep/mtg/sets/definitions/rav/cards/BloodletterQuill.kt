@@ -53,11 +53,9 @@ val BloodletterQuill = card("Bloodletter Quill") {
             Costs.Tap,
             Costs.PutCounterOnSelf(CounterType.BLOOD),
         )
-        effect = Effects.DrawCards(1).then(
-            Effects.LoseLife(
-                DynamicAmounts.countersOnSelf(CounterType.BLOOD),
-                EffectTarget.Controller,
-            )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(
+            DynamicAmounts.countersOnSelf(CounterType.BLOOD),
+            EffectTarget.Controller,
         )
         description = "{2}, {T}, Put a blood counter on this artifact: Draw a card, then you lose " +
             "1 life for each blood counter on this artifact."

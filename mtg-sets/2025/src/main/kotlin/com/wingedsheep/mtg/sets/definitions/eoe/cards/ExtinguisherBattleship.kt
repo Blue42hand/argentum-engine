@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -35,16 +34,12 @@ val ExtinguisherBattleship = card("Extinguisher Battleship") {
     // ETB: destroy target noncreature permanent, then deal 4 damage to each creature
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val target = target("target noncreature permanent", TargetPermanent(filter = TargetFilter.NoncreaturePermanent))
-        effect = Effects.Composite(
-            listOf(
-                Effects.Destroy(target),
-                Effects.ForEachInGroup(
-                    filter = GroupFilter.AllCreatures,
-                    effect = Effects.DealDamage(4, EffectTarget.IterationEntity)
-                )
+        val target = target(TargetFilter.NoncreaturePermanent)
+        effect = Effects.Destroy(target) then
+            Effects.ForEachInGroup(
+                filter = GroupFilter.AllCreatures,
+                effect = Effects.DealDamage(4, EffectTarget.IterationEntity)
             )
-        )
         description = "When this Spacecraft enters, destroy target noncreature permanent. Then this Spacecraft deals 4 damage to each creature."
     }
 

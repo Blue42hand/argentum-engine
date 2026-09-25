@@ -46,8 +46,7 @@ val RecklessDetective = card("Reckless Detective") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val payoff: Effect = Effects.DrawCards(1) then
-            Effects.ModifyStats(2, 0, EffectTarget.Self)
+        val payoff: Effect = Effects.DrawCards(1) then Effects.ModifyStats(2, 0, EffectTarget.Self)
         effect = Effects.May(
             effect = Effects.ChooseAction(
                 choices = listOf(

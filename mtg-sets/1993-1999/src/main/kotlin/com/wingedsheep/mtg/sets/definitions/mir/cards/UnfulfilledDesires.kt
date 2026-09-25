@@ -24,10 +24,7 @@ val UnfulfilledDesires = card("Unfulfilled Desires") {
     oracleText = "{1}, Pay 1 life: Draw a card, then discard a card."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.PayLife(1))
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1)
-        )
+        effect = Effects.DrawCards(1) then Patterns.Hand.discardCards(1)
     }
     metadata {
         rarity = Rarity.RARE

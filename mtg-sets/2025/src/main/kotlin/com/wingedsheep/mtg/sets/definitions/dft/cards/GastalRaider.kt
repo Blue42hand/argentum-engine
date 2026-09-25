@@ -48,7 +48,7 @@ val GastalRaider = card("Gastal Raider") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val revealedInstantsAndSorceries = gather(

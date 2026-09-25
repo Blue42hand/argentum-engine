@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -25,11 +24,8 @@ val MakeshiftBinding = card("Makeshift Binding") {
     oracleText = "When this enchantment enters, exile target creature an opponent controls until this enchantment leaves the battlefield. You gain 2 life."
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = Effects.Composite(
-            Effects.ExileUntilLeaves(t),
-            Effects.GainLife(2)
-        )
+        val t = target(TargetFilter.Creature.opponentControls())
+        effect = Effects.ExileUntilLeaves(t) then Effects.GainLife(2)
     }
     triggeredAbility {
         trigger = Triggers.self.leaves()

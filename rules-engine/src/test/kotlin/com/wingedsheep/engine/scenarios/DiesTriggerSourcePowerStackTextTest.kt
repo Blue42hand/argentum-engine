@@ -18,6 +18,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Regression for the Goblin Fireleaper bug: a dies trigger that "deals damage equal to its power"
@@ -44,7 +45,7 @@ class DiesTriggerSourcePowerStackTextTest : FunSpec({
         manaCost = "{0}"; typeLine = "Creature — Goblin"; power = 3; toughness = 3
         triggeredAbility {
             trigger = Triggers.self.dies()
-            val tgt = target("any target", Targets.Any)
+            val tgt = target(Targets.Any)
             effect = Effects.DealDamage(DynamicAmounts.sourcePower(), tgt)
         }
     }
@@ -52,7 +53,7 @@ class DiesTriggerSourcePowerStackTextTest : FunSpec({
     val Bolt = card("LKI Lethal Bolt") {
         manaCost = "{0}"; typeLine = "Sorcery"; oracleText = "Deal 9 damage to target creature."
         spell {
-            val c = target("target creature", Targets.Creature)
+            val c = target(TargetFilter.Creature)
             effect = Effects.DealDamage(9, c)
         }
     }

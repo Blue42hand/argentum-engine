@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ptk.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Flanking Troops
@@ -22,7 +22,7 @@ val FlankingTroops = card("Flanking Troops") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         optional = true
-        val creature = target("target", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Tap(creature)
     }
 

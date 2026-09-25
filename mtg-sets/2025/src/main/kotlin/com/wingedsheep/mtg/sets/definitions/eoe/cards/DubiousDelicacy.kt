@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dubious Delicacy
@@ -29,7 +30,7 @@ val DubiousDelicacy = card("Dubious Delicacy") {
     // ETB: up to one target creature gets -3/-3 until end of turn
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val target = target("up to one target creature", Targets.Creature)
+        val target = target(TargetFilter.Creature)
         
         effect = Effects.ModifyStats(-3, -3, target)
     }
@@ -53,7 +54,7 @@ val DubiousDelicacy = card("Dubious Delicacy") {
             Costs.SacrificeSelf
         )
         
-        val target = target("target opponent", Targets.Opponent)
+        val target = target(Targets.Opponent)
         effect = Effects.LoseLife(3, target)
     }
 

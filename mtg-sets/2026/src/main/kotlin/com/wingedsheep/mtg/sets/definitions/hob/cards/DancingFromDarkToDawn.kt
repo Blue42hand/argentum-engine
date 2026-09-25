@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -40,10 +39,7 @@ val DancingFromDarkToDawn = card("Dancing from Dark to Dawn") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature)
-        val t = target(
-            "target creature you control to get +1/+1 counters",
-            TargetCreature(filter = TargetFilter.CreatureYouControl)
-        )
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.triggeringManaValue(),

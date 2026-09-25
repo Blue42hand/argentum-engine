@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -28,9 +29,8 @@ val BalefulStare = card("Baleful Stare") {
     typeLine = "Sorcery"
     oracleText = "Target opponent reveals their hand. You draw a card for each Mountain and red card in it."
     spell {
-        val t = target("target", TargetOpponent())
-        effect = Effects.Composite(
-            Effects.RevealHand(t),
+        val t = target(Targets.Opponent)
+        effect = Effects.RevealHand(t) then
             Effects.DrawCards(
                 DynamicAmounts.count(
                     Player.TargetOpponent,
@@ -38,7 +38,6 @@ val BalefulStare = card("Baleful Stare") {
                     (GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN) or GameObjectFilter.Any.withColor(Color.RED))
                 )
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

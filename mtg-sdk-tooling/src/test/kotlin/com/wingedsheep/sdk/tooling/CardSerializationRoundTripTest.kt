@@ -101,7 +101,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 manaCost = "{U}"
                 typeLine = "Instant"
                 spell {
-                    target = Targets.Creature
+                    target = TargetObject(filter = TargetFilter.Creature)
                     effect = Effects.SetBaseToughness(
                         EffectTarget.ContextTarget(0),
                         DynamicAmount.Fixed(7),
@@ -126,7 +126,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 manaCost = "{U}"
                 typeLine = "Instant"
                 spell {
-                    target = Targets.Permanent
+                    target = TargetObject(filter = TargetFilter.Permanent)
                     effect = MoveTrackedBattlefieldObjectEffect(
                         target = EffectTarget.ContextTarget(0),
                         destination = Zone.HAND,
@@ -205,7 +205,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 manaCost = "{1}{B}"
                 typeLine = "Sorcery"
                 spell {
-                    val any = target("any", Targets.Any)
+                    val any = target(Targets.Any)
                     effect = DealDamageEffect(DynamicAmount.Fixed(3), any) then
                             GainLifeEffect(DynamicAmount.Fixed(3))
                 }
@@ -323,7 +323,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 manaCost = "{2}{R}"
                 typeLine = "Sorcery"
                 spell {
-                    target = Targets.Creature
+                    target = TargetObject(filter = TargetFilter.Creature)
                     effect = GainControlEffect(
                         target = EffectTarget.ContextTarget(0),
                         duration = Duration.EndOfTurn

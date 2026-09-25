@@ -74,10 +74,8 @@ val TomikWielderOfLaw = card("Tomik, Wielder of Law") {
             ComparisonOperator.GTE,
             2,
         )
-        effect = Effects.Composite(
-            Effects.LoseLife(3, EffectTarget.PlayerRef(Player.TriggeringPlayer)),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.TriggeringPlayer)) then
+            Effects.DrawCards(1)
         description = "Whenever an opponent attacks with creatures, if two or more of those " +
             "creatures are attacking you and/or planeswalkers you control, that opponent loses 3 " +
             "life and you draw a card."

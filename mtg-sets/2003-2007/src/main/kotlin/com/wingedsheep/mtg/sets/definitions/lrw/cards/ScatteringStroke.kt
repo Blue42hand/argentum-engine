@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scattering Stroke
@@ -55,7 +55,7 @@ val ScatteringStroke = card("Scattering Stroke") {
         "choice of the top or bottom. A player wins if their card had a greater mana value.)"
 
     spell {
-        val spellTarget = target("target spell", Targets.Spell)
+        val spellTarget = target(TargetFilter.SpellOnStack)
         effect = Effects.Pipeline {
             val manaValue = storeNumber(DynamicAmounts.manaValueOf(spellTarget))
             run(Effects.CounterSpell())

@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Soul Enervation — Murders at Karlov Manor #106
@@ -45,17 +45,14 @@ val SoulEnervation = card("Soul Enervation") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(-4, -4, creature)
         description = "When this enchantment enters, target creature gets -4/-4 until end of turn."
     }
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).leaveYourGraveyard()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
         description = "Whenever one or more creature cards leave your graveyard, each opponent " +
             "loses 1 life and you gain 1 life."
     }

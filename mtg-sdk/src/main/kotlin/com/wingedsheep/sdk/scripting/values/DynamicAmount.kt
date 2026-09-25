@@ -1064,7 +1064,11 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("PlayerCount")
     @Serializable
     data class PlayerCount(val scope: Player = Player.EachOpponent) : DynamicAmount {
-        override val description: String = "the number of ${scope.description}"
+        override val description: String = when (scope) {
+            Player.EachOpponent -> "the number of opponents"
+            Player.Each -> "the number of players"
+            else -> "the number of ${scope.description}"
+        }
     }
 
     /**

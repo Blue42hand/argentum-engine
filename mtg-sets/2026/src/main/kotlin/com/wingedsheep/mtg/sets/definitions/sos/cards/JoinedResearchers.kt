@@ -55,11 +55,8 @@ val JoinedResearchers = card("Joined Researchers") {
         typeLine = "Sorcery"
         oracleText = "You and target opponent each draw three cards."
         spell {
-            val opponent = target("target opponent", Targets.Opponent)
-            effect = Effects.Composite(
-                Effects.DrawCards(3),
-                Effects.DrawCards(3, opponent)
-            )
+            val opponent = target(Targets.Opponent)
+            effect = Effects.DrawCards(3) then Effects.DrawCards(3, opponent)
         }
     }
 

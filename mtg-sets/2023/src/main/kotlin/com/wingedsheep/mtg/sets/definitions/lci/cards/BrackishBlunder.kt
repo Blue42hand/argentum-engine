@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Brackish Blunder — LCI #46
@@ -29,7 +29,7 @@ val BrackishBlunder = card("Brackish Blunder") {
         "Activate only as a sorcery.\")"
 
     spell {
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.TargetIsTapped(0),
             then = Effects.ReturnToHand(t) then Effects.CreateMapToken(),

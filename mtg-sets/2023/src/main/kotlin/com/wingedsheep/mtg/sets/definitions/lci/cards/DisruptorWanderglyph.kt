@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -30,10 +29,7 @@ val DisruptorWanderglyph = card("Disruptor Wanderglyph") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(t, Zone.EXILE)
     }
     metadata {

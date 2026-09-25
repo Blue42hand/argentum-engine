@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Terra, Magical Adept // Esper Terra (Final Fantasy #245)
@@ -54,14 +53,13 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 
 // Shared chapter I–III effect, parameterized on the chosen target enchantment.
-private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.Composite(
-    Effects.CreateTokenCopyOfTarget(
-        target = chosen,
-        addedKeywords = setOf(Keyword.HASTE),
-        // "Sacrifice it at the beginning of your next end step."
-        sacrificeAtStep = Step.END,
-        sacrificeOnlyOnControllersTurn = true,
-    ),
+private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.CreateTokenCopyOfTarget(
+    target = chosen,
+    addedKeywords = setOf(Keyword.HASTE),
+    // "Sacrifice it at the beginning of your next end step."
+    sacrificeAtStep = Step.END,
+    sacrificeOnlyOnControllersTurn = true,
+) then
     // "If it's a Saga, put up to three lore counters on it." The created token is in CREATED_TOKENS;
     // gate on it being a Saga, then let the controller choose 0..3 lore counters (advancing its
     // chapters). Copying a non-Saga enchantment offers no lore prompt.
@@ -71,8 +69,7 @@ private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.Composite(
             GameObjectFilter.Enchantment.withSubtype(Subtype.SAGA),
         ),
         then = Effects.AddCountersUpTo(CounterType.LORE, 3, EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
-    ),
-)
+    )
 
 private val EsperTerra = card("Esper Terra") {
     manaCost = ""
@@ -91,24 +88,19 @@ private val EsperTerra = card("Esper Terra") {
     // I, II, III — copy a nonlegendary enchantment you control.
     for (chapter in 1..3) {
         sagaChapter(chapter) {
-            val enchantment = target(
-                "enchantment",
-                TargetObject(filter = TargetFilter.Enchantment.youControl().nonlegendary()),
-            )
+            val enchantment = target(TargetFilter.Enchantment.youControl().nonlegendary())
             effect = copyChapterEffect(enchantment)
         }
     }
 
     // IV — Add {W}{W}{U}{U}{B}{B}{R}{R}{G}{G}, then exile Esper Terra and return it front face up.
     sagaChapter(4) {
-        effect = Effects.Composite(
-            Effects.AddMana(Color.WHITE, 2),
-            Effects.AddMana(Color.BLUE, 2),
-            Effects.AddMana(Color.BLACK, 2),
-            Effects.AddMana(Color.RED, 2),
-            Effects.AddMana(Color.GREEN, 2),
-            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-        )
+        effect = Effects.AddMana(Color.WHITE, 2) then
+            Effects.AddMana(Color.BLUE, 2) then
+            Effects.AddMana(Color.BLACK, 2) then
+            Effects.AddMana(Color.RED, 2) then
+            Effects.AddMana(Color.GREEN, 2) then
+            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT)
     }
 
     metadata {

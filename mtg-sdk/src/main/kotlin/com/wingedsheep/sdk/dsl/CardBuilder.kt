@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
@@ -29,10 +28,9 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
-import com.wingedsheep.sdk.scripting.targets.withId
 
 /**
  * DSL entry point for defining cards.
@@ -43,7 +41,7 @@ import com.wingedsheep.sdk.scripting.targets.withId
  *     manaCost = "{R}"
  *     typeLine = "Instant"
  *     spell {
- *         val any = target("any", Targets.Any)
+ *         val any = target(Targets.Any)
  *         effect = Effects.DealDamage(3, any)
  *     }
  * }
@@ -1044,30 +1042,17 @@ class CardBuilder(private val name: String) {
 /**
  * Builder for spell effects (instants and sorceries).
  *
- * Supports two targeting styles:
- *
- * 1. Simple (single target, legacy):
+ * Targets are declared through [TargetDeclarations] and read through the returned handles:
  * ```kotlin
  * spell {
- *     target = Targets.Creature
- *     effect = Effects.Destroy(EffectTarget.ContextTarget(0))
- * }
- * ```
- *
- * 2. Named binding (preferred):
- * ```kotlin
- * spell {
- *     val creature = target("creature", TargetCreature())
- *     val player = target("player", TargetPlayer())
- *     effect = Effects.Composite(
- *         Effects.Destroy(creature),
- *         Effects.DealDamage(3, player)
- *     )
+ *     val creature = target(TargetFilter.Creature)
+ *     val player = target(Targets.Player)
+ *     effect = Effects.Destroy(creature) then Effects.DealDamage(3, player)
  * }
  * ```
  */
 @CardDsl
-class SpellBuilder {
+class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : TargetDeclarations by declaredTargets {
     var effect: Effect? = null
     var target: TargetRequirement? = null
     var condition: Condition? = null
@@ -1171,25 +1156,23 @@ class SpellBuilder {
     var kickerTarget: TargetRequirement? = null
 
     // Named kicker target bindings (for kicker spells with multiple alternate targets)
-    private val namedKickerTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
+    private val kickerTargetList = TargetList()
 
     /**
      * Declare a named target for the optional-additional-cost branch and get an EffectTarget
      * reference to use in [kickerEffect]. Use this when that branch needs multiple targets
      * (e.g., Goblin Barrage), or is the only branch with a target at all (CR 702.166d).
-     *
-     * @param name A descriptive name for the target
-     * @param requirement The target requirement specification
-     * @return An EffectTarget.BoundVariable that references this kicker target by name
      */
-    fun kickerTarget(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedKickerTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
+    fun kickerTarget(requirement: TargetRequirement): EffectTarget.BoundVariable =
+        EffectTarget.BoundVariable(kickerTargetList.declareTarget(requirement))
+
+    /** [kickerTarget] for an object target, declared by its filter. */
+    fun kickerTarget(filter: TargetFilter, optional: Boolean = false): EffectTarget.BoundVariable =
+        kickerTarget(TargetObject(filter = filter, optional = optional))
 
     internal val kickerTargetRequirements: List<TargetRequirement>
-        get() = if (namedKickerTargets.isNotEmpty()) {
-            namedKickerTargets.map { it.second }
+        get() = if (!kickerTargetList.isEmpty()) {
+            kickerTargetList.requirements
         } else {
             listOfNotNull(kickerTarget)
         }
@@ -1212,29 +1195,25 @@ class SpellBuilder {
     var cleaveTarget: TargetRequirement? = null
 
     // Named cleave target bindings (for cleaved spells with named/multiple alternate targets)
-    private val namedCleaveTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
+    private val cleaveTargetList = TargetList()
 
     /**
      * Declare a named cleave target and get an EffectTarget reference to use in [cleaveEffect].
-     *
-     * @param name A descriptive name for the target
-     * @param requirement The (brackets-removed) target requirement specification
-     * @return An EffectTarget.BoundVariable that references this cleave target by name
      */
-    fun cleaveTarget(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedCleaveTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
+    fun cleaveTarget(requirement: TargetRequirement): EffectTarget.BoundVariable =
+        EffectTarget.BoundVariable(cleaveTargetList.declareTarget(requirement))
+
+    /** [cleaveTarget] for an object target, declared by its filter. */
+    fun cleaveTarget(filter: TargetFilter, optional: Boolean = false): EffectTarget.BoundVariable =
+        cleaveTarget(TargetObject(filter = filter, optional = optional))
 
     internal val cleaveTargetRequirements: List<TargetRequirement>
-        get() = if (namedCleaveTargets.isNotEmpty()) {
-            namedCleaveTargets.map { it.second }
+        get() = if (!cleaveTargetList.isEmpty()) {
+            cleaveTargetList.requirements
         } else {
             listOfNotNull(cleaveTarget)
         }
 
-    // Named target bindings
-    private val namedTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
 
     // Cast restrictions
     private val castRestrictions: MutableList<CastRestriction> = mutableListOf()
@@ -1281,33 +1260,11 @@ class SpellBuilder {
     internal val castTimeCaptures: List<CastTimeCapture>
         get() = castTimeCaptureList.toList()
 
-    /**
-     * Declare a named target and get an EffectTarget reference to use in effects.
-     *
-     * @param name A descriptive name for the target (for debugging/documentation)
-     * @param requirement The target requirement specification
-     * @return An EffectTarget.BoundVariable that references this target by name
-     */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
-    /**
-     * Declare a multi-target requirement and get indexed BoundVariable references.
-     *
-     * @param name A descriptive name for the targets
-     * @param requirement The target requirement with count > 1
-     * @return A list of BoundVariable references: name[0], name[1], ...
-     */
-    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
-        namedTargets.add(name to requirement.withId(name))
-        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
-    }
 
     internal val targetRequirements: List<TargetRequirement>
-        get() = if (namedTargets.isNotEmpty()) {
-            namedTargets.map { it.second }
+        get() = if (!declaredTargets.isEmpty()) {
+            declaredTargets.requirements
         } else {
             listOfNotNull(target)
         }
@@ -1320,12 +1277,12 @@ class SpellBuilder {
      * spell {
      *     modal(chooseCount = 2) {
      *         mode("Counter target spell") {
-     *             target = TargetSpell()
-     *             effect = Effects.CounterSpell()
+     *             val spell = target(TargetFilter.SpellOnStack)
+     *             effect = Effects.CounterSpell(spell)
      *         }
      *         mode("Return target permanent to its owner's hand") {
-     *             target = TargetPermanent()
-     *             effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+     *             val permanent = target(TargetFilter.Permanent)
+     *             effect = Effects.ReturnToHand(permanent)
      *         }
      *         mode("Tap all creatures your opponents control") {
      *             effect = GroupPatterns.tapAll(CreatureGroupFilter.OpponentsControl)
@@ -1457,32 +1414,20 @@ class ModalBuilder(
  * `spell { }` or `triggeredAbility { }` block:
  *
  * ```kotlin
- * val creature = target("target creature", Targets.Creature)
+ * val creature = target(TargetFilter.Creature)
  * effect = Effects.Destroy(creature)
  * ```
  */
 @CardDsl
-open class TargetedEffectBuilder {
+open class TargetedEffectBuilder(
+    private val declared: TargetList = TargetList(),
+) : TargetDeclarations by declared {
     var effect: Effect? = null
-    private val declared: MutableList<TargetRequirement> = mutableListOf()
 
-    /** Declare a target of this effect and get the handle its effects read it through. */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        declared.add(requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
-    /**
-     * Declare a multi-target requirement ("two target creatures") and get one handle per chosen
-     * target: `val (first, second) = targets("target creatures", TargetCreature(count = 2))`.
-     */
-    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
-        declared.add(requirement.withId(name))
-        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
-    }
 
     /** The requirements declared so far, in declaration order. */
-    internal val declaredTargets: List<TargetRequirement> get() = declared.toList()
+    internal val declaredTargets: List<TargetRequirement> get() = declared.requirements
 
     internal fun requireEffect(what: String): Effect = requireNotNull(effect) { "$what must have an effect" }
 }
@@ -1514,7 +1459,7 @@ class ModeBuilder(private val description: String) : TargetedEffectBuilder() {
  * ```kotlin
  * ModalEffect.chooseOne(
  *     mode("Destroy target artifact.") {
- *         val artifact = target("target artifact", Targets.Artifact)
+ *         val artifact = target(TargetFilter.Artifact)
  *         effect = Effects.Destroy(artifact)
  *     },
  *     Mode.noTarget(Effects.DrawCards(1), "Draw a card."),
@@ -1568,7 +1513,7 @@ class TieredBuilder {
 // =============================================================================
 
 @CardDsl
-class TriggeredAbilityBuilder {
+class TriggeredAbilityBuilder(private val declaredTargets: TargetList = TargetList()) : TargetDeclarations by declaredTargets {
     /**
      * The trigger specification. Assign a [TriggerSpec] from the [Triggers] facade
      * (e.g., `trigger = Triggers.self.enters()`).
@@ -1647,29 +1592,8 @@ class TriggeredAbilityBuilder {
     /** Optional human-readable description that overrides the auto-generated one. */
     var description: String? = null
 
-    private val namedTargets = mutableListOf<Pair<String, TargetRequirement>>()
 
-    /**
-     * Declare a named target for this triggered ability and get an EffectTarget reference.
-     * Can be called multiple times for multi-target triggered abilities.
-     *
-     * @param name A descriptive name for the target
-     * @param requirement The target requirement specification
-     * @return An EffectTarget.BoundVariable that references this target by name
-     */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
-    /**
-     * Declare a multi-target requirement and get one handle per chosen target:
-     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
-     */
-    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
-        namedTargets.add(name to requirement.withId(name))
-        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
-    }
 
     fun build(): TriggeredAbility {
         val declared = requireNotNull(effect) { "Triggered ability must have an effect" }
@@ -1678,8 +1602,8 @@ class TriggeredAbilityBuilder {
                 "would wrap a second 'you may' around it and prompt twice. Drop one of them. " +
                 "Effect: $declared"
         }
-        val allTargets = if (namedTargets.isNotEmpty()) {
-            namedTargets.map { it.second }
+        val allTargets = if (!declaredTargets.isEmpty()) {
+            declaredTargets.requirements
         } else {
             listOfNotNull(target)
         }
@@ -1759,7 +1683,7 @@ class StateTriggeredAbilityBuilder {
 // =============================================================================
 
 @CardDsl
-class ActivatedAbilityBuilder {
+class ActivatedAbilityBuilder(private val declaredTargets: TargetList = TargetList()) : TargetDeclarations by declaredTargets {
     var cost: AbilityCost = AbilityCost.Tap
     var effect: Effect? = null
     var target: TargetRequirement? = null
@@ -1846,33 +1770,12 @@ class ActivatedAbilityBuilder {
     var cantBeCopied: Boolean = false
 
     // Named target bindings (for multi-target abilities)
-    private val namedTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
 
-    /**
-     * Declare a named target and get an EffectTarget reference to use in effects.
-     * Same pattern as SpellBuilder.target().
-     *
-     * @param name A descriptive name for the target (for debugging/documentation)
-     * @param requirement The target requirement specification
-     * @return An EffectTarget.BoundVariable that references this target by name
-     */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
-    /**
-     * Declare a multi-target requirement and get one handle per chosen target:
-     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
-     */
-    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
-        namedTargets.add(name to requirement.withId(name))
-        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
-    }
 
     internal val targetRequirements: List<TargetRequirement>
-        get() = if (namedTargets.isNotEmpty()) {
-            namedTargets.map { it.second }
+        get() = if (!declaredTargets.isEmpty()) {
+            declaredTargets.requirements
         } else {
             listOfNotNull(target)
         }
@@ -1967,7 +1870,10 @@ class StaticAbilityBuilder {
 // =============================================================================
 
 @CardDsl
-class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
+class LoyaltyAbilityBuilder(
+    private val loyaltyCost: AbilityCost,
+    private val declaredTargets: TargetList = TargetList(),
+) : TargetDeclarations by declaredTargets {
     constructor(loyaltyChange: Int) : this(AbilityCost.Loyalty(loyaltyChange))
     var effect: Effect? = null
     var target: TargetRequirement? = null
@@ -1980,29 +1886,13 @@ class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
      * restrictions here; the engine applies them to every loyalty ability.
      */
     var restrictions: List<ActivationRestriction> = emptyList()
-    private val namedTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
 
-    /**
-     * Add a named target for this loyalty ability and get an EffectTarget reference.
-     */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
-    /**
-     * Declare a multi-target requirement and get one handle per chosen target:
-     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
-     */
-    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
-        namedTargets.add(name to requirement.withId(name))
-        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
-    }
 
     fun build(): ActivatedAbility {
         requireNotNull(effect) { "Loyalty ability must have an effect" }
-        val targetReqs = if (namedTargets.isNotEmpty()) {
-            namedTargets.map { it.second }
+        val targetReqs = if (!declaredTargets.isEmpty()) {
+            declaredTargets.requirements
         } else {
             listOfNotNull(target)
         }
@@ -2116,33 +2006,20 @@ class ClassLevelBuilder(private val level: Int, private val costString: String) 
 // =============================================================================
 
 @CardDsl
-class SagaChapterBuilder(private val chapter: Int) {
+class SagaChapterBuilder(
+    private val chapter: Int,
+    private val declaredTargets: TargetList = TargetList(),
+) : TargetDeclarations by declaredTargets {
     var effect: Effect? = null
     var target: TargetRequirement? = null
 
-    private val namedTargets = mutableListOf<Pair<String, TargetRequirement>>()
 
-    /**
-     * Declare a named target for this chapter ability and get an EffectTarget reference.
-     */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
-    /**
-     * Declare a multi-target requirement and get one handle per chosen target:
-     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
-     */
-    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
-        namedTargets.add(name to requirement.withId(name))
-        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
-    }
 
     fun build(): SagaChapterAbility {
         requireNotNull(effect) { "Saga chapter $chapter must have an effect" }
-        val allTargets = if (namedTargets.isNotEmpty()) {
-            namedTargets.map { it.second }
+        val allTargets = if (!declaredTargets.isEmpty()) {
+            declaredTargets.requirements
         } else {
             listOfNotNull(target)
         }

@@ -4,9 +4,10 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Countersculpt
@@ -38,11 +39,8 @@ val Countersculpt = card("Countersculpt") {
     )
 
     spell {
-        target = Targets.Spell
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Patterns.Mechanic.empowerJace(1),
-        )
+        target = TargetObject(filter = TargetFilter.SpellOnStack)
+        effect = Effects.CounterSpell() then Patterns.Mechanic.empowerJace(1)
     }
 
     metadata {

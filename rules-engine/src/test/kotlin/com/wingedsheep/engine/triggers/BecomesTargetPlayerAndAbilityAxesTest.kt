@@ -22,7 +22,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -30,6 +29,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Engine coverage for the two new axes on the becomes-target trigger:
@@ -61,7 +61,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         toughness = 1
         activatedAbility {
             cost = Costs.Tap
-            val victim = target("target player", Targets.Player)
+            val victim = target(Targets.Player)
             effect = Effects.LoseLife(1, victim)
             description = "{T}: Target player loses 1 life."
         }
@@ -72,7 +72,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         manaCost = "{B}"
         typeLine = "Sorcery"
         spell {
-            val victim = target("target player", Targets.Player)
+            val victim = target(Targets.Player)
             effect = Effects.LoseLife(1, victim)
         }
     }
@@ -82,9 +82,9 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         manaCost = "{B}"
         typeLine = "Sorcery"
         spell {
-            val victim = target("target player", Targets.Player)
-            val creature = target("target creature", Targets.Creature)
-            effect = Effects.LoseLife(1, victim).then(Effects.DealDamage(1, creature))
+            val victim = target(Targets.Player)
+            val creature = target(TargetFilter.Creature)
+            effect = Effects.LoseLife(1, victim) then Effects.DealDamage(1, creature)
         }
     }
 
@@ -93,7 +93,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            target("target spell or ability", Targets.SpellOrAbilityWithSingleTarget)
+            target(TargetFilter.SpellOrAbilityOnStack)
             effect = Effects.ChangeTarget()
         }
     }

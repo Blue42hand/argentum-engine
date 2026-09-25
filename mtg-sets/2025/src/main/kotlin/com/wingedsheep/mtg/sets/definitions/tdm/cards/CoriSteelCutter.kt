@@ -50,11 +50,9 @@ val CoriSteelCutter = card("Cori-Steel Cutter") {
             creatureTypes = setOf("Monk"),
             keywords = setOf(Keyword.PROWESS),
             imageUri = "https://cards.scryfall.io/normal/front/6/3/633d2d10-def7-426f-8496-ed6b45684299.jpg?1742421122"
-        ).then(
-            Effects.May(
-                effect = Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
-                descriptionOverride = "You may attach this Equipment to it"
-            )
+        ) then Effects.May(
+            effect = Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
+            descriptionOverride = "You may attach this Equipment to it"
         )
     }
 

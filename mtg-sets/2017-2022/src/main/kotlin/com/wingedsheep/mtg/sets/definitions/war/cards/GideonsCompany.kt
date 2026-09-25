@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Gideon's Company — War of the Spark #268 (canonical printing)
@@ -42,7 +41,7 @@ val GideonsCompany = card("Gideon's Company") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{W}")
-        val gideon = target("target", TargetPermanent(filter = TargetFilter.Planeswalker.withSubtype("Gideon")))
+        val gideon = target(TargetFilter.Planeswalker.withSubtype("Gideon"))
         effect = Effects.AddCounters(CounterType.LOYALTY, 1, gideon)
     }
 

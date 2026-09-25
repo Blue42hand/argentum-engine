@@ -45,14 +45,11 @@ val RovingActuator = card("Roving Actuator") {
             "instant or sorcery card with mana value 2 or less from your graveyard. Copy it. " +
             "You may cast the copy without paying its mana cost."
         val exiledCard = target(
-            "instant or sorcery card with mana value 2 or less from your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.InstantOrSorcery.manaValueAtMost(2).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                GameObjectFilter.InstantOrSorcery.manaValueAtMost(2).ownedByYou(),
+                zone = Zone.GRAVEYARD,
             ),
+            optional = true,
         )
         effect = Effects.Pipeline {
             run(Effects.Move(exiledCard, Zone.EXILE))

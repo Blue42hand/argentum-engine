@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Practiced Scrollsmith
@@ -36,12 +35,9 @@ val PracticedScrollsmith = card("Practiced Scrollsmith") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "target noncreature, nonland card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = (GameObjectFilter.Noncreature and GameObjectFilter.Nonland).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                baseFilter = (GameObjectFilter.Noncreature and GameObjectFilter.Nonland).ownedByYou(),
+                zone = Zone.GRAVEYARD,
             ),
         )
         effect = Effects.Pipeline {

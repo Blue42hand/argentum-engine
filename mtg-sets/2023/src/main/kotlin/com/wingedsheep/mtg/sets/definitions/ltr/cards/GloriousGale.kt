@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Glorious Gale
@@ -25,11 +25,11 @@ val GloriousGale = card("Glorious Gale") {
     oracleText = "Counter target creature spell. If it was a legendary spell, the Ring tempts you."
 
     spell {
-        val creatureSpell = target("creature spell", Targets.CreatureSpell)
+        val creatureSpell = target(TargetFilter.CreatureSpellOnStack)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creatureSpell),
             then = Effects.TheRingTemptsYou()
-        ).then(Effects.CounterSpell())
+        ) then Effects.CounterSpell()
     }
 
     metadata {

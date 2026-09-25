@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -24,11 +23,8 @@ val SwallowingPlague = card("Swallowing Plague") {
     typeLine = "Sorcery — Arcane"
     oracleText = "Swallowing Plague deals X damage to target creature and you gain X life."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmounts.xValue(), t),
-            Effects.GainLife(DynamicAmounts.xValue())
-        )
+        val t = target(TargetFilter.Creature)
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), t) then Effects.GainLife(DynamicAmounts.xValue())
     }
     metadata {
         rarity = Rarity.UNCOMMON

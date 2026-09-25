@@ -73,16 +73,14 @@ val HauntedScreen = card("Haunted Screen") {
 
     activatedAbility {
         cost = Costs.Mana("{7}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 7, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 7, EffectTarget.Self) then
             Effects.BecomeCreature(
                 target = EffectTarget.Self,
                 power = 0,
                 toughness = 0,
                 creatureTypes = setOf("Spirit"),
                 duration = Duration.Permanent,
-            ),
-        )
+            )
         restrictions = listOf(ActivationRestriction.Once)
         description = "{7}: Put seven +1/+1 counters on this artifact. It becomes a 0/0 Spirit " +
             "creature in addition to its other types. Activate only once."

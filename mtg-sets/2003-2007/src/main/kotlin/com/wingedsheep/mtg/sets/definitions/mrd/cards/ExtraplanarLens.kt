@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -52,10 +51,7 @@ val ExtraplanarLens = card("Extraplanar Lens") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val land = target(
-            "target land you control",
-            TargetPermanent(filter = TargetFilter.Land.youControl())
-        )
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.ExileLinkedToSource(land)
         description = "Imprint — When this artifact enters, you may exile target land you control."
     }

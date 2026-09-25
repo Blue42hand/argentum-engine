@@ -9,6 +9,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Demonic Appetite
@@ -44,7 +46,7 @@ val DemonicAppetite = card("Demonic Appetite") {
             "Enchanted creature gets +3/+3.\n" +
             "At the beginning of your upkeep, sacrifice a creature."
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     staticAbility {
         ability = ModifyStats(3, 3, Filters.EnchantedCreature)

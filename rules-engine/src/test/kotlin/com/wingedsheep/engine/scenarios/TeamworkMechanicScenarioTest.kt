@@ -17,10 +17,10 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Teamwork N (CR 702.194, Marvel Super Heroes) end to end.
@@ -113,7 +113,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
             "teamwork, it deals 4 damage to that creature instead."
         teamwork(2)
         spell {
-            val damaged = target("target creature", TargetCreature())
+            val damaged = target(TargetFilter.Creature)
             effect = Effects.DealDamage(
                 com.wingedsheep.sdk.scripting.values.DynamicAmount.Conditional(
                     condition = Conditions.TeamworkWasPaid,
@@ -201,15 +201,12 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
             "teamwork, it also deals 2 damage to target player."
         teamwork(2)
         spell {
-            val damaged = target("target creature", TargetCreature())
+            val damaged = target(TargetFilter.Creature)
             effect = Effects.DealDamage(2, damaged)
 
-            val rallyCreature = kickerTarget("creature", TargetCreature())
-            val rallyPlayer = kickerTarget("player", com.wingedsheep.sdk.dsl.Targets.Player)
-            kickerEffect = Effects.Composite(
-                Effects.DealDamage(2, rallyCreature),
-                Effects.DealDamage(2, rallyPlayer),
-            )
+            val rallyCreature = kickerTarget(TargetFilter.Creature)
+            val rallyPlayer = kickerTarget(com.wingedsheep.sdk.dsl.Targets.Player)
+            kickerEffect = Effects.DealDamage(2, rallyCreature) then Effects.DealDamage(2, rallyPlayer)
         }
     }
 

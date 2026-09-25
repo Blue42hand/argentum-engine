@@ -42,13 +42,8 @@ val GhostlyKeybearer = card("Ghostly Keybearer") {
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val room = target(
-            "room",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl()
-                ).hasLockedDoor()
-            )
+            TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl()).hasLockedDoor(),
+            optional = true,
         )
         effect = Effects.UnlockDoor(room)
     }

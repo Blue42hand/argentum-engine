@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -17,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Collector's Cage
@@ -75,28 +75,24 @@ val CollectorsCage = card("Collector's Cage") {
     // different powers, you may play the exiled card for free.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        val target = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature)
-                            .distinctValues(CardNumericProperty.POWER),
-                        ComparisonOperator.GTE,
-                        3
-                    ),
-                    then = Effects.May(
-                        Effects.Pipeline {
-                            val hideawayLinked = gather(CardSource.FromLinkedExile())
-                            run(Effects.GrantMayPlayFromExile(hideawayLinked))
-                            run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
-                        },
-                        descriptionOverride = "Play the exiled card without paying its mana cost"
-                    )
+        val target = target(TargetFilter.CreatureYouControl)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target) then
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature)
+                        .distinctValues(CardNumericProperty.POWER),
+                    ComparisonOperator.GTE,
+                    3
+                ),
+                then = Effects.May(
+                    Effects.Pipeline {
+                        val hideawayLinked = gather(CardSource.FromLinkedExile())
+                        run(Effects.GrantMayPlayFromExile(hideawayLinked))
+                        run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
+                    },
+                    descriptionOverride = "Play the exiled card without paying its mana cost"
                 )
             )
-        )
         description = "Put a +1/+1 counter on target creature you control. Then if you control " +
             "three or more creatures with different powers, you may play the exiled card without " +
             "paying its mana cost."

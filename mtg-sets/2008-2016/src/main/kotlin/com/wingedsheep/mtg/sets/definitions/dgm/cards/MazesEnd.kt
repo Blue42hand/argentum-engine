@@ -56,13 +56,12 @@ val MazesEnd = card("Maze's End") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap, Costs.ReturnSelfToHand)
-        effect = Effects.Composite(
-            Patterns.Library.searchLibrary(
-                filter = gate,
-                count = 1,
-                destination = SearchDestination.BATTLEFIELD,
-                shuffleAfter = true
-            ),
+        effect = Patterns.Library.searchLibrary(
+            filter = gate,
+            count = 1,
+            destination = SearchDestination.BATTLEFIELD,
+            shuffleAfter = true
+        ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, gate).distinctNames(),
@@ -71,7 +70,6 @@ val MazesEnd = card("Maze's End") {
                 ),
                 then = Effects.WinGame()
             )
-        )
     }
 
     metadata {

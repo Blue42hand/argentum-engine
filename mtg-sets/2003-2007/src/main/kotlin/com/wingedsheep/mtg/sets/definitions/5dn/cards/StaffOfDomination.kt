@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -38,12 +37,12 @@ val StaffOfDomination = card("Staff of Domination") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Untap(t)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Tap(t)
     }
     activatedAbility {

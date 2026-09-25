@@ -91,7 +91,7 @@ class RoomLockTest : FunSpec({
         typeLine = "Artifact"
         activatedAbility {
             cost = Costs.Tap
-            target("room", roomYouControl())
+            target(roomYouControl())
             effect = Effects.LockDoor(EffectTarget.ContextTarget(0))
         }
     }
@@ -102,7 +102,7 @@ class RoomLockTest : FunSpec({
         typeLine = "Artifact"
         activatedAbility {
             cost = Costs.Tap
-            target("room", roomYouControl())
+            target(roomYouControl())
             effect = Effects.LockOrUnlockDoor(EffectTarget.ContextTarget(0))
         }
     }

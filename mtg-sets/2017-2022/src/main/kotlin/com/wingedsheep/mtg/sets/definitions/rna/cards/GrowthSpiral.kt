@@ -22,10 +22,8 @@ val GrowthSpiral = card("Growth Spiral") {
     typeLine = "Instant"
     oracleText = "Draw a card. You may put a land card from your hand onto the battlefield."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
+        effect = Effects.DrawCards(1) then
             Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land))
-        )
     }
     metadata {
         rarity = Rarity.COMMON

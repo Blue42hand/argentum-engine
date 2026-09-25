@@ -46,16 +46,12 @@ val HoardersOverflow = card("Hoarder's Overflow") {
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
         description = "{1}{R}, Sacrifice: Discard your hand, draw cards equal to stash counters"
-        effect = Effects.Composite(
-            listOf(
-                Patterns.Hand.discardHand(),
-                Effects.DrawCards(
-                    count = DynamicAmounts.countersOnSelf(CounterType.STASH),
-                    target = EffectTarget.Controller
-                ),
-                SacrificeSelfEffect
-            )
-        )
+        effect = Patterns.Hand.discardHand() then
+            Effects.DrawCards(
+                count = DynamicAmounts.countersOnSelf(CounterType.STASH),
+                target = EffectTarget.Controller
+            ) then
+            SacrificeSelfEffect
     }
 
     metadata {

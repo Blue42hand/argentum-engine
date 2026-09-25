@@ -29,7 +29,7 @@ val DragonsEyeSavants = card("Dragon's Eye Savants") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val t = target("target opponent", Targets.Opponent)
+        val t = target(Targets.Opponent)
         effect = Effects.LookAtHand(t)
     }
 

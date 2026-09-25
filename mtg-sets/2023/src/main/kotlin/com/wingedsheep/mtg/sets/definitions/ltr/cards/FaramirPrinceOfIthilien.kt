@@ -46,7 +46,7 @@ val FaramirPrinceOfIthilien = card("Faramir, Prince of Ithilien") {
         "Otherwise, create three 1/1 white Human Soldier creature tokens."
 
     triggeredAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.CreateDelayedTrigger(
             step = Step.END,

@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -30,7 +30,7 @@ val IngeniousThief = card("Ingenious Thief") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.LookAtHand(t)
     }
     metadata {

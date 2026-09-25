@@ -39,7 +39,7 @@ val NathOfTheGiltLeaf = card("Nath of the Gilt-Leaf") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.discardRandom(1, opponent)
         description = "you may have target opponent discard a card at random."
     }

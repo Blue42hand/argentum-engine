@@ -69,7 +69,7 @@ val AangsJourney = card("Aang's Journey") {
                 reveal = true,
                 shuffleAfter = true
             )
-        ).then(Effects.GainLife(2))
+        ) then Effects.GainLife(2)
     }
 
     metadata {

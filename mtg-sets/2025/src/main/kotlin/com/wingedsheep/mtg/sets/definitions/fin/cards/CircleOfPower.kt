@@ -31,9 +31,8 @@ val CircleOfPower = card("Circle of Power") {
     typeLine = "Sorcery"
     oracleText = "You draw two cards and you lose 2 life. Create a 0/1 black Wizard creature token with \"Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.\"\nWizards you control get +1/+0 and gain lifelink until end of turn."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Effects.LoseLife(2, EffectTarget.Controller),
+        effect = Effects.DrawCards(2) then
+            Effects.LoseLife(2, EffectTarget.Controller) then
             Effects.CreateToken(
                 power = 0,
                 toughness = 1,
@@ -46,15 +45,12 @@ val CircleOfPower = card("Circle of Power") {
                         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
                     )
                 )
-            ),
+            ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.WIZARD).youControl()),
-                Effects.Composite(
-                    Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
                     Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity)
-                )
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

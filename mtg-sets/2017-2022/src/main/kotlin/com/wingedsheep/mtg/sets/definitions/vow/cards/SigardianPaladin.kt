@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sigardian Paladin
@@ -67,19 +66,9 @@ val SigardianPaladin = card("Sigardian Paladin") {
     activatedAbility {
         cost = Costs.Mana("{1}{G}{W}")
         val t = target(
-            "target creature you control with a +1/+1 counter on it",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature
-                        .youControl()
-                        .withCounter(CounterType.PLUS_ONE_PLUS_ONE),
-                ),
-            ),
+            TargetFilter(GameObjectFilter.Creature .youControl() .withCounter(CounterType.PLUS_ONE_PLUS_ONE)),
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
-        )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
         description = "{1}{G}{W}: Target creature you control with a +1/+1 counter on it gains " +
             "trample and lifelink until end of turn."
     }

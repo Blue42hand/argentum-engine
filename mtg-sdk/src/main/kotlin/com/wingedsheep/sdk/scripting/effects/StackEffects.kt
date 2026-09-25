@@ -241,7 +241,7 @@ data class CounterEffect(
  * It exiles the spell regardless of can't-be-countered (Aven Interrupter's ruling: "Spells that
  * can't be countered can still be exiled. They won't resolve."), and it fires no
  * "whenever a spell is countered" trigger. The spell still fails to resolve because it leaves
- * the stack. The target is the chosen spell ([com.wingedsheep.sdk.dsl.Targets.Spell] supplies
+ * the stack. The target is the chosen spell (`target(TargetFilter.SpellOnStack)` supplies
  * the requirement).
  *
  * @property makePlotted When true, the exiled card becomes *plotted* for its **owner** (CR 718.2):
@@ -847,8 +847,7 @@ data class StormCopyEffect(
 /**
  * Grant a keyword to a spell or ability on the stack until it leaves the stack.
  * Used for cards like Spinerock Tyrant: "those spells gain wither" — the granted
- * keyword applies for damage/source checks while the spell resolves, then
- * disappears with the spell.
+ * keyword applies for damage/source checks while the spell resolves, then * disappears with the spell.
  *
  * @property keyword The keyword to grant (enum name)
  * @property target The effect target referencing the spell on the stack

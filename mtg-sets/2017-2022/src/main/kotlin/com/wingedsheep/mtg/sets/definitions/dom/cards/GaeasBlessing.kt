@@ -35,8 +35,8 @@ val GaeasBlessing = card("Gaea's Blessing") {
         )
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY)
-        ).then(Effects.ShuffleLibrary())
-            .then(Effects.DrawCards(1))
+        ) then Effects.ShuffleLibrary() then
+            Effects.DrawCards(1)
     }
 
     // When this card is put into your graveyard from your library,

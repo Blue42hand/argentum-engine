@@ -39,16 +39,14 @@ val DecreeOfAnnihilation = card("Decree of Annihilation") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(artifactCreatureOrLand),
             effect = Effects.Move(EffectTarget.IterationEntity, Zone.EXILE)
-        ).then(
-            Effects.ForEachPlayer(
-                players = Player.Each,
-                Effects.Pipeline {
-                    val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD))
-                    exile(graveyard)
-                    val hand = gather(CardSource.FromZone(Zone.HAND))
-                    exile(hand)
-                }
-            )
+        ) then Effects.ForEachPlayer(
+            players = Player.Each,
+            Effects.Pipeline {
+                val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD))
+                exile(graveyard)
+                val hand = gather(CardSource.FromZone(Zone.HAND))
+                exile(hand)
+            }
         )
     }
 

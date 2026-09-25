@@ -40,9 +40,7 @@ val EshkiDragonclaw = card("Eshki Dragonclaw") {
             Conditions.YouCastSpellsThisTurn(atLeast = 1, filter = GameObjectFilter.Creature),
             Conditions.YouCastSpellsThisTurn(atLeast = 1, filter = GameObjectFilter.Noncreature)
         )
-        effect = Effects.DrawCards(1).then(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
-        )
+        effect = Effects.DrawCards(1) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
     }
 
     metadata {

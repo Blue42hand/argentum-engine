@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Sterling Supplier
@@ -30,7 +29,7 @@ val SterlingSupplier = card("Sterling Supplier") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 

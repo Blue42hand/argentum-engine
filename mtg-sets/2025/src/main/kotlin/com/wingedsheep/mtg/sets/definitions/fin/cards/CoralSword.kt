@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -31,11 +30,8 @@ val CoralSword = card("Coral Sword") {
     keywords(Keyword.FLASH)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = Effects.Composite(
-            Effects.AttachEquipment(t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
+        val t = target(TargetFilter.Creature.youControl())
+        effect = Effects.AttachEquipment(t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
     staticAbility {
         ability = ModifyStats(1, 0)

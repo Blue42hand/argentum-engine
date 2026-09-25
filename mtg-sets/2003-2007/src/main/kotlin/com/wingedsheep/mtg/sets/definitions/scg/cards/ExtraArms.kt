@@ -6,6 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Extra Arms
@@ -20,11 +22,11 @@ val ExtraArms = card("Extra Arms") {
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nWhenever enchanted creature attacks, it deals 2 damage to any target."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
         trigger = Triggers.attached.attacks()
-        val any = target("any target", Targets.Any)
+        val any = target(Targets.Any)
         effect = Effects.DealDamage(
             amount = 2,
             target = any,

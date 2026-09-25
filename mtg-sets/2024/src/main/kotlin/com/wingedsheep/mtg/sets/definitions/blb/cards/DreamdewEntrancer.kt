@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dreamdew Entrancer
@@ -34,13 +34,13 @@ val DreamdewEntrancer = card("Dreamdew Entrancer") {
     // and if you control it, draw 2 cards
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("creature", Targets.UpToCreatures(1))
-        effect = Effects.Tap(t)
-            .then(Effects.AddCounters(CounterType.STUN, 3, t))
-            .then(Effects.If(
+        val t = target(TargetFilter.Creature, optional = true)
+        effect = Effects.Tap(t) then
+            Effects.AddCounters(CounterType.STUN, 3, t) then
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), t),
                 then = Effects.DrawCards(2)
-            ))
+            )
     }
 
     metadata {

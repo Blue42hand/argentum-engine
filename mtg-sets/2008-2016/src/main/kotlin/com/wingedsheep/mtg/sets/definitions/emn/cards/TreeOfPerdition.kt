@@ -39,7 +39,7 @@ val TreeOfPerdition = card("Tree of Perdition") {
     keywords(Keyword.DEFENDER)
 
     activatedAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         cost = Costs.Tap
         effect = Effects.ExchangeLifeAndStat(
             target = EffectTarget.Self,

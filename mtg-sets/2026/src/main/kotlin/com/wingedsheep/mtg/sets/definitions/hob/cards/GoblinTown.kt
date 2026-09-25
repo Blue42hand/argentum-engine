@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Goblin-town — The Hobbit #183
@@ -51,14 +50,7 @@ val GoblinTown = card("Goblin-town") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}{R}"), Costs.Tap, Costs.SacrificeSelf)
-        val goblinOrOrc = target(
-            "target Goblin or Orc you control",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.youControl().withAnySubtype("Goblin", "Orc")
-                )
-            )
-        )
+        val goblinOrOrc = target(TargetFilter(GameObjectFilter.Creature.youControl().withAnySubtype("Goblin", "Orc")))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, goblinOrOrc)
         timing = TimingRule.SorcerySpeed
         description = "Put two +1/+1 counters on target Goblin or Orc you control."

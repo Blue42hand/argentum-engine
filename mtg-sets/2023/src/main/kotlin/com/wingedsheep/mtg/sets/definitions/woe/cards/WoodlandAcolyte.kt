@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Woodland Acolyte // Mend the Wilds
@@ -52,15 +51,7 @@ val WoodlandAcolyte = card("Woodland Acolyte") {
         oracleText = "Put target permanent card from your graveyard on top of your library. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            val card = target(
-                "target permanent card from your graveyard",
-                TargetObject(
-                    filter = TargetFilter(
-                        baseFilter = GameObjectFilter.Permanent.ownedByYou(),
-                        zone = Zone.GRAVEYARD,
-                    ),
-                ),
-            )
+            val card = target(TargetFilter(baseFilter = GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
             effect = Effects.Move(
                 target = card,
                 destination = Zone.LIBRARY,

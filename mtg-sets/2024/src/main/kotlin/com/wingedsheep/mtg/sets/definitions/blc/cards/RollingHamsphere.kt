@@ -56,22 +56,20 @@ val RollingHamsphere = card("Rolling Hamsphere") {
     // the new tokens enter, per the Scryfall ruling — X is determined as the ability resolves).
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val anyTarget = target("any target", Targets.Any)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.RED),
-                creatureTypes = setOf("Hamster"),
-                count = 3,
-                imageUri = "https://cards.scryfall.io/normal/front/7/1/711274ae-1a4e-491c-aa71-b2d29c890578.jpg?1721427571"
-            ),
+        val anyTarget = target(Targets.Any)
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.RED),
+            creatureTypes = setOf("Hamster"),
+            count = 3,
+            imageUri = "https://cards.scryfall.io/normal/front/7/1/711274ae-1a4e-491c-aa71-b2d29c890578.jpg?1721427571"
+        ) then
             Effects.DealDamage(
                 amount = hamsterCount,
                 target = anyTarget,
                 damageSource = EffectTarget.Self
             )
-        )
     }
 
     keywordAbility(KeywordAbility.Numeric(Keyword.CREW, 3))

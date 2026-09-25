@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.chk.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.splice
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Psychic Puppetry
@@ -31,7 +31,7 @@ val PsychicPuppetry = card("Psychic Puppetry") {
     splice("{U}")
 
     spell {
-        val permanent = target("target", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         effect = Effects.May(
             Effects.Modal(
                 modes = listOf(

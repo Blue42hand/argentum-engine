@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Stall Out — Aetherdrift #66
@@ -30,14 +29,8 @@ val StallOut = card("Stall Out") {
         "Cycling {2} ({2}, Discard this card: Draw a card.)"
 
     spell {
-        val t = target(
-            "target creature or Vehicle",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
-        )
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(CounterType.STUN, 3, t)
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrVehicle))
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 3, t)
     }
 
     keywordAbility(KeywordAbility.cycling("{2}"))

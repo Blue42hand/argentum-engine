@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Spider-Man, To the Rescue — Marvel Super Heroes #228
@@ -61,14 +60,14 @@ val SpiderManToTheRescue = card("Spider-Man, To the Rescue") {
             descriptionOverride = "You may tap Spider-Man. When you do, another target " +
                 "nonattacking creature you control gains indestructible until end of turn.",
         ) {
-            val creature = target("target creature", TargetCreature(
-                filter = TargetFilter(
+            val creature = target(
+                TargetFilter(
                     baseFilter = GameObjectFilter.Creature.youControl().copy(
                         statePredicates = listOf(StatePredicate.Not(StatePredicate.IsAttacking))
                     ),
                     excludeSelf = true,
-                )
-            ))
+                ),
+            )
             effect = Effects.GrantKeyword(
                 Keyword.INDESTRUCTIBLE,
                 creature,

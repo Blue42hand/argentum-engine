@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Spry and Mighty
@@ -26,10 +25,7 @@ val SpryAndMighty = card("Spry and Mighty") {
         "creatures' powers."
 
     spell {
-        val (c1, c2) = targets(
-            "creature",
-            TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl)
-        )
+        val (c1, c2) = targets(TargetFilter.CreatureYouControl, count = 2)
 
         // X = |power(c1) - power(c2)| = max(p1 - p2, p2 - p1). Frozen into a stored number
         // so the first ModifyStats doesn't skew the second's reading of projected power.

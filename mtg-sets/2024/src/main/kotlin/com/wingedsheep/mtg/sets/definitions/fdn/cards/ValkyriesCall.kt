@@ -40,15 +40,13 @@ val ValkyriesCall = card("Valkyrie's Call") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.nontoken().youControl().notSubtype(Subtype.ANGEL)).dies()
-        effect = Effects.Composite(
-            // Return that card to the battlefield under its owner's control.
-            Effects.Move(EffectTarget.TriggeringEntity, Zone.BATTLEFIELD),
+        // Return that card to the battlefield under its owner's control.
+        effect = Effects.Move(EffectTarget.TriggeringEntity, Zone.BATTLEFIELD) then
             // ... with a +1/+1 counter on it.
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity) then
             // It has flying and is an Angel in addition to its other types.
-            Effects.AddCreatureType("Angel", EffectTarget.TriggeringEntity, Duration.Permanent),
+            Effects.AddCreatureType("Angel", EffectTarget.TriggeringEntity, Duration.Permanent) then
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.TriggeringEntity, Duration.Permanent)
-        )
     }
 
     metadata {

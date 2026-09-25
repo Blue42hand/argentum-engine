@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -34,7 +33,7 @@ val HoverguardSweepers = card("Hoverguard Sweepers") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND))
     }
     metadata {

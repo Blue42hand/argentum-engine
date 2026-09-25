@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeAttackedWhileAttached
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * The Aetherspark — Aetherdrift #231
@@ -46,10 +45,7 @@ val TheAetherspark = card("The Aetherspark") {
     }
 
     loyaltyAbility(+1) {
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
-        )
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.AttachEquipment(creature) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }

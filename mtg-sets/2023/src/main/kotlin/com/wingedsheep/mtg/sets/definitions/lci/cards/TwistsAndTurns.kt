@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Twists and Turns // Mycoid Maze (The Lost Caverns of Ixalan)
@@ -68,10 +67,7 @@ private val TwistsAndTurnsFront = card("Twists and Turns") {
     // When Twists and Turns enters, target creature you control explores.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.Creature.youControl()),
-        )
+        val creature = target(TargetFilter.Creature.youControl())
         effect = Effects.Explore(creature)
     }
 

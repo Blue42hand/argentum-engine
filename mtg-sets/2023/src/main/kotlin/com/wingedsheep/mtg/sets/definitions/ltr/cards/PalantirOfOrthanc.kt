@@ -36,27 +36,19 @@ val PalantirOfOrthanc = card("Palantír of Orthanc") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
 
         val influenceCount = DynamicAmounts.countersOnSelf(CounterType.INFLUENCE)
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddCounters(CounterType.INFLUENCE, 1, EffectTarget.Self),
-                Patterns.Library.scry(2),
-                Effects.May(
-                    effect = Effects.DrawCards(1, EffectTarget.Controller),
-                    descriptionOverride = "Have Palantír of Orthanc's controller draw a card?",
-                    decisionMaker = opponent,
-                    otherwise = Effects.Composite(
-                        listOf(
-                            Patterns.Library.mill(influenceCount, EffectTarget.Controller),
-                            Effects.LoseLife(DynamicAmounts.manaValueSumOf(Patterns.Library.milled), opponent)
-                        )
-                    )
-                )
+        effect = Effects.AddCounters(CounterType.INFLUENCE, 1, EffectTarget.Self) then
+            Patterns.Library.scry(2) then
+            Effects.May(
+                effect = Effects.DrawCards(1, EffectTarget.Controller),
+                descriptionOverride = "Have Palantír of Orthanc's controller draw a card?",
+                decisionMaker = opponent,
+                otherwise = Patterns.Library.mill(influenceCount, EffectTarget.Controller) then
+                    Effects.LoseLife(DynamicAmounts.manaValueSumOf(Patterns.Library.milled), opponent)
             )
-        )
     }
 
     metadata {

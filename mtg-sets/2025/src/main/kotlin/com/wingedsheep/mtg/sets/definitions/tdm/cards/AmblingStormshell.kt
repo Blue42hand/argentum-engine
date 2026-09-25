@@ -40,8 +40,7 @@ val AmblingStormshell = card("Ambling Stormshell") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.Self)
-            .then(Effects.DrawCards(3))
+        effect = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.Self) then Effects.DrawCards(3)
         description = "Whenever this creature attacks, put three stun counters on it and draw three cards."
     }
 

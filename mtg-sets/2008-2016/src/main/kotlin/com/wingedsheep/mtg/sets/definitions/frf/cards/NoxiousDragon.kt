@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -33,7 +32,7 @@ val NoxiousDragon = card("Noxious Dragon") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         optional = true
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3)))
+        val t = target(TargetFilter.Creature.manaValueAtMost(3))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     metadata {

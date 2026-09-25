@@ -24,13 +24,8 @@ val BloodArtist = card("Blood Artist") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature).dies()
-        val player = target("player", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, player),
-                Effects.GainLife(1)
-            )
-        )
+        val player = target(Targets.Player)
+        effect = Effects.LoseLife(1, player) then Effects.GainLife(1)
     }
 
     metadata {

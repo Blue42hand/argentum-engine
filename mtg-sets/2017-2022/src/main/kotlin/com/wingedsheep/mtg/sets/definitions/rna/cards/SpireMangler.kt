@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Spire Mangler — Ravnica Allegiance #86
@@ -30,10 +29,7 @@ val SpireMangler = card("Spire Mangler") {
     keywords(Keyword.FLASH, Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val flier = target(
-            "target",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl()))
-        )
+        val flier = target(TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl()))
         effect = Effects.ModifyStats(2, 0, flier)
     }
 

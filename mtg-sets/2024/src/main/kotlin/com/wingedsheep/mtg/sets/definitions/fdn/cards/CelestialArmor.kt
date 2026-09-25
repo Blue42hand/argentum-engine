@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,12 +31,10 @@ val CelestialArmor = card("Celestial Armor") {
     keywords(Keyword.FLASH)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = Effects.Composite(
-            Effects.AttachEquipment(t),
-            Effects.GrantKeyword(Keyword.HEXPROOF, t),
+        val t = target(TargetFilter.Creature.youControl())
+        effect = Effects.AttachEquipment(t) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
     staticAbility {
         ability = ModifyStats(2, 0)

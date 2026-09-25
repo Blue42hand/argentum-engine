@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -15,8 +14,8 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Oko, Lorwyn Liege // Oko, Shadowmoor Scion
@@ -87,21 +86,17 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
     // −6: Choose a creature type. You get an emblem with "Creatures you control of the chosen
     //     type get +3/+3 and have vigilance and hexproof."
     loyaltyAbility(-6) {
-        effect = Effects.Composite(
-            listOf(
-                ChooseCreatureTypeEffect,
-                Effects.CreatePermanentEmblem(
-                    groupFilter = GroupFilter(
-                        baseFilter = GameObjectFilter.Creature.youControl(),
-                        chosenSubtypeKey = "chosenCreatureType"
-                    ),
-                    powerBonus = 3,
-                    toughnessBonus = 3,
-                    grantedKeywords = listOf(Keyword.VIGILANCE.name, Keyword.HEXPROOF.name),
-                    emblemDescription = "Creatures you control of the chosen type get +3/+3 and have vigilance and hexproof."
-                )
+        effect = ChooseCreatureTypeEffect then
+            Effects.CreatePermanentEmblem(
+                groupFilter = GroupFilter(
+                    baseFilter = GameObjectFilter.Creature.youControl(),
+                    chosenSubtypeKey = "chosenCreatureType"
+                ),
+                powerBonus = 3,
+                toughnessBonus = 3,
+                grantedKeywords = listOf(Keyword.VIGILANCE.name, Keyword.HEXPROOF.name),
+                emblemDescription = "Creatures you control of the chosen type get +3/+3 and have vigilance and hexproof."
             )
-        )
     }
 
     metadata {
@@ -131,13 +126,13 @@ private val OkoLorwynLiegeFront = card("Oko, Lorwyn Liege") {
     // +2: Up to one target creature gains all creature types. (This effect doesn't end.)
     // Modeled by granting Changeling — the engine treats Changeling as having every creature type.
     loyaltyAbility(+2) {
-        val creature = target("creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.GrantKeyword(Keyword.CHANGELING, creature, Duration.Permanent)
     }
 
     // +1: Target creature gets -2/-0 until your next turn.
     loyaltyAbility(+1) {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(
             power = -2,
             toughness = 0,

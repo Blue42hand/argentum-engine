@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 /**
  * Spellstutter Sprite
@@ -43,14 +42,14 @@ val SpellstutterSprite = card("Spellstutter Sprite") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        val spell = target("target spell", TargetSpell(
-            filter = TargetFilter.SpellOnStack.manaValueAtMostDynamic(
+        val spell = target(
+            TargetFilter.SpellOnStack.manaValueAtMostDynamic(
                 DynamicAmounts.battlefield(
                     Player.You,
                     GameObjectFilter.Permanent.withSubtype(Subtype.FAERIE),
                 ).count()
-            )
-        ))
+            ),
+        )
         trigger = Triggers.self.enters()
         effect = Effects.CounterSpell()
     }

@@ -57,10 +57,8 @@ val ViviOrnitier = card("Vivi Ornitier") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
     }
 
     metadata {

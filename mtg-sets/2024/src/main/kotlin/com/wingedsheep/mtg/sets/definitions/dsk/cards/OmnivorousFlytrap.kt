@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Omnivorous Flytrap
@@ -44,25 +44,23 @@ val OmnivorousFlytrap = card("Omnivorous Flytrap") {
 
     // Distribute two +1/+1 counters among one or two target creatures, then (delirium ≥ 6) double
     // the +1/+1 counters on those same creatures.
-    val payoff = Effects.Composite(
-        Effects.DistributeCountersAmongTargets(totalCounters = 2),
+    val payoff = Effects.DistributeCountersAmongTargets(totalCounters = 2) then
         Effects.If(
             condition = Conditions.Delirium(count = 6),
             then = Effects.ForEachTarget(
                 Effects.DoubleCounters(target = EffectTarget.ContextTarget(0)),
             ),
-        ),
-    )
+        )
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(count = 2, minCount = 1))
+        targets(TargetFilter.Creature, count = 2, minCount = 1)
         trigger = Triggers.self.enters()
         interveningIf = Conditions.Delirium()
         effect = payoff
     }
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(count = 2, minCount = 1))
+        targets(TargetFilter.Creature, count = 2, minCount = 1)
         trigger = Triggers.self.attacks()
         interveningIf = Conditions.Delirium()
         effect = payoff

@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.akh.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Baleful Ammit
@@ -29,7 +29,7 @@ val BalefulAmmit = card("Baleful Ammit") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)
     }
 

@@ -65,12 +65,8 @@ val NimDevourer = card("Nim Devourer") {
 
     activatedAbility {
         cost = Costs.Mana("{B}{B}")
-        effect = Effects.Composite(
-            listOf(
-                Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.Self),
-                Effects.SacrificeOwn(GameObjectFilter.Creature)
-            )
-        )
+        effect = Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.Self) then
+            Effects.SacrificeOwn(GameObjectFilter.Creature)
         activateFromZone = Zone.GRAVEYARD
         restrictions = listOf(
             ActivationRestriction.All(

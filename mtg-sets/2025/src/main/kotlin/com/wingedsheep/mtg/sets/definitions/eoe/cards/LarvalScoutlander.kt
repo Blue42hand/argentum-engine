@@ -48,14 +48,12 @@ val LarvalScoutlander = card("Larval Scoutlander") {
                 GameObjectFilter.Land.or(GameObjectFilter.Permanent.withSubtype("Lander")),
                 count = 1,
                 target = EffectTarget.Controller
-            ).then(
-                Patterns.Library.searchLibrary(
-                    filter = GameObjectFilter.BasicLand,
-                    count = 2,
-                    destination = SearchDestination.BATTLEFIELD,
-                    entersTapped = true,
-                    shuffleAfter = true
-                )
+            ) then Patterns.Library.searchLibrary(
+                filter = GameObjectFilter.BasicLand,
+                count = 2,
+                destination = SearchDestination.BATTLEFIELD,
+                entersTapped = true,
+                shuffleAfter = true
             )
         )
         description = "When this Spacecraft enters, you may sacrifice a land or Lander. If you do, " +

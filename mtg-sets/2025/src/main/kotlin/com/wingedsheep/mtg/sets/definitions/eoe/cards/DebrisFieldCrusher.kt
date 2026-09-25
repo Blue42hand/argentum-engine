@@ -36,7 +36,7 @@ val DebrisFieldCrusher = card("Debris Field Crusher") {
     // ETB: deals 3 damage to any target
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val target = target("any target", Targets.Any)
+        val target = target(Targets.Any)
         effect = Effects.DealDamage(3, target)
     }
 

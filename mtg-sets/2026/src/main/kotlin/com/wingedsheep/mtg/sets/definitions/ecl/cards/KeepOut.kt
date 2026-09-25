@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Keep Out
@@ -25,11 +25,11 @@ val KeepOut = card("Keep Out") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Keep Out deals 4 damage to target tapped creature") {
-                val tappedCreature = target("target tapped creature", Targets.TappedCreature)
+                val tappedCreature = target(TargetFilter.TappedCreature)
                 effect = Effects.DealDamage(4, tappedCreature)
             },
             mode("Destroy target enchantment") {
-                val enchantment = target("target enchantment", Targets.Enchantment)
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             }
         )

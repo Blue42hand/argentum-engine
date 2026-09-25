@@ -46,7 +46,7 @@ val BoromirWardenOfTheTower = card("Boromir, Warden of the Tower") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
-        ).then(Effects.TheRingTemptsYou())
+        ) then Effects.TheRingTemptsYou()
     }
 
     metadata {

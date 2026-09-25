@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Jace, the Mind Sculptor
@@ -50,7 +51,7 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
         "into their library."
 
     loyaltyAbility(+2) {
-        val player2 = target("target player", Targets.Player)
+        val player2 = target(Targets.Player)
         effect = Effects.Pipeline {
             val top = gather(
                 CardSource.TopOfLibrary(
@@ -69,8 +70,7 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
     }
 
     loyaltyAbility(0) {
-        effect = Effects.Composite(
-            Effects.DrawCards(3),
+        effect = Effects.DrawCards(3) then
             Effects.Pipeline {
                 val hand = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any))
                 val putBack = chooseExactly(
@@ -80,16 +80,15 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
                 )
                 toLibraryTop(putBack)
             }
-        )
     }
 
     loyaltyAbility(-1) {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ReturnToHand(creature)
     }
 
     loyaltyAbility(-12) {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             val library = gather(
                 CardSource.FromZone(Zone.LIBRARY, player.asPlayer, GameObjectFilter.Any)

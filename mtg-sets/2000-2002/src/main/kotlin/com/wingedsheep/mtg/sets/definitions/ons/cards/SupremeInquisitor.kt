@@ -28,7 +28,7 @@ val SupremeInquisitor = card("Supreme Inquisitor") {
     oracleText = "Tap five untapped Wizards you control: Search target player's library for up to five cards and exile them. Then that player shuffles."
 
     activatedAbility {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         cost = Costs.TapPermanents(5, GameObjectFilter.Creature.withSubtype("Wizard"))
         effect = Effects.Pipeline {
             val searchable = gather(

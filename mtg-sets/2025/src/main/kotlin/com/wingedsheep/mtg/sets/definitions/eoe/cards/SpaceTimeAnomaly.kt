@@ -19,7 +19,7 @@ val SpaceTimeAnomaly = card("Space-Time Anomaly") {
     oracleText = "Target player mills cards equal to your life total."
 
     spell {
-        val player = target("player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Patterns.Library.mill(DynamicAmounts.yourLifeTotal(), player)
     }
 

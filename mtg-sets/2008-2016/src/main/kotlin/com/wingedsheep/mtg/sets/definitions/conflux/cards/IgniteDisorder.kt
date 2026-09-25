@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Ignite Disorder
@@ -30,15 +29,10 @@ val IgniteDisorder = card("Ignite Disorder") {
         "target white and/or blue creatures."
 
     spell {
-        target(
-            "target",
-            TargetCreature(
-                count = 3,
-                minCount = 1,
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.withAnyColor(Color.WHITE, Color.BLUE)
-                )
-            )
+        targets(
+            TargetFilter(GameObjectFilter.Creature.withAnyColor(Color.WHITE, Color.BLUE)),
+            count = 3,
+            minCount = 1,
         )
         effect = Effects.DividedDamage(
             total = 3,

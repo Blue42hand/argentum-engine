@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Rosie Cotton of South Lane
@@ -37,7 +36,7 @@ val RosieCottonOfSouthLane = card("Rosie Cotton of South Lane") {
 
     triggeredAbility {
         trigger = Triggers.you.createsToken()
-        val otherCreatureYouControl = target("creature you control other than Rosie Cotton", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val otherCreatureYouControl = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, otherCreatureYouControl)
     }
 

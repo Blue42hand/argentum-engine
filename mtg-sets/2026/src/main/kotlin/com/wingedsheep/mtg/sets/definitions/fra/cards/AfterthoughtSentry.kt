@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val AfterthoughtSentry = card("Afterthought Sentry") {
     manaCost = "{2}"
@@ -25,7 +24,7 @@ val AfterthoughtSentry = card("Afterthought Sentry") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val card = target("card", TargetObject(filter = TargetFilter.CardInGraveyard, optional = true))
+        val card = target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Exile(card)
     }
 

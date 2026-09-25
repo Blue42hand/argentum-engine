@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Tough Cookie
@@ -41,10 +40,7 @@ val ToughCookie = card("Tough Cookie") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{G}")
-        val t = target(
-            "target noncreature artifact you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.notCreature().youControl()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Artifact.notCreature().youControl()))
         effect = Effects.BecomeCreature(
             target = t,
             power = 4,

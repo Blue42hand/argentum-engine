@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Pillardrop Rescuer — Strixhaven: School of Mages #23 (canonical printing)
@@ -33,10 +32,7 @@ val PillardropRescuer = card("Pillardrop Rescuer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val rescued = target(
-            "target",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
-        )
+        val rescued = target(TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
         effect = Effects.ReturnToHand(rescued)
     }
 

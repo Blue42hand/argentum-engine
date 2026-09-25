@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Fear of Burning Alive
@@ -59,12 +58,9 @@ val FearOfBurningAlive = card("Fear of Burning Alive") {
         trigger = Triggers.a(GameObjectFilter.Any.youControl()).dealsDamage(Recipient.Opponent, damageType = DamageType.NonCombat)
         interveningIf = Conditions.Delirium()
         val t = target(
-            "target",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.targetPlayerControls(
-                        EffectTarget.PlayerRef(Player.TriggeringPlayer),
-                    ),
+            TargetFilter(
+                GameObjectFilter.Creature.targetPlayerControls(
+                    EffectTarget.PlayerRef(Player.TriggeringPlayer),
                 ),
             ),
         )

@@ -69,8 +69,7 @@ val BoggartMischief = card("Boggart Mischief") {
     // Whenever a Goblin creature you control dies, each opponent loses 1 life and you gain 1 life.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype("Goblin")).dies()
-        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
-            Effects.GainLife(1)
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     metadata {

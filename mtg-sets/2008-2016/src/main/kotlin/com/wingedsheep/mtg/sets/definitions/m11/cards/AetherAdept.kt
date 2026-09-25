@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.m11.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Aether Adept — Magic 2011 #41
@@ -26,7 +26,7 @@ val AetherAdept = card("Aether Adept") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ReturnToHand(creature)
     }
 

@@ -41,6 +41,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Subtype
 
 /**
  * Tests for the Card Definition DSL.
@@ -321,7 +324,7 @@ class CardDslTest : DescribeSpec({
                 triggeredAbility {
                     trigger = Triggers.self.enters()
                     effect = Effects.DealDamage(4, EffectTarget.ContextTarget(0))
-                    target = Targets.Creature
+                    target = TargetObject(filter = TargetFilter.Creature)
                 }
             }
 
@@ -433,7 +436,7 @@ class CardDslTest : DescribeSpec({
                 manaCost = "{G}"
                 typeLine = "Enchantment — Aura"
 
-                auraTarget = Targets.Creature
+                auraTarget = TargetObject(filter = TargetFilter.Creature)
 
                 staticAbility {
                     ability = ModifyStats(+2, +0, Filters.EnchantedCreature)
@@ -491,7 +494,7 @@ class CardDslTest : DescribeSpec({
 
                 loyaltyAbility(+1) {
                     effect = Patterns.Hand.discardCards(1)
-                    target = Targets.AllPlayers
+                    target = Targets.Player
                 }
 
                 loyaltyAbility(-2) {
@@ -520,10 +523,7 @@ class CardDslTest : DescribeSpec({
                 typeLine = "Sorcery"
 
                 spell {
-                    effect = Effects.Composite(
-                        Effects.DrawCards(3),
-                        Patterns.Hand.discardCards(2)
-                    )
+                    effect = Effects.DrawCards(3) then Patterns.Hand.discardCards(2)
                 }
             }
 
@@ -572,14 +572,12 @@ class CardDslTest : DescribeSpec({
 
                 spell {
                     // Named target bindings - each gets an index
-                    val firstTarget = target("first target", Targets.Any)
-                    val secondTarget = target("second target", Targets.Any)
+                    val firstTarget = target(Targets.Any)
+                    val secondTarget = target(Targets.Any)
 
-                    effect = Effects.Composite(
-                        Effects.DealDamage(1, firstTarget),
-                        Effects.DealDamage(1, secondTarget),
+                    effect = Effects.DealDamage(1, firstTarget) then
+                        Effects.DealDamage(1, secondTarget) then
                         Effects.DrawCards(1)
-                    )
                 }
             }
 
@@ -591,13 +589,13 @@ class CardDslTest : DescribeSpec({
             val composite = electrolyze.spellEffect as CompositeEffect
             composite.effects shouldHaveSize 3
 
-            // First effect targets BoundVariable("first target")
+            // First effect reads the first declared target
             val damage1 = composite.effects[0] as DealDamageEffect
-            damage1.target shouldBe EffectTarget.BoundVariable("first target")
+            damage1.target shouldBe EffectTarget.BoundVariable("t0")
 
-            // Second effect targets BoundVariable("second target")
+            // Second effect reads the second
             val damage2 = composite.effects[1] as DealDamageEffect
-            damage2.target shouldBe EffectTarget.BoundVariable("second target")
+            damage2.target shouldBe EffectTarget.BoundVariable("t1")
         }
     }
 
@@ -611,11 +609,11 @@ class CardDslTest : DescribeSpec({
                 spell {
                     modal(chooseCount = 2) {
                         mode("Counter target spell") {
-                            val spell = target("spell", Targets.Spell)
+                            val spell = target(TargetFilter.SpellOnStack)
                             effect = CounterEffect()
                         }
                         mode("Return target permanent to its owner's hand") {
-                            val permanent = target("permanent", Targets.Permanent)
+                            val permanent = target(TargetFilter.Permanent)
                             effect = Effects.ReturnToHand(permanent)
                         }
                         mode("Tap all creatures your opponents control") {
@@ -659,11 +657,11 @@ class CardDslTest : DescribeSpec({
                     modal {
                         mode("Destroy target artifact", Effects.Destroy(EffectTarget.ContextTarget(0)))
                         mode("Put target creature on the bottom of its owner's library") {
-                            val creature = target("creature", Targets.Creature)
+                            val creature = target(TargetFilter.Creature)
                             effect = MoveToZoneEffect(creature, Zone.LIBRARY, ZonePlacement.Top)
                         }
                         mode("Counter target instant spell") {
-                            val instant = target("instant", Targets.Spell)
+                            val instant = target(TargetFilter.SpellOnStack)
                             effect = CounterEffect()
                         }
                     }

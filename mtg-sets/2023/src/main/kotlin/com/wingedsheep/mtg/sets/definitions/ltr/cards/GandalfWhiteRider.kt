@@ -33,8 +33,8 @@ val GandalfWhiteRider = card("Gandalf, White Rider") {
 
     triggeredAbility {
         trigger = Triggers.you.casts()
-        effect = Patterns.Group.modifyStatsForAll(1, 0, Filters.Group.creaturesYouControl)
-            .then(Patterns.Library.scry(1))
+        effect = Patterns.Group.modifyStatsForAll(1, 0, Filters.Group.creaturesYouControl) then
+            Patterns.Library.scry(1)
     }
 
     triggeredAbility {

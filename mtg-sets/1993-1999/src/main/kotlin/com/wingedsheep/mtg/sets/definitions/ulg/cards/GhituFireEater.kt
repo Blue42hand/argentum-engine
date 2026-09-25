@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -28,7 +28,7 @@ val GhituFireEater = card("Ghitu Fire-Eater") {
     toughness = 2
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), t)
     }
     metadata {

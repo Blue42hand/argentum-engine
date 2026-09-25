@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Trusty Boomerang
@@ -34,11 +34,8 @@ val TrustyBoomerang = card("Trusty Boomerang") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-                val creature = target("target creature", TargetCreature())
-                effect = Effects.Composite(
-                    Effects.Tap(creature),
-                    Effects.ReturnToHand(EffectTarget.GrantingSource),
-                )
+                val creature = target(TargetFilter.Creature)
+                effect = Effects.Tap(creature) then Effects.ReturnToHand(EffectTarget.GrantingSource)
             }
             // filter defaults to GroupFilter.attachedCreature() — "equipped creature has ..."
         )

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 
@@ -36,13 +35,10 @@ val AngelOfFlightAlabaster = card("Angel of Flight Alabaster") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         val t = target(
-            "target",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Any.withSubtype(Subtype.SPIRIT).ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Any.withSubtype(Subtype.SPIRIT).ownedByYou(),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.Move(t, Zone.HAND)
     }

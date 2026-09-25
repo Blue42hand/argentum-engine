@@ -4,13 +4,13 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Kirol, History Buff // Pack a Punch — Secrets of Strixhaven #198
@@ -51,12 +51,10 @@ val KirolHistoryBuff = card("Kirol, History Buff") {
         typeLine = "Sorcery"
         oracleText = "Mill a card. Put two +1/+1 counters on target creature. It gains trample until end of turn."
         spell {
-            val creature = target("target creature", Targets.Creature)
-            effect = Effects.Composite(
-                Patterns.Library.mill(1),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
-                Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
-            )
+            val creature = target(TargetFilter.Creature)
+            effect = Patterns.Library.mill(1) then
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn)
         }
     }
 

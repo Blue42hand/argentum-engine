@@ -14,6 +14,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * A creature granted "can't be blocked except by creatures with <filter>" routes through the
@@ -30,7 +31,7 @@ class CantBeBlockedExceptByFilterScenarioTest : FunSpec({
         manaCost = "{R}"
         typeLine = "Instant"
         spell {
-            val victim = target("target creature", com.wingedsheep.sdk.dsl.Targets.Creature)
+            val victim = target(TargetFilter.Creature)
             effect = Effects.GrantCantBeBlockedExceptBy(
                 victim,
                 GameObjectFilter.Creature.withKeyword(Keyword.HASTE),

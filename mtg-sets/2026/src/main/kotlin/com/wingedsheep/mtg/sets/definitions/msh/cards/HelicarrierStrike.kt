@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.teamwork
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Helicarrier Strike — Marvel Super Heroes #15
@@ -37,10 +36,7 @@ val HelicarrierStrike = card("Helicarrier Strike") {
     teamwork(2)
 
     spell {
-        val creature = target(
-            "target attacking or blocking creature",
-            TargetObject(filter = TargetFilter.AttackingOrBlockingCreature),
-        )
+        val creature = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.DealDamage(
             DynamicAmounts.conditional(
                 condition = Conditions.TeamworkWasPaid,

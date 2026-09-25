@@ -28,13 +28,11 @@ val VolcanicSpray = card("Volcanic Spray") {
     typeLine = "Sorcery"
     oracleText = "Volcanic Spray deals 1 damage to each creature without flying and each player.\nFlashback {1}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                Effects.DealDamage(1, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
+            Effects.DealDamage(1, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(1, EffectTarget.Controller))
-        )
     }
     keywordAbility(KeywordAbility.flashback("{1}{R}"))
     metadata {

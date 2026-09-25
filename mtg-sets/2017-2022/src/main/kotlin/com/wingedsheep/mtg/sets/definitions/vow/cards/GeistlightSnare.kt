@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 
 /**
@@ -48,7 +48,7 @@ val GeistlightSnare = card("Geistlight Snare") {
         )
     }
     spell {
-        val t = target("target", TargetSpell())
+        val t = target(TargetFilter.SpellOnStack)
         effect = Effects.CounterUnlessPays("{3}")
     }
     metadata {

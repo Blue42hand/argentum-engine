@@ -12,8 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -33,7 +32,7 @@ val BorosCharm = card("Boros Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Boros Charm deals 4 damage to target player or planeswalker") {
-                val t = target("target", TargetPlayerOrPlaneswalker())
+                val t = target(Targets.PlayerOrPlaneswalker)
                 effect = Effects.DealDamage(4, t)
             }
             mode("Permanents you control gain indestructible until end of turn") {
@@ -43,7 +42,7 @@ val BorosCharm = card("Boros Charm") {
                 )
             }
             mode("Target creature gains double strike until end of turn") {
-                val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+                val t = target(TargetFilter.Creature)
                 effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, t)
             }
         }

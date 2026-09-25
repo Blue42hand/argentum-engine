@@ -46,16 +46,14 @@ val BoneyardDesecrator = card("Boneyard Desecrator") {
             Costs.Mana("{1}{B}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(
-                Effects.If(
-                    condition = Conditions.Any(
-                        *Subtype.OUTLAW_TYPES
-                            .map { Conditions.SacrificedHadSubtype(it.value) }
-                            .toTypedArray()
-                    ),
-                    then = Effects.CreateTreasure(1)
-                )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.If(
+                condition = Conditions.Any(
+                    *Subtype.OUTLAW_TYPES
+                        .map { Conditions.SacrificedHadSubtype(it.value) }
+                        .toTypedArray()
+                ),
+                then = Effects.CreateTreasure(1)
             )
     }
 

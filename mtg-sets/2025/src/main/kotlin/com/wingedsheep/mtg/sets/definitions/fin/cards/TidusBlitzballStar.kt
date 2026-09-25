@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,7 +31,7 @@ val TidusBlitzballStar = card("Tidus, Blitzball Star") {
     }
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Tap(t)
     }
     metadata {

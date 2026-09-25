@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Ego Drain
@@ -34,7 +34,7 @@ val EgoDrain = card("Ego Drain") {
         "That player discards that card. If you don't control a Faerie, exile a card from your hand."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // 1. Target opponent reveals their hand.
             run(Effects.RevealHand(opponent))

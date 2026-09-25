@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Prohibit
@@ -28,7 +28,7 @@ val Prohibit = card("Prohibit") {
     keywordAbility(KeywordAbility.kicker("{2}"))
 
     spell {
-        val spell = target("target spell", Targets.Spell)
+        val spell = target(TargetFilter.SpellOnStack)
         // If kicked, counter when the target's mana value is 4 or less; otherwise 2 or less.
         effect = Effects.If(
             condition = WasKicked,

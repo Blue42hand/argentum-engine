@@ -47,10 +47,8 @@ val Wolfbat = card("Wolfbat") {
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            then = Effects.Composite(
-                Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+            then = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
                 Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
-            ),
         )
         description = "Whenever you draw your second card each turn, you may pay {B}. If you do, " +
             "return this card from your graveyard to the battlefield with a finality counter on it."

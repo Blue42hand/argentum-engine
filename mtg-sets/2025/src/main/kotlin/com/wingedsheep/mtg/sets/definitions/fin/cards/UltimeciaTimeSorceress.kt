@@ -94,8 +94,7 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
         effect = Effects.If(
             condition = Conditions.CardsInGraveyardAtLeast(8),
             then = Effects.MayPay(
-                cost = Effects.Composite(
-                    Effects.PayMana("{4}{U}{U}{B}{B}"),
+                cost = Effects.PayMana("{4}{U}{U}{B}{B}") then
                     Effects.Pipeline {
                         val grave = gather(
                             CardSource.FromZone(Zone.GRAVEYARD, Player.You),
@@ -107,7 +106,6 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
                         )
                         move(toExile, CardDestination.ToZone(Zone.EXILE))
                     },
-                ),
                 then = Effects.Transform(EffectTarget.Self),
                 descriptionOverride = "Pay {4}{U}{U}{B}{B} and exile eight cards from your " +
                     "graveyard? If you do, transform Ultimecia.",

@@ -18,13 +18,11 @@ private val ChaliceOfLifeFront = card("Chalice of Life") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.GainLife(1),
+        effect = Effects.GainLife(1) then
             Effects.If(
                 condition = Conditions.LifeAboveStartingBy(10),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "Gain 1 life, then transform Chalice of Life if you have at least 10 life " +
             "more than your starting life total."
     }
@@ -48,7 +46,7 @@ private val ChaliceOfDeath = card("Chalice of Death") {
 
     activatedAbility {
         cost = Costs.Tap
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(5, player)
         description = "Target player loses 5 life."
     }

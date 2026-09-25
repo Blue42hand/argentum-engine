@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Galvanic Giant // Storm Reading
@@ -40,10 +39,7 @@ val GalvanicGiant = card("Galvanic Giant") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(5))
-        val t = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.Creature.opponentControls())
-        )
+        val t = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
 

@@ -47,15 +47,13 @@ val CultivatorColossus = card("Cultivator Colossus") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.RepeatWhile(
-            body = Effects.Composite(
-                // "you may put a land card from your hand onto the battlefield tapped"
-                Patterns.Hand.putFromHand(GameObjectFilter.Land, count = 1, entersTapped = true),
+            // "you may put a land card from your hand onto the battlefield tapped"
+            body = Patterns.Hand.putFromHand(GameObjectFilter.Land, count = 1, entersTapped = true) then
                 // "If you do, draw a card"
                 Effects.If(
                     condition = Conditions.CollectionContainsMatch(Patterns.Hand.putFromHandCards, GameObjectFilter.Land),
                     then = Effects.DrawCards(1)
-                )
-            ),
+                ),
             // "and repeat this process" — continue only while a land was put this pass.
             repeatCondition = RepeatCondition.WhileCondition(
                 Conditions.CollectionContainsMatch(Patterns.Hand.putFromHandCards, GameObjectFilter.Land)

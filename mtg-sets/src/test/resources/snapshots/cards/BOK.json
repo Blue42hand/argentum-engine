@@ -76,7 +76,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Battlefield",
                         "controllerOverride": "Controller"
@@ -88,7 +88,7 @@
                         "baseFilter": "creature own:opponent",
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ],

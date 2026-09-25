@@ -24,14 +24,12 @@ val Lithobraking = card("Lithobraking") {
         "for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 
     spell {
-        effect = Effects.CreateLander().then(
-            Effects.ReflexiveTrigger(
-                action = Effects.SacrificeOwn(GameObjectFilter.Artifact),
-                optional = true,
-                reflexiveEffect = Effects.ForEachInGroup(
-                    GroupFilter.AllCreatures,
-                    Effects.DealDamage(2, EffectTarget.IterationEntity)
-                )
+        effect = Effects.CreateLander() then Effects.ReflexiveTrigger(
+            action = Effects.SacrificeOwn(GameObjectFilter.Artifact),
+            optional = true,
+            reflexiveEffect = Effects.ForEachInGroup(
+                GroupFilter.AllCreatures,
+                Effects.DealDamage(2, EffectTarget.IterationEntity)
             )
         )
     }

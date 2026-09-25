@@ -3,12 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Venom
@@ -35,7 +36,7 @@ val Venom = card("Venom") {
     oracleText = "Enchant creature\n" +
         "Whenever enchanted creature blocks or becomes blocked by a non-Wall creature, destroy " +
         "the other creature at end of combat."
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
         trigger = Triggers.attached.blocksOrBecomesBlocked(GameObjectFilter.Creature.notSubtype(Subtype.WALL))

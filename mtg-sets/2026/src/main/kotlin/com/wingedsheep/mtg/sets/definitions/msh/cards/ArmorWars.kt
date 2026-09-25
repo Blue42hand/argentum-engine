@@ -47,12 +47,10 @@ val ArmorWars = card("Armor Wars") {
     // I — You may draw a card for each artifact you control. If you do, each opponent draws a card.
     sagaChapter(1) {
         effect = Effects.May(
-            effect = Effects.Composite(
-                Effects.DrawCards(
-                    DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
-                ),
+            effect = Effects.DrawCards(
+                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
+            ) then
                 Effects.DrawCards(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            ),
             descriptionOverride = "You may draw a card for each artifact you control. " +
                 "If you do, each opponent draws a card.",
         )
@@ -69,7 +67,7 @@ val ArmorWars = card("Armor Wars") {
     // III — This Saga deals X damage to target opponent, where X is the greatest mana value
     //       among artifacts you control.
     sagaChapter(3) {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).maxManaValue(),
             opponent,

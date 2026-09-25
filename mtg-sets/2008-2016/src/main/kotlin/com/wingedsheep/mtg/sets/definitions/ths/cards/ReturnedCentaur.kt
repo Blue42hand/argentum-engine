@@ -24,7 +24,7 @@ val ReturnedCentaur = card("Returned Centaur") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val p = target("target player", Targets.Player)
+        val p = target(Targets.Player)
         effect = Patterns.Library.mill(4, p)
     }
 

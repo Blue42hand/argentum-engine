@@ -29,16 +29,14 @@ val BorrowingTheEastWind = card("Borrowing the East Wind") {
     oracleText = "Borrowing the East Wind deals X damage to each creature with horsemanship and each player."
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.HORSEMANSHIP)),
-                Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.HORSEMANSHIP)),
+            Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.Controller))
             )
-        )
     }
 
     metadata {

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val YoshimaruScrappyStray = card("Yoshimaru, Scrappy Stray") {
     manaCost = "{1}{G}"
@@ -21,14 +20,8 @@ val YoshimaruScrappyStray = card("Yoshimaru, Scrappy Stray") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val ally = target(
-            "another target creature you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl),
-        )
-        val foe = target(
-            "up to one target creature an opponent controls",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls),
-        )
+        val ally = target(TargetFilter.OtherCreatureYouControl)
+        val foe = target(TargetFilter.CreatureOpponentControls, optional = true)
         effect = Effects.Fight(ally, foe)
         description = "When Yoshimaru enters, another target creature you control fights up to one target " +
             "creature an opponent controls."
@@ -36,10 +29,7 @@ val YoshimaruScrappyStray = card("Yoshimaru, Scrappy Stray") {
 
     activatedAbility {
         cost = Costs.Mana("{6}")
-        val creature = target(
-            "target nonlegendary creature",
-            TargetCreature(filter = TargetFilter.NonlegendaryCreature),
-        )
+        val creature = target(TargetFilter.NonlegendaryCreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 

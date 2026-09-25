@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Bottomless Pool // Locker Room (DSK 43) — split-layout Room (CR 709.5).
@@ -31,7 +31,7 @@ val BottomlessPoolLockerRoom = card("Bottomless Pool // Locker Room") {
 
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
-            val creature = target("up to one target creature", Targets.UpToCreatures(1))
+            val creature = target(TargetFilter.Creature, optional = true)
             effect = Effects.ReturnToHand(creature)
         }
     }

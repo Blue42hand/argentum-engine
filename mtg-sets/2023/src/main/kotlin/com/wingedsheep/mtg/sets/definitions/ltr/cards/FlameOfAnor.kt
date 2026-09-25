@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Flame of Anor
@@ -43,15 +44,15 @@ val FlameOfAnor = card("Flame of Anor") {
             )
         ) {
             mode("Target player draws two cards") {
-                val player = target("target player", Targets.Player)
+                val player = target(Targets.Player)
                 effect = Effects.DrawCards(2, player)
             }
             mode("Destroy target artifact") {
-                val artifact = target("target artifact", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Destroy(artifact)
             }
             mode("Flame of Anor deals 5 damage to target creature") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(5, creature)
             }
         }

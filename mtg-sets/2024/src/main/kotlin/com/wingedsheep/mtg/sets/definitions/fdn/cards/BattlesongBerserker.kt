@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Battlesong Berserker
@@ -30,11 +30,8 @@ val BattlesongBerserker = card("Battlesong Berserker") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val t = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.MENACE, t),
-        )
+        val t = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.MENACE, t)
         description = "Whenever you attack, target creature you control gets +1/+0 and gains menace until end of turn."
     }
 

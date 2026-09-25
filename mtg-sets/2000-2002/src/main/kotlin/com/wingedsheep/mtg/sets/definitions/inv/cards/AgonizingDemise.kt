@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Agonizing Demise
@@ -36,10 +35,7 @@ val AgonizingDemise = card("Agonizing Demise") {
     keywordAbility(KeywordAbility.kicker("{1}{R}"))
 
     spell {
-        val creature = target(
-            "target nonblack creature",
-            TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK))
-        )
+        val creature = target(TargetFilter.Creature.notColor(Color.BLACK))
         effect = Effects.CantBeRegenerated(creature) then
             Effects.If(
                 condition = WasKicked,

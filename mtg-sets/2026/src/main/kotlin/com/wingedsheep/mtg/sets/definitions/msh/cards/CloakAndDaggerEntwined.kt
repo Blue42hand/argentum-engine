@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Cloak and Dagger, Entwined — Marvel Super Heroes #211 (rare)
@@ -90,15 +89,11 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
-        val creature = target(
-            // Printed wording. The *filter* is the two-player approximation (see the KDoc); the
-            // label is what the targeting prompt shows, so it stays faithful to the card.
-            "up to one target creature they control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls),
-        )
-        effect = Effects.Composite(
-            Effects.RevealHand(opponent),
+        val opponent = target(Targets.Opponent)
+        // Printed wording. The *filter* is the two-player approximation (see the KDoc); the
+        // label is what the targeting prompt shows, so it stays faithful to the card.
+        val creature = target(TargetFilter.CreatureOpponentControls, optional = true)
+        effect = Effects.RevealHand(opponent) then
             Effects.May(
                 Effects.ChooseAction(
                     listOf(
@@ -118,8 +113,7 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
                         ),
                     ),
                 ),
-            ),
-        )
+            )
         description = "When Cloak and Dagger enter, choose target opponent and up to one target " +
             "creature they control. They reveal their hand. You may exile a nonland card from " +
             "their hand or the chosen creature until Cloak and Dagger leave the battlefield."

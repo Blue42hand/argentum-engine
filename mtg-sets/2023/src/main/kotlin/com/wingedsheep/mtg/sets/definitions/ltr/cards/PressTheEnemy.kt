@@ -38,12 +38,9 @@ val PressTheEnemy = card("Press the Enemy") {
         "without paying its mana cost."
 
     spell {
-        val t = target(
-            "target spell or nonland permanent an opponent controls",
-            TargetSpellOrPermanent(
+        val t = target(TargetSpellOrPermanent(
                 permanentFilter = GameObjectFilter.NonlandPermanent.opponentControls()
-            )
-        )
+            ))
         effect = Effects.Pipeline {
             // Capture the bounced object's mana value as the free-cast cap.
             val bouncedMv = storeNumber(

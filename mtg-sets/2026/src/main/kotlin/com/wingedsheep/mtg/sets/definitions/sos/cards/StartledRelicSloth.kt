@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -33,7 +32,7 @@ val StartledRelicSloth = card("Startled Relic Sloth") {
     // At the beginning of combat on your turn, exile up to one target card from a graveyard.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target card from a graveyard", TargetObject(optional = true, filter = TargetFilter.CardInGraveyard))
+        val t = target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Move(t, Zone.EXILE)
     }
 

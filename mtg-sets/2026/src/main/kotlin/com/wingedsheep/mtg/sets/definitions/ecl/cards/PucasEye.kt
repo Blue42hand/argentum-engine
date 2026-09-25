@@ -30,10 +30,7 @@ val PucasEye = card("Puca's Eye") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.ChooseColorForTarget(EffectTarget.Self)
-        )
+        effect = Effects.DrawCards(1) then Effects.ChooseColorForTarget(EffectTarget.Self)
     }
 
     staticAbility {

@@ -29,12 +29,7 @@ val SinkholeSurveyor = card("Sinkhole Surveyor") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, EffectTarget.Controller),
-                Effects.Endure(1)
-            )
-        )
+        effect = Effects.LoseLife(1, EffectTarget.Controller) then Effects.Endure(1)
         description = "Whenever this creature attacks, you lose 1 life and this creature endures 1."
     }
 

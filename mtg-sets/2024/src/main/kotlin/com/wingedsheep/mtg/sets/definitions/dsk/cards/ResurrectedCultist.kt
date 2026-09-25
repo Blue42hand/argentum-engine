@@ -39,10 +39,8 @@ val ResurrectedCultist = card("Resurrected Cultist") {
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(ActivationRestriction.OnlyIfCondition(Conditions.Delirium()))
-        effect = Effects.Composite(
-            Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
-        )
+        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self)
         description = "Delirium — {2}{B}{B}: Return this card from your graveyard to the battlefield " +
             "with a finality counter on it. Activate only as a sorcery."
     }

@@ -47,28 +47,24 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.LookAtHand(opponent),
-                Effects.If(
-                    condition = Conditions.SourceInZone(Zone.BATTLEFIELD),
-                    then = Effects.Pipeline {
-                        val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
-                        val exiledCard = chooseUpTo(
-                            1,
-                            from = opponentHand,
-                            chooser = Chooser.Controller,
-                            filter = GameObjectFilter.Nonland,
-                            prompt = "You may exile a nonland card from target opponent's hand",
-                            showAllCards = true,
-                            alwaysPrompt = true
-                        )
-                        exile(exiledCard, opponent.asPlayer, linkToSource = true)
-                    }
-                )
+        val opponent = target(Targets.Opponent)
+        effect = Effects.LookAtHand(opponent) then
+            Effects.If(
+                condition = Conditions.SourceInZone(Zone.BATTLEFIELD),
+                then = Effects.Pipeline {
+                    val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
+                    val exiledCard = chooseUpTo(
+                        1,
+                        from = opponentHand,
+                        chooser = Chooser.Controller,
+                        filter = GameObjectFilter.Nonland,
+                        prompt = "You may exile a nonland card from target opponent's hand",
+                        showAllCards = true,
+                        alwaysPrompt = true
+                    )
+                    exile(exiledCard, opponent.asPlayer, linkToSource = true)
+                }
             )
-        )
     }
 
     triggeredAbility {

@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gurmag Rakshasa
@@ -31,10 +31,9 @@ val GurmagRakshasa = card("Gurmag Rakshasa") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponentCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        val yourCreature = target("creature you control", Targets.CreatureYouControl)
-        effect = Effects.ModifyStats(-2, -2, opponentCreature)
-            .then(Effects.ModifyStats(2, 2, yourCreature))
+        val opponentCreature = target(TargetFilter.CreatureOpponentControls)
+        val yourCreature = target(TargetFilter.CreatureYouControl)
+        effect = Effects.ModifyStats(-2, -2, opponentCreature) then Effects.ModifyStats(2, 2, yourCreature)
     }
 
     metadata {

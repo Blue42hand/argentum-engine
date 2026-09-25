@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -58,32 +57,23 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creatureYouControl = target(
-            "creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl, optional = true),
-        )
-        effect = Effects.Composite(
-            listOf(
-                Effects.EachPermanentBecomesCopyOfTarget(
-                    target = creatureYouControl,
-                    duration = Duration.EndOfTurn,
-                    affected = EffectTarget.Self,
-                ),
-                Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn),
-            )
-        )
+        val creatureYouControl = target(TargetFilter.CreatureYouControl, optional = true)
+        effect = Effects.EachPermanentBecomesCopyOfTarget(
+            target = creatureYouControl,
+            duration = Duration.EndOfTurn,
+            affected = EffectTarget.Self,
+        ) then
+            Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn)
         description = "At the beginning of combat on your turn, Oko becomes a copy of up to one " +
             "target creature you control until end of turn, except he has hexproof."
     }
 
     // +1: Draw two cards. If you've committed a crime this turn, discard a card. Otherwise, discard two.
     loyaltyAbility(+1) {
-        effect = Effects.DrawCards(2).then(
-            Effects.If(
-                condition = Conditions.YouCommittedCrimeThisTurn,
-                then = Patterns.Hand.discardCards(1),
-                otherwise = Patterns.Hand.discardCards(2),
-            )
+        effect = Effects.DrawCards(2) then Effects.If(
+            condition = Conditions.YouCommittedCrimeThisTurn,
+            then = Patterns.Hand.discardCards(1),
+            otherwise = Patterns.Hand.discardCards(2),
         )
     }
 

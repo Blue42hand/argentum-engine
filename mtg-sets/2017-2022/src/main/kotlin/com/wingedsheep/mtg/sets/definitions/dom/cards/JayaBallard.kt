@@ -55,7 +55,7 @@ val JayaBallard = card("Jaya Ballard") {
     //  - Replacement effect: exile instead of graveyard for spells cast this way
     loyaltyAbility(-8) {
         description = "\u22128: You get an emblem with \"You may cast instant and sorcery spells from your graveyard. If a spell cast this way would be put into your graveyard, exile it instead.\""
-        effect = Effects.Composite(emptyList())
+        effect = Effects.Nothing
     }
 
     metadata {

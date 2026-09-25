@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Undying Malice
@@ -35,19 +35,17 @@ val UndyingMalice = card("Undying Malice") {
     oracleText = "Until end of turn, target creature gains \"When this creature dies, return it to the battlefield tapped under its owner's control with a +1/+1 counter on it.\""
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.dies(),
-                effect = Effects.Composite(
-                    Effects.Move(
-                        target = EffectTarget.Self,
-                        destination = Zone.BATTLEFIELD,
-                        placement = ZonePlacement.Tapped,
-                        fromZone = Zone.GRAVEYARD
-                    ),
+                effect = Effects.Move(
+                    target = EffectTarget.Self,
+                    destination = Zone.BATTLEFIELD,
+                    placement = ZonePlacement.Tapped,
+                    fromZone = Zone.GRAVEYARD
+                ) then
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                ),
                 descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control with a +1/+1 counter on it."
             ),
             target = t,

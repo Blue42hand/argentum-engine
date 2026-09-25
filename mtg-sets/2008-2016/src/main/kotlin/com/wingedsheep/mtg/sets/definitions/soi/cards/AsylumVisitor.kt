@@ -27,7 +27,7 @@ val AsylumVisitor = card("Asylum Visitor") {
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = activePlayerHasEmptyHand()
-        effect = Effects.DrawCards(1).then(Effects.LoseLife(1))
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1)
     }
 
     madness("{1}{B}")

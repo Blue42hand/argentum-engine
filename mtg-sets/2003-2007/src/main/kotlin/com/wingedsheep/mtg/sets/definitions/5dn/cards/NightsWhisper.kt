@@ -22,10 +22,7 @@ val NightsWhisper = card("Night's Whisper") {
     typeLine = "Sorcery"
     oracleText = "You draw two cards and lose 2 life."
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Effects.LoseLife(2, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.Controller)
     }
     metadata {
         rarity = Rarity.UNCOMMON

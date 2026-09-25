@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -29,7 +29,7 @@ val VialSmasherGleefulGrenadier = card("Vial Smasher, Gleeful Grenadier") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.withAnyOfSubtypes(Subtype.OUTLAW_TYPES).youControl()).enters()
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.DealDamage(1, t)
     }
     metadata {

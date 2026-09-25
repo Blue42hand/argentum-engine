@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.training
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Parish-Blade Trainee
@@ -38,7 +38,7 @@ val ParishBladeTrainee = card("Parish-Blade Trainee") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val recipient = target("target creature you control", Targets.CreatureYouControl)
+        val recipient = target(TargetFilter.CreatureYouControl)
         effect = Effects.MoveAllLastKnownCounters(recipient)
     }
 

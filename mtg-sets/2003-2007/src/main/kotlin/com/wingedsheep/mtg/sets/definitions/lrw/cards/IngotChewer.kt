@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ingot Chewer
@@ -28,7 +28,7 @@ val IngotChewer = card("Ingot Chewer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val artifact = target("target artifact", Targets.Artifact)
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.Destroy(artifact)
         description = "destroy target artifact."
     }

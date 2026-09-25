@@ -62,13 +62,12 @@ val SpireMechcycle = card("Spire Mechcycle") {
     activatedAbility {
         cost = Costs.TapAnotherPermanent(MountOrVehicle)
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = EffectTarget.Self,
-                power = 5,
-                toughness = 4,
-                duration = Duration.Permanent
-            ),
+        effect = Effects.BecomeCreature(
+            target = EffectTarget.Self,
+            power = 5,
+            toughness = 4,
+            duration = Duration.Permanent
+        ) then
             Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.battlefield(
@@ -78,7 +77,6 @@ val SpireMechcycle = card("Spire Mechcycle") {
                 ).count(),
                 EffectTarget.Self
             )
-        )
         description = "Exhaust — Tap another untapped Mount or Vehicle you control: This Vehicle " +
             "becomes an artifact creature. Put a +1/+1 counter on it for each Mount and/or " +
             "Vehicle you control other than this Vehicle."

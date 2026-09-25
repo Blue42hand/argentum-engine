@@ -15,8 +15,8 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Call the Spirit Dragons
@@ -61,11 +61,9 @@ val CallTheSpiritDragons = card("Call the Spirit Dragons") {
             // One choice per color (WUBRG), each picked Dragon kept in its own collection.
             val chosenDragons = listOf(Color.WHITE, Color.BLUE, Color.BLACK, Color.RED, Color.GREEN).map { color ->
                 val dragon = selectTarget(
-                    TargetCreature(
-                        filter = TargetFilter(
+                    TargetObject(filter = TargetFilter(
                             GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON).withColor(color)
-                        )
-                    )
+                        ))
                 )
                 run(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, dragon.asTarget))
                 dragon

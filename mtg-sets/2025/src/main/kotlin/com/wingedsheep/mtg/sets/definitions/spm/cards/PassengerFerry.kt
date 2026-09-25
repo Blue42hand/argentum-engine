@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Passenger Ferry
@@ -42,10 +41,7 @@ val PassengerFerry = card("Passenger Ferry") {
             action = Effects.PayMana("{U}"),
             optional = true) {
             // "When you do, another target attacking creature can't be blocked this turn."
-            val creature = target(
-                "target creature",
-                TargetCreature(filter = TargetFilter.AttackingCreature.other())
-            )
+            val creature = target(TargetFilter.AttackingCreature.other())
             effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
         }
     }

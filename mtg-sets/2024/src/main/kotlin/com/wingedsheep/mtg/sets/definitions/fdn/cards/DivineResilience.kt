@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -37,7 +36,7 @@ val DivineResilience = card("Divine Resilience") {
 
     spell {
         // Unkicked: one target creature you control gains indestructible.
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creatureYouControl)
 
         // Kicked: any number of target creatures you control gain indestructible.

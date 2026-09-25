@@ -32,10 +32,8 @@ val FlameKinZealot = card("Flame-Kin Zealot") {
         trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-            )
         )
     }
     metadata {

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Navigator's Compass
@@ -34,7 +32,7 @@ val NavigatorsCompass = card("Navigator's Compass") {
     }
 
     activatedAbility {
-        val land = target("land you control", TargetPermanent(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         cost = AbilityCost.Tap
         effect = Effects.Pipeline {
             val chosenLandType = chooseOption(OptionType.BASIC_LAND_TYPE)

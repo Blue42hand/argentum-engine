@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Succumb to the Cold
@@ -29,11 +29,7 @@ val SuccumbToTheCold = card("Succumb to the Cold") {
         "from it instead.)"
 
     spell {
-        target = TargetCreature(
-            count = 2,
-            minCount = 1,
-            filter = TargetFilter.Creature.opponentControls()
-        )
+        target = TargetObject(filter = TargetFilter.Creature.opponentControls(), count = 2, minCount = 1)
         effect = Effects.ForEachTarget(
             Effects.Tap(EffectTarget.ContextTarget(0)),
             Effects.AddCounters(

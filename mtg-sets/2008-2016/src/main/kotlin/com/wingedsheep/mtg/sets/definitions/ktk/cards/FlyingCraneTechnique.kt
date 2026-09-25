@@ -20,22 +20,18 @@ val FlyingCraneTechnique = card("Flying Crane Technique") {
     oracleText = "Untap all creatures you control. They gain flying and double strike until end of turn."
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachInGroup(
-                    GroupFilter.AllCreaturesYouControl,
-                    Effects.Untap(EffectTarget.IterationEntity)
-                ),
-                Effects.ForEachInGroup(
-                    GroupFilter.AllCreaturesYouControl,
-                    Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
-                ),
-                Effects.ForEachInGroup(
-                    GroupFilter.AllCreaturesYouControl,
-                    Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity)
-                )
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreaturesYouControl,
+            Effects.Untap(EffectTarget.IterationEntity)
+        ) then
+            Effects.ForEachInGroup(
+                GroupFilter.AllCreaturesYouControl,
+                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
+            ) then
+            Effects.ForEachInGroup(
+                GroupFilter.AllCreaturesYouControl,
+                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

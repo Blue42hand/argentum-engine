@@ -3,7 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Carbonize
@@ -19,7 +19,7 @@ val Carbonize = card("Carbonize") {
     oracleText = "Carbonize deals 3 damage to any target. If it's a creature, it can't be regenerated this turn, and if it would die this turn, exile it instead."
 
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.CantBeRegenerated(t) then
                 Effects.MarkExileOnDeath(t) then
                 Effects.DealDamage(3, t)

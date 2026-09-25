@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Mourner's Surprise
@@ -31,13 +29,7 @@ val MournersSurprise = card("Mourner's Surprise") {
         "+1/+0 until end of turn. Activate only as a sorcery.\""
 
     spell {
-        val creatureCard = target(
-            "creature card in your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
-            )
-        )
+        val creatureCard = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD), optional = true)
 
         effect = Effects.Move(creatureCard, Zone.HAND) then Effects.CreateToken(
             power = 1,
@@ -47,7 +39,7 @@ val MournersSurprise = card("Mourner's Surprise") {
             activatedAbilities = listOf(
                 grantedActivatedAbility {
                     cost = AbilityCost.Tap
-                    val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                    val creatureYouControl = target(TargetFilter.CreatureYouControl)
                     effect = Effects.ModifyStats(1, 0, creatureYouControl)
                     timing = TimingRule.SorcerySpeed
                 }

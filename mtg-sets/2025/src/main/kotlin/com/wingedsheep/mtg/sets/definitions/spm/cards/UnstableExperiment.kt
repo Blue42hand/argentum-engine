@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Unstable Experiment
@@ -34,11 +33,8 @@ val UnstableExperiment = card("Unstable Experiment") {
         "on that creature.)"
 
     spell {
-        val drawer = target("target player", Targets.Player)
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
-        )
+        val drawer = target(Targets.Player)
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.DrawCards(1, drawer) then Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, creature),
             then = Effects.Connive(creature)

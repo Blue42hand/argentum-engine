@@ -12,8 +12,8 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Restless Ridgeline
@@ -69,19 +69,14 @@ val RestlessRidgeline = card("Restless Ridgeline") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "another target attacking creature",
-            TargetOther(TargetCreature(filter = TargetFilter.AttackingCreature)),
-        )
-        effect = Effects.Composite(
-            Effects.ModifyStats(
-                power = 2,
-                toughness = 0,
-                target = creature,
-                duration = Duration.EndOfTurn,
-            ),
-            Effects.Untap(creature),
-        )
+        val creature = target(TargetOther(TargetObject(filter = TargetFilter.AttackingCreature)))
+        effect = Effects.ModifyStats(
+            power = 2,
+            toughness = 0,
+            target = creature,
+            duration = Duration.EndOfTurn,
+        ) then
+            Effects.Untap(creature)
         description = "Whenever this land attacks, another target attacking creature gets +2/+0 until end of turn. Untap that creature."
     }
 

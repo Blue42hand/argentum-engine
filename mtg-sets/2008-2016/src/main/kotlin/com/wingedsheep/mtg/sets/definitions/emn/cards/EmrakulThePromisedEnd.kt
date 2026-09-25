@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Emrakul, the Promised End
@@ -66,11 +66,8 @@ val EmrakulThePromisedEnd = card("Emrakul, the Promised End") {
 
     triggeredAbility {
         trigger = Triggers.self.isCast()
-        val opponent = target("target opponent", TargetOpponent())
-        effect = Effects.Composite(
-            Effects.HijackNextTurn(opponent),
-            Effects.TakeExtraTurn(target = opponent)
-        )
+        val opponent = target(Targets.Opponent)
+        effect = Effects.HijackNextTurn(opponent) then Effects.TakeExtraTurn(target = opponent)
         description = "When you cast this spell, you gain control of target opponent during that " +
             "player's next turn. After that turn, that player takes an extra turn."
     }

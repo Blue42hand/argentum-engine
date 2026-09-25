@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tune Up — Aetherdrift #33
@@ -37,17 +36,10 @@ val TuneUp = card("Tune Up") {
         "Vehicle, it becomes an artifact creature."
 
     spell {
-        val artifact = target(
-            "target artifact card in your graveyard",
-            TargetObject(
-                filter = TargetFilter.ArtifactInYourGraveyard
-            )
-        )
-        effect = Effects.Move(artifact, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD).then(
-            Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.withSubtype(Subtype.VEHICLE), artifact),
-                then = Effects.AddCardType("Creature", artifact),
-            )
+        val artifact = target(TargetFilter.ArtifactInYourGraveyard)
+        effect = Effects.Move(artifact, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.withSubtype(Subtype.VEHICLE), artifact),
+            then = Effects.AddCardType("Creature", artifact),
         )
     }
 

@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -43,13 +42,11 @@ val OneRingToRuleThemAll = card("One Ring to Rule Them All") {
         "III — Each opponent loses 1 life for each creature card in that player's graveyard."
 
     sagaChapter(1) {
-        effect = Effects.Composite(
-            Effects.TheRingTemptsYou(),
+        effect = Effects.TheRingTemptsYou() then
             Patterns.Library.mill(
                 count = DynamicAmounts.powerOf(EffectTarget.RingBearer(Player.You)),
                 target = EffectTarget.PlayerRef(Player.Each)
             )
-        )
     }
 
     sagaChapter(2) {

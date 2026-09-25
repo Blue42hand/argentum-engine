@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Naga Fleshcrafter
@@ -44,20 +43,13 @@ val NagaFleshcrafter = card("Naga Fleshcrafter") {
     replacementEffect(EntersAsCopy(optional = true))
 
     renew("{2}{U}") {
-        val creature = target(
-            "nonlegendary creature you control",
-            TargetCreature(
-                filter = TargetFilter(GameObjectFilter.Creature.youControl().nonlegendary())
-            )
-        )
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(
-                Effects.EachPermanentBecomesCopyOfTarget(
-                    target = creature,
-                    filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-                    duration = Duration.EndOfTurn,
-                    excludeTarget = true,
-                )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.youControl().nonlegendary()))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.EachPermanentBecomesCopyOfTarget(
+                target = creature,
+                filter = GroupFilter(GameObjectFilter.Creature.youControl()),
+                duration = Duration.EndOfTurn,
+                excludeTarget = true,
             )
     }
 

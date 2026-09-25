@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -30,7 +29,7 @@ val RunawayBoulder = card("Runaway Boulder") {
     keywords(Keyword.FLASH)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t = target(TargetFilter.Creature.opponentControls())
         effect = Effects.DealDamage(6, t)
     }
     keywordAbility(KeywordAbility.cycling("{2}"))

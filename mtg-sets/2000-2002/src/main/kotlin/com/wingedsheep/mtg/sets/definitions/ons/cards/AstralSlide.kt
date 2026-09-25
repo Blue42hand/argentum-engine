@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Astral Slide
@@ -23,7 +23,7 @@ val AstralSlide = card("Astral Slide") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.cycles()
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.May(Patterns.Exile.exileUntilEndStep(t))
     }
 

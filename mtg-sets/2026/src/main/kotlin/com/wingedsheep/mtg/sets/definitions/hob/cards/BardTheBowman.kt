@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Bard the Bowman
@@ -39,9 +39,9 @@ val BardTheBowman = card("Bard the Bowman") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        val t = target("target creature to get a +1/+1 counter and lifelink", TargetCreature())
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, t))
+        val t = target(TargetFilter.Creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t)
         description = "Whenever you draw your second card each turn, put a +1/+1 counter on " +
             "target creature. It gains lifelink until end of turn."
     }

@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -15,6 +14,8 @@ import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Season of Gathering
@@ -43,7 +44,7 @@ val SeasonOfGathering = card("Season of Gathering") {
                 BudgetMode(
                     cost = 1,
                     effect = Effects.Pipeline {
-                        val chosenCreature = selectTarget(Targets.CreatureYouControl)
+                        val chosenCreature = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))
                         run(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, chosenCreature.asTarget))
                         run(Effects.GrantKeyword(Keyword.VIGILANCE, chosenCreature.asTarget))
                         run(Effects.GrantKeyword(Keyword.TRAMPLE, chosenCreature.asTarget))

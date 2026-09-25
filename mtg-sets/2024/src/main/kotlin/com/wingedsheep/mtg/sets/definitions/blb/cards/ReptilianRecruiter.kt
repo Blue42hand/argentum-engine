@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.AnyCondition
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Reptilian Recruiter {3}{R}{R}
@@ -37,7 +37,7 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
     // ETB: conditional Threaten
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = AnyCondition(
                 listOf(
@@ -55,9 +55,9 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
                     )
                 )
             ),
-            then = Effects.GainControl(creature, Duration.EndOfTurn)
-                .then(Effects.Untap(creature))
-                .then(Effects.GrantKeyword(Keyword.HASTE, creature))
+            then = Effects.GainControl(creature, Duration.EndOfTurn) then
+                Effects.Untap(creature) then
+                Effects.GrantKeyword(Keyword.HASTE, creature)
         )
     }
 

@@ -32,11 +32,11 @@ val HallarTheFirefletcher = card("Hallar, the Firefletcher") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.WasKicked))
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.DealDamage(
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DealDamage(
                 DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
                 EffectTarget.PlayerRef(Player.EachOpponent)
-            ))
+            )
     }
 
     metadata {

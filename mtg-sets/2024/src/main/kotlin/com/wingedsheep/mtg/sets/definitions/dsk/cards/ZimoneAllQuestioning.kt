@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -70,12 +69,10 @@ val ZimoneAllQuestioning = card("Zimone, All-Questioning") {
             name = "Primo, the Indivisible",
             legendary = true,
             imageUri = "https://cards.scryfall.io/normal/front/c/9/c990db6b-e1f2-4802-b8b1-80a8b768be0e.jpg?1775827823",
-        ).then(
-            Effects.AddDynamicCounters(
-                CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmounts.landsYouControl(),
-                EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-            ),
+        ) then Effects.AddDynamicCounters(
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.landsYouControl(),
+            EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
         )
     }
 

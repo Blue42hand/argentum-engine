@@ -27,16 +27,14 @@ val RollingEarthquake = card("Rolling Earthquake") {
     oracleText = "Rolling Earthquake deals X damage to each creature without horsemanship and each player."
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                Filters.Group.allCreatures.withoutKeyword(Keyword.HORSEMANSHIP),
-                Effects.DealXDamage(EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            Filters.Group.allCreatures.withoutKeyword(Keyword.HORSEMANSHIP),
+            Effects.DealXDamage(EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealXDamage(EffectTarget.Controller))
             )
-        )
     }
 
     metadata {

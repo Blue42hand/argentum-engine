@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Parting Gust
@@ -33,29 +33,23 @@ val PartingGust = card("Parting Gust") {
     typeLine = "Instant"
     oracleText = "Gift a tapped Fish (You may promise an opponent a gift as you cast this spell. If you do, they create a tapped 1/1 blue Fish creature token before its other effects.)\nExile target nontoken creature. If the gift wasn't promised, return that card to the battlefield under its owner's control with a +1/+1 counter on it at the beginning of the next end step."
 
-    val nontokenCreature = TargetCreature(
-        filter = TargetFilter(GameObjectFilter.Creature.nontoken())
-    )
+    val nontokenCreature = TargetObject(filter = TargetFilter(GameObjectFilter.Creature.nontoken()))
 
     spell {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — exile and return at end step with +1/+1 counter
             mode("Don't promise a gift — exile target nontoken creature, return it at the next end step with a +1/+1 counter") {
-                val targetNontokenCreature = target("target nontoken creature", nontokenCreature)
-                effect = Effects.Composite(listOf(
-                    Effects.Move(targetNontokenCreature, Zone.EXILE),
+                val targetNontokenCreature = target(nontokenCreature)
+                effect = Effects.Move(targetNontokenCreature, Zone.EXILE) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
-                        effect = Effects.Composite(listOf(
-                            Effects.Move(targetNontokenCreature, Zone.BATTLEFIELD),
+                        effect = Effects.Move(targetNontokenCreature, Zone.BATTLEFIELD) then
                             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, targetNontokenCreature)
-                        ))
                     )
-                ))
             },
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, exile target permanently
             mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, then exile target nontoken creature permanently") {
-                val targetNontokenCreature = target("target nontoken creature", nontokenCreature)
+                val targetNontokenCreature = target(nontokenCreature)
                 effect = Effects.CreateToken(
                     count = 1,
                     power = 1,
@@ -65,8 +59,8 @@ val PartingGust = card("Parting Gust") {
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     tapped = true,
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                ).then(Effects.Exile(targetNontokenCreature))
-                    .then(Effects.GiftGiven())
+                ) then Effects.Exile(targetNontokenCreature) then
+                    Effects.GiftGiven()
             }
         )
     }

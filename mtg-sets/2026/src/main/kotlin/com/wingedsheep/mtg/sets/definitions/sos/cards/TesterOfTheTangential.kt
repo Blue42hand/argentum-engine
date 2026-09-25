@@ -9,8 +9,8 @@ import com.wingedsheep.sdk.dsl.increment
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tester of the Tangential — Secrets of Strixhaven #69
@@ -44,7 +44,7 @@ val TesterOfTheTangential = card("Tester of the Tangential") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.MayPayX(
             then = Effects.Pipeline {
-                val moveTarget = selectTarget(TargetCreature(filter = TargetFilter.OtherCreature))
+                val moveTarget = selectTarget(TargetObject(filter = TargetFilter.OtherCreature))
                 run(
                     Effects.MoveCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,

@@ -29,6 +29,7 @@ import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Splice onto [quality] (CR 702.47, Champions of Kamigawa).
@@ -60,7 +61,7 @@ class SpliceKeywordTest : FunSpec({
         colorIdentity = "R"
         typeLine = "Instant — Arcane"
         spell {
-            val t = target("bolt", Targets.Player)
+            val t = target(Targets.Player)
             effect = Effects.DealDamage(1, t)
         }
     }
@@ -79,7 +80,7 @@ class SpliceKeywordTest : FunSpec({
         colorIdentity = "R"
         typeLine = "Instant"
         spell {
-            val t = target("bolt", Targets.Player)
+            val t = target(Targets.Player)
             effect = Effects.DealDamage(1, t)
         }
     }
@@ -93,7 +94,7 @@ class SpliceKeywordTest : FunSpec({
         typeLine = "Instant — Arcane"
         splice("{1}{R}")
         spell {
-            val t = target("ray", Targets.Creature)
+            val t = target(TargetFilter.Creature)
             effect = Effects.DealDamage(2, t)
         }
     }

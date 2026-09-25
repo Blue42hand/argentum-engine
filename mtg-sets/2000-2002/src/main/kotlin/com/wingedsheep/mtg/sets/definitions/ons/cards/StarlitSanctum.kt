@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Starlit Sanctum
@@ -48,7 +48,7 @@ val StarlitSanctum = card("Starlit Sanctum") {
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Creature.withSubtype("Cleric"))
         )
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.LoseLife(
             amount = DynamicAmounts.sacrificedPower(),
             target = t

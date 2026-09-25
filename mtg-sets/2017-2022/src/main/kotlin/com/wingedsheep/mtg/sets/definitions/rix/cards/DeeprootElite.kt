@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Deeproot Elite
@@ -33,14 +32,7 @@ val DeeprootElite = card("Deeproot Elite") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()).enters()
-        val merfolk = target(
-            "target Merfolk you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()
-                )
-            )
-        )
+        val merfolk = target(TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, merfolk)
     }
 

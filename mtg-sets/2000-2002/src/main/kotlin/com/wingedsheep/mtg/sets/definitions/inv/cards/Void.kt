@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Void
@@ -31,7 +31,7 @@ val Void = card("Void") {
         "mana value equal to the number."
 
     spell {
-        val targetPlayer = target("target player", TargetPlayer())
+        val targetPlayer = target(Targets.Player)
         effect = Effects.ChooseNumberThen(
             then = Effects.Pipeline {
                 // Destroy all artifacts and creatures with mana value equal to the chosen number.

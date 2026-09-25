@@ -58,7 +58,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target permanent you control"
+                                    "name": "t0"
                                 },
                                 "tap": false
                             },
@@ -68,7 +68,7 @@
                                     "filter": {
                                         "baseFilter": "permanent ctrl:you"
                                     },
-                                    "id": "target permanent you control"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Untap target permanent you control."
@@ -78,7 +78,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target permanent opponent controls"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -87,7 +87,7 @@
                                     "filter": {
                                         "baseFilter": "permanent ctrl:opponent"
                                     },
-                                    "id": "target permanent opponent controls"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Tap target permanent an opponent controls."
@@ -128,7 +128,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -137,7 +137,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val SpringjackKnight = card("Springjack Knight") {
     manaCost = "{2}{W}"
@@ -18,7 +18,7 @@ val SpringjackKnight = card("Springjack Knight") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Patterns.Mechanic.clash(Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature))
         description = "Clash with an opponent. If you win, target creature gains double strike until end of turn."
     }

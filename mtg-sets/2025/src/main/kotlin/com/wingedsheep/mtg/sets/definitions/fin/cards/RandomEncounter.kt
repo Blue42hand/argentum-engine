@@ -60,13 +60,11 @@ val RandomEncounter = card("Random Encounter") {
             )
             run(Effects.ForEachInCollection(
                 collection = reanimated,
-                effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.Permanent),
+                effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.Permanent) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.Move(EffectTarget.IterationEntity, Zone.HAND)
                     )
-                )
             ))
         }
     }
