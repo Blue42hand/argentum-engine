@@ -7,6 +7,8 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 
 /**
@@ -61,6 +63,36 @@ class TwinnedVisionScenarioTest : ScenarioTestBase() {
                 withClue("the discarded Bolt paid the cost") { game.isInGraveyard(1, "Lightning Bolt") shouldBe true }
                 game.handSize(1) shouldBe 2
                 game.isInExile(1, "Twinned Vision") shouldBe true
+            }
+
+            test("the flashback legal action offers the discard picker over the caster's hand") {
+                val game = builder()
+                    .withCardInGraveyard(1, "Twinned Vision")
+                    .withCardInHand(1, "Lightning Bolt")
+                    .build()
+                val bolt = game.findCardsInHand(1, "Lightning Bolt").single()
+
+                val flashback = game.getLegalActions(1)
+                    .firstOrNull { it.actionType == "CastWithFlashback" }
+                    .shouldNotBeNull()
+                withClue("flashback is affordable with three lands and a card to discard") {
+                    flashback.isAffordable shouldBe true
+                }
+                val info = withClue("the discard half of the flashback cost reaches the client") {
+                    flashback.additionalCostInfo.shouldNotBeNull()
+                }
+                info.costType shouldBe "DiscardCard"
+                info.discardCount shouldBe 1
+                info.validDiscardTargets shouldContainExactly listOf(bolt)
+            }
+
+            test("with an empty hand, flashback is offered but not affordable") {
+                val game = builder().withCardInGraveyard(1, "Twinned Vision").build()
+
+                val flashback = game.getLegalActions(1)
+                    .firstOrNull { it.actionType == "CastWithFlashback" }
+                    .shouldNotBeNull()
+                flashback.isAffordable shouldBe false
             }
         }
     }
