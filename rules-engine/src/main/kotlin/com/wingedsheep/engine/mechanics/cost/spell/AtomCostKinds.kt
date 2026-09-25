@@ -788,6 +788,24 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
         return total >= needed
     }
 
+    // The pool is counters, not objects, so affordability sums what the matching permanents carry
+    // rather than counting candidates.
+    override fun canPayFrom(env: SpellCostEnumeration, cost: CostAtom.RemoveCounters, candidates: List<EntityId>): Boolean {
+        val needed = fixedCount(cost)
+        return needed <= 0 || counterPool(env, cost).sumOf { it.availableCounters } >= needed
+    }
+
+    override fun present(env: SpellCostEnumeration, cost: CostAtom.RemoveCounters, candidates: List<EntityId>) =
+        "Remove counters" to AdditionalCostData(
+            description = cost.description.replaceFirstChar { it.uppercase() },
+            costType = "RemoveCounters",
+            counterRemovalCreatures = counterPool(env, cost),
+            distributedCounterRemovalTotal = fixedCount(cost),
+        )
+
+    private fun counterPool(env: SpellCostEnumeration, cost: CostAtom.RemoveCounters) =
+        env.costUtils.buildRemoveCountersPermanents(env.state, env.playerId, cost.filter, cost.counterType)
+
     override fun validate(check: SpellCostCheck, cost: CostAtom.RemoveCounters): String? {
         val state = check.state
         val projected = state.projectedState

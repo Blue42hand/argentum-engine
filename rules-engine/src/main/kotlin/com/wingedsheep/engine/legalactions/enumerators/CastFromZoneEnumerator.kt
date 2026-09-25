@@ -24,7 +24,6 @@ import com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComp
 import com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils
 import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
@@ -791,12 +790,6 @@ class CastFromZoneEnumerator(
             val entityId = granter.granterId
             val grantAbility = granter.ability
 
-            // Pre-compute additional-cost affordability for the granter's optional
-            // additional cost (e.g. "remove three counters from your creatures").
-            val (linkedAdditionalCostInfo, canPayLinkedAdditionalCost) = buildLinkedExileAdditionalCostInfo(
-                state, playerId, grantAbility.additionalCost, context.costUtils
-            )
-
             for (exiledId in granter.exiledIds) {
                 // Skip if already handled by a direct MayPlayPermission — but only when its
                 // gate is open. A closed conditional gate must fall through so the linked-exile
@@ -813,6 +806,11 @@ class CastFromZoneEnumerator(
                 if (!inExile) continue
                 if (exiledId in linkedExileCardIds) continue
                 linkedExileCardIds.add(exiledId)
+
+                // The granter's additional cost (e.g. "remove three counters from your creatures").
+                val (linkedAdditionalCostInfo, canPayLinkedAdditionalCost) = presentOwedCosts(
+                    context, exiledId, listOfNotNull(grantAbility.additionalCost)
+                )
 
                 // Lands in linked exile cannot be cast (oracle says "spells")
                 if (exiledCard.typeLine.isLand) continue
@@ -930,53 +928,26 @@ class CastFromZoneEnumerator(
         }
     }
 
-    private fun buildLinkedExileAdditionalCostInfo(
-        state: GameState,
-        playerId: EntityId,
-        additionalCost: AdditionalCost?,
-        costUtils: CostEnumerationUtils
+    /**
+     * The picker payload and payability of the non-mana costs a cast from another zone owes, read
+     * off the shared spell-cost seam so every cost kind brings its own picker and affordability
+     * check. Composites are flattened so each step is checked on its own; the client drives one
+     * picker per cast, so the first cost that has one supplies it.
+     */
+    private fun presentOwedCosts(
+        context: EnumerationContext,
+        castCardId: EntityId,
+        costs: List<AdditionalCost>,
     ): Pair<AdditionalCostData?, Boolean> {
-        if (additionalCost == null) return null to true
-        return when (additionalCost) {
-            is AdditionalCost.Atom -> when (val atom = additionalCost.atom) {
-                is CostAtom.RemoveCounters -> {
-                    val needed = when (val c = atom.count) {
-                        is com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed -> c.amount
-                        else -> 0
-                    }
-                    val creatures = costUtils.buildRemoveCountersPermanents(
-                        state, playerId, atom.filter, atom.counterType
-                    )
-                    val totalAvailable = creatures.sumOf { it.availableCounters }
-                    val canPay = if (needed <= 0) true else totalAvailable >= needed
-                    val info = AdditionalCostData(
-                        description = additionalCost.description,
-                        costType = "RemoveCounters",
-                        counterRemovalCreatures = creatures,
-                        distributedCounterRemovalTotal = needed
-                    )
-                    info to canPay
-                }
-                is CostAtom.Discard -> {
-                    val handCards = state.getZone(ZoneKey(playerId, Zone.HAND))
-                    val info = AdditionalCostData(
-                        description = additionalCost.description,
-                        costType = "DiscardCard",
-                        validDiscardTargets = handCards.toList(),
-                        discardCount = atom.count
-                    )
-                    info to (handCards.size >= atom.count)
-                }
-                else -> AdditionalCostData(
-                    description = additionalCost.description,
-                    costType = "Other"
-                ) to true
-            }
-            else -> AdditionalCostData(
-                description = additionalCost.description,
-                costType = "Other"
-            ) to true
+        val env = SpellCostEnumeration(context, castCardId)
+        var info: AdditionalCostData? = null
+        var payable = true
+        for (cost in SpellCosts.flattenComposites(costs)) {
+            val candidates = SpellCosts.candidates(env, cost)
+            if (!SpellCosts.canPayFrom(env, cost, candidates)) payable = false
+            if (info == null) info = SpellCosts.present(env, cost, candidates)?.second
         }
+        return info to payable
     }
 
     // =========================================================================
@@ -1024,8 +995,8 @@ class CastFromZoneEnumerator(
 
                 // Additional cost bundled with the permission (e.g. Alien Symbiosis: "by
                 // discarding a card in addition to paying its other costs").
-                val (zoneAdditionalCostInfo, canPayZoneAdditionalCost) = buildLinkedExileAdditionalCostInfo(
-                    state, playerId, zoneCastAbility.additionalCost, context.costUtils
+                val (zoneAdditionalCostInfo, canPayZoneAdditionalCost) = presentOwedCosts(
+                    context, cardId, listOfNotNull(zoneCastAbility.additionalCost)
                 )
 
                 val sourceZoneName = zone.name
@@ -1276,21 +1247,11 @@ class CastFromZoneEnumerator(
             val costString = effectiveCost.toString()
             val canAfford = context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = context.availableManaSources)
 
-            // Flashback's bundled non-mana cost ("Behold three Elementals", "Discard a card") is
-            // presented through the shared spell-cost seam, so every cost kind gets its picker
-            // payload and affordability check — not only the ones this enumerator knows by name.
-            val flashbackCostInfo: AdditionalCostData?
-            val canPayAdditionalCost: Boolean
-            val flashbackAdditionalCost = flashback.additionalCost
-            if (flashbackAdditionalCost == null) {
-                flashbackCostInfo = null
-                canPayAdditionalCost = true
-            } else {
-                val costEnv = SpellCostEnumeration(context, cardId)
-                val candidates = SpellCosts.candidates(costEnv, flashbackAdditionalCost)
-                flashbackCostInfo = SpellCosts.present(costEnv, flashbackAdditionalCost, candidates)?.second
-                canPayAdditionalCost = SpellCosts.canPayFrom(costEnv, flashbackAdditionalCost, candidates)
-            }
+            // A flashback cast owes the card's printed additional costs as well as flashback's own
+            // bundled one ("its flashback cost and any additional costs").
+            val (flashbackCostInfo, canPayAdditionalCost) = presentOwedCosts(
+                context, cardId, cardDef.script.additionalCosts + listOfNotNull(flashback.additionalCost)
+            )
 
             if (!canAfford || !canPayAdditionalCost) {
                 result.add(
