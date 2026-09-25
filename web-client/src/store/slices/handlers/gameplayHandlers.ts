@@ -170,6 +170,27 @@ function mergeCardsRevealedEvents(
 }
 
 /**
+ * Battlefield permanents that were already public before this update: on the battlefield both
+ * before it and after it. A revealed card in this set is pulsed in place instead of shown in the
+ * reveal overlay.
+ *
+ * Testing only the new state is wrong for a card the same resolution revealed *and* put onto the
+ * battlefield ("reveal cards until you reveal a creature card, put it onto the battlefield"): it
+ * was hidden in the library when it was revealed, and the overlay then showed every revealed card
+ * except the one that stopped the reveal. With no previous state (the first update after a
+ * connect) the new state alone is the best available answer.
+ */
+export function battlefieldIdsAlreadyPublic(
+  previous: ClientGameState | null,
+  current: ClientGameState
+): ReadonlySet<EntityId> {
+  const battlefieldIdsOf = (s: ClientGameState): EntityId[] =>
+    s.zones.filter((z) => z.zoneId.zoneType === 'Battlefield').flatMap((z) => z.cardIds)
+  const before = new Set<EntityId>(battlefieldIdsOf(previous ?? current))
+  return new Set(battlefieldIdsOf(current).filter((id) => before.has(id)))
+}
+
+/**
  * Common state update fields shared by both full and delta update messages.
  */
 interface StateUpdateEnvelope {
@@ -356,15 +377,16 @@ function processStateUpdate(
       .filter((z) => z.zoneId.zoneType === 'Battlefield')
       .flatMap((z) => z.cardIds)
   )
+  const alreadyPublicIds = battlefieldIdsAlreadyPublic(get().gameState, resolvedState)
   const isZoneTransitionReveal = !!(cardsRevealedEvent?.fromZone && cardsRevealedEvent?.toZone)
   const beheldBattlefieldIds = cardsRevealedEvent && !isZoneTransitionReveal
-    ? cardsRevealedEvent.cardIds.filter((id) => battlefieldCardIds.has(id))
+    ? cardsRevealedEvent.cardIds.filter((id) => alreadyPublicIds.has(id))
     : []
   const revealOverlayIndices = cardsRevealedEvent
     ? isZoneTransitionReveal
       ? cardsRevealedEvent.cardIds.map((_, i) => i)
       : cardsRevealedEvent.cardIds
-          .map((id, i) => (battlefieldCardIds.has(id) ? -1 : i))
+          .map((id, i) => (alreadyPublicIds.has(id) ? -1 : i))
           .filter((i) => i >= 0)
     : []
   const filteredReveal = cardsRevealedEvent && revealOverlayIndices.length > 0
