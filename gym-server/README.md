@@ -56,14 +56,15 @@ seat is the current `agentToAct`. Read `agentToAct`, then request
 `GET /envs/{id}?perspectivePlayerId=<playerId>` before acting for that player. This also applies
 before submitting a structured decision. Observing a non-acting seat clears the environment's
 current action registry and decision permission. Step responses return to the configured default
-perspective, so repeat this selection when another seat acts. Calls for one environment must remain
-sequential; seat selection is an information-set convention, not authentication.
+perspective, so repeat this selection when another seat acts. The server serializes concurrent calls
+naming the same environment, but a client acting for several seats must still order its
+observe-then-act pairs itself; seat selection is an information-set convention, not authentication.
 
 `revealAll=true` retains the debug view of every seat's choices. Unknown player IDs return 400.
 The observation contract hash is `argentum-gym-contract@v1.6-multi-seat-observation`.
 
 Batch creation returns results in request order and disposes successful siblings when an item fails.
-An interrupted batch also disposes workers' results as they finish. Snapshot disposal is idempotent:
+An interrupted batch waits for every submitted worker to settle, then disposes what they created. Snapshot disposal is idempotent:
 empty batches, duplicate handles and previously disposed handles are safe. Disposing a snapshot does
 not dispose its source environment; restoring a disposed handle returns 404.
 
@@ -122,7 +123,7 @@ operator mistakes from server faults:
 | Exception | HTTP | When |
 |---|---|---|
 | `NoSuchElementException` | 404 | Unknown envId, missing snapshot |
-| `IllegalArgumentException` | 400 | Bad deck, stale action ID, unknown set code |
+| `IllegalArgumentException` | 400 | Bad deck, stale action ID, unknown set code, action or decision rejected by the engine |
 | `IllegalStateException` | 409 | `submitDecision` when no decision is pending |
 
 Anything else propagates as 500.
