@@ -2091,21 +2091,31 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
-     * When a permanent transforms.
+     * When a permanent transforms (CR 701.27).
      * [intoBackFace] filters direction: true = to back, false = to front, null = either.
+     * [filter] narrows *which* permanent under a non-SELF binding ("a permanent you control
+     * transforms into a Phyrexian" — Norn's Inquisitor). It is matched against the permanent's
+     * characteristics *after* it turned over, so "transforms into a Phyrexian" is a filter on the
+     * new face; its "you control" resolves against the trigger's controller.
      */
     @SerialName("TransformEvent")
     @Serializable
     data class TransformEvent(
-        val intoBackFace: Boolean? = null
+        val intoBackFace: Boolean? = null,
+        val filter: GameObjectFilter = GameObjectFilter.Any
     ) : EventPattern {
         override val description: String = buildString {
-            append("this transforms")
+            append(if (filter == GameObjectFilter.Any) "this transforms" else "a ${filter.description} transforms")
             when (intoBackFace) {
                 true -> append(" into its back face")
                 false -> append(" into its front face")
                 null -> {}
             }
+        }
+
+        override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
         }
     }
 
