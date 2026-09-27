@@ -5,7 +5,9 @@
 # When the subscription's usage limit is hit, it waits and retries.
 set -uo pipefail
 
-CODE=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+# Accept a code or a set name ("march" -> mom); fail here rather than spend a session on a bad code.
+CODE=$("$(dirname "$0")/resolve-set" "${1:-}") || exit 1
+[ "$CODE" = "$(echo "$1" | tr '[:upper:]' '[:lower:]')" ] || echo "set-loop: '$1' resolved to set code '$CODE'"
 MODEL=${MODEL:-claude-opus-5-5}
 REPO=$(cd "$(git rev-parse --git-common-dir)/.." && pwd)
 RUNS="$REPO/.claude/loop-runs"
