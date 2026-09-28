@@ -18317,7 +18317,7 @@
                     ],
                     "imageUri": "https://cards.scryfall.io/normal/front/e/e/eea4e628-4ae2-4e33-a3b6-176ed87c1840.jpg?1686336819"
                 },
-                "triggerRestriction": "IsNotYourTurn"
+                "triggerRestriction": "IsOpponentsTurn"
             },
             {
                 "id": "The Watcher in the Water:2",

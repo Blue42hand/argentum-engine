@@ -35,6 +35,18 @@ data object IsNotYourTurn : Condition {
 }
 
 /**
+ * Condition: "If it's an opponent's turn" — the active player is one of the controller's
+ * opponents. Distinct from [IsNotYourTurn] in a team game: a teammate's turn is "not your turn" but
+ * is never an opponent's turn (CR 808.4 Team vs. Team, where each teammate takes their own turn), so
+ * "whenever you cast a spell during an opponent's turn" must not fire on an ally's turn.
+ */
+@SerialName("IsOpponentsTurn")
+@Serializable
+data object IsOpponentsTurn : Condition {
+    override val description: String = "if it's an opponent's turn"
+}
+
+/**
  * Condition: "If it's [player]'s turn" — the [Player]-parametric form of [IsYourTurn], for a
  * turn check relative to a player other than the ability's controller. Pairs with
  * `Conditions.Not(...)` for the "if it's not their turn" wording where "their" is a non-controller

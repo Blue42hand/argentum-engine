@@ -1007,7 +1007,7 @@ object Triggers {
     private val restrictions: List<Restriction> = listOf(
         Restriction(" during your turn", "during your turn", SdkConditions.IsYourTurn),
         Restriction(
-            " during an opponent's turn", "during an opponent's turn", SdkConditions.IsNotYourTurn,
+            " during an opponent's turn", "during an opponent's turn", SdkConditions.IsOpponentsTurn,
         ),
     )
 
