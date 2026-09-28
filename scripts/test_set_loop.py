@@ -1,0 +1,97 @@
+"""Launcher integration checks without model sessions, GitHub calls, or real sleeps.
+
+Run: python3 -m unittest scripts.test_set_loop
+"""
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+import unittest
+
+
+class SetLoopTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.bin = self.root / "bin"
+        self.bin.mkdir()
+        (self.root / ".git").mkdir()
+        shutil.copy(Path(__file__).with_name("set-loop"), self.bin / "set-loop")
+        self.stub("resolve-set", 'echo ecl')
+        self.stub("git", 'echo "$TEST_ROOT/.git"')
+        self.stub("gh", "exit 0")
+        self.stub("sleep", 'echo "$1" >> "$TEST_ROOT/sleeps"; touch "$TEST_ROOT/.claude/loop-runs/ecl.stop"')
+        self.stub("codex", """
+printf '%s\\n' "$@" > "$TEST_ROOT/args"
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = --output-last-message ]; then shift; output=$1; fi
+  shift
+done
+if [ "$MODE" = limit ]; then
+  echo '{"type":"error","message":"usage limit reached"}'
+  exit 1
+fi
+if [ "$MODE" = failure ]; then echo 'Invalid model'; exit 1; fi
+printf '%s\\n' "$VERDICT" > "$output"
+echo '{"type":"item.completed","item":{"type":"agent_message","text":"Summary: checked"}}'
+echo '{"type":"turn.completed","usage":{}}'
+""")
+        self.stub("claude", """
+printf '%s\\n' "$@" > "$TEST_ROOT/args"
+echo '{"type":"result","result":"SET_COMPLETE","num_turns":1,"duration_ms":1000}'
+""")
+
+    def stub(self, name, body):
+        path = self.bin / name
+        path.write_text("#!/usr/bin/env bash\n" + body + "\n")
+        path.chmod(0o755)
+
+    def run_loop(self, *args, model="", mode="", verdict="SET_COMPLETE"):
+        env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
+                   TEST_ROOT=str(self.root), MODEL=model, MODE=mode, VERDICT=verdict)
+        return subprocess.run(["bash", str(self.bin / "set-loop"), "ecl", *args],
+                              cwd=self.root, env=env, capture_output=True, text=True, timeout=10)
+
+    def test_astra_alias_and_explicit_id(self):
+        for model in ("astra", "gpt-6-astra"):
+            with self.subTest(model=model):
+                result = self.run_loop(model)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                args = (self.root / "args").read_text().splitlines()
+                self.assertEqual(args[:3], ["exec", "--model", "gpt-6-astra"])
+                self.assertIn("--approve-for-me", args)
+                self.assertIn("[agent-loop: gpt-6-astra]", "\n".join(args))
+                self.assertIn("Summary: checked", result.stdout)
+                self.assertIn("set ecl complete", result.stdout)
+
+    def test_environment_model_and_positional_override(self):
+        result = self.run_loop("", model="astra")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("harness codex", result.stdout)
+        result = self.run_loop("claude-opus-5-5", model="astra")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("harness claude", result.stdout)
+
+    def test_default_still_uses_claude(self):
+        result = self.run_loop()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("harness claude, model claude-opus-5-5", result.stdout)
+
+    def test_stuck_and_launch_failure_stop(self):
+        for options in ({"verdict": "STUCK missing capability"}, {"mode": "failure"}):
+            with self.subTest(options=options):
+                result = self.run_loop("astra", **options)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertFalse((self.root / "sleeps").exists())
+
+    def test_usage_limit_waits_then_honors_stop_file(self):
+        result = self.run_loop("astra", mode="limit")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual((self.root / "sleeps").read_text(), "1800\n")
+        self.assertIn("stop file found", result.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Implement a whole set with headless Claude Code, one fresh session per step.
-#   just set-loop <code>            e.g. just set-loop ecl
+# Implement a whole set with headless Claude Code or Codex, one fresh session per step.
+#   just set-loop <code> [model]    e.g. just set-loop ecl astra
 # Stop it with Ctrl-C, or `touch .claude/loop-runs/<code>.stop` to stop after the current step.
 # When the subscription's usage limit is hit, it waits and retries.
 set -uo pipefail
@@ -8,7 +8,13 @@ set -uo pipefail
 # Accept a code or a set name ("march" -> mom); fail here rather than spend a session on a bad code.
 CODE=$("$(dirname "$0")/resolve-set" "${1:-}") || exit 1
 [ "$CODE" = "$(echo "$1" | tr '[:upper:]' '[:lower:]')" ] || echo "set-loop: '$1' resolved to set code '$CODE'"
-MODEL=${MODEL:-claude-opus-5-5}
+MODEL=${2:-${MODEL:-claude-opus-5-5}}
+case "$MODEL" in
+  astra) MODEL=gpt-6-astra; HARNESS=codex ;;
+  gpt-*) HARNESS=codex ;;
+  *) HARNESS=claude ;;
+esac
+command -v "$HARNESS" >/dev/null || { echo "set-loop: $HARNESS is not installed" >&2; exit 1; }
 REPO=$(cd "$(git rev-parse --git-common-dir)/.." && pwd)
 RUNS="$REPO/.claude/loop-runs"
 mkdir -p "$RUNS"
@@ -77,6 +83,13 @@ A human watches your text live, one line at a time, so keep them posted in short
 No other long prose.
 End your reply with exactly one line: STEP <n> DONE | WAITING_CI | SET_COMPLETE | STUCK <reason>"
 
+if [ "$HARNESS" = codex ]; then
+  PROMPT="$PROMPT
+
+Read the applicable skill files in .agents/skills/ (add-card/SKILL.md, add-feature/SKILL.md,
+review-changes/SKILL.md, verify/SKILL.md). If subagents are unavailable, perform their steps inline."
+fi
+
 # Everything the loop prints also goes to the run log.
 LOGDIR="$RUNS/$CODE-logs"
 mkdir -p "$LOGDIR"
@@ -95,7 +108,17 @@ PRETTY='select(.type == "assistant") | .message.content[]? |
        // .input.prompt // "") | tostring | split("\n")[0] | .[0:140])
    else empty end)'
 
-log "set-loop $CODE started (model $MODEL, log $RUNS/$CODE.log)"
+if [ "$HARNESS" = codex ]; then
+  PRETTY='if .type == "item.completed" and .item.type == "agent_message" then
+      .item.text | split("\n")[] | select(length > 0) | "   💬 " + .[0:200]
+    elif .type == "item.started" and .item.type == "command_execution" then
+      "   → " + (.item.command | split("\n")[0] | .[0:140])
+    elif .type == "error" or .type == "turn.failed" then
+      "   ! " + (.message // .error.message // "Codex turn failed")
+    else empty end'
+fi
+
+log "set-loop $CODE started (harness $HARNESS, model $MODEL, log $RUNS/$CODE.log)"
 N=0
 while [ ! -e "$RUNS/$CODE.stop" ]; do
   N=$((N + 1))
@@ -111,17 +134,40 @@ while [ ! -e "$RUNS/$CODE.stop" ]; do
 
   TRANSCRIPT="$LOGDIR/$(date '+%Y%m%d-%H%M%S')-iter$N.jsonl"
   log "iteration $N (PR: ${PR:-none}) — transcript $TRANSCRIPT"
-  (cd "$REPO" && claude -p "$PROMPT" --model "$MODEL" --permission-mode "${PERMISSION_MODE:-auto}" \
-      --output-format stream-json --verbose 2>&1) \
-    | tee "$TRANSCRIPT" | jq -Rr --unbuffered "fromjson? | $PRETTY"
+  if [ "$HARNESS" = codex ]; then
+    FINAL_FILE="${TRANSCRIPT%.jsonl}.txt"
+    # A failed launch must never reuse a stale completion marker.
+    rm -f "$FINAL_FILE"
+    (cd "$REPO" && codex exec --model "$MODEL" --approve-for-me --json \
+        --output-last-message "$FINAL_FILE" "$PROMPT" 2>&1) \
+      | tee "$TRANSCRIPT" | jq -Rr --unbuffered "fromjson? | $PRETTY"
+    SESSION_STATUS=$?
+    RESULT=$(cat "$FINAL_FILE" 2>/dev/null || true)
+    FINAL=$RESULT
+    STATS="exit $SESSION_STATUS"
+  else
+    (cd "$REPO" && claude -p "$PROMPT" --model "$MODEL" --permission-mode "${PERMISSION_MODE:-auto}" \
+        --output-format stream-json --verbose 2>&1) \
+      | tee "$TRANSCRIPT" | jq -Rr --unbuffered "fromjson? | $PRETTY"
 
-  FINAL=$(jq -Rc 'fromjson? | select(.type == "result")' "$TRANSCRIPT" 2>/dev/null | tail -1)
-  RESULT=$(echo "$FINAL" | jq -r '.result // empty' 2>/dev/null)
+    FINAL=$(jq -Rc 'fromjson? | select(.type == "result")' "$TRANSCRIPT" 2>/dev/null | tail -1)
+    RESULT=$(echo "$FINAL" | jq -r '.result // empty' 2>/dev/null)
+
+    STATS=$(echo "$FINAL" | jq -r '"\(.num_turns // "?") turns, \((.duration_ms // 0) / 60000 | floor) min"' 2>/dev/null)
+  fi
   LAST=$(echo "$RESULT" | tail -1)
-  log "iteration $N finished: ${LAST:-<no result>} ($(echo "$FINAL" | jq -r '"\(.num_turns // "?") turns, \((.duration_ms // 0) / 60000 | floor) min"' 2>/dev/null))"
+  log "iteration $N finished: ${LAST:-<no result>} ($STATS)"
 
-  if [ -z "$FINAL" ] || grep -qiE 'usage limit|hit your limit|rate limit|overloaded' <<<"$RESULT$(tail -5 "$TRANSCRIPT")"; then
-    log "no result or limit reached — waiting 30 min"; sleep 1800; continue
+  if grep -qiE 'usage limit|hit your limit|rate limit|overloaded|quota exceeded' <<<"$RESULT$(tail -5 "$TRANSCRIPT")"; then
+    log "limit reached — waiting 30 min"; sleep 1800; continue
+  fi
+  if [ "$HARNESS" = codex ] && { [ "$SESSION_STATUS" -ne 0 ] || [ -z "$FINAL" ]; }; then
+    log "Codex failed or returned no final message — see $TRANSCRIPT"
+    tail -5 "$TRANSCRIPT"
+    exit 1
+  fi
+  if [ -z "$FINAL" ]; then
+    log "no result — waiting 30 min"; sleep 1800; continue
   fi
   case $LAST in
     WAITING_CI*)   log "session saw CI pending — waiting on it next iteration" ;;

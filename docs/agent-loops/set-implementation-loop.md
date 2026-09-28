@@ -1,5 +1,25 @@
 # Set implementation loop (Claude Code `/loop`)
 
+For the terminal launcher, which starts a fresh session for each step:
+
+```bash
+just set-loop ecl astra          # Codex with gpt-6-astra
+just set-loop ecl                # Claude Code (default)
+just set-loop ecl gpt-6-astra     # Explicit model ID also works
+MODEL=astra just set-loop ecl    # Environment alternative
+```
+
+Replace `ecl` with a scaffolded set code or quoted set name. A positional model overrides `MODEL`.
+The selected CLI must be installed and signed in. Codex runs with `--approve-for-me` (automatic
+approval review in the workspace sandbox); Claude uses `PERMISSION_MODE`, defaulting to `auto`.
+Both share the ledger and logs under `.claude/loop-runs/`, so run only one launcher per set at a time.
+Stop with Ctrl-C, or `touch .claude/loop-runs/ecl.stop` to stop after the current step or retry wait.
+Codex launch failures stop with a transcript path; usage limits wait 30 minutes before retrying.
+Its JSON stream and final-message file follow the
+[Codex non-interactive interface](https://learn.chatgpt.com/docs/non-interactive-mode).
+
+The following describes the alternative in-session `/loop` workflow.
+
 Ships every unimplemented card in a set, one reviewed PR at a time, in a Claude Code session.
 
 The [`set-loop`](../../.agents/skills/set-loop/SKILL.md) skill composes and launches this for you —
