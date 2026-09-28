@@ -3,6 +3,7 @@
 Run: python3 -m unittest scripts.test_set_loop
 """
 import os
+import json
 from pathlib import Path
 import shutil
 import subprocess
@@ -117,7 +118,19 @@ echo '{"type":"result","result":"SET_COMPLETE","num_turns":1,"duration_ms":1000}
     def test_usage_limit_waits_then_honors_stop_file(self):
         result = self.run_loop("astra", mode="limit")
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertEqual((self.root / "sleeps").read_text(), "1800\n")
+        self.assertEqual((self.root / "sleeps").read_text(), "900\n")
+        self.assertIn("stop file found", result.stdout)
+
+    def test_claude_session_limit_waits_then_honors_stop_file(self):
+        message = "You've hit your session limit · resets 1:20am (Europe/Amsterdam)"
+        event = json.dumps({"type": "result", "result": message,
+                            "num_turns": 1, "duration_ms": 3000})
+        self.stub("claude", "cat <<'EOF'\n" + event + "\nEOF")
+        result = self.run_loop("sonnet")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual((self.root / "sleeps").read_text(), "900\n")
+        self.assertIn("limit reached — waiting 15 min", result.stdout)
+        self.assertNotIn("iteration 2", result.stdout)
         self.assertIn("stop file found", result.stdout)
 
 

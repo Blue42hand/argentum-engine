@@ -211,8 +211,8 @@ while [ ! -e "$RUNS/$CODE.stop" ]; do
   LAST=$(echo "$RESULT" | tail -1)
   log "iteration $N finished: ${LAST:-<no result>} ($STATS)"
 
-  if grep -qiE 'usage limit|hit your limit|rate limit|overloaded|quota exceeded' <<<"$RESULT$(tail -5 "$TRANSCRIPT")"; then
-    log "limit reached — waiting 30 min"; sleep 1800; continue
+  if grep -qiE 'usage limit|session limit|hit your limit|rate limit|overloaded|quota exceeded' <<<"$RESULT$(tail -5 "$TRANSCRIPT")"; then
+    log "limit reached — waiting 15 min"; sleep 900; continue
   fi
   if [ "$HARNESS" = codex ] && { [ "$SESSION_STATUS" -ne 0 ] || [ -z "$FINAL" ]; }; then
     log "Codex failed or returned no final message — see $TRANSCRIPT"
