@@ -239,9 +239,9 @@ export function OpponentBoardArea({
       : effectiveCellHand === 'fan' ? cellHandBand
         : effectiveCellHand === 'count' ? CELL_HAND_COUNT_BAND
           : 0
-  // A Two-Headed Giant ally on the top row keeps its open hand *below* its lands, hanging from the
+  // A teammate (Two-Headed Giant, 2v2, ...) on either row keeps its open hand *below* its lands, hanging from the
   // bottom edge like your own, so the plate stays alone at the top and the board sits under it.
-  const handBelowBoard = hideHand && isAlly && !bottomHalf && !drivesOwnHand && effectiveCellHand === 'fan'
+  const handBelowBoard = hideHand && isAlly && !drivesOwnHand && effectiveCellHand === 'fan'
   const reservationBand = handBelowBoard
     ? CELL_PLATE_BAND
     : hideHand ? cellHandOwn + CELL_PLATE_BAND : handReservation
