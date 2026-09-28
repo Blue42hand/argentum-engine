@@ -85,6 +85,47 @@ class TriggerDetector(
     private val attachmentDetector = AttachmentTriggerDetector(abilityResolver, matcher)
 
     /**
+     * File an ANY-bound [EventPattern.DealsDamageEvent] observer under the damage-observer index it
+     * belongs to. The generic [TriggerMatcher.matchesTrigger] returns `false` for every damage
+     * pattern, so an observer that isn't filed here never fires — which is why the non-battlefield
+     * pass files graveyard- and command-zone observers here too (Bloodfeather Phoenix: "whenever an
+     * instant or sorcery spell you control deals damage to an opponent or battle, … return this card
+     * from your graveyard").
+     */
+    private fun indexDamageObserver(
+        ability: TriggeredAbility,
+        entry: TriggerIndex.IndexedEntity,
+        damageToYou: MutableList<TriggerIndex.IndexedEntity>,
+        subtypeDmg: MutableList<TriggerIndex.IndexedEntity>,
+        damageObs: MutableList<TriggerIndex.IndexedEntity>,
+    ) {
+        val trigger = ability.trigger
+        if (trigger !is EventPattern.DealsDamageEvent || ability.binding != TriggerBinding.ANY) return
+        // Every "… deals damage to you" observer goes to the damage-to-you index,
+        // with or without a sourceFilter, and only there: that path binds the
+        // damage *source* as the triggering entity ("…exile it", Farsight Mask), and
+        // routing it to the general observers as well would fire it twice.
+        val list = if (trigger.recipient == Recipient.You) {
+            damageToYou
+        } else if (trigger.damageType == DamageType.Combat &&
+            trigger.recipient == Recipient.AnyPlayer &&
+            trigger.sourceFilter != null &&
+            trigger.sourceFilter is GameObjectFilter &&
+            (trigger.sourceFilter as GameObjectFilter).cardPredicates.any {
+                it is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype
+            }
+        ) {
+            subtypeDmg
+        } else {
+            // General damage observer (e.g., Kazarov, Gossip's Talent level 3)
+            damageObs
+        }
+        // The consumers walk every ability on the entry, so an entity with two damage observers
+        // filed twice would fire each of them twice.
+        if (list.none { it === entry }) list.add(entry)
+    }
+
+    /**
      * Build a trigger index for the current game state.
      *
      * Pre-scans all battlefield permanents once, categorizing each entity by the
@@ -136,6 +177,10 @@ class TriggerDetector(
             if (abilities.isEmpty() && container.get<AttachedToComponent>() == null) continue
 
             val entry = TriggerIndex.IndexedEntity(entityId, cardComponent, controllerId, abilities)
+            // The damage-observer consumers walk every ability on the entry, so file a copy holding
+            // only the battlefield-functioning ones — otherwise a graveyard-only damage trigger
+            // (Bloodfeather Phoenix) would fire from the battlefield beside a battlefield one.
+            val battlefieldEntry by lazy { entry.copy(abilities = abilities.filter { Zone.BATTLEFIELD in it.activeZones }) }
 
             // Categorize by event types this entity's triggers respond to
             val entityCategories = mutableSetOf<TriggerCategory>()
@@ -143,30 +188,9 @@ class TriggerDetector(
                 if (Zone.BATTLEFIELD in ability.activeZones) {
                     entityCategories.addAll(TriggerIndex.triggerToCategories(ability.trigger, ability.binding))
 
-                    // Index damage observer triggers
-                    val trigger = ability.trigger
-                    if (trigger is EventPattern.DealsDamageEvent && ability.binding == TriggerBinding.ANY) {
-                        // Every "… deals damage to you" observer goes to the damage-to-you index,
-                        // with or without a sourceFilter, and only there: that path binds the
-                        // damage *source* as the triggering entity ("…exile it", Farsight Mask), and
-                        // routing it to the general observers as well would fire it twice.
-                        if (trigger.recipient == Recipient.You) {
-                            damageToYou.add(entry)
-                        } else if (trigger.damageType == DamageType.Combat &&
-                            trigger.recipient == Recipient.AnyPlayer &&
-                            trigger.sourceFilter != null &&
-                            trigger.sourceFilter is GameObjectFilter &&
-                            (trigger.sourceFilter as GameObjectFilter).cardPredicates.any {
-                                it is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype
-                            }
-                        ) {
-                            subtypeDmg.add(entry)
-                        } else {
-                            // General damage observer (e.g., Kazarov, Gossip's Talent level 3)
-                            damageObs.add(entry)
-                        }
-                    }
+                    indexDamageObserver(ability, battlefieldEntry, damageToYou, subtypeDmg, damageObs)
 
+                    val trigger = ability.trigger
                     // Index creature-dealt-damage-dies triggers
                     if (trigger is EventPattern.CreatureDealtDamageBySourceDiesEvent) {
                         deathTrackers.add(entry)
@@ -190,6 +214,8 @@ class TriggerDetector(
         // by the per-event zone passes (TriggerMatcher returns false for them), so they
         // would otherwise never fire from outside the battlefield. Enables graveyard-active
         // recursion triggers like Killian's Confidence, and the batch-shaped eminence abilities.
+        // Damage observers join the same observer lists the battlefield pass fills, for the same
+        // reason — the per-event matcher never matches a DealsDamageEvent (Bloodfeather Phoenix).
         for (zone in NON_BATTLEFIELD_ACTIVE_ZONES) {
             for (playerId in state.turnOrder) {
                 for (entityId in state.getZone(playerId, zone)) {
@@ -203,9 +229,17 @@ class TriggerDetector(
                         ?: container.get<OwnerComponent>()?.playerId
                         ?: playerId
                     val entry = TriggerIndex.IndexedEntity(entityId, cardComponent, ownerId, abilities)
+                    // The damage-observer consumers walk every ability on the entry, so file a copy
+                    // holding only the abilities that function from this zone — otherwise a card's
+                    // battlefield-only damage trigger would fire from its graveyard.
+                    val zoneEntry by lazy { entry.copy(abilities = abilities.filter { zone in it.activeZones }) }
                     val entityCategories = mutableSetOf<TriggerCategory>()
                     for (ability in abilities) {
                         if (zone !in ability.activeZones) continue
+                        // Exile keeps to its dedicated paths, as in the per-event zone pass.
+                        if (zone in NON_BATTLEFIELD_EVENT_TRIGGER_ZONES) {
+                            indexDamageObserver(ability, zoneEntry, damageToYou, subtypeDmg, damageObs)
+                        }
                         for (cat in TriggerIndex.triggerToCategories(ability.trigger, ability.binding)) {
                             if (cat in TriggerIndex.NON_BATTLEFIELD_BATCH_CATEGORIES) entityCategories.add(cat)
                         }
