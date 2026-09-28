@@ -496,17 +496,18 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     return { gap, allyWidth, ownWidth: pairWidth - allyWidth, shiftRight: cornerReserve / 2 }
   }, [allySeat, spectatorMode, isEliminatedSpectator, responsive])
 
-  // Team-split bottom half: the viewer's whole team in turn order with the anchor seat *last* —
-  // i.e. bottom-right, directly under the right-hand life orb and the zone piles that are
-  // already right-aligned, so "your stuff" occupies one corner of the table instead of being
-  // split across it. When playing, the anchor is your interactive board; when spectating it's
-  // just the bottom-anchored seat. Teammate cells reuse the overview cell + per-board collapse.
+  // Team-split bottom half: the viewer's whole team in seat order, so each player sits in their
+  // real spot on the table (first seat left, second seat right) instead of everyone being pinned
+  // bottom-right — teammates see the same arrangement. When playing, the anchor is your
+  // interactive board; when spectating it's just the bottom-anchored seat. Teammate cells reuse
+  // the overview cell + per-board collapse.
   const bottomRowOrdered = useMemo(() => {
     if (!twoRowActive || !gameState) return []
-    return gameState.players
-      .filter((p) => bottomRowIds.includes(p.playerId))
-      .sort((a, b) => (a.playerId === anchorId ? 1 : b.playerId === anchorId ? -1 : 0))
-  }, [twoRowActive, gameState, bottomRowIds, anchorId])
+    const row = gameState.players.filter((p) => bottomRowIds.includes(p.playerId))
+    if (isTeamGame) return row
+    // Free-for-all: the anchor stays bottom-right, under the right-hand orb and zone piles.
+    return row.sort((a, b) => (a.playerId === anchorId ? 1 : b.playerId === anchorId ? -1 : 0))
+  }, [twoRowActive, gameState, bottomRowIds, isTeamGame, anchorId])
   // The bottom half becomes a multi-board strip only when it holds more than the anchor (team
   // games; 4+ player free-for-alls). A lone anchor keeps the classic single bottom board — but
   // only when it really is the anchor: the single-board paths below draw the anchor's board, so
@@ -741,6 +742,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
    */
   const wrapInTeamHandRow = (ownHand: React.ReactNode): React.ReactNode => {
     if (!teamHandRow || !allySeat) return ownHand
+    // Seat order decides which side each hand sits on, matching the bottom row of boards.
+    const players = gameState.players
+    const allyFirst =
+      players.findIndex((p) => p.playerId === allySeat.playerId) <
+      players.findIndex((p) => p.playerId === playerId)
+    const allyFan = <AllyHandFan player={allySeat} width={teamHandRow.allyWidth} interactive={allyIsDriven} />
     return (
       <div
         style={{
@@ -754,8 +761,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           gap: teamHandRow.gap,
         }}
       >
-        <AllyHandFan player={allySeat} width={teamHandRow.allyWidth} interactive={allyIsDriven} />
+        {allyFirst && allyFan}
         {ownHand}
+        {!allyFirst && allyFan}
       </div>
     )
   }
