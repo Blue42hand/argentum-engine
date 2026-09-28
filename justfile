@@ -217,9 +217,9 @@ check:
     ./gradlew check
 
 # Waits out subscription usage limits; stop with `touch .claude/loop-runs/<code>.stop`.
-# Implement a whole set, one fresh session per step (e.g. just set-loop ecl astra; default: Claude)
+# Implement a set: set-loop ecl sonnet|opus|astra|pick; no args shows help
 [group: 'ai']
-set-loop CODE MODEL="":
+set-loop CODE="" MODEL="":
     scripts/set-loop "{{CODE}}" "{{MODEL}}"
 
 # Report implemented vs missing cards for a set (e.g., just card-status --set BLB --list)

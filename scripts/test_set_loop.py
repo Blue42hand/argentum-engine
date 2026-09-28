@@ -48,11 +48,39 @@ echo '{"type":"result","result":"SET_COMPLETE","num_turns":1,"duration_ms":1000}
         path.write_text("#!/usr/bin/env bash\n" + body + "\n")
         path.chmod(0o755)
 
-    def run_loop(self, *args, model="", mode="", verdict="SET_COMPLETE"):
+    def run_loop(self, *args, model="", mode="", verdict="SET_COMPLETE", set_code="ecl"):
         env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
                    TEST_ROOT=str(self.root), MODEL=model, MODE=mode, VERDICT=verdict)
-        return subprocess.run(["bash", str(self.bin / "set-loop"), "ecl", *args],
+        return subprocess.run(["bash", str(self.bin / "set-loop"), set_code, *args],
                               cwd=self.root, env=env, capture_output=True, text=True, timeout=10)
+
+    def test_help_and_models_do_not_resolve_sets_or_launch_sessions(self):
+        self.stub("resolve-set", "exit 99")
+        for option in ("", "--help", "-h", "--models"):
+            with self.subTest(option=option):
+                result = self.run_loop(set_code=option)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                for model in ("sonnet", "opus", "astra"):
+                    self.assertIn(model, result.stdout)
+                self.assertFalse((self.root / "args").exists())
+                self.assertFalse((self.root / ".claude").exists())
+
+    def test_claude_aliases_and_explicit_id(self):
+        for model in ("sonnet", "opus", "claude-opus-5-5"):
+            with self.subTest(model=model):
+                result = self.run_loop(model)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                args = (self.root / "args").read_text().splitlines()
+                self.assertEqual(args[0], "-p")
+                self.assertEqual(args[args.index("--model") + 1], model)
+                if model in ("sonnet", "opus"):
+                    self.assertIn("resolve the actual driving", "\n".join(args))
+
+    def test_picker_without_terminal_does_not_launch(self):
+        result = self.run_loop("pick")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("pick needs a terminal", result.stderr)
+        self.assertFalse((self.root / "args").exists())
 
     def test_astra_alias_and_explicit_id(self):
         for model in ("astra", "gpt-6-astra"):

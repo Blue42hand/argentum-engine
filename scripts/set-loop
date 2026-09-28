@@ -5,10 +5,56 @@
 # When the subscription's usage limit is hit, it waits and retries.
 set -uo pipefail
 
+models() {
+  cat <<'EOF'
+Model       CLI           Selection
+sonnet      Claude Code   Claude's sonnet alias
+opus        Claude Code   Claude's opus alias
+astra       Codex         gpt-6-astra
+
+Full claude-* and gpt-* model IDs also work.
+Omitting the model uses MODEL, or claude-opus-5-5 when MODEL is unset.
+EOF
+}
+
+usage() {
+  cat <<'EOF'
+Usage: just set-loop <set code or quoted name> [model]
+
+Examples:
+  just set-loop ecl sonnet
+  just set-loop ecl opus
+  just set-loop ecl astra
+  just set-loop "March of the Machine" sonnet
+  just set-loop ecl pick           # Choose from a menu
+  just set-loop --models          # Show model shortcuts
+
+EOF
+  models
+}
+
+case "${1:-}" in
+  ""|-h|--help) usage; exit 0 ;;
+  --models) models; exit 0 ;;
+esac
+if [ "$#" -gt 2 ]; then usage >&2; exit 2; fi
+
 # Accept a code or a set name ("march" -> mom); fail here rather than spend a session on a bad code.
 CODE=$("$(dirname "$0")/resolve-set" "${1:-}") || exit 1
 [ "$CODE" = "$(echo "$1" | tr '[:upper:]' '[:lower:]')" ] || echo "set-loop: '$1' resolved to set code '$CODE'"
 MODEL=${2:-${MODEL:-claude-opus-5-5}}
+if [ "$MODEL" = pick ]; then
+  if [ ! -t 0 ]; then
+    echo "set-loop: pick needs a terminal; pass sonnet, opus, astra, or a full model ID" >&2
+    exit 2
+  fi
+  PS3="Choose a model (Ctrl-C to cancel): "
+  select choice in sonnet opus astra; do
+    if [ -n "$choice" ]; then MODEL=$choice; break; fi
+    echo "Choose 1, 2, or 3." >&2
+  done
+  [ "$MODEL" != pick ] || exit 2
+fi
 case "$MODEL" in
   astra) MODEL=gpt-6-astra; HARNESS=codex ;;
   gpt-*) HARNESS=codex ;;
@@ -88,6 +134,13 @@ if [ "$HARNESS" = codex ]; then
 
 Read the applicable skill files in .agents/skills/ (add-card/SKILL.md, add-feature/SKILL.md,
 review-changes/SKILL.md, verify/SKILL.md). If subagents are unavailable, perform their steps inline."
+elif [ "$MODEL" = sonnet ] || [ "$MODEL" = opus ]; then
+  PROMPT="$PROMPT
+
+The requested model '$MODEL' is a Claude alias. Before opening a PR, resolve the actual driving
+model ID from your session's system information and use it instead of '$MODEL' in every
+[agent-loop: ...] title and model attribution. Never guess a version; if it cannot be determined,
+answer STUCK cannot determine driving model ID."
 fi
 
 # Everything the loop prints also goes to the run log.
