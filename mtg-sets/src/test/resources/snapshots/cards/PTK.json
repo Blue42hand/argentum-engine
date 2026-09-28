@@ -5716,6 +5716,41 @@
     ]
 }
 
+// Yuan Shao, the Indecisive
+{
+    "name": "Yuan Shao, the Indecisive",
+    "manaCost": "{4}{R}",
+    "typeLine": "Legendary Creature — Human Soldier",
+    "oracleText": "Horsemanship (This creature can't be blocked except by creatures with horsemanship.)\nEach creature you control can't be blocked by more than one creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "HORSEMANSHIP"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "CANT_BE_BLOCKED_BY_MORE_THAN_ONE",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "rarity": "RARE",
+        "artist": "Inoue Junichi",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e9b3794-d0f0-4d28-85cb-22492e195ae1.jpg?1783946103"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Zhang Fei, Fierce Warrior
 {
     "name": "Zhang Fei, Fierce Warrior",
