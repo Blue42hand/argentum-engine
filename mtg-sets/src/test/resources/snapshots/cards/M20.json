@@ -130,7 +130,7 @@
                     "count": 1,
                     "target": "Self"
                 },
-                "triggerRestriction": "IsNotYourTurn",
+                "triggerRestriction": "IsOpponentsTurn",
                 "descriptionOverride": "Whenever you cast a spell during an opponent's turn, put a +1/+1 counter on this creature."
             }
         ]

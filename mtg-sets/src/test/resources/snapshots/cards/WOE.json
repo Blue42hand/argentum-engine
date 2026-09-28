@@ -4304,7 +4304,7 @@
                     },
                     "id": "t0"
                 },
-                "triggerRestriction": "IsNotYourTurn"
+                "triggerRestriction": "IsOpponentsTurn"
             }
         ]
     },

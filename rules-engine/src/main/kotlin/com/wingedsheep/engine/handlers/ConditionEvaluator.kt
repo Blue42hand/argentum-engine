@@ -91,6 +91,7 @@ import com.wingedsheep.sdk.scripting.conditions.IsInStep
 import com.wingedsheep.sdk.scripting.conditions.IsFirstCombatPhaseOfTurn
 import com.wingedsheep.sdk.scripting.conditions.IsFirstEndStepOfTurn
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn
+import com.wingedsheep.sdk.scripting.conditions.IsOpponentsTurn
 import com.wingedsheep.sdk.scripting.conditions.IsPlayersTurn
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
@@ -314,6 +315,7 @@ class ConditionEvaluator(
             is IsInStep,
             IsNight,
             IsNotYourTurn,
+            IsOpponentsTurn,
             is IsPlayersTurn,
             IsYourTurn,
             is ManaSpentToCastIncludes,
@@ -421,6 +423,10 @@ class ConditionEvaluator(
             // CR 805 — "your turn" is the active team's turn for every member of that team.
             is IsYourTurn -> ctx.controllerId?.let { state.isActiveTurnFor(it) } ?: false
             is IsNotYourTurn -> ctx.controllerId?.let { !state.isActiveTurnFor(it) } ?: false
+            // "An opponent's turn" — the active player is an opponent, so a teammate's turn is not one.
+            is IsOpponentsTurn -> ctx.controllerId?.let { cid ->
+                state.activePlayerId?.let { state.isOpponentOf(it, cid) }
+            } ?: false
             // The Player-parametric turn check (Scytheclaw Raptor via TriggeringPlayer). Resolves the
             // referenced player, then asks whether it's their active turn (CR 805 team-aware).
             is IsPlayersTurn ->

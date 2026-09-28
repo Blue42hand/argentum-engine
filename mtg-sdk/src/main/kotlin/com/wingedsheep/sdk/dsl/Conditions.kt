@@ -39,6 +39,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBeare
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn as IsYourTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn as IsNotYourTurnCondition
+import com.wingedsheep.sdk.scripting.conditions.IsOpponentsTurn as IsOpponentsTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.IsPlayersTurn as IsPlayersTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.IsInPhase as IsInPhaseCondition
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
@@ -2146,10 +2147,17 @@ object Conditions {
         IsYourTurnCondition
 
     /**
-     * If it's not your turn.
+     * If it's not your turn. In a team game this includes an ally's turn; for "an opponent's turn"
+     * use [IsOpponentsTurn].
      */
     val IsNotYourTurn: ConditionInterface =
         IsNotYourTurnCondition
+
+    /**
+     * If it's an opponent's turn — the active player is one of your opponents, never a teammate.
+     */
+    val IsOpponentsTurn: ConditionInterface =
+        IsOpponentsTurnCondition
 
     /**
      * If it's [player]'s turn — the [Player]-parametric form of [IsYourTurn]. Wrap in [Not] for

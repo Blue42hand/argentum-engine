@@ -12899,7 +12899,7 @@
                     },
                     "id": "t0"
                 },
-                "triggerRestriction": "IsNotYourTurn"
+                "triggerRestriction": "IsOpponentsTurn"
             }
         ]
     },
@@ -19327,7 +19327,7 @@
                     "type": "Surveil",
                     "count": 2
                 },
-                "triggerRestriction": "IsNotYourTurn"
+                "triggerRestriction": "IsOpponentsTurn"
             }
         ]
     },
@@ -19602,7 +19602,7 @@
                         }
                     }
                 },
-                "triggerRestriction": "IsNotYourTurn"
+                "triggerRestriction": "IsOpponentsTurn"
             }
         ]
     },

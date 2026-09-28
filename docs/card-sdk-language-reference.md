@@ -11476,7 +11476,8 @@ that works in both resolution and static-ability (projection) contexts.
 ### Turn / phase
 
 - `IsYourTurn` — it's your turn.
-- `IsNotYourTurn` — it's an opponent's turn.
+- `IsNotYourTurn` — it's not your turn (an ally's turn counts in a team game).
+- `IsOpponentsTurn` — the active player is one of your opponents; never a teammate. Use for "during an opponent's turn".
 - `IsPlayersTurn(player)` — it's `player`'s turn; the `Player`-parametric form of `IsYourTurn`, for a
   turn check relative to a player other than the controller. Wrap in `Not` for "if it's not their
   turn" where "their" is a non-controller player — Scytheclaw Raptor's "whenever a player casts a
