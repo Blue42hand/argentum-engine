@@ -495,9 +495,15 @@ object DamageUtils {
                 }
                 // CR 702.80 / 122.6a: the -1/-1 counters are put on the creature by the wither
                 // source's controller, so "whenever you put counters" triggers see them as yours.
+                val witherPlacer = newState.projectedState.getController(sourceId)
+                val (afterMark, firstThisTurn, firstOfTypeThisTurn) = recordCounterPlacement(
+                    newState, targetId, CounterType.MINUS_ONE_MINUS_ONE, placerId = witherPlacer
+                )
+                newState = afterMark
                 events.add(CountersAddedEvent(targetId, CounterType.MINUS_ONE_MINUS_ONE, effectiveAmount,
                     newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature",
-                    placedBy = newState.projectedState.getController(sourceId)))
+                    firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn,
+                    placedBy = witherPlacer))
                 // Wither only changes the FORM of the damage (CR 702.80a); the creature was still
                 // dealt damage by this source, so a deathtouch source still marks it for
                 // destruction as an SBA (CR 702.2b / 704.5h) even though nothing is marked as
@@ -932,8 +938,35 @@ object DamageUtils {
     }
 
     /**
+     * Whether no [counterType] counter has been put on the permanent [targetId] yet this turn — the
+     * per-kind twin of [isFirstCounterThisTurn], read *before* the placement is marked, to stamp
+     * [com.wingedsheep.engine.core.CountersAddedEvent.firstOfTypeThisTurn] for "if it's the first
+     * time **+1/+1** counters have been put on that permanent this turn" (Botanical Brawler). It
+     * answers from the kinds recorded on the permanent's
+     * [com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent], so a
+     * shield counter earlier in the turn does not close the +1/+1 window. Unlike
+     * [isFirstCounterThisTurn] it is not creature-only: that card watches any permanent.
+     */
+    fun isFirstCounterOfTypeThisTurn(state: GameState, targetId: EntityId, counterType: CounterType): Boolean =
+        state.getEntity(targetId)
+            ?.get<com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent>()
+            ?.counterTypes?.contains(counterType) != true
+
+    /**
+     * What [recordCounterPlacement] learned about a placement: the [state] with it marked, and the
+     * two first-this-turn windows read *before* marking — any kind ([firstThisTurn]) and this kind
+     * ([firstOfTypeThisTurn]). Destructures as `(state, firstThisTurn, firstOfTypeThisTurn)`.
+     */
+    data class CounterPlacementRecord(
+        val state: GameState,
+        val firstThisTurn: Boolean,
+        val firstOfTypeThisTurn: Boolean
+    )
+
+    /**
      * Mark that [placerId] put one or more counters on the creature [targetId] this turn.
-     * Only marks when [targetId] is a creature in the projected state.
+     * The per-permanent marker is stamped on any battlefield permanent; the placer's record only
+     * when [targetId] is a creature in the projected state.
      * Records [counterType] in the PutCounterOnCreatureThisTurnComponent on the placing player's
      * entity — its presence answers "if you put a counter on a creature this turn" (Lasting
      * Tarfire) and the recorded kind answers "one or more +1/+1 counters" (Sigardian Paladin) —
@@ -957,21 +990,24 @@ object DamageUtils {
         counterType: CounterType
     ): GameState {
         val recorded = markCounterOnControlledPermanent(state, targetId, counterType)
-        if (!recorded.projectedState.isCreature(targetId)) return recorded
+        if (targetId !in recorded.getBattlefield()) return recorded
         val byController = recorded.projectedState.getController(targetId) == placerId
-        return recorded
-            .updateEntity(placerId) { container ->
-                val existing = container
-                    .get<com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent>()
-                    ?: com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent()
-                container.with(existing.with(counterType))
-            }
-            .updateEntity(targetId) { container ->
-                val existing = container
-                    .get<com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent>()
-                    ?: com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent()
-                container.with(existing.with(counterType, byController))
-            }
+        // The per-permanent marker is stamped on any permanent, so the per-kind window
+        // ([isFirstCounterOfTypeThisTurn]) closes on a noncreature too; the any-kind window and the
+        // placer's "on a creature" record stay creature-only.
+        val marked = recorded.updateEntity(targetId) { container ->
+            val existing = container
+                .get<com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent>()
+                ?: com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent()
+            container.with(existing.with(counterType, byController))
+        }
+        if (!marked.projectedState.isCreature(targetId)) return marked
+        return marked.updateEntity(placerId) { container ->
+            val existing = container
+                .get<com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent>()
+                ?: com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent()
+            container.with(existing.with(counterType))
+        }
     }
 
     /**
@@ -1022,11 +1058,12 @@ object DamageUtils {
         counterType: CounterType,
         placerId: EntityId? = null,
         byController: Boolean = false
-    ): Pair<GameState, Boolean> {
+    ): CounterPlacementRecord {
         val placedByController = byController ||
             (placerId != null && state.projectedState.getController(targetId) == placerId)
         val first = state.getEntity(targetId)
             ?.has<com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent>() != true
+        val firstOfType = isFirstCounterOfTypeThisTurn(state, targetId, counterType)
         val newState = markCounterOnControlledPermanent(state, targetId, counterType, entering = byController)
             .updateEntity(targetId) { container ->
             val existing = container
@@ -1034,7 +1071,7 @@ object DamageUtils {
                 ?: com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent()
             container.with(existing.with(counterType, placedByController))
         }
-        return newState to first
+        return CounterPlacementRecord(newState, first, firstOfType)
     }
 
     /**
@@ -2933,9 +2970,12 @@ object DamageUtils {
                 newState = newState.updateEntity(counterHolderId) { c ->
                     c.with(updatedCounters)
                 }
+                val (afterMark, firstThisTurn, firstOfTypeThisTurn) =
+                    recordCounterPlacement(newState, counterHolderId, counterType, placerId = sourceControllerId)
+                newState = afterMark
 
                 val entityName = counterHolder.get<CardComponent>()?.name ?: ""
-                events.add(CountersAddedEvent(counterHolderId, effect.counterType, amount, entityName, placedBy = sourceControllerId))
+                events.add(CountersAddedEvent(counterHolderId, effect.counterType, amount, entityName, firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn, placedBy = sourceControllerId))
 
                 // Check sacrifice threshold (state-triggered ability approximation)
                 val totalCounters = updatedCounters.getCount(counterType)
