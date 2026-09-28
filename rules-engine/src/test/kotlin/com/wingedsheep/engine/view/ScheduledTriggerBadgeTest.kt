@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.ExilePatterns
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -133,6 +134,24 @@ class ScheduledTriggerBadgeTest : FunSpec({
         badge.description!! shouldContain "Grizzly Bears"
         badge.description!! shouldNotContain "specific entity"
         badge.name shouldNotBe "Secret Slide"
+    }
+
+    test("an effect naming two different cards keeps its placeholders rather than guess which is which") {
+        val driver = createDriver()
+        val bears = driver.putCreatureOnBattlefield(driver.player1, "Grizzly Bears")
+        val giant = driver.putCreatureOnBattlefield(driver.player1, "Hill Giant")
+        val trigger = DelayedTriggeredAbility(
+            id = "both",
+            effect = CompositeEffect(listOf(
+                MoveToZoneEffect(EffectTarget.SpecificEntity(bears), Zone.HAND),
+                MoveToZoneEffect(EffectTarget.SpecificEntity(giant), Zone.GRAVEYARD),
+            )),
+            fireAtStep = Step.END, sourceId = bears, sourceName = "Grizzly Bears", controllerId = driver.player1,
+        )
+        val badge = transformer(driver).transform(driver.state.copy(delayedTriggers = listOf(trigger)), driver.player2)
+            .players.single { it.playerId == driver.player1 }.activeEffects.single { it.effectId == "scheduled_trigger_both" }
+
+        badge.description!! shouldContain "specific entity"
     }
 })
 

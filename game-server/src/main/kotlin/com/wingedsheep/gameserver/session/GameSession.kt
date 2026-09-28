@@ -12,6 +12,7 @@ import com.wingedsheep.gameserver.ai.AiRuntimeSnapshot
 import com.wingedsheep.gameserver.protocol.GameOverReason
 import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.engine.view.Visibility
+import com.wingedsheep.gameserver.persistence.dto.PersistentSeatNames
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.priority.AutoPassManager
 import com.wingedsheep.engine.core.*
@@ -1131,16 +1132,17 @@ class GameSession(
     }
 
     /** [value] with every card id in [playerId]'s own names; unchanged for a seat that has none. */
-    fun <T> toSeat(playerId: EntityId, value: T, serializer: KSerializer<T>): T =
+    fun <T> toSeat(playerId: EntityId, value: T, serializer: KSerializer<T>): T = synchronized(stateLock) {
         seatIdentities[playerId]?.toSeat(value, serializer) ?: value
+    }
 
     /**
      * [value], sent by [playerId]'s browser, with its card names turned back into engine ids; null
      * if it names a card by a name the seat no longer has.
      */
-    fun <T> fromSeat(playerId: EntityId, value: T, serializer: KSerializer<T>): T? {
+    fun <T> fromSeat(playerId: EntityId, value: T, serializer: KSerializer<T>): T? = synchronized(stateLock) {
         val names = seatIdentities[playerId] ?: return value
-        return names.fromSeat(value, serializer)
+        names.fromSeat(value, serializer)
     }
 
     /**
@@ -1972,6 +1974,11 @@ class GameSession(
     internal fun getLogsForPersistence(): Map<EntityId, List<ClientEvent>> =
         gameLogs.mapValues { it.value.toList() }
 
+    /** Each browser seat's card names, for persistence. */
+    internal fun getSeatNamesForPersistence(): Map<EntityId, PersistentSeatNames> = synchronized(stateLock) {
+        seatIdentities.mapValues { it.value.toPersistent() }
+    }
+
     /**
      * Get the last processed message IDs for persistence.
      */
@@ -1990,7 +1997,8 @@ class GameSession(
         decks: Map<EntityId, List<String>>,
         logs: Map<EntityId, MutableList<ClientEvent>>,
         lastIds: Map<EntityId, String>,
-        sideboardLists: Map<EntityId, List<String>> = emptyMap()
+        sideboardLists: Map<EntityId, List<String>> = emptyMap(),
+        seatNames: Map<EntityId, PersistentSeatNames> = emptyMap(),
     ) {
         synchronized(stateLock) {
             gameState = state?.initializeObjectIdentities()
@@ -2002,6 +2010,8 @@ class GameSession(
             gameLogs.putAll(logs)
             lastProcessedMessageId.clear()
             lastProcessedMessageId.putAll(lastIds)
+            seatIdentities.clear()
+            seatNames.forEach { (seat, names) -> seatIdentities[seat] = SeatIdentities.fromPersistent(names) }
             lastSentState.clear()
         }
     }

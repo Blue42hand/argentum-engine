@@ -778,7 +778,10 @@ internal class PlayerActiveEffectsProjector(
     /**
      * The scheduled effect's text with each object it captured named. Scheduling bakes the
      * effect's targets into [EffectTarget.SpecificEntity] references, whose own text is only
-     * "specific entity"; each is replaced, in order, by the name every player may read.
+     * "specific entity"; it is replaced by the name every player may read. The text and the
+     * serialized effect need not mention the references in the same order, so this happens only
+     * when every reference reads the same; otherwise the placeholder stays rather than risk
+     * naming the wrong card.
      */
     private fun scheduledEffectText(state: GameState, effect: Effect): String {
         val text = effect.description
@@ -797,12 +800,8 @@ internal class PlayerActiveEffectsProjector(
             }
         }
         collect(effectJson.encodeToJsonElement<Effect>(effect))
-        var named = text
-        for (id in captured) {
-            if (SPECIFIC_ENTITY !in named) break
-            named = named.replaceFirst(SPECIFIC_ENTITY, publicName(state, id))
-        }
-        return named
+        val names = captured.map { publicName(state, it) }.distinct()
+        return if (names.size == 1) text.replace(SPECIFIC_ENTITY, names.single()) else text
     }
 
     /** What every player may call [entityId]: a player's name, a public card's, or a placeholder. */

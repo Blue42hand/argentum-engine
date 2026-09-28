@@ -5,6 +5,8 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.view.Visibility
+import com.wingedsheep.gameserver.persistence.dto.PersistentSeatNames
+import com.wingedsheep.gameserver.persistence.dto.PersistentSighting
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.serialization.KSerializer
@@ -107,6 +109,13 @@ internal class SeatIdentities {
         return if (stale) null else renamed
     }
 
+    fun toPersistent(): PersistentSeatNames = PersistentSeatNames(
+        names = nameOf.entries.associate { (id, name) -> id.value to name.value },
+        retired = retired.mapTo(HashSet()) { it.value },
+        lastSeen = lastSeen.entries.associate { (id, seen) -> id.value to PersistentSighting(seen.zone, seen.zoneOpen) },
+        namesIssued = namesIssued,
+    )
+
     private fun zoneKeys(state: GameState): Map<EntityId, ZoneKey> {
         val keyOf = HashMap<EntityId, ZoneKey>()
         for ((key, ids) in state.zones) for (id in ids) keyOf[id] = key
@@ -136,10 +145,20 @@ internal class SeatIdentities {
         is JsonPrimitive -> if (element.isString) name(element.content)?.let(::JsonPrimitive) ?: element else element
     }
 
-    private companion object {
-        val HIDDEN_ZONES = setOf(Zone.LIBRARY, Zone.HAND, Zone.SIDEBOARD)
+    companion object {
+        fun fromPersistent(persistent: PersistentSeatNames): SeatIdentities = SeatIdentities().apply {
+            for ((id, name) in persistent.names) {
+                nameOf[EntityId(id)] = EntityId(name)
+                engineIdOf[EntityId(name)] = EntityId(id)
+            }
+            persistent.retired.mapTo(retired) { EntityId(it) }
+            for ((id, seen) in persistent.lastSeen) lastSeen[EntityId(id)] = Sighting(seen.zone, seen.zoneOpen)
+            namesIssued = persistent.namesIssued
+        }
 
-        val json = Json {
+        private val HIDDEN_ZONES = setOf(Zone.LIBRARY, Zone.HAND, Zone.SIDEBOARD)
+
+        private val json = Json {
             encodeDefaults = true
             classDiscriminator = "type"
             serializersModule = engineSerializersModule

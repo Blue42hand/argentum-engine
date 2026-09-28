@@ -102,7 +102,15 @@ class SeatIdentityTest : ScenarioTestBase() {
                 .moveToZone(bears, ZoneKey(owner, Zone.LIBRARY), ZoneKey(owner, Zone.BATTLEFIELD))
                 .updateEntity(bears) { it.with(FaceDownComponent) }
 
-            session.fullUpdate(viewer, manifested, game).battlefieldOf(owner).single() shouldNotBe bears
+            val renamed = session.fullUpdate(viewer, manifested, game).battlefieldOf(owner).single()
+            renamed shouldNotBe bears
+            // A restart keeps the seat's names, so the card doesn't come back under its engine id.
+            val restored = GameSession(cardRegistry = cardRegistry)
+            restored.restoreFromPersistence(
+                manifested, emptyMap(), mutableMapOf(), emptyMap(),
+                seatNames = session.getSeatNamesForPersistence(),
+            )
+            restored.fullUpdate(viewer, manifested, game).battlefieldOf(owner).single() shouldBe renamed
             // In-process AI seats read raw engine state and keep engine ids.
             session.injectStateForTesting(manifested, players(game))
             session.clearLastSentState(viewer)

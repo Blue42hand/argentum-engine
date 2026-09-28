@@ -401,8 +401,8 @@ export function ActiveEffectBadges({ effects, sizing }: {
   effects: readonly ClientCardEffect[]
   sizing?: ActiveEffectBadgeSizing
 }) {
-  // Tracked by position: two badges can share an effectId (one restriction applied twice with
-  // different ends), and each must show its own tooltip.
+  // Tracked by position: badges from different families can share an effectId, and each must
+  // show its own tooltip.
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const [tooltipPos, setTooltipPos] = React.useState<{ x: number; y: number } | null>(null)
 
