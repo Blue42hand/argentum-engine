@@ -42,6 +42,10 @@ Sent whenever the game state changes.
           }
           // Visible to owner. An opponent receives no entry at all, only the zone's size:
           // a hidden card is never referenced by ID, since an ID is enough to follow the card.
+          // For the same reason a browser seat that loses track of a card it saw (a revealed
+          // hand card cast face down, a card shuffled away and manifested) gets it under a new,
+          // seat-specific ID ("h1", "h2", …). The client echoes IDs back as received; a stale
+          // one is rejected ("Refers to a card by a name you no longer have").
         ]
       },
       {
@@ -185,6 +189,9 @@ panel is the pre-existing view, and shows card backs for everything not revealed
 `StateDelta.deck` is sent only when a count actually moved (a draw, a mill, a tutor), so the
 many updates that just shuffle the battlefield around don't re-send the list. Absent from a delta
 means unchanged — the client carries the previous value forward.
+
+`StateDelta.activeYields` and `StateDelta.voidActive` follow the same rule: present only when
+they changed. `StateDeltaTest` fails when a new `ClientGameState` field is left off `StateDelta`.
 
 ### C. Connection Liveness (Client <-> Server)
 
