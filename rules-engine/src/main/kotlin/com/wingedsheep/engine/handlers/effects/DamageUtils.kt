@@ -1726,7 +1726,7 @@ object DamageUtils {
      * full amount to, plus the replacement source's id (so the caller can mark it applied
      * and prevent redirect loops). Returns (null, null) when nothing applies.
      */
-    private fun findStaticDamageRedirect(
+    fun findStaticDamageRedirect(
         state: GameState,
         targetId: EntityId,
         amount: Int,

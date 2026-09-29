@@ -931,9 +931,30 @@ internal class CombatDamageManager(
         /** Recipients whose heal-on-damage replacement was already evaluated this step — see [applyCombatDamage]. */
         healProcessedTargets: MutableSet<EntityId>,
         /** Life owed to life-gaining prevention shields' controllers this step — see [applyCombatDamage]. */
-        preventionLifeGains: MutableMap<EntityId, Int>
+        preventionLifeGains: MutableMap<EntityId, Int>,
+        /** Static redirect sources already applied to this damage instance (CR 616.1) — loop guard. */
+        appliedRedirects: Set<EntityId> = emptySet()
     ): GameState {
         if (assignment.amount <= 0) return state
+
+        // Static redirection replacements (Pariah's Shield, With Great Power, Harsh Judgment).
+        // Combat damage must consult them too; the whole amount moves to the new recipient, which
+        // then runs the full pipeline itself (amplification, prevention, …).
+        val (staticRedirectTo, staticRedirectSource) =
+            if (DamageUtils.isDamagePreventionDisabled(state, assignment.targetId, assignment.sourceId, predicateEvaluator = predicateEvaluator)) {
+                null to null
+            } else {
+                DamageUtils.findStaticDamageRedirect(
+                    state, assignment.targetId, assignment.amount, assignment.sourceId,
+                    isCombatDamage = true, appliedRedirects, predicateEvaluator
+                )
+            }
+        if (staticRedirectTo != null && staticRedirectSource != null) {
+            return applySingleAssignment(
+                state, assignment.copy(targetId = staticRedirectTo), events, healProcessedTargets,
+                preventionLifeGains, appliedRedirects + staticRedirectSource
+            )
+        }
 
         val targetContainer = state.getEntity(assignment.targetId) ?: return state
         val isPlayer = targetContainer.get<LifeTotalComponent>() != null &&
