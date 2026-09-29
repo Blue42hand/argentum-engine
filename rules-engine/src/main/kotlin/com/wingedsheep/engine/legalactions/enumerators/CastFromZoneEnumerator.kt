@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.mechanics.cost.PlayerCounterPayment
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
@@ -93,7 +94,24 @@ class CastFromZoneEnumerator(
         enumerateCommandZone(context, result)
         enumerateKickerForZoneCasts(context, result)
 
-        return result
+        val costs = com.wingedsheep.engine.handlers.actions.spell.CastAdditionalCosts(
+            context.cardRegistry, context.costCalculator,
+            com.wingedsheep.engine.handlers.actions.spell.CastZoneResolver(
+                context.cardRegistry, context.conditionEvaluator, context.legality
+            ), context.predicateEvaluator
+        )
+        return result.map { offer ->
+            val action = offer.action as? CastSpell ?: return@map offer
+            val card = state.getEntity(action.cardId)?.get<CardComponent>() ?: return@map offer
+            val cardDef = context.cardRegistry.getCard(card.cardDefinitionId)
+            val owed = costs.owedAdditionalCosts(state, action, cardDef)
+            val counterMaxX = PlayerCounterPayment.spellMaxX(state, playerId, owed)
+            offer.copy(
+                affordable = offer.affordable && PlayerCounterPayment.canAffordSpell(state, playerId, owed),
+                hasXCost = offer.hasXCost || counterMaxX != null,
+                maxAffordableX = listOfNotNull(offer.maxAffordableX.takeIf { offer.hasXCost }, counterMaxX).minOrNull()
+            )
+        }
     }
 
     // =========================================================================

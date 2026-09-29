@@ -61,7 +61,7 @@ class CostPaymentContinuationResumer(
         is PayCost.Atom -> when (val atom = cost.atom) {
             // Yes/no costs: mana, life, mill (the milled cards are the top of the library, so
             // there is nothing to select), and random discard.
-            is CostAtom.Mana, is CostAtom.PayLife, is CostAtom.Mill,
+            is CostAtom.PayPlayerCounters, is CostAtom.Mana, is CostAtom.PayLife, is CostAtom.Mill,
             // Exiling the top N takes no selection either, for the same reason Mill doesn't.
             is CostAtom.ExileTopOfLibrary,
             // Discarding the whole hand takes no selection — every card goes.
@@ -297,7 +297,7 @@ class CostPaymentContinuationResumer(
     }
 
     private fun effectContext(state: GameState, continuation: CostPaymentContinuation): EffectContext =
-        EffectContext(
+        continuation.effectContext ?: EffectContext(
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
             controllerId = continuation.payerId,
@@ -315,6 +315,7 @@ class CostPaymentContinuationResumer(
             onDeclined = continuation.onDeclined,
             targets = continuation.targets,
             namedTargets = continuation.namedTargets,
-            storedCollections = continuation.storedCollections
+            storedCollections = continuation.storedCollections,
+            effectContext = continuation.effectContext,
         )
 }
