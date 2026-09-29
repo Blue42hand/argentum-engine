@@ -466,6 +466,7 @@ class ZoneTransitionService(
                 damageDealtByPlayers = lastKnownDamageDealtByPlayers,
                 damageSources = lastKnownDamageSources,
                 wasFaceDown = lastKnownWasFaceDown,
+                copyTriggeredAbilities = com.wingedsheep.engine.state.components.stack.captureCopyTriggeredAbilities(state, entityId),
                 conditionalSelfGrantIds = options.conditionalSelfGrantIds
                     ?: ConditionalSelfGrants.activeIds(state, entityId, cardRegistry, conditionEvaluator),
             )

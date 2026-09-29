@@ -206,6 +206,8 @@ data class EntitySnapshot(
      * way [wasSuspected] does for the suspected designation.
      */
     val wasFaceDown: Boolean = false,
+    /** Copy-added rules text, frozen before the original identity is restored on departure. */
+    val copyTriggeredAbilities: List<com.wingedsheep.sdk.scripting.TriggeredAbility> = emptyList(),
     /**
      * The "as long as …" self-granted triggered abilities ([com.wingedsheep.sdk.scripting.ConditionalStaticAbility]
      * around a `Scope.Self` [com.wingedsheep.sdk.scripting.GrantTriggeredAbility]) whose condition held
@@ -305,6 +307,7 @@ fun captureLastKnown(state: GameState, entityId: EntityId): EntitySnapshot {
         typeLine = projectedTypeLine(state, entityId),
         keywords = state.projectedState.getKeywords(entityId),
         cardDefinitionId = container?.get<CardComponent>()?.cardDefinitionId,
+        copyTriggeredAbilities = captureCopyTriggeredAbilities(state, entityId),
         wasAttacking = container?.has<AttackingComponent>() ?: false,
         wasBlocking = container?.has<BlockingComponent>() ?: false,
         attachmentIds = attachmentIdsOf(state, entityId),
@@ -354,3 +357,16 @@ fun List<EntitySnapshot>.snapshotFor(id: EntityId): EntitySnapshot? =
 
 val List<EntitySnapshot>.entityIds: List<EntityId>
     get() = map { it.entityId }
+
+/** Freeze copy-added rules text while its battlefield text-changing effects still apply. */
+fun captureCopyTriggeredAbilities(state: GameState, entityId: EntityId): List<com.wingedsheep.sdk.scripting.TriggeredAbility> {
+    val container = state.getEntity(entityId) ?: return emptyList()
+    val abilities = container.get<CardComponent>()?.copyTriggeredAbilities.orEmpty()
+    if (abilities.isEmpty()) return abilities
+    if (container.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>() ||
+        state.projectedState.hasLostAllAbilities(entityId)
+    ) return emptyList()
+    val replacement = com.wingedsheep.engine.state.components.identity.TextChanges.of(state, entityId)
+        ?: return abilities
+    return abilities.map { it.applyTextReplacement(replacement) }
+}
