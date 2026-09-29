@@ -73,6 +73,8 @@ class SetCoverageService(
     private data class CanonicalCard(
         val name: String,
         val img: String? = null,
+        /** Printed sideways (split layouts, battles) — the hover preview rotates it. */
+        val landscape: Boolean = false,
         /**
          * Scryfall-style section heading for an extra — "Starter Decks", "Promos", … — derived by
          * `scripts/gen-set-totals` from the printing's `promo_types`. Null on booster cards and on
@@ -147,6 +149,8 @@ class SetCoverageService(
         val implemented: Boolean,
         /** Set-specific Scryfall art (direct CDN URL, normal size); null if Scryfall had none. */
         val imageUri: String?,
+        /** Printed sideways — split layouts and battles (CR 310) — so the preview rotates it 90°. */
+        val isLandscape: Boolean,
         /** Non-null when the card is deliberately never going to be implemented, and why. */
         val notPlanned: NotPlanned?,
         /**
@@ -384,6 +388,7 @@ class SetCoverageService(
                     name = card.name,
                     implemented = implemented,
                     imageUri = card.img,
+                    isLandscape = card.landscape,
                     notPlanned = card.notPlanned.takeIf { !implemented },
                     // Attached to implemented cards too, not just missing ones: on a card we've
                     // already authored, "Assay declines this" is the grammar backlog entry whose
