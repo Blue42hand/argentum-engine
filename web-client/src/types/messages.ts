@@ -174,6 +174,8 @@ export interface OpponentDecisionStatus {
   readonly decisionType: string
   readonly displayText: string
   readonly sourceName?: string | null
+  /** The source entity; resolve its card from the (viewer-masked) game state. */
+  readonly sourceId?: EntityId | null
 }
 
 /**
@@ -1914,6 +1916,8 @@ export interface SpectatorDecisionStatus {
   readonly decisionType: string
   readonly displayText: string
   readonly sourceName?: string | null
+  /** The source entity; resolve its card from the (viewer-masked) game state. */
+  readonly sourceId?: EntityId | null
 }
 
 export interface SpectatorStateUpdateMessage {

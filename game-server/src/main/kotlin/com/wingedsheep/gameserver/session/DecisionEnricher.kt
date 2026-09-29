@@ -142,7 +142,8 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
             playerId = decision.playerId.value,
             decisionType = decision::class.simpleName ?: "Unknown",
             displayText = displayText,
-            sourceName = maskedSourceName(decision, state, viewerId)
+            sourceName = maskedSourceName(decision, state, viewerId),
+            sourceId = decision.context.sourceId?.value
         )
     }
 }
