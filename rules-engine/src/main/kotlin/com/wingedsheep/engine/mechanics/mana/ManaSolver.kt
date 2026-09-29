@@ -296,6 +296,12 @@ data class BonusManaEntry(
      * [manaProduced] — counting that again would double the spend.
      */
     val countsTowardSpent: Boolean = false,
+    /**
+     * The source whose tap produced this entry. A source's own bonus mana arrives only *after*
+     * its activation cost is paid, so it can never pay that cost (Dimir Signet's second mana
+     * must not fund its own {1}).
+     */
+    val sourceId: EntityId? = null,
 )
 
 /**
@@ -426,6 +432,9 @@ class ManaSolver(
         // mana retains its restriction when it lands in the player's pool.
         val bonusManaPool = mutableListOf<BonusManaEntry>()
 
+        // The colour each used source was tapped for — selects which activation cost it owes.
+        val usedColor = mutableMapOf<EntityId, Color?>()
+
         // Per-color tally of aura bonus mana (entries flagged [BonusManaEntry.countsTowardSpent])
         // actually spent on the cost. Reported via [ManaSolution.bonusManaSpentByColor] so callers
         // fold it into the mana-spent-to-cast tally — see [BonusManaEntry.countsTowardSpent].
@@ -434,6 +443,7 @@ class ManaSolver(
         // Helper to update available counts when a source is used
         fun useSource(source: ManaSource, colorUsed: Color?) {
             usedSources.add(source)
+            usedColor[source.entityId] = colorUsed
             remainingSources.remove(source)
             for (color in source.producesColors) {
                 availableSourcesByColor[color] = (availableSourcesByColor[color] ?: 1) - 1
@@ -447,13 +457,13 @@ class ManaSolver(
             if (producedAmount > 1) {
                 if (colorUsed != null) {
                     val restrictionForExcess = source.colorRestrictions[colorUsed] ?: source.restriction
-                    bonusManaPool.add(BonusManaEntry(colorUsed, producedAmount - 1, restrictionForExcess))
+                    bonusManaPool.add(BonusManaEntry(colorUsed, producedAmount - 1, restrictionForExcess, sourceId = source.entityId))
                 } else if (source.producesColorless) {
                     // Colorless excess (e.g. the second {C} of Sol Ring's "{T}: Add {C}{C}").
                     // Float it as colorless so a later generic/{C} pip can consume it, or it
                     // lands in the pool — instead of being silently dropped.
                     bonusManaPool.add(
-                        BonusManaEntry(Color.WHITE, producedAmount - 1, source.restriction, colorless = true)
+                        BonusManaEntry(Color.WHITE, producedAmount - 1, source.restriction, colorless = true, sourceId = source.entityId)
                     )
                 }
             }
@@ -470,6 +480,7 @@ class ManaSolver(
                         anyColor = source.bonusManaIsAnyColor,
                         // Genuinely-extra mana, not in `manaProduced` — count it when spent.
                         countsTowardSpent = true,
+                        sourceId = source.entityId,
                     )
                 )
             }
@@ -483,6 +494,7 @@ class ManaSolver(
                         restriction = null,
                         colorless = true,
                         countsTowardSpent = true,
+                        sourceId = source.entityId,
                     )
                 )
             }
@@ -515,8 +527,8 @@ class ManaSolver(
 
         // Helper to spend one bonus mana of any color for a generic cost. Same FIFO
         // policy as [spendBonusMana].
-        fun spendAnyBonusMana(): Boolean {
-            val idx = bonusManaPool.indexOfFirst { it.amount > 0 }
+        fun spendAnyBonusMana(notFrom: EntityId? = null): Boolean {
+            val idx = bonusManaPool.indexOfFirst { it.amount > 0 && (notFrom == null || it.sourceId != notFrom) }
             if (idx < 0) return false
             val entry = bonusManaPool[idx]
             bonusManaPool[idx] = entry.copy(amount = entry.amount - 1)
@@ -554,6 +566,7 @@ class ManaSolver(
             } ?: return false
             usedSources.add(source)
             remainingSources.remove(source)
+            usedColor[source.entityId] = source.availableColorsFor(spellContext).firstOrNull()
             for (c in source.producesColors) {
                 availableSourcesByColor[c] = (availableSourcesByColor[c] ?: 1) - 1
             }
@@ -562,7 +575,7 @@ class ManaSolver(
             val primaryColor = source.availableColorsFor(spellContext).firstOrNull()
             if (primaryColor != null) {
                 manaProduced[source.entityId] = ManaProduction(color = primaryColor, amount = source.amountFor(primaryColor))
-                bonusManaPool.add(BonusManaEntry(primaryColor, source.amountFor(primaryColor), source.restriction))
+                bonusManaPool.add(BonusManaEntry(primaryColor, source.amountFor(primaryColor), source.restriction, sourceId = source.entityId))
             } else {
                 manaProduced[source.entityId] = ManaProduction(colorless = source.amountFor(null))
             }
@@ -575,6 +588,7 @@ class ManaSolver(
                     anyColor = source.bonusManaIsAnyColor,
                     // Genuinely-extra mana, not in `manaProduced` — count it when spent.
                     countsTowardSpent = true,
+                    sourceId = source.entityId,
                 )
             )
             return spendBonusMana(color)
@@ -699,26 +713,37 @@ class ManaSolver(
         //     consumed by the ability's activation cost rather than flowing into the
         //     spell's payment pool. Excess mana from multi-mana sources does still
         //     flow to the bonus pool and remains available for the generic pass.
-        var activationCostRemaining = 0
-        for (used in usedSources) {
-            val produced = manaProduced[used.entityId] ?: continue
-            val color = produced.color ?: continue
-            activationCostRemaining += used.colorActivationManaCost[color] ?: 0
-        }
-        while (activationCostRemaining > 0) {
-            if (spendAnyBonusMana()) {
-                activationCostRemaining--
-                continue
+        val billed = mutableSetOf<EntityId>()
+        fun activationCostOf(source: ManaSource): Int =
+            usedColor[source.entityId]?.let { source.colorActivationManaCost[it] } ?: 0
+
+        // Settles the activation cost of every source tapped so far, including sources tapped to
+        // pay an earlier one. Re-run after each tap in the passes below: a source pulled in by the
+        // generic pass owes its {1} too. Its own bonus mana never pays it.
+        fun settleActivationCosts(): Boolean {
+            while (true) {
+                val next = usedSources.firstOrNull { it.entityId !in billed } ?: return true
+                billed.add(next.entityId)
+                var owed = activationCostOf(next)
+                while (owed > 0) {
+                    if (spendAnyBonusMana(notFrom = next.entityId)) {
+                        owed--
+                        continue
+                    }
+                    // Prefer a payer that owes nothing itself, then the usual tap priority.
+                    val payer = remainingSources.minWithOrNull(
+                        compareBy<ManaSource>(
+                            { src -> src.producesColors.firstOrNull()?.let { src.colorActivationManaCost[it] } ?: 0 },
+                            { src -> calculateTapPriority(src, handRequirements, availableSourcesByColor) },
+                        )
+                    ) ?: return false
+                    // Tap for activation cost; attribute any excess to bonus pool.
+                    useSource(payer, payer.producesColors.firstOrNull())
+                    owed--
+                }
             }
-            if (remainingSources.isEmpty()) return null
-            val source = remainingSources.minByOrNull {
-                calculateTapPriority(it, handRequirements, availableSourcesByColor)
-            } ?: return null
-            // Tap for activation cost; attribute any excess to bonus pool.
-            val excessColor = source.producesColors.firstOrNull()
-            useSource(source, excessColor)
-            activationCostRemaining--
         }
+        if (!settleActivationCosts()) return null
 
         // 1c. Pay the color-restricted X portion ("spend only [colors] on X"), if any.
         //     Runs before the generic pass so unrestricted generic mana isn't consumed by a
@@ -754,6 +779,7 @@ class ManaSolver(
                 manaProduced[source.entityId] = ManaProduction(color = colorToUse, amount = source.amountFor(colorToUse))
                 useSource(source, colorToUse)
                 xRestrictedSpent[colorToUse] = (xRestrictedSpent[colorToUse] ?: 0) + 1
+                if (!settleActivationCosts()) return null
                 xRemaining--
             }
         }
@@ -818,6 +844,7 @@ class ManaSolver(
                 ManaProduction(colorless = source.amountFor(null))
             }
             useSource(source, colorToUse)
+            if (!settleActivationCosts()) return null
             genericRemaining--
         }
 
