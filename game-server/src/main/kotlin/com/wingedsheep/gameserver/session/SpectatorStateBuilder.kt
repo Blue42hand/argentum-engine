@@ -107,7 +107,8 @@ class SpectatorStateBuilder(
             playerId = decision.playerId.value,
             decisionType = decision::class.simpleName ?: "Unknown",
             displayText = displayText,
-            sourceName = decision.context.sourceName
+            sourceName = decision.context.sourceName,
+            sourceId = decision.context.sourceId?.value
         )
     }
 
