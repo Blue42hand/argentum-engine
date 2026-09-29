@@ -204,8 +204,7 @@ class CreateTokenCopyOfTargetExecutor(
             if (effect.attacking && tokenCard.typeLine.isCreature) {
                 // The token joins the source's attack (CR 802.2a) — see CreateTokenExecutor.
                 val defenderId = com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
-                    .resolveDefendingPlayer(context, newState)
-                    ?: newState.getOpponents(controllerId).firstOrNull()
+                    .defenderForEnteringAttacker(context, newState, controllerId)
                 if (defenderId != null) {
                     components.add(AttackingComponent(defenderId))
                 }

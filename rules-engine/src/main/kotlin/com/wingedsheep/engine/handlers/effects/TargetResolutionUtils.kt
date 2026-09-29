@@ -238,6 +238,22 @@ object TargetResolutionUtils {
     }
 
     /**
+     * The player a creature [controllerId] puts onto the battlefield "tapped and attacking"
+     * attacks (CR 508.4): the source's defending player when that is one of [controllerId]'s
+     * opponents, else an opponent already defending in this combat, else the first opponent.
+     *
+     * [resolveDefendingPlayer] alone isn't enough: when the source isn't attacking, it falls
+     * back to the trigger's player, and for "whenever you attack" (Warren Warleader) that is
+     * the attacker — the token would attack its own controller and be unblockable.
+     */
+    fun defenderForEnteringAttacker(context: EffectContext, state: GameState, controllerId: EntityId): EntityId? {
+        val opponents = state.getOpponents(controllerId)
+        resolveDefendingPlayer(context, state)?.takeIf { it in opponents }?.let { return it }
+        val defending = com.wingedsheep.engine.mechanics.combat.CombatDefenders.defendingPlayers(state)
+        return opponents.firstOrNull { it in defending } ?: opponents.firstOrNull()
+    }
+
+    /**
      * The player [attackerId] is attacking (CR 802.2a), read from combat: its own
      * `AttackingComponent` while it is still on the battlefield, else the defender frozen into its
      * battlefield-exit snapshot. A creature attacking a planeswalker or battle maps to that
