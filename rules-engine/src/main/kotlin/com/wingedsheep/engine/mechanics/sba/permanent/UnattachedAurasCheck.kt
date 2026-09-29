@@ -68,13 +68,37 @@ class UnattachedAurasCheck(
             val container = state.getEntity(entityId) ?: continue
             val cardComponent = container.get<CardComponent>() ?: continue
 
-            // CR 310.10 / 704.5p: a battle can't be attached to anything, even if it is also an Aura
-            // or Equipment. It becomes unattached and stays on the battlefield, and the Aura rules
-            // below never apply to it (an unattached Aura-battle is not put into the graveyard).
-            if (projected.isBattle(entityId)) {
+            val remainsAttachment =
+                (projected.hasType(entityId, "ENCHANTMENT") && projected.hasSubtype(entityId, "Aura")) ||
+                (projected.hasType(entityId, "ARTIFACT") &&
+                    (projected.hasSubtype(entityId, "Equipment") || projected.hasSubtype(entityId, "Fortification")))
+
+            // Bestow ends instead of sending an unattached/illegal Aura to the graveyard.
+            if (container.has<com.wingedsheep.engine.mechanics.BestowedComponent>()) {
+                val host = container.get<AttachedToComponent>()?.targetId
+                val hostLeft = container.get<AttachmentHostLeftComponent>()
+                val illegal = !remainsAttachment || host == null || host == entityId || host !in state.getBattlefield() ||
+                    !projected.hasKeyword(entityId, com.wingedsheep.engine.mechanics.BestowCasts.ENCHANT_CREATURE) ||
+                    hostLeft?.lastKnownHostId == host || !projected.isCreature(host) ||
+                    projected.hasKeyword(host, com.wingedsheep.sdk.core.AbilityFlag.CANT_BE_ENCHANTED) ||
+                    projected.isCreature(entityId) || projected.isBattle(entityId) ||
+                    hostProtectedFromAttachment(state, projected, entityId, cardComponent, host)
+                if (illegal) {
+                    val (detached, detachEvents) = unattachEmittingEvent(newState, entityId)
+                    newState = com.wingedsheep.engine.mechanics.BestowCasts.end(detached, entityId)
+                        .updateEntity(entityId) { it.without<AttachmentHostLeftComponent>() }
+                    events.addAll(detachEvents)
+                }
+                continue
+            }
+
+            // CR 704.5p: creatures, battles, and permanents without an attachment type come off.
+            // This also clears the leave-trigger link retained when a host leaving ended bestow.
+            if (projected.isBattle(entityId) || !remainsAttachment ||
+                (projected.isCreature(entityId) && !projected.hasKeyword(entityId, "RECONFIGURE"))) {
                 if (container.has<AttachedToComponent>()) {
                     val (detached, unattachEvents) = unattachEmittingEvent(newState, entityId)
-                    newState = detached
+                    newState = detached.updateEntity(entityId) { it.without<AttachmentHostLeftComponent>() }
                     events.addAll(unattachEvents)
                 }
                 continue
@@ -196,7 +220,7 @@ class UnattachedAurasCheck(
                     newState = result.newState
                     events.addAll(result.events)
                 } else if (
-                    hostProtectedFromAttachmentColor(newState, projected, entityId, cardComponent, attachedTo.targetId)
+                    hostProtectedFromAttachment(newState, projected, entityId, cardComponent, attachedTo.targetId)
                 ) {
                     // CR 702.16c/d: the host has protection from one of this attachment's colors
                     // (gained after the attachment landed — e.g. White Ward's pro-white sends an
@@ -228,7 +252,7 @@ class UnattachedAurasCheck(
      * Only the requirement's *filter* is re-evaluated — not full targeting legality. An attached
      * Aura isn't re-targeted, so hexproof/shroud/"can't be the target of" gained after the fact
      * don't dislodge it (CR 702.11b); protection is the one quality that does, and
-     * [hostProtectedFromAttachmentColor] handles it separately.
+     * [hostProtectedFromAttachment] handles it separately.
      *
      * Deliberately fails *open* — an Aura we can't judge (printing not in the registry, an
      * "enchant player" requirement, a filter scoped to a zone other than the battlefield) is left
@@ -252,14 +276,14 @@ class UnattachedAurasCheck(
         return !satisfied
     }
 
-    /** CR 702.16c/d — see [com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostProtectedFromAttachmentColor]. */
-    private fun hostProtectedFromAttachmentColor(
+    /** CR 702.16c/d — see [com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostProtectedFromAttachment]. */
+    private fun hostProtectedFromAttachment(
         state: GameState,
         projected: ProjectedState,
         attachmentId: EntityId,
         attachmentCard: CardComponent,
         hostId: EntityId
-    ): Boolean = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostProtectedFromAttachmentColor(
+    ): Boolean = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostProtectedFromAttachment(
         state, projected, cardRegistry, attachmentId, attachmentCard, hostId
     )
 }

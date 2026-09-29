@@ -785,6 +785,15 @@ sealed interface KeywordAbility {
     }
 
     // =========================================================================
+    // Bestow
+
+    @Serializable
+    @SerialName("Bestow")
+    data class Bestow(val cost: ManaCost, val additionalCost: AdditionalCost? = null) : KeywordAbility {
+        override val keyword: Keyword = Keyword.BESTOW
+        override val description: String = "Bestow $cost" + (additionalCost?.let { ", ${it.description}" } ?: "")
+    }
+
     // Evoke
     // =========================================================================
 
@@ -1316,8 +1325,12 @@ sealed interface KeywordAbility {
         fun dash(cost: String): KeywordAbility = Dash(ManaCost.parse(cost))
 
         /**
-         * Create Evoke with mana cost from string.
+         * Create Bestow with mana cost from string and an optional nonmana payment.
          */
+        fun bestow(cost: String, additionalCost: AdditionalCost? = null): KeywordAbility =
+            Bestow(ManaCost.parse(cost), additionalCost)
+
+        /** Create Evoke with mana cost from string. */
         fun evoke(cost: String): KeywordAbility = Evoke(ManaCost.parse(cost))
 
         /**

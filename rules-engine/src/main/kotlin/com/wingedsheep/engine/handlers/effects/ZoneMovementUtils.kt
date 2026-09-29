@@ -384,6 +384,7 @@ object ZoneMovementUtils {
 
         var newState = cleanupReverseAttachmentLink(state, attachmentId)
         newState = newState.updateEntity(attachmentId) { c -> c.without<AttachedToComponent>() }
+        newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, attachmentId)
 
         return newState to listOf(
             com.wingedsheep.engine.core.PermanentUnattachedEvent(
@@ -422,6 +423,11 @@ object ZoneMovementUtils {
             if (attachment.get<AttachedToComponent>()?.targetId != leavingHostId) continue
             newState = newState.updateEntity(attachmentId) { c ->
                 c.with(AttachmentHostLeftComponent(lastKnownHostId = leavingHostId))
+            }
+            // Bestow ends as the host leaves, before the next instruction can inspect creature
+            // characteristics. Keep the attachment link for leave-trigger detection until the SBA.
+            if (!attachment.has<com.wingedsheep.engine.state.components.battlefield.PhasedOutComponent>()) {
+                newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, attachmentId)
             }
         }
         return newState
