@@ -500,7 +500,7 @@ function DraftPicker({ draftState, settings }: { draftState: DraftState; setting
           imageUri={dfc.displayImageUri ?? hoveredCard.imageUri}
           pos={hoverPos}
           rulings={hoveredCard.rulings}
-          overlay={dfc.hint}
+          hint={dfc.hint}
           imageRotateDeg={landscapeImageRotateDeg(hoveredCard)}
         />
       )}

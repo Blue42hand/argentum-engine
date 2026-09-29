@@ -1277,7 +1277,7 @@ export function DeckbuilderPage() {
                 ? (deckHoverDfc.displayImageUri ?? effectiveDeckHoverCard?.imageUri ?? null)
                 : null
             }
-            overlay={deckHoverDfc.hint}
+            hint={deckHoverDfc.hint}
             imageRotateDeg={landscapeImageRotateDeg(effectiveDeckHoverCard)}
           />
         ) : (
@@ -2499,12 +2499,12 @@ function DeckFormatPicker({
 function DeckHoverPreview({
   name,
   imageUri,
-  overlay,
+  hint,
   imageRotateDeg = 0,
 }: {
   name: string | null
   imageUri: string | null
-  overlay?: React.ReactNode
+  hint?: React.ReactNode
   imageRotateDeg?: 0 | 90
 }) {
   if (!name) {
@@ -2543,8 +2543,8 @@ function DeckHoverPreview({
               : undefined
           }
         />
-        {overlay}
       </div>
+      {hint}
     </div>
   )
 }
@@ -2720,7 +2720,7 @@ function DeckListPanel({
       <HoverFollowPreview
         name={hoverName ? (dfc.displayName ?? hoverName) : null}
         imageUri={hoverName ? (dfc.displayImageUri ?? effectiveHoverCard?.imageUri ?? null) : null}
-        overlay={dfc.hint}
+        hint={dfc.hint}
         imageRotateDeg={landscapeImageRotateDeg(effectiveHoverCard)}
       />
     </div>
@@ -3182,7 +3182,7 @@ function AddCardSearch({
       <HoverFollowPreview
         name={hoverCard ? (dfc.displayName ?? hoverCard.name) : null}
         imageUri={hoverCard ? (dfc.displayImageUri ?? hoverCard.imageUri ?? null) : null}
-        overlay={dfc.hint}
+        hint={dfc.hint}
         imageRotateDeg={landscapeImageRotateDeg(hoverCard)}
       />
     </div>

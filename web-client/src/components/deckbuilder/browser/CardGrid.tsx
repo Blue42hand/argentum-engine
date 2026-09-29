@@ -100,7 +100,7 @@ export function CardGrid({
       <HoverFollowPreview
         name={hoverCard ? (dfc.displayName ?? hoverCard.name) : null}
         imageUri={hoverCard ? (dfc.displayImageUri ?? hoverCard.imageUri ?? null) : null}
-        overlay={dfc.hint}
+        hint={dfc.hint}
         imageRotateDeg={landscapeImageRotateDeg(hoverCard)}
       />
     </>

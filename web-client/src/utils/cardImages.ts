@@ -51,27 +51,29 @@ export function faceDownImageUrl(faceDownMode?: string): string {
 export const CARD_BACK_IMAGE_URL = 'https://backs.scryfall.io/normal/2/2/222b7a3b-2321-4d4c-af19-19338b134971.jpg?1677416389'
 
 /**
- * Degrees to rotate a card's hover preview image: 90° for a card that is **printed sideways**,
- * 0 otherwise.
+ * Degrees to rotate a card's hover preview image: 90° for a split-layout card that is **printed
+ * sideways** (Rooms, Pain // Suffering), 0 otherwise.
  *
- * Which cards those are is decided server-side, in `CardDefinition.isLandscapePrint` — split
- * layouts (Rooms, Pain // Suffering) and battles (CR 310). Prefer the `isLandscape` flag the
- * server sends; the `layout` / `typeLine` derivation below is only a fallback for card shapes that
- * predate the flag, and exists so no surface silently reverts to upright.
+ * Battles (CR 310) are printed sideways too, and the server flags them `isLandscape`, but a hover
+ * preview deliberately shows them portrait — the unrotated Scryfall file, as the card is held in
+ * hand. Only their battlefield / stack footprint turns sideways.
+ *
+ * Prefer the `isLandscape` flag the server sends; the `layout` derivation below is only a fallback
+ * for card shapes that predate the flag.
  */
 export function landscapeImageRotateDeg(
   card: { isLandscape?: boolean; layout?: string; typeLine?: string | null } | null | undefined
 ): 0 | 90 {
   if (!card) return 0
+  if (isBattleTypeLine(card.typeLine)) return 0
   if (card.isLandscape !== undefined) return card.isLandscape ? 90 : 0
-  if (card.layout === 'SPLIT') return 90
-  return isBattleTypeLine(card.typeLine) ? 90 : 0
+  return card.layout === 'SPLIT' ? 90 : 0
 }
 
 /**
  * Whether a printed type line names the Battle card type (CR 310). Only the types half of the line
  * is examined — everything before the em dash — so a subtype or a card name can never match.
- * Fallback only: prefer the server's `isLandscape` flag.
+ * Hover previews use it to keep battles portrait.
  */
 export function isBattleTypeLine(typeLine: string | null | undefined): boolean {
   if (!typeLine) return false

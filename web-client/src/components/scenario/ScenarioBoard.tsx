@@ -82,7 +82,7 @@ export function ScenarioBoard(props: ScenarioBoardProps) {
       <HoverFollowPreview
         name={hoverName ? (dfc.displayName ?? hoverName) : null}
         imageUri={hoverName ? (dfc.displayImageUri ?? hoverCard?.imageUri ?? null) : null}
-        overlay={dfc.hint}
+        hint={dfc.hint}
         imageRotateDeg={landscapeImageRotateDeg(hoverCard)}
       />
     </div>

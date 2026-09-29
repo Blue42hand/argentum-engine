@@ -60,13 +60,14 @@ export function useDfcHoverFlip(hoveredCard: DfcHoverable | null): DfcHoverFlip 
   }
 }
 
-function DfcFlipHint({ flipped }: { flipped: boolean }) {
+/**
+ * The "F to flip" pill. Rendered *below* the card image, never over it: any spot on the image
+ * covers something — rules text on a normal card, the sideways text column on a battle.
+ */
+export function DfcFlipHint({ flipped }: { flipped: boolean }) {
   return (
     <div style={{
-      position: 'absolute',
-      bottom: 10,
-      left: '50%',
-      transform: 'translateX(-50%)',
+      alignSelf: 'center',
       backgroundColor: 'rgba(0, 0, 0, 0.88)',
       color: '#d0d4e0',
       fontSize: 13,
@@ -76,7 +77,6 @@ function DfcFlipHint({ flipped }: { flipped: boolean }) {
       border: '1px solid rgba(180, 190, 220, 0.5)',
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
       whiteSpace: 'nowrap',
-      zIndex: 5,
       display: 'flex',
       alignItems: 'center',
       gap: 6,

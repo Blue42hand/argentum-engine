@@ -513,7 +513,7 @@ export function CubeEditor({ cube, availableSets, onClose, onUse }: CubeEditorPr
           name={dfc.displayName ?? hoveredCard.name}
           imageUri={dfc.displayImageUri ?? hoveredCard.imageUri ?? null}
           pos={hoverPos}
-          overlay={dfc.hint}
+          hint={dfc.hint}
           imageRotateDeg={landscapeImageRotateDeg(hoveredCard)}
         />
       )}
