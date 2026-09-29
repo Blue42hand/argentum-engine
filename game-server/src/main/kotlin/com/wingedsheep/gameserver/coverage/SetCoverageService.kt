@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.coverage
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.sdk.model.MtgSet
 import kotlinx.serialization.Serializable
@@ -149,7 +150,11 @@ class SetCoverageService(
         val implemented: Boolean,
         /** Set-specific Scryfall art (direct CDN URL, normal size); null if Scryfall had none. */
         val imageUri: String?,
-        /** Printed sideways — split layouts and battles (CR 310) — so the preview rotates it 90°. */
+        /**
+         * Printed sideways — split layouts and battles (CR 310) — so the preview rotates it 90°.
+         * Pinned, or Jackson strips the `is` prefix and the client's `isLandscape` reads undefined.
+         */
+        @get:JsonProperty("isLandscape")
         val isLandscape: Boolean,
         /** Non-null when the card is deliberately never going to be implemented, and why. */
         val notPlanned: NotPlanned?,
