@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useGameStore } from '@/store/gameStore.ts'
 import { selectGameState, selectViewingPlayerId, useCardLegalActions } from '@/store/selectors.ts'
 import { AbilityFlagDisplayNames, ZoneType, zoneIdEquals } from '@/types'
-import { getCardImageUrl, isBattleTypeLine } from '@/utils/cardImages.ts'
+import { getCardImageUrl } from '@/utils/cardImages.ts'
 import { DfcFlipHint } from '@/components/ui/useDfcHoverFlip'
 import { useResponsiveContext, handleImageError, getCounterStatModifier, hasStatCounters, listCardCounters, getTokenFrameGradient, getTokenFrameTextColor, getPTColor } from '../board/shared'
 import { styles } from '../board/styles'
@@ -171,12 +171,7 @@ export function CardPreview() {
   const shownFaceIsLandscape = showingBackFace
     ? card.backFaceIsLandscape === true
     : card.isLandscapeFace === true
-  // Battles (CR 310) are printed sideways too, but the preview shows them portrait — the unrotated
-  // image, as the card is held in hand. Only the battlefield / stack footprint turns sideways.
-  const shownFaceIsBattle = showingBackFace
-    ? isBattleTypeLine(card.backFaceTypeLine)
-    : card.cardTypes.includes('BATTLE')
-  const isLandscapePrint = shownFaceIsLandscape && !shownFaceIsBattle
+  const isLandscapePrint = shownFaceIsLandscape
   const landscapeImageRotateDeg: 0 | 90 = isLandscapePrint ? 90 : 0
   // Flip-layout tokens (WOE "Cursed" / "Sorcerer" Roles) carry imageRotation = 180 so the bottom
   // face reads upright. Split-card landscape rotation takes precedence when both somehow apply.

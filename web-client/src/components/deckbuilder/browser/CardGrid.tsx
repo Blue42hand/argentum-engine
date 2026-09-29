@@ -8,7 +8,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { ManaCost } from '@/components/ui/ManaSymbols'
 import { useDfcHoverFlip } from '@/components/ui/useDfcHoverFlip'
-import { getCardImageUrl, landscapeImageRotateDeg } from '@/utils/cardImages'
+import { getCardImageUrl } from '@/utils/cardImages'
 import type { CardSummary } from '../cardFilter'
 import styles from '../deckbuilder.module.css'
 import { setCardDragData } from './cardDrag'
@@ -101,7 +101,7 @@ export function CardGrid({
         name={hoverCard ? (dfc.displayName ?? hoverCard.name) : null}
         imageUri={hoverCard ? (dfc.displayImageUri ?? hoverCard.imageUri ?? null) : null}
         hint={dfc.hint}
-        imageRotateDeg={landscapeImageRotateDeg(hoverCard)}
+        imageRotateDeg={dfc.imageRotateDeg(hoverCard)}
       />
     </>
   )

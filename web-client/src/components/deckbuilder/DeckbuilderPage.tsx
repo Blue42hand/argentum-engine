@@ -22,7 +22,7 @@ import type { PrintingRef } from '@/types'
 import { PrintingPicker, type PrintingDTO } from './PrintingPicker'
 import { ManaCost, ManaSymbol } from '@/components/ui/ManaSymbols'
 import { useDfcHoverFlip } from '@/components/ui/useDfcHoverFlip'
-import { getCardImageUrl, landscapeImageRotateDeg } from '@/utils/cardImages'
+import { getCardImageUrl } from '@/utils/cardImages'
 import {
   DeckTile,
   DeckTileActionButton,
@@ -1278,7 +1278,7 @@ export function DeckbuilderPage() {
                 : null
             }
             hint={deckHoverDfc.hint}
-            imageRotateDeg={landscapeImageRotateDeg(effectiveDeckHoverCard)}
+            imageRotateDeg={deckHoverDfc.imageRotateDeg(effectiveDeckHoverCard)}
           />
         ) : (
           <FilterSection
@@ -2721,7 +2721,7 @@ function DeckListPanel({
         name={hoverName ? (dfc.displayName ?? hoverName) : null}
         imageUri={hoverName ? (dfc.displayImageUri ?? effectiveHoverCard?.imageUri ?? null) : null}
         hint={dfc.hint}
-        imageRotateDeg={landscapeImageRotateDeg(effectiveHoverCard)}
+        imageRotateDeg={dfc.imageRotateDeg(effectiveHoverCard)}
       />
     </div>
   )
@@ -3183,7 +3183,7 @@ function AddCardSearch({
         name={hoverCard ? (dfc.displayName ?? hoverCard.name) : null}
         imageUri={hoverCard ? (dfc.displayImageUri ?? hoverCard.imageUri ?? null) : null}
         hint={dfc.hint}
-        imageRotateDeg={landscapeImageRotateDeg(hoverCard)}
+        imageRotateDeg={dfc.imageRotateDeg(hoverCard)}
       />
     </div>
   )

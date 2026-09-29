@@ -29,7 +29,7 @@ describe('landscapeImageRotateDeg', () => {
   it('prefers the server flag over any local derivation', () => {
     // The flag is computed from CardDefinition.isLandscapePrint, the one place that decides what
     // "printed sideways" means. It wins even when the layout would say otherwise.
-    expect(landscapeImageRotateDeg({ isLandscape: true, layout: 'SPLIT' })).toBe(90)
+    expect(landscapeImageRotateDeg({ isLandscape: true, layout: 'TRANSFORM' })).toBe(90)
     expect(landscapeImageRotateDeg({ isLandscape: false, layout: 'SPLIT' })).toBe(0)
   })
 
@@ -37,9 +37,15 @@ describe('landscapeImageRotateDeg', () => {
     expect(landscapeImageRotateDeg({ layout: 'SPLIT', typeLine: 'Enchantment — Room' })).toBe(90)
   })
 
-  it('keeps battles portrait in hover previews, even though the server flags them landscape', () => {
-    expect(landscapeImageRotateDeg({ isLandscape: true, layout: 'TRANSFORM', typeLine: 'Battle — Siege' })).toBe(0)
-    expect(landscapeImageRotateDeg({ layout: 'TRANSFORM', typeLine: 'Battle — Siege' })).toBe(0)
+  it('falls back to the type line for battles, whose layout is TRANSFORM rather than SPLIT', () => {
+    // The regression this guards: keying only on `layout === SPLIT` left every battle upright,
+    // rendering it sideways in the draft / sealed / deckbuilder / cube hover previews.
+    expect(landscapeImageRotateDeg({ layout: 'TRANSFORM', typeLine: 'Battle — Siege' })).toBe(90)
+  })
+
+  it('falls back to card types for catalog cards that carry no type line', () => {
+    expect(landscapeImageRotateDeg({ layout: 'TRANSFORM', cardTypes: ['BATTLE'] })).toBe(90)
+    expect(landscapeImageRotateDeg({ layout: 'TRANSFORM', cardTypes: ['CREATURE'] })).toBe(0)
   })
 
   it('leaves ordinary portrait cards alone, including other transforming DFCs', () => {

@@ -3,7 +3,7 @@ import { useGameStore } from '@/store/gameStore.ts'
 import type { GridDraftState } from '@/store/slices'
 import type { SealedCardInfo, LobbySettings } from '@/types'
 import { useResponsive } from '@/hooks/useResponsive.ts'
-import { getCardImageUrl, landscapeImageRotateDeg } from '@/utils/cardImages.ts'
+import { getCardImageUrl } from '@/utils/cardImages.ts'
 import { ManaCost } from '../ui/ManaSymbols'
 import { HoverCardPreview } from '../ui/HoverCardPreview'
 import { useDfcHoverFlip } from '../ui/useDfcHoverFlip'
@@ -864,7 +864,7 @@ function GridDrafter({ gridState, settings }: { gridState: GridDraftState; setti
           pos={hoverPos}
           rulings={hoveredCard.rulings}
           hint={dfc.hint}
-          imageRotateDeg={landscapeImageRotateDeg(hoveredCard)}
+          imageRotateDeg={dfc.imageRotateDeg(hoveredCard)}
         />
       )}
 
