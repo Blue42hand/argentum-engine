@@ -138,6 +138,10 @@ If a step fails twice for the same PR, comment on it, mark it needs-human in the
 was one), and move on. Cards blocked on a \`[!]\` gap are skipped. When the only cards left are blocked on \`[!]\`
 gaps, answer STUCK naming those gaps; when \`card-status\` shows the set complete, answer SET_COMPLETE.
 Follow AGENTS.md. Never revert or stash work that isn't yours.
+An unrelated failure on origin/main (a test in a module your change doesn't touch) is NOT a reason to answer
+STUCK: run the gates for the modules you changed, note the unrelated failure in the ledger and the PR body,
+and carry on. Only answer STUCK when the failure is inside code your unit changed or depends on. If the
+failure is a trivial stale test, you may fix it in a separate one-commit PR.
 
 A human watches your text live, one line at a time, so keep them posted in short lines (under 150 chars each):
 - once you know which step you're taking: 'Working on: <step and unit, e.g. step 5, G3 splice onto Arcane>'
