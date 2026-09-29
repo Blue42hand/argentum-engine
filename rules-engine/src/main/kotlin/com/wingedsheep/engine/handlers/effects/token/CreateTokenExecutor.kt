@@ -273,8 +273,7 @@ class CreateTokenExecutor(
                 // (CR 802.2a: defender per attacking creature), falling back to the sole
                 // active opponent outside combat-derived contexts.
                 val defenderId = com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
-                    .resolveDefendingPlayer(context, newState)
-                    ?: newState.getOpponents(tokenControllerId).firstOrNull()
+                    .defenderForEnteringAttacker(context, newState, tokenControllerId)
                 if (defenderId != null) {
                     components.add(AttackingComponent(defenderId))
                 }
