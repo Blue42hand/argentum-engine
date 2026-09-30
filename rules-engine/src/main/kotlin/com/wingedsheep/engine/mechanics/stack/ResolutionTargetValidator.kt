@@ -81,7 +81,8 @@ internal class ResolutionTargetValidator(
             namedTargets = EffectContext.buildNamedTargets(targetRequirements, targets),
         )
 
-        return targets.filterIndexed { index, target ->
+        val individuallyLegal = targets.indices.filter { index ->
+            val target = targets[index]
             anyTargetStillMatches(state, projected, index, target, targetRequirements, predicateContext) &&
                 when (target) {
                     is ChosenTarget.Player ->
@@ -103,7 +104,46 @@ internal class ResolutionTargetValidator(
                         target.spellEntityId in state.stack
                     }
                 }
-        }
+        }.toSet()
+        val sharingController = targetsSharingAController(projected, state, targets, individuallyLegal, targetRequirements)
+        return targets.filterIndexed { index, _ -> index in individuallyLegal && index !in sharingController }
+    }
+
+    /**
+     * "Two target creatures controlled by different players" (Run Away Together) is a restriction on
+     * the *set* of targets, so it is re-checked as one at resolution: when two still-legal targets of a
+     * `differentControllers` requirement now share a controller, both are illegal (the card's ruling —
+     * "if both creatures are controlled by the same player …, both targets are illegal").
+     *
+     * The per-opponent distribution shape ("for each opponent, up to one target creature that player
+     * controls" — `dynamicMaxCount` set) is excluded: there each target is tied to its own player, so a
+     * control change makes only the moved creature illegal, and which one moved isn't recorded here.
+     * A target that already left the battlefield contributes no controller.
+     */
+    private fun targetsSharingAController(
+        projected: ProjectedState,
+        state: GameState,
+        targets: List<ChosenTarget>,
+        legalIndices: Set<Int>,
+        targetRequirements: List<TargetRequirement>,
+    ): Set<Int> {
+        val byRequirement = legalIndices
+            .filter { targets[it] is ChosenTarget.Permanent }
+            .groupBy { index ->
+                (getRequirementForTargetIndex(index, targetRequirements) as? TargetObject)
+                    ?.takeIf { it.differentControllers && it.dynamicMaxCount == null }
+            }
+        return byRequirement.flatMap { (requirement, indices) ->
+            if (requirement == null) return@flatMap emptyList()
+            indices
+                .groupBy { index ->
+                    val id = (targets[index] as ChosenTarget.Permanent).entityId
+                    projected.getController(id) ?: state.getEntity(id)?.get<ControllerComponent>()?.playerId
+                }
+                .values
+                .filter { it.size > 1 }
+                .flatten()
+        }.toSet()
     }
 
     /** An "any target" slot (CR 115.4) still holds a creature, planeswalker, battle or player its filter accepts. */

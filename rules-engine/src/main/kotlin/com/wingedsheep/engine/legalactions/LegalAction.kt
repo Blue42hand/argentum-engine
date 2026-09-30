@@ -319,8 +319,23 @@ data class TargetInfo(
      * (`TargetObject.dynamicMaxCount == DynamicAmount.XValue`). The client should
      * clamp selectable targets to the chosen X after X selection.
      */
-    val xConstrainsCount: Boolean = false
+    val xConstrainsCount: Boolean = false,
+    /**
+     * True when the targets chosen for this requirement must each have a different controller
+     * (`TargetObject.differentControllers` — Run Away Together's "two target creatures controlled
+     * by different players"). Lets a chooser that fills the slot itself (the AI) spread its picks.
+     */
+    val differentControllers: Boolean = false,
 )
+
+/**
+ * The per-requirement list a [LegalAction] carries in `targetRequirements`. A single requirement
+ * normally travels flattened onto the action's own `validTargets` / `minTargets` fields, so the list
+ * is only surfaced for several requirements — or for one whose cross-target constraint
+ * ([TargetInfo.differentControllers]) the flattened fields can't express.
+ */
+fun List<TargetInfo>.surfacedRequirements(): List<TargetInfo>? =
+    takeIf { size > 1 || any { it.differentControllers } }
 
 /**
  * Information about a creature that can be tapped for Convoke.

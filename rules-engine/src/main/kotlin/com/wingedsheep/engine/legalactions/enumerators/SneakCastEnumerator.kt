@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.legalactions.surfacedRequirements
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
@@ -108,7 +109,7 @@ class SneakCastEnumerator : ActionEnumerator {
                     targetCount = firstReqInfo?.maxTargets ?: 1,
                     minTargets = firstReq?.effectiveMinCount ?: (firstReq?.count ?: 1),
                     targetDescription = firstReq?.description,
-                    targetRequirements = if (targetReqInfos.size > 1) targetReqInfos else null,
+                    targetRequirements = targetReqInfos.surfacedRequirements(),
                     manaCostString = sneakMana.toString(),
                     additionalCostInfo = bounceCostInfo,
                     autoTapPreview = autoTapPreview
@@ -177,7 +178,7 @@ class SneakCastEnumerator : ActionEnumerator {
                         targetCount = firstReqInfo?.maxTargets ?: 1,
                         minTargets = firstReq?.effectiveMinCount ?: (firstReq?.count ?: 1),
                         targetDescription = firstReq?.description,
-                        targetRequirements = if (targetReqInfos.size > 1) targetReqInfos else null,
+                        targetRequirements = targetReqInfos.surfacedRequirements(),
                         manaCostString = sneakMana.toString(),
                         additionalCostInfo = bounceCostInfo,
                         autoTapPreview = autoTapPreview

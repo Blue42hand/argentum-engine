@@ -727,11 +727,16 @@ class Strategist(
             } else {
                 info.validTargets
             }
-            val selectedId = available.maxByOrNull(rankTarget)
-                ?: return heuristicTargets(state, action, playerId)
-            chosenTargets += TargetSelection.toChosenTarget(state, info, selectedId, playerId)
-            chosenIds += selectedId
-            chosenTargetIds += selectedId
+            val picks = TargetSelection.pick(state, info, available, rankTarget)
+            if (picks.isEmpty() || picks.size < info.minTargets) return heuristicTargets(state, action, playerId)
+            picks.forEach { chosenTargets += TargetSelection.toChosenTarget(state, info, it, playerId) }
+            chosenIds += picks
+            chosenTargetIds += picks
+        }
+        // The refinement below swaps target `i` for requirement `i`, which only lines up while every
+        // requirement holds exactly one target; a multi-target slot keeps its heuristic picks.
+        if (chosenTargets.size != targetInfos.size) {
+            return withSumGatedExilePayment(state, action, TargetSelection.applyTargets(baseAction, chosenTargets))
         }
 
         // Only paid for once a requirement actually has rival targets to simulate — every
