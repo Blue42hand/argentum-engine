@@ -15997,8 +15997,11 @@
         ]
     },
     "metadata": {
-        "collectorNumber": "280",
-        "rarity": "RARE"
+        "collectorNumber": "281",
+        "rarity": "RARE",
+        "artist": "Michael Sutfin",
+        "flavorText": "\"I might almost pity my enemies—if it wasn't so amusing to watch them die.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/ccbe2539-7a7c-468b-a270-7ca1bdcccb1e.jpg?1783945654"
     },
     "colorIdentityOverride": [
         "BLACK",
