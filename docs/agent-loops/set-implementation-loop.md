@@ -85,9 +85,13 @@ Then advance exactly ONE step:
    c. Commit each written card yourself, from the FILES paths you were given: `git -C <worktree> add <paths> && git -C <worktree> commit -m "Add <Card> to <Set>"`. One commit per card, so a bad card can be dropped without unpicking the others. Never `git add -A` — a sibling agent's in-flight file is not yours to commit.
    d. GATE — one subagent: "In <worktree>, tick these cards in the set's `backlog/sets/*/cards.md` if one lists them and run `just fix-backlog`, run `just check-card-printing` for each card, then run the right gate per /verify (`just build` for cards on existing primitives, `just test` when new engine behaviour landed). Expect a CardDefinitionSnapshotTest diff: re-bless with `just rebless-cards` and confirm ONLY these cards moved in the golden — an unrelated card moving means shared SDK behaviour changed, so stop and report it rather than re-blessing past it. Tee the build output to <worktree>/gate.log. Return only: GATE (command) / STATUS (passed|failed) / FAILING (test names, or -) / MOVED (unexpected snapshot entries, or -)."
    e. Green → commit the bookkeeping, push, and open the PR with `gh pr create --title "[agent-loop: <MODEL_ID>] Add <N> <SET> cards"`. That prefix is mandatory on every PR this loop opens, and <MODEL_ID> is the model driving this loop, not a subagent's own model. Write the body from the verdict blocks you already hold — one line per card, plus any card dropped and why — and say that the PR came from an agentic loop driven by <MODEL_ID>, which gate ran, and what was NOT checked (no manual playthrough, no UX pass, no e2e). Red → dispatch ONE fix subagent with the FAILING names and the log path; if it is still red after that, mark the unit `[!]` in the ledger and stop for a human.
-2. Our <SET> PR is open and unreviewed → REVIEW — a fresh subagent that did not write the code: "In <worktree>, run /review-changes on PR #<N> and post your findings as a comment on that PR. Change no code. Return only: PR / SCOPE (full|cards|skipped) / FINDINGS (N blocking, N important, N minor) / NOTE (one line, only if something is blocking)." Record the counts in the ledger. Do not read the comment.
-3. Our <SET> PR has unresolved findings → FIX — one subagent: "In <worktree>, read the review comment on PR #<N> via `gh pr view <N> --comments`, fix what holds up, decline what doesn't and say so in a reply on the PR, re-run the gate per /verify, and push to the same branch. Return only: PR / FIXED (N of N, N declined) / GATE (passed|failed) / STATUS (pushed|needs-human)."
-4. Our <SET> PR is clean and its checks are green → `gh pr merge --squash --delete-branch` (run it from the main checkout, not from inside the branch's own worktree, or deleting the local branch fails), then `git worktree remove` that worktree, switch to main and pull. Mark the unit `[x]` in the ledger with the PR number. The next unit branches a fresh worktree from updated main.
+2. Our <SET> PR is open and unreviewed → REVIEW, following /review-changes in split mode: you dispatch its area reviewers, because a subagent can't launch its own. Every review subagent is a fresh context that did not write the code and changes no code. The review dir is `<worktree>/.claude/loop-runs/review-pr-<N>/` (gitignored).
+   a. TRIAGE — one subagent: "In <worktree>, follow /review-changes on PR #<N>, split mode, TRIAGE phase, with review dir <dir>. Tests: the loop's gate passed before the PR opened and CI runs on it — don't re-run them; report the PR's check state instead. Return only: PR / AREAS (comma-separated area names)."
+   b. AREA — one subagent per area, dispatched together: "In <worktree>, you are the <area> reviewer from /review-changes: read <dir>/<area>.brief.md and follow it. Return only: AREA / FINDINGS (N blocking, N important, N minor)."
+   c. WEIGH — one subagent: "In <worktree>, follow /review-changes on PR #<N>, split mode, WEIGH phase, with review dir <dir>, and post the review as one comment on the PR. Return only: PR / VERDICT (approve|request-changes) / FINDINGS (N blocking, N important, N minor) / NOTE (one line, only if something is blocking)."
+   Record the verdict and counts in the ledger. Do not read the briefs, the findings files, or the comment.
+3. Our <SET> PR's review requested changes → FIX — one subagent: "In <worktree>, read the review comment on PR #<N> via `gh pr view <N> --comments`, fix what holds up, decline what doesn't and say so in a reply on the PR, re-run the gate per /verify, and push to the same branch. Return only: PR / FIXED (N of N, N declined) / GATE (passed|failed) / STATUS (pushed|needs-human)."
+4. Our <SET> PR is approved, or its findings are fixed or declined, and its checks are green → `gh pr merge --squash --delete-branch` (run it from the main checkout, not from inside the branch's own worktree, or deleting the local branch fails), then `git worktree remove` that worktree, switch to main and pull. Mark the unit `[x]` in the ledger with the PR number. The next unit branches a fresh worktree from updated main.
 
 VERDICT DISCIPLINE — every dispatch above names exactly what comes back, and that is all you keep. If a subagent returns prose instead, take the first status word you can find and move on; never read its transcript to reconstruct what happened. Findings live on the PR, logs live in the worktree, the work list lives in the ledger — none of them belong in your context.
 
@@ -114,8 +118,8 @@ orchestration needs.
 2. **Bound every return.** A subagent that reports freely returns a summary as long as the thing it
    summarised. Each dispatch in the prompt ends with "Return only:" and an explicit field list, so
    what crosses back is a handful of lines with a known shape. The fields are chosen to be exactly
-   what the next step acts on — `FILES` because the orchestrator commits from it, `FINDINGS` counts
-   because step 3 branches on them, and nothing else.
+   what the next step acts on — `FILES` because the orchestrator commits from it, `VERDICT`
+   because step 3 branches on it, and nothing else.
 3. **Keep state on disk.** `.claude/loop-runs/<code>-cards.md` (gitignored) is the run's memory: one
    line per unit, a status character, and a note. Re-reading it costs a few hundred tokens and it
    survives compaction, session death, and a machine reboot — which is what makes "a fresh session
@@ -130,7 +134,7 @@ orchestration needs.
 5. **Let artifacts live where they belong.** Review findings go on the PR, where a human reading it
    later will see them; the build log is a file in the worktree; the work list is the ledger. Each is
    reachable by the agent that needs it and invisible to the one that doesn't. This is why the
-   reviewer posts its own comment and the fixer reads it back off GitHub instead of the orchestrator
+   area reviewers write findings to the review dir, the weigh subagent posts the comment, and the fixer reads it back off GitHub instead of the orchestrator
    relaying it — relaying the findings would put the whole review in the one context that must not
    hold it.
 6. **One decision per iteration.** Each turn advances exactly one step and stops. This isn't a
@@ -149,7 +153,9 @@ The complete set of what an iteration adds to the driving session's context:
 | PICK | `UNIT` / `KIND` / `CARDS` / `REASON` | which cards to fan out, and whether it's a batch or a solo feature |
 | IMPLEMENT (×N) | `CARD` / `STATUS` / `FILES` / `NOTE` | paths to commit, and one PR-body line per card |
 | GATE | `GATE` / `STATUS` / `FAILING` / `MOVED` | whether to open the PR or dispatch a fixer |
-| REVIEW | `PR` / `SCOPE` / `FINDINGS` / `NOTE` | whether step 3 runs |
+| REVIEW · TRIAGE | `PR` / `AREAS` | which area reviewers to fan out |
+| REVIEW · AREA (×N) | `AREA` / `FINDINGS` | progress only — the findings stay in the review dir |
+| REVIEW · WEIGH | `PR` / `VERDICT` / `FINDINGS` / `NOTE` | whether step 3 runs |
 | FIX | `PR` / `FIXED` / `GATE` / `STATUS` | whether the unit is mergeable or needs a human |
 
 Roughly thirty lines for a five-card unit. The unit itself — five Scryfall fetches, five card
@@ -181,7 +187,7 @@ need its commit reset; now it was never committed, so the agent deletes its file
 `dropped`, and the orchestrator simply doesn't commit it.
 
 What this costs is that no human-adjacent context ever sees the card code before the PR exists. The
-review subagent is what makes that acceptable — it's mandatory, it's a fresh context that did not
+`review-changes` pass is what makes that acceptable — it's mandatory, each reviewer is a fresh context that did not
 write the code, and reading the diff without the author's assumptions is where "the code does what I
 meant" bugs actually surface. That, the gate, and the `[agent-loop:]` title are the whole quality
 story for an unattended run; none of the three is optional.
