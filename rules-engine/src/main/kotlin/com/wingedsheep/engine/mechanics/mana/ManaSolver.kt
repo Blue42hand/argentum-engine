@@ -328,6 +328,14 @@ data class ManaProduction(
  * @param cardRegistry Optional registry to look up card definitions for mana abilities.
  *                     When provided, non-land permanents with mana abilities can be used as sources.
  */
+/**
+ * Tap-priority cost of each mana a generic-payment tap would make beyond what is still owed.
+ * Above a basic land with a hand-colour penalty (~5) and a utility land (~10-14), below a pain
+ * land (~16+) and an attacking mana creature (~20+): floating a mana beats taking damage or
+ * losing an attacker, never beats tapping a plain land.
+ */
+private const val WASTED_MANA_PENALTY = 15
+
 class ManaSolver(
     private val cardRegistry: CardRegistry,
     private val predicateEvaluator: PredicateEvaluator
@@ -808,16 +816,30 @@ class ManaSolver(
             val singleManaCount = remainingSources.count { it.manaAmount == 1 }
             val needMultiMana = singleManaCount < genericRemaining
 
+            // Mana a tap would make beyond what is still owed: it floats and is lost. A Temple of
+            // the False God ({C}{C}) tapped for the last generic of a morph wastes one — tap a
+            // Forest instead, unless every alternative costs more than the lost mana (a pain land,
+            // an attacker). The source's least-yielding kind is what it can be held to.
+            fun wastePenalty(source: ManaSource): Int {
+                val kinds = source.availableColorsFor(spellContext).ifEmpty { source.producesColors }
+                    .map { source.amountFor(it) } +
+                    (if (source.producesColorless) listOf(source.amountFor(null)) else emptyList())
+                val leastYield = kinds.minOrNull() ?: source.manaAmount
+                return maxOf(0, leastYield - genericRemaining) * WASTED_MANA_PENALTY
+            }
+
             val source = if (needMultiMana) {
                 // Not enough single-mana sources — prefer multi-mana for efficiency
                 remainingSources.minByOrNull { source ->
                     val basePriority = calculateTapPriority(source, handRequirements, availableSourcesByColor)
                     val savedTaps = minOf(source.manaAmount, genericRemaining) - 1
-                    basePriority - savedTaps * 25
+                    basePriority - savedTaps * 25 + wastePenalty(source)
                 }
             } else {
                 // Enough single-mana sources — use normal priority (preserve multi-mana creatures for attacks)
-                remainingSources.minByOrNull { calculateTapPriority(it, handRequirements, availableSourcesByColor) }
+                remainingSources.minByOrNull {
+                    calculateTapPriority(it, handRequirements, availableSourcesByColor) + wastePenalty(it)
+                }
             } ?: return null
 
             // For generic costs any mana works, so pick the cheapest production: prefer
@@ -831,13 +853,18 @@ class ManaSolver(
             // granted "{T}: Add {C}{C}" pays generic with {C}{C}, not {G}).
             val cheapestColor = source.availableColorsFor(spellContext)
                 .ifEmpty { source.producesColors }
-                .minWithOrNull(compareBy<Color>(::coloredExtraCost).thenByDescending { source.amountFor(it) })
+                .minWithOrNull(
+                    compareBy<Color>(::coloredExtraCost)
+                        .thenByDescending { minOf(source.amountFor(it), genericRemaining) }
+                        .thenBy { source.amountFor(it) }
+                )
             val colorToUse = when {
                 cheapestColor == null -> null
                 !source.producesColorless -> cheapestColor
                 coloredExtraCost(cheapestColor) > source.colorlessPainCost -> null
                 coloredExtraCost(cheapestColor) == source.colorlessPainCost &&
-                    source.amountFor(null) > source.amountFor(cheapestColor) -> null
+                    minOf(source.amountFor(null), genericRemaining) >
+                    minOf(source.amountFor(cheapestColor), genericRemaining) -> null
                 else -> cheapestColor
             }
             manaProduced[source.entityId] = if (colorToUse != null) {
