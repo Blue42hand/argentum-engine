@@ -531,6 +531,9 @@ interface ObjectFilterBuilder<out Self> {
      */
     fun attackingEnchantedPlayer() = withStatePredicate(StatePredicate.IsAttackingEnchantedPlayer)
 
+    /** Current controller has controlled this battlefield object continuously since this turn began. */
+    fun controlledSinceTurnBegan() = withStatePredicate(StatePredicate.ControlledSinceTurnBegan)
+
     /**
      * Must have been declared as an attacker at least once during the current turn.
      * Survives leaving combat; cleared at end-of-turn cleanup.
