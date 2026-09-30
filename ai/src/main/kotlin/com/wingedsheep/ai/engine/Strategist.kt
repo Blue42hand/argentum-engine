@@ -27,6 +27,7 @@ import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.DeclareAttackers
 import com.wingedsheep.engine.core.DeclareBlockers
 import com.wingedsheep.engine.core.GameAction
+import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.legalactions.MeaningfulActionFilter
 import com.wingedsheep.engine.state.GameState
@@ -897,6 +898,7 @@ class Strategist(
         val cast = gameAction as? CastSpell ?: return gameAction
         val info = action.additionalCostInfo ?: return gameAction
         if (info.costType != "CollectEvidence" && info.costType != "ExileForTotal") return gameAction
+        if (info.exileCardTypes.isNotEmpty()) return withCardTypeUnionExilePayment(state, info, cast)
 
         // Most expensive first: the fewest cards that clear the floor.
         val pool = info.validExileTargets
@@ -925,6 +927,30 @@ class Strategist(
         }
         return cast.copy(
             targets = targets,
+            additionalCostPayment = (cast.additionalCostPayment ?: AdditionalCostPayment())
+                .copy(exiledCards = chosen),
+        )
+    }
+
+    /**
+     * The union-measured form of [withSumGatedExilePayment] — "with four or more card types among
+     * them" (Nethergoyf's escape). Delegates to the engine's own greedy cover so the AI and the
+     * fallback pick can't drift.
+     */
+    private fun withCardTypeUnionExilePayment(
+        state: GameState,
+        info: com.wingedsheep.engine.legalactions.AdditionalCostData,
+        cast: CastSpell,
+    ): GameAction {
+        val pool = info.validExileTargets.filter { state.getEntity(it) != null }
+        val candidates = GraveyardTotalExileResolver.Candidates(
+            cards = pool,
+            weightById = info.exileCardWeights,
+            typesById = pool.associateWith { info.exileCardTypes[it].orEmpty().toSet() },
+        )
+        val chosen = GraveyardTotalExileResolver.autoSelect(candidates, info.exileMinTotalWeight)
+        if (chosen.isEmpty()) return cast // unreachable; the engine will refuse
+        return cast.copy(
             additionalCostPayment = (cast.additionalCostPayment ?: AdditionalCostPayment())
                 .copy(exiledCards = chosen),
         )
