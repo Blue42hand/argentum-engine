@@ -94,9 +94,11 @@ internal class PlayerProjector(
             green = manaPoolComponent.green,
             colorless = manaPoolComponent.colorless,
             restrictedMana = manaPoolComponent.restrictedMana.map { entry ->
-                val expiryNote = if (entry.expiry == ManaExpiry.END_OF_COMBAT) {
-                    "This mana lasts until end of combat, then is lost."
-                } else null
+                val expiryNote = when (entry.expiry) {
+                    ManaExpiry.END_OF_COMBAT -> "This mana lasts until end of combat, then is lost."
+                    ManaExpiry.KEPT_UNTIL_END_OF_TURN -> "This mana lasts until end of turn."
+                    ManaExpiry.END_OF_TURN -> null
+                }
                 ClientRestrictedManaEntry(
                     color = entry.color?.symbol?.toString(),
                     restrictionDescription = listOfNotNull(

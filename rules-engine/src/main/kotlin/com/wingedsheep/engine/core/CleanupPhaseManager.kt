@@ -489,6 +489,8 @@ class CleanupPhaseManager(
      *  - The Last Agni Kai ([RetainUnspentManaComponent]) — the named colours are kept.
      * Firebending (END_OF_COMBAT) mana is preserved by [ManaPoolComponent.emptyAtBoundary] and
      * handled instead by `CombatManager.endCombat`, since it lasts until end of combat, not step end.
+     * KEPT_UNTIL_END_OF_TURN mana (Brazen Collector) is preserved too, until [cleanupEndOfTurn]
+     * downgrades it.
      */
     fun emptyManaPools(state: GameState): GameState {
         // Runs on every step/phase boundary; almost always every pool is already empty (no mana
@@ -638,7 +640,13 @@ class CleanupPhaseManager(
         // 2. Empty mana pools as this (cleanup) step ends — one of the per-step/phase emptyings
         // (CR 500.5 / 703.4q; if cleanup grants priority, advanceStep empties once more, idempotently).
         // The RetainUnspentManaComponent marker (The Last Agni Kai) still keeps its colours here; the
-        // marker itself is cleared in step 4 below.
+        // marker itself is cleared in step 4 below. "Until end of turn, you don't lose this mana"
+        // (Brazen Collector) ends first (CR 514.2), so that mana empties here with the rest.
+        for (playerId in newState.turnOrder) {
+            val pool = newState.getEntity(playerId)?.get<ManaPoolComponent>() ?: continue
+            val expired = pool.expireTurnKeptMana()
+            if (expired !== pool) newState = newState.updateEntity(playerId) { it.with(expired) }
+        }
         newState = emptyManaPools(newState)
 
         // 3. Reset per-turn trackers (land drops reset at start of turn, but clean up here too)
