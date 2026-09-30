@@ -1108,7 +1108,7 @@ class ActivatedAbilityEnumerator(
                             targetCount = firstReqInfo.maxTargets,
                             minTargets = firstReq.effectiveMinCount,
                             targetDescription = firstReq.description,
-                            targetRequirements = if (targetReqInfos.size > 1) targetReqInfos else null,
+                            targetRequirements = targetReqInfos.surfacedRequirements(),
                             xConstrainsTargetManaValue = targetReqInfos.size == 1 && firstReqInfo.xConstrainsManaValue,
                             xConstrainsTargetManaValueExactly = targetReqInfos.size == 1 && firstReqInfo.xConstrainsManaValueExactly,
                             xConstrainsTargetPower = targetReqInfos.size == 1 && firstReqInfo.xConstrainsPower,
@@ -1277,7 +1277,7 @@ class ActivatedAbilityEnumerator(
                         targetCount = firstReqInfo.maxTargets,
                         minTargets = firstReq.effectiveMinCount,
                         targetDescription = firstReq.description,
-                        targetRequirements = if (targetReqInfos.size > 1) targetReqInfos else null,
+                        targetRequirements = targetReqInfos.surfacedRequirements(),
                         manaCostString = anyPlayerManaCostString,
                         additionalCostInfo = costInfo
                     ))

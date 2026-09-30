@@ -4826,6 +4826,13 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   "**For each other player, exile up to one target creature that player controls**" (Kaya, Spirits'
   Justice) is `TargetObject(filter = TargetFilter.CreatureOpponentControls, optional = true, dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent), differentControllers = true, id = "one target creature each other player controls")`. Give it an `id` — the generated description
   reads "controlled by different players", which is the constraint, not the printed sentence.
+  Without `dynamicMaxCount` it is the plain "**two target creatures controlled by different players**"
+  wording (Run Away Together: `targets(TargetFilter.Creature, count = 2, differentControllers = true)`)
+  — any two controllers, so in multiplayer two different opponents' creatures qualify. That shape is also
+  re-checked as a set on resolution (`ResolutionTargetValidator`): two targets that now share a
+  controller are both illegal. The legal-action enumerator reports no valid targets when the candidates
+  span fewer controllers than the required count, and surfaces the requirement on
+  `LegalAction.targetRequirements` so the AI spreads its picks.
 - `onePerCardType = false` — on `TargetObject`; the **"up to one target … of each card type"** wording
   (Uldaros Theorix: "exile up to one target nonland card of each card type from your graveyard"). It is
   one instance of "target", so each object is chosen once (CR 115.3) and fills exactly one card-type

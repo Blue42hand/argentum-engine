@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.legalactions.surfacedRequirements
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
@@ -266,7 +267,7 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                                 targetCount = firstInfo.maxTargets,
                                 minTargets = firstReq.effectiveMinCount,
                                 targetDescription = firstReq.description,
-                                targetRequirements = if (targetInfos.size > 1) targetInfos else null,
+                                targetRequirements = targetInfos.surfacedRequirements(),
                                 additionalCostInfo = costInfo,
                                 hasXCost = abilityHasXCost,
                                 maxAffordableX = abilityMaxAffordableX,

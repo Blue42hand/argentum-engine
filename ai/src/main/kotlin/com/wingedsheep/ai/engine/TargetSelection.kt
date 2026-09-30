@@ -163,14 +163,19 @@ object TargetSelection {
             // (or the engine) to reject. Either beats `first()` on an empty list, which is what this
             // used to do — an `?: available.first()` that could only ever run when `available` was
             // empty, and so could only ever throw.
-            val selectedId = available.maxByOrNull(rankTarget)
-                ?: return if (targetInfos.drop(index).all { it.minTargets == 0 }) {
+            val picks = pick(state, info, available, rankTarget)
+            if (picks.isEmpty()) {
+                return if (targetInfos.drop(index).all { it.minTargets == 0 }) {
                     applyTargets(baseAction, chosenTargets)
                 } else {
                     action.action
                 }
-            chosenTargets += toChosenTarget(state, info, selectedId, playerId)
-            chosenIds += selectedId
+            }
+            // A mandatory multi-target slot the board can't fill (two creatures controlled by
+            // different players, with every creature under one player) has no legal list.
+            if (picks.size < info.minTargets) return action.action
+            picks.forEach { chosenTargets += toChosenTarget(state, info, it, playerId) }
+            chosenIds += picks
         }
         return applyTargets(baseAction, chosenTargets)
     }
@@ -254,6 +259,32 @@ object TargetSelection {
             else -> return cast
         }
         return cast.copy(additionalCostPayment = payment)
+    }
+
+    /**
+     * The heuristic picks for one requirement: the best-ranked candidate, or — when the requirement
+     * demands several ("two target creatures") — the best [TargetInfo.minTargets] of them, each
+     * from a controller not already used when [TargetInfo.differentControllers] is set. Returns
+     * fewer than required when [available] can't supply them; empty when it is empty.
+     */
+    fun pick(
+        state: GameState,
+        info: TargetInfo,
+        available: List<EntityId>,
+        rankTarget: (EntityId) -> Double,
+    ): List<EntityId> {
+        val needed = maxOf(1, info.minTargets)
+        val picks = mutableListOf<EntityId>()
+        val controllers = mutableSetOf<EntityId>()
+        for (candidate in available.sortedByDescending(rankTarget)) {
+            if (picks.size == needed) break
+            if (info.differentControllers) {
+                val controller = state.projectedState.getController(candidate)
+                if (controller != null && !controllers.add(controller)) continue
+            }
+            picks += candidate
+        }
+        return picks
     }
 
     /**

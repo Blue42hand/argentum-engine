@@ -347,6 +347,8 @@ class TargetEnumerationUtils(
     ): List<TargetInfo> {
         return targetReqs.mapIndexed { index, req ->
             val validTargets = findValidTargets(state, playerId, req, sourceId, targetingSourceType)
+                .takeIf { satisfiesControllerSpread(state, req, it) }
+                ?: emptyList()
             TargetInfo(
                 index = index,
                 description = req.description,
@@ -376,9 +378,24 @@ class TargetEnumerationUtils(
                 xConstrainsManaValue = requirementUsesManaValueAtMostX(req),
                 xConstrainsManaValueExactly = requirementUsesManaValueEqualsX(req),
                 xConstrainsPower = requirementUsesPowerEqualsX(req),
-                xConstrainsCount = requirementXConstrainsCount(req)
+                xConstrainsCount = requirementXConstrainsCount(req),
+                differentControllers = (req as? TargetObject)?.differentControllers == true,
             )
         }
+    }
+
+    /**
+     * "Two target creatures controlled by different players" (Run Away Together) needs its required
+     * targets spread over at least that many controllers. When the candidates can't supply that, no
+     * legal choice of targets exists (CR 601.2c), so the requirement reports no valid targets and the
+     * spell isn't offered.
+     */
+    private fun satisfiesControllerSpread(state: GameState, req: TargetRequirement, candidates: List<EntityId>): Boolean {
+        if (req !is TargetObject || !req.differentControllers || req.effectiveMinCount < 2) return true
+        val controllers = candidates.mapNotNullTo(mutableSetOf()) { id ->
+            state.projectedState.getController(id) ?: state.getEntity(id)?.get<ControllerComponent>()?.playerId
+        }
+        return controllers.size >= req.effectiveMinCount
     }
 
     /**
