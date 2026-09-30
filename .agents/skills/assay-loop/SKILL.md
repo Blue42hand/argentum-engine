@@ -11,6 +11,11 @@ one decline family taught to the grammar (`oracle-assay/.../grammar/`), in both 
 values hand-written cards already use. You **compose and launch** the loop prompt; you don't write grammar
 in this turn.
 
+**Prefer `just assay-loop [model] [focus]`** when the user can run it in a terminal: it is the same loop
+driven by `scripts/assay-loop`, one fresh headless session per step (no context growth), waits out CI and
+usage limits for free, and stops on `touch .claude/loop-runs/assay.stop`. This skill is the in-session
+`/loop` variant.
+
 It is `set-loop`'s shape with a different unit. Read [`set-loop`](../set-loop/SKILL.md) for the harness
 table, the `<MODEL_ID>` resolution rule and why the PR label is mandatory — all three apply unchanged.
 The flat-orchestrator reasoning is in

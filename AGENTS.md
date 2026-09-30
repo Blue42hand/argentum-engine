@@ -43,8 +43,9 @@ docs it points at; load those when the work needs them.
     the harness's own loop — Claude Code `/loop`, Codex `/goal`; every PR it opens is titled
     `[agent-loop: <model-id>]`).
   - Widening Assay's grammar autonomously, one band per PR, over Oracle text the engine already
-    expresses (declines on hand-written cards; never new SDK vocabulary) → **`assay-loop`** (same
-    `[agent-loop: <model-id>]` PR titles as `set-loop`).
+    expresses (declines on hand-written cards; never new SDK vocabulary) → **`just assay-loop [model]
+    [focus]`** (fresh headless session per step, like `just set-loop`), or the **`assay-loop`** skill for an
+    in-session `/loop`.
   - Proving a set is *actually* finished once its backlog reads N/N, and archiving it → **`verify-set`**
     (Scryfall field verification of every compiled card, reprint and basic-land coverage, self-play pass).
     A green backlog is a claim; that skill is the proof.
