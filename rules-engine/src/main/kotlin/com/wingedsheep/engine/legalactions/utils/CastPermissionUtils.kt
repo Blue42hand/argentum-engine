@@ -1209,24 +1209,7 @@ class CastPermissionUtils(
                 // AbilityId so duplicate donors don't collapse and each gets its own once-per-turn
                 // budget (see donorCardsActivatedAbilities).
                 if (ability is com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfCards) {
-                    val receives = when (val scope = ability.receivedBy.scope) {
-                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self -> permanentId == entityId
-                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.Specific -> scope.entityId == entityId
-                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.AttachedTo ->
-                            container.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()?.targetId == entityId
-                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.SoulbondPair ->
-                            com.wingedsheep.engine.mechanics.SoulbondPairing.isInPairOf(state, permanentId, entityId)
-                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield -> {
-                            if (ability.receivedBy.excludeSelf && permanentId == entityId) false
-                            else {
-                                val granterController = state.projectedState.getController(permanentId)
-                                granterController != null && predicateEvaluator.matches(
-                                    state, state.projectedState, entityId, ability.receivedBy.baseFilter,
-                                    PredicateContext(controllerId = granterController, sourceId = permanentId)
-                                )
-                            }
-                        }
-                    }
+                    val receives = donorGrantReaches(state, permanentId, entityId, ability, predicateEvaluator)
                     if (receives) {
                         for (granted in donorCardsActivatedAbilities(
                             state, permanentId, cardRegistry, predicateEvaluator,
@@ -1644,13 +1627,46 @@ data class StaticGrantedAbility(
 )
 
 /**
+ * Whether [receiverId] is among the permanents [granterId]'s [HasAllActivatedAbilitiesOfCards] grants
+ * to (its `receivedBy`). Shared by the activation path and the mana solver, so a donor-granted mana
+ * ability is offered, auto-tapped and counted toward affordability on the same permanents.
+ */
+fun donorGrantReaches(
+    state: GameState,
+    granterId: EntityId,
+    receiverId: EntityId,
+    ability: com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfCards,
+    predicateEvaluator: com.wingedsheep.engine.handlers.PredicateEvaluator
+): Boolean = when (val scope = ability.receivedBy.scope) {
+    is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self -> granterId == receiverId
+    is com.wingedsheep.sdk.scripting.filters.unified.Scope.Specific -> scope.entityId == receiverId
+    is com.wingedsheep.sdk.scripting.filters.unified.Scope.AttachedTo ->
+        state.getEntity(granterId)?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()?.targetId == receiverId
+    is com.wingedsheep.sdk.scripting.filters.unified.Scope.SoulbondPair ->
+        com.wingedsheep.engine.mechanics.SoulbondPairing.isInPairOf(state, granterId, receiverId)
+    is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield -> {
+        if (ability.receivedBy.excludeSelf && granterId == receiverId) false
+        else {
+            val granterController = state.projectedState.getController(granterId)
+            granterController != null && predicateEvaluator.matches(
+                state, state.projectedState, receiverId, ability.receivedBy.baseFilter,
+                PredicateContext(controllerId = granterController, sourceId = granterId)
+            )
+        }
+    }
+}
+
+/**
  * The activated abilities of every card in [sourceId]'s donor pool — the engine half of
  * [com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfCards]. [donors] selects the pool:
  * [DonorCards.LINKED_EXILE] reads the source's `LinkedExileComponent` (Territory Forge, Agatha's
  * Soul Cauldron); [DonorCards.CRAFT_MATERIALS] reads its `CraftedFromExiledComponent` (Locus of
  * Enlightenment; CR 702.167c — "the exiled cards used to craft it"); [DonorCards.YOUR_GRAVEYARD]
- * reads the graveyard of the source's *controller* (Thranduil, the Elvenking). It looks up each donor
- * card's definition and returns its `activatedAbilities`. The caller grants each with the *receiver*
+ * reads the graveyard of the source's *controller* (Thranduil, the Elvenking); [DonorCards.ALL_GRAVEYARDS]
+ * reads every player's graveyard (Mirran Safehouse). It looks up each donor card's definition and
+ * returns its `activatedAbilities` — for a land donor with basic land types, its mana abilities are
+ * the intrinsic ones those types give it (CR 305.6), so a Watery Grave donates "{T}: Add {U}" and
+ * "{T}: Add {B}" though its definition declares no mana ability. The caller grants each with the *receiver*
  * as the granter so the ability activates against that permanent (its `{T}` taps it, self-references
  * bind to it — CR 113.7, faithful to the ruling that the donor card's "this card" references become
  * references to the permanent that has the ability).
@@ -1695,6 +1711,7 @@ fun donorCardsActivatedAbilities(
         com.wingedsheep.sdk.scripting.DonorCards.CRAFT_MATERIALS -> state.getEntity(sourceId)
             ?.get<com.wingedsheep.engine.state.components.battlefield.CraftedFromExiledComponent>()?.exiledIds
         com.wingedsheep.sdk.scripting.DonorCards.YOUR_GRAVEYARD -> controllerId?.let { state.getGraveyard(it) }
+        com.wingedsheep.sdk.scripting.DonorCards.ALL_GRAVEYARDS -> state.activePlayers.flatMap { state.getGraveyard(it) }
     } ?: return emptyList()
     val unfiltered = cardFilter == com.wingedsheep.sdk.scripting.GameObjectFilter.Any
     // A filtered pool with no resolvable controller can't be evaluated — fail closed (grant nothing)
@@ -1708,7 +1725,11 @@ fun donorCardsActivatedAbilities(
             )
         ) return@flatMap emptyList()
         val cardDef = cardRegistry.getCard(card.cardDefinitionId)
-        val abilities = cardDef?.script?.activatedAbilities ?: emptyList()
+        val printed = cardDef?.script?.activatedAbilities ?: emptyList()
+        // Same precedence as ManaAbilityEnumerator: basic land types' intrinsic mana abilities
+        // replace the definition's own mana abilities.
+        val intrinsic = com.wingedsheep.engine.mechanics.mana.IntrinsicManaAbilities.forCard(card)
+        val abilities = if (intrinsic.isEmpty()) printed else printed.filterNot { it.isManaAbility } + intrinsic
         if (!oncePerTurnEach) abilities
         else abilities.map { ability ->
             ability.copy(
