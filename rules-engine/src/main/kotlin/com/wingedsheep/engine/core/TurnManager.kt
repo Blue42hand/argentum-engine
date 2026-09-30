@@ -315,7 +315,8 @@ class TurnManager(
         // CR 500.5 / 703.4q: as the ending step or phase closes, each player's unspent mana empties
         // (a turn-based action). This is the general per-step/phase emptying — the same action
         // end-of-turn cleanup performs — applying the Upwelling / Ozai / Last Agni Kai statics.
-        // Firebending (END_OF_COMBAT) mana is preserved and handled by CombatManager.endCombat.
+        // Firebending (END_OF_COMBAT) mana is preserved and handled by CombatManager.endCombat;
+        // KEPT_UNTIL_END_OF_TURN mana is preserved until end-of-turn cleanup.
         advanceStepFromEndedStep(cleanupPhaseManager.emptyManaPools(state))
 
     /**

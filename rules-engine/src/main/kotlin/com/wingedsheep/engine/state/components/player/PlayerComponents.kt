@@ -194,6 +194,18 @@ data class ManaPoolComponent(
     }
 
     /**
+     * End "until end of turn, you don't lose this mana" (CR 514.2 — cleanup ends until-end-of-turn
+     * effects): every [ManaExpiry.KEPT_UNTIL_END_OF_TURN] entry becomes ordinary mana, so the cleanup
+     * step's own emptying takes it. A pool with no such entries is unchanged.
+     */
+    fun expireTurnKeptMana(): ManaPoolComponent {
+        if (restrictedMana.none { it.expiry == ManaExpiry.KEPT_UNTIL_END_OF_TURN }) return this
+        return copy(restrictedMana = restrictedMana.map {
+            if (it.expiry == ManaExpiry.KEPT_UNTIL_END_OF_TURN) it.copy(expiry = ManaExpiry.END_OF_TURN) else it
+        })
+    }
+
+    /**
      * Empty the mana pool.
      */
     fun empty(): ManaPoolComponent = ManaPoolComponent()
@@ -212,15 +224,17 @@ data class ManaPoolComponent(
      *  - neither: the ordinary mana empties.
      * [convertTo] takes precedence over [retain] (the conversion fully replaces the loss).
      *
-     * **Firebending mana is preserved.** Restricted entries with [ManaExpiry.END_OF_COMBAT] "last
-     * until end of combat", not until the end of each step — so they survive every step/phase-end
-     * emptying within combat and are handled instead by `CombatManager.endCombat`. Only ordinary
-     * ([ManaExpiry.END_OF_TURN]) mana is subject to this action. (At end of turn no combat-duration
-     * mana remains, so preservation is a no-op there.)
+     * **Firebending and turn-duration mana are preserved.** Restricted entries with
+     * [ManaExpiry.END_OF_COMBAT] "last until end of combat", not until the end of each step — so they
+     * survive every step/phase-end emptying within combat and are handled instead by
+     * `CombatManager.endCombat`. [ManaExpiry.KEPT_UNTIL_END_OF_TURN] entries ("until end of turn, you
+     * don't lose this mana as steps and phases end" — Brazen Collector) likewise survive; end-of-turn
+     * cleanup downgrades them via [expireTurnKeptMana] before its own emptying. Only ordinary
+     * ([ManaExpiry.END_OF_TURN]) mana is subject to this action.
      */
     fun emptyAtBoundary(convertTo: Color?, retain: Set<Color>): ManaPoolComponent {
-        val preserved = restrictedMana.filter { it.expiry == ManaExpiry.END_OF_COMBAT }
-        val lostRestricted = restrictedMana.filter { it.expiry != ManaExpiry.END_OF_COMBAT }
+        val preserved = restrictedMana.filter { it.expiry != ManaExpiry.END_OF_TURN }
+        val lostRestricted = restrictedMana.filter { it.expiry == ManaExpiry.END_OF_TURN }
         return when {
             convertTo != null -> {
                 // Provenance tags are markers on already-counted colour mana, not extra mana; the
@@ -276,7 +290,8 @@ data class RetainUnspentManaComponent(
  * @param riders Side-effects applied to a spell when this mana is spent on it
  *   (e.g. [ManaSpellRider.MakesSpellUncounterable] for Cavern of Souls).
  * @param expiry When this mana leaves the pool. [ManaExpiry.END_OF_TURN] is ordinary mana;
- *   [ManaExpiry.END_OF_COMBAT] is firebending-style mana cleared by `CombatManager.endCombat`.
+ *   [ManaExpiry.END_OF_COMBAT] is firebending-style mana cleared by `CombatManager.endCombat`;
+ *   [ManaExpiry.KEPT_UNTIL_END_OF_TURN] survives step/phase ends until end-of-turn cleanup.
  */
 @Serializable
 data class RestrictedManaEntry(
