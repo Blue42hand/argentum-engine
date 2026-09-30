@@ -124,11 +124,11 @@ class CostCalculator(
             totalReduction += countPermanentsOfType(state, casterId, rider.forType)
         }
 
-        // Turn-scoped "spells you cast this turn that match … cost {N} less" discounts (Will /
-        // Rowan, Scion of …). The amount was fixed when the granting ability resolved, so unlike
+        // Duration-bounded "spells you cast this turn / until your next turn that match … cost {N}
+        // less" discounts (Will / Rowan, Scion of …; Ral, Leyline Prodigy). The amount was fixed when the granting ability resolved, so unlike
         // the affinity riders above nothing is recomputed here — and unlike them, a matching cast
         // does not consume the entry.
-        for (reduction in state.turnSpellCostReductions) {
+        for (reduction in state.spellCostReductions) {
             if (reduction.controllerId != casterId) continue
             if (!matchesCardDefinition(cardDef, reduction.spellFilter, null, state, state.projectedState)) continue
             totalReduction += reduction.amount

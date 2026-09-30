@@ -5048,16 +5048,20 @@ object Effects {
 
     /**
      * "Spells you cast this turn that match [spellFilter] cost {X} less to cast, where X is
-     * [amount]" (Will, Scion of Peace / Rowan, Scion of War).
+     * [amount]" (Will, Scion of Peace / Rowan, Scion of War); with
+     * `duration = Duration.UntilYourNextTurn`, "until your next turn, … spells you cast cost {X}
+     * less" (Ral, Leyline Prodigy).
      *
-     * [amount] is locked in when this effect resolves and applies to every matching spell for the
-     * rest of the turn; it reduces only generic mana. Unlike [GrantNextSpellAffinity] the discount
-     * is not consumed by the first matching spell.
+     * [amount] is locked in when this effect resolves and applies to every matching spell until
+     * [duration] ends; it reduces only generic mana. Unlike [GrantNextSpellAffinity] the discount
+     * is not consumed by the first matching spell. Only `EndOfTurn` and `UntilYourNextTurn` are
+     * accepted.
      */
-    fun ReduceSpellCostsThisTurn(
+    fun ReduceSpellCosts(
         spellFilter: GameObjectFilter,
         amount: DynamicAmount,
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsThisTurnEffect(spellFilter, amount)
+        duration: Duration = Duration.EndOfTurn,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsEffect(spellFilter, amount, duration)
 
     // =========================================================================
     // Sacrifice Effects

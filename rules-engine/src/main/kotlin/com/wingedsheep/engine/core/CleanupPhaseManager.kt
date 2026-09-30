@@ -238,20 +238,26 @@ class CleanupPhaseManager(
         val remainingGrantedStatic = state.grantedStaticAbilities.filter { grant ->
             !(grant.duration is Duration.UntilYourNextTurn && grant.controllerId in activeTeam)
         }
+        // "Until your next turn, … spells you cast cost {N} less" (Ral, Leyline Prodigy's +1).
+        val remainingCostReductions = state.spellCostReductions.filter { reduction ->
+            !(reduction.duration is Duration.UntilYourNextTurn && reduction.controllerId in activeTeam)
+        }
         val floatingChanged = remainingFloating.size != state.floatingEffects.size
+        val costReductionsChanged = remainingCostReductions.size != state.spellCostReductions.size
         val grantedStaticChanged = remainingGrantedStatic.size != state.grantedStaticAbilities.size
         val globalChanged = remainingGlobal.size != state.globalGrantedTriggeredAbilities.size
         val grantedActivatedChanged = remainingGrantedActivated.size != state.grantedActivatedAbilities.size
         val delayedChanged = remainingDelayed.size != state.delayedTriggers.size
         var result = if (floatingChanged || globalChanged || grantedActivatedChanged || delayedChanged ||
-            grantedStaticChanged
+            grantedStaticChanged || costReductionsChanged
         ) {
             state.copy(
                 floatingEffects = if (floatingChanged) remainingFloating else state.floatingEffects,
                 globalGrantedTriggeredAbilities = if (globalChanged) remainingGlobal else state.globalGrantedTriggeredAbilities,
                 grantedActivatedAbilities = if (grantedActivatedChanged) remainingGrantedActivated else state.grantedActivatedAbilities,
                 grantedStaticAbilities = if (grantedStaticChanged) remainingGrantedStatic else state.grantedStaticAbilities,
-                delayedTriggers = if (delayedChanged) remainingDelayed else state.delayedTriggers
+                delayedTriggers = if (delayedChanged) remainingDelayed else state.delayedTriggers,
+                spellCostReductions = if (costReductionsChanged) remainingCostReductions else state.spellCostReductions
             )
         } else {
             state

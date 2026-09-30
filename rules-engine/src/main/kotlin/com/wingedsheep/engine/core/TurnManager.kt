@@ -137,8 +137,9 @@ class TurnManager(
             // into a later turn.
             pendingFreeCastSpells = emptyList(),
             // "Spells you cast this turn cost {N} less" discounts (Will / Rowan, Scion of …) end
-            // with the turn that installed them.
-            turnSpellCostReductions = emptyList(),
+            // with the turn that installed them; "until your next turn" ones (Ral, Leyline
+            // Prodigy) survive and expire after their controller's next untap step.
+            spellCostReductions = state.spellCostReductions.filter { it.duration != Duration.EndOfTurn },
             spellWarpedThisTurn = false,
             damageCantBePreventedThisTurn = false,
             // Kang the Conqueror's "during that turn, power-up abilities can't be activated" is
