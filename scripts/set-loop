@@ -13,7 +13,8 @@ opus        Claude Code   Claude's opus alias
 astra       Codex         gpt-6-astra
 
 Full claude-* and gpt-* model IDs also work.
-Use codex:<model-id> to pass any model ID to Codex unchanged.
+Use codex:<model-id> to select any Codex model ID.
+GPT model IDs are normalized to lowercase; other IDs pass through unchanged.
 Omitting the model uses MODEL, or claude-opus-5-5 when MODEL is unset.
 EOF
 }
@@ -27,6 +28,7 @@ Examples:
   just set-loop ecl opus
   just set-loop ecl astra
   just set-loop ecl codex:gpt-6-sol
+  just set-loop lea codex:gpt-6.1-sol
   just set-loop "March of the Machine" sonnet
   just set-loop ecl pick           # Choose from a menu
   just set-loop --models          # Show model shortcuts
@@ -68,6 +70,17 @@ if [ "$MODEL" = pick ]; then
   done
   [ "$MODEL" != pick ] || exit 2
 fi
+# Codex's picker displays GPT names with capitals, but its model IDs are lowercase.
+# Normalize only GPT IDs so custom provider IDs keep their original spelling.
+case "$MODEL" in
+  [gG][pP][tT]-*|codex:[gG][pP][tT]-*)
+    NORMALIZED_MODEL=$(printf '%s' "$MODEL" | tr '[:upper:]' '[:lower:]')
+    if [ "$MODEL" != "$NORMALIZED_MODEL" ]; then
+      echo "set-loop: model '$MODEL' normalized to '$NORMALIZED_MODEL'"
+      MODEL=$NORMALIZED_MODEL
+    fi
+    ;;
+esac
 case "$MODEL" in
   codex:)
     echo "set-loop: codex: requires a model ID" >&2

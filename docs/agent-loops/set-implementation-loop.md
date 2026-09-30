@@ -11,11 +11,14 @@ just set-loop ecl pick           # Interactive model menu
 just set-loop --models           # List shortcuts without starting a loop
 just set-loop ecl                # Claude Code (default)
 just set-loop ecl gpt-6-astra     # Explicit model ID also works
-just set-loop ecl codex:gpt-6-sol # Any Codex model ID (passed through unchanged)
+just set-loop ecl codex:gpt-6-sol # Any Codex model ID
+just set-loop lea codex:gpt-6.1-sol # GPT-6.1 Sol
 MODEL=astra just set-loop ecl    # Environment alternative
 ```
 
 Replace `ecl` with a scaffolded set code or quoted set name. A positional model overrides `MODEL`.
+GPT model IDs are normalized to lowercase (for example, `codex:GPT-6.1-Sol` becomes
+`codex:gpt-6.1-sol`); other custom Codex IDs pass through unchanged.
 `sonnet` and `opus` are passed to Claude as aliases; the session resolves its actual model ID for
 PR attribution. Use a full model ID to pin a version. Without a model or `MODEL`, the launcher
 keeps its default of `claude-opus-5-5`. The `pick` menu requires an interactive terminal.

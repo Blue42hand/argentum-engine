@@ -104,13 +104,27 @@ echo '{"type":"result","result":"SET_COMPLETE","num_turns":1,"duration_ms":1000}
         self.assertIn("harness claude", result.stdout)
 
     def test_arbitrary_codex_model_ids(self):
-        for model in ("gpt-6-sol", "o3", "custom-model"):
+        for model in ("gpt-6-sol", "o3", "custom-model", "Custom-Model"):
             with self.subTest(model=model):
                 result = self.run_loop(f"codex:{model}")
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 args = (self.root / "args").read_text().splitlines()
                 self.assertEqual(args[:3], ["exec", "--model", model])
                 self.assertIn(f"[agent-loop: {model}]", "\n".join(args))
+
+    def test_gpt_display_name_uses_lowercase_codex_id(self):
+        for model in ("codex:GPT-6.1-Sol", "GPT-6.1-Sol", "codex:gPt-6.1-sOl"):
+            with self.subTest(model=model):
+                result = self.run_loop(model, set_code="lea")
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                args = (self.root / "args").read_text().splitlines()
+                self.assertEqual(args[:3], ["exec", "--model", "gpt-6.1-sol"])
+                self.assertIn("[agent-loop: gpt-6.1-sol]", "\n".join(args))
+                self.assertIn("normalized to", result.stdout)
+
+        result = self.run_loop(model="codex:GPT-6.1-Sol")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("harness codex, model gpt-6.1-sol", result.stdout)
 
     def test_codex_model_from_environment(self):
         result = self.run_loop(model="codex:custom-model")
