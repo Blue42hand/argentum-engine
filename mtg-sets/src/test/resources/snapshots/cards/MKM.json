@@ -10576,7 +10576,7 @@
                 "id": "Goblin Maskmaker:1",
                 "trigger": "AttackEvent",
                 "effect": {
-                    "type": "ReduceSpellCostsThisTurn",
+                    "type": "ReduceSpellCosts",
                     "spellFilter": {
                         "statePredicates": [
                             "IsFaceDown"

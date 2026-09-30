@@ -237,7 +237,7 @@ The single largest untouched cluster — 19 effects, none mapped.
 `ChangeSpellTarget`, `ChangeTriggeringObjectTargets`, `CopyEachSpellCast`, `CopyEachTargetSpell`,
 `CopyTargetTriggeredAbility`, `CounterAllOnStack`, `DestroySourceOfTargetedAbility`,
 `ExileSpellsOnStack`, `GrantKeywordToSpell`, `GrantNextSpellAffinity`, `MakeNextSpellUncounterable`,
-`MarkSpellExileWithCounters`, `ReduceSpellCostsThisTurn`,
+`MarkSpellExileWithCounters`, `ReduceSpellCosts`,
 `RemoveAbilitiesFromSourceOfTargetedAbility`, `ReselectTargetRandomly`,
 `ReturnSpellOrPermanentToOwnersHand`, `ReturnSpellToOwnersHand`, `StormCopy`, `WardCounter`
 

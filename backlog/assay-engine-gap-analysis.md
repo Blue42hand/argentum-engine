@@ -559,7 +559,7 @@ Every subtype hand-written cards use that Assay never produces. Examples are up 
 | `GrantReplacementEffect` | 4 | Whippoorwill; Walk-In Closet // Forgotten Cellar; Malicious Eclipse; Kaya, Geist Hunter |
 | `PairWithSource` | 4 | Deadeye Navigator; Lightning Mauler; Spectral Gateguards; Tandem Lookout |
 | `Proliferate` | 4 | High Perfect Morcant; Tam, the Possibility; Powerful Broker; Ichormoon Gauntlet |
-| `ReduceSpellCostsThisTurn` | 4 | Goblin Maskmaker; Armor Wars; Rowan, Scion of War; Will, Scion of Peace |
+| `ReduceSpellCosts` | 4 | Goblin Maskmaker; Armor Wars; Rowan, Scion of War; Will, Scion of Peace |
 | `RemoveMaximumHandSize` | 4 | Wrenn and Seven; Wisdom of Ages; Spirit Water Revival; Finale of Revelation |
 | `ReturnSpellOrPermanentToOwnersHand` | 4 | Fatehold Charm; Press the Enemy; Divide by Zero; Jeskai Revelation |
 | `ReturnSpellToOwnersHand` | 4 | Bilbo's Gambit; Reprieve; Hullbreaker Horror; Spellscorn Coven |

@@ -1206,38 +1206,56 @@ data class GrantNextSpellAffinityEffect(
 }
 
 /**
- * "Spells you cast this turn that match [spellFilter] cost {X} less to cast" — a turn-scoped,
+ * "Spells you cast [duration] that match [spellFilter] cost {X} less to cast" — a duration-bounded,
  * controller-scoped generic cost reduction installed when this effect resolves.
  *
  * The *repeating* counterpart of [GrantNextSpellAffinityEffect]: that rider is consumed by the
- * first matching spell, this one applies to every matching spell for the rest of the turn.
+ * first matching spell, this one applies to every matching spell until [duration] ends.
  *
  * [amount] is evaluated **once, when this effect resolves**, and the resolved number is what the
- * cost calculator uses for the rest of the turn. That is what the Scion cycle's rulings require —
+ * cost calculator uses for the whole duration. That is what the Scion cycle's rulings require —
  * "the value of X is determined only once, at the time the ability resolves" — so life gained or
  * lost after activation does not change the discount. Use a static
  * [com.wingedsheep.sdk.scripting.ModifySpellCost] instead when the reduction should track board
  * state continuously.
  *
  * The reduction lives on the game state rather than on the source permanent, so it survives the
- * source leaving the battlefield (the ability has already resolved; its effect lasts the turn),
+ * source leaving the battlefield (the ability has already resolved; its effect lasts on its own),
  * and it only reduces the generic portion of a cost (CR 601.2f) — never colored mana.
  *
- * Will, Scion of Peace: `ReduceSpellCostsThisTurnEffect(Filters.whiteOrBlue,
+ * [duration] is [Duration.EndOfTurn] ("this turn") or [Duration.UntilYourNextTurn] (Ral, Leyline
+ * Prodigy's +1 — the discount keeps applying to instants cast on opponents' turns and ends when
+ * the controller's next turn begins). Any other duration is rejected at construction rather than
+ * silently treated as one of these.
+ *
+ * Will, Scion of Peace: `ReduceSpellCostsEffect(Filters.whiteOrBlue,
  * DynamicAmount.TurnTracking(Player.You, TurnTracker.LIFE_GAINED))`.
  *
  * @property spellFilter Which of the controller's spells are discounted.
  * @property amount How much generic mana to take off, resolved at execution time.
+ * @property duration How long the discount lasts.
  */
-@SerialName("ReduceSpellCostsThisTurn")
+@SerialName("ReduceSpellCosts")
 @Serializable
-data class ReduceSpellCostsThisTurnEffect(
+data class ReduceSpellCostsEffect(
     val spellFilter: GameObjectFilter,
     val amount: com.wingedsheep.sdk.scripting.values.DynamicAmount,
+    val duration: Duration = Duration.EndOfTurn,
 ) : Effect {
-    override val description: String =
-        "Spells you cast this turn that are ${spellFilter.description} cost {X} less to cast, " +
-            "where X is ${amount.description}"
+    init {
+        require(duration == Duration.EndOfTurn || duration == Duration.UntilYourNextTurn) {
+            "ReduceSpellCostsEffect supports EndOfTurn or UntilYourNextTurn, not $duration"
+        }
+    }
+
+    override val description: String = buildString {
+        append("Spells you cast ")
+        append(if (duration == Duration.EndOfTurn) "this turn" else duration.description)
+        append(" that are ${spellFilter.description} cost ")
+        val fixed = (amount as? DynamicAmount.Fixed)?.amount
+        if (fixed != null) append("{$fixed} less to cast")
+        else append("{X} less to cast, where X is ${amount.description}")
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect =
         copy(spellFilter = spellFilter.applyTextReplacement(replacer))

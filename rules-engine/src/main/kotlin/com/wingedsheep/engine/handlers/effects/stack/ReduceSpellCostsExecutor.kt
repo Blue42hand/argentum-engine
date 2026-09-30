@@ -5,17 +5,19 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.TurnSpellCostReduction
+import com.wingedsheep.engine.state.SpellCostReduction
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsThisTurnEffect
+import com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsEffect
 import kotlin.reflect.KClass
 
 /**
- * Executor for [ReduceSpellCostsThisTurnEffect].
+ * Executor for [ReduceSpellCostsEffect].
  *
- * Evaluates the discount **once, here**, and records a [TurnSpellCostReduction] on the game state.
- * The cost calculator applies it to every matching spell the controller casts for the rest of the
- * turn; [com.wingedsheep.engine.core.TurnManager.startTurn] clears it at the turn boundary.
+ * Evaluates the discount **once, here**, and records a [SpellCostReduction] on the game state.
+ * The cost calculator applies it to every matching spell the controller casts until the effect's
+ * duration ends — [com.wingedsheep.engine.core.TurnManager.startTurn] clears end-of-turn entries,
+ * [com.wingedsheep.engine.core.CleanupPhaseManager.expireUntilYourNextTurnEffects] the
+ * "until your next turn" ones.
  *
  * Resolving the amount now rather than per cast is what the Scion cycle's rulings require — "the
  * value of X is determined only once, at the time the ability resolves". Mirrors
@@ -24,15 +26,15 @@ import kotlin.reflect.KClass
  * A resolved amount of 0 or less installs nothing: the discount would be a no-op, and skipping it
  * keeps the state (and the client's cost display) free of dead entries.
  */
-class ReduceSpellCostsThisTurnExecutor(
+class ReduceSpellCostsExecutor(
     private val amountEvaluator: DynamicAmountEvaluator
-) : EffectExecutor<ReduceSpellCostsThisTurnEffect> {
+) : EffectExecutor<ReduceSpellCostsEffect> {
 
-    override val effectType: KClass<ReduceSpellCostsThisTurnEffect> = ReduceSpellCostsThisTurnEffect::class
+    override val effectType: KClass<ReduceSpellCostsEffect> = ReduceSpellCostsEffect::class
 
     override fun execute(
         state: GameState,
-        effect: ReduceSpellCostsThisTurnEffect,
+        effect: ReduceSpellCostsEffect,
         context: EffectContext
     ): EffectResult {
         val amount = amountEvaluator.evaluate(state, effect.amount, context)
@@ -46,16 +48,17 @@ class ReduceSpellCostsThisTurnExecutor(
         }
         val sourceName = effectiveState.getEntity(sourceId)?.get<CardComponent>()?.name ?: "Unknown"
 
-        val reduction = TurnSpellCostReduction(
+        val reduction = SpellCostReduction(
             controllerId = context.controllerId,
             spellFilter = effect.spellFilter,
             amount = amount,
             sourceId = sourceId,
             sourceName = sourceName,
+            duration = effect.duration,
         )
         return EffectResult.success(
             effectiveState.copy(
-                turnSpellCostReductions = effectiveState.turnSpellCostReductions + reduction
+                spellCostReductions = effectiveState.spellCostReductions + reduction
             )
         )
     }
