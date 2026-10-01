@@ -1666,7 +1666,8 @@ object DamageUtils {
         damageAmount: Int,
         inBatch: Boolean = false,
         sourceId: EntityId? = null,
-        damageSourceRef: com.wingedsheep.engine.state.ObjectRef? = sourceId?.let(state::objectRef)
+        damageSourceRef: com.wingedsheep.engine.state.ObjectRef? = sourceId?.let(state::objectRef),
+        chosenSourcesOnly: Boolean = false
     ): Triple<GameState, EntityId?, Int> {
         if (damageAmount <= 0) return Triple(state, null, 0)
         var workingState = state
@@ -1674,6 +1675,7 @@ object DamageUtils {
         for ((index, effect) in state.floatingEffects.withIndex()) {
             val modification = effect.effect.modification
             if (modification !is SerializableModification.RedirectNextDamage) continue
+            if (chosenSourcesOnly && modification.chosenSource == null) continue
             if (modification.chosenSource != null && modification.chosenSource.reference != damageSourceRef) continue
             if (!OptionalDamageRedirect.redirectShieldCovers(workingState, effect, modification, targetId)) continue
             if (!modification.optional) {

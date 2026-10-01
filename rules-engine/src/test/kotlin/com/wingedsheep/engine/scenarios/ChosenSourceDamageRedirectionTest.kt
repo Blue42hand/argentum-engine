@@ -52,6 +52,89 @@ class ChosenSourceDamageRedirectionTest : ScenarioTestBase() {
         fun redirect(state: GameState, source: EntityId, target: EntityId, amount: Int = 3) =
             DamageUtils.checkDamageRedirection(state, target, amount, sourceId = source)
 
+        val doubler = card("Source Choice Doubler") {
+            manaCost = "{0}"
+            typeLine = "Enchantment"
+            replacementEffect(com.wingedsheep.sdk.scripting.DoubleDamage(
+                appliesTo = com.wingedsheep.sdk.scripting.EventPattern.DamageEvent()
+            ))
+        }
+        cardRegistry.register(doubler)
+        fun combatBoard(doubleDamage: Boolean = false): TestGame {
+            val setup = scenario().withPlayers("Player", "Opponent")
+                .withCardOnBattlefield(1, "Grizzly Bears")
+                .withCardOnBattlefield(2, "Hill Giant", summoningSickness = false)
+                .withCardInLibrary(1, "Forest").withCardInLibrary(2, "Forest")
+                .withActivePlayer(2).withPriorityPlayer(2)
+                .inPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+            if (doubleDamage) setup.withCardOnBattlefield(2, "Source Choice Doubler")
+            val game = setup.build()
+            game.declareAttackers(mapOf("Hill Giant" to 1)).error shouldBe null
+            game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
+            game.declareBlockers(mapOf("Grizzly Bears" to listOf("Hill Giant"))).error shouldBe null
+            return game
+        }
+        test("redirected combat damage observes destination player protection") {
+            val game = combatBoard()
+            install(game)
+            game.state = game.state.updateEntity(game.player1Id) { it.with(
+                com.wingedsheep.engine.state.components.player.PlayerProtectionComponent(
+                    scopes = listOf(com.wingedsheep.sdk.scripting.ProtectionScope.Everything))) }
+            game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+            game.getLifeTotal(1) shouldBe 20
+            game.findPermanent("Grizzly Bears").shouldNotBeNull()
+            game.state.floatingEffects.isEmpty() shouldBe true
+        }
+        test("redirected combat damage observes destination prevention and is amplified once") {
+            val game = combatBoard(doubleDamage = true)
+            install(game)
+            game.state = services.effectExecutorRegistry.execute(game.state,
+                Effects.PreventDamage(amount = com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed(2)),
+                EffectContext(sourceId = null, controllerId = game.player1Id)).state
+            game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+            game.getLifeTotal(1) shouldBe 16
+            game.findPermanent("Grizzly Bears").shouldNotBeNull()
+        }
+        test("chosen-source retargeting survives a destination optional-redirection pause") {
+            val game = combatBoard()
+            install(game)
+            val shield = services.effectExecutorRegistry.execute(game.state,
+                Effects.RedirectNextDamage(listOf(EffectTarget.Controller), EffectTarget.ContextTarget(0), optional = true),
+                EffectContext(sourceId = null, controllerId = game.player1Id,
+                    targets = listOf(ChosenTarget.Player(game.player2Id))))
+            shield.error shouldBe null
+            game.state = shield.state
+            repeat(8) {
+                if (!game.hasPendingDecision()) game.passPriority().error shouldBe null
+            }
+            (game.getPendingDecision() is YesNoDecision) shouldBe true
+            game.state.floatingEffects.count {
+                (it.effect.modification as? SerializableModification.RedirectNextDamage)?.chosenSource != null
+            } shouldBe 1
+            game.answerYesNo(true).error shouldBe null
+            game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+            game.getLifeTotal(1) shouldBe 20
+            game.getLifeTotal(2) shouldBe 17
+            game.findPermanent("Grizzly Bears").shouldNotBeNull()
+            game.state.floatingEffects.isEmpty() shouldBe true
+            game.state.getEntity(game.player2Id)!!
+                .get<com.wingedsheep.engine.state.components.player.CombatDamageReceivedThisTurnComponent>()!!.amount shouldBe 3
+        }
+        test("chosen-source combat redirections chain before destination damage") {
+            val game = combatBoard()
+            install(game)
+            val result = RedirectDamageFromChosenSourceExecutor().execute(game.state,
+                RedirectDamageFromChosenSourceEffect(EffectTarget.Controller,
+                    EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.AnOpponent)),
+                EffectContext(sourceId = null, controllerId = game.player1Id))
+            game.state = result.state
+            game.selectCards(listOf(game.findPermanent("Hill Giant")!!)).error shouldBe null
+            game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+            game.getLifeTotal(1) shouldBe 20
+            game.getLifeTotal(2) shouldBe 17
+            game.findPermanent("Grizzly Bears").shouldNotBeNull()
+            game.state.floatingEffects.isEmpty() shouldBe true
+        }
         test("only the chosen source and protected object consume the shield") {
             val game = board(); val bear = game.findPermanent("Grizzly Bears")!!
             val giant = game.findPermanent("Hill Giant")!!; val mountain = game.findPermanent("Mountain")!!

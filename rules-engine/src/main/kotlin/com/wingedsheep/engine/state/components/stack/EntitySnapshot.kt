@@ -275,6 +275,7 @@ fun captureEntitySnapshots(
         entityId = id,
         objectRef = state?.objectRef(id),
         wasFaceDown = state?.getEntity(id)?.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>() == true,
+        name = state?.getEntity(id)?.get<CardComponent>()?.name,
         power = projected.getPower(id),
         toughness = projected.getToughness(id),
         subtypes = projected.getSubtypes(id),

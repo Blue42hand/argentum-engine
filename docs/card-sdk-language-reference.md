@@ -2965,8 +2965,8 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   instead. Installed as a `Duration.EndOfTurn` floating effect and checked during damage resolution.
   `amount` caps the redirected damage (`null` = redirect all). **`scope` decides when an unlimited shield is
   used up** (a capacity shield, `amount != null`, is always used up once its capacity hits 0 — CR 615.7):
-  - `RedirectScope.NEXT_INSTANCE` (default) — one source's instance, then gone. "The next time a source of
-    your choice would deal damage to you…" (Beacon of Destiny).
+  - `RedirectScope.NEXT_INSTANCE` (default) — one source's damage instance, then gone.
+    Source selection uses `RedirectDamageFromChosenSourceEffect` instead.
   - `RedirectScope.NEXT_BATCH` — every instance dealt in the next *simultaneous moment*, then gone. Because
     all combat damage is dealt simultaneously (CR 510.2), this redirects a whole combat damage step — every
     attacker hitting the protected player/creature — not just the first. "The next time damage would be dealt
