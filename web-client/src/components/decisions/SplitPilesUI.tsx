@@ -229,7 +229,9 @@ function BattlefieldPileSplitUI({ decision }: { decision: SplitPilesDecision }) 
   const submitPiles = useGameStore((s) => s.submitSplitPilesDecision)
   const gameState = useGameStore((s) => s.gameState)
   const [activePile, setActivePile] = useState(0)
-  const [piles, setPiles] = useState<EntityId[][]>(() => Array.from({ length: decision.numberOfPiles }, () => []))
+  // A restriction re-ask arrives with the engine's maximal legal blocks; start from those.
+  const [piles, setPiles] = useState<EntityId[][]>(() => decision.suggestedPiles?.map((pile) => [...pile])
+    ?? Array.from({ length: decision.numberOfPiles }, () => []))
 
   useEffect(() => {
     const options = (decision.pileOptions?.[activePile] ?? decision.cards).filter((id) => {

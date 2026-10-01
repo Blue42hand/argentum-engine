@@ -236,6 +236,50 @@ class RandomizedBlockerPilesTest : ScenarioTestBase() {
             game.state.getEntity(game.findPermanent("Pile Limited")!!)?.get<BlockedComponent>()?.blockerIds shouldBe listOf(walls.last())
         }
 
+        test("a defender with no creatures declares no blocks without being asked") {
+            val game = pileBoard(listOf("Grizzly Bears"), emptyList())
+            open(game)
+            game.state.pendingDecision shouldBe null
+            game.state.getEntity(game.player2Id)?.has<BlockersDeclaredThisCombatComponent>() shouldBe true
+        }
+
+        test("many separately capped piles are trimmed per attacker without a subset search") {
+            val attackers = List(20) { index ->
+                com.wingedsheep.sdk.dsl.card("Pile Capped $index") {
+                    typeLine = "Creature — Beast"; power = 3; toughness = 3
+                    staticAbility { ability = com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan(1) }
+                }.also { cardRegistry.register(it) }.name
+            }
+            val game = pileBoard(attackers, List(40) { "Wall of Wood" })
+            open(game)
+            val blockers = (game.state.pendingDecision as SplitPilesDecision).cards
+            submit(game, blockers.chunked(2)).error shouldBe null
+            val question = game.state.pendingDecision as SplitPilesDecision
+            question.requiredAssignments shouldBe 20
+            question.suggestedPiles!!.map { it.size } shouldBe List(20) { 1 }
+            submit(game, question.suggestedPiles!!).error shouldBe null
+            attackers.forEach { name ->
+                game.state.getEntity(game.findPermanent(name)!!)?.get<BlockedComponent>()?.blockerIds?.size shouldBe 1
+            }
+        }
+
+        test("a large pile without its required co-blocker is eliminated before the subset search") {
+            val dependent = com.wingedsheep.sdk.dsl.card("Pile Dependent") {
+                typeLine = "Creature — Beast"; power = 1; toughness = 3
+                staticAbility { ability = com.wingedsheep.sdk.scripting.CantBlockUnlessCoBlocker(
+                    coBlockerFilter = com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.withSubtype("Elf")) }
+            }
+            cardRegistry.register(dependent)
+            val game = pileBoard(listOf("Grizzly Bears"), List(30) { "Pile Dependent" })
+            open(game)
+            val blockers = (game.state.pendingDecision as SplitPilesDecision).cards
+            blockers.size shouldBe 30
+            submit(game, listOf(blockers)).error shouldBe null
+            game.state.pendingDecision shouldBe null
+            blockers.forEach { game.state.getEntity(it)?.get<BlockingComponent>() shouldBe null }
+            game.state.getEntity(game.player2Id)?.has<BlockersDeclaredThisCombatComponent>() shouldBe true
+        }
+
         test("post-assignment labels do not reveal a face-down attacker's identity") {
             val limit = com.wingedsheep.sdk.dsl.card("Pile Global Limit") {
                 typeLine = "Enchantment"

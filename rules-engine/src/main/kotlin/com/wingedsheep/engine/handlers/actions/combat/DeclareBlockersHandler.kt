@@ -57,7 +57,7 @@ class DeclareBlockersHandler(
      * defender's would-be blocker) before that defender has declared. Once every defender has
      * declared the baton stays with the last declarer, exactly as before.
      */
-    internal fun handToNextUndeclaredDefender(state: GameState): GameState {
+    private fun handToNextUndeclaredDefender(state: GameState): GameState {
         val next = CombatDefenders.defendingPlayersInApnapOrder(state).firstOrNull { defender ->
             state.getEntity(defender)?.has<BlockersDeclaredThisCombatComponent>() != true
         } ?: return state
