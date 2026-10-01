@@ -5587,6 +5587,10 @@ object Effects {
     fun HijackNextCombatPhase(target: EffectTarget = EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.TargetOpponent)): Effect =
         HijackNextTurnEffect(target, com.wingedsheep.sdk.scripting.effects.HijackScope.NextCombatPhase)
 
+    /** Replace declarations with optional blocker piles assigned randomly to attackers. */
+    fun RandomizedBlockerPiles(duration: Duration = Duration.EndOfTurn): Effect =
+        com.wingedsheep.sdk.scripting.effects.RandomizedBlockerPilesEffect(duration)
+
     /**
      * "You choose which creatures attack this turn. You choose which creatures block this turn and
      * how those creatures block." (Master Warcraft.) Moves every attack and block *declaration* this

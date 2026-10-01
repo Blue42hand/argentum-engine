@@ -798,3 +798,17 @@ replay up to the requested frame (so no full `GameState` is stored per frame). T
 A snapshot is exact but **not editable** in the card-search builder; the builder's own name-based
 `?s=` share remains for authoring/editing. The engine `GameState` is (de)serialized with
 `persistenceJson` (`allowStructuredMapKeys` — `zones` is keyed by `ZoneKey`).
+
+### Pile decision membership
+
+`SplitPilesDecision` includes `allowUnassigned` (default false), `maxPileMemberships` (entity ID to
+maximum distinct pile count, absent entries default to one), and `useTargetingUI` (default false).
+Responses continue to use `PilesSplitResponse` with a list of piles, including empty piles. For
+randomized blocker piles, the legal action's description is "Choose blocker piles"; submitting its
+empty `DeclareBlockers` opens the decision instead of declaring no blockers.
+
+For a constrained split, `pileOptions` limits the cards eligible for each pile and
+`requiredAssignments` fixes the total number of memberships. `suggestedPiles` supplies one
+server-validated plan for automated responders. After randomized assignment, these fields let the
+player choose a legal subset on the battlefield without rerolling or enumerating every combination.
+The continuation also checks the resulting combat restrictions before committing any block.

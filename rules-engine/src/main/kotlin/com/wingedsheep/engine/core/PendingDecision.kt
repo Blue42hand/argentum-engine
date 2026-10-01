@@ -432,6 +432,13 @@ data class SplitPilesDecision(
     override val context: DecisionContext,
     val cards: List<EntityId>,
     val numberOfPiles: Int = 2,
+    val allowUnassigned: Boolean = false,
+    val pileOptions: Map<Int, List<EntityId>> = emptyMap(),
+    val requiredAssignments: Int? = null,
+    val suggestedPiles: List<List<EntityId>>? = null,
+    /** Maximum distinct piles per card; absent entries are limited to one. */
+    val maxPileMemberships: Map<EntityId, Int> = emptyMap(),
+    val useTargetingUI: Boolean = false,
     /** Labels for the piles (e.g., ["Keep", "Discard"]) */
     val pileLabels: List<String> = emptyList(),
     /** Card info for displaying hidden cards (e.g., top of library during surveil) */

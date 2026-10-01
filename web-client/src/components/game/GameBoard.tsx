@@ -52,6 +52,7 @@ interface GameBoardProps {
  * This is the main orchestrator component that composes all game UI elements.
  */
 export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardProps) {
+  const blockerDeclarationDescription = useGameStore((s) => s.legalActions.find((a) => a.actionType === 'DeclareBlockers')?.description)
   const playerGameState = useGameStore((state) => state.gameState)
   const spectatingState = useGameStore((state) => state.spectatingState)
   const sessionId = useGameStore((state) => state.sessionId)
@@ -1998,7 +1999,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                   ...styles.combatPassButton,
                 }}
               >
-                No Blocks
+                {blockerDeclarationDescription === 'Choose blocker piles' ? blockerDeclarationDescription : 'No Blocks'}
               </button>
             </>
           ) : (
