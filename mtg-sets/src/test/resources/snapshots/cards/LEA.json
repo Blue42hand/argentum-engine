@@ -521,6 +521,37 @@
     ]
 }
 
+// Camouflage
+{
+    "name": "Camouflage",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "Cast this spell only during your declare attackers step.\nThis turn, instead of declaring blockers, each defending player chooses any number of creatures they control and divides them into a number of piles equal to the number of attacking creatures for whom that player is the defending player. Creatures those players control that can block additional creatures may likewise be put into additional piles. Assign each pile to a different one of those attacking creatures at random. Each creature in a pile that can block the creature that pile is assigned to does so. (Piles can be empty.)",
+    "script": {
+        "spellEffect": "RandomizedBlockerPiles",
+        "castRestrictions": [
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": {
+                    "type": "IsInStep",
+                    "steps": [
+                        "DECLARE_ATTACKERS"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/8/3838c2a3-7fab-4976-9c1b-2891aee24e52.jpg?1783948678"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Castle
 {
     "name": "Castle",
