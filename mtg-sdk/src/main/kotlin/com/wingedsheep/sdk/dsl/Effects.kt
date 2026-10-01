@@ -4392,6 +4392,24 @@ object Effects {
         storeCastTo: String? = null,
     ): Effect = CastFromCollection(from.key, storeCastTo, insteadOfGraveyard, caster)
 
+    /**
+     * "Cast that card by paying [cost] rather than paying its mana cost" — during this effect's
+     * resolution, like [CastFromCollectionWithoutPayingCost], but owing [cost] in place of the mana
+     * cost (an alternative cost, CR 118.9). Amped Raptor: `CastFromCollectionByPaying(card,
+     * Costs.additional.PayPlayerCounters(CounterType.ENERGY, DynamicAmounts.sourceManaValue()))` —
+     * "an amount of {E} equal to its mana value", priced off the spell being cast. Nothing is cast
+     * when the caster can't afford [cost]; wrap in [May] for the "you may" wording.
+     */
+    fun CastFromCollectionByPaying(
+        from: CollectionSlot,
+        cost: com.wingedsheep.sdk.scripting.AdditionalCost,
+        storeCastTo: String? = null,
+    ): Effect = CastFromCollectionWithoutPayingCostEffect(
+        from = from.key,
+        storeCastTo = storeCastTo,
+        alternativeCost = cost,
+    )
+
     /** Play (land or spell) a card from [from] without paying its mana cost. */
     fun PlayFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
         PlayFromCollectionWithoutPayingCost(from.key)
@@ -5079,6 +5097,16 @@ object Effects {
     ): Effect = com.wingedsheep.sdk.scripting.effects.GrantNextSpellAffinityEffect(spellFilter, forType)
 
     /**
+     * Grant the next [spellFilter] spell you cast this turn a cost-payment [keyword] — improvise,
+     * convoke or delve (Archway of Innovation: "The next spell you cast this turn has improvise.").
+     * The rider is consumed by the next matching cast.
+     */
+    fun GrantNextSpellKeyword(
+        keyword: com.wingedsheep.sdk.core.Keyword,
+        spellFilter: GameObjectFilter = GameObjectFilter.Any
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantNextSpellKeywordEffect(keyword, spellFilter)
+
+    /**
      * "Spells you cast this turn that match [spellFilter] cost {X} less to cast, where X is
      * [amount]" (Will, Scion of Peace / Rowan, Scion of War); with
      * `duration = Duration.UntilYourNextTurn`, "until your next turn, … spells you cast cost {X}
@@ -5662,6 +5690,13 @@ object Effects {
      * followed by an additional main phase" (Aggravated Assault, All-Out Assault). CR 500.8 / 505.1a.
      */
     val AddMainPhase: Effect = com.wingedsheep.sdk.scripting.effects.AddMainPhaseEffect
+
+    /**
+     * Insert a single additional beginning phase — untap, upkeep and draw — after this phase, still
+     * within the current turn (Shadow of the Second Sun). Composes with [AddCombatPhase] /
+     * [AddMainPhase]; see [com.wingedsheep.sdk.scripting.effects.AddBeginningPhaseEffect].
+     */
+    val AddBeginningPhase: Effect = com.wingedsheep.sdk.scripting.effects.AddBeginningPhaseEffect
 
     /**
      * End the turn (CR 724.1): exile the whole stack (including this source) and any pending

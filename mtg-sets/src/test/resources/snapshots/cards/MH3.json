@@ -1,3 +1,131 @@
+// Amped Raptor
+{
+    "name": "Amped Raptor",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Dinosaur",
+    "oracleText": "First strike\nWhen this creature enters, you get {E}{E} (two energy counters). Then if you cast it from your hand, exile cards from the top of your library until you exile a nonland card. You may cast that card by paying an amount of {E} equal to its mana value rather than paying its mana cost.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Amped Raptor:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "ENERGY",
+                            "count": 2,
+                            "target": "Controller"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": "WasCastFromHand"
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherUntilMatch",
+                                        "filter": "nonland",
+                                        "storeMatch": "matched1",
+                                        "storeRevealed": "revealed1"
+                                    },
+                                    {
+                                        "type": "RevealCollection",
+                                        "from": "revealed1"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "revealed1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        }
+                                    },
+                                    {
+                                        "type": "Gated",
+                                        "gate": {
+                                            "type": "Gate.WhenCondition",
+                                            "condition": {
+                                                "type": "Compare",
+                                                "left": {
+                                                    "type": "PlayerCounterCount",
+                                                    "counterType": "ENERGY"
+                                                },
+                                                "operator": "GTE",
+                                                "right": {
+                                                    "type": "StoredCardManaValue",
+                                                    "collectionName": "matched1"
+                                                }
+                                            }
+                                        },
+                                        "then": {
+                                            "type": "Gated",
+                                            "gate": "Gate.MayDecide",
+                                            "then": {
+                                                "type": "CastFromCollectionWithoutPayingCost",
+                                                "from": "matched1",
+                                                "alternativeCost": {
+                                                    "type": "AdditionalAtom",
+                                                    "atom": {
+                                                        "type": "AtomPayPlayerCounters",
+                                                        "counterType": "ENERGY",
+                                                        "amount": {
+                                                            "type": "EntityProperty",
+                                                            "entity": "Self",
+                                                            "numericProperty": "ManaValue"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "114",
+        "rarity": "UNCOMMON",
+        "artist": "Alex Konstad",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/a/1ac0e78b-0fdd-44f9-8b7b-c4f28a32782e.jpg?1783911274",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "Any land cards exiled with Amped Raptor's triggered ability will remain in exile. If you choose not to cast the exiled nonland card (either because you don't have enough {E} or you just don't want to), that card will remain in exile as well."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "You choose whether or not to cast the exiled nonland card as Amped Raptor's triggered ability resolves. If you do, you do so as part of the resolution of that ability. You can't wait to cast it later in the turn. Timing restrictions based on the card's type are ignored."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If you cast a spell for another cost \"rather than paying its mana cost,\" you can't choose to cast it for any alternative costs. You can, however, pay additional costs, such as kicker costs. If the spell has any mandatory additional costs, those must be paid to cast it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Arcbound Condor
 {
     "name": "Arcbound Condor",
@@ -109,6 +237,69 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Archway of Innovation
+{
+    "name": "Archway of Innovation",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you control an Island.\n{T}: Add {U}.\n{U}, {T}: The next spell you cast this turn has improvise. (Your artifacts can help cast that spell. Each artifact you tap after you're done activating mana abilities pays for {1}.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Archway of Innovation:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Archway of Innovation:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "GrantNextSpellKeyword",
+                    "keyword": "IMPROVISE"
+                },
+                "descriptionOverride": "The next spell you cast this turn has improvise."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "land Island"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "214",
+        "rarity": "RARE",
+        "artist": "Yeong-Hao Han",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/a/6a90f9e6-9251-4203-9599-cc4032a5e6e1.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -762,6 +953,236 @@
     ]
 }
 
+// Crabomination
+{
+    "name": "Crabomination",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Creature — Crab Demon",
+    "oracleText": "Emerge from artifact {5}{B}{B} (You may cast this spell by sacrificing an artifact and paying the emerge cost reduced by that artifact's mana value.)\nWhen this creature enters, target opponent exiles the top card of their library, a card at random from their graveyard, and a card at random from their hand. You may cast a spell from among cards exiled this way without paying its mana cost.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "EMERGE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Emerge",
+            "cost": "{5}{B}{B}",
+            "from": {
+                "cardPredicates": [
+                    "IsArtifact"
+                ]
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Crabomination:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromMultipleZones",
+                                "zones": [
+                                    "Library",
+                                    "Graveyard",
+                                    "Hand"
+                                ],
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "gathered1"
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "gathered2"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered2",
+                            "selection": {
+                                "type": "Random",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected3"
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "gathered4"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered4",
+                            "selection": {
+                                "type": "Random",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected5"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "gathered0",
+                            "collectionFilter": {
+                                "type": "ExcludeOtherCollection",
+                                "otherCollectionName": "gathered1"
+                            },
+                            "storeMatching": "matching6"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "matching6",
+                            "collectionFilter": {
+                                "type": "ExcludeOtherCollection",
+                                "otherCollectionName": "selected3"
+                            },
+                            "storeMatching": "matching7"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "matching7",
+                            "collectionFilter": {
+                                "type": "ExcludeOtherCollection",
+                                "otherCollectionName": "selected5"
+                            },
+                            "storeMatching": "matching8"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "gathered0",
+                            "collectionFilter": {
+                                "type": "ExcludeOtherCollection",
+                                "otherCollectionName": "matching8"
+                            },
+                            "storeMatching": "matching9"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "matching9",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "moved10"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "moved10",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "nonland",
+                            "storeSelected": "selected11",
+                            "prompt": "You may cast a spell from among the exiled cards without paying its mana cost",
+                            "selectedLabel": "Cast for free",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "CastFromCollectionWithoutPayingCost",
+                            "from": "selected11"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, target opponent exiles the top card of their library, a card at random from their graveyard, and a card at random from their hand. You may cast a spell from among cards exiled this way without paying its mana cost."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "85",
+        "rarity": "RARE",
+        "artist": "Nicholas Gregory",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/3/f328d6e0-d808-4abe-b6a2-cc557b27c329.jpg?1783911283",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "Emerge from artifact is a variant of the emerge ability. It allows you to sacrifice an artifact rather than a creature, but otherwise functions identically to emerge."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "You may sacrifice an artifact with a mana value of 0, such as a Food token, to cast Crabomination for its emerge cost. You'll just pay the full emerge cost with no reduction."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "You may sacrifice an artifact with mana value greater than or equal to the emerge cost. If you do, you'll pay only the colored mana component of the emerge cost."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "The mana value of a creature spell with emerge isn't affected by whether its emerge cost is paid. For example, if you cast Crabomination for its emerge cost and sacrifice an artifact whose mana value is 3, Crabomination's mana value remains 6."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "Crabomination's triggered ability doesn't allow you to play land cards, and as such, any land cards exiled with Crabomination's triggered ability will remain in exile. If you choose not to cast any of the exiled nonland cards (either because you can't or don't want to), those cards will remain in exile as well."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "You choose whether or not to cast one of the exiled cards as Crabomination's triggered ability resolves. If you do, you do so as part of the resolution of that ability. You can't wait to cast it later in the turn. Timing restrictions based on the card's type are ignored."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If you cast a spell for another cost \"without paying its mana cost,\" you can't choose to cast it for any alternative costs. You can, however, pay additional costs, such as kicker costs. If the spell has any mandatory additional costs, those must be paid to cast it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Depth Defiler
 {
     "name": "Depth Defiler",
@@ -1027,6 +1448,90 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Emissary of Soulfire
+{
+    "name": "Emissary of Soulfire",
+    "manaCost": "{1}{W}{U}",
+    "typeLine": "Creature — Djinn Monk",
+    "oracleText": "When this creature enters, you get {E}{E}{E} (three energy counters).\nPay {E}{E}: Put an exalted counter on target creature you control. Activate only as a sorcery. (Whenever a creature you control attacks alone, it gets +1/+1 until end of turn for each instance of exalted among permanents you control.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Emissary of Soulfire:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "ENERGY",
+                    "count": 3,
+                    "target": "Controller"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Emissary of Soulfire:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomPayPlayerCounters",
+                        "counterType": "ENERGY",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    }
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "EXALTED",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "rarity": "UNCOMMON",
+        "artist": "Bartek Fedyczak",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/6/4663e9e3-1989-4ddb-9508-9cc055d2ebe9.jpg?1783911252",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "A creature attacks alone if it's the only creature declared as an attacker during the declare attackers step (including creatures controlled by your teammates, if applicable). For example, exalted won't trigger if you attack with multiple creatures and all but one of them are removed from combat. Similarly, creatures that enter the battlefield attacking later in combat won't affect exalted abilities that have already triggered or resolved."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "A creature with multiple exalted counters will have that many instances of exalted."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
     ]
 }
 
@@ -1498,6 +2003,102 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Herigast, Erupting Nullkite
+{
+    "name": "Herigast, Erupting Nullkite",
+    "manaCost": "{9}",
+    "typeLine": "Legendary Creature — Eldrazi Dragon",
+    "oracleText": "Emerge {6}{R}{R} (You may cast this spell by sacrificing a creature and paying the emerge cost reduced by that creature's mana value.)\nWhen you cast this spell, you may exile your hand. If you do, draw three cards.\nFlying\nEach creature spell you cast has emerge. The emerge cost is equal to its mana cost.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING",
+        "EMERGE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Emerge",
+            "cost": "{6}{R}{R}"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Herigast, Erupting Nullkite:1",
+                "trigger": "CastThisSpellEvent",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayDecide",
+                        "prompt": "Exile your hand and draw three cards?"
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "gathered0",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                }
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "When you cast this spell, you may exile your hand. If you do, draw three cards."
+            }
+        ],
+        "staticAbilities": [
+            "GrantEmergeToOwnSpells"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "MYTHIC",
+        "artist": "Lucas Graciano",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7baf9549-1869-4bd3-a52a-2f0b30ba0b16.jpg?1783911309",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "You may choose to exile your hand even if you have no cards in hand. If you do, you'll still draw three cards."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If a spell has more than one emerge cost, you may choose to pay it for any one of those emerge costs."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "Once you begin to cast a spell using an emerge ability granted by Herigast, losing control of Herigast won't affect it. You can finish casting it as normal. For example, you can choose to sacrifice Herigast as you choose to pay a creature spell's emerge cost from an emerge ability granted by Herigast itself."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "Herigast's triggered ability will resolve before Herigast does. If Herigast is countered or otherwise leaves the stack in response to its triggered ability, the triggered ability will still resolve as normal."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2403,6 +3004,76 @@
     ]
 }
 
+// Primal Prayers
+{
+    "name": "Primal Prayers",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, you get {E}{E} (two energy counters).\nYou may cast creature spells with mana value 3 or less by paying {E} rather than paying their mana costs. If you cast a spell this way, you may cast it as though it had flash.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Primal Prayers:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "ENERGY",
+                    "count": 2,
+                    "target": "Controller"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantAlternativeCastingCost",
+                "cost": "{0}",
+                "additionalCosts": [
+                    {
+                        "type": "AdditionalAtom",
+                        "atom": {
+                            "type": "AtomPayPlayerCounters",
+                            "counterType": "ENERGY"
+                        }
+                    }
+                ],
+                "spellFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "ManaValueAtMost",
+                            "max": 3
+                        }
+                    ]
+                },
+                "asThoughFlash": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "166",
+        "rarity": "RARE",
+        "artist": "Yeong-Hao Han",
+        "flavorText": "When Gaea speaks, all of nature falls silent.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/4/c4eda3db-b47d-4f1e-a93d-e2ea747d935c.jpg?1783911257",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "If a spell you cast this way has {X} in its mana cost, you must choose 0 as the value of X when casting it."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If you cast a spell for another cost \"rather than paying its mana cost,\" you can't choose to cast it for any alternative costs. You can, however, pay additional costs, such as kicker costs. If the spell has any mandatory additional costs, those must be paid to cast it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Ral, Monsoon Mage
 {
     "name": "Ral, Monsoon Mage",
@@ -3059,6 +3730,53 @@
         "artist": "Warren Mahy",
         "flavorText": "\"Pre-criminal notions detected in the Sixth Precinct. The suspect will confess when arrested in two hours.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/0/8/08a587f5-5910-405e-8982-c889dbbc7f98.jpg?1783911288"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Shadow of the Second Sun
+{
+    "name": "Shadow of the Second Sun",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant player\nAt the beginning of each of enchanted player's postcombat main phases, there is an additional beginning phase after this phase. (The end step happens after the added untap, upkeep, and draw steps.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Shadow of the Second Sun:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "POSTCOMBAT_MAIN",
+                    "player": "EnchantedPlayer"
+                },
+                "binding": "ANY",
+                "effect": "AddBeginningPhase"
+            }
+        ],
+        "auraTarget": "TargetPlayer"
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "rarity": "MYTHIC",
+        "artist": "Danny Schwartz",
+        "flavorText": "Live fully, then return to the beginning.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0da72736-574d-4d99-98ba-3a91c374cd10.jpg?1783911288",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "The additional beginning phase all happens during the current turn. Any effects that last \"until your next turn\" or similar won't expire just because they'll go through an additional beginning phase."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "After the additional beginning phase, the game proceeds to the ending phase (unless something has added even more phases)."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If multiple phases are added to the same point in your turn, the most recently created phase happens first."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLUE"

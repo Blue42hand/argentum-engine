@@ -408,7 +408,7 @@ internal class CastCostTotaller(
         // and the creature is still on the battlefield here: it is sacrificed only as the total cost
         // is paid (CR 601.2h), which execute() does after mana payment.
         AlternativeCostType.EMERGE to {
-            EmergeCasts.printedEmerge(cardDef)?.let {
+            EmergeCasts.effectiveEmerge(state, cardId, cardDef, playerId, cardRegistry, predicateEvaluator)?.let {
                 EmergeCasts.reduceForSacrifice(
                     priced(it.cost), state, action.additionalCostPayment?.sacrificedPermanents?.firstOrNull()
                 )
@@ -445,7 +445,7 @@ internal class CastCostTotaller(
         // is priced here; the grant's non-mana half (Conspiracy Unraveler's "collect evidence 10") is
         // paid with the other additional costs.
         AlternativeCostType.GRANTED to {
-            costCalculator.findAlternativeCastingCosts(state, playerId).firstOrNull()?.let { priced(it.manaCost) }
+            costCalculator.findAlternativeCastingCosts(state, playerId, cardDef).firstOrNull()?.let { priced(it.manaCost) }
         },
     )
 
@@ -509,6 +509,8 @@ internal class CastCostTotaller(
             // graveyard permission.
             harmonizeAllowed = payment.harmonizeCreature != null &&
                 zoneResolver.hasHarmonizePermission(state, action.playerId, action.cardId),
+            // Improvise taps pay the announced X too, unless a waterbend cost claims them.
+            improviseAllowed = spellWaterbendAmount(cardDef, action) == 0,
         )
         val leftover = (reduction - totalCost.genericAmount).coerceAtLeast(0)
         if (leftover == 0) return xValue

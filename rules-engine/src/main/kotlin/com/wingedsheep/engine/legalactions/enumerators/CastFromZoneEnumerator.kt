@@ -104,14 +104,17 @@ class CastFromZoneEnumerator(
                 context.cardRegistry, context.conditionEvaluator, context.legality
             ), context.predicateEvaluator
         )
-        return result.map { offer ->
+        // Improvise on a cast from exile, the graveyard or the command zone — printed, or granted
+        // (Archway of Innovation's "the next spell you cast this turn has improvise" applies from
+        // any zone) — gets the same tap-to-help metadata as a hand cast.
+        return applyImproviseMetadata(context, result, creditAffordability = true).map { offer ->
             val action = offer.action as? CastSpell ?: return@map offer
             val card = state.getEntity(action.cardId)?.get<CardComponent>() ?: return@map offer
             val cardDef = context.cardRegistry.getCard(card.cardDefinitionId)
             val owed = costs.owedAdditionalCosts(state, action, cardDef)
             val counterMaxX = PlayerCounterPayment.spellMaxX(state, playerId, owed)
             offer.copy(
-                affordable = offer.affordable && PlayerCounterPayment.canAffordSpell(state, playerId, owed),
+                affordable = offer.affordable && PlayerCounterPayment.canAffordSpell(state, playerId, owed, action.cardId),
                 hasXCost = offer.hasXCost || counterMaxX != null,
                 maxAffordableX = listOfNotNull(offer.maxAffordableX.takeIf { offer.hasXCost }, counterMaxX).minOrNull()
             )

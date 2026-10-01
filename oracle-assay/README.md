@@ -697,6 +697,51 @@ permanent gets the counter too); Greenbelt Radical fused its two sentences — "
 each creature you control. Creatures you control gain trample" — into one iteration, where the text
 names the group twice and so gathers it twice. Only their goldens moved.
 
+## The tapped-fetch band
+
+The sixth loop band, keyed on the tail family `, put it …` (**73 lines over 36 whole cards** by the
+prefix probe, over the whole corpus). It delivered **26 hand-written cards read whole (7,214 →
+7,240)** — Evolving Wilds, Terramorphic Expanse, Fabled Passage's plainer kin, Rampant Growth.
+
+### One flag, two printings
+
+"Search your library for a basic land card, put it onto the battlefield tapped, then shuffle." is
+`Patterns.Library.searchLibrary(filter, BATTLEFIELD, entersTapped = true)` in every golden — the
+recipe the untapped search rows already build, with the one parameter they left at its default. So the
+band is two more rows over `Library.search`'s shared shape. The anaphor runs the other way from the
+untapped pair: Oracle prints "put **it** onto the battlefield tapped" about five times as often as
+"put **that card** …", so the pronoun is canonical and "that card" is the alternate.
+
+### What the differential found
+
+Differential **6,836 compared / 55 divergent → 6,862 / 55**. The one new divergence was a **card
+bug, fixed**: Escape Tunnel searched with `reveal = true`, showing the fetched land to every player
+though its Oracle text reveals nothing. Only its golden moved.
+
+## The graveyard exile-cost band
+
+The seventh loop band, keyed on the tail family `from your graveyard: …` (**68 lines over 33 whole
+cards** by the prefix probe, over the whole corpus). It delivered **17 hand-written cards read whole
+(7,240 → 7,257)** — the Renew cycle, Cobbled Lancer, Bramble Wurm, Seasoned Cryomancer and their kin.
+
+### One cost value, two printings, and the zone decides
+
+"{3}{U}, Exile this card from your graveyard: Draw a card." is `AbilityCost.ExileSelf` in every golden
+— the same value the battlefield's "Exile ~" builds — with `activateFromZone = GRAVEYARD` on the
+ability. The SDK keeps the zone on the ability and not on the cost, so the two printings cannot be two
+rows of `Costs`: one value with two surfaces is printing left to alternation order. CR 113.6m makes the
+zone a consequence of the cost ("an ability whose cost … specifies that it moves the object it's on
+out of a particular zone functions only in that zone"), so `Costs.fromGraveyard` reads the trailing
+exile and `Activated`'s cost slot carries the zone it names beside the cost, onto the field the
+recursion band already derives from a self-moving *effect*. Printing chooses the graveyard spelling
+only when the ability works from the graveyard **and** its last cost exiles it; `abilityFor`'s
+reconstruction checks the choice, so nothing else can borrow the spelling.
+
+### What the differential found
+
+Differential **6,862 compared / 56 divergent → 6,878 / 56**. No new divergence: all sixteen newly
+compared cards agree with their goldens.
+
 ## The later clause
 
 The `.` family came back to the top of the tail ranking — **213 cards, 129 of them solely, over 216

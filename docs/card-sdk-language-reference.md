@@ -779,6 +779,10 @@ counts a hybrid Phyrexian pip paid with life like any other Phyrexian pip.
   `Costs.pay.PayPlayerCounters(counterType, amount: Int)` provides a fixed resolution-time payment.
   With `PayOrSuffer`, the selected payer spends counters; declining preserves the original
   effect controller and resolution values.
+  `amount` also accepts `DynamicAmounts.sourceManaValue()` on a **spell** cost — "an amount of {E}
+  equal to its mana value", priced off the spell being cast (`CastSpell.cardId`) at validation and
+  payment (Amped Raptor, via `Effects.CastFromCollectionByPaying`). An activated ability's cost has no
+  spell to price it against, so there it is unpayable rather than free.
   Resolution-only amounts are rejected rather than priced as zero. Energy is `CounterType.ENERGY`;
   the vocabulary also works for other player counters. Mana abilities with this non-mana cost use
   manual activation (the auto-tapper does not spend player counters).
@@ -1309,6 +1313,17 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   division against it, and binds it onto the stack object as the ability's X — so the executor deals
   that number even if the creature that set it is gone. Cap the targets with the *board* amount
   (`dynamicMaxCount = <amount>`, not `XValue`, which enumeration treats as a player-chosen X).
+
+  **A spell's X pinned by its additional cost** (Nahiri's Sacrifice: "As an additional cost to cast
+  this spell, sacrifice an artifact or creature with mana value X. … deals X damage divided as you
+  choose among any number of target creatures") has no `{X}` in its mana cost. Write the cost's filter
+  with `.manaValueEqualsX()` (`Costs.additional.SacrificePermanent((Artifact or Creature).manaValueEqualsX())`),
+  and read X with `DynamicAmounts.xValue()` for both `dynamicTotal` and the target cap
+  (`dynamicMaxCount`). The engine offers **one cast per mana value the caster could sacrifice**, each
+  with its `CastSpell.xValue` fixed, the sacrifice picker narrowed to that mana value, and the total
+  and target cap resolved — picking the offer *is* announcing X (CR 107.3a). The validator re-checks
+  the sacrificed permanent against the announced X (an unannounced X is 0) and the division against
+  the X-derived total.
 
   **Always cap the target count at the total.** Each chosen target must be assigned at least 1 damage
   (CR 601.2d), so a requirement that lets the player pick more targets than there is damage leaves them
@@ -2834,11 +2849,12 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
 - `CopyEachSpellCastEffect(copies = 1, spellFilter = InstantOrSorcery)` (facade `Effects.CopyEachSpellCast(copies, spellFilter)`) — the persistent sibling: copies **every** spell matching `spellFilter` the controller casts for the rest of the turn (The Mirari Conjecture Ch. III). Same `spellFilter` parameterization as above.
 - `MakeNextSpellUncounterableEffect(spellFilter = Any)` (facade `Effects.MakeNextSpellUncounterable(spellFilter)`) — one-shot rider: the controller's **next** spell matching `spellFilter` cast this turn can't be countered, then the entry is consumed. Stamps `CantBeCounteredComponent` on that spell as it's cast (so it stays uncounterable for as long as it's on the stack); non-matching casts leave the entry waiting, and an unused entry clears at the start of the controller's next turn. Same pending-rider shape as `CopyNextSpellCastEffect`, including the source-relative filter contract (the entry's own `sourceId` goes into the predicate context at cast time). Contrast with the duration-based `GrantSpellsCantBeCountered` (Domri), which protects **every** matching spell cast for a whole duration rather than just the next one. Used by **Mistrise Village** ("{U}, {T}: The next spell you cast this turn can't be countered.").
 - `GrantNextSpellAffinityEffect(spellFilter = Noncreature, forType = ARTIFACT)` (facade `Effects.GrantNextSpellAffinity(spellFilter, forType)`) — one-shot rider mirroring `MakeNextSpellUncounterable`, but the controller's **next** matching spell this turn gains **affinity for `forType`**: the cost calculator reduces it by the caster's count of that card type *at cast time* (dynamic), then `CastSpellHandler` consumes the entry. The *consumption* site evaluates `spellFilter` with the entry's own `sourceId` in context like the other two riders, but the *cost-reduction* site (`CostCalculator`) passes no `sourceEntityId` at all, so it answers `false` for dynamic **and** source-relative card predicates — so keep this rider's filter source-independent until that gap is closed. (This is a call-site difference, not a `CostCalculator` limitation: `GrantNextSpellFreeCastEffect` below passes its entry's `sourceId` into the same helper and source-relative predicates do work there.) Used by **Don & Raph, Hard Science** ("the next noncreature spell you cast this turn has affinity for artifacts").
+- `GrantNextSpellKeywordEffect(keyword, spellFilter = Any)` (facade `Effects.GrantNextSpellKeyword(keyword, spellFilter)`) — one-shot rider in the same family: the controller's **next** spell matching `spellFilter` cast this turn **has `keyword`**, then the entry is consumed. `keyword` is a cost-payment keyword — `IMPROVISE`, `CONVOKE` or `DELVE`; anything else throws at construction. Stored on `GameState.pendingNextSpellKeywords`; `GrantedKeywordResolver` reports it alongside printed keywords and `GrantKeywordToOwnSpells` grants, so the enumerators, the validator and the payment all see it — improvise and convoke on hand casts and cast-from-zone casts (flashback, exile, graveyard, command zone), delve on hand casts only (the cast-from-zone enumerator doesn't read delve yet) — a granted keyword on a spell that already prints it is redundant (CR 702.126c for improvise). Improvise taps also pay an announced {X} (X is generic mana in the total cost), printed or granted. **Consumed by the cast, not by the payment**: a matching spell paid entirely with mana still spends the rider. Non-matching casts leave it waiting; an unused entry clears at the turn boundary (`TurnManager.startTurn`). The resolver matches `spellFilter` against the printed `CardDefinition` and only understands type/colour/subtype predicates; any other predicate (mana value, name, source-relative) never grants the keyword yet still spends the rider, so keep `spellFilter` to those. The client shows a "<Keyword>" player badge while it waits. Used by **Archway of Innovation** ("{U}, {T}: The next spell you cast this turn has improvise.", `Effects.GrantNextSpellKeyword(Keyword.IMPROVISE)`).
 - `GrantNextSpellFreeCastEffect(spellFilter = Any)` (facade `Effects.GrantNextSpellFreeCast(spellFilter)`) — one-shot rider in the same family: the controller's **next** spell matching `spellFilter` cast this turn **can be cast without paying its mana cost**, then the entry is consumed. Stored on `GameState.pendingFreeCastSpells`; `CostCalculator.hasFreeCastPermission` reads it (ahead of the battlefield scan) so the cast surfaces the ordinary `CastSpell.useWithoutPayingManaCost` action variant, and `CastSpellHandler` removes the entry on the matching cast. Per CR 118.9 this is an alternative cost — mandatory additional costs still apply, X is 0 (CR 107.3b, enforced by the enumerator: the `CastWithoutPayingManaCost` action variant carries no X and is not flagged `hasXCost`), and only one alternative cost may apply to a cast (CR 118.9a). **Consumed by the cast, not by the discount**: "the next … spell you cast this turn" names a spell, so a matching spell cast for full price is that spell and spends the rider. Non-matching casts leave the entry waiting, and an unused entry clears at the turn boundary (`TurnManager.startTurn`). Prefer this over the battlefield static `MayCastWithoutPayingManaCost` (§ static abilities) whenever the permission has already *resolved*: the rider lives on the state, so it survives its source leaving the battlefield, applies to a cast from any zone, and carries no first-spell / once-per-turn / active-player gate. A rider-funded free cast deliberately does **not** burn a `MayCastWithoutPayingManaCost(oncePerTurn = true)` source's use. Both the permission site and the consumption site evaluate `spellFilter` with the entry's own `sourceId` in context, so source-relative predicates work on both — but the permission site is `CostCalculator`, which still answers `false` for *dynamic* card predicates (mana-value/power comparisons against another entity). The two sites also read different *characteristic* sources: `CostCalculator` matches the printed `CardDefinition`, while the consumption site matches the spell entity through `PredicateEvaluator` (projected values, falling back to base). They agree today because objects on the stack have no projection entry; see the `hasFreeCastRider` KDoc for what would diverge if that changed. Used by **World War Hulk** chapter I ("The next red or green creature spell you cast this turn can be cast without paying its mana cost.", `GameObjectFilter().withAnyColor(RED, GREEN) and GameObjectFilter.Creature`).
 - `ReduceSpellCostsEffect(spellFilter, amount, duration = Duration.EndOfTurn)` (facade `Effects.ReduceSpellCosts(spellFilter, amount, duration)`) — the **repeating** counterpart of `GrantNextSpellAffinityEffect`: "spells you cast this turn that match `spellFilter` cost {X} less to cast." `amount` (a `DynamicAmount`) is evaluated **once, when this effect resolves**, and the resolved number is stored on `GameState.spellCostReductions`; every matching spell the controller casts until `duration` ends is discounted by it, and nothing is consumed by a cast. Only generic mana is reduced (CR 601.2f). `duration` is `Duration.EndOfTurn` (cleared at the turn boundary by `TurnManager.startTurn`) or `Duration.UntilYourNextTurn` ("until your next turn, instant and sorcery spells you cast cost {1} less" — it keeps discounting instants cast on opponents' turns and is removed after the controller's next untap step by `CleanupPhaseManager.expireUntilYourNextTurnEffects`); any other duration throws at construction. Because it lives on the state rather than on the source, the discount survives the source leaving the battlefield. Resolving `amount` up front is what the Scion cycle's rulings require ("the value of X is determined only once, at the time the ability resolves") — reach for a static `ModifySpellCost` instead when the reduction should track board state continuously. Used by **Will, Scion of Peace** (`DynamicAmounts.lifeGainedThisTurn()`, white and/or blue spells), **Rowan, Scion of War** (`DynamicAmounts.lifeLostThisTurn()`, black and/or red) and **Ral, Leyline Prodigy**'s +1 (`Fixed(1)`, instant/sorcery, `UntilYourNextTurn`).
 - `CopyCardIntoCollectionEffect(source, storeAs)` *(SDK-internal step; cards use `Effects.Pipeline { copyCard }` — §5.5.)* (facade `Effects.CopyCardIntoCollection(source, storeAs)`) — copy a **card in a zone** (not a spell on the stack), publishing the copy's entity id to pipeline collection `storeAs`. Per Rule 707.12 the copy is created in the card's current zone under the effect's controller and tagged as a stack-style copy, so once cast it becomes a token if it's a permanent spell and ceases to exist if it's an instant/sorcery (Rule 707.10). Pair with `CastFromCollectionWithoutPayingCostEffect(from)` (facade `Effects.CastFromCollectionWithoutPayingCost(from)`, wrap in `Effects.May` for "you may cast") to express "copy a card, then cast the copy" — e.g. **Shiko, Paragon of the Way**: `Composite(MoveToZoneEffect(target, Zone.EXILE), Effects.CopyCardIntoCollection(target, "copy"), Effects.May(Effects.CastFromCollectionWithoutPayingCost("copy")))`. A copy that is never cast is swept up by the Rule 707.10a state-based action (`PhantomCardCopiesCheck`), so no explicit cleanup step is needed. For the "you may cast it" wording that **doesn't** say "without paying its mana cost", use `Effects.CastFromCollection(from, storeCastTo?)` (`CastFromCollectionWithoutPayingCostEffect(from, payManaCost = true, storeCastTo)`): the controller pays the spell's normal cost (an {X} spell prompts for X) instead of casting for free. Pass `storeCastTo` to publish the cast card's id to that pipeline collection on a successful cast, then gate a follow-up with `Effects.IfYouDo(this, then, SuccessCriterion.CollectionNonEmpty(storeCastTo))` — e.g. **Kaervek, the Punisher**: `Composite(Move(target, EXILE), CopyCardIntoCollection(target, "copy"), Effects.May(Effects.IfYouDo(CastFromCollection("copy", storeCastTo = "cast"), LoseLife(2, Controller), SuccessCriterion.CollectionNonEmpty("cast"))))` — declining (or being unable to pay) leaves the collection empty, so no life is lost. (`storeCastTo` is reliably published for synchronous casts and target-selection casts; an {X}-cost spell cast with no targets is the one sub-case where the publish doesn't survive the X pause.) **Free-casting still pays the copied spell's non-mana additional costs** (CR 601.2f / 118.9 waive only the mana cost) — when the copy carries a printed sacrifice / discard / exile / tap additional cost, the engine resolves it during the synthesized cast: a forced single option is auto-paid, and a real choice pauses for an on-battlefield (sacrifice/tap) or overlay (discard/exile) selection; if the cost can't be paid the cast doesn't happen (e.g. Roving Actuator copying **Embrace Oblivion**'s "sacrifice an artifact or creature" still makes you sacrifice).
 - `CopyCollectionIntoCollectionEffect(from, storeAs)` *(SDK-internal step; cards use `Effects.Pipeline { copyCards }` — §5.5.)* (facade `Effects.CopyCollectionIntoCollection(from, storeAs)`) — the collection-wide sibling of `CopyCardIntoCollectionEffect`: copy **every** card in pipeline collection `from`, publishing all the copies' entity ids (in `from` order) to `storeAs`. For "copy them" over a set of cards rather than one (`CopyCardIntoCollection` overwrites its collection, so it can't accumulate across a `ForEach`). Each copy is created in its original's current zone (Rule 707.12) and tagged as a stack-style copy, so gather/exile the originals first, then copy. Pair with `Effects.CastAnyNumberFromCollection(storeAs)` for "copy them. You may cast any number of the copies" — e.g. **The Tale of Tamiyo** IV: `Composite(ForEachTargetEffect(Move(ContextTarget(0), EXILE)), GatherCards(ChosenTargets, "exiled"), CopyCollectionIntoCollection("exiled", "copies"), CastAnyNumberFromCollection("copies"))`. Copies never cast are swept by the Rule 707.10a state-based action.
-- `CastFromCollectionWithoutPayingCostEffect(from, payManaCost = false, storeCastTo = null, castTransformed = false, insteadOfGraveyard = null, caster = Chooser.Controller)` — `castTransformed = true` casts the card **transformed**, back face up (CR 712.8c), the way disturb casts a card from the graveyard: the back face supplies the spell's card types (hence its timing), its targets and `auraTarget`, its name in the prompt, and the permanent it becomes. It is carried to the cast as `MayPlayPermission.castTransformed`, so the whole ordinary cast pipeline honors it — distinct from `MayPlayPermission.castFaceIndex`, which picks an alternative *face* of a multi-face card (an Adventure, a split half) rather than turning a transforming double-faced card over. A card with **no back face** is not cast at all and stays where it is (the CR 310.12b ruling: a token or non-transforming card that became a copy of a Siege "remains in exile"). Backs `Sieges.defeatAbility` — "exile it, then you may cast it transformed without paying its mana cost".
+- `CastFromCollectionWithoutPayingCostEffect(from, payManaCost = false, storeCastTo = null, castTransformed = false, insteadOfGraveyard = null, caster = Chooser.Controller, alternativeCost = null)` — `alternativeCost` (an `AdditionalCost`, facade `Effects.CastFromCollectionByPaying(from, cost, storeCastTo?)`) is "you may cast that card **by paying [cost] rather than paying its mana cost**", still during this effect's resolution (timing ignored, nothing left castable afterwards). The mana cost is waived (so {X} is 0) and `cost` is stamped as a `PlayWithAdditionalCostComponent` for that one cast, so `CastSpellHandler` validates and charges it with the spell's own additional costs (kicker etc. still apply — it is an alternative cost, CR 118.9); a client can't skip it. The executor offers nothing when the caster can't afford it (CR 601.2h), and a cast that never initiates removes the stamp. **Amped Raptor**: `Effects.If(Conditions.CompareAmounts(DynamicAmounts.energyCount(), GTE, DynamicAmounts.manaValueOf(nonland)), Effects.May(Effects.CastFromCollectionByPaying(nonland, Costs.additional.PayPlayerCounters(CounterType.ENERGY, DynamicAmounts.sourceManaValue()))))` — the `If` only keeps the "you may" from being asked when the energy isn't there. Mutually exclusive with `payManaCost`. `castTransformed = true` casts the card **transformed**, back face up (CR 712.8c), the way disturb casts a card from the graveyard: the back face supplies the spell's card types (hence its timing), its targets and `auraTarget`, its name in the prompt, and the permanent it becomes. It is carried to the cast as `MayPlayPermission.castTransformed`, so the whole ordinary cast pipeline honors it — distinct from `MayPlayPermission.castFaceIndex`, which picks an alternative *face* of a multi-face card (an Adventure, a split half) rather than turning a transforming double-faced card over. A card with **no back face** is not cast at all and stays where it is (the CR 310.12b ruling: a token or non-transforming card that became a copy of a Siege "remains in exile"). Backs `Sieges.defeatAbility` — "exile it, then you may cast it transformed without paying its mana cost".
 
   `insteadOfGraveyard` is the **cast-this-way destination rider**: an `AfterResolveDestination`
   naming where the spell goes when it would leave the stack for its owner's graveyard — `EXILE`
@@ -3084,12 +3100,23 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   additional combat phase followed by an additional main phase" (Aggravated Assault, All-Out
   Assault); the combat atom alone adds *no* trailing main phase. Implemented as an ordered
   `AdditionalPhasesComponent(phases: List<QueuedPhase>)` queue on the active player (each `QueuedPhase`
-  is a `COMBAT` / `MAIN` kind plus, for a combat phase, an optional attacker-restriction filter),
-  drained one at a time by `TurnManager.advanceStep` after the postcombat main phase and, for an
-  inserted combat phase, again at its end-of-combat step (marked by `InAdditionalCombatPhaseComponent`)
-  so a combat-only extra phase proceeds straight to the end step instead of granting an unwanted main
-  phase. Engine simplification: all queued phases are inserted after the postcombat main phase
-  regardless of when the effect resolved.
+  is a `COMBAT` / `MAIN` / `BEGINNING` kind plus, for a combat phase, an optional attacker-restriction
+  filter), drained one at a time by `TurnManager.advanceStep` after the postcombat main phase and, for
+  an inserted combat or beginning phase, again as it ends (marked by `InAdditionalCombatPhaseComponent`
+  / `InAdditionalBeginningPhaseComponent`) so an inserted phase proceeds straight to the next queued
+  phase or the end step instead of granting an unwanted main phase. Queue order follows CR 500.8 —
+  the most recently created phase happens first — while phases one effect creates together (the
+  combat-then-main composition) keep that effect's order. Engine simplification: all queued phases are
+  inserted after the postcombat main phase regardless of when the effect resolved.
+- `Effects.AddBeginningPhase` — the third atomic extra-phase effect: "there is an additional beginning
+  phase after this phase" (Shadow of the Second Sun). Queues one `BEGINNING` phase: a real untap step
+  (permanents phase and untap; "doesn't untap during its controller's next untap step" is satisfied by
+  it), upkeep step (upkeep triggers fire) and draw step, all within the same turn — "until your next
+  turn" effects don't end — followed by the next queued phase or the end step, never a precombat main
+  phase. Composes with `AddCombatPhase` / `AddMainPhase`. Pair with
+  `Triggers.player(Player.EnchantedPlayer).beginningOf(Step.POSTCOMBAT_MAIN)` for "at the beginning of
+  enchanted player's postcombat main phase" — a step trigger keyed to the player the source Aura
+  enchants.
 - `Effects.AddCombatPhaseRestrictedTo(attackerRestriction: GameObjectFilter)` — the same atomic extra
   combat phase, but **only creatures matching `attackerRestriction` may be declared as attackers
   during that inserted phase** (CR 508.1c; Bumi, Unleashed: "there is an additional combat phase. Only
@@ -7733,6 +7760,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     type **and** controller predicates are honored — it fires only for *your* creatures, not every
     permanent that enters. (`YouAttackEvent` / `AttackEvent` / `CreaturesAttackYouEvent` /
     `CreaturesAttackYourOpponentEvent` are always filter-scoped this way.)
+    A filter-scoped **per-blocker** block trigger — `trigger = Triggers.a(filter).blocks()` — fans
+    out one trigger per matching declared blocker, with that blocker as the triggering entity, the
+    same split a battlefield-resident ANY-binding `blocks()` makes: "whenever a creature blocks this
+    turn, **its controller** gets a poison counter" is
+    `Effects.AddCounters(CounterType.POISON, 1, EffectTarget.ControllerOfTriggeringEntity)` (**Noxious
+    Assault**). The batch spelling `Triggers.oneOrMore(filter).block()` fires once per declaration
+    with no triggering entity. A `watchedTarget` is not supported on a block trigger.
   - `fireOnce = true` makes it a **one-shot**: it's consumed the first time it fires, then gone —
     "when you **next** [event] this turn". Combine with `trigger = Triggers.you.attacks()` for the
     common "when you next attack this turn, …" template (All-Out Assault: untap each creature you
@@ -7929,6 +7963,14 @@ staticAbility {
   the chosen type" — grants the landwalk keyword matching the source's `ChosenLandTypeComponent`
   (Plains→Plainswalk, Island→Islandwalk, …) at projection time. Chosen-value counterpart to
   `GrantKeyword`; pair with `EntersWithChoice(ChoiceType.BASIC_LAND_TYPE)`. (Traveler's Cloak)
+- `GrantTriggeredAbility(ability, filter)` — "[filter] have '<triggered ability>'". On a battlefield-scoped
+  `GroupFilter` it is the lord shape — Unctus, Grand Metatect's "Other blue creatures you control have 'Whenever
+  this creature becomes tapped, draw a card, then discard a card'" is `GrantTriggeredAbility(<becomesTapped → loot>,
+  GroupFilter(GameObjectFilter.Creature.withColor(Color.BLUE).youControl(), excludeSelf = true))`. The filter is
+  evaluated in full by `PredicateEvaluator.matches` on projected state, with the granting permanent as "you", so any
+  colour, type, counter or state predicate gates the grant, and a creature turned blue mid-turn gains it. Battlefield
+  grants (this and `GrantWard`) share that one evaluation; `Scope.AttachedTo` and `Scope.SoulbondPair` are their
+  own membership tests (see Tandem Lookout below).
 - `GrantWard(cost, filter = attachedCreature())` — "[filter] have ward [cost]" (CR 702.21). The static
   counterpart of the printed `KeywordAbility.Ward`: use this one to hand ward to *other* permanents —
   an Aura/Equipment's "enchanted/equipped creature has ward {N}" (Lavaspur Boots, the Royal Role token)
@@ -8391,6 +8433,21 @@ staticAbility {
   declaration by `DefenderBypass` (shared by `DefenderAttackRule` and the client's "Can attack
   despite defender" badge), never through projection. The turn-scoped, granted counterpart is
   `Effects.CanAttackDespiteDefenderThisTurn`.
+
+- `CanAttackAsThoughHasty(filter = GroupFilter.source())` lets matching creatures attack despite
+  summoning sickness, without granting `Keyword.HASTE`. Use `GroupFilter.attachedCreature()` for
+  Instill Energy. Tap/untap symbol activation costs remain subject to summoning sickness. This is a
+  rule permission, evaluated after characteristic projection: removing the recipient's abilities
+  preserves an external permission, while removing the granting source's ability suspends it.
+  Filters read final projected characteristics and controllers. Compose with `ConditionalStaticAbility`
+  for conditions, or `Effects.GrantStaticAbility` for duration-bound permissions. Existing attack
+  restrictions (tapped, defender, can't attack) still apply. Server legal attacker lists and declaration
+  validation share the same permission; existing battlefield attack selection consumes those lists.
+  No new keyword, decision, badge, or client protocol is needed. The summoning-sickness badge remains
+  accurate for restricted tap/untap abilities. The existing runtime-grant store has no timestamps:
+  a holder that has lost all abilities suppresses its runtime-granted permission even if the grant
+  resolved later. Printed external permissions, including Instill Energy, do not share that limit.
+
 - `CanBlockAsThoughUntapped(filter = GroupFilter.source())` — creatures matching `filter` can block
   as though they were untapped, lifting only CR 509.1a's "untapped creatures" requirement. Masako
   the Humorless's "Tapped creatures you control can block as though they were untapped" is
@@ -8853,6 +8910,22 @@ staticAbility {
   gainer. The dynamic, copy-from-other-permanents sibling of `GrantActivatedAbility`. Mana abilities
   are excluded unless `includeManaAbilities = true`. (Sharkey, Tyrant of the Shire — "Sharkey has all
   activated abilities of lands your opponents control except mana abilities")
+- `SpendManaAsColor(fromColor, toColor)` — the controller may spend mana of one color as though it were
+  another for **any** mana payment (Sunglasses of Urza: `WHITE` → `RED`). This is directional:
+  white remains usable for white or generic costs, while red gains no permission to pay white.
+  Colored, hybrid, monocolored hybrid, and Phyrexian mana halves accept the substitution; `{C}`
+  and actual-color spending restrictions (including color-restricted X) remain unchanged.
+  The cost, mana produced, actual colors spent, restrictions, riders and source provenance stay
+  unchanged. Matching reserves strict pips before flexible ones without enumerating subsets.
+  Independent permissions compose transitively. Printed permissions follow projected control,
+  text changes, ability removal and phasing; conditional/composite statics and runtime
+  `GrantStaticAbility` permissions (including grants to players) use their normal gates and durations.
+  Payment and affordability use the same rule for spells, abilities, special actions and resolution
+  payments. The server sends `ClientPlayer.manaPaymentColors` for the existing payment readouts.
+  Existing auto-payment limits remain: generic mono-hybrid alternatives split across floating
+  mana and sources, and greedy planning for sources with multiple mana, bonuses or activation costs.
+  New Assay grammar vocabulary; no Oracle grammar band is introduced here.
+
 - `SpendAnyManaTypeForActivatedAbilities(filter, substituteColor = null)` — relaxes the mana portion
   of the activated-ability costs of permanents matching `filter` (a `GroupFilter`; use
   `GroupFilter.source()` for "this permanent's abilities") per CR 118.14 / 609.4b. Non-mana cost
@@ -9252,6 +9325,15 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true), DynamicAmount.Fixed(3), powerUpOnly = true)`.
   It stacks with power-up's own reduction, which is applied first (CR 601.2f lets multiple reductions
   apply in any order).
+  `onlyIfTargetIsSource = true` narrows it to activations that **target the static's own source** —
+  Bladegraft Aspirant: "Activated abilities of Equipment you control that target this creature cost
+  {1} less to activate" →
+  `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()), DynamicAmounts.fixed(1), onlyIfTargetIsSource = true)`.
+  Targets are chosen before the total cost is determined (CR 601.2c → 601.2f), so the handler
+  prices it against the chosen targets exactly; the enumerator, running before targets exist,
+  offers it optimistically for any *targeted* ability while the source is a creature (an untargeted
+  ability is never reduced). It covers every activated ability of a matching source, equip
+  included — `ReduceEquipCost.onlyIfTargetIsSource` is the equip-only sibling keyed on the player.
 - `IncreaseActivatedAbilityCost(filter, amount)` — the taxing mirror of
   `ReduceActivatedAbilityCost`: activated abilities of sources matching `filter` cost `amount`
   generic mana **more** to activate. The two are summed into a single net delta before either is
@@ -9479,6 +9561,13 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   `CastFromZoneEnumerator.enumerateIntrinsicZoneCast` via the same `AdditionalCostData` /
   `buildLinkedExileAdditionalCostInfo` plumbing used for linked-exile grants (including a
   `DiscardCard` rendering with `validDiscardTargets`).
+- `GrantEmergeToOwnSpells(spellFilter = Creature)` — spells the controller casts matching `spellFilter` have emerge
+  (CR 702.119) with an emerge cost **equal to the spell's own mana cost** (Herigast, Erupting Nullkite: "Each creature
+  spell you cast has emerge. The emerge cost is equal to its mana cost."). Read through `EmergeCasts.effectiveEmerge`,
+  so it behaves exactly like a printed `Emerge`: same `AlternativeCostType.EMERGE` action, same per-candidate generic
+  reduction, same post-mana sacrifice. A printed emerge on the spell wins over the grant. The grant is read as the cast
+  is proposed and validated, so the granter itself may be the creature sacrificed (Herigast's ruling). Only the
+  granter's controller benefits; offered from the hand, where the emerge enumerator looks.
 - `GrantWarpToCardsInHand(filter, cost)` — cards in the controller's hand matching `filter` gain
   warp (CR 702.185) with mana cost `cost`. Behaves identically to a printed warp keyword: surfaces a
   "Cast (Warp)" legal action, marks `wasWarped` on resolution, and the post-resolution permanent is
@@ -9581,7 +9670,7 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   sites were collapsible into a single owner, `FlashTypeGrants`: with one implementation behind both,
   teaching *it* to unwrap fixes every gated flash grant at once and none of them can drift. Fold the
   gate into the type only where no such shared owner exists.
-- `GrantAlternativeCastingCost(cost, additionalCosts = emptyList())` — a battlefield permission to
+- `GrantAlternativeCastingCost(cost, additionalCosts = emptyList(), spellFilter = Any, asThoughFlash = false)` — a battlefield permission to
   substitute a different cost for a spell's mana cost (CR 118.9a): "You may pay {W}{U}{B}{R}{G}
   rather than pay the mana cost for spells you cast" (**Jodah, Archmage Eternal**; Leyline of
   Mutation). Scanned on demand by `CostCalculator.findAlternativeCastingCosts` over the caster's
@@ -9613,7 +9702,22 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   another alternative cost, but additional costs still apply (including a *second* collect evidence,
   which triggers "whenever you collect evidence" twice); X in the replaced mana cost is 0; and it
   stamps **no** `ChoiceSlot`, so it does not satisfy a spell's own linked "if evidence was collected"
-  clause (`Conditions.WasEvidenceCollected`). Only the first grant found is offered.
+  clause (`Conditions.WasEvidenceCollected`). Only the first grant covering the spell is offered,
+  and the enumerator, the cost totaller, the additional-cost payer and the timing check all read
+  that same grant through `CostCalculator.findAlternativeCastingCosts(state, caster, spellCardDef)`.
+
+  `spellFilter` narrows which spells the grant covers (matched against the printed card
+  definition, the granting permanent as predicate source), and `asThoughFlash = true` is the
+  "If you cast a spell this way, you may cast it as though it had flash" rider. The flash belongs
+  to the granted-cost cast alone: when the spell has no other timing permission, the hand
+  enumerator offers *only* the `GRANTED` cast for it (every other variant of that card is pruned),
+  and `CastValidator.validateTiming` waives sorcery timing only for an explicit
+  `alternativeCostType = GRANTED` cast whose grant carries the rider. **Primal Prayers** ("You may
+  cast creature spells with mana value 3 or less by paying {E} rather than paying their mana costs.
+  If you cast a spell this way, you may cast it as though it had flash.") is
+  `GrantAlternativeCastingCost("{0}", listOf(Costs.additional.PayPlayerCounters(CounterType.ENERGY, 1)),
+  spellFilter = GameObjectFilter.Creature.manaValueAtMost(3), asThoughFlash = true)`. Like every
+  granted alternative cost it is offered for casts from hand only.
 - `MayCastWithoutPayingManaCost(controllerOnly = false, firstSpellOfTurnOnly = false, spellFilter = Any, oncePerTurn = false, fromExileOnly = false, fromHandOnly = false)` — a
   battlefield permission to cast a spell without paying its mana cost (CR 118.9). Composable
   gates: `controllerOnly = true` restricts the benefit to the source's controller ("you" wording);
@@ -9719,6 +9823,25 @@ concerns — the `ClientStateTransformer` reveals the top card for `PlayFromTopO
 > Multiple lord effects on one card → multiple `staticAbility { }` blocks.
 
 ---
+
+
+### Host-side Aura prohibitions
+
+`PreventEnchantment(auras = GameObjectFilter.Enchantment.withSubtype("Aura"), exceptSource = false,
+filter = GroupFilter.source())` prevents matching Auras from enchanting the affected permanents.
+The Aura filter is evaluated against projected characteristics on the battlefield and printed
+characteristics elsewhere; controller predicates use the prohibition source's projected controller.
+`exceptSource = true` exempts only that individual granting permanent, never another copy with the
+same name. Multiple prohibitions all apply. The restriction is recorded during projection and evaluated after characteristics are determined.
+Removing the granting source's abilities disables a standalone prohibition; a composite effect
+that began in an earlier layer continues applying. Removing the host's abilities does not lift
+another source's prohibition.
+Conditional statics and source phasing are respected. Targeting, resolution, non-targeted entry,
+reattachment and attachment state-based actions consult the same host-side restriction.
+
+For Consecrate Land, combine `GrantKeyword(Keyword.INDESTRUCTIBLE, GroupFilter.attachedCreature())`
+with `PreventEnchantment(exceptSource = true, filter = GroupFilter.attachedCreature())`.
+`attachedCreature()` scopes to the attached permanent, including lands.
 
 ## 10. Activated abilities
 
@@ -10517,6 +10640,12 @@ composite abilities).
   bushido (`Effects.GrantBushido(n, target, duration)`, Sensei Golden-Tail) floats `BUSHIDO_<n>` and adds
   one more trigger for its N; repeated grants sum into one `BUSHIDO_<total>` string, so they trigger once
   for the total rather than once each.
+- `Keyword.EXALTED` — **engine-live.** Declare it and nothing else: `keywords(Keyword.EXALTED)`. The engine
+  supplies the CR 702.83a trigger from [`Exalted`](../mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/scripting/Exalted.kt)
+  — `Triggers.a(Creature.youControl()).attacks(setOf(AttackPredicate.Alone))`, effect
+  `ModifyStats(1, 1, TriggeringEntity)` — gated on the projected keyword (lost with all abilities). One trigger
+  per instance: the printed keyword plus one per exalted counter (see Counters); a static grant of the bare
+  keyword counts as one instance, because projection can't count repeated grants.
 - `Rampage(n)` — +N/+N for each blocker past the first. Display-only; wire the behavior with the
   `card { rampage(n) }` builder helper, which adds this keyword ability plus a "becomes blocked"
   triggered ability granting `+n/+n × (blockers − 1)` until end of turn (mirrors `prowess()`).
@@ -11067,7 +11196,7 @@ composite abilities).
   wraps the ability in a `ConditionalStaticAbility`, and `WebSlinging` matches the bare type
   without unwrapping it — so the grant never applies rather than applying conditionally. Teach
   that read site to unwrap first; `FlashTypeGrants.activeGrant` is the worked example.
-- `Emerge(cost)` — `card { emerge("{cost}") }` builder helper (CR 702.119, Eldritch Moon). A **hand** alternative
+- `Emerge(cost, from = null)` — `card { emerge("{cost}") }` builder helper (CR 702.119, Eldritch Moon). A **hand** alternative
   cost that bundles a sacrifice *and* a cost reduction derived from it: *"You may cast this spell by paying [cost] and
   sacrificing a creature rather than paying its mana cost"* plus *"if you chose to pay this spell's emerge cost, its
   total cost is reduced by an amount of **generic** mana equal to the sacrificed creature's mana value."* Generic-only,
@@ -11081,8 +11210,12 @@ composite abilities).
   action that errors on submission. `CastSpellHandler` prices the cast against the creature actually chosen and
   sacrifices it **after** the mana payment: CR 601.2f–g activate mana abilities before CR 601.2h pays the total cost, so
   the creature may legally be tapped for mana toward its own emerge cost before it dies. The chosen creature rides
-  `CastSpell.additionalCostPayment.sacrificedPermanents`, exactly as Sneak's bounce rides `bouncedPermanents`. Printed
-  only — no card grants emerge. Because emerge is the one cost whose *mana* half depends on which permanent pays its
+  `CastSpell.additionalCostPayment.sacrificedPermanents`, exactly as Sneak's bounce rides `bouncedPermanents`. Printed,
+  or granted by `GrantEmergeToOwnSpells` (below) — every read site goes through `EmergeCasts.effectiveEmerge`. **Emerge from [quality]** (CR 702.119b, Crabomination's "emerge from artifact") is
+  `emerge("{5}{B}{B}", from = GameObjectFilter.Artifact)`: `from` replaces "a creature" as the sacrifice filter
+  (`KeywordAbility.Emerge.sacrificeFilter`, matched against projected state by `EmergeCasts.sacrificeCandidates`) for
+  the enumerator's candidate list *and* the cast validator, and renders as "Emerge from artifact {cost}". Null is plain
+  emerge. Because emerge is the one cost whose *mana* half depends on which permanent pays its
   *non-mana* half, the enumerator also sends `AdditionalCostData.costAfterSacrifice` — the surviving mana cost per
   candidate — so the client can show `{5}{U} → {2}{U}` live as the player picks and price manual mana-source selection
   off the chosen entry. The client never re-derives the reduction: the generic-only clamp is a rule, and rules stay
@@ -14757,6 +14890,11 @@ are their printed spellings (`CounterType.printed`). Text converts back only thr
   (`reach`: Sagu Pummeler's renew payoff puts a reach counter on a creature. `vigilance`: Aragorn, Company Leader.
   `double strike`: Mai, Jaded Edge's exhaust ability. `haste` / `menace`: Super-Adaptoid, which copies keywords
   off another creature as counters.)
+- **Exalted counters** (`CounterType.EXALTED`, CR 122.1b) — a keyword counter in `KEYWORD_COUNTER_MAP` like the
+  above, but exalted is a *triggered* keyword, so **each counter is its own instance** (Emissary of Soulfire's
+  ruling) and `TriggerAbilityResolver` derives one exalted trigger per counter on top of a printed one; the
+  counter's instances survive "loses all abilities". Emissary of Soulfire:
+  `Costs.PayPlayerCounters(ENERGY, 2)` → `AddCounters(CounterType.EXALTED, 1, creature)`.
 - **Ability counters beyond single keywords** — `decayed` (`CounterType.DECAYED`, CR 702.147a, Tarkir: Dragonstorm) grants
   the whole **Decayed** ability (a "can't block" static **and** an attack-triggered end-of-combat sacrifice) to any
   creature that bears one. `StateProjector` projects the `DECAYED` keyword + `cantBlock = true` (initial pass and the

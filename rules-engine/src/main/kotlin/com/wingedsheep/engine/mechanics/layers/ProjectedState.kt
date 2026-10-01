@@ -37,6 +37,13 @@ data class CrossZoneSubtypeGrant(
 /**
  * Projected values for an entity after all effects are applied.
  */
+data class ActiveEnchantmentRestriction(
+    val sourceId: EntityId,
+    val auras: com.wingedsheep.sdk.scripting.GameObjectFilter,
+    val exceptSource: Boolean,
+    val survivesSourceAbilityRemoval: Boolean = false
+)
+
 data class ProjectedValues(
     val power: Int? = null,
     val toughness: Int? = null,
@@ -51,6 +58,7 @@ data class ProjectedValues(
     val baseToughness: Int? = null,
     val name: String? = null,
     val keywords: Set<String> = emptySet(),
+    val enchantmentRestrictions: List<ActiveEnchantmentRestriction> = emptyList(),
     val colors: Set<String> = emptySet(),
     val types: Set<String> = emptySet(),
     val subtypes: Set<String> = emptySet(),
@@ -58,6 +66,7 @@ data class ProjectedValues(
     val isFaceDown: Boolean = false,
     val isSuspected: Boolean = false,
     val cantAttack: Boolean = false,
+    val canAttackAsThoughHasty: Boolean = false,
     val cantBlock: Boolean = false,
     val cantBeTurnedFaceUp: Boolean = false,
     val mustAttack: Boolean = false,
@@ -229,6 +238,8 @@ class ProjectedState(
 
     fun isSuspected(entityId: EntityId): Boolean = projectedValues[entityId]?.isSuspected == true
 
+    fun canAttackAsThoughHasty(entityId: EntityId): Boolean = projectedValues[entityId]?.canAttackAsThoughHasty == true
+
     fun cantAttack(entityId: EntityId): Boolean = projectedValues[entityId]?.cantAttack == true
 
     fun cantBlock(entityId: EntityId): Boolean = projectedValues[entityId]?.cantBlock == true
@@ -287,6 +298,7 @@ internal fun buildIntermediateProjectedState(
             basePower = v.basePower,
             baseToughness = v.baseToughness,
             keywords = v.keywords.toSet(),
+            enchantmentRestrictions = v.enchantmentRestrictions.toList(),
             colors = v.colors.toSet(),
             types = v.types.toSet(),
             subtypes = v.subtypes.toSet(),
@@ -294,6 +306,7 @@ internal fun buildIntermediateProjectedState(
             isFaceDown = v.isFaceDown,
             isSuspected = v.isSuspected,
             cantAttack = v.cantAttack,
+            canAttackAsThoughHasty = v.canAttackAsThoughHasty,
             cantBlock = v.cantBlock,
             cantBeTurnedFaceUp = v.cantBeTurnedFaceUp,
             mustAttack = v.mustAttack,

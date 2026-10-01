@@ -752,6 +752,17 @@ sealed interface Modification {
         override val sublayer get() = Sublayer.MODIFICATIONS
     }
 
+    @Serializable
+    data class PreventEnchantment(val auras: GameObjectFilter, val exceptSource: Boolean) : Modification {
+        override val layer get() = Layer.ABILITY
+    }
+
+    /** Rule permission evaluated after characteristics are projected. */
+    @Serializable
+    data object CanAttackAsThoughHasty : Modification {
+        override val layer get() = Layer.ABILITY
+    }
+
     // --- No-op ---
 
     /** No-op modification for effects that don't modify projected state (e.g., combat restrictions) */
@@ -772,6 +783,7 @@ internal data class MutableProjectedValues(
     var baseToughness: Int? = null,
     var name: String? = null,
     val keywords: MutableSet<String> = mutableSetOf(),
+    val enchantmentRestrictions: MutableList<ActiveEnchantmentRestriction> = mutableListOf(),
     val colors: MutableSet<String> = mutableSetOf(),
     val types: MutableSet<String> = mutableSetOf(),
     val subtypes: MutableSet<String> = mutableSetOf(),
@@ -779,6 +791,7 @@ internal data class MutableProjectedValues(
     var isFaceDown: Boolean = false,
     var isSuspected: Boolean = false,
     var cantAttack: Boolean = false,
+    var canAttackAsThoughHasty: Boolean = false,
     var cantBlock: Boolean = false,
     var cantBeTurnedFaceUp: Boolean = false,
     var mustAttack: Boolean = false,

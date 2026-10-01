@@ -224,7 +224,7 @@ internal class CastValidator(
         validateOptionalCostKeywords(state, action, cardComponent, cardDef, source)?.let { return it }
         validateTotalCost(state, action, cardComponent, cardDef, source)?.let { return it }
         validateTargets(state, action, cardDef, source)?.let { return it }
-        validateDamageDistribution(action, cardDef)?.let { return it }
+        validateDamageDistribution(state, action, cardDef)?.let { return it }
         return validateTargetLifeTaxes(state, action)
     }
 
@@ -461,7 +461,16 @@ internal class CastValidator(
         // A flash-timing kicker unlocks instant-speed casting when paid — whether the optional cost
         // is mana (Ghitu Fire) or a non-mana cost like Behold (Molten Exhale).
         val flashTimingKicker = declaredOptionalCosts(action, cardDef).any { it.grantsFlashTiming }
-        if (!grantedFlash && !mayPlayFlash && !flashTimingKicker && !isCastingForSneak(state, action, cardDef) &&
+        // A battlefield-granted alternative cost whose cast carries flash (Primal Prayers: "If you
+        // cast a spell this way, you may cast it as though it had flash"). Reads the same grant the
+        // totaller charges, so the timing and the price can't come from two different grants. Needs
+        // the explicit `GRANTED` choice: an untyped legacy alt cast could be priced by another
+        // alternative cost and must not borrow this one's timing.
+        val grantedAltCostFlash = action.useAlternativeCost && cardDef != null &&
+            action.alternativeCostType == AlternativeCostType.GRANTED &&
+            costCalculator.findAlternativeCastingCosts(state, action.playerId, cardDef).firstOrNull()?.asThoughFlash == true
+        if (!grantedFlash && !mayPlayFlash && !flashTimingKicker && !grantedAltCostFlash &&
+            !isCastingForSneak(state, action, cardDef) &&
             !turnManager.canPlaySorcerySpeed(state, action.playerId)
         ) {
             return "You can only cast sorcery-speed spells during your main phase with an empty stack"
@@ -517,22 +526,23 @@ internal class CastValidator(
             }
         }
 
-        // Emerge (CR 702.119a/c): the player must sacrifice exactly one creature they control as the
+        // Emerge (CR 702.119a-c): the player must sacrifice exactly one creature (or, for "emerge from
+        // [quality]", one permanent of that quality) they control as the
         // non-mana portion of the alternative cost, chosen as they choose to pay the emerge cost
         // (CR 601.2b). Timing is the spell's normal timing — emerge grants no extra permission. The
         // chosen creature also fixes the generic reduction, so the total cost is priced against
         // exactly this selection.
-        val castingForEmerge = action.useAlternativeCost &&
-            action.altAllows(AlternativeCostType.EMERGE) &&
-            cardDef != null &&
-            EmergeCasts.printedEmerge(cardDef) != null
-        if (castingForEmerge) {
+        val emerge = if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE)) {
+            EmergeCasts.effectiveEmerge(state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator)
+        } else null
+        if (emerge != null) {
             val sacrificed = action.additionalCostPayment?.sacrificedPermanents ?: emptyList()
             if (sacrificed.size != 1) {
-                return "Emerge requires sacrificing exactly one creature you control"
+                return "Emerge requires sacrificing exactly one permanent you control"
             }
-            if (sacrificed.first() !in EmergeCasts.sacrificeCandidates(state, action.playerId)) {
-                return "The permanent chosen for emerge is not a creature you control"
+            // "Emerge from [quality]" (CR 702.119b) narrows what may be sacrificed.
+            if (sacrificed.first() !in EmergeCasts.sacrificeCandidates(state, action.playerId, emerge, predicateEvaluator)) {
+                return "The permanent chosen for emerge can't be sacrificed to pay its emerge cost"
             }
         }
         return null
@@ -786,9 +796,11 @@ internal class CastValidator(
     /**
      * A divided-damage spell aimed at more than one target (CR 601.2d): the distribution names
      * exactly the chosen targets, sums to the spell's damage, and gives each at least 1. The kicked
-     * or cleaved effect is the one divided when that variant is cast.
+     * or cleaved effect is the one divided when that variant is cast. A `dynamicTotal` is evaluated
+     * with the announced X — the same value the stack object carries to resolution — so "X damage
+     * divided …" where X is fixed by a cost (Nahiri's Sacrifice) validates against that X.
      */
-    private fun validateDamageDistribution(action: CastSpell, cardDef: CardDefinition?): String? {
+    private fun validateDamageDistribution(state: GameState, action: CastSpell, cardDef: CardDefinition?): String? {
         val spellEffect = if (action.declaredCostSlot != null && cardDef?.script?.kickerSpellEffect != null) {
             cardDef.script.kickerSpellEffect
         } else if (cardDef != null && isCleaveCast(action, cardDef) && cardDef.script.cleaveSpellEffect != null) {
@@ -802,9 +814,13 @@ internal class CastValidator(
         if (distribution.keys != action.targets.map { it.toEntityId() }.toSet()) {
             return "Damage distribution targets must match chosen targets"
         }
+        val total = spellEffect.dynamicTotal?.let { amount ->
+            val context = EffectContext(sourceId = action.cardId, controllerId = action.playerId, xValue = action.xValue)
+            predicateEvaluator.amounts.evaluate(state, amount, context).coerceAtLeast(0)
+        } ?: spellEffect.totalDamage
         val totalDistributed = distribution.values.sum()
-        if (totalDistributed != spellEffect.totalDamage) {
-            return "Total distributed damage ($totalDistributed) must equal ${spellEffect.totalDamage}"
+        if (totalDistributed != total) {
+            return "Total distributed damage ($totalDistributed) must equal $total"
         }
         // Each target gets at least 1 damage (CR 601.2d)
         val minPerTarget = 1

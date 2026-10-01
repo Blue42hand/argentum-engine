@@ -812,3 +812,10 @@ For a constrained split, `pileOptions` limits the cards eligible for each pile a
 server-validated plan for automated responders. After randomized assignment, these fields let the
 player choose a legal subset on the battlefield without rerolling or enumerating every combination.
 The continuation also checks the resulting combat restrictions before committing any block.
+
+### Mana spending permissions
+
+`ClientPlayer.manaPaymentColors` is an optional map from required pip symbols to accepted actual
+mana colors, computed by the engine. For Sunglasses of Urza it includes `"R": ["R", "W"]`.
+The existing mana readouts consume these server-provided options; mana source/pool colors and printed
+costs remain unchanged. The field defaults to empty and is public information.
