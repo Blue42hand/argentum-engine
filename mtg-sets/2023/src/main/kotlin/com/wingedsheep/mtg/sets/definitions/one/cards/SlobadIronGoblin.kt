@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -44,7 +43,6 @@ val SlobadIronGoblin = card("Slobad, Iron Goblin") {
             ),
         )
         manaAbility = true
-        timing = TimingRule.ManaAbility
         description = "{T}, Sacrifice an artifact: Add an amount of {R} equal to the sacrificed artifact's mana value. " +
             "Spend this mana only to cast artifact spells or activate abilities of artifacts."
     }

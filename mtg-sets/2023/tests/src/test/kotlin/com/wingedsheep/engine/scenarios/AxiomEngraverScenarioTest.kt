@@ -80,6 +80,7 @@ class AxiomEngraverScenarioTest : FunSpec({
         val driver = newDriver()
         val player = driver.player1
         val engraver = driver.putCreatureOnBattlefield(player, "Axiom Engraver")
+        driver.removeSummoningSickness(engraver)
         oil(driver, engraver) shouldBe 0
         val toDiscard = driver.putCardInHand(player, "Grizzly Bears")
 

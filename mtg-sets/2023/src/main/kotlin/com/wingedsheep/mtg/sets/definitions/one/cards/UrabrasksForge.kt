@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * counters on this artifact. Sacrifice that token at the beginning of the next end step.
  *
  * X is counted once, after the oil counter lands, and the token's power is fixed at creation.
- * The delayed sacrifice rides on the token itself via `sacrificeAtStep = Step.END`.
  */
 val UrabrasksForge = card("Urabrask's Forge") {
     manaCost = "{2}{R}"

@@ -6,7 +6,9 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.mtg.sets.definitions.lea.cards.Shatter
 import com.wingedsheep.mtg.sets.definitions.one.cards.Charforger
+import com.wingedsheep.mtg.sets.definitions.wth.cards.MindStone
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
@@ -31,7 +33,7 @@ class CharforgerScenarioTest : FunSpec({
 
     fun newDriver(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(Charforger))
+        driver.registerCards(TestCards.all + listOf(Charforger, MindStone, Shatter))
         driver.initMirrorMatch(deck = Deck.of("Swamp" to 40), skipMulligans = true, startingPlayer = 0)
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
         return driver
@@ -69,6 +71,15 @@ class CharforgerScenarioTest : FunSpec({
         if (driver.state.stack.isNotEmpty()) driver.bothPass()
     }
 
+    fun shatter(driver: GameTestDriver, target: EntityId) {
+        val spell = driver.putCardInHand(driver.player1, "Shatter")
+        driver.giveMana(driver.player1, Color.RED, 2)
+        driver.castSpellWithTargets(driver.player1, spell, listOf(ChosenTarget.Permanent(target))).error shouldBe null
+        driver.bothPass()
+        while (driver.pendingDecision != null) driver.autoResolveDecision()
+        if (driver.state.stack.isNotEmpty()) driver.bothPass()
+    }
+
     test("entering creates a 1/1 red Phyrexian Goblin token") {
         val driver = newDriver()
         castCharforger(driver)
@@ -81,6 +92,7 @@ class CharforgerScenarioTest : FunSpec({
         driver.state.projectedState.getPower(goblin!!) shouldBe 1
         driver.state.projectedState.getToughness(goblin) shouldBe 1
         driver.state.projectedState.hasSubtype(goblin, "Phyrexian") shouldBe true
+        driver.state.projectedState.getColors(goblin).contains(Color.RED.name) shouldBe true
     }
 
     test("another creature you control dying adds an oil counter; an opponent's does not") {
@@ -118,5 +130,15 @@ class CharforgerScenarioTest : FunSpec({
         driver.state.mayPlayPermissions.any { exiled in it.cardIds } shouldBe true
         driver.playLand(p1, exiled).outcome shouldBe Outcome.Done
         driver.getExile(p1).contains(exiled) shouldBe false
+    }
+
+    test("a noncreature artifact you control going to the graveyard also adds an oil counter") {
+        val driver = newDriver()
+        val forger = castCharforger(driver)
+        val stone = driver.putPermanentOnBattlefield(driver.player1, "Mind Stone")
+
+        shatter(driver, stone)
+        driver.assertInGraveyard(driver.player1, "Mind Stone")
+        oil(driver, forger) shouldBe 1
     }
 })
