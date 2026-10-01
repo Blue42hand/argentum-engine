@@ -24,6 +24,7 @@ import { CoinFlipAnimations } from '../animations/CoinFlipAnimations'
 import { TargetReselectedAnimations } from '../animations/TargetReselectedAnimations'
 import { useResponsive } from '@/hooks/useResponsive'
 import { ManaSymbol } from '../ui/ManaSymbols'
+import { computeCoverage } from '../decisions/manaCoverage'
 
 // Import extracted components
 import { Battlefield, CardRow, CommandZone, OpponentBoardArea, BoardNamePlate, CollapsedBoardTab, COLLAPSED_TAB_WIDTH, CELL_PLATE_BAND, useCellHandMetrics, StackDisplay, ZonePile, ResponsiveContext } from './board'
@@ -609,90 +610,33 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     }
     const total = coloredReqs.length + genericCount
 
-    // Build source list: each source has the set of colors it can pay
-    // A source that produces {W, B, G} can satisfy W, B, or G colored reqs, or 1 generic
-    // Multi-mana sources (e.g., Gilded Lotus producing 3) contribute multiple entries
-    const sources: { colors: readonly string[] }[] = []
-    for (const id of manaSelectionState.selectedSources) {
-      const colors = manaSelectionState.sourceColors[id] ?? []
-      const manaAmount = manaSelectionState.sourceManaAmounts?.[id] ?? 1
-      for (let i = 0; i < manaAmount; i++) {
-        sources.push({ colors: colors.length > 0 ? colors : ['C'] })
-      }
+    const floatingPool = viewingPlayer?.manaPool
+    const pool = floatingPool ? { ...floatingPool } : null
+    // Credit only restricted units the server judged eligible for this action.
+    const poolFields = { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green', C: 'colorless' } as const
+    for (const entry of manaSelectionState.actionInfo.eligibleRestrictedMana ?? []) {
+      const field = poolFields[(entry.color ?? 'C') as keyof typeof poolFields]
+      if (pool && field) pool[field]++
     }
-
-    // Most-constrained-first: assign sources with fewest color options first
-    // This prevents flexible sources from "wasting" on requirements that
-    // less flexible sources could have covered
-    const sortedSources = [...sources].sort((a, b) => a.colors.length - b.colors.length)
-
-    // Track remaining colored requirements as a mutable count map
-    const remainingColorReqs: Record<string, number> = {}
-    for (const c of coloredReqs) {
-      remainingColorReqs[c] = (remainingColorReqs[c] ?? 0) + 1
-    }
-    let remainingGeneric = genericCount
+    const sources = manaSelectionState.selectedSources.map((entityId) => ({
+      entityId,
+      producesColors: manaSelectionState.sourceColors[entityId] ?? [],
+      manaAmount: manaSelectionState.sourceManaAmounts?.[entityId] ?? 1,
+    }))
+    const coverage = computeCoverage(
+      [...coloredReqs, ...Array<string>(genericCount).fill('1')],
+      pool,
+      manaSelectionState.selectedSources,
+      sources,
+      0,
+      viewingPlayer?.manaPaymentColors,
+    )
     const colorSatisfied: Record<string, number> = {}
     let satisfied = 0
-
-    // Floating mana already in the pool counts toward the cost — the engine pays
-    // from the pool before tapping sources (CastPaymentProcessor.autoPay), so the
-    // confirmation panel needs to credit it too. Without this, a player who taps
-    // a Plains pre-cast sees "0/1" white owed even though their pool already has it.
-    const floatingPool = viewingPlayer?.manaPool
-    if (floatingPool) {
-      const poolByPip: Record<string, number> = {
-        W: floatingPool.white,
-        U: floatingPool.blue,
-        B: floatingPool.black,
-        R: floatingPool.red,
-        G: floatingPool.green,
-        C: floatingPool.colorless,
-      }
-      // Restricted ("spend this mana only to …") mana counts too, but only the units the server
-      // judged eligible for this action — Ashling, Rimebound's MV4+ mana on an MV4+ spell.
-      for (const entry of manaSelectionState.actionInfo.eligibleRestrictedMana ?? []) {
-        const pip = entry.color ?? 'C'
-        if (pip in poolByPip) poolByPip[pip]!++
-      }
-      // Spend exact-color pool first against colored pips
-      for (const pip of Object.keys(poolByPip)) {
-        while ((poolByPip[pip] ?? 0) > 0 && (remainingColorReqs[pip] ?? 0) > 0) {
-          remainingColorReqs[pip]!--
-          colorSatisfied[pip] = (colorSatisfied[pip] ?? 0) + 1
-          poolByPip[pip]!--
-          satisfied++
-        }
-      }
-      // Anything left in the pool covers generic
-      for (const pip of Object.keys(poolByPip)) {
-        while ((poolByPip[pip] ?? 0) > 0 && remainingGeneric > 0) {
-          remainingGeneric--
-          colorSatisfied['1'] = (colorSatisfied['1'] ?? 0) + 1
-          poolByPip[pip]!--
-          satisfied++
-        }
-      }
-    }
-
-    for (const source of sortedSources) {
-      // Try to assign to a colored requirement this source can pay
-      let assigned = false
-      for (const color of source.colors) {
-        if ((remainingColorReqs[color] ?? 0) > 0) {
-          remainingColorReqs[color]!--
-          colorSatisfied[color] = (colorSatisfied[color] ?? 0) + 1
-          satisfied++
-          assigned = true
-          break
-        }
-      }
-      // If no colored requirement matched, assign to generic
-      if (!assigned && remainingGeneric > 0) {
-        remainingGeneric--
-        colorSatisfied['1'] = (colorSatisfied['1'] ?? 0) + 1
-        satisfied++
-      }
+    for (const pip of coverage) {
+      if (!pip.floating && !pip.pending) continue
+      colorSatisfied[pip.symbol] = (colorSatisfied[pip.symbol] ?? 0) + 1
+      satisfied++
     }
 
     // Build per-color requirement counts for display
@@ -710,7 +654,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     })
 
     return { satisfied, total, entries, colorSatisfied }
-  }, [manaSelectionState, viewingPlayer?.manaPool])
+  }, [manaSelectionState, viewingPlayer?.manaPool, viewingPlayer?.manaPaymentColors])
 
   // ⚠ Every hook must sit ABOVE this line. This is the component's only early return, and it fires
   // whenever the store has no game state yet — which is exactly how a replay or spectator surface

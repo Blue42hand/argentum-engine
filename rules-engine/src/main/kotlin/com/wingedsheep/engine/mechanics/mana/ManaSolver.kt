@@ -3,6 +3,7 @@ import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -604,10 +605,128 @@ class ManaSolver(
             return spendBonusMana(color)
         }
 
+        val spendingColors = ManaSpendingRules.colors(state, playerId)
+        fun payableColors(colors: List<Color>): List<Color> = colors.flatMap { color ->
+            listOf(color) + spendingColors[color].orEmpty().filter { it != color }
+        }.distinct()
+        fun payWithAllowedColors(required: List<Color>): Boolean {
+            val colors = payableColors(required)
+            if (colors.any { spendBonusMana(it) }) return true
+            val best = colors.mapNotNull { color ->
+                findBestSourceForColor(remainingSources, color, handRequirements, availableSourcesByColor, spellContext)
+                    ?.let { it to color }
+            }.minWithOrNull(compareBy<Pair<ManaSource, Color>>(
+                // Prefer native colors before spending substitutes that another pip may need.
+                { (_, color) -> color !in required },
+                { (source, color) -> calculateTapPriority(source, handRequirements, availableSourcesByColor) +
+                    painPenalty(source, source.colorPainCost[color] ?: 0) }
+            ))
+            if (best != null) {
+                val (source, color) = best
+                manaProduced[source.entityId] = ManaProduction(color = color, amount = source.amountFor(color))
+                useSource(source, color)
+                return true
+            }
+            return colors.any { payColoredPipFromAuraBonus(it) }
+        }
+        // Preserve scarce, un-substitutable colors for their strict pips.
+        val paymentSymbols = if (spendingColors.isEmpty()) cost.symbols else cost.symbols.sortedBy { symbol ->
+            when (symbol) {
+                is ManaSymbol.Colored -> payableColors(listOf(symbol.color)).size
+                is ManaSymbol.Phyrexian -> payableColors(listOf(symbol.color)).size
+                is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian -> payableColors(listOf(symbol.color1, symbol.color2)).size
+                else -> 6
+            }
+        }
+
+        // Single-unit sources admit a bounded bipartite matching. Reserving by accepted-color
+        // count alone is insufficient when two permissions share only some actual sources.
+        // Sources with activation costs or extra production retain the accounting path below.
+        data class PlannedPip(val source: ManaSource, val color: Color?)
+        val plannedPips = mutableMapOf<Int, PlannedPip>()
+        val strictColors = paymentSymbols.flatMap { symbol ->
+            when (symbol) {
+                is ManaSymbol.Colored -> payableColors(listOf(symbol.color))
+                is ManaSymbol.Phyrexian -> payableColors(listOf(symbol.color))
+                is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian -> payableColors(listOf(symbol.color1, symbol.color2))
+                else -> emptyList()
+            }
+        }.toSet()
+        val needsColorless = paymentSymbols.any { it is ManaSymbol.Colorless }
+        val matchingSources = if (spendingColors.isEmpty()) emptyList() else availableSources.filter { source ->
+            val relevant = source.availableColorsFor(spellContext).any { it in strictColors } ||
+                (needsColorless && source.producesColorless)
+            relevant && source.bonusManaPerTap == 0 && source.bonusManaColorlessPerTap == 0 &&
+                source.colorActivationManaCost.values.all { it == 0 } &&
+                source.producesColors.all { source.amountFor(it) == 1 } &&
+                (!source.producesColorless || source.amountFor(null) == 1)
+        }
+        val useSourceMatching = spendingColors.isNotEmpty()
+        if (useSourceMatching) {
+            val choices = paymentSymbols.map { symbol ->
+                val required = when (symbol) {
+                    is ManaSymbol.Colored -> listOf(symbol.color)
+                    is ManaSymbol.Phyrexian -> listOf(symbol.color)
+                    is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian -> listOf(symbol.color1, symbol.color2)
+                    else -> emptyList()
+                }
+                val allowed = payableColors(required)
+                matchingSources.flatMap { source ->
+                    if (symbol is ManaSymbol.Colorless) {
+                        if (source.producesColorless) listOf(PlannedPip(source, null)) else emptyList()
+                    } else source.availableColorsFor(spellContext).filter { it in allowed }
+                        .map { PlannedPip(source, it) }
+                }.sortedWith(compareBy<PlannedPip>(
+                    { it.color != null && it.color !in required },
+                    { calculateTapPriority(it.source, handRequirements, availableSourcesByColor) +
+                        painPenalty(it.source, if (it.color == null) it.source.colorlessPainCost else it.source.colorPainCost[it.color] ?: 0) }
+                ))
+            }
+            val occupied = mutableMapOf<EntityId, Int>()
+            fun assign(pip: Int, visited: MutableSet<EntityId>): Boolean {
+                for (choice in choices[pip]) {
+                    if (!visited.add(choice.source.entityId)) continue
+                    val previous = occupied[choice.source.entityId]
+                    if (previous == null || assign(previous, visited)) {
+                        occupied[choice.source.entityId] = pip
+                        plannedPips[pip] = choice
+                        return true
+                    }
+                }
+                return false
+            }
+            val strict = paymentSymbols.indices.filter { index ->
+                when (paymentSymbols[index]) {
+                    is ManaSymbol.Colored, is ManaSymbol.Phyrexian,
+                    is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian, is ManaSymbol.Colorless -> true
+                    else -> false
+                }
+            }
+            for (pip in strict.sortedBy { choices[it].size }) {
+                if (!assign(pip, mutableSetOf())) {
+                    // Complex production may cover the shortfall; use the existing accounting
+                    // path with no partial reservations rather than rejecting a payable cost.
+                    plannedPips.clear()
+                    break
+                }
+            }
+        }
+
         // 1. Pay colored costs first (most constrained)
-        for (symbol in cost.symbols) {
+        for ((symbolIndex, symbol) in paymentSymbols.withIndex()) {
+            val planned = plannedPips[symbolIndex]
+            if (planned != null) {
+                manaProduced[planned.source.entityId] = if (planned.color == null)
+                    ManaProduction(colorless = 1) else ManaProduction(color = planned.color)
+                useSource(planned.source, planned.color)
+                continue
+            }
             when (symbol) {
                 is ManaSymbol.Colored -> {
+                    if (spendingColors.isNotEmpty()) {
+                        if (!payWithAllowedColors(listOf(symbol.color))) return null
+                        continue
+                    }
                     // Try bonus mana first
                     if (spendBonusMana(symbol.color)) continue
 
@@ -626,6 +745,10 @@ class ManaSolver(
                     // (handled naturally on next iteration via spendBonusMana)
                 }
                 is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian -> {
+                    if (spendingColors.isNotEmpty()) {
+                        if (!payWithAllowedColors(listOf(symbol.color1, symbol.color2))) return null
+                        continue
+                    }
                     // Try bonus mana first
                     if (spendBonusMana(symbol.color1)) continue
                     if (spendBonusMana(symbol.color2)) continue
@@ -660,6 +783,10 @@ class ManaSolver(
                     useSource(source, colorUsed)
                 }
                 is ManaSymbol.Phyrexian -> {
+                    if (spendingColors.isNotEmpty()) {
+                        if (!payWithAllowedColors(listOf(symbol.color))) return null
+                        continue
+                    }
                     // Try bonus mana first
                     if (spendBonusMana(symbol.color)) continue
 
@@ -706,6 +833,10 @@ class ManaSolver(
         var monoHybridGeneric = 0
         for (symbol in cost.symbols) {
             if (symbol !is ManaSymbol.MonocolorHybrid) continue
+            if (spendingColors.isNotEmpty()) {
+                if (!payWithAllowedColors(listOf(symbol.color))) monoHybridGeneric += symbol.generic
+                continue
+            }
             if (spendBonusMana(symbol.color)) continue
             val source = findBestSourceForColor(remainingSources, symbol.color, handRequirements, availableSourcesByColor, spellContext)
             if (source != null) {
@@ -2317,9 +2448,9 @@ class ManaSolver(
                 green = poolComponent.green,
                 colorless = poolComponent.colorless,
                 restrictedMana = poolComponent.restrictedMana
-            )
+            ).withSpendingColors(state, playerId)
         } else {
-            ManaPool()
+            ManaPool().withSpendingColors(state, playerId)
         }
 
         // Pay partial from pool for the base cost
