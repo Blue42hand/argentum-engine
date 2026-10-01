@@ -743,6 +743,12 @@ export interface CombatResolutionDecision extends PendingDecisionBase {
  */
 export interface SplitPilesDecision extends PendingDecisionBase {
   readonly type: 'SplitPilesDecision'
+  readonly allowUnassigned?: boolean
+  readonly pileOptions?: Readonly<Record<number, readonly EntityId[]>>
+  readonly requiredAssignments?: number | null
+  readonly suggestedPiles?: readonly (readonly EntityId[])[] | null
+  readonly maxPileMemberships?: Readonly<Record<EntityId, number>>
+  readonly useTargetingUI?: boolean
   readonly cards: readonly EntityId[]
   readonly numberOfPiles: number
   readonly pileLabels: readonly string[]

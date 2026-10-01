@@ -471,13 +471,14 @@ class DecisionResponder(
         decision: SplitPilesDecision,
         playerId: EntityId
     ): DecisionResponse {
+        decision.suggestedPiles?.let { return PilesSplitResponse(decision.id, it) }
         // For Fact or Fiction style: opponent splits, we choose.
         // When WE split: make one pile clearly better so opponent's choice is harder.
         // Simple heuristic: put the best card alone, rest in other pile.
         val ranked = rankCardsByInfo(decision.cards, decision.cardInfo, state, playerId)
-        val pile1 = ranked.take(1)
-        val pile2 = ranked.drop(1)
-        return PilesSplitResponse(decision.id, listOf(pile1, pile2))
+        val piles = List(decision.numberOfPiles) { mutableListOf<EntityId>() }
+        for ((index, card) in ranked.withIndex()) piles[index % piles.size].add(card)
+        return PilesSplitResponse(decision.id, piles)
     }
 
     // ── Choose option ────────────────────────────────────────────────────

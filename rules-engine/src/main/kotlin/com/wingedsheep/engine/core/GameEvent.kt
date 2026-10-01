@@ -2292,3 +2292,8 @@ data class PlayerActionPermissionsChangedEvent(val playerId: EntityId) : GameEve
 @Serializable
 @SerialName("PlayerActionTakenEvent")
 data class PlayerActionTakenEvent(val playerId: EntityId, val description: String) : GameEvent
+
+/** The rule used to declare blockers changed. */
+@Serializable
+@SerialName("BlockerDeclarationPolicyChangedEvent")
+data object BlockerDeclarationPolicyChangedEvent : GameEvent

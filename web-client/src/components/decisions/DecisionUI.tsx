@@ -276,6 +276,7 @@ export function DecisionUI() {
 
   // Handle SplitPilesDecision (e.g., Surveil - put cards on top of library or into graveyard)
   if (pendingDecision.type === 'SplitPilesDecision') {
+    if (pendingDecision.useTargetingUI) return <SplitPilesUI key={pendingDecision.id} decision={pendingDecision} responsive={responsive} />
     return (
       <div className={styles.overlay}>
         <SplitPilesUI key={pendingDecision.id} decision={pendingDecision} responsive={responsive} />

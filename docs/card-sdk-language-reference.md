@@ -1156,6 +1156,7 @@ serialized shape; the facade for each is:
 | `BecomeCreatureTypeEffect` | `Effects.BecomeCreatureType` |
 | `BudgetModalEffect` | `Effects.BudgetModal` |
 | `CantBeRegeneratedEffect` | `Effects.CantBeRegenerated` |
+| `RandomizedBlockerPilesEffect` | `Effects.RandomizedBlockerPiles` |
 | `CantBlockEffect` | `Effects.CantBlock` |
 | `ChangeCreatureTypeTextEffect` | `Effects.ChangeCreatureTypeText` |
 | `ChangeGroupColorEffect` | `Effects.ChangeGroupColor(colors: Set<Color>, filter, duration)` |
@@ -2689,6 +2690,19 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   one is skipped. Per CR 614.10 a step already under way can no longer be skipped. Used by **Fatespinner**, whose upkeep trigger routes a three-option `ChooseAction` to
   `Player.TriggeringPlayer` and applies the chosen part to that same player.
 - `Effects.HijackNextTurn(target)` / `Effects.HijackNextCombatPhase(target)` (`HijackNextTurnEffect(target, scope)`, `scope` = `HijackScope.NextTurn` | `NextCombatPhase`) — Mindslaver-style: you make all decisions for the target player during their next whole turn, or during their next combat phase only. Moves *input authority* only (resource/permanent/spell ownership stays with the affected player); reuses `PlayerTurnHijackedComponent` + `GameState.actorFor`, so hand visibility and legal-action routing follow automatically. A scheduled hijack waits through skipped turns/combat phases and engages on the next one the player actually takes. Turn scope engages at turn start and clears at end-of-turn cleanup (**The Dominion Bracelet**); combat scope engages at beginning of combat and clears when that one combat phase ends — extra combat phases are not controlled (**Secret of Bloodbending**, whose optional waterbend upgrades combat→turn via `Effects.If(Conditions.WaterbendWasPaid, HijackNextTurn, elseEffect = HijackNextCombatPhase)`).
+- `Effects.RandomizedBlockerPiles(duration = Duration.EndOfTurn)` — replaces each defending player's
+  block declaration with optional creature piles, one per attacker defended against. Piles may be
+  empty; a creature may appear in additional distinct piles up to its current blocking capacity.
+  Piles are assigned one-to-one to attackers using the state's deterministic RNG after validating
+  the response. Only legal resulting blocks occur; evasion and group restrictions remain effective,
+  while declaration requirements and declaration costs do not apply. If restrictions permit several
+  equally complete outcomes, the defender chooses between them without rerandomizing. Existing band
+  expansion, combat history, and blocking triggers consume the resulting assignments. This is a
+  rule-changing floating effect, so subsequent creatures and combats use it for its full duration.
+  The ordinary `DeclareBlockers` legal action opens a `SplitPilesDecision` with `allowUnassigned`,
+  per-card `maxPileMemberships`, and `useTargetingUI`; the client selects piles on the battlefield.
+  Used by **Camouflage**. New vocabulary; Assay grammar support is separate.
+
 - `Effects.ChooseAttackersAndBlockersThisTurn()` (`ControlCombatDeclarationsThisTurnEffect`) — "You choose which creatures attack this turn. You choose which creatures block this turn and how those creatures block." (**Master Warcraft**). Moves only the attack and block *declarations*, for every player and every combat this turn, to the controller — never priority, other decisions, or hidden zones (it deliberately does **not** go through `actorFor`, which carries hand visibility). Marks the controller with a turn-stamped `CombatDeclarationControlComponent` (latest wins); `CombatDeclarationControl.declarerFor` / `inputActorFor` route the owed `DeclareAttackers` / `DeclareBlockers` legal action to the new declarer, and the game server refuses that declaration from anyone else. The declaration is still the owing player's action and is validated as theirs. Gap: when the defender controls a planeswalker or battle, the caster also picks each attacker's target (the ruling gives that choice to the active player).
 - `GrantCantBeBlockedByChosenColorEffect(target, duration)` — unblockable except by chosen color.
 - `Effects.GrantCantBeBlockedExceptBy(target, blockerFilter, duration = EndOfTurn)` (`GrantCantBeBlockedExceptByEffect`) —

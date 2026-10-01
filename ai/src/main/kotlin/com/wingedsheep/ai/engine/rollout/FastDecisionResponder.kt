@@ -201,6 +201,7 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
 
     /** Deal the cards round-robin into [SplitPilesDecision.numberOfPiles] piles. */
     private fun splitEvenly(decision: SplitPilesDecision): List<List<EntityId>> {
+        decision.suggestedPiles?.let { return it }
         val piles = List(decision.numberOfPiles.coerceAtLeast(1)) { mutableListOf<EntityId>() }
         decision.cards.forEachIndexed { index, card -> piles[index % piles.size].add(card) }
         return piles
