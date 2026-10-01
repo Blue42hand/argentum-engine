@@ -183,6 +183,15 @@ section; do not let SDK additions land without a corresponding doc update.
   bottoming resolve, the engine walks each player in turn order from the active player and presents a yes/no
   decision per such card in their opening hand; a "yes" routes the card to the battlefield through the standard
   zone-change pipeline before the first turn begins, a "no" leaves it in hand.
+- `revealFromOpeningHand(effect)` — "You may reveal this card from your opening hand. If you do, …" (CR 103.6b).
+  Sets `CardScript.openingHandReveal`. Offered in the same post-mulligan walk as `mayBeginGameOnBattlefield()`
+  (starting player first, then each other player in turn order; one yes/no per card). A "yes" emits a
+  `CardsRevealedEvent`, leaves the card in hand, and runs `effect` with the card as source and its owner as
+  controller. The payoff is normally a delayed trigger (CR 603.7a lets a player action create one): Devourer of
+  Destiny's "at the beginning of your first upkeep, …" is
+  `Effects.CreateDelayedTrigger(step = Step.UPKEEP, fireOnPlayer = EffectTarget.PlayerRef(Player.You), effect = …)`
+  — created before turn 1, so the controller's next upkeep is their first. Omit `fireOnPlayer` for "the first
+  upkeep" (whoever's turn it is). Each revealed copy creates its own trigger.
 
 ### Battles (CR 310)
 
@@ -440,8 +449,9 @@ counts a hybrid Phyrexian pip paid with life like any other Phyrexian pip.
   actually prevented an untap (2024-06-07 ruling), unlike a stun counter which is only consumed
   when it does. Exposed client-side as `ClientCard.isExerted`. Distinct from the "you may exert
   [this] as it attacks" attack-cost template (701.43d) — that's a separate optional-cost-to-attack
-  shape, not an ability cost; only the cost-component shape is implemented so far. First user: Arena
-  of Glory (MH3) — `Costs.Composite(Costs.Mana("{R}"), Costs.Tap, Costs.Exert)`.
+  shape, not an ability cost. First user: Arena
+  of Glory (MH3) — `Costs.Composite(Costs.Mana("{R}"), Costs.Tap, Costs.Exert)`. The attack-cost
+  shape is `ExertAsItAttacks` (§ combat statics).
 - `Costs.Mana("{2}{U}")` — pay the given mana cost (string or `ManaCost`).
 - `Costs.PayLife(amount)` — pay N life.
 - `Costs.PayXLife` — pay X life, where X is the value chosen for the ability's `{X}` mana cost
@@ -1156,6 +1166,7 @@ serialized shape; the facade for each is:
 | `BecomeCreatureTypeEffect` | `Effects.BecomeCreatureType` |
 | `BudgetModalEffect` | `Effects.BudgetModal` |
 | `CantBeRegeneratedEffect` | `Effects.CantBeRegenerated` |
+| `RandomizedBlockerPilesEffect` | `Effects.RandomizedBlockerPiles` |
 | `CantBlockEffect` | `Effects.CantBlock` |
 | `ChangeCreatureTypeTextEffect` | `Effects.ChangeCreatureTypeText` |
 | `ChangeGroupColorEffect` | `Effects.ChangeGroupColor(colors: Set<Color>, filter, duration)` |
@@ -2690,6 +2701,19 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   one is skipped. Per CR 614.10 a step already under way can no longer be skipped. Used by **Fatespinner**, whose upkeep trigger routes a three-option `ChooseAction` to
   `Player.TriggeringPlayer` and applies the chosen part to that same player.
 - `Effects.HijackNextTurn(target)` / `Effects.HijackNextCombatPhase(target)` (`HijackNextTurnEffect(target, scope)`, `scope` = `HijackScope.NextTurn` | `NextCombatPhase`) — Mindslaver-style: you make all decisions for the target player during their next whole turn, or during their next combat phase only. Moves *input authority* only (resource/permanent/spell ownership stays with the affected player); reuses `PlayerTurnHijackedComponent` + `GameState.actorFor`, so hand visibility and legal-action routing follow automatically. A scheduled hijack waits through skipped turns/combat phases and engages on the next one the player actually takes. Turn scope engages at turn start and clears at end-of-turn cleanup (**The Dominion Bracelet**); combat scope engages at beginning of combat and clears when that one combat phase ends — extra combat phases are not controlled (**Secret of Bloodbending**, whose optional waterbend upgrades combat→turn via `Effects.If(Conditions.WaterbendWasPaid, HijackNextTurn, elseEffect = HijackNextCombatPhase)`).
+- `Effects.RandomizedBlockerPiles(duration = Duration.EndOfTurn)` — replaces each defending player's
+  block declaration with optional creature piles, one per attacker defended against. Piles may be
+  empty; a creature may appear in additional distinct piles up to its current blocking capacity.
+  Piles are assigned one-to-one to attackers using the state's deterministic RNG after validating
+  the response. Only legal resulting blocks occur; evasion and group restrictions remain effective,
+  while declaration requirements and declaration costs do not apply. If restrictions permit several
+  equally complete outcomes, the defender chooses between them without rerandomizing. Existing band
+  expansion, combat history, and blocking triggers consume the resulting assignments. This is a
+  rule-changing floating effect, so subsequent creatures and combats use it for its full duration.
+  The ordinary `DeclareBlockers` legal action opens a `SplitPilesDecision` with `allowUnassigned`,
+  per-card `maxPileMemberships`, and `useTargetingUI`; the client selects piles on the battlefield.
+  Used by **Camouflage**. New vocabulary; Assay grammar support is separate.
+
 - `Effects.ChooseAttackersAndBlockersThisTurn()` (`ControlCombatDeclarationsThisTurnEffect`) — "You choose which creatures attack this turn. You choose which creatures block this turn and how those creatures block." (**Master Warcraft**). Moves only the attack and block *declarations*, for every player and every combat this turn, to the controller — never priority, other decisions, or hidden zones (it deliberately does **not** go through `actorFor`, which carries hand visibility). Marks the controller with a turn-stamped `CombatDeclarationControlComponent` (latest wins); `CombatDeclarationControl.declarerFor` / `inputActorFor` route the owed `DeclareAttackers` / `DeclareBlockers` legal action to the new declarer, and the game server refuses that declaration from anyone else. The declaration is still the owing player's action and is validated as theirs. Gap: when the defender controls a planeswalker or battle, the caster also picks each attacker's target (the ruling gives that choice to the active player).
 - `GrantCantBeBlockedByChosenColorEffect(target, duration)` — unblockable except by chosen color.
 - `Effects.GrantCantBeBlockedExceptBy(target, blockerFilter, duration = EndOfTurn)` (`GrantCantBeBlockedExceptByEffect`) —
@@ -7618,6 +7642,10 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   live count, because several removals can land in one batch (two attackers damaging the same battle)
   and the live count would make every one of them look like the last. Backs the intrinsic Siege
   defeat ability (`Sieges.defeatAbility`, CR 310.12b).
+- `EventPattern.ExertedAsItAttacksEvent` (facade: `Triggers.self.exertedAsItAttacks()`, SELF only) — the
+  "When you do" after "you may exert this creature as it attacks" (CR 701.43d), linked to the
+  `ExertAsItAttacks` static (CR 607.2h). Matches an `ExertedEvent` for the source with `asItAttacks`
+  set, so exerting it to pay `Costs.Exert` doesn't fire it. Hydra Trainer.
 - `EventPattern.TrainedEvent` (facade: `Triggers.self.trains()`) — "when this creature trains"
   (CR 702.149c: "a resolving training ability puts one or more
   +1/+1 counters on this creature"). A `data object` (no parameters); the trainer identity is selected by the ability's
@@ -8558,6 +8586,15 @@ staticAbility {
   *creature* — two Leviathans owe two Islands each, asked one at a time so each choice is made
   knowing the last. The sacrifice runs through `ForceSacrificeExecutor.sacrificePermanents`, so it
   emits `PermanentsSacrificedEvent` and fires dies triggers rather than being a silent zone move.
+- `ExertAsItAttacks` — "You may exert this creature as it attacks" (CR 701.43d): an **optional**
+  cost to attack (CR 508.1g). After any mandatory attack cost (tax, sacrifice) is settled,
+  `AttackPhaseManager.commitAttackDeclaration` pauses with one `SelectCardsDecision` (battlefield
+  selection, min 0) over the declared attackers carrying it; the chosen ones get `ExertedComponent`
+  (CR 701.43a — they won't untap during the controller's next untap step) and an `ExertedEvent` with
+  `asItAttacks = true`. Choosing none still attacks. An already-exerted creature is still offered
+  (CR 701.43b). Face-down creatures and ones that lost all abilities aren't. Pair the "When you do, …"
+  paragraph with `Triggers.self.exertedAsItAttacks()` — the trigger linked to it (CR 607.2h), which an
+  exert paid through `Costs.Exert` never fires. Hydra Trainer (MH3).
 - `CantAttackUnlessCoAttacker(coAttackerFilter, filter = source)` — "This creature can't attack
   unless [a creature matching coAttackerFilter] also attacks" (Scarred Puma). Unlike
   `CantAttackUnless` (which is defender-relative), this depends on the whole proposed attacker
@@ -12552,7 +12589,8 @@ forbids `DynamicAmount.X` in card definitions.
   non-pipeline effect stored), `count(player, zone, filter)`, `battlefield(player, filter,
   excludeSelf).count() / sumPower() / sumToughness() / sumManaValue() / maxPower() / maxToughness() /
   maxManaValue() / minToughness() / distinctValues(p) / distinctNames() / distinctColors() /
-  distinctTypes() / totalCounters(type)`, `zone(player, zone, filter).count() / distinctTypes() / …`,
+  distinctTypes() / totalCounters(type) / totalCounters()` (no type = every kind of counter,
+  `CardNumericProperty.COUNTERS` — Hydra Trainer's "the number of counters on permanents you control"), `zone(player, zone, filter).count() / distinctTypes() / …`,
   `lifeTotal(player)`, `yourLifeTotal()`, `startingLifeTotal(player)`, `playerCount(scope)`,
   `countPlayersWith(scope, condition)`, `greatestAmongPlayers(inner, players)`, `totalManaSpent()`,
   `manaSpentOnX(color)`, `manaSpentFromSubtype(subtype)`, `unspentMana(player)`,

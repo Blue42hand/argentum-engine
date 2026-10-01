@@ -218,3 +218,17 @@ data class RedirectDamageSourceContinuation(
     val choices: List<com.wingedsheep.engine.handlers.effects.combat.ChosenDamageSource>,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment()
 ) : AnswerContinuation
+
+@Serializable
+data class BlockerPilesContinuation(
+    val blockingPlayer: EntityId,
+    val attackers: List<EntityId>,
+) : AnswerContinuation
+
+@Serializable
+data class BlockerPileRestrictionChoiceContinuation(
+    val blockingPlayer: EntityId,
+    val attackers: List<EntityId>,
+    val candidates: Map<EntityId, List<EntityId>>,
+    val assignmentCount: Int,
+) : AnswerContinuation

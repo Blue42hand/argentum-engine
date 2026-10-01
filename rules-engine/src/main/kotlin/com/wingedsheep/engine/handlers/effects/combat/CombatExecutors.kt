@@ -12,6 +12,7 @@ class CombatExecutors(
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry
 ) : ExecutorModule {
     override fun executors(): List<EffectExecutor<*>> = listOf(
+        RandomizedBlockerPilesExecutor(),
         MustBeBlockedExecutor(),
         ProvokeExecutor(),
         ForceBlockExecutor(),

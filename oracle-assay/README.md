@@ -742,6 +742,80 @@ reconstruction checks the choice, so nothing else can borrow the spelling.
 Differential **6,862 compared / 56 divergent → 6,878 / 56**. No new divergence: all sixteen newly
 compared cards agree with their goldens.
 
+## The filtered dies band
+
+The eighth loop band. Its family never ranked as one: "Whenever a creature you control dies, …" is
+read up to the verb and declines there, so the tail ranking splits it by whatever follows the comma —
+`dies, put a …`, `dies, you may …`, `dies, create a …` and 54 more, **265 lines** in all, none of them
+in the top forty. Summed, the prefix probe (`dies,` → `enters,`) finished **75 whole cards** over the
+whole corpus, and the long-form self trigger `When ~ is …` another 32. It delivered **30 hand-written
+cards read whole (7,261 → 7,291)**.
+
+### Two rows, one per subject, and the long form is a spelling
+
+`Triggers.a(filter).dies()` and `Triggers.another(filter).dies()` are what every hand-written card in
+the family writes, and they split on the printed word "another" exactly as the enters pair does, so
+they are two `filteredTriggerRule` rows beside it. CR 700.4 defines *dies* as "is put into a graveyard
+from the battlefield", and Oracle still prints the long form wherever the object is not a creature —
+Nutrient Block, Ashiok's Reaper's "an enchantment you control", Krenko's "an artifact". The SDK's own
+`dies()` documents both wordings as one event, so the long form is an `alsoSpelled` surface on the
+self row and both filtered rows, and "dies" is what prints — the precedent the enters-or-dies
+contraction set for Ichor Wellspring.
+
+### What the differential found
+
+Differential **6,882 compared / 56 divergent → 6,912 / 56**. Four new divergences, all **card bugs,
+fixed**, and only their goldens moved:
+
+- **Slimefoot, the Stowaway**, **Boggart Cursecrafter**, **Laid to Rest** — "a Saproling / another
+  Goblin / a Human you control dies" is the bare tribal noun, which names *permanents*; the cards
+  watched creatures only. CR 700.4 does not restrict "dies" to creatures, so a Kindred permanent of the
+  type dying is the difference.
+- **Abzan Ascendancy** — "a nontoken creature you control" was written with the `another` subject,
+  which excludes the source; the text does not.
+
+## The damage-by-its-power band
+
+The ninth loop band, tail key `its power to …`: "~ deals damage equal to **its power** to any target"
+(Spikeshot Goblin), "{T}, Sacrifice ~: **It** deals damage equal to its power to any target" (Ghitu
+Fire-Eater), "When ~ dies, it deals damage equal to its power to each opponent" (Heartfire Hero), and
+the filtered-trigger form "Whenever a creature you control enters, it deals damage equal to its power
+to any target" (Warstorm Surge). **58 lines**; the prefix probe (`→ 3 damage to`) finished 32 whole
+cards, but that probe also finished the bites by reading their later "It" as the source, so the
+honest ceiling was about 21. It delivered **8 hand-written cards read whole (7,294 → 7,302)** and the
+family fell to one line; the rest of the reached cards decline elsewhere (Valiant, backup, a second
+ability).
+
+### The amount and the dealer move together
+
+The counted damage rows read `Amounts.count`, which deliberately has no "its power": "its" names a
+different object in every position, which is why `lifeByProperty` instantiates the amount per
+position. Damage is that shape with one more thing that moves — **who deals it**. In a first clause
+the subject is the source, which `DealDamageEffect` assumes with no `damageSource`; in a filtered
+trigger "it" is the matched creature, and Warstorm Surge's model names it as the dealer *and* as the
+amount's object. So `damageByProperty` slots subject and possessive together and refuses a model
+whose dealer and amount disagree. The fixed recipients ("any target", "each opponent", "that
+player", …) became one `DamageRecipient` table that the counted rows now read too, so the two
+families cannot drift on whom damage can be dealt to.
+
+After a subject that names the source, Oracle writes "its", never "~'s", so "its" prints here — the
+opposite of the life sentences, where "its" is an alternate of the name.
+
+**Not in this band: the bite.** "Target creature you control deals damage equal to its power to …"
+and its later clause "It deals damage equal to its power to target creature you don't control" put
+the dealer on a target and introduce a second target from a continuation. That is its own family.
+
+### What the differential found
+
+Differential **6,915 compared / 56 divergent → 6,922 / 58**. Two new divergences, both **standing
+SDK findings** — two spellings of one meaning, left as they are:
+
+- **Cinder Shade** — "{R}, Sacrifice ~: It deals damage equal to its power" is written
+  `EntityProperty(SacrificedAsCost, Power)`; the grammar reads `EntityProperty(Self, Power)`, which
+  the engine resolves through the last-known snapshot (Ghitu Fire-Eater writes it that way).
+- **Jagged-Scar Archers** — names `damageSource = Self` explicitly; no `damageSource` means the same
+  thing, and Spikeshot Goblin writes it that way.
+
 ## The later clause
 
 The `.` family came back to the top of the tail ranking — **213 cards, 129 of them solely, over 216

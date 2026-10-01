@@ -91,6 +91,14 @@ class CombatEnumerator : ActionEnumerator {
             val blockersAlreadyDeclared = state.getEntity(playerId)
                 ?.get<BlockersDeclaredThisCombatComponent>() != null
             if (!blockersAlreadyDeclared) {
+                if (com.wingedsheep.engine.mechanics.combat.RandomizedBlockerPiles.isActive(state)) {
+                    return listOf(LegalAction(
+                        actionType = "DeclareBlockers",
+                        description = "Choose blocker piles",
+                        action = DeclareBlockers(playerId, emptyMap()),
+                        validBlockers = emptyList(),
+                    ))
+                }
                 val validBlockers = context.turnManager.getValidBlockers(state, playerId)
                 val projected = context.projected
                 val blockerMaxBlockCounts = mutableMapOf<com.wingedsheep.sdk.model.EntityId, Int>()

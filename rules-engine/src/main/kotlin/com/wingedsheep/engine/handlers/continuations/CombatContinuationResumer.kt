@@ -10,6 +10,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.mechanics.combat.CombatDefenders
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.model.EntityId
@@ -19,6 +20,14 @@ class CombatContinuationResumer(
 ) : ContinuationResumerModule {
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
+        resumer(BlockerPilesContinuation::class) { state, continuation, response, _ ->
+            if (response !is PilesSplitResponse) ExecutionResult.error(state, "Expected piles")
+            else finishPileDeclaration(services.combatManager.resolveBlockerPiles(state, continuation, response))
+        },
+        resumer(BlockerPileRestrictionChoiceContinuation::class) { state, continuation, response, _ ->
+            if (response !is PilesSplitResponse) ExecutionResult.error(state, "Expected piles")
+            else finishPileDeclaration(services.combatManager.resolvePileRestrictions(state, continuation, response))
+        },
         resumer(DamageAssignmentContinuation::class) { state, continuation, response, _ ->
             resumeDamageAssignment(state, continuation, response)
         },
@@ -41,6 +50,15 @@ class CombatContinuationResumer(
         },
         resumer(OptionalRedirectEffectContinuation::class, ::resumeOptionalRedirectEffect)
     )
+
+    private fun finishPileDeclaration(result: ExecutionResult): ExecutionResult {
+        if (result.error != null || result.pendingDecision != null) return result
+        val next = CombatDefenders.defendingPlayersInApnapOrder(result.state).firstOrNull {
+            result.state.getEntity(it)?.has<com.wingedsheep.engine.state.components.combat.BlockersDeclaredThisCombatComponent>() != true
+        }
+        val priorityPlayer = next ?: result.state.activePlayerId ?: return result
+        return ExecutionResult.success(result.state.withPriority(priorityPlayer), result.events)
+    }
 
     /**
      * Record one "you may have that damage dealt to you instead" answer and re-run the combat damage

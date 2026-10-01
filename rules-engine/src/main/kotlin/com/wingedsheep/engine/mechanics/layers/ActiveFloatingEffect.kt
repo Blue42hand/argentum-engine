@@ -133,6 +133,10 @@ data class FloatingEffectData(
  */
 @Serializable
 sealed interface SerializableModification {
+    /** Rule-changing declaration policy; does not alter any permanent characteristic. */
+    @Serializable
+    data object RandomizedBlockerPiles : SerializableModification
+
     /**
      * Build an [EffectContext] from this modification's stored data (targets, X value,
      * named targets, source id), or `null` if this modification type carries no such data.
@@ -786,6 +790,7 @@ fun GameState.imageOverrideFor(entityId: EntityId): String? =
  * Convert SerializableModification to Modification for the projector.
  */
 fun SerializableModification.toModification(): Modification = when (this) {
+    SerializableModification.RandomizedBlockerPiles -> Modification.NoOp
     is SerializableModification.SetPowerToughness -> Modification.SetPowerToughness(power, toughness)
     is SerializableModification.SetPowerToughnessDynamic -> Modification.SetPowerToughnessDynamic(power, toughness)
     is SerializableModification.SetPower -> Modification.SetPower(power)

@@ -71,6 +71,17 @@ class CombatManager(
         blockers: Map<EntityId, List<EntityId>>
     ): ExecutionResult = blockPhase.declareBlockers(state, blockingPlayer, blockers)
 
+    fun beginBlockerPiles(state: GameState, blockingPlayer: EntityId): ExecutionResult =
+        blockPhase.beginBlockerPiles(state, blockingPlayer)
+
+    fun resolveBlockerPiles(state: GameState, continuation: com.wingedsheep.engine.core.BlockerPilesContinuation,
+                          response: com.wingedsheep.engine.core.PilesSplitResponse): ExecutionResult =
+        blockPhase.resolveBlockerPiles(state, continuation, response)
+
+    fun resolvePileRestrictions(state: GameState, continuation: com.wingedsheep.engine.core.BlockerPileRestrictionChoiceContinuation,
+                                response: com.wingedsheep.engine.core.PilesSplitResponse): ExecutionResult =
+        blockPhase.resolvePileRestrictions(state, continuation, response)
+
     fun canCreatureBlockAnyAttacker(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): Boolean =
         blockPhase.canCreatureBlockAnyAttacker(state, blockerId, blockingPlayer)
 
