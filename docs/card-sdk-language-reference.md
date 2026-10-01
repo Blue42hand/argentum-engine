@@ -1219,6 +1219,7 @@ serialized shape; the facade for each is:
 | `PlayAdditionalLandsEffect` | `Effects.PlayAdditionalLands` |
 | `RedirectCombatDamageToControllerEffect` | `Effects.RedirectCombatDamageToController` |
 | `RedirectNextDamageEffect` | `Effects.RedirectNextDamage` |
+| `RedirectDamageFromChosenSourceEffect` | `Effects.RedirectDamageFromChosenSource` |
 | `ReflectCombatDamageEffect` | `Effects.ReflectCombatDamage` |
 | `ReflexiveTriggerEffect` | `Effects.ReflexiveTrigger` |
 | `RegenerateEffect` | `Effects.Regenerate` |
@@ -2946,6 +2947,18 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   - **Life.** `gainLifeFromColors` — gain that much life whenever damage from a source of those colours is prevented (Samite Ministration). `gainLifeFromPrevented` — "you gain life equal to the damage prevented this way", honoured by the source-side `Matching` + `FromTarget` shield (Chant of Vitu-Ghazi) and by the amount shield on one target (Candles' Glow = `PreventDamage(target = t, amount = Fixed(3), gainLifeFromPrevented = true)`), one gain per damage event — a combat damage step is one event, so everything a controller's shields prevent in it is one gain. The life goes to the shield's controller, not the protected recipient.
   - **`stillDealt`** (maps to `preventDamage = false`) — the damage is dealt in full but the shield is still spent and `onPrevented` still fires with the captured amount: Eye for an Eye's "instead that source deals that much damage to you and ~ deals that much to that source's controller".
   - **Prevent-and-react (`onPrevented`)** — instead of a bespoke reaction type, the chosen-source shield runs **any composed effect** when it fires, as a real triggered ability on the stack ("When damage is prevented this way, …", CR-faithful — opponents get priority and can respond). Mechanically: on resolution the shield is created **and** a linked event-based delayed triggered ability (`CreateDelayedTriggerEffect`-style) whose `effect` is `onPrevented`; when the shield prevents an instance it emits an internal `DamagePreventedEvent` that fires only that delayed trigger (matched by id). Inside the trigger the prevented amount is `DynamicAmounts.preventedDamage()` ("that much"/"that many") and the prevented source's controller is `EffectTarget.ControllerOfTriggeringEntity` ("that source's controller") — the same pair Tephraderm uses. So Deflecting Palm's `onPrevented` = `DealDamage(ControllerOfTriggeringEntity, preventedDamage())`; New Way Forward's = `Composite(DealDamage(ControllerOfTriggeringEntity, preventedDamage()), DrawCards(preventedDamage()))`. Because the payoff is a normal stack ability, it may be interactive (targets, replacements) like any other. The same reaction hangs off a targeted source with `direction = FromTarget`: Awe Strike = `PreventDamage(target = creature, direction = FromTarget, nextInstanceOnly = true, onPrevented = GainLife(preventedDamage()))`. That source shield honours `combatOnly`, `duration`, and **`toPlayersOnly`** — only damage the source would deal to a *player* is prevented; damage to a creature, planeswalker or battle (or, with `combatOnly`, noncombat damage) is dealt and leaves the shield up. Ria Ivor, Bane of Bladehold = `PreventDamage(target = creature, direction = FromTarget, combatOnly = true, toPlayersOnly = true, nextInstanceOnly = true, onPrevented = CreatePhyrexianMite(preventedDamage()), duration = EndOfCombat)` ("the next time target creature would deal combat damage to one or more players this combat"). `toPlayersOnly` on any other shape is rejected at resolution.
+- `Effects.RedirectDamageFromChosenSource(protectedTarget, redirectTo, duration = EndOfTurn)` — choose a
+  damage source during resolution, then redirect its next damage instance to the captured recipient.
+  Both recipients may be players, creatures, planeswalkers or battles. Source choice is not targeting:
+  shroud/protection do not restrict it, and the source need not be able to deal damage. The existing
+  battlefield/multi-zone selector handles current objects; distinct labelled choices handle departed
+  objects referred to by pending abilities, replacement shields or delayed triggers. The shield retains
+  rules-object identities, survives its creating source leaving, expires with its duration, and is used
+  only by positive damage from the chosen source to the protected object. A chosen permanent spell also
+  covers the permanent it normally becomes; later blink/recast visits are different sources. Departed
+  ability sources carry their original identity through noncombat damage. Redirection retains damage
+  source, combat status and unpreventability; an absent/invalid recipient leaves the shield unused.
+  Jade Monolith and Beacon of Destiny.
 - `RedirectNextDamageEffect(protectedTargets, redirectTo, amount, scope)` — redirection shield (CR 614.9):
   while active, damage that would be dealt to any of `protectedTargets` this turn is dealt to `redirectTo`
   instead. Installed as a `Duration.EndOfTurn` floating effect and checked during damage resolution.

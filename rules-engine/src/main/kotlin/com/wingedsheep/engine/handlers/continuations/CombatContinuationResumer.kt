@@ -35,6 +35,7 @@ class CombatContinuationResumer(
         resumer(DistributeDamageContinuation::class, ::resumeDistributeDamage),
         resumer(DeflectDamageSourceChoiceContinuation::class, ::resumeDeflectDamageSourceChoice),
         resumer(PreventDamageFromChosenSourceContinuation::class, ::resumePreventDamageFromChosenSource),
+        resumer(RedirectDamageSourceContinuation::class, ::resumeRedirectDamageSource),
         resumer(CombatOptionalRedirectContinuation::class) { state, continuation, response, _ ->
             resumeCombatOptionalRedirect(state, continuation, response)
         },
@@ -331,7 +332,7 @@ class CombatContinuationResumer(
                     newState,
                     targetId,
                     damageAmount,
-                    continuation.sourceId
+                    continuation.sourceId, damageSourceRef = continuation.objectReferences.origin ?: continuation.sourceId?.let(state::objectRef)
                 )
 
                 // Dealing damage never asks a question, so the only other outcome is a rejection.
@@ -372,6 +373,28 @@ class CombatContinuationResumer(
         )
 
         return checkForMore(newState, emptyList())
+    }
+
+    fun resumeRedirectDamageSource(
+        state: GameState, continuation: RedirectDamageSourceContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore
+    ): ExecutionResult {
+        val chosen = when (response) {
+            is CardsSelectedResponse -> continuation.choices.singleOrNull { it.reference.entityId == response.selectedCards.singleOrNull() }
+            is OptionChosenResponse -> continuation.choices.getOrNull(response.optionIndex)
+            else -> null
+        } ?: return ExecutionResult.error(state, "Expected a legal damage source choice")
+        val next = state.addFloatingEffect(
+            layer = Layer.ABILITY,
+            modification = SerializableModification.RedirectNextDamage(
+                redirectToId = continuation.redirectToId, chosenSource = chosen,
+                protectedRef = continuation.protectedRef, redirectToRef = continuation.redirectToRef
+            ),
+            affectedEntities = setOf(continuation.protectedId), duration = continuation.duration,
+            context = EffectContext(sourceId = continuation.sourceId, controllerId = continuation.controllerId,
+                objectReferences = continuation.objectReferences)
+        )
+        return checkForMore(next, emptyList())
     }
 
     fun resumePreventDamageFromChosenSource(
