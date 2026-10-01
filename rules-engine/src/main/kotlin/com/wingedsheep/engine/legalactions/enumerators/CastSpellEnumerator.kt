@@ -580,26 +580,18 @@ class CastSpellEnumerator(
                     val drumSources = cachedSources.count { it.tapPermanentsSubCost != null }
                     (convokeCreatures.count { it.entityId !in manaSourceIds } - drumSources).coerceAtLeast(0)
                 } else 0
-                // TODO(improvise+{X}): improvise is deliberately NOT counted here, and that is a
-                // known *gap*, not correct behaviour. CR 601.2b announces X before CR 601.2f
-                // determines the total cost, and CR 702.126a bounds the taps at the generic in that
-                // total cost — so improvise does pay the X-derived generic. The Whir of Invention
-                // ruling spells it out: "if you cast [it] and choose X to be 3, the total cost is
-                // {3}{U}{U}{U}. If you tap two artifacts, you'll have to pay {1}{U}{U}{U}."
-                // Four printed cards reach this: Whir of Invention, Universal Surveillance,
-                // Saheeli's Directive, Battle at the Bridge. None of them is implemented yet, and
-                // no MSH card has improvise with {X}, so nothing in the repo is wrong today —
-                // the ceiling merely under-offers, which can never produce an unpayable action.
-                // The reason it is not fixed here is that the ceiling can't move on its own: the
-                // payment side (`AlternativePaymentHandler.applyTapForGeneric`) stops tapping once
-                // the *printed* generic runs out, so a raised ceiling would offer an X the handler
-                // then refuses to pay. Closing it means folding X into the cost the way
-                // `waterbend {X}` does and charging the leftover against the X mana the way
-                // `CastCostTotaller.paymentXValue` already does for convoke/delve/harmonize — plus lifting the client
-                // cap in `pipelinePhases.ts`. Do it with the first improvise-{X} card.
+                // Improvise (CR 702.126a) pays generic mana of the *total* cost too, X included —
+                // the Whir of Invention ruling: "if you ... choose X to be 3, the total cost is
+                // {3}{U}{U}{U}. If you tap two artifacts, you'll have to pay {1}{U}{U}{U}." The payer
+                // credits taps past the printed generic against the X mana, so each artifact raises
+                // the ceiling by one; an artifact that is itself a counted mana source is skipped.
+                val improviseAvailable = if (improviseArtifacts.isNotEmpty()) {
+                    val manaSourceIds = cachedSources.mapTo(HashSet()) { it.entityId }
+                    improviseArtifacts.count { it.entityId !in manaSourceIds }
+                } else 0
                 val fixedCost = effectiveCost.cmc  // X contributes 0 to CMC
                 val xSymbolCount = effectiveCost.xCount.coerceAtLeast(1)
-                ((availableSources + delveAvailable + waterbendAvailable + convokeAvailable - fixedCost) / xSymbolCount)
+                ((availableSources + delveAvailable + waterbendAvailable + convokeAvailable + improviseAvailable - fixedCost) / xSymbolCount)
                     .coerceAtLeast(0)
             } else null
 
@@ -1414,72 +1406,6 @@ class CastSpellEnumerator(
                 )
             )
         )
-    }
-
-    /**
-     * Post-process: surface **improvise** (CR 702.126) on the cast actions already enumerated.
-     *
-     * Improvise is neither an additional nor an alternative cost (CR 702.126b), so — unlike the
-     * waterbend pass — this adds no second action and changes no cost: it only attaches the
-     * tap-to-help metadata (eligible untapped artifacts, the "improvise" label, no cap beyond the
-     * generic in the cost) so the client can offer the payment. Doing it here rather than at each
-     * `LegalAction(...)` emission site means every cast shape — plain, modal, kicked, or-pay,
-     * split — gets it for free.
-     *
-     * The keyword is resolved through the granted-keyword resolver, so a spell that only has
-     * improvise because of Ironheart, Clever Champion is covered identically to a printed one.
-     * Actions that already carry a tap-for-generic payment (a waterbend cost) are left alone —
-     * one tap payment per action, and no card has both.
-     *
-     * Also stamps [LegalAction.tapForGenericRequired] — whether the taps are *needed* or merely
-     * offered. That costs one extra `canPay` per improvise-eligible cast, which is why it is
-     * computed behind the two gates above (no untapped artifacts, or no improvise → no call).
-     */
-    private fun applyImproviseMetadata(
-        context: EnumerationContext,
-        actions: List<LegalAction>
-    ): List<LegalAction> {
-        val state = context.state
-        // Both lookups scan the battlefield, so memoize: the artifacts per caster, and the keyword
-        // answer per (caster, card) — a hand of modal/kicked variants otherwise re-asks the same
-        // question for every emitted action. Keyed by the card, not its definition: a zone-scoped
-        // grant ("spells you cast from exile …") can answer differently for two copies.
-        val artifactsByPlayer = mutableMapOf<EntityId, List<TapForGenericPermanentData>>()
-        val hasImproviseByCard = mutableMapOf<Pair<EntityId, EntityId>, Boolean>()
-        return actions.map { la ->
-            val cs = la.action as? CastSpell
-            if (cs == null || la.hasTapForGeneric) return@map la
-            // Cheapest gate first: with no untapped artifacts there is nothing to offer either way.
-            val artifacts = artifactsByPlayer.getOrPut(cs.playerId) {
-                context.costUtils.findTapForGenericPermanents(state, cs.playerId, TapForGeneric.IMPROVISE)
-            }
-            if (artifacts.isEmpty()) return@map la
-            val cardComponent = state.getEntity(cs.cardId)?.get<CardComponent>() ?: return@map la
-            val cardDef = context.cardRegistry.getCard(cardComponent.cardDefinitionId) ?: return@map la
-            val hasImprovise = hasImproviseByCard.getOrPut(cs.playerId to cs.cardId) {
-                context.grantedKeywordResolver.hasKeyword(state, cs.playerId, cardDef, Keyword.IMPROVISE, cs.cardId)
-            }
-            if (!hasImprovise) return@map la
-            // Are the taps needed, or just offered? Improvise is optional (CR 702.126a "you may"),
-            // and an automatic payer that always fills it can tap a mana rock for {1} that was
-            // worth more as mana and make its own cast unpayable — see [LegalAction.tapForGenericRequired].
-            val payableWithManaAlone = la.manaCostString?.let { costString ->
-                context.manaSolver.canPay(
-                    state, cs.playerId, ManaCost.parse(costString),
-                    spellContext = spellPaymentContextFor(cardComponent),
-                    precomputedSources = context.availableManaSources
-                )
-            } ?: false
-            la.copy(
-                hasTapForGeneric = true,
-                tapForGenericPermanents = artifacts,
-                // No cap: CR 702.126a bounds the taps at the generic mana in the total cost, which
-                // the client derives from the cost itself.
-                tapForGenericAmount = null,
-                tapForGenericLabel = TapForGeneric.IMPROVISE.label,
-                tapForGenericRequired = !payableWithManaAlone
-            )
-        }
     }
 
     /**
