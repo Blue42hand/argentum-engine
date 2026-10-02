@@ -314,15 +314,56 @@ class LobbyHandler(
         decks: List<Map<String, Int>>,
         models: List<String>? = null,
         gamesPerMatch: Int? = null,
+        controllerSpecs: List<com.wingedsheep.gameserver.ai.AiControllerSpec>? = null,
+        rules: com.wingedsheep.sdk.core.GameRules = com.wingedsheep.sdk.core.GameRules.STANDARD,
     ): String {
         require(aiGameManager.isEnabled) { "AI opponent is not enabled on this server" }
         require(decks.size in 2..8) { "Player count must be between 2 and 8 (got ${decks.size} decks)" }
         require(gamesPerMatch == null || gamesPerMatch in 1..9) { "Games per match must be between 1 and 9" }
+        require(controllerSpecs == null || models == null) {
+            "Choose native controller specs or legacy model overrides, not both"
+        }
+        require(controllerSpecs == null || controllerSpecs.size == decks.size) {
+            "One native controller spec is required for each fixed deck"
+        }
+
+        // Resolve selected profiles before creating identities or a lobby. A profile owns its
+        // exact deck; the dev endpoint may not pair its policy identity with another list.
+        val profileDecks = controllerSpecs?.mapIndexed { index, spec ->
+            val fixed = aiGameManager.resolveSeatPreset(spec).deckSpec as? AiDeckSpec.Fixed
+                ?: error("AI controller profile ${spec.profileId} has no fixed deck")
+            require(fixed.deckList == decks[index]) {
+                "Deck ${index + 1} does not match its selected AI controller profile"
+            }
+            if (rules.usesCommanders) {
+                require(!fixed.commander.isNullOrBlank()) {
+                    "Commander rules require a designated commander for every selected profile"
+                }
+            } else {
+                require(fixed.commander == null) {
+                    "A commander-bearing controller profile requires Commander rules"
+                }
+            }
+            fixed
+        }
+        require(!rules.usesCommanders || profileDecks != null) {
+            "Commander debug games require exact native controller profiles"
+        }
 
         // Validate all decks against the registry up front so we surface bad card names before
         // creating the lobby.
         decks.forEachIndexed { index, deck ->
-            val result = deckValidator.validate(deck, format = null)
+            val result = if (rules.usesCommanders) {
+                deckValidator.validate(
+                    com.wingedsheep.sdk.model.Deck(
+                        cards = deck.flatMap { (name, count) -> List(count) { name } },
+                        commander = profileDecks!![index].commander,
+                    ),
+                    com.wingedsheep.sdk.core.DeckFormat.COMMANDER,
+                )
+            } else {
+                deckValidator.validate(deck, format = null)
+            }
             require(result.valid) {
                 val msg = result.errors.firstOrNull()?.message ?: "Invalid deck"
                 "Deck ${index + 1} is invalid: $msg"
@@ -338,20 +379,31 @@ class LobbyHandler(
             boosterDistribution = emptyMap(),
             maxPlayers = decks.size,
             gamesPerMatch = gamesPerMatch ?: 3,
+            deckFormat = if (rules.usesCommanders) com.wingedsheep.sdk.core.DeckFormat.COMMANDER else null,
+            rules = rules,
+            deckSizeMin = if (rules.usesCommanders) 100 else 60,
+            commanderPreset = com.wingedsheep.sdk.core.CommanderPreset.COMMANDER,
         )
 
         val playerIds = mutableListOf<EntityId>()
         decks.forEachIndexed { index, _ ->
             val modelOverride = models?.getOrNull(index)
-            val aiIdentity = aiGameManager.createAiIdentity(modelOverride = modelOverride)
+            val aiIdentity = aiGameManager.createAiIdentity(
+                modelOverride = modelOverride,
+                controllerSpec = controllerSpecs?.get(index),
+            )
             lobby.addPlayer(aiIdentity)
+            profileDecks?.get(index)?.let { lobby.players[aiIdentity.playerId]?.aiDeckSpec = it }
             playerIds += aiIdentity.playerId
         }
 
         // Submit each AI's pre-built deck while still in WAITING_FOR_PLAYERS — that's the
         // PREMADE_DECKS-permitted state. Pool-free validation runs inside submitDeck.
         playerIds.forEachIndexed { index, playerId ->
-            val result = lobby.submitDeck(playerId, decks[index])
+            val commander = profileDecks?.get(index)?.commander?.takeIf { rules.usesCommanders }
+            val submitted = commander?.let { decks[index] + (it to (decks[index][it] ?: 0) + 1) }
+                ?: decks[index]
+            val result = lobby.submitDeck(playerId, submitted, commander = commander)
             require(result is TournamentLobby.DeckSubmissionResult.Success) {
                 "Failed to submit deck for AI player ${index + 1}: ${(result as TournamentLobby.DeckSubmissionResult.Error).message}"
             }
