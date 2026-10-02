@@ -61,12 +61,13 @@ class ReplayFileTest : ScenarioTestBase() {
             .toByteArray()
 
     init {
-        test("an exported replay uploads back as the same game, plain or gzipped") {
+        test("an exported replay uploads back as the same game, plain, gzipped or codec-encoded") {
             val replay = recordGame()
             val exported = ReplayFile.export(replay)
 
             ReplayFile.parse(exported.toByteArray()) shouldBe replay
             ReplayFile.parse(gzip(exported)) shouldBe replay
+            ReplayFile.parse(ReplayCodec.encode(replay).toByteArray()) shouldBe replay
             ReplayReconstructor(cardRegistry, null).reconstruct(ReplayFile.parse(exported.toByteArray()))
                 .fidelity shouldBe ReplayFidelity.EXACT
         }

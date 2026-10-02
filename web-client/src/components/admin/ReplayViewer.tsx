@@ -196,7 +196,7 @@ function GameListView({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".json,.gz,application/json,application/gzip"
+              accept=".json,.gz,.replay,application/json,application/gzip"
               style={{ display: 'none' }}
               onChange={(e) => {
                 const file = e.target.files?.[0]

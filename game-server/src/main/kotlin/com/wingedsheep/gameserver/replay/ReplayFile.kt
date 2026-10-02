@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.replay
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.util.Base64
 import java.util.zip.GZIPInputStream
 
 /** A replay file that can't be watched, with a message fit to show the person who uploaded it. */
@@ -16,7 +17,9 @@ class ReplayFileException(message: String, cause: Throwable? = null) : RuntimeEx
  * supplies pinned card definitions, and drives the engine through its action list — so parsing it
  * caps every dimension that scales the cost of that run before reconstruction ever sees it. Gzipped
  * files are accepted too (`gzip replay.json` is the obvious way to shrink one), with the inflated
- * size capped so a small upload can't expand into a large one.
+ * size capped so a small upload can't expand into a large one. So is [ReplayCodec.encode]'s
+ * storage form (base64 of gzip) — what tools writing `.replay` files straight from the codec, such
+ * as the trainer's self-play dumps, produce.
  */
 object ReplayFile {
 
@@ -49,7 +52,8 @@ object ReplayFile {
 
     fun parse(bytes: ByteArray): CompactReplay {
         if (bytes.isEmpty()) throw ReplayFileException("Replay file is empty.")
-        val json = if (isGzip(bytes)) inflate(bytes) else bytes.toString(Charsets.UTF_8)
+        val unwrapped = unwrapBase64(bytes)
+        val json = if (isGzip(unwrapped)) inflate(unwrapped) else unwrapped.toString(Charsets.UTF_8)
         val replay = try {
             ReplayCodec.decodeJson(json)
         } catch (e: Exception) {
@@ -79,6 +83,22 @@ object ReplayFile {
         }
         if (replay.pinnedCards.size > MAX_PINNED_CARDS) {
             throw ReplayFileException("Replay pins ${replay.pinnedCards.size} card definitions; at most $MAX_PINNED_CARDS are supported.")
+        }
+    }
+
+    /**
+     * The decoded bytes when [bytes] is base64 text (the stored codec form), else [bytes] itself.
+     * JSON starts with `{` after optional whitespace, which is never base64, so plain files pass
+     * straight through. Base64 inflates by 4/3, so the decoded bytes stay under the upload cap.
+     */
+    private fun unwrapBase64(bytes: ByteArray): ByteArray {
+        if (isGzip(bytes)) return bytes
+        val text = bytes.toString(Charsets.US_ASCII).trim()
+        if (text.isEmpty() || text.startsWith("{")) return bytes
+        return try {
+            Base64.getMimeDecoder().decode(text)
+        } catch (e: IllegalArgumentException) {
+            bytes
         }
     }
 
