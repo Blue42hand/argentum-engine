@@ -3,8 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.dmu.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.model.Zone
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,6 +43,7 @@ val TearAsunder = card("Tear Asunder") {
         collectorNumber = "183"
         artist = "Dave Kendall"
         flavorText = "No one knew why the spiritmongers were so enraged by Phyrexian technology, but it was a stroke of good luck for the Coalition."
-        imageUri = "https://cards.scryfall.io/normal/front/6/2/629aa907-9533-4681-9bf2-9e56450a4cc2.jpg"
+        imageUri = "https://cards.scryfall.io/normal/front/6/2/629aa907-9533-4681-9bf2-9e56450a4cc2.jpg?1783921294"
+        ruling("2022-09-09", "If Tear Asunder is kicked, it can target any nonland permanent, not just an artifact or enchantment.")
     }
 }
