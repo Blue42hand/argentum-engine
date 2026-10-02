@@ -1,0 +1,22 @@
+{
+  "player1Name": "Overlook pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Riveteers Overlook"],
+    "battlefield": [],
+    "graveyard": [],
+    "library": ["Forest", "Mountain", "Swamp", "Plains", "Forest"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [],
+    "battlefield": [],
+    "graveyard": [],
+    "library": ["Plains", "Plains", "Plains"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "mode": "TWO_PLAYER"
+}
