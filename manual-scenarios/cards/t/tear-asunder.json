@@ -4,14 +4,14 @@
   "player1": {
     "lifeTotal": 20,
     "hand": ["Tear Asunder"],
-    "battlefield": ["Forest", "Forest", "Forest", "Swamp"],
+    "battlefield": [{"name": "Forest"}, {"name": "Forest"}, {"name": "Forest"}, {"name": "Swamp"}],
     "graveyard": [],
     "library": ["Forest", "Swamp", "Forest"]
   },
   "player2": {
     "lifeTotal": 20,
     "hand": [],
-    "battlefield": ["Sol Ring", "Grizzly Bears", "Forest"],
+    "battlefield": [{"name": "Sol Ring"}, {"name": "Grizzly Bears"}, {"name": "Forest"}],
     "graveyard": [],
     "library": ["Forest", "Forest", "Forest"]
   },
