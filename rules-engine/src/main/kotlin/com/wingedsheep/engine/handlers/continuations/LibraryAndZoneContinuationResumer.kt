@@ -625,14 +625,14 @@ class LibraryAndZoneContinuationResumer(
         val remainder = continuation.allCards.filter { it !in acceptedSet }
 
         // Build the updated collections
-        val updatedCollections = continuation.storedCollections.toMutableMap()
-        updatedCollections[continuation.storeSelected] = selected
+        val updatedCollections = mutableMapOf(continuation.storeSelected to selected)
         if (continuation.storeRemainder != null) {
             updatedCollections[continuation.storeRemainder] = remainder
         }
 
         // Inject updated collections into the consumer frame beneath (if any)
-        val newState = exposeCollectionsToNextFrame(state, updatedCollections)
+        val newState = exposeCollectionsToNextFrame(state,
+            com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.propagateUnknown(updatedCollections, continuation.storedCollections, continuation.sourceCollection))
 
         return checkForMore(newState, emptyList())
     }
