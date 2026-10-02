@@ -15,6 +15,8 @@ import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
@@ -90,7 +92,17 @@ class ForEachExecutor(
             if (frozen.isEmpty()) context else context.copy(lookBackSelfGrants = context.lookBackSelfGrants + frozen)
         } else context
 
-        return processItems(currentState, effect, items, loopContext)
+        val move = effect.body as? com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+        // An atomic move over a group or all chosen targets is one instruction. A
+        // per-target composite still executes its instructions in sequence and must
+        // finalize each move before the next instruction reads the graveyard.
+        val simultaneousMove = move?.destination == Zone.GRAVEYARD && when (space) {
+            is IterationSpace.Group -> move.target == EffectTarget.IterationEntity
+            IterationSpace.Targets -> move.target == EffectTarget.ContextTarget(0)
+            else -> false
+        }
+        return processItems(currentState, effect, items,
+            if (simultaneousMove) loopContext.copy(deferGraveyardOrdering = true) else loopContext)
     }
 
     /**
