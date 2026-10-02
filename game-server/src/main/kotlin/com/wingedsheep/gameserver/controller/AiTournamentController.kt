@@ -152,7 +152,18 @@ class AiTournamentController(
         val round: Int,
         val totalRounds: Int,
         val complete: Boolean,
-        val liveGames: List<AiLiveGame>
+        val liveGames: List<AiLiveGame>,
+        /** Played terminal matches, separate from byes and synthetic AI simulations. */
+        val completedGames: List<AiCompletedGame>,
+    )
+
+    data class AiCompletedGame(
+        val gameSessionId: String,
+        val winnerId: String?,
+        val isDraw: Boolean,
+        val isSimulated: Boolean,
+        val nativeGameOver: Boolean,
+        val finalTurnNumber: Int?,
     )
 
     /**
@@ -183,6 +194,22 @@ class AiTournamentController(
             )
         }.sortedBy { it.gameSessionId }
 
+        val completedGames = tournament?.getRoundsForPersistence().orEmpty()
+            .flatMap { it.matches }
+            .filter { it.isComplete && it.gameSessionId != null }
+            .map { match ->
+                val gameId = checkNotNull(match.gameSessionId)
+                val session = gameRepository.findById(gameId)
+                AiCompletedGame(
+                    gameSessionId = gameId,
+                    winnerId = match.winnerId?.value,
+                    isDraw = match.isDraw,
+                    isSimulated = match.isSimulated,
+                    nativeGameOver = session?.isGameOver() == true,
+                    finalTurnNumber = session?.getStateSnapshot()?.turnNumber,
+                )
+            }.sortedBy { it.gameSessionId }
+
         return ResponseEntity.ok(AiTournamentStatus(
             lobbyId = lobby.lobbyId,
             state = lobby.state.name,
@@ -191,7 +218,8 @@ class AiTournamentController(
             round = tournament?.currentRound?.roundNumber ?: 0,
             totalRounds = tournament?.totalRounds ?: 0,
             complete = lobby.state == LobbyState.TOURNAMENT_COMPLETE,
-            liveGames = liveGames
+            liveGames = liveGames,
+            completedGames = completedGames,
         ))
     }
 
