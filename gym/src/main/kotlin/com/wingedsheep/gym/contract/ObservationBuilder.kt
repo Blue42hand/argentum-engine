@@ -28,6 +28,7 @@ import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.SplitPilesDecision
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.YesNoResponse
+import com.wingedsheep.engine.core.responseSpec
 import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
@@ -598,6 +599,7 @@ class ObservationBuilder(
             triggeringEntityId = ctx.triggeringEntityId,
             effectHint = ctx.effectHint,
             requiresStructuredResponse = structured,
+            responseSpec = if (structured) decision.responseSpec() else null,
             shape = shape
         )
     }

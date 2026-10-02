@@ -1,5 +1,6 @@
 package com.wingedsheep.gym.contract
 
+import com.wingedsheep.engine.core.DecisionResponseSpec
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -367,6 +368,8 @@ data class PendingDecisionView(
     val effectHint: String? = null,
     /** True when no LegalActionView options were generated; structured response required. */
     val requiresStructuredResponse: Boolean = false,
+    /** Engine-owned JSON response contract for a structured decision. */
+    val responseSpec: DecisionResponseSpec? = null,
     /** Extra hints about the decision shape (min/max selections, numeric range, etc.). */
     val shape: DecisionShape = DecisionShape()
 )
