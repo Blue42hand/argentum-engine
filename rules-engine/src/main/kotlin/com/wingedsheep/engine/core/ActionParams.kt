@@ -35,7 +35,10 @@ import kotlinx.serialization.Serializable
  *   against the current state: a player id becomes a player target, an object on the stack a spell
  *   target, a battlefield permanent a permanent target, and a card in any other zone a card target.
  * @property xValue The value chosen for X.
- * @property exiledCards Cards chosen to exile for a spell's additional or alternative cost.
+ * @property tappedPermanents Permanents chosen to tap as a spell or ability cost.
+ * @property sacrificedPermanents Permanents chosen to sacrifice as a cost.
+ * @property discardedCards Cards chosen to discard as a cost.
+ * @property exiledCards Cards chosen to exile as a cost.
  */
 @Serializable
 data class ActionParams(
@@ -43,6 +46,9 @@ data class ActionParams(
     val blockers: Map<EntityId, List<EntityId>> = emptyMap(),
     val targets: List<EntityId> = emptyList(),
     val xValue: Int? = null,
+    val tappedPermanents: List<EntityId> = emptyList(),
+    val sacrificedPermanents: List<EntityId> = emptyList(),
+    val discardedCards: List<EntityId> = emptyList(),
     val exiledCards: List<EntityId> = emptyList(),
 ) {
     val isEmpty: Boolean
@@ -55,6 +61,9 @@ data class ActionParams(
             if (blockers.isNotEmpty()) add("blockers")
             if (targets.isNotEmpty()) add("targets")
             if (xValue != null) add("xValue")
+            if (tappedPermanents.isNotEmpty()) add("tappedPermanents")
+            if (sacrificedPermanents.isNotEmpty()) add("sacrificedPermanents")
+            if (discardedCards.isNotEmpty()) add("discardedCards")
             if (exiledCards.isNotEmpty()) add("exiledCards")
         }
 
@@ -119,6 +128,9 @@ object ActionParameterizer {
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
+                "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
@@ -126,6 +138,10 @@ object ActionParameterizer {
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
+                "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
         else -> ActionParameterSpec.EMPTY
@@ -151,9 +167,7 @@ object ActionParameterizer {
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
                     xValue = params.xValue ?: action.xValue,
-                    additionalCostPayment = if (params.exiledCards.isEmpty()) action.additionalCostPayment
-                        else action.additionalCostPayment?.copy(exiledCards = params.exiledCards)
-                            ?: AdditionalCostPayment(exiledCards = params.exiledCards)
+                    additionalCostPayment = params.withCostChoices(action.additionalCostPayment)
                 )
             }
 
@@ -162,7 +176,8 @@ object ActionParameterizer {
                 action.copy(
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
-                    xValue = params.xValue ?: action.xValue
+                    xValue = params.xValue ?: action.xValue,
+                    costPayment = params.withCostChoices(action.costPayment)
                 )
             }
 
@@ -170,6 +185,20 @@ object ActionParameterizer {
                 "Action ${action::class.simpleName} takes no step params; got $params"
             )
         }
+    }
+
+    /** Keep template payment fields that this native step did not replace. */
+    private fun ActionParams.withCostChoices(existing: AdditionalCostPayment?): AdditionalCostPayment? {
+        if (tappedPermanents.isEmpty() && sacrificedPermanents.isEmpty() &&
+            discardedCards.isEmpty() && exiledCards.isEmpty()
+        ) return existing
+        val base = existing ?: AdditionalCostPayment.NONE
+        return base.copy(
+            tappedPermanents = tappedPermanents.ifEmpty { base.tappedPermanents },
+            sacrificedPermanents = sacrificedPermanents.ifEmpty { base.sacrificedPermanents },
+            discardedCards = discardedCards.ifEmpty { base.discardedCards },
+            exiledCards = exiledCards.ifEmpty { base.exiledCards },
+        )
     }
 
     /**
