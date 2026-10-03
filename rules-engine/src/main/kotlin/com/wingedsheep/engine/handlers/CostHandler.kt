@@ -771,10 +771,10 @@ class CostHandler {
                 workState = advanced
                 shuffled.take(atom.count)
             } else {
-                if (choices.discardChoices.size < atom.count) {
+                if (choices.discardChoices.size != atom.count || choices.discardChoices.distinct().size != atom.count) {
                     return CostPaymentResult.failure("Must choose ${atom.count} card(s) to discard")
                 }
-                choices.discardChoices.take(atom.count)
+                choices.discardChoices
             }
             val result = ZoneTransitionService
                 .discardCards(workState, controllerId, toDiscard)
@@ -1011,9 +1011,9 @@ class CostHandler {
             }
             candidates.take(requiredCount)
         } else {
-            sacrificeChoices.take(requiredCount)
+            sacrificeChoices
         }
-        if (toSacrificeList.size < requiredCount) {
+        if (toSacrificeList.size != requiredCount || toSacrificeList.distinct().size != requiredCount) {
             return CostPaymentResult.failure("Not enough sacrifice targets chosen (need $requiredCount, got ${toSacrificeList.size})")
         }
         // "Sacrifice N ... with different names" — the chosen permanents must be pairwise distinct.
@@ -1214,7 +1214,7 @@ class CostHandler {
         choices: CostPaymentChoices,
     ): CostPaymentResult {
         val toTap = choices.tapChoices
-        if (toTap.size < atom.count) {
+        if (toTap.size != atom.count || toTap.distinct().size != atom.count) {
             return CostPaymentResult.failure("Not enough permanents chosen to tap (need ${atom.count}, got ${toTap.size})")
         }
         if (atom.excludeSelf && sourceId in toTap) {
@@ -1537,8 +1537,12 @@ class CostHandler {
             findMatchingCardsUnified(state, state.getZone(ZoneKey(owner, fromZone)), atom.filter, controllerId)
         }
 
+        if (exileChoices.isNotEmpty() &&
+            (exileChoices.size != count || exileChoices.distinct().size != count)) {
+            return CostPaymentResult.failure("Must choose exactly $count distinct card(s) to exile")
+        }
         val toExile = if (exileChoices.isNotEmpty()) {
-            exileChoices.take(count)
+            exileChoices
         } else {
             // Auto-selection has to respect the same-zone constraint, or an engine-direct payment
             // could pick a combination the player could not have chosen.

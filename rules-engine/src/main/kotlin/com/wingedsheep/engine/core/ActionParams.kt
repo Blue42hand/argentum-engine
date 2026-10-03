@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
@@ -109,6 +110,24 @@ enum class ActionParameterFieldKind {
  * dropped choice, which is the failure mode this whole type exists to remove.
  */
 object ActionParameterizer {
+
+    /** Narrow the cost-choice contract to the costs on this particular offered action. */
+    fun spec(legalAction: LegalAction): ActionParameterSpec {
+        val fields = spec(legalAction.action).allowedFields.toMutableMap()
+        if (legalAction.action is CastSpell || legalAction.action is ActivateAbility) {
+            val cost = legalAction.additionalCostInfo
+            if (cost?.validTapTargets.isNullOrEmpty()) fields.remove("tappedPermanents")
+            if (cost?.validSacrificeTargets.isNullOrEmpty()) fields.remove("sacrificedPermanents")
+            if (cost?.validDiscardTargets.isNullOrEmpty()) fields.remove("discardedCards")
+            if (cost?.validExileTargets.isNullOrEmpty()) fields.remove("exiledCards")
+        }
+        return ActionParameterSpec(fields)
+    }
+
+    fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
+        params.allowOnly(legalAction.action, spec(legalAction))
+        return apply(legalAction.action, params, state)
+    }
 
     /**
      * Return the native parameter contract for [action].

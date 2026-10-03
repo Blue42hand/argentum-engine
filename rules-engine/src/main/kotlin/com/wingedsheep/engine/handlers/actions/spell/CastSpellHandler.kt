@@ -1868,7 +1868,7 @@ class CastSpellHandler(
                     is CostAtom.Sacrifice -> {
                         val sacrificed = action.additionalCostPayment?.sacrificedPermanents ?: emptyList()
                         val filterDesc = atom.filter.description
-                        if (sacrificed.size < atom.count) {
+                        if (sacrificed.size != atom.count || sacrificed.distinct().size != sacrificed.size) {
                             return "You must sacrifice ${atom.count} $filterDesc to cast this spell"
                         }
                         for (permId in sacrificed) {
@@ -1913,7 +1913,7 @@ class CastSpellHandler(
                     is CostAtom.ExileFrom -> {
                         val exiled = action.additionalCostPayment?.exiledCards ?: emptyList()
                         val zoneDesc = atom.zone.name.lowercase()
-                        if (exiled.size < atom.count) {
+                        if (exiled.size != atom.count || exiled.distinct().size != exiled.size) {
                             return "You must exile ${atom.count} ${atom.filter.description}(s) from your $zoneDesc"
                         }
                         val zoneCards = state.getZone(ZoneKey(action.playerId, atom.zone))
@@ -1930,7 +1930,7 @@ class CastSpellHandler(
                     }
                     is CostAtom.Discard -> {
                         val discarded = action.additionalCostPayment?.discardedCards ?: emptyList()
-                        if (discarded.size < atom.count) {
+                        if (discarded.size != atom.count || discarded.distinct().size != discarded.size) {
                             return "You must discard ${atom.count} card(s) to cast this spell"
                         }
                         val handCards = state.getZone(ZoneKey(action.playerId, Zone.HAND))
@@ -1952,7 +1952,7 @@ class CastSpellHandler(
                     }
                     is CostAtom.TapPermanents -> {
                         val tapped = action.additionalCostPayment?.tappedPermanents ?: emptyList()
-                        if (tapped.size < atom.count) {
+                        if (tapped.size != atom.count || tapped.distinct().size != tapped.size) {
                             return "You must tap ${atom.count} ${atom.filter.description}(s) to cast this spell"
                         }
                         val context = PredicateContext(controllerId = action.playerId)

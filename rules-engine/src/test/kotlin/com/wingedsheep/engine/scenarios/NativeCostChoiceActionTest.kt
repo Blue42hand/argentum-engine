@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 
 /** Native action IDs must carry the payer's selections into the existing cost validators. */
 class NativeCostChoiceActionTest : FunSpec({
@@ -47,6 +48,57 @@ class NativeCostChoiceActionTest : FunSpec({
         driver.state.getEntity(creature)!!.has<TappedComponent>() shouldBe true
     }
 
+    test("offered Drum action rejects an unrelated discard choice") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val drum = driver.putPermanentOnBattlefield(player, "Springleaf Drum")
+        driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val handCard = driver.putCardInHand(player, "Plains")
+        val offered = driver.legalActions(player).first { legal ->
+            (legal.action as? ActivateAbility)?.sourceId == drum && legal.isManaAbility
+        }
+        ("discardedCards" in ActionParameterizer.spec(offered).allowedFields) shouldBe false
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(offered, ActionParams(discardedCards = listOf(handCard)), driver.state)
+        }
+        (handCard in driver.state.getHand(player)) shouldBe true
+    }
+
+    test("a one-creature tap cost rejects extra and repeated selections") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val drum = driver.putPermanentOnBattlefield(player, "Springleaf Drum")
+        val first = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val second = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val offered = driver.legalActions(player).first { legal ->
+            (legal.action as? ActivateAbility)?.sourceId == drum && legal.isManaAbility
+        }
+        for (ids in listOf(listOf(first, second), listOf(first, first))) {
+            val completed = ActionParameterizer.apply(offered, ActionParams(tappedPermanents = ids), driver.state)
+            (driver.submit(completed).error != null) shouldBe true
+            driver.state.getEntity(first)!!.has<TappedComponent>() shouldBe false
+            driver.state.getEntity(second)!!.has<TappedComponent>() shouldBe false
+        }
+    }
+
+    test("a one-creature spell sacrifice rejects overpayment") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val rites = driver.putCardInHand(player, "Village Rites")
+        val first = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val second = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        driver.giveMana(player, Color.BLACK)
+        val offered = driver.legalActions(player).first { legal ->
+            (legal.action as? CastSpell)?.cardId == rites
+        }
+        val completed = ActionParameterizer.apply(
+            offered, ActionParams(sacrificedPermanents = listOf(first, second)), driver.state
+        )
+        (driver.submit(completed).error != null) shouldBe true
+        (first in driver.state.getBattlefield()) shouldBe true
+        (second in driver.state.getBattlefield()) shouldBe true
+    }
+
     test("native sacrifice selection pays an activated ability") {
         val driver = game()
         val player = driver.activePlayer!!
@@ -54,7 +106,7 @@ class NativeCostChoiceActionTest : FunSpec({
         val fodder = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
         val offered = driver.legalActions(player).first { legal ->
             (legal.action as? ActivateAbility)?.sourceId == feeder
-        }.action
+        }
 
         val completed = ActionParameterizer.apply(
             offered, ActionParams(sacrificedPermanents = listOf(fodder)), driver.state
@@ -72,7 +124,7 @@ class NativeCostChoiceActionTest : FunSpec({
         val offered = driver.legalActions(player).first { legal ->
             val action = legal.action as? ActivateAbility
             action?.sourceId == vault && action.abilityId == FomoriVault.activatedAbilities[1].id
-        }.action
+        }
 
         val completed = ActionParameterizer.apply(
             offered, ActionParams(discardedCards = listOf(fodder)), driver.state
@@ -90,7 +142,7 @@ class NativeCostChoiceActionTest : FunSpec({
         discardGame.giveMana(caster, Color.GREEN)
         val discardAction = discardGame.legalActions(caster).first { legal ->
             (legal.action as? CastSpell)?.cardId == thrill
-        }.action
+        }
         discardGame.submit(ActionParameterizer.apply(
             discardAction, ActionParams(discardedCards = listOf(cardToDiscard)), discardGame.state
         )).error shouldBe null
@@ -103,7 +155,7 @@ class NativeCostChoiceActionTest : FunSpec({
         sacrificeGame.giveMana(ritesCaster, Color.BLACK)
         val sacrificeAction = sacrificeGame.legalActions(ritesCaster).first { legal ->
             (legal.action as? CastSpell)?.cardId == rites
-        }.action
+        }
         sacrificeGame.submit(ActionParameterizer.apply(
             sacrificeAction, ActionParams(sacrificedPermanents = listOf(creature)), sacrificeGame.state
         )).error shouldBe null
