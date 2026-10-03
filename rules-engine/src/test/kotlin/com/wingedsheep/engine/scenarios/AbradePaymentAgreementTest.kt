@@ -14,6 +14,7 @@ import com.wingedsheep.mtg.sets.definitions.lrw.cards.SpringleafDrum
 import com.wingedsheep.mtg.sets.definitions.inv.cards.PhyrexianAltar
 import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
 import com.wingedsheep.mtg.sets.definitions.lrw.cards.Smokebraider
+import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
@@ -25,6 +26,55 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 
 /** A cast offered using choice-dependent mana must be able to reach that mana choice. */
 class AbradePaymentAgreementTest : FunSpec({
+    test("sacrificing an announced target for mana completes the cast") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(Abrade, PhyrexianAltar))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Abrade")
+        val altar = game.putPermanentOnBattlefield(caster, "Phyrexian Altar")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        game.giveMana(caster, Color.RED)
+
+        val target = ChosenTarget.Permanent(creature)
+        game.submit(CastSpell(caster, card, targets = listOf(target), chosenModes = listOf(0),
+            modeTargetsOrdered = listOf(listOf(target)))).isPaused shouldBe true
+        game.submit(ActivateAbility(caster, altar, PhyrexianAltar.activatedAbilities.single().id,
+            costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)),
+            manaColorChoice = Color.BLACK)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        game.submitDecision(caster, ManaSourcesSelectedResponse(window.id)).error shouldBe null
+        (card in game.state.stack) shouldBe true
+        (creature in game.state.getBattlefield()) shouldBe false
+        game.bothPass().error shouldBe null
+        (card in game.state.getGraveyard(caster)) shouldBe true
+    }
+
+    test("Treasure is activated directly instead of offered as a cast-window selection") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(Abrade, PredefinedTokens.Treasure))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        val opponent = if (caster == game.player1) game.player2 else game.player1
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Abrade")
+        val treasure = game.putPermanentOnBattlefield(caster, "Treasure")
+        val targetArtifact = game.putPermanentOnBattlefield(opponent, "Treasure")
+        game.giveMana(caster, Color.RED)
+
+        val target = ChosenTarget.Permanent(targetArtifact)
+        game.submit(CastSpell(caster, card, targets = listOf(target), chosenModes = listOf(1),
+            modeTargetsOrdered = listOf(listOf(target)))).isPaused shouldBe true
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        window.availableSources.none { it.entityId == treasure } shouldBe true
+        game.submit(ActivateAbility(caster, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
+            manaColorChoice = Color.BLUE)).error shouldBe null
+        val refreshed = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        game.submitDecision(caster, ManaSourcesSelectedResponse(refreshed.id)).error shouldBe null
+        (card in game.state.stack) shouldBe true
+    }
+
     test("cast window cannot spend Elemental-only mana on Abrade") {
         val game = GameTestDriver()
         game.registerCards(TestCards.all + listOf(Abrade, SpringleafDrum, Smokebraider))

@@ -89,13 +89,13 @@ class CastModalContinuationResumer(
         // Mana abilities may tap or sacrifice a permanent that was also announced for a
         // non-mana additional cost. Recheck the changed board before committing the cast,
         // while retaining the mana price fixed when the payment window opened.
-        val validationError = castSpellHandler.validateWithLockedManaCost(
+        val validationError = castSpellHandler.validateRemainingPayment(
             resumedState, action,
-            continuation.lockedCost, continuation.paymentXValue
+            continuation.lockedCost, continuation.paymentXValue, continuation.additionalCosts
         )
         if (validationError != null) return ExecutionResult.error(state, validationError)
         val result = castSpellHandler.executeWithLockedManaCost(
-            resumedState, action, continuation.lockedCost
+            resumedState, action, continuation.lockedCost, continuation.additionalCosts
         )
         return result
     }

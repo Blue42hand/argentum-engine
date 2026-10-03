@@ -211,12 +211,24 @@ class CastSpellHandler(
     )
 
     override fun validate(state: GameState, action: CastSpell): String? =
-        validateCast(state, action, null)
+        validateCast(state, action)
 
-    /** Recheck a suspended cast against the changed board without repricing its announced cost. */
-    internal fun validateWithLockedManaCost(
-        state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int
-    ): String? = validateCast(state, action, ComputedCastCost(lockedCost, paymentXValue))
+    /** Only payment resources are rechecked after mana abilities; announced targets stay locked. */
+    internal fun validateRemainingPayment(
+        state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int,
+        additionalCosts: List<AdditionalCost>
+    ): String? {
+        validateAdditionalCosts(state, additionalCosts, action)?.let { return it }
+        val cardDef = state.getEntity(action.cardId)?.get<CardComponent>()
+            ?.let { cardRegistry.getCard(it.cardDefinitionId) }
+        if (action.conspiredCreatures.isNotEmpty() && cardDef != null) {
+            validateConspire(state, action, cardDef)?.let { return it }
+        }
+        if (action.casualtyCreature != null && cardDef != null) {
+            validateCasualty(state, action, cardDef)?.let { return it }
+        }
+        return validatePayment(state, action, lockedCost, paymentXValue)
+    }
 
     internal fun lockedCostCoveredByPool(
         state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int
@@ -224,7 +236,7 @@ class CastSpellHandler(
         state, action.copy(paymentStrategy = PaymentStrategy.FromPool), lockedCost, paymentXValue
     ) == null
 
-    private fun validateCast(state: GameState, action: CastSpell, lockedCost: ComputedCastCost?): String? {
+    private fun validateCast(state: GameState, action: CastSpell): String? {
         if (!state.hasPriority(action.playerId)) {
             return "You don't have priority"
         }
@@ -707,8 +719,7 @@ class CastSpellHandler(
                 state, alternativePayment, action.playerId, cardDef, action.cardId, tapForGeneric
             )?.let { return it }
         }
-        val computedCost = lockedCost
-            ?: computeTotalCastCost(state, action, cardDef, cardComponent, playForFree, hasCommanderCast)
+        val computedCost = computeTotalCastCost(state, action, cardDef, cardComponent, playForFree, hasCommanderCast)
             ?: return "No alternative casting cost available"
         val paymentError = validatePayment(state, action, computedCost.cost, computedCost.paymentXValue)
         if (paymentError != null) {
@@ -2287,10 +2298,80 @@ class CastSpellHandler(
         return null
     }
 
+    /** Freeze the announced nonmana costs before opening a mana ability window. */
+    private fun collectAllAdditionalCosts(
+        state: GameState, action: CastSpell, cardDef: com.wingedsheep.sdk.model.CardDefinition?
+    ): List<AdditionalCost> {
+        val declaredSlotAdditionalCost = declaredOptionalCosts(action, cardDef)
+            .firstOrNull { it.additionalCost != null }?.additionalCost
+        return buildList {
+            if (cardDef != null) addAll(resolveAdditionalCostsForMode(cardDef, action))
+            declaredSlotAdditionalCost?.let { add(it) }
+            if (action.useAlternativeCost && cardDef != null) {
+                // Each bundled additional cost is gated by the chosen alternative-cost type so a
+                // collision (e.g. granted warp on a card also being evoked) doesn't drag in the
+                // unchosen cost's bundled additional cost.
+                val selfAltCost = cardDef.script.selfAlternativeCost
+                if (selfAltCost != null && action.altAllows(AlternativeCostType.SELF_ALTERNATIVE)) addAll(selfAltCost.additionalCosts)
+                // A battlefield-granted alternative cost's non-mana half (Conspiracy Unraveler's
+                // "collect evidence 10"). The mana half was already substituted for the spell's
+                // mana cost above; this is the rest of the same cost, so it is paid by the ordinary
+                // additional-cost loop below — which is also what makes it validate and surface a
+                // picker like every other selection cost.
+                if (action.altAllows(AlternativeCostType.GRANTED)) {
+                    costCalculator.findAlternativeCastingCosts(state, action.playerId)
+                        .firstOrNull()?.let { addAll(it.additionalCosts) }
+                }
+                // Flashback's bundled additional cost (e.g., Behold three Elementals)
+                if (action.altAllows(AlternativeCostType.FLASHBACK) &&
+                    zoneResolver.hasFlashbackPermission(state, action.playerId, action.cardId)) {
+                    val flashbackAdditional = cardDef.keywordAbilities
+                        .filterIsInstance<KeywordAbility.Flashback>()
+                        .firstOrNull()
+                        ?.additionalCost
+                    if (flashbackAdditional != null) add(flashbackAdditional)
+                }
+                // Warp's bundled additional cost (e.g., "Pay 2 life" on Timeline Culler). Use
+                // [WarpGrants] so granted warps ([GrantWarpToCardsInHand]) participate too —
+                // currently they carry no additional cost, but routing through the same helper
+                // keeps the seam.
+                if (action.altAllows(AlternativeCostType.WARP) &&
+                    zoneResolver.hasWarpPermission(state, action.playerId, action.cardId)) {
+                    val warpAdditional = WarpGrants.effectiveWarp(
+                        state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
+                    )?.additionalCost
+                    if (warpAdditional != null) add(warpAdditional)
+                }
+            }
+            // Runtime additional costs from entity component (e.g., The Infamous Cruelclaw)
+            val runtimeCostComp = state.getEntity(action.cardId)
+                ?.get<PlayWithAdditionalCostComponent>()
+                ?.takeIf { it.controllerId == action.playerId }
+            if (runtimeCostComp != null) addAll(runtimeCostComp.additionalCosts)
+
+            // Linked-exile granter additional cost (e.g., Dawnhand Dissident's
+            // "remove three counters from among creatures you control")
+            val linkedGranter = zoneResolver.findLinkedExileGranter(state, action.playerId, action.cardId)
+            linkedGranter?.additionalCost?.let { add(it) }
+
+            // Self-referential MayCastSelfFromZones grant's additional cost (e.g. Alien
+            // Symbiosis' "by discarding a card")
+            zoneResolver.findMayCastSelfFromZoneAbility(state, action.playerId, action.cardId)
+                ?.additionalCost?.let { add(it) }
+
+            // Gwenom: pay-life additional cost for a spell cast from the top of the library.
+            zoneResolver.topOfLibraryAlternativeGrant(state, action.playerId, action.cardId)
+                ?.additionalCost?.let { add(it) }
+        }
+    }
+
     override fun execute(state: GameState, action: CastSpell): ExecutionResult =
         executeWithLockedManaCost(state, action, null)
 
-    internal fun executeWithLockedManaCost(state: GameState, action: CastSpell, lockedCost: ManaCost?): ExecutionResult {
+    internal fun executeWithLockedManaCost(
+        state: GameState, action: CastSpell, lockedCost: ManaCost?,
+        lockedAdditionalCosts: List<AdditionalCost>? = null
+    ): ExecutionResult {
         var currentState = state
         val events = mutableListOf<GameEvent>()
 
@@ -2416,10 +2497,11 @@ class CastSpellHandler(
                             state, action.playerId, locked, id,
                             "Produce mana for ${cardComponent.name}",
                             DecisionContext(action.cardId, cardComponent.name, DecisionPhase.CASTING),
-                            canDecline = true, cardRegistry = cardRegistry
+                            canDecline = true, cardRegistry = cardRegistry, includeSacrificeSources = false
                         ) },
                         answer = { decision -> com.wingedsheep.engine.core.CastManaSelectionContinuation(
-                            action, payableCost, computed.paymentXValue, decision.availableSources
+                            action, payableCost, computed.paymentXValue, decision.availableSources,
+                            collectAllAdditionalCosts(state, action, cardDef)
                         ) }
                     )
                 }
@@ -2693,65 +2775,7 @@ class CastSpellHandler(
             .firstOrNull { it.additionalCost != null }
             ?.additionalCost
 
-        val allAdditionalCosts = buildList {
-            if (cardDef != null) addAll(resolveAdditionalCostsForMode(cardDef, action))
-            declaredSlotAdditionalCost?.let { add(it) }
-            if (action.useAlternativeCost && cardDef != null) {
-                // Each bundled additional cost is gated by the chosen alternative-cost type so a
-                // collision (e.g. granted warp on a card also being evoked) doesn't drag in the
-                // unchosen cost's bundled additional cost.
-                val selfAltCost = cardDef.script.selfAlternativeCost
-                if (selfAltCost != null && action.altAllows(AlternativeCostType.SELF_ALTERNATIVE)) addAll(selfAltCost.additionalCosts)
-                // A battlefield-granted alternative cost's non-mana half (Conspiracy Unraveler's
-                // "collect evidence 10"). The mana half was already substituted for the spell's
-                // mana cost above; this is the rest of the same cost, so it is paid by the ordinary
-                // additional-cost loop below — which is also what makes it validate and surface a
-                // picker like every other selection cost.
-                if (action.altAllows(AlternativeCostType.GRANTED)) {
-                    costCalculator.findAlternativeCastingCosts(currentState, action.playerId)
-                        .firstOrNull()?.let { addAll(it.additionalCosts) }
-                }
-                // Flashback's bundled additional cost (e.g., Behold three Elementals)
-                if (action.altAllows(AlternativeCostType.FLASHBACK) &&
-                    zoneResolver.hasFlashbackPermission(currentState, action.playerId, action.cardId)) {
-                    val flashbackAdditional = cardDef.keywordAbilities
-                        .filterIsInstance<KeywordAbility.Flashback>()
-                        .firstOrNull()
-                        ?.additionalCost
-                    if (flashbackAdditional != null) add(flashbackAdditional)
-                }
-                // Warp's bundled additional cost (e.g., "Pay 2 life" on Timeline Culler). Use
-                // [WarpGrants] so granted warps ([GrantWarpToCardsInHand]) participate too —
-                // currently they carry no additional cost, but routing through the same helper
-                // keeps the seam.
-                if (action.altAllows(AlternativeCostType.WARP) &&
-                    zoneResolver.hasWarpPermission(currentState, action.playerId, action.cardId)) {
-                    val warpAdditional = WarpGrants.effectiveWarp(
-                        currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
-                    )?.additionalCost
-                    if (warpAdditional != null) add(warpAdditional)
-                }
-            }
-            // Runtime additional costs from entity component (e.g., The Infamous Cruelclaw)
-            val runtimeCostComp = currentState.getEntity(action.cardId)
-                ?.get<PlayWithAdditionalCostComponent>()
-                ?.takeIf { it.controllerId == action.playerId }
-            if (runtimeCostComp != null) addAll(runtimeCostComp.additionalCosts)
-
-            // Linked-exile granter additional cost (e.g., Dawnhand Dissident's
-            // "remove three counters from among creatures you control")
-            val linkedGranter = zoneResolver.findLinkedExileGranter(currentState, action.playerId, action.cardId)
-            linkedGranter?.additionalCost?.let { add(it) }
-
-            // Self-referential MayCastSelfFromZones grant's additional cost (e.g. Alien
-            // Symbiosis' "by discarding a card")
-            zoneResolver.findMayCastSelfFromZoneAbility(currentState, action.playerId, action.cardId)
-                ?.additionalCost?.let { add(it) }
-
-            // Gwenom: pay-life additional cost for a spell cast from the top of the library.
-            zoneResolver.topOfLibraryAlternativeGrant(currentState, action.playerId, action.cardId)
-                ?.additionalCost?.let { add(it) }
-        }
+        val allAdditionalCosts = lockedAdditionalCosts ?: collectAllAdditionalCosts(currentState, action, cardDef)
 
         val flattenedAllCosts = reduceCostAlternatives(allAdditionalCosts, currentState, action.playerId, action.additionalCostPayment)
 
