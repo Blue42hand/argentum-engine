@@ -13,11 +13,12 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlin.reflect.KClass
 
 /**
  * Executor for ModifyStatsEffect.
- * "Target creature gets +X/+Y until end of turn"
+ * Applies stat changes to creatures, or to an untargeted source that may become a creature.
  *
  * Supports both fixed and dynamic amounts via [DynamicAmountEvaluator].
  */
@@ -38,13 +39,16 @@ class ModifyStatsExecutor(
         val targetId = context.resolveTarget(effect.target, state)
             ?: return EffectResult.error(state, "No valid target for stat modification")
 
-        // Verify target exists and is a creature (use projected types for animated lands etc.)
+        // Targeted creature effects still require a creature. A permanent's own untargeted stat
+        // ability can resolve before it becomes a creature: CR 208.3a creates the modification
+        // now, and layer 7c applies it if the permanent becomes a creature later (e.g. a Vehicle).
         val targetContainer = state.getEntity(targetId)
             ?: return EffectResult.error(state, "Target creature no longer exists")
         val cardComponent = targetContainer.get<CardComponent>()
             ?: return EffectResult.error(state, "Target is not a card")
         val projected = state.projectedState
-        if (!projected.isCreature(targetId) && !targetContainer.has<FaceDownComponent>()) {
+        if (effect.target != EffectTarget.Self &&
+            !projected.isCreature(targetId) && !targetContainer.has<FaceDownComponent>()) {
             return EffectResult.error(state, "Target is not a creature")
         }
 
