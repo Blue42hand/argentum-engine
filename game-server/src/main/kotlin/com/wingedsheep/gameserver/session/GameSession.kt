@@ -69,6 +69,9 @@ class GameSession(
     ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true) else stateTransformer, useHandSmoother, maxPlayers)
 
     private val cardRegistry: CardRegistry get() = services.cardRegistry
+    // Debug mode is for a local browser view, never for an AI policy's observation. The latter
+    // receives engine decision IDs and must still see only what its seat may legally know.
+    private val aiStateTransformer = ClientStateTransformer(services.cardRegistry)
     // Lock for synchronizing state modifications to prevent lost updates
     private val stateLock = Any()
 
@@ -1004,7 +1007,11 @@ class GameSession(
         useEngineDecisionIds: Boolean = false,
     ): ServerMessage? = synchronized(stateLock) {
         val state = gameState ?: return null
-        val clientState = getClientState(playerId) ?: return null
+        val clientState = if (useEngineDecisionIds) {
+            aiStateTransformer.transform(state, playerId)
+        } else {
+            stateTransformer.transform(state, playerId)
+        }
         val legalActions = getLegalActions(playerId)
 
         // Transform raw engine events to client events
