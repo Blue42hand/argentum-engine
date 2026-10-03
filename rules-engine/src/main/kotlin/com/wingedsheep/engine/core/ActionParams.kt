@@ -3,6 +3,7 @@ package com.wingedsheep.engine.core
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import kotlinx.serialization.Serializable
 
 /**
@@ -24,9 +25,9 @@ import kotlinx.serialization.Serializable
  * Not expressible here, deliberately — each has its own channel:
  * - Complex decisions (target-selection pauses, damage assignment, ordering, …) → `POST
  *   /envs/{id}/decision` with a typed `DecisionResponse`.
- * - Attacking bands (CR 702.22), alternative/additional cost payments, convoke/delve/improvise
- *   selections. A step carrying params for an action that can't use them is rejected with a
- *   message naming the action, never ignored.
+ * - Attacking bands (CR 702.22), other alternative/additional cost payments, and
+ *   convoke/delve/improvise selections. A step carrying params for an action that can't use them
+ *   is rejected with a message naming the action, never ignored.
  *
  * @property attackers attacker entity id → the player, planeswalker or battle it attacks.
  * @property blockers blocker entity id → the attackers it blocks, in order.
@@ -34,13 +35,15 @@ import kotlinx.serialization.Serializable
  *   against the current state: a player id becomes a player target, an object on the stack a spell
  *   target, a battlefield permanent a permanent target, and a card in any other zone a card target.
  * @property xValue The value chosen for X.
+ * @property exiledCards Cards chosen to exile for a spell's additional or alternative cost.
  */
 @Serializable
 data class ActionParams(
     val attackers: Map<EntityId, EntityId> = emptyMap(),
     val blockers: Map<EntityId, List<EntityId>> = emptyMap(),
     val targets: List<EntityId> = emptyList(),
-    val xValue: Int? = null
+    val xValue: Int? = null,
+    val exiledCards: List<EntityId> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = populatedFields.isEmpty()
@@ -52,6 +55,7 @@ data class ActionParams(
             if (blockers.isNotEmpty()) add("blockers")
             if (targets.isNotEmpty()) add("targets")
             if (xValue != null) add("xValue")
+            if (exiledCards.isNotEmpty()) add("exiledCards")
         }
 
     companion object {
@@ -111,7 +115,14 @@ object ActionParameterizer {
         is DeclareBlockers -> ActionParameterSpec(
             mapOf("blockers" to ActionParameterFieldKind.ENTITY_ID_ARRAY_MAP)
         )
-        is CastSpell, is ActivateAbility -> ActionParameterSpec(
+        is CastSpell -> ActionParameterSpec(
+            mapOf(
+                "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "xValue" to ActionParameterFieldKind.INTEGER,
+                "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            )
+        )
+        is ActivateAbility -> ActionParameterSpec(
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
@@ -139,7 +150,10 @@ object ActionParameterizer {
                 action.copy(
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
-                    xValue = params.xValue ?: action.xValue
+                    xValue = params.xValue ?: action.xValue,
+                    additionalCostPayment = if (params.exiledCards.isEmpty()) action.additionalCostPayment
+                        else action.additionalCostPayment?.copy(exiledCards = params.exiledCards)
+                            ?: AdditionalCostPayment(exiledCards = params.exiledCards)
                 )
             }
 

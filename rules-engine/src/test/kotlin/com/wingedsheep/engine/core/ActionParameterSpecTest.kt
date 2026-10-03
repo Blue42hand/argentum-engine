@@ -22,12 +22,13 @@ class ActionParameterSpecTest : FunSpec({
         )
     }
 
-    test("cast templates expose target and X fields") {
+    test("cast templates expose target, X, and exile-choice fields") {
         ActionParameterizer.spec(
             CastSpell(playerId = player, cardId = EntityId("card"))
         ).allowedFields shouldContainExactly mapOf(
             "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "xValue" to ActionParameterFieldKind.INTEGER,
+            "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
         )
     }
 
