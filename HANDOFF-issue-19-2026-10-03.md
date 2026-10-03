@@ -1,228 +1,168 @@
-# Argentum issue #19 — final card-coverage handoff
+# Argentum issue #19 — updated handoff and stop checkpoint
 
-Handoff requested **2026-10-03 03:51:05 UTC** (October 2, America/Los_Angeles). This is a preservation and transfer record, not a new implementation or qualification run.
+Update requested **2026-10-03 10:03:31 UTC**. This revision captures the work reported after the original handoff and the repository state observed while preparing this update. It is not a new implementation, test run, or coverage qualification.
 
-## 1. Stop boundary and evidence conventions
+The complete original 449-line preservation record remains available at its immutable commit, including the older branch inventory, changed-file lists, original test ledger, and access-error receipts:
 
-Implementation is stopped. Existing implementation branches were not reset, rebased, merged, overwritten, deleted, or force-pushed. No test, build, game, workflow dispatch, CI rerun, PR creation/merge, deployment, or schedule change was performed for this handoff. Only repository reads, local attachment preparation, and the explicitly authorized dedicated handoff branch/document write are in scope.
+[Original handoff at 1e525b8e11db073f35032da8a055365e5a84a3b6](https://github.com/Blue42hand/argentum-engine/blob/1e525b8e11db073f35032da8a055365e5a84a3b6/HANDOFF-issue-19-2026-10-03.md)
 
-Evidence labels throughout:
-- **V — directly observed:** repository ref, file, comparison, or workflow status returned by a read during this handoff.
-- **R — recorded evidence:** a fact reported in a retrieved PR/document, not independently reproduced here.
-- **H — hypothesis / historical analysis:** earlier chat analysis or a proposed implementation boundary. This is not proof of current engine behavior.
-- **Unknown:** required records or worktrees were not accessible.
+This updated entrypoint supersedes that document's current-state statements where explicitly noted below. The original attachment package is retained unchanged. No implementation branch is reset, rebased, merged, deleted, or overwritten by this update.
 
-The earlier scheduled reports repeatedly reclassified the same cards and sometimes contradicted themselves about capabilities at the same immutable commit. Do not count repeated classification as progress or use those reports as source-level proof. No new coverage credit is claimed by this handoff.
+## 1. Stop boundary and evidence labels
 
-## 2. Accepted checkpoint, pins, and coverage evidence
+The user requested: update the handoff, **then pause the Argentum Card Coverage task**. The only requested automation change is disabling that task; retain its existing prompt and hourly schedule, and leave other tasks untouched. Resume implementation only through a separately authorized coding task or explicit reactivation. The task-disable result belongs in the delivery receipt, not an assumed success in this document.
 
-| Item | Exact value | Evidence |
+Target automation: **Argentum Card Coverage**, ID `6aaef998c0d48191be27ec1828f6fd56`. Its enabled state was observed before the requested pause. This update does not authorize stopping or modifying independent coding workers.
+
+- **V — directly observed now:** a repository ref, content, comparison, or Actions lookup returned during this update.
+- **R — recorded evidence:** a previously retrieved PR receipt or later scheduled report; not independently reproduced in this update.
+- **H — hypothesis:** a proposed rules/implementation boundary, not verified current engine behavior.
+- **Unknown:** no original response, execution receipt, or accessible worktree establishes the fact.
+
+Repeated reclassification of the same card is not a newly closed gap. Earlier reports contradict one another about capabilities at the same immutable SHA. Do not use their wording as source-level proof, and do not infer permission-denial causes from narrative summaries.
+
+## 2. Accepted coverage versus current engine main
+
+| Item | State at this update | Evidence |
 |---|---|---|
-| Argentum fork main | `106994eff8671f0dfa6aa66d2a53d8580d5c7f95` | V: branch read; Spire of Industry merge |
 | Public Commander Gym main | `63b330734054996735d925edd46610626e3a5a5d` | V: ref read |
-| Public coverage manifest | `argentum-coverage-source.json` at the public main above, pins Argentum `106994eff8671f0dfa6aa66d2a53d8580d5c7f95` | V: file read |
-| Spire card PR | Argentum #213; source head `955d3e8fd21a7d3197ecc455bcada06100cc29c5`; merged as `106994eff8671f0dfa6aa66d2a53d8580d5c7f95` | V: PR metadata |
-| Coverage repin PR | Commander Gym #125; source head `12b8d9cb7de79c80c1be3cb427fac11968743fa9`; merged as `63b330734054996735d925edd46610626e3a5a5d` | V: PR metadata |
-| CardRegistry workflow | `37080987053`, completed / success | V: exact-head workflow lookup |
-| Companion tests | `37080987011`, completed / success | V: exact-head workflow lookup |
-| Registry artifact | ID `11258816556`, named `argentum-active-roster-coverage` | R: merged #125 body and workflow definition |
-| Registry total | **13,542 unique names** | R: #125 body |
-| Public active roster | **400/400 exact and normalized slots, 284/284 unique names, zero missing**; Krenko, Talrand, Sythis, Lathril | R: #125 body |
-| Last accepted historical benchmark | **474/865 implemented unique names, 391 missing**; last credited Spire delta = one name / three slots | R: #125 body and previous accepted checkpoint |
+| Public `argentum-coverage-source.json` | Still pins engine `106994eff8671f0dfa6aa66d2a53d8580d5c7f95` | V: file read |
+| Accepted engine coverage pin | `106994eff8671f0dfa6aa66d2a53d8580d5c7f95`, Spire of Industry merge | V pin; R qualification |
+| Accepted live registry | **13,542 names** | R: accepted #125 qualification |
+| Accepted public active roster | **400/400 exact and normalized slots; 284/284 unique names; zero missing**; Krenko, Talrand, Sythis, Lathril | R: accepted qualification |
+| Accepted selected benchmark | **474/865 implemented names; 391 missing** | R: accepted checkpoint; no new credit here |
+| Current Argentum main | **`da9ca7ff9189cf14e1b1a7cac4a1e40732f8ee12`** | V: ref and comparison |
+| Current private repository main | `0167f6dbef05d4d80bf5e1d6f9f59fb2728be7c4` | V: ref read |
 
-Primary repository evidence:
-- [Argentum #213](https://github.com/Blue42hand/argentum-engine/pull/213)
+Accepted evidence links:
 - [Commander Gym #125](https://github.com/Blue42hand/commander-gym/pull/125)
 - [Coverage run 37080987053](https://github.com/Blue42hand/commander-gym/actions/runs/37080987053)
-- [Tests run 37080987011](https://github.com/Blue42hand/commander-gym/actions/runs/37080987011)
-- [Recorded artifact link](https://github.com/Blue42hand/commander-gym/actions/runs/37080987053/artifacts/11258816556)
-- [Exact public coverage pin](https://github.com/Blue42hand/commander-gym/blob/63b330734054996735d925edd46610626e3a5a5d/argentum-coverage-source.json)
-- [Exact coverage workflow](https://github.com/Blue42hand/commander-gym/blob/63b330734054996735d925edd46610626e3a5a5d/.github/workflows/argentum-coverage.yml)
+- [Registry artifact 11258816556](https://github.com/Blue42hand/commander-gym/actions/runs/37080987053/artifacts/11258816556)
+- [Companion Tests run 37080987011](https://github.com/Blue42hand/commander-gym/actions/runs/37080987011)
+- [Exact accepted coverage manifest](https://github.com/Blue42hand/commander-gym/blob/63b330734054996735d925edd46610626e3a5a5d/argentum-coverage-source.json)
 
-**Artifact limitation:** the artifact bytes were not downloaded or re-counted during this handoff. The artifact identifier, totals, and reported `+ Spire of Industry / - none` delta come from the merged PR record. The workflow success statuses were independently read. The attempted artifact-metadata read failed as documented in section 9; no alternate artifact route was tried.
+The 04:12 UTC scheduled report also cited postmerge coverage run `37081493597` and artifact `11258907230`. Those are **R**, not newly inspected or substituted for the accepted evidence above. No artifact bytes were re-downloaded or registry intersection recomputed for this update.
 
-The artifact is expected to contain `argentum-coverage.json` and the sorted `argentum-registry-card-names.txt`. Registry-name presence is not full-game qualification, rules-fidelity proof for every card, or a deployed-server revision.
+### New external merge: Crystalline Crawler
 
-### Private instance divergence — do not inherit the old “unchanged corpus” claim
+**V:** engine main advanced while this handoff update was being prepared. Commit `da9ca7ff9189cf14e1b1a7cac4a1e40732f8ee12`, dated **2026-10-03 10:04:29 UTC**, is `Add Crystalline Crawler to Commander 2016 (#215)`, one commit after the accepted Spire pin. This merge was not performed by this handoff task.
 
-**V:** `Blue42hand/commander-gym-private:main` is now **`0167f6dbef05d4d80bf5e1d6f9f59fb2728be7c4`**, 30 commits ahead / zero behind the repeatedly cited historical `eb83aa60eac7c6feab84eb2bc3c1d7696e817110`.
+[Engine #215](https://github.com/Blue42hand/argentum-engine/pull/215)
 
-The current README identifies `rosters/foundation-active-four-seat.json` as authoritative. That file identifies roster revision `2026-10-02.1`, derived from public `rosters/argentum-native-v1`, and selects Krenko/Talrand/Sythis/Lathril through exact Bindings and the `foundation-openai@2026-09-24.1` Pilot. Current private decks live under `decks/argentum-native-v1/`; other normalized lineages and seven original Archidekt imports are historical archives, not active seats.
+Exact changed files relative to the accepted pin:
+```text
+manual-scenarios/cards/c/crystalline-crawler.json
+mtg-sets/2008-2016/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/c16/cards/CrystallineCrawler.kt
+mtg-sets/2008-2016/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/pz2/cards/CrystallineCrawlerReprint.kt
+mtg-sets/2008-2016/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/CrystallineCrawlerScenarioTest.kt
+mtg-sets/src/test/resources/snapshots/cards/C16.json
+```
 
-**V:** the old private `.github/workflows/argentum-coverage.yml` was removed in the intervening changes. Several legacy `test-game/*-Gym-Decklist.txt` files moved into canonical lineage revisions. The private repository is now instance data, not a second runtime or reusable coverage implementation.
+**Do not implement Crystalline Crawler again or initiate another Converge backport based on the old reports.** Its code is now merged. The public coverage manifest still points to the preceding accepted commit. No exact-merge live CardRegistry receipt for Crawler was inspected here, so this handoff retains **474/865**, not 475/865. The next coding task should first coordinate with #215's owner and any coverage-repin worker; consume existing qualification if present instead of duplicating it. The earlier coverage remains valid for its own pin but does not qualify the newer engine main.
 
-**V:** nevertheless its current `argentum-source.json` still pins **`0f56e60347137546512f9c810a74d23c06403145`**, not the public coverage pin. It also records:
-- original coverage probe commit `a8fbbf99b75db515c5a7f48692ce0e29d9c6080f`;
-- upstream baseline `3f46367d87c88bcf156a843a9e69fd29e1693872`.
+### Private-corpus migration
 
-Do not silently overwrite these different-purpose pins. Resolve which source is authoritative for each subsequent qualification.
+The original handoff identified the private repository migration from `eb83aa60eac7c6feab84eb2bc3c1d7696e817110` to `0167f6dbef05d4d80bf5e1d6f9f59fb2728be7c4`. The later **05:22 UTC scheduled report** states that all 16 selected benchmark deck files retain identical Git blob SHAs across the migration, with **1,600 slots / 865 normalized unique names**, and reproduces 474/865 against the accepted registry.
 
-The historical benchmark was described as 16 logical decks / 1,600 slots / 865 normalized unique names at `eb83aa60...`, excluding the duplicate legacy Alibou alias and the excluded Rocco list. **That full benchmark was not recomputed against the current private layout in this handoff.** Retain 474/865 as the accepted historical checkpoint, not as a newly certified current-private-corpus result.
+That is **R — a subsequent reported verification**, not a fresh reconstruction by this update; its 16-file mapping is not attached here. The private main ref itself is freshly verified. Preserve the distinction between the four active Binding-selected decks and the historical 16-deck benchmark. Do not restore the retired private runtime or obsolete coverage workflow to continue this work. The original private `argentum-source.json` pin differed from the public coverage pin; that manifest was not re-read or changed in this update.
 
-References, access-controlled where applicable:
-- [Current private README](https://github.com/Blue42hand/commander-gym-private/blob/0167f6dbef05d4d80bf5e1d6f9f59fb2728be7c4/README.md)
-- [Current private roster manifest](https://github.com/Blue42hand/commander-gym-private/blob/0167f6dbef05d4d80bf5e1d6f9f59fb2728be7c4/rosters/foundation-active-four-seat.json)
-- [Current private source pin](https://github.com/Blue42hand/commander-gym-private/blob/0167f6dbef05d4d80bf5e1d6f9f59fb2728be7c4/argentum-source.json)
+## 3. Vibranium — two new commits preserved
 
-No private deck payloads, primers, runtime observations, credentials, or personal account data are reproduced here.
+Repository: `Blue42hand/argentum-engine`.
 
-## 3. Preserved implementation: Vibranium
+Preferred continuation branch: **`codex/issue-19-vibranium-token-tests`**.
 
-### Exact branches, commits, and files — V
+**V exact tip:** `e8b33f811d040eef23e6797a573d560fbdcd956a`.
 
-Repository: **Blue42hand/argentum-engine**. Both existing branches were left untouched.
+The branch is now **4 commits ahead / 1 behind current engine main** `da9ca7ff9189cf14e1b1a7cac4a1e40732f8ee12`. Its merge base is the accepted Spire commit `106994eff8671f0dfa6aa66d2a53d8580d5c7f95`. The prior reports' “4 ahead / 0 behind main” became stale when Crawler merged. Do not auto-rebase it as part of this handoff.
 
-| Existing branch | Exact tip | Relation to accepted engine main |
+[Preserved branch](https://github.com/Blue42hand/argentum-engine/tree/codex/issue-19-vibranium-token-tests)
+
+| Commit | Preserved work | Evidence |
 |---|---|---|
-| `codex/issue-19-vibranium-token` | `4459e20e2019d0a219f39a663b9182ec1cfc69da` | 1 ahead / 0 behind |
-| `codex/issue-19-vibranium-token-tests` | `0a8624a40e8f628f44b045bb9f3d31f28d94138d` | 2 ahead / 0 behind; preferred continuation |
+| `4459e20e2019d0a219f39a663b9182ec1cfc69da` | Original token definition and facade; original `codex/issue-19-vibranium-token` branch was preserved by the first handoff | Original V inventory; ref not re-read now |
+| `0a8624a40e8f628f44b045bb9f3d31f28d94138d` | Two structural definition/facade tests; previous handoff head | V: comparison base |
+| `c1da39dedabd083c5a43edbe8b8d2be92545c91e` | New negative-mana-restriction regression, reported in the 04:12 UTC run | R commit attribution; V file present at current tip |
+| `e8b33f811d040eef23e6797a573d560fbdcd956a` | `Document Vibranium predefined token`, dated 08:07:10 UTC | V: exact commit read |
 
-The second branch includes the first implementation plus its structural tests. They are not independent implementations to duplicate.
+Exact current branch diff from its merge base:
 
-Full diff against `106994eff8671f0dfa6aa66d2a53d8580d5c7f95`:
-1. `mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/dsl/Effects.kt` — **+16 / -0**.
-2. `mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/tokens/PredefinedTokens.kt` — **+23 / -0**.
-3. `rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/VibraniumTokenDefinitionTest.kt` — **+30 / -0**; only on the tests branch.
+| File | Additions / deletions |
+|---|---:|
+| `docs/card-sdk-language-reference.md` | +6 / -1 |
+| `mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/dsl/Effects.kt` | +16 / -0 |
+| `mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/tokens/PredefinedTokens.kt` | +23 / -0 |
+| `rules-engine/src/test/kotlin/com/wingedsheep/engine/handlers/mana/ManaSpendRestrictionCannotCastNonArtifactSpellsTest.kt` | +57 / -0 |
+| `rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/VibraniumTokenDefinitionTest.kt` | +30 / -0 |
 
-[Exact comparison](https://github.com/Blue42hand/argentum-engine/compare/106994eff8671f0dfa6aa66d2a53d8580d5c7f95...0a8624a40e8f628f44b045bb9f3d31f28d94138d)
+The original token/facade composition is unchanged: an indestructible artifact/Vibranium token with a tap ability adding one restricted colorless mana, plus `Effects.CreateVibranium(count, tapped, controller, imageUri)` using the predefined-token path. No new mana executor was added.
 
-The code defines and adds `PredefinedTokens.Vibranium` to `allTokens`, with artifact/Vibranium type, indestructible, a tap mana ability producing one colorless mana, and `ManaRestriction.CannotCastSpellsOtherThan(setOf(CardType.ARTIFACT))`. It adds `Effects.CreateVibranium(count, tapped, controller, imageUri)` through `CreatePredefinedTokenEffect`. It does not add a new mana executor.
+### What the new test actually establishes
 
-The two existing tests inspect the token definition and the facade's returned data. They check artifact type, indestructible, the configured restriction, token type, count, and `tapped=true`. **They do not actually exercise card-registry lookup, battlefield entry, destruction, payment legality, or ward/ability payment.** A test's name mentioning “registered” is not a registry-execution assertion.
+**V source inspection:** `ManaSpendRestrictionCannotCastNonArtifactSpellsTest` has five tests that call `ManaPool.canPay` with `ManaRestriction.CannotCastSpellsOtherThan(ARTIFACT)`:
+1. artifact-spell context accepted;
+2. nonartifact-creature-spell context rejected;
+3. activated-ability context accepted;
+4. empty/non-cast context accepted, described as a tax or ward payment;
+5. turn-face-up special-action context accepted.
 
-**V:** the all-event Actions lookup for exact head `0a8624a...` returned `total_count: 0`. No Vibranium PR appeared in the connected-user open-PR inventory. That inventory does not establish the absence of every possible external worker.
+These are **tests written, not tests observed passing**. They exercise pool affordability under supplied contexts, not a complete cast/payment/ward-resolution transaction. They do not prove that real ward or ability flows supply those contexts, consume the mana correctly, or preserve token characteristics. The two original tests remain structural checks, not live registration/entry/destruction scenarios.
 
-### What remains / dependencies
+**V:** the SDK reference now documents the token/facade and negative spending restriction. The previously missing documentation is no longer an outstanding coding task.
 
-This branch is **not merge-ready**. Historical claims of a “tested implementation” must be read as “tests written,” not “tests passed.”
+**V:** the all-event Actions lookup for `e8b33f8...` returned `total_count: 0`. The open-PR lookup filtered to this exact branch returned `[]`. No CI pass or existing open PR is established; local execution history is unknown. Do not call this branch qualified or merge-ready.
 
-Smallest next action for the next authorized coding task: resume the existing tests branch and run the existing focused test once, recording the exact SHA and output. Then add behavior-level tests, rather than treating definition wiring as rules proof:
-- creation enters tapped when requested and has the intended token characteristics;
-- indestructibility affects actual destruction;
-- its restricted mana pays an artifact spell but not a nonartifact spell;
-- the same negative restriction does not reject otherwise legal activated-ability or ward/non-spell payments;
-- real registration and activated mana behavior work.
+### Remaining work and smallest next action
 
-Update `docs/card-sdk-language-reference.md` with the new reusable facade; that required file is absent from this branch's diff. Complete the applicable token rules/metadata/art and verification gates. The code includes a `CR 111.10w` comment, but that rule number was **not independently reverified during this handoff**.
+When a separate coding task is authorized, resume this branch rather than creating another token implementation. Establish branch ownership, reconcile the one-commit base movement without discarding work, and run the two existing focused classes. Record exact source SHA, command, output, and exit status. Then assess remaining engine-level scenarios for real registration, tapped entry, indestructibility, actual restricted-mana spending, and non-spell payments. Complete normal source/rules/token-data, build, review, and CI gates.
 
-**H / historical scope:** Shuri's Fabricator, Vibranium Mining Mech, and The Great Mound were each ranked at three benchmark slots, making nine potential slots behind this shared content. Their card definitions are not part of the preserved branch. Canonical MSC placement/scaffold status and individual Oracle/rulings evidence need confirmation before authoring. Prior summaries contradicted one another about whether MSC was scaffolded.
+Shuri's Fabricator, Vibranium Mining Mech, and The Great Mound remain a **reported three-card / nine-benchmark-slot dependency cluster**. Their card definitions are not in this branch. Each still needs its own canonical Scryfall/printing/rulings verification and applicable per-card test/snapshot gates. The token alone earns none of their benchmark credit.
 
-Adding the predefined token alone is not credit for any of those three cards. After future merge, qualification must distinguish a possible token registry-name addition from actual benchmark-card additions.
+## 4. Resourceful Defense preflight branch
 
-## 4. Everflowing Chalice — design handoff, not preserved implementation
+**V:** `Blue42hand/argentum-engine:codex/issue-19-resourceful-defense-preflight` exists at **`106994eff8671f0dfa6aa66d2a53d8580d5c7f95`**. It is a pointer to the accepted base, not an implementation commit. There are no unique branch changes at that SHA; it now trails the Crawler merge.
 
-**V:** branch searches for `chalice` and `kicker` found no matching fork branches. No implementation commit or test file was identified for this slice. This does not prove that no differently named branch or inaccessible worktree contains work.
+[Preserved preflight branch](https://github.com/Blue42hand/argentum-engine/tree/codex/issue-19-resourceful-defense-preflight)
 
-**H:** the last analysis cited upstream repeatable-cost PR #2537 / commit `4cbd0efb5f3e9c89527677e2561132c8debebf19`. It proposed that payment repetition is represented by `CastSpell.declaredCostTimes`, but lost before an entering permanent can read it:
+The 09:19 UTC report proposed `.github/workflows/issue19-resourceful-defense-preflight.yml` but claimed the file creation failed. The observed branch tip establishes that the proposed file/code is not committed on this branch. No recoverable uncommitted workflow patch was supplied.
 
-`CastSpellHandler.putSpellOnStack` → `StackResolver.castSpell` → `SpellCaster.castSpell` → `SpellOnStackComponent` → `PermanentEntry.withCastChoices` → `CastChoicesComponent`.
+**H/R:** Resourceful Defense was again classified as existing-primitives card work using observer-leave LKI counters and chosen counter movement. This was already discussed in the original handoff and is not a newly closed engine mechanic. The next authorized task should verify the exact source/target semantics and canonical NCC data before authoring; no card or test was executed here. Do not create a preflight workflow merely to work around a denied tool operation.
 
-The proposed minimal change was durable numeric optional-cost provenance, consumed by existing `ChoiceValue.NumberChoice` / `DynamicAmount.CastChoice`, while retaining ordinary `WasKicked` semantics. Existing entry-counter and counter-scaled mana facilities were proposed for the card after this seam.
+## 5. Everflowing Chalice and other analysis-only changes
 
-**Do not treat that diagnosis as currently verified.** Earlier reports alternatively claimed full `additionalCostChoices` support already existed. No fresh engine-mechanic research was performed for this handoff. The last cited upstream audit ref was `f28de120f65a4f32560ecfd1b69bbb22f786d801`, not an accepted integration pin.
+**Everflowing Chalice:** no new implementation commit, branch, or test receipt was identified in the post-handoff reports. Its status remains **H — design proposal**, not a completed capability. The proposed missing seam is preserving a repeatable optional-cost payment count from cast action through stack/copy state into permanent entry and numeric cast choices. Earlier reports conflict about `declaredCostTimes` versus `additionalCostChoices`, so the next coding task must inspect exact source before editing.
 
-Smallest next action: reconcile this hypothesis with exact current upstream code and any existing PR, then check overlap with active engine #214 before touching casting/payment files. Reuse upstream work rather than recreating a second multikicker system.
+Smallest next action: reconcile current upstream repeatable-cost work with the selected fork revision and the concurrent casting/payment owner. Do not implement a second Multikicker system. Proposed regression cases remain 0/1/N payments, ordinary Kicker compatibility, as-enters visibility, copied-spell inheritance, zone-change reset, and later mana scaling with current counters. None is a preserved Chalice test result.
 
-Proposed acceptance cases, not tests that already exist or passed:
-- zero, one, and multiple payments; affordable options and server validation;
-- ordinary one-time Kicker unchanged;
-- repetition count visible during as-enters counter placement;
-- spell copies preserve the original announced kick count without additional payment; copied permanent spells retain it on entry;
-- zone changes clear obsolete cast provenance;
-- current charge counters, rather than initial kick count, drive later mana production.
+Historical dependency: [upstream #2537](https://github.com/wingedsheep/argentum-engine/pull/2537), cited implementation `4cbd0efb5f3e9c89527677e2561132c8debebf19`. Not re-audited here.
 
-Card-specific Oracle/printing/ruling verification is still needed through the standard add-card workflow. No Chalice tests were run, skipped by CI, or passed in this handoff; no local historic test receipt is available.
+Other post-handoff reports, retained as **R/H rather than new proof**:
+- Buried Alive reportedly landed upstream in [#2680](https://github.com/wingedsheep/argentum-engine/pull/2680), commit `42d822192e45bf17a88b7340db68e3803d74f09d`. Check and consume that work rather than duplicating it.
+- Mentor was again traced to upstream [#2660](https://github.com/wingedsheep/argentum-engine/pull/2660), commit `f75d7c141467277d5f477e28f8bdc9e3bf6cd3cb`, as the reusable prerequisite for Legion Warboss. This was already known; no new local Mentor implementation is claimed.
+- Organic Extinction was again classified as Improvise plus filtered destruction, with possible NEC scaffolding. No new card branch/test was established by those reports.
+- Old Crystalline Crawler/Converge missing-capability statements are superseded by the directly observed #215 merge. No new Crawler implementation should be started.
+- Saw in Half and Animate Dead remain analysis-only paths described in the original handoff. Their exact causal/LKI-copy and cross-zone Aura boundaries must be verified, not inferred from repeated classifications.
 
-Historical upstream reference, **not freshly audited**: [PR #2537](https://github.com/wingedsheep/argentum-engine/pull/2537).
+The 05:22 UTC report listed thirteen missing three-deck names at the accepted Spire pin: Animate Dead, Crystalline Crawler, Everflowing Chalice, Hangarback Walker, Legion Warboss, Organic Extinction, Patrolling Peacemaker, Resourceful Defense, Saw in Half, Shuri's Fabricator, Surge Conductor, The Great Mound, Vibranium Mining Mech. This is **R**. Crawler is now merged but not credited by this update; do not confuse merged source with accepted exact-pin coverage.
 
-## 5. Other unfinished and historical queue slices
+## 6. Test and qualification ledger
 
-All classifications in this section are **H**, except the explicit branch/ref observations. They preserve potentially useful analysis without certifying conflicting prior claims. None received new implementation or research here.
+**No tests, builds, games, workflow dispatches, CI reruns, or merges were performed in this handoff update.**
 
-| Slice | Preserved state / historical direction | Smallest next action |
+| Scope | Exact command / lookup | Result |
 |---|---|---|
-| Hangarback Walker | V: `codex/issue-19-hangarback-walker` is exactly accepted engine main, with no unique code commit. H: ordinary double-X, entry counters, departed-source counter count, flying artifact tokens; historically three slots. | Coordinate ownership of the existing placeholder, confirm exact primitives and ORI evidence before authoring. |
-| Resourceful Defense | No implementation branch identified here. H: observer leave-trigger LKI counters and arbitrary-source counter movement; earlier reports conflict on fork availability. | Confirm those exact source/target semantics and NCC data before deciding card-only versus integration. |
-| Crystalline Crawler | No implementation commit identified. H: Converge plus counter-removal mana; reports conflict on fork capability and once mislabeled reach as two slots. | Verify payment provenance and full corpus reach rather than inheriting a summary. |
-| Organic Extinction | H: Improvise and nonartifact-creature destruction, with minimal NEC scaffold reportedly needed. | Confirm existing Improvise behavior and canonical set placement; do not invent another payment mechanic from an absence claim. |
-| Surge Conductor / Patrolling Peacemaker | H: shared EOC content batch, proliferate plus artifact ETB / opponent crime triggers; reports conflict on crime/scaffold presence. | Confirm exact EOC placement and event behavior, including simultaneous entry and opponent perspective. |
-| Legion Warboss | H: Mentor reportedly merged upstream as #2660 / `f75d7c141467277d5f477e28f8bdc9e3bf6cd3cb`. | Reconcile the existing upstream feature first; preserve resolution-time relative-power and source-LKI behavior. Do not implement Mentor twice. |
-| Saw in Half | H: dynamic/LKI copy P/T exceptions and exact “dies this way” causality. Earlier reports disagreed on whether the causal/copy-source machinery already suffices. | Resolve that narrow uncertainty with source and regression evidence; do not create a bespoke card executor or presume only one blocker. |
-| Animate Dead | H: Aura host in graveyard, per-instance enchant restriction change, new-object reattachment, and linked sacrifice relationship. | Check all four lifecycle requirements; ordinary reanimation or “Aura entering attached” is not by itself proof. |
-| Historical two-slot candidates | Cabaretti Courtyard, Astral Cornucopia, Buried Alive, Coretapper, Empowered Autogenerator were proposed card-only candidates. Moonsilver Key was proposed to need a semantic mana-ability predicate including triggered abilities. Solar Array + Lux Artillery were proposed to share grant-aware Sunburst. | Reuse retained findings only after checking the now-migrated benchmark selection and exact source. |
-| Existing upstream cards | K'rrik, Hoarding Broodlord, Vat of Rebirth were reported already upstream; Bubbling Muck was linked to upstream High Tide machinery. | Check existing upstream work before local authoring. The old proposed Vat oil-counter gap is not reverified here. |
+| Latest Vibranium head `e8b33f8...` | All-event Actions lookup by full `head_sha` | V: zero workflow runs. Not PASSED, FAILED, or SKIPPED. |
+| Existing structural test | `GRADLE_LOCK_SLOTS=1 just test-class VibraniumTokenDefinitionTest` | Not run in this update; historical local execution unknown. |
+| New pool restriction test | `GRADLE_LOCK_SLOTS=1 just test-class ManaSpendRestrictionCannotCastNonArtifactSpellsTest` | Not run in this update; historical local execution unknown. |
+| Broad engine/scenario gate | `GRADLE_LOCK_SLOTS=1 just test-rules` | Not run here for Vibranium. |
+| Build gate | `GRADLE_LOCK_SLOTS=1 just build` | Not run here for Vibranium. |
+| Diff check | `git diff --check` | Not run on a source checkout in this update. |
+| Accepted coverage run `37080987053` | Command below | R: PASSED in accepted checkpoint, not rerun. |
+| Companion Tests run `37080987011` | Existing workflow | R: PASSED in accepted checkpoint, not rerun. |
+| Crawler #215 | Test file and source merge observed | Execution results not inspected here; do not invent a passed count. |
+| Everflowing Chalice | No preserved test command/implementation | No result available. |
 
-The task's next implementation should not restart a rolling “classify the same 3-slot tier” loop. One bounded, tested change on a preserved branch is preferable once implementation is authorized again.
-
-## 6. Additional preserved refs and changed files
-
-All refs below were read during this handoff and left unchanged. “Ahead/behind” uses the observed merge-base comparison; squash-merged feature branches can still look diverged. It is not proof that their features are missing from main.
-
-### Coverage-side refs
-
-| Repository / branch | Exact commit | State |
-|---|---|---|
-| `Blue42hand/commander-gym` / `codex/coverage-spire-industry-106994` | `40a988419caaefa165f019441c0a6a08c34fd46d` | One-file `argentum-coverage-source.json` repin; 1 ahead / 1 behind public main. Superseded by merged #125; do not open duplicate repin. |
-| `Blue42hand/commander-gym` / #125 source `codex/coverage-spire-of-industry-106994` | `12b8d9cb7de79c80c1be3cb427fac11968743fa9` | Verified as merged PR head; only `argentum-coverage-source.json`. Note the different branch spelling (“of”). |
-| `Blue42hand/commander-gym-private` / `codex/coverage-dedupe-legacy-aliases` | `eb83aa60eac7c6feab84eb2bc3c1d7696e817110` | Empty proposal branch at old base, no dedupe implementation commit. Current private main is 30 commits newer and retired the workflow. Do not revive the old runtime. |
-
-### Legacy engine code to retain, not silently duplicate
-
-- `automation/issue-19-cloud-key-card` — `287bb6084a2680afbcd34fd089e1b1e97405de1d`; 6 ahead / 23 behind main. Files:
-  - `mtg-sets/2003-2007/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/fut/cards/CloudKey.kt`
-  - `mtg-sets/src/test/resources/snapshots/cards/FUT.json`
-- `codex/issue-19-cloud-key-preflight` — `620b9f1d14002a994253b1c8582e288b355d2e8c`; 1 ahead / 216 behind. Only `.github/workflows/issue19-cloud-key-preflight.yml`.
-- `codex/issue-19-pitiless-plunderer` — `36a828e6a2a60b414e705f04ad1bb32a161d84cf`; 7 ahead / 28 behind. Files:
-  - `mtg-sets/2017-2022/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/rix/cards/PitilessPlunderer.kt`
-  - `mtg-sets/src/test/resources/snapshots/cards/RIX.json`
-- `codex/issue-19-enters-card-type` — `95ddc155c03fe43a4d78d2a5cae6759019e338e0`; ancestor of main, zero new commits / 213 behind; comparison has no branch-side files.
-- `codex/issue-19-tear-asunder-refresh` — `70190d782430bf102b7796fdd53a4f1c747e518f`; old-main placeholder, not the final Tear implementation.
-- `codex/issue-19-tear-asunder` — `9953470e6be48c53b19b601a42d4b6ae2c466ebf`; comparison 4 ahead / 2 behind; retained files:
-  - `backlog/sets/bloomburrow-commander/cards.md`
-  - `backlog/sets/bloomburrow-commander/decks/squirreled-away.md`
-  - `manual-scenarios/cards/t/tear-asunder.json`
-  - `mtg-sets/2017-2022/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/dmu/cards/TearAsunder.kt`
-  - `mtg-sets/2017-2022/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/TearAsunderScenarioTest.kt`
-  - `mtg-sets/2024/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/blc/cards/TearAsunderReprint.kt`
-  - `mtg-sets/src/test/resources/snapshots/cards/DMU.json`
-
-Tear Asunder is already represented by main's preceding merge `0a0f04a141d2b9b0e10951f82b48409f5403a64e`; Spire #213 is already merged. Do not treat their surviving source refs as new coverage gaps.
-
-Other legacy issue-19 refs observed in branch inventory, **not file-audited or certified active**:
-- `automation/issue-19-generous-gift-refresh` → `0f56e60347137546512f9c810a74d23c06403145`
-- `automation/issue-19-pitiless-evidence` → `b709c499243b47d4449d65ae312a81ae86847841`
-- `automation/issue-19-registry-export` → `98573c5a002101ca0c4602ad9dbacb6f9eed4076`
-- `automation/issue-19-scryfall-evidence` → `65aedb5c33f1bcba04fecba6fde94548a04a45e9`
-- `codex/issue-19-riveteers-clean` → `0f56e60347137546512f9c810a74d23c06403145`
-- `codex/issue-19-riveteers-overlook` → `a9122ac916dee83c55b2b35274f63f3301a2e0dd`
-- `codex/issue-19-steel-overseer` → `1f5fa3661b1ed531bf42a52c69faa3c1d0b226c2`
-- `codex/issue-19-spire-of-industry` → `955d3e8fd21a7d3197ecc455bcada06100cc29c5`
-
-Branch search also found `issue-19-generous-gift` and `issue-19-idol-of-oblivion`; their tips and files were not fetched. This inventory is scoped, not a claim to enumerate every repository worktree or worker.
-
-### Uncommitted work
-
-**Unknown on other workers.** No `.git` worktree was found in this runtime's inspected `/home/oai`, `/tmp`, or `/mnt/data` trees (maximum depth 6); `/workspace` and `/workspaces` were absent. There was no accessible source checkout on which to run `git status`.
-
-No recoverable uncommitted bytes were available to export. This does not mean the user's Mac, Linode, earlier task environments, or parallel workers are clean. No attempt was made to reset, stash, discard, or manufacture their changes.
-
-The accompanying `vibranium-COMMITTED-106994e-to-0a8624a.patch` is a **backup of already committed work**, reconstructed from the successful comparison read, not a patch of uncommitted changes. It has three files / 69 additions / zero deletions, with hunk counts checked as attachment integrity only. It was not applied or compiled. The separately preserved test text matches Git blob `c8e0508e091b1260e261a073409b2f927e7ed78f`.
-
-Before changing an existing worker checkout, obtain its owner-approved branch/HEAD, staged/unstaged diffs and untracked-file inventory. Export real dirty work without overwriting anything and screen for credentials before sharing. The attachment `uncommitted-work-status.txt` records this limitation.
-
-## 7. Exact test commands and result ledger
-
-**No commands in this section were executed for this handoff.** Recorded successes and absent executions are intentionally separate.
-
-### V: existing workflow statuses read
-
-| Subject / exact head | Status | Link |
-|---|---|---|
-| Public coverage / `12b8d9cb7de79c80c1be3cb427fac11968743fa9` | **PASSED**: run completed / success | [37080987053](https://github.com/Blue42hand/commander-gym/actions/runs/37080987053) |
-| Public tests / same head | **PASSED**: run completed / success | [37080987011](https://github.com/Blue42hand/commander-gym/actions/runs/37080987011) |
-| Vibranium / `0a8624a40e8f628f44b045bb9f3d31f28d94138d` | **NO CI RUN FOUND**: all-event exact-head lookup returned zero runs. Not “passed” and not “skipped.” | Exact SHA is the lookup key. |
-
-Exact coverage invocation from the pinned workflow:
+Exact accepted coverage command, copied from the original handoff's workflow evidence:
 ```bash
 python3 scripts/run_argentum_roster_coverage.py \
   --argentum-source "$GITHUB_WORKSPACE/argentum-engine" \
@@ -230,220 +170,73 @@ python3 scripts/run_argentum_roster_coverage.py \
   --registry-names-output "$GITHUB_WORKSPACE/argentum-registry-card-names.txt"
 ```
 
-### R: completed Spire commands recorded in merged engine #213
+**FAILED:** no new engine-test failure was observed. The 04:12 report's local GitHub DNS/checkout failure has no original execution response here and remains unverified, not an engine-test failure.
 
-These receipts concern source SHA `955d3e8fd21a7d3197ecc455bcada06100cc29c5`, **not Vibranium**. Exact outputs were not locally reproduced.
+**SKIPPED:** no specific skipped Vibranium job was observed. A missing run or a user-imposed stop is not a CI skip result.
 
-| Command | Recorded result |
-|---|---|
-| `just check-card-printing 'Spire of Industry'` | **PASSED** |
-| `just assay-differential --set AER` | **PASSED**: 10 compared, zero divergent |
-| `GRADLE_LOCK_SLOTS=1 just test-class SpireOfIndustryScenarioTest` | **PASSED**: 2/2 |
-| `GRADLE_LOCK_SLOTS=1 just rebless-cards` | **PASSED**: only Spire added to AER golden |
-| `GRADLE_LOCK_SLOTS=1 just build` | **PASSED** |
-| `just check-backlog` | **PASSED** |
-| `git diff --check` | **PASSED** |
+The original handoff retains exact historical Spire commands/results and older receipts; those results must not be attributed to Vibranium or Crawler.
 
-The PR also records a successful browser playthrough and Scryfall/image verification; no exact browser command is preserved in that body. These records do not establish present Scryfall access in this session.
+## 7. Other branches/workers and uncommitted-work boundary
 
-### Future commands — NEVER RUN BY THIS HANDOFF
+The original handoff's complete legacy branch and changed-file inventory remains preserved at its immutable link above. Except for the directly observed Vibranium/Resourceful/Crawler changes, it is a historical inventory, not a fresh claim that all branch tips or workers are unchanged.
 
-```bash
-# On the existing Vibranium tests branch, after ownership is confirmed:
-GRADLE_LOCK_SLOTS=1 just test-class VibraniumTokenDefinitionTest
+Protect these previously observed concurrent stacks and re-read their current owners/heads before editing related files:
 
-# Broader gates after the next task completes its changes:
-GRADLE_LOCK_SLOTS=1 just test-rules
-GRADLE_LOCK_SLOTS=1 just build
-git diff --check
+| Repository / PR | Previously observed branch / exact head | Overlap |
+|---|---|---|
+| Argentum #212 | `codex/72-binding-debug-game` / `8af2fa4653cf357c18cd172bfd49c73724b9fb11` | Native profile/game-server integration |
+| Argentum #214 | `codex/abrade-payment-window` / `ae69016b809eb35a0f3b3c2cb0a1b7b2f6087865` | Casting/payment; coordinate before Chalice work |
+| Commander Gym #124 | `codex/72-game-server-baseline` / `581634c642591638760fc07e87ab2b53f4e70d31` | Binding game runner |
+| Commander Gym #126 | `codex/72-early-wake-routing` / `5fbe1ddb9e5dd51264ec1ab12576c660b00bdf47` | Pilot routing |
 
-# Card workflow examples, only after fresh canonical evidence:
-just assay parse "Everflowing Chalice"
-just assay explain "Everflowing Chalice"
-just check-card-printing "Everflowing Chalice"
-just where WWK
+Their current open/merged state was not re-audited in this update. No worker was contacted, stopped, or presumed idle. The externally observed Crawler merge is additional evidence of concurrent work.
+
+Retain the original Hangarback placeholder, legacy coverage/card branches, and private `codex/coverage-dedupe-legacy-aliases` inventory. The old private dedupe branch was only at historical `eb83aa60...`; do not restore retired workflows from it without a new, justified plan.
+
+No source checkout or other worker's dirty state was inspected in this update. Uncommitted work on the user's Mac, Linode, or other coding environments remains **unknown**. No uncommitted changes were discarded or claimed exported. The original ZIP backs up committed Vibranium work only through `0a8624a...`; it does not include the two later commits. Their exact branch/source links above are the current preservation locations. Never present an earlier backup patch as the latest branch contents.
+
+## 8. Permissions and error evidence
+
+The later scheduled reports quote the following error for assorted writes:
+```text
+Script error: This tool call was blocked by OpenAI's safety checks. Please double check what you are sending.
 ```
+The 08:16 report quotes the same text without the `Script error: ` prefix. Preserve that distinction rather than manufacturing a uniform original response.
 
-Vibranium local historical execution is **unknown**, not certified never-run on every machine. Missing payment-behavior and Chalice tests are **not yet preserved as implementation**, so no passing or failing result exists here for them.
-
-**FAILED:** no new engine-test failure was observed because no engine test ran. Earlier chat's JVM `PortInUseException` account is historical and unverified without its original log; it is not a current merge blocker asserted here.
-
-**SKIPPED:** no specific skipped Vibranium test/job was observed. The user prohibited execution; that is not the same as a CI skip result.
-
-Local attachment checks only verified patch hunk lengths and the preserved test's blob hash; they are not build, scenario, or rules-behavior tests.
-
-## 8. Guidance, primary sources, and concurrent ownership
-
-### Repository guidance
-
-Read at exact accepted fork `106994eff8671f0dfa6aa66d2a53d8580d5c7f95`:
-- [AGENTS.md](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/AGENTS.md)
-- [add-card workflow](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/.agents/skills/add-card/SKILL.md)
-- [add-feature workflow](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/.agents/skills/add-feature/SKILL.md)
-- [verify workflow](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/.agents/skills/verify/SKILL.md)
-
-Additional linked guidance to consult when coding resumes, not newly audited here:
-- [Upstream CONTRIBUTING.md](https://github.com/wingedsheep/argentum-engine/blob/main/CONTRIBUTING.md)
-- [SDK design principles](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/docs/sdk-design-principles.md)
-- [SDK language reference](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/docs/card-sdk-language-reference.md)
-
-Load-bearing requirements: compose existing DSL first; keep engine generic and server authoritative; update the SDK reference with SDK additions; use `just` rather than raw Gradle for heavy builds; preserve other agents' work; one scenario file per card when tests are required; existing-primitives batches may share a PR but keep per-card evidence/commits. Assay is the applicable Oracle-to-SDK gate; mtgish-only limitations are reported but do not masquerade as engine failures. An Assay decline is not a pass.
-
-Canonical card data must come from set-specific Scryfall records, their `rulings_uri`, printing history and exact image URI, followed by final re-verification. Never guess printing IDs or waive behavioral edge cases because the facade name looks suitable.
-
-### Primary rules/card-data entry points — references, NOT new fetches
-
-- [Official Comprehensive Rules](https://magic.wizards.com/en/rules)
-- [Everflowing Chalice, set-specific Scryfall API](https://api.scryfall.com/cards/named?exact=Everflowing%20Chalice&set=wwk)
-- [Hangarback Walker, set-specific Scryfall API](https://api.scryfall.com/cards/named?exact=Hangarback%20Walker&set=ori)
-- [Shuri's Fabricator, set-specific Scryfall API](https://api.scryfall.com/cards/named?exact=Shuri%27s%20Fabricator&set=msc)
-- [Vibranium Mining Mech, set-specific Scryfall API](https://api.scryfall.com/cards/named?exact=Vibranium%20Mining%20Mech&set=msc)
-- [The Great Mound, set-specific Scryfall API](https://api.scryfall.com/cards/named?exact=The%20Great%20Mound&set=msc)
-
-These URLs are future canonical lookup entry points, not evidence that a request succeeded here. Follow returned rulings/printing/token links rather than inventing them. Historical official-release-note claims were not refreshed because the user prohibited new research.
-
-### Existing parallel PRs — V metadata, do not duplicate or alter
-
-Open PRs were read through the connected user's PR inventory. Their continued existence is verified; actual worker-process liveness and dirty worktrees are unknown.
-
-| Repository / PR | Branch | Observed exact head | Dependency |
+| Report timestamp UTC | Reported tool(s) | Original response / request ID available in this update? | Repository-change conclusion |
 |---|---|---|---|
-| Argentum [#212](https://github.com/Blue42hand/argentum-engine/pull/212) | `codex/72-binding-debug-game` | `8af2fa4653cf357c18cd172bfd49c73724b9fb11` | Draft game-server profile work |
-| Argentum [#214](https://github.com/Blue42hand/argentum-engine/pull/214) | `codex/abrade-payment-window` | `ae69016b809eb35a0f3b3c2cb0a1b7b2f6087865` | Draft stacked on #212; overlaps casting/payment |
-| Commander Gym [#124](https://github.com/Blue42hand/commander-gym/pull/124) | `codex/72-game-server-baseline` | `581634c642591638760fc07e87ab2b53f4e70d31` | Draft consuming engine #212 |
-| Commander Gym [#126](https://github.com/Blue42hand/commander-gym/pull/126) | `codex/72-early-wake-routing` | `5fbe1ddb9e5dd51264ec1ab12576c660b00bdf47` | Draft stacked on #124 |
+| 04:12 | `mcp__GitHub__create_pull_request` | No; reported error only. Report says no request ID returned. | Current no-open-PR result does not prove the earlier call or rejection cause. |
+| 05:22 | `mcp__GitHub__update_file`, `mcp__GitHub__create_pull_request`, `mcp__GitHub__add_comment_to_issue` | No; reported error only. Report says no request IDs returned. | Subsequent documentation commit exists; its existence does not authenticate any prior rejection. |
+| 06:18 | `mcp__GitHub__update_file` | No; reported error only. | Unknown for that particular attempted call. |
+| 07:16 | `mcp__GitHub__update_file`, `mcp__GitHub__add_comment_to_issue` | No; reported error only. | Unknown for those particular attempted calls. |
+| 08:16 | Draft-PR operation and issue-comment operation; exact names not supplied in that report | No; quoted text lacks the prefix above. | Current exact-branch open-PR lookup is empty; no causal inference. |
+| 09:19 | `mcp__GitHub__create_file`, `mcp__GitHub__create_pull_request`, `mcp__GitHub__add_comment_to_issue` | No; reported error only. Report says no request IDs returned. | Resourceful branch is still its base SHA, so no unique committed file is preserved there. |
 
-Exact changed files returned for engine #212:
-```text
-game-server/src/main/kotlin/com/wingedsheep/gameserver/controller/AiTournamentController.kt
-game-server/src/main/kotlin/com/wingedsheep/gameserver/handler/LobbyHandler.kt
-game-server/src/test/kotlin/com/wingedsheep/gameserver/controller/AiTournamentControllerProfileTest.kt
-```
+These are **UNVERIFIED historical failure claims**, even where a current branch state independently confirms that no resulting commit or open PR is present. Do not infer that GitHub received nothing, that repository permissions were missing, or that a platform safety layer caused the failure without the original response. Connector IDs, commits, workflow IDs, and artifact IDs are not request IDs.
 
-Exact changed files returned for engine #214:
-```text
-e2e-scenarios/tests/general/abrade-payment-ui.spec.ts
-rules-engine/src/main/kotlin/com/wingedsheep/engine/core/ManaContinuations.kt
-rules-engine/src/main/kotlin/com/wingedsheep/engine/core/Serialization.kt
-rules-engine/src/main/kotlin/com/wingedsheep/engine/handlers/actions/spell/CastSpellHandler.kt
-rules-engine/src/main/kotlin/com/wingedsheep/engine/handlers/continuations/CastModalContinuationResumer.kt
-rules-engine/src/main/kotlin/com/wingedsheep/engine/mechanics/mana/ManaPaymentWindow.kt
-rules-engine/src/main/kotlin/com/wingedsheep/engine/mechanics/mana/ManaSolver.kt
-rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/AbradePaymentAgreementTest.kt
-```
+This update does not retry any of those denied implementation/PR/comment operations. Only the newly requested handoff document update and task-disable action are authorized writes. Their actual result/commit and disable status are reported in the delivery. If the document write is denied, retain the exact response and return the prepared attachment without an alternate write route; still honor the separately requested task pause through its normal action.
 
-Exact changed files returned for public Gym #124:
-```text
-.github/workflows/python-tests.yml
-commander_gym/game_server_binding_openai_sidecar.py
-commander_gym/game_server_bindings.py
-commander_gym/game_server_seat.py
-commander_gym/game_server_sidecar.py
-commander_gym/openai_responses_pilot.py
-commander_gym/openai_run_budget.py
-commander_gym/two_luna_debug.py
-jvm-adapter/build.gradle.kts
-jvm-adapter/src/main/kotlin/org/commandergym/argentum/CommanderGymControllerProvider.kt
-jvm-adapter/src/test/kotlin/org/commandergym/argentum/CommanderGymPlayerControllerParameterTest.kt
-jvm-adapter/src/test/kotlin/org/commandergym/argentum/LocalGuiGameServer.kt
-scripts/run_two_luna_binding_game.py
-tests/test_game_server_seat.py
-tests/test_game_server_sidecar.py
-tests/test_openai_responses_pilot.py
-tests/test_openai_run_budget.py
-tests/test_two_luna_debug.py
-```
+## 9. Guidance and primary-source entry points
 
-Exact changed files returned for public Gym #126:
-```text
-commander_gym/delegated_autopass.py
-commander_gym/game_server_binding_openai_sidecar.py
-commander_gym/openai_responses_pilot.py
-commander_gym/pilot_routing.py
-commander_gym/two_luna_debug.py
-docs/delegated-autopass.md
-scripts/analyze_early_wakes.py
-tests/test_delegated_autopass.py
-tests/test_game_server_binding_openai_sidecar.py
-tests/test_openai_responses_pilot.py
-tests/test_pilot_routing.py
-tests/test_two_luna_debug.py
-```
+The original handoff preserves the retrieved repository guidance. Before later implementation, use the matching add-card/add-feature/verify workflow and current branch instructions. Composition first; generic engine, data-driven cards, server-authoritative rules; do not revert or discard others' changes. Heavy builds use `just`, not raw Gradle. Keep per-card evidence/test files separate even when batching existing-primitives content.
 
-Other observed open public Gym PRs, outside this implementation handoff:
-- #118: `codex/114-transfer-benchmark-v4` at `0a586f41f7e453e4da67c60e6a527455c1705256`.
-- #68: stale coverage branch `coverage/argentum-695a86f` at `f01b52fe6e59fa754dcfed7f3637be14ce13c31e`; do not merge an obsolete coverage pin.
-- #63: `codex/live-human-three-luna-proof` at `7eb5652322728167183a2907d44b428fdd607f1e`.
-- #62: `codex/game-server-action-params` at `fb609096deb16130b3c7a33b6ef40aa069836e43`.
+- [Accepted-pin AGENTS.md](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/AGENTS.md)
+- [add-card](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/.agents/skills/add-card/SKILL.md)
+- [add-feature](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/.agents/skills/add-feature/SKILL.md)
+- [verify](https://github.com/Blue42hand/argentum-engine/blob/106994eff8671f0dfa6aa66d2a53d8580d5c7f95/.agents/skills/verify/SKILL.md)
+- [Updated Vibranium SDK reference](https://github.com/Blue42hand/argentum-engine/blob/e8b33f811d040eef23e6797a573d560fbdcd956a/docs/card-sdk-language-reference.md)
+- [Upstream contribution guidance](https://github.com/wingedsheep/argentum-engine/blob/main/CONTRIBUTING.md)
+- [Official Comprehensive Rules](https://magic.wizards.com/en/rules)
+- [Everflowing Chalice: WWK Scryfall API](https://api.scryfall.com/cards/named?exact=Everflowing%20Chalice&set=wwk)
+- [Resourceful Defense: NCC Scryfall API](https://api.scryfall.com/cards/named?exact=Resourceful%20Defense&set=ncc)
+- [Shuri's Fabricator: MSC Scryfall API](https://api.scryfall.com/cards/named?exact=Shuri%27s%20Fabricator&set=msc)
+- [Vibranium Mining Mech: MSC Scryfall API](https://api.scryfall.com/cards/named?exact=Vibranium%20Mining%20Mech&set=msc)
+- [The Great Mound: MSC Scryfall API](https://api.scryfall.com/cards/named?exact=The%20Great%20Mound&set=msc)
 
-Their file sets were not separately audited; they remain untouched. No other worker was contacted, stopped, or assumed idle.
+These are reference/lookup entry points, not new successful fetches. No new rules/card-data research was performed here. A future card task must obtain canonical Oracle/rulings/printing/image evidence and verify any rule number before using it. Assay declines are not passes; registry presence is not rules fidelity or full-game qualification.
 
-## 9. Exact access/error record
+## 10. Bounded continuation after explicit authorization
 
-### Historical claims — UNVERIFIED
+First coordinate Crawler's existing merge/coverage work; do not duplicate a repin or increase benchmark totals without exact live evidence. Then resume the preserved Vibranium branch for focused execution and missing behavioral qualification, not another round of repeated card classification. Keep Chalice's cast-provenance proposal separate from concurrent payment work. Preserve all unavailable-worktree limitations.
 
-Earlier reports claimed rejection of file writes, draft-PR creation, issue comments, PR readiness changes, merges, reruns, and canonical Scryfall fetches. The underlying tool calls/responses were not available in the inherited record.
-
-For those claims:
-- exact tool name: **unavailable**;
-- verbatim returned error: **unavailable**;
-- request ID: **unavailable**;
-- whether repository state changed: **unknown without an independently observed state comparison**;
-- alleged “execution safety layer” / “before reaching GitHub” cause: **unverified**.
-
-Do not substitute commit hashes, workflow IDs, artifact IDs, connector IDs, or narrative wording for request IDs. This handoff does not repeat old write attempts to test those claims.
-
-### Actual read errors observed during this handoff
-
-**A. Tool `GitHub.fetch`**
-
-Request URL:
-```text
-https://github.com/Blue42hand/argentum-engine/compare/106994eff8671f0dfa6aa66d2a53d8580d5c7f95...0a8624a40e8f628f44b045bb9f3d31f28d94138d.diff
-```
-
-Verbatim returned error:
-```json
-{"message": "Not Found", "documentation_url": "https://docs.github.com/rest/commits/commits#compare-two-commits", "status": "404", "is_error": true}
-```
-
-Request ID: **not returned**. Repository state: no mutation was requested by this read; the response does not report a mutation. Cause beyond the returned 404: **unknown**, not established as a permission denial. The backup patch uses content from the previously successful JSON comparison, not a retry of this URL through another route.
-
-**B. Tool `GitHub.fetch`**
-
-Request URL:
-```text
-https://api.github.com/repos/Blue42hand/commander-gym/actions/artifacts/11258816556
-```
-
-Verbatim returned error:
-```text
-ToolError: INVALID_ARGUMENT: Error code: INVALID_ARGUMENT; Error: HTTPError: 400: GitHub Fetch URL is not an allowed public GitHub repository or search endpoint. (Response: None)
-```
-
-Request ID: **not returned**. Repository state: no mutation requested by the GET. The tool says that this URL form is unsupported; that is not proof of GitHub permission failure. No alternative artifact download route was attempted.
-
-### Authorized handoff-only write
-
-Tool `GitHub.create_branch` succeeded for:
-```text
-repository_full_name: Blue42hand/argentum-engine
-branch_name: handoff/issue-19-20261003T035105Z
-sha: 106994eff8671f0dfa6aa66d2a53d8580d5c7f95
-```
-
-Returned result: `{"branch":"handoff/issue-19-20261003T035105Z"}`; error fields null; request ID not returned. State change: the new dedicated branch was created. No existing implementation branch was moved.
-
-The handoff document is intended as the only new file on that branch, `HANDOFF-issue-19-2026-10-03.md`. Its final write outcome and exact resulting commit are supplied in the delivery receipt. If the document write fails, preserve that exact error and return this complete document and attachments without another write route.
-
-The inspected engine CI and Web Client Tests workflows trigger on main pushes or PR events; service tests are PR-only, deployment is manual, and nightly E2E uses schedule/manual triggers. No PR or dispatch accompanies this handoff branch. Existing schedules remain unchanged.
-
-## 10. Bounded continuation for the next coding task
-
-1. Establish ownership and protect any dirty worktrees the current session could not access. Use the exact preserved refs, not remembered branch names.
-2. Resolve the public coverage/private source-pin and historical-benchmark selection distinction. Do not restore the retired private runtime to reuse its old coverage script.
-3. Resume **`codex/issue-19-vibranium-token-tests@0a8624a40e8f628f44b045bb9f3d31f28d94138d`** as the smallest existing implementation. Its first required receipt is the focused structural test; behavioral tests and SDK documentation remain.
-4. Keep Everflowing Chalice as an explicitly unimplemented design proposal until current upstream and the concurrent casting/payment work are reconciled.
-5. Credit future benchmark changes only after the relevant card is merged and an exact-pin live CardRegistry artifact proves presence. Preserve distinct counts for unique names, logical deck slots, and tokens.
-
-No continuation step was executed here. Implementation is stopped; schedules were not changed.
+This handoff update makes no implementation or coverage-credit change. Save this document, then disable only the named card-coverage automation. The final delivery confirms the actual save and pause outcomes.
