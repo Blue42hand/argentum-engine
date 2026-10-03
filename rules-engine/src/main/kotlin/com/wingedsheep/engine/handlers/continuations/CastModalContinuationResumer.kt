@@ -11,11 +11,12 @@ import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.core.OptionChosenResponse
+import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.TargetsResponse
 import com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
+import com.wingedsheep.engine.mechanics.mana.ManaSolver
 
 /**
  * Resumes the cast-time mode and target selection flow for choose-N modal spells
@@ -55,16 +56,48 @@ class CastModalContinuationResumer(
         if (response !is ManaSourcesSelectedResponse) {
             return ExecutionResult.error(state, "Expected mana source selection for spell cast")
         }
-        val action = continuation.action
-        val floated = ManaPaymentWindow.floatSelectedMana(
-            state, action.playerId, continuation.lockedCost.withXAs(continuation.paymentXValue),
-            response, continuation.availableSources, services
+        val baseAction = continuation.action
+        if (response.waterbendPermanents.isNotEmpty()) {
+            return ExecutionResult.error(state, "Waterbend is not part of this spell's mana payment")
+        }
+        if (response.selectedSources.size != response.selectedSources.distinct().size) {
+            return ExecutionResult.error(state, "The same mana source cannot be selected twice")
+        }
+        val offered = continuation.availableSources.map { it.entityId }.toSet()
+        if (response.selectedSources.any { it !in offered }) {
+            return ExecutionResult.error(state, "Mana source was not offered for this payment")
+        }
+        val currentlyAvailable = ManaSolver(services.cardRegistry)
+            .findAvailableManaSources(state, baseAction.playerId).map { it.entityId }.toSet()
+        if (response.selectedSources.any { it !in currentlyAvailable }) {
+            return ExecutionResult.error(state, "Mana source is no longer available for this payment")
+        }
+        if (response.isDecline(castSpellHandler.lockedCostCoveredByPool(
+                state, baseAction, continuation.lockedCost, continuation.paymentXValue
+            ))) return ExecutionResult.success(state.withPriority(baseAction.playerId))
+
+        // Use the spell payment processor for both the selected-source and floating-mana paths.
+        // It applies spell restrictions, riders, provenance and source activation costs, whereas
+        // the generic mana window helper only floats ordinary untagged colored counters.
+        val strategy = when {
+            response.autoPay -> PaymentStrategy.AutoPay
+            response.selectedSources.isNotEmpty() -> PaymentStrategy.Explicit(response.selectedSources)
+            else -> PaymentStrategy.FromPool
+        }
+        val action = baseAction.copy(paymentStrategy = strategy)
+        val resumedState = state.withPriority(action.playerId)
+        // Mana abilities may tap or sacrifice a permanent that was also announced for a
+        // non-mana additional cost. Recheck the changed board before committing the cast,
+        // while retaining the mana price fixed when the payment window opened.
+        val validationError = castSpellHandler.validateWithLockedManaCost(
+            resumedState, action,
+            continuation.lockedCost, continuation.paymentXValue
         )
-        if (!floated.paid) return ExecutionResult.success(state.withPriority(action.playerId))
+        if (validationError != null) return ExecutionResult.error(state, validationError)
         val result = castSpellHandler.executeWithLockedManaCost(
-            floated.state.withPriority(action.playerId), action, continuation.lockedCost
+            resumedState, action, continuation.lockedCost
         )
-        return result.copy(events = floated.events + result.events)
+        return result
     }
 
     /**

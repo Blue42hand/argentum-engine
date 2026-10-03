@@ -210,7 +210,21 @@ class CastSpellHandler(
         manaSolver, costCalculator, predicateEvaluator, cardRegistry
     )
 
-    override fun validate(state: GameState, action: CastSpell): String? {
+    override fun validate(state: GameState, action: CastSpell): String? =
+        validateCast(state, action, null)
+
+    /** Recheck a suspended cast against the changed board without repricing its announced cost. */
+    internal fun validateWithLockedManaCost(
+        state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int
+    ): String? = validateCast(state, action, ComputedCastCost(lockedCost, paymentXValue))
+
+    internal fun lockedCostCoveredByPool(
+        state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int
+    ): Boolean = validatePayment(
+        state, action.copy(paymentStrategy = PaymentStrategy.FromPool), lockedCost, paymentXValue
+    ) == null
+
+    private fun validateCast(state: GameState, action: CastSpell, lockedCost: ComputedCastCost?): String? {
         if (!state.hasPriority(action.playerId)) {
             return "You don't have priority"
         }
@@ -693,7 +707,8 @@ class CastSpellHandler(
                 state, alternativePayment, action.playerId, cardDef, action.cardId, tapForGeneric
             )?.let { return it }
         }
-        val computedCost = computeTotalCastCost(state, action, cardDef, cardComponent, playForFree, hasCommanderCast)
+        val computedCost = lockedCost
+            ?: computeTotalCastCost(state, action, cardDef, cardComponent, playForFree, hasCommanderCast)
             ?: return "No alternative casting cost available"
         val paymentError = validatePayment(state, action, computedCost.cost, computedCost.paymentXValue)
         if (paymentError != null) {

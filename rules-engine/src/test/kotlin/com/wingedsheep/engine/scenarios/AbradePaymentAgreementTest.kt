@@ -11,16 +11,110 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.hou.cards.Abrade
 import com.wingedsheep.mtg.sets.definitions.lrw.cards.SpringleafDrum
+import com.wingedsheep.mtg.sets.definitions.inv.cards.PhyrexianAltar
+import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
+import com.wingedsheep.mtg.sets.definitions.lrw.cards.Smokebraider
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
+import com.wingedsheep.sdk.scripting.AbilityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 /** A cast offered using choice-dependent mana must be able to reach that mana choice. */
 class AbradePaymentAgreementTest : FunSpec({
+    test("cast window cannot spend Elemental-only mana on Abrade") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(Abrade, SpringleafDrum, Smokebraider))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        val opponent = if (caster == game.player1) game.player2 else game.player1
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Abrade")
+        game.putPermanentOnBattlefield(caster, "Springleaf Drum")
+        game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        val restricted = game.putCreatureOnBattlefield(caster, "Smokebraider")
+        val artifact = game.putPermanentOnBattlefield(opponent, "Springleaf Drum")
+        game.giveMana(caster, Color.RED)
+
+        val target = ChosenTarget.Permanent(artifact)
+        game.submit(CastSpell(caster, card, targets = listOf(target), chosenModes = listOf(1),
+            modeTargetsOrdered = listOf(listOf(target)))).isPaused shouldBe true
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val result = game.submitDecision(caster, ManaSourcesSelectedResponse(window.id, autoPay = true))
+        (result.error != null) shouldBe true
+        (card in game.state.getHand(caster)) shouldBe true
+        (card in game.state.stack) shouldBe false
+        game.state.getEntity(restricted)!!.has<TappedComponent>() shouldBe false
+    }
+
+    test("duplicate selected mana source cannot create extra mana") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(Abrade, SpringleafDrum))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        val opponent = if (caster == game.player1) game.player2 else game.player1
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Abrade")
+        val drum = game.putPermanentOnBattlefield(caster, "Springleaf Drum")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        val forest = game.putPermanentOnBattlefield(caster, "Forest")
+        val artifact = game.putPermanentOnBattlefield(opponent, "Springleaf Drum")
+
+        val target = ChosenTarget.Permanent(artifact)
+        game.submit(CastSpell(caster, card, targets = listOf(target), chosenModes = listOf(1),
+            modeTargetsOrdered = listOf(listOf(target)))).isPaused shouldBe true
+        game.submit(ActivateAbility(caster, drum, SpringleafDrum.activatedAbilities.single().id,
+            costPayment = AdditionalCostPayment(tappedPermanents = listOf(creature)),
+            manaColorChoice = Color.RED)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val result = game.submitDecision(caster,
+            ManaSourcesSelectedResponse(window.id, selectedSources = listOf(forest, forest)))
+        (result.error != null) shouldBe true
+        (card in game.state.getHand(caster)) shouldBe true
+        game.state.getEntity(forest)!!.has<TappedComponent>() shouldBe false
+        game.state.getEntity(caster)!!.get<ManaPoolComponent>()!!.red shouldBe 1
+
+        // The previous rejected response leaves the window open. Floating Forest's mana
+        // manually removes it from the refreshed menu; the old selection must not tap it again.
+        game.submit(ActivateAbility(caster, forest, AbilityId.intrinsicMana('G'))).error shouldBe null
+        val refreshed = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val stale = game.submitDecision(caster,
+            ManaSourcesSelectedResponse(refreshed.id, selectedSources = listOf(forest)))
+        (stale.error != null) shouldBe true
+        (card in game.state.getHand(caster)) shouldBe true
+        game.state.getEntity(caster)!!.get<ManaPoolComponent>()!!.green shouldBe 1
+    }
+
+    test("mana activation cannot also consume a selected spell sacrifice cost") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(PhyrexianAltar, VillageRites))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val rites = game.putCardInHand(caster, "Village Rites")
+        val altar = game.putPermanentOnBattlefield(caster, "Phyrexian Altar")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        val cast = CastSpell(caster, rites,
+            additionalCostPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)))
+
+        game.submit(cast).isPaused shouldBe true
+        game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val ability = PhyrexianAltar.activatedAbilities.single()
+        game.submit(ActivateAbility(caster, altar, ability.id,
+            costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)),
+            manaColorChoice = Color.BLACK)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val rejected = game.submitDecision(caster, ManaSourcesSelectedResponse(window.id))
+        (rejected.error != null) shouldBe true
+        (rites in game.state.getHand(caster)) shouldBe true
+        (rites in game.state.stack) shouldBe false
+        (creature in game.state.getBattlefield()) shouldBe false
+        game.state.getEntity(caster)!!.get<ManaPoolComponent>()!!.black shouldBe 1
+    }
+
     test("Abrade offered with floating red and Springleaf Drum does not fail at auto-payment") {
         val game = GameTestDriver()
         game.registerCards(TestCards.all + listOf(Abrade, SpringleafDrum))
@@ -102,7 +196,7 @@ class AbradePaymentAgreementTest : FunSpec({
             modeTargetsOrdered = listOf(listOf(target))
         )).isPaused shouldBe true
         val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
-        game.submitDecision(caster, ManaSourcesSelectedResponse(window.id, autoPay = true)).error shouldBe null
+        (game.submitDecision(caster, ManaSourcesSelectedResponse(window.id, autoPay = true)).error != null) shouldBe true
         (card in game.state.getHand(caster)) shouldBe true
         game.state.getEntity(caster)!!.get<ManaPoolComponent>()!!.red shouldBe 1
         game.state.getEntity(drum)!!.has<TappedComponent>() shouldBe false
