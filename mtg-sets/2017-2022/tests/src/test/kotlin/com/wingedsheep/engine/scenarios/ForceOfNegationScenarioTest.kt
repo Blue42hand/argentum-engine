@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.assertions.throwables.shouldThrow
 
 /**
  * Force of Negation {1}{U}{U} — Instant.
@@ -62,13 +63,19 @@ class ForceOfNegationScenarioTest : FunSpec({
         val blueFodder = driver.putCardInHand(you, "Counterspell")
         val nonblue = driver.putCardInHand(you, "Grizzly Bears")
         val force = driver.putCardInHand(you, "Force of Negation")
-        val offered = driver.legalActions(you).first { legal ->
+        val offeredLegal = driver.legalActions(you).first { legal ->
             val action = legal.action as? CastSpell
             action?.cardId == force && action.useAlternativeCost &&
                 action.alternativeCostType == AlternativeCostType.SELF_ALTERNATIVE
-        }.action
+        }
+        val offered = offeredLegal.action
         ActionParameterizer.spec(offered).allowedFields["exiledCards"] shouldBe
             ActionParameterFieldKind.ENTITY_ID_ARRAY
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(
+                offeredLegal, ActionParams(targets = listOf(bolt), exiledCards = listOf(nonblue)), driver.state
+            )
+        }
 
         val invalid = ActionParameterizer.apply(
             offered, ActionParams(targets = listOf(bolt), exiledCards = listOf(nonblue)), driver.state

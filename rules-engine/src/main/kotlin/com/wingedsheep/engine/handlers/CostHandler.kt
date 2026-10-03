@@ -774,6 +774,12 @@ class CostHandler {
                 if (choices.discardChoices.size != atom.count || choices.discardChoices.distinct().size != atom.count) {
                     return CostPaymentResult.failure("Must choose ${atom.count} card(s) to discard")
                 }
+                val eligible = findMatchingCardsUnified(
+                    state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
+                )
+                if (choices.discardChoices.any { it !in eligible }) {
+                    return CostPaymentResult.failure("Chosen card is not a legal discard from your hand")
+                }
                 choices.discardChoices
             }
             val result = ZoneTransitionService
@@ -1032,8 +1038,14 @@ class CostHandler {
         for (toSacrifice in toSacrificeList) {
             val sacrificeContainer = newState.getEntity(toSacrifice)
                 ?: return CostPaymentResult.failure("Sacrifice target not found")
-            val sacrificeController = sacrificeContainer.get<ControllerComponent>()?.playerId
+            if (toSacrifice !in newState.getBattlefield()) {
+                return CostPaymentResult.failure("Sacrifice target is not on the battlefield")
+            }
+            val sacrificeController = projected.getController(toSacrifice)
                 ?: return CostPaymentResult.failure("Sacrifice target has no controller")
+            if (sacrificeController != controllerId) {
+                return CostPaymentResult.failure("Can only sacrifice permanents you control")
+            }
             val sacrificeName = sacrificeContainer.get<CardComponent>()?.name ?: "Unknown"
 
             if (!predicateEvaluator.matches(state, projected, toSacrifice, filter, context)) {

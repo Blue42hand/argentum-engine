@@ -105,7 +105,9 @@ enum class ActionParameterFieldKind {
 /**
  * Folds [ActionParams] into the template `GameAction` an action ID resolved to.
  *
- * Pure — it builds the action the engine will then validate; it does not check legality itself.
+ * Pure — it builds the action the engine will then validate. The offered-action overload checks
+ * that selected cost IDs were among the enumerator's candidates; payment validates them again
+ * against the current state before mutating it.
  * Anything it cannot express is an [IllegalArgumentException] (→ HTTP 400) rather than a silently
  * dropped choice, which is the failure mode this whole type exists to remove.
  */
@@ -126,6 +128,17 @@ object ActionParameterizer {
 
     fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(legalAction.action, spec(legalAction))
+        legalAction.additionalCostInfo?.let { cost ->
+            fun requireCandidates(field: String, selected: List<EntityId>, candidates: List<EntityId>) {
+                require(selected.all { it in candidates }) {
+                    "$field contains an entity not offered for this action"
+                }
+            }
+            requireCandidates("tappedPermanents", params.tappedPermanents, cost.validTapTargets)
+            requireCandidates("sacrificedPermanents", params.sacrificedPermanents, cost.validSacrificeTargets)
+            requireCandidates("discardedCards", params.discardedCards, cost.validDiscardTargets)
+            requireCandidates("exiledCards", params.exiledCards, cost.validExileTargets)
+        }
         return apply(legalAction.action, params, state)
     }
 

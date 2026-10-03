@@ -15,6 +15,7 @@ import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.assertions.throwables.shouldThrow
@@ -81,6 +82,23 @@ class NativeCostChoiceActionTest : FunSpec({
         }
     }
 
+    test("tap rejects an opponent creature at the offered boundary") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val drum = driver.putPermanentOnBattlefield(player, "Springleaf Drum")
+        driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val opponentCreature = driver.putCreatureOnBattlefield(driver.getOpponent(player), "Grizzly Bears")
+        val offered = driver.legalActions(player).first { legal ->
+            (legal.action as? ActivateAbility)?.sourceId == drum && legal.isManaAbility
+        }
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(
+                offered, ActionParams(tappedPermanents = listOf(opponentCreature)), driver.state
+            )
+        }
+        driver.state.getEntity(opponentCreature)!!.has<TappedComponent>() shouldBe false
+    }
+
     test("a one-creature spell sacrifice rejects overpayment") {
         val driver = game()
         val player = driver.activePlayer!!
@@ -113,6 +131,60 @@ class NativeCostChoiceActionTest : FunSpec({
         )
         driver.submit(completed).error shouldBe null
         (fodder in driver.state.getBattlefield()) shouldBe false
+    }
+
+    test("sacrifice rejects an opponent creature at the offered boundary and direct payment") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val opponent = driver.getOpponent(player)
+        val feeder = driver.putCreatureOnBattlefield(player, "Carrion Feeder")
+        driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val opponentCreature = driver.putCreatureOnBattlefield(opponent, "Grizzly Bears")
+        val offered = driver.legalActions(player).first { legal ->
+            (legal.action as? ActivateAbility)?.sourceId == feeder
+        }
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(
+                offered, ActionParams(sacrificedPermanents = listOf(opponentCreature)), driver.state
+            )
+        }
+        val direct = ActionParameterizer.apply(
+            offered.action, ActionParams(sacrificedPermanents = listOf(opponentCreature)), driver.state
+        )
+        (driver.submit(direct).error != null) shouldBe true
+        (opponentCreature in driver.state.getBattlefield()) shouldBe true
+    }
+
+    test("discard rejects a card from another player's hand") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val opponent = driver.getOpponent(player)
+        val vault = driver.putPermanentOnBattlefield(player, "Fomori Vault")
+        driver.putCardInHand(player, "Plains")
+        val opponentCard = driver.putCardInHand(opponent, "Plains")
+        driver.giveMana(player, Color.RED, 3)
+        val offered = driver.legalActions(player).first { legal ->
+            val action = legal.action as? ActivateAbility
+            action?.sourceId == vault && action.abilityId == FomoriVault.activatedAbilities[1].id
+        }
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(
+                offered, ActionParams(discardedCards = listOf(opponentCard)), driver.state
+            )
+        }
+        val direct = ActionParameterizer.apply(
+            offered.action, ActionParams(discardedCards = listOf(opponentCard)), driver.state
+        )
+        (driver.submit(direct).error != null) shouldBe true
+        (opponentCard in driver.state.getHand(opponent)) shouldBe true
+        val invented = EntityId("not-a-hand-card")
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(offered, ActionParams(discardedCards = listOf(invented)), driver.state)
+        }
+        val inventedDirect = ActionParameterizer.apply(
+            offered.action, ActionParams(discardedCards = listOf(invented)), driver.state
+        )
+        (driver.submit(inventedDirect).error != null) shouldBe true
     }
 
     test("native discard selection pays an activated ability") {
