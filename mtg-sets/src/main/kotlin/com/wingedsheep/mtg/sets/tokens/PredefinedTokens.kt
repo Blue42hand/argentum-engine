@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.tokens
 
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
@@ -17,6 +18,7 @@ import com.wingedsheep.sdk.model.CardDefinition.Companion.doubleFacedPermanent
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.effects.MayEffect
+import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -83,6 +85,26 @@ object PredefinedTokens {
 
         metadata {
             imageUri = "https://cards.scryfall.io/normal/front/4/8/4837a3f1-ca7f-41e5-a5d1-729c8495b0e8.jpg?1771590279"
+        }
+    }
+
+    /**
+     * Vibranium token — CR 111.10w.
+     */
+    val Vibranium = card("Vibranium") {
+        typeLine = "Artifact — Vibranium"
+        oracleText = "Indestructible\n{T}: Add {C}. This mana can't be spent to cast a nonartifact spell."
+
+        keywords(Keyword.INDESTRUCTIBLE)
+
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.AddColorlessMana(
+                1,
+                restriction = ManaRestriction.CannotCastSpellsOtherThan(setOf(CardType.ARTIFACT)),
+            )
+            manaAbility = true
+            timing = TimingRule.ManaAbility
         }
     }
 
@@ -940,6 +962,7 @@ object PredefinedTokens {
     val allTokens: List<CardDefinition> = listOf(
         EldraziSpawn,
         Treasure,
+        Vibranium,
         Meteorite,
         Food,
         Blood,
