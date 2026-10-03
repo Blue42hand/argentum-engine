@@ -187,3 +187,86 @@
         "imageUri": "https://cards.scryfall.io/normal/front/1/1/11b3f96c-138e-431e-a1d6-5ebae4cb6b2f.jpg?1783903254"
     }
 }
+
+// Vibranium Mining Mech
+{
+    "name": "Vibranium Mining Mech",
+    "manaCost": "{4}",
+    "typeLine": "Artifact — Vehicle",
+    "oracleText": "Trample\nWhenever this Vehicle enters or attacks, create a tapped Vibranium token. (It's an artifact with indestructible and \"{T}: Add {C}. This mana can't be spent to cast a nonartifact spell.\")\n{2}: This Vehicle gets +1/+0 until end of turn.\nCrew 2",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "TRAMPLE",
+        "CREW"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "CREW",
+            "n": 2
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                },
+                "descriptionOverride": "When this Vehicle enters, create a tapped Vibranium token"
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                },
+                "descriptionOverride": "When this Vehicle attacks, create a tapped Vibranium token"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "This Vehicle gets +1/+0 until end of turn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "117",
+        "rarity": "RARE",
+        "artist": "Ivan Dedov",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/2212e15b-5deb-4ab8-9f6f-7991e750e21a.jpg?1783903254"
+    }
+}
