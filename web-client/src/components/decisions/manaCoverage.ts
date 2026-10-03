@@ -1,4 +1,4 @@
-import type { ClientManaPool, EntityId, ManaSourceOption } from '@/types'
+import type { ClientManaPool, ClientRestrictedManaEntry, EntityId, ManaSourceOption } from '@/types'
 
 /**
  * Pure coverage logic for the mana payment prompt, kept out of the component so it can be unit
@@ -54,6 +54,7 @@ export function computeCoverage(
   selectedIds: readonly EntityId[],
   availableSources: readonly ManaSourceOption[],
   extraGeneric = 0,
+  eligibleRestrictedMana: readonly ClientRestrictedManaEntry[] = [],
 ): PipCoverage[] {
   const pips: PipCoverage[] = costSymbols.map((symbol) => ({ symbol, floating: false, pending: false }))
 
@@ -64,6 +65,10 @@ export function computeCoverage(
     R: pool?.red ?? 0,
     G: pool?.green ?? 0,
     C: pool?.colorless ?? 0,
+  }
+  for (const entry of eligibleRestrictedMana) {
+    const color = entry.color ?? 'C'
+    if (color in floatingByColor) floatingByColor[color]!++
   }
 
   // Pass 1 — floating mana against coloured pips it exactly matches.

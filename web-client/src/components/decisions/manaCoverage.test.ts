@@ -55,6 +55,13 @@ describe('computeCoverage', () => {
     expect(coverage[1]!.floating).toBe(true)
   })
 
+  it('counts only restricted mana the server marked eligible for a ward or tax payment', () => {
+    const restricted = { color: null, restrictionDescription: "This mana can't be spent to cast a nonartifact spell" }
+    const withRestricted = { ...emptyPool!, restrictedMana: [restricted] }
+    expect(computeCoverage(['1'], withRestricted, [], [], 0)[0]!.floating).toBe(false)
+    expect(computeCoverage(['1'], withRestricted, [], [], 0, [restricted])[0]!.floating).toBe(true)
+  })
+
   // A ward of {3} with a Gilded Lotus selected: the prompt used to count the Lotus as one pip,
   // so the Pay button stayed dead on a payment the server would have accepted.
   it('lets a multi-mana source cover more than one pip', () => {

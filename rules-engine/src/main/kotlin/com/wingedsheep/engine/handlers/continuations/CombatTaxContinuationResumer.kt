@@ -8,8 +8,10 @@ import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSourceOption
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.core.tap
-import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.toComponent
+import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.ManaCost
@@ -162,12 +164,9 @@ class CombatTaxContinuationResumer(
     ): TaxPayment? {
         val playerEntity = state.getEntity(playerId) ?: return null
         val poolComponent = playerEntity.get<ManaPoolComponent>() ?: return null
-        var pool = ManaPool(
-            poolComponent.white, poolComponent.blue, poolComponent.black,
-            poolComponent.red, poolComponent.green, poolComponent.colorless,
-        )
+        var pool = poolComponent.toManaPool()
 
-        val partial = pool.payPartial(manaCost)
+        val partial = pool.payPartial(manaCost, SpellPaymentContext())
         var remainingCost = partial.remainingCost
         var currentState = state
         val events = mutableListOf<GameEvent>()
@@ -209,14 +208,9 @@ class CombatTaxContinuationResumer(
             }
         }
 
-        val newPool = pool.pay(manaCost) ?: return null
+        val newPool = pool.pay(manaCost, SpellPaymentContext()) ?: return null
         currentState = currentState.updateEntity(playerId) { container ->
-            container.with(
-                ManaPoolComponent(
-                    white = newPool.white, blue = newPool.blue, black = newPool.black,
-                    red = newPool.red, green = newPool.green, colorless = newPool.colorless,
-                )
-            )
+            container.with(newPool.toComponent())
         }
         return TaxPayment(currentState, events)
     }

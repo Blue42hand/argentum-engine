@@ -6,7 +6,17 @@ import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
 import com.wingedsheep.engine.state.components.player.RestrictedManaEntry
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import kotlinx.serialization.Serializable
+
+/** Preserve restricted units and provenance when a payment path reads or writes the player pool. */
+fun ManaPoolComponent.toManaPool(): ManaPool = ManaPool(
+    white, blue, black, red, green, colorless, restrictedMana, manaBySubtype, manaBySource
+)
+
+fun ManaPool.toComponent(): ManaPoolComponent = ManaPoolComponent(
+    white, blue, black, red, green, colorless, restrictedMana, manaBySubtype, manaBySource
+)
 
 /**
  * Represents a player's mana pool.

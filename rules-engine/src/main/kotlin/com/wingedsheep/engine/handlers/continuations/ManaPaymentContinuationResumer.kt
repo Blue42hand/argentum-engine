@@ -8,6 +8,9 @@ import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.toComponent
+import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -109,23 +112,15 @@ class ManaPaymentContinuationResumer(
                 ?: return ExecutionResult.error(state, "Paying player not found")
             val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
                 ?: return ExecutionResult.error(state, "Player has no mana pool")
-            val manaPool = ManaPool(
-                manaPoolComponent.white, manaPoolComponent.blue, manaPoolComponent.black,
-                manaPoolComponent.red, manaPoolComponent.green, manaPoolComponent.colorless
-            )
-            val partialResult = manaPool.payPartial(continuation.manaCost)
+            val manaPool = manaPoolComponent.toManaPool()
+            val partialResult = manaPool.payPartial(continuation.manaCost, SpellPaymentContext())
 
             if (partialResult.remainingCost.isEmpty()) {
                 // Floating mana covers the cost — pay immediately
-                val newPool = manaPool.pay(continuation.manaCost)
+                val newPool = manaPool.pay(continuation.manaCost, SpellPaymentContext())
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost from floating mana")
                 val currentState = state.updateEntity(playerId) { container ->
-                    container.with(
-                        ManaPoolComponent(
-                            white = newPool.white, blue = newPool.blue, black = newPool.black,
-                            red = newPool.red, green = newPool.green, colorless = newPool.colorless
-                        )
-                    )
+                    container.with(newPool.toComponent())
                 }
                 return runOnPaidThenCheckForMore(
                     currentState,
@@ -656,12 +651,9 @@ class ManaPaymentContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = ManaPool(
-            manaPoolComponent.white, manaPoolComponent.blue, manaPoolComponent.black,
-            manaPoolComponent.red, manaPoolComponent.green, manaPoolComponent.colorless
-        )
+        val manaPool = manaPoolComponent.toManaPool()
 
-        val partialResult = manaPool.payPartial(effectiveCost)
+        val partialResult = manaPool.payPartial(effectiveCost, SpellPaymentContext())
         val remainingCost = partialResult.remainingCost
         var currentPool = manaPool
 
@@ -707,12 +699,7 @@ class ManaPaymentContinuationResumer(
                     // Persist the pool from the first-phase taps so the sub-cost
                     // continuation reads it off the player's mana pool component on resume.
                     currentState = currentState.updateEntity(playerId) { container ->
-                        container.with(
-                            ManaPoolComponent(
-                                white = currentPool.white, blue = currentPool.blue, black = currentPool.black,
-                                red = currentPool.red, green = currentPool.green, colorless = currentPool.colorless
-                            )
-                        )
+                        container.with(currentPool.toComponent())
                     }
                     return promptForTapPermanentsSubCost(
                         currentState,
@@ -733,7 +720,7 @@ class ManaPaymentContinuationResumer(
             }
         }
 
-        val newPool = currentPool.pay(effectiveCost)
+        val newPool = currentPool.pay(effectiveCost, SpellPaymentContext())
         if (newPool == null) {
             // Payment failed — counter the spell
             return counterForUnpaidCost(
@@ -743,12 +730,7 @@ class ManaPaymentContinuationResumer(
         }
 
         currentState = currentState.updateEntity(playerId) { container ->
-            container.with(
-                ManaPoolComponent(
-                    white = newPool.white, blue = newPool.blue, black = newPool.black,
-                    red = newPool.red, green = newPool.green, colorless = newPool.colorless
-                )
-            )
+            container.with(newPool.toComponent())
         }
 
         // If this mana cost was one component of a composite ward cost, charge the next

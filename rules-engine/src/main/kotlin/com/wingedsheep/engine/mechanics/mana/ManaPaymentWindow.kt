@@ -214,8 +214,7 @@ object ManaPaymentWindow {
         val pool = state.getEntity(playerId)
             ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
             ?: return cost
-        return ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless)
-            .payPartial(cost).remainingCost
+        return pool.toManaPool().payPartial(cost, SpellPaymentContext()).remainingCost
     }
 
     /** Adds [produced] to [playerId]'s pool, preserving restricted mana and provenance. */
@@ -341,8 +340,7 @@ object ManaPaymentWindow {
         val pool = state.getEntity(playerId)
             ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
             ?: return false
-        return ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless)
-            .payPartial(cost)
+        return pool.toManaPool().payPartial(cost, SpellPaymentContext())
             .remainingCost
             .isEmpty()
     }
@@ -357,8 +355,7 @@ object ManaPaymentWindow {
         val pool = state.getEntity(decision.playerId)
             ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
             ?: return cost
-        return ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless)
-            .payPartial(cost)
+        return pool.toManaPool().payPartial(cost, SpellPaymentContext())
             .remainingCost
     }
 }

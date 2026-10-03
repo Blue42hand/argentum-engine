@@ -609,6 +609,8 @@ export interface SelectManaSourcesDecision extends PendingDecisionBase {
   readonly requiredCost: string
   readonly autoPaySuggestion: readonly EntityId[]
   readonly canDecline?: boolean
+  /** Restricted floating mana the server found eligible for this payment. */
+  readonly eligibleRestrictedMana?: readonly ClientRestrictedManaEntry[]
   /**
    * Untapped artifacts/creatures that may be tapped to pay {1} each toward the cost via
    * Waterbend (e.g. Ward—Waterbend). Empty for ordinary mana-only costs.

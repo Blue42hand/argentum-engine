@@ -28,6 +28,7 @@ import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.mechanics.SacrificeImmunity
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.legalactions.TapForGenericPermanentData
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils
@@ -410,7 +411,7 @@ class WardCounterEffectExecutor(
             manaSolver: ManaSolver = ManaSolver(cardRegistry),
             waterbendPermanents: List<TapForGenericPermanentData>? = null
         ): Boolean {
-            if (manaSolver.canPay(state, payingPlayerId, manaCost)) return true
+            if (manaSolver.canPay(state, payingPlayerId, manaCost, spellContext = SpellPaymentContext())) return true
             if (!waterbend) return false
             val costUtils = costEnumerationUtils(cardRegistry)
             val permanents = waterbendPermanents
