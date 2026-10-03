@@ -23,6 +23,11 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class VibraniumNonSpellPaymentScenarioTest : FunSpec({
+    val maker = card("Test Create Vibranium For Payment") {
+        manaCost = "{0}"
+        typeLine = "Sorcery"
+        spell { effect = Effects.CreateVibranium() }
+    }
     val wardedBear = card("Test Vibranium Warded Bear") {
         manaCost = "{1}{G}"
         typeLine = "Creature — Bear"
@@ -45,8 +50,15 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
     }
 
     fun driver(): GameTestDriver = GameTestDriver().also {
-        it.registerCards(TestCards.all + listOf(PredefinedTokens.Vibranium, wardedBear, smash, prison))
+        it.registerCards(TestCards.all + listOf(PredefinedTokens.Vibranium, maker, wardedBear, smash, prison))
         it.initMirrorMatch(Deck.of("Forest" to 40), startingLife = 20)
+    }
+
+    fun createVibranium(driver: GameTestDriver, player: com.wingedsheep.sdk.model.EntityId): com.wingedsheep.sdk.model.EntityId {
+        val spell = driver.putCardInHand(player, maker.name)
+        driver.castSpell(player, spell).isSuccess shouldBe true
+        driver.bothPass()
+        return driver.findPermanent(player, "Vibranium") ?: error("Vibranium token was not created")
     }
 
     fun tapVibranium(driver: GameTestDriver, player: com.wingedsheep.sdk.model.EntityId, token: com.wingedsheep.sdk.model.EntityId) {
@@ -59,7 +71,7 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         val player = game.activePlayer!!
         val opponent = game.getOpponent(player)
         game.passPriorityUntil(Step.PRECOMBAT_MAIN)
-        val token = game.putPermanentOnBattlefield(player, "Vibranium")
+        val token = createVibranium(game, player)
         val bear = game.putCreatureOnBattlefield(opponent, wardedBear.name)
         val spell = game.putCardInHand(player, smash.name)
 
