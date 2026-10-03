@@ -121,6 +121,28 @@ class MultiplayerSessionTest : ScenarioTestBase() {
             }
         }
 
+        test("a debug session never exposes sideboards to a spectator") {
+            val session = GameSession(cardRegistry = cardRegistry, maxPlayers = 2, debugMode = true)
+            val ids = listOf(EntityId.of("player-1"), EntityId.of("player-2"))
+            ids.forEachIndexed { i, id ->
+                session.addPlayer(
+                    PlayerSession(mockWs("ws$i"), id, "Player${i + 1}"),
+                    mapOf("Forest" to 40),
+                    sideboard = mapOf("Mountain" to 2),
+                )
+            }
+            session.startGame()
+
+            val spectator = session.buildSpectatorState()!!.gameState!!
+            val sideboards = spectator.zones.filter { it.zoneId.zoneType == Zone.SIDEBOARD }
+            sideboards shouldHaveSize 2
+            sideboards.forEach {
+                it.size shouldBe 2
+                it.cardIds shouldHaveSize 0
+                it.isVisible shouldBe false
+            }
+        }
+
         test("two-player is the degenerate case: one opponent, two seats") {
             val (session, ids) = startedSession(2)
 

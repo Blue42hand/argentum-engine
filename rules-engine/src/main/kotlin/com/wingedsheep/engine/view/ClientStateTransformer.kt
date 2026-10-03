@@ -119,10 +119,9 @@ class ClientStateTransformer(
         for ((zoneKey, entityIds) in state.zones) {
             val isZoneVisible = visibility.isZoneVisibleTo(state, zoneKey, viewingPlayerId, isSpectator)
 
-            // For libraries we always send the full ordered list of entity IDs so the client can
-            // render a correctly sized stack. Individual card *details* are only populated for cards
-            // that have been revealed to the viewing player (Scry, Surveil, look-at-top-N, etc.).
-            // Unrevealed slots end up as opaque IDs the client renders as card backs.
+            // Libraries need one slot per card so the client can render the stack and its
+            // legitimately known positions. Hidden slots must not carry real entity IDs: a
+            // player who saw a card before a shuffle could otherwise find its new position.
             val isLibrary = zoneKey.zoneType == Zone.LIBRARY
             val cardsWithDetails = if (isZoneVisible) {
                 entityIds
@@ -137,7 +136,13 @@ class ClientStateTransformer(
                     )
                 }
             }
-            val zoneCardIds = if (isLibrary) entityIds else cardsWithDetails
+            val zoneCardIds = if (isLibrary) {
+                val visibleIds = cardsWithDetails.toSet()
+                entityIds.mapIndexed { index, entityId ->
+                    if (entityId in visibleIds) entityId
+                    else EntityId.of("client-hidden-library-slot:${zoneKey.ownerId.value}:$index")
+                }
+            } else cardsWithDetails
 
             zones.add(
                 ClientZone(
@@ -778,7 +783,10 @@ class ClientStateTransformer(
         // Handle face-down card masking
         // Opponents and spectators see modified stats but no card information
         // Controller sees real card info + morph cost (but not spectators)
-        if (isFaceDown && (isSpectator || controllerId != viewingPlayerId)) {
+        if (isFaceDown && (isSpectator || controllerId != viewingPlayerId ||
+                (zoneKey.zoneType == Zone.EXILE && !visibility.isCardIdentityVisibleTo(
+                    state, zoneKey, entityId, viewingPlayerId, isSpectator,
+                )))) {
             // Check if the face-down card has been revealed to the viewing player (e.g., via Spy Network)
             // Also check LookAtFaceDownCreatures (e.g., Lens of Clarity) — only for battlefield creatures,
             // not face-down spells on the stack (per ruling).

@@ -277,6 +277,10 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
 
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player1Id) shouldBe false
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player2Id) shouldBe false
+            val ownerCard = ClientStateTransformer(cardRegistry).transform(state, game.player1Id).cards[exiled]
+            ownerCard?.isFaceDown shouldBe true
+            ownerCard?.name shouldBe "Face-down card"
+            ownerCard?.revealedName shouldBe null
         }
 
         // CR 702.143a: "That player may look at that card as long as it remains in exile." The
@@ -295,6 +299,7 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
             }
 
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player1Id) shouldBe true
+            ClientStateTransformer(cardRegistry).transform(state, game.player1Id).cards[exiled]?.name shouldBe "Craw Wurm"
             withClue("the opponent never gets to look") {
                 visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player2Id) shouldBe false
             }
