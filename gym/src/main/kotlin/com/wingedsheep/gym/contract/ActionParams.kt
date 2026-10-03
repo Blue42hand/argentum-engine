@@ -1,6 +1,7 @@
 package com.wingedsheep.gym.contract
 
 import com.wingedsheep.engine.core.GameAction
+import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
@@ -21,6 +22,9 @@ typealias ActionParams = com.wingedsheep.engine.core.ActionParams
  * while giving other Argentum hosts one generic engine implementation to call.
  */
 object ActionParameterizer {
+    fun apply(action: LegalAction, params: ActionParams, state: GameState): GameAction =
+        com.wingedsheep.engine.core.ActionParameterizer.apply(action, params, state)
+
     fun apply(action: GameAction, params: ActionParams, state: GameState): GameAction =
         com.wingedsheep.engine.core.ActionParameterizer.apply(action, params, state)
 

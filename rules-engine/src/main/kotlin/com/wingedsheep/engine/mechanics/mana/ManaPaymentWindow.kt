@@ -71,11 +71,12 @@ object ManaPaymentWindow {
         prompt: String,
         context: com.wingedsheep.engine.core.DecisionContext,
         canDecline: Boolean,
-        cardRegistry: CardRegistry
+        cardRegistry: CardRegistry,
+        includeSacrificeSources: Boolean = true
     ): SelectManaSourcesDecision {
         val solver = ManaSolver(cardRegistry)
         val options = solver.findAvailableManaSources(state, playerId)
-            .filter { it.tapPermanentsSubCost == null }
+            .filter { it.tapPermanentsSubCost == null && (includeSacrificeSources || !it.requiresSacrifice) }
             .map { source ->
                 ManaSourceOption(
                     entityId = source.entityId,

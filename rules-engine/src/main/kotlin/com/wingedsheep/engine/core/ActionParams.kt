@@ -1,8 +1,11 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.legalactions.LegalAction
+import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import kotlinx.serialization.Serializable
 
 /**
@@ -24,9 +27,9 @@ import kotlinx.serialization.Serializable
  * Not expressible here, deliberately — each has its own channel:
  * - Complex decisions (target-selection pauses, damage assignment, ordering, …) → `POST
  *   /envs/{id}/decision` with a typed `DecisionResponse`.
- * - Attacking bands (CR 702.22), alternative/additional cost payments, convoke/delve/improvise
- *   selections. A step carrying params for an action that can't use them is rejected with a
- *   message naming the action, never ignored.
+ * - Attacking bands (CR 702.22), other alternative/additional cost payments, and
+ *   convoke/delve/improvise selections. A step carrying params for an action that can't use them
+ *   is rejected with a message naming the action, never ignored.
  *
  * @property attackers attacker entity id → the player, planeswalker or battle it attacks.
  * @property blockers blocker entity id → the attackers it blocks, in order.
@@ -34,13 +37,21 @@ import kotlinx.serialization.Serializable
  *   against the current state: a player id becomes a player target, an object on the stack a spell
  *   target, a battlefield permanent a permanent target, and a card in any other zone a card target.
  * @property xValue The value chosen for X.
+ * @property tappedPermanents Permanents chosen to tap as a spell or ability cost.
+ * @property sacrificedPermanents Permanents chosen to sacrifice as a cost.
+ * @property discardedCards Cards chosen to discard as a cost.
+ * @property exiledCards Cards chosen to exile as a cost.
  */
 @Serializable
 data class ActionParams(
     val attackers: Map<EntityId, EntityId> = emptyMap(),
     val blockers: Map<EntityId, List<EntityId>> = emptyMap(),
     val targets: List<EntityId> = emptyList(),
-    val xValue: Int? = null
+    val xValue: Int? = null,
+    val tappedPermanents: List<EntityId> = emptyList(),
+    val sacrificedPermanents: List<EntityId> = emptyList(),
+    val discardedCards: List<EntityId> = emptyList(),
+    val exiledCards: List<EntityId> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = populatedFields.isEmpty()
@@ -52,6 +63,10 @@ data class ActionParams(
             if (blockers.isNotEmpty()) add("blockers")
             if (targets.isNotEmpty()) add("targets")
             if (xValue != null) add("xValue")
+            if (tappedPermanents.isNotEmpty()) add("tappedPermanents")
+            if (sacrificedPermanents.isNotEmpty()) add("sacrificedPermanents")
+            if (discardedCards.isNotEmpty()) add("discardedCards")
+            if (exiledCards.isNotEmpty()) add("exiledCards")
         }
 
     companion object {
@@ -91,11 +106,57 @@ enum class ActionParameterFieldKind {
 /**
  * Folds [ActionParams] into the template `GameAction` an action ID resolved to.
  *
- * Pure — it builds the action the engine will then validate; it does not check legality itself.
+ * Pure — it builds the action the engine will then validate. The offered-action overload checks
+ * that selected cost IDs were among the enumerator's candidates; payment validates them again
+ * against the current state before mutating it.
  * Anything it cannot express is an [IllegalArgumentException] (→ HTTP 400) rather than a silently
  * dropped choice, which is the failure mode this whole type exists to remove.
  */
 object ActionParameterizer {
+
+    /** Narrow the cost-choice contract to the costs on this particular offered action. */
+    fun spec(legalAction: LegalAction): ActionParameterSpec {
+        val fields = spec(legalAction.action).allowedFields.toMutableMap()
+        if (legalAction.action is CastSpell || legalAction.action is ActivateAbility) {
+            val cost = legalAction.additionalCostInfo
+            if (cost?.validTapTargets.isNullOrEmpty()) fields.remove("tappedPermanents")
+            if (cost?.validSacrificeTargets.isNullOrEmpty()) fields.remove("sacrificedPermanents")
+            if (cost?.validDiscardTargets.isNullOrEmpty()) fields.remove("discardedCards")
+            if (cost?.validExileTargets.isNullOrEmpty()) fields.remove("exiledCards")
+        }
+        return ActionParameterSpec(fields)
+    }
+
+    fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
+        params.allowOnly(legalAction.action, spec(legalAction))
+        legalAction.additionalCostInfo?.let { cost ->
+            params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
+                cost.validDiscardTargets, cost.validExileTargets)
+        }
+        return apply(legalAction.action, params, state)
+    }
+
+    /** Complete a server controller's enriched offered action with the same cost checks as Gym. */
+    fun apply(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction {
+        params.allowOnly(info.action, info.parameterSpec)
+        info.additionalCostInfo?.let { cost ->
+            params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
+                cost.validDiscardTargets, cost.validExileTargets)
+        }
+        return apply(info.action, params, state)
+    }
+
+    private fun ActionParams.requireCostCandidates(
+        tap: List<EntityId>, sacrifice: List<EntityId>, discard: List<EntityId>, exile: List<EntityId>
+    ) {
+        fun check(field: String, selected: List<EntityId>, candidates: List<EntityId>) {
+            require(selected.all { it in candidates }) { "$field contains an entity not offered for this action" }
+        }
+        check("tappedPermanents", tappedPermanents, tap)
+        check("sacrificedPermanents", sacrificedPermanents, sacrifice)
+        check("discardedCards", discardedCards, discard)
+        check("exiledCards", exiledCards, exile)
+    }
 
     /**
      * Return the native parameter contract for [action].
@@ -111,10 +172,24 @@ object ActionParameterizer {
         is DeclareBlockers -> ActionParameterSpec(
             mapOf("blockers" to ActionParameterFieldKind.ENTITY_ID_ARRAY_MAP)
         )
-        is CastSpell, is ActivateAbility -> ActionParameterSpec(
+        is CastSpell -> ActionParameterSpec(
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
+                "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            )
+        )
+        is ActivateAbility -> ActionParameterSpec(
+            mapOf(
+                "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "xValue" to ActionParameterFieldKind.INTEGER,
+                "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
         else -> ActionParameterSpec.EMPTY
@@ -139,7 +214,8 @@ object ActionParameterizer {
                 action.copy(
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
-                    xValue = params.xValue ?: action.xValue
+                    xValue = params.xValue ?: action.xValue,
+                    additionalCostPayment = params.withCostChoices(action.additionalCostPayment)
                 )
             }
 
@@ -148,7 +224,8 @@ object ActionParameterizer {
                 action.copy(
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
-                    xValue = params.xValue ?: action.xValue
+                    xValue = params.xValue ?: action.xValue,
+                    costPayment = params.withCostChoices(action.costPayment)
                 )
             }
 
@@ -156,6 +233,20 @@ object ActionParameterizer {
                 "Action ${action::class.simpleName} takes no step params; got $params"
             )
         }
+    }
+
+    /** Keep template payment fields that this native step did not replace. */
+    private fun ActionParams.withCostChoices(existing: AdditionalCostPayment?): AdditionalCostPayment? {
+        if (tappedPermanents.isEmpty() && sacrificedPermanents.isEmpty() &&
+            discardedCards.isEmpty() && exiledCards.isEmpty()
+        ) return existing
+        val base = existing ?: AdditionalCostPayment.NONE
+        return base.copy(
+            tappedPermanents = tappedPermanents.ifEmpty { base.tappedPermanents },
+            sacrificedPermanents = sacrificedPermanents.ifEmpty { base.sacrificedPermanents },
+            discardedCards = discardedCards.ifEmpty { base.discardedCards },
+            exiledCards = exiledCards.ifEmpty { base.exiledCards },
+        )
     }
 
     /**

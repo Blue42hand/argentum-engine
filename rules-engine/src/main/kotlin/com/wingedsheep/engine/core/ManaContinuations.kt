@@ -526,3 +526,16 @@ data class AddManaPipsContinuation(
 data class ReopenManaPaymentDecisionContinuation(
     val suspension: Suspension
 ) : AutomaticContinuation
+
+/** Resume a cast after the caster activates a choice-dependent mana ability in its payment window. */
+@Serializable
+data class CastManaSelectionContinuation(
+    val action: CastSpell,
+    val lockedCost: ManaCost,
+    val paymentXValue: Int,
+    val availableSources: List<ManaSourceOption>,
+    val additionalCosts: List<com.wingedsheep.sdk.scripting.AdditionalCost>,
+    val forageCostRequired: Boolean,
+    val additionalLifeCost: Int,
+    val dedicatedAlternativeCostType: AlternativeCostType?,
+) : AnswerContinuation
