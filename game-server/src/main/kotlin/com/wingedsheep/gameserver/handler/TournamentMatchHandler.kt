@@ -128,9 +128,9 @@ class TournamentMatchHandler(
             val tournament = ctx.lobbyRepository.findTournamentById(lobbyId) ?: return
             // The native result callback runs before GamePlayHandler removes the session.
             // Save its terminal state with the match so status stays truthful after cleanup.
-            val terminalSession = gameRepository.findById(gameSessionId)
-            val nativeGameOver = terminalSession?.isGameOver() == true
-            val finalTurnNumber = terminalSession?.getStateSnapshot()?.turnNumber
+            val terminalSnapshot = gameRepository.findById(gameSessionId)?.getStateSnapshot()
+            val nativeGameOver = terminalSnapshot?.gameOver == true
+            val finalTurnNumber = terminalSnapshot?.turnNumber
             tournament.reportMatchResult(gameSessionId, winnerId, winnerLifeRemaining)
 
             val resultRound = tournament.getRoundForMatch(gameSessionId)
