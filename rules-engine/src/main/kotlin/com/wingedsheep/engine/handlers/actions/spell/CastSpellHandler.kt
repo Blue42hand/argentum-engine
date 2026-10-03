@@ -2272,7 +2272,10 @@ class CastSpellHandler(
         return null
     }
 
-    override fun execute(state: GameState, action: CastSpell): ExecutionResult {
+    override fun execute(state: GameState, action: CastSpell): ExecutionResult =
+        executeWithLockedManaCost(state, action, null)
+
+    internal fun executeWithLockedManaCost(state: GameState, action: CastSpell, lockedCost: ManaCost?): ExecutionResult {
         var currentState = state
         val events = mutableListOf<GameEvent>()
 
@@ -2310,8 +2313,6 @@ class CastSpellHandler(
         // LinkedExileComponent carried over from a previous battlefield visit (e.g.
         // Veteran Survivor bounced to hand, then recast) before additional costs run —
         // a behold-and-exile cost on this same cast will attach a fresh one afterwards.
-        currentState = currentState.updateEntity(action.cardId) { c -> c.without<LinkedExileComponent>() }
-
         // Cast-time mode selection for modal spells (CR 601.2b — the controller announces
         // the mode choice while casting the spell, before it goes on the stack). Must run
         // before cost payment so cancellation leaves no side effects.
@@ -2354,6 +2355,63 @@ class CastSpellHandler(
                 currentOrdinal = 0
             )
         }
+
+        // A legal cast can require a mana ability that the auto-tap solver deliberately cannot
+        // activate (Springleaf Drum, Treasure, Ashnod's Altar). Give the caster the existing mana
+        // payment window before committing any cost. The selected total is locked across the
+        // pause, so tapping a source cannot change the announced spell price on re-entry.
+        if (lockedCost == null && action.paymentStrategy is PaymentStrategy.AutoPay &&
+            action.alternativePayment == null && cardDef != null
+        ) {
+            val computed = computeTotalCastCost(
+                state, action, cardDef, cardComponent,
+                zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId) ||
+                    action.useWithoutPayingManaCost,
+                zoneResolver.hasCommanderCastPermission(state, action.playerId, action.cardId)
+            )
+            if (computed != null && computed.cost.phyrexianSymbols.isEmpty()) {
+                val spellCtx = if (action.castFaceDown) {
+                    SpellPaymentContext.faceDownCast(isFromHand = isCastFromHand(state, action.cardId))
+                } else SpellPaymentContext(
+                    isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
+                    isKicked = action.declaredCostSlot == ChoiceSlot.KICKED,
+                    isCreature = cardComponent.typeLine.isCreature,
+                    isLegendary = cardComponent.typeLine.isLegendary,
+                    manaValue = cardComponent.manaCost.cmc,
+                    hasXInCost = cardComponent.manaCost.hasX,
+                    subtypes = paymentSubtypesOf(cardComponent),
+                    isFromExile = isCastFromExile(state, action.cardId),
+                    isFromHand = isCastFromHand(state, action.cardId),
+                    cardTypes = cardComponent.typeLine.cardTypes,
+                )
+                val payableCost = if (isCastWithAnyManaType(state, action)) computed.cost.relaxColors()
+                    else computed.cost
+                val autoPayable = manaSolver.canPay(
+                    state, action.playerId, payableCost, computed.paymentXValue,
+                    spellContext = spellCtx, includeManualMana = false
+                )
+                if (!autoPayable && manaSolver.canPay(
+                        state, action.playerId, payableCost, computed.paymentXValue,
+                        spellContext = spellCtx
+                    )
+                ) {
+                    val locked = payableCost.withXAs(computed.paymentXValue)
+                    return state.suspendForDecision(
+                        question = { id -> com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow.buildDecision(
+                            state, action.playerId, locked, id,
+                            "Produce mana for ${cardComponent.name}",
+                            DecisionContext(action.cardId, cardComponent.name, DecisionPhase.CASTING),
+                            canDecline = true, cardRegistry = cardRegistry
+                        ) },
+                        answer = { decision -> com.wingedsheep.engine.core.CastManaSelectionContinuation(
+                            action, payableCost, computed.paymentXValue, decision.availableSources
+                        ) }
+                    )
+                }
+            }
+        }
+
+        currentState = currentState.updateEntity(action.cardId) { c -> c.without<LinkedExileComponent>() }
 
         // Capture the linked-exile granter (if any) before the cast removes the card from
         // exile — once the spell moves to the stack the LinkedExileComponent lookup would
@@ -3266,6 +3324,8 @@ class CastSpellHandler(
             currentState = improviseResult.newState
             events.addAll(improviseResult.events)
         }
+
+        if (lockedCost != null) effectiveCost = lockedCost
 
         // CR 701.67c: paying a spell's waterbend cost (however paid — taps above and/or plain mana)
         // fires "whenever you waterbend". A later payment failure rolls the cast (and this event)

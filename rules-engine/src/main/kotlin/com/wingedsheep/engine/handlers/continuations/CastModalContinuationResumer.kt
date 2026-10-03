@@ -5,14 +5,17 @@ import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.CastModalModeSelectionContinuation
 import com.wingedsheep.engine.core.CastModalTargetSelectionContinuation
 import com.wingedsheep.engine.core.CastSpellAdditionalCostContinuation
+import com.wingedsheep.engine.core.CastManaSelectionContinuation
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.TargetsResponse
 import com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
 
 /**
  * Resumes the cast-time mode and target selection flow for choose-N modal spells
@@ -39,8 +42,30 @@ class CastModalContinuationResumer(
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(CastModalModeSelectionContinuation::class, ::resumeCastModalModeSelection),
         resumer(CastModalTargetSelectionContinuation::class, ::resumeCastModalTargetSelection),
-        resumer(CastSpellAdditionalCostContinuation::class, ::resumeCastSpellAdditionalCost)
+        resumer(CastSpellAdditionalCostContinuation::class, ::resumeCastSpellAdditionalCost),
+        resumer(CastManaSelectionContinuation::class, ::resumeCastManaSelection)
     )
+
+    private fun resumeCastManaSelection(
+        state: GameState,
+        continuation: CastManaSelectionContinuation,
+        response: DecisionResponse,
+        @Suppress("UNUSED_PARAMETER") checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is ManaSourcesSelectedResponse) {
+            return ExecutionResult.error(state, "Expected mana source selection for spell cast")
+        }
+        val action = continuation.action
+        val floated = ManaPaymentWindow.floatSelectedMana(
+            state, action.playerId, continuation.lockedCost.withXAs(continuation.paymentXValue),
+            response, continuation.availableSources, services
+        )
+        if (!floated.paid) return ExecutionResult.success(state.withPriority(action.playerId))
+        val result = castSpellHandler.executeWithLockedManaCost(
+            floated.state.withPriority(action.playerId), action, continuation.lockedCost
+        )
+        return result.copy(events = floated.events + result.events)
+    }
 
     /**
      * Resume after the caster picks how to pay one selection-requiring additional cost on a free
