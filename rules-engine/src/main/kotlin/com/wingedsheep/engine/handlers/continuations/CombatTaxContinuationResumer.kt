@@ -10,6 +10,7 @@ import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.core.tap
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
 import com.wingedsheep.engine.mechanics.mana.toComponent
 import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.state.GameState
@@ -208,7 +209,7 @@ class CombatTaxContinuationResumer(
             }
         }
 
-        val newPool = pool.pay(manaCost, SpellPaymentContext()) ?: return null
+        val newPool = pool.payNonSpellCost(manaCost) ?: return null
         currentState = currentState.updateEntity(playerId) { container ->
             container.with(newPool.toComponent())
         }

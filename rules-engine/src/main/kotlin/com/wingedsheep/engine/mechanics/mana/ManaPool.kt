@@ -18,6 +18,12 @@ fun ManaPool.toComponent(): ManaPoolComponent = ManaPoolComponent(
     white, blue, black, red, green, colorless, restrictedMana, manaBySubtype, manaBySource
 )
 
+/** Pay a nonspell cost, consuming tags for unrestricted mana that was actually spent. */
+fun ManaPool.payNonSpellCost(cost: ManaCost): ManaPool? {
+    val after = pay(cost, SpellPaymentContext()) ?: return null
+    return after.consumeProvenance(total - after.total).first
+}
+
 /**
  * Represents a player's mana pool.
  * Tracks available mana that can be spent on costs.
