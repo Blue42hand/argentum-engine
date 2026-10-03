@@ -40,3 +40,66 @@
     },
     "colorIdentityOverride": []
 }
+
+// Crystalline Crawler
+{
+    "name": "Crystalline Crawler",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "Converge — This creature enters with a +1/+1 counter on it for each color of mana spent to cast it.\nRemove a +1/+1 counter from this creature: Add one mana of any color.\n{T}: Put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomRemoveCounters",
+                        "counterType": "+1/+1",
+                        "self": true
+                    }
+                },
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithDynamicCounters",
+                "count": "DistinctColorsManaSpent"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "RARE",
+        "artist": "Jason Felix",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/1/414d65f0-36a3-42af-997c-af752898c74c.jpg?1783937080",
+        "rulings": [
+            {
+                "date": "2016-11-08",
+                "text": "Colorless mana contributes no color to the converge count."
+            },
+            {
+                "date": "2016-11-08",
+                "text": "Mana spent on alternative or additional costs also counts toward converge."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
