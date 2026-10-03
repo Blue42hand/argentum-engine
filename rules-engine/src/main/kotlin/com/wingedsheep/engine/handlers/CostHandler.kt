@@ -469,17 +469,20 @@ class CostHandler {
             }
             is AbilityCost.TapXPermanents -> {
                 val xCount = choices.xValue
+                val toTap = choices.tapChoices
+                if (xCount < 0 || toTap.size != xCount || toTap.distinct().size != xCount) {
+                    return CostPaymentResult.failure("Must choose exactly $xCount distinct permanents to tap")
+                }
+                val candidates = findUntappedMatchingPermanentsUnified(state, controllerId, cost.filter)
+                if (toTap.any { it !in candidates }) {
+                    return CostPaymentResult.failure("Chosen permanent is not eligible to tap for this cost")
+                }
                 if (xCount == 0) {
                     CostPaymentResult.success(state, manaPool)
                 } else {
-                    val toTap = choices.tapChoices
-                    if (toTap.size < xCount) {
-                        return CostPaymentResult.failure("Not enough permanents chosen to tap (need $xCount, got ${toTap.size})")
-                    }
-
                     var newState = state
                     val events = mutableListOf<GameEvent>()
-                    for (permanentId in toTap.take(xCount)) {
+                    for (permanentId in toTap) {
                         val (tappedState, event) = tap(newState, permanentId)
                         newState = tappedState
                         event?.let(events::add)
@@ -1790,11 +1793,11 @@ class CostHandler {
     ): List<EntityId> {
         val context = PredicateContext(controllerId = controllerId)
         val projected = state.projectedState
-        return state.entities.filter { (entityId, container) ->
-            container.get<ControllerComponent>()?.playerId == controllerId &&
-            !container.has<TappedComponent>() &&
-            predicateEvaluator.matches(state, projected, entityId, filter, context)
-        }.keys.toList()
+        return state.getBattlefield().filter { entityId ->
+            projected.getController(entityId) == controllerId &&
+                state.getEntity(entityId)?.has<TappedComponent>() == false &&
+                predicateEvaluator.matches(state, projected, entityId, filter, context)
+        }
     }
 
     // `internal` (not private) so the activated-ability cost-choice pause in

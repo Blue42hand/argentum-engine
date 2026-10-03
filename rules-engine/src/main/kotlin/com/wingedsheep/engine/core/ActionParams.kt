@@ -2,6 +2,7 @@ package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.legalactions.LegalAction
+import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
@@ -129,17 +130,32 @@ object ActionParameterizer {
     fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(legalAction.action, spec(legalAction))
         legalAction.additionalCostInfo?.let { cost ->
-            fun requireCandidates(field: String, selected: List<EntityId>, candidates: List<EntityId>) {
-                require(selected.all { it in candidates }) {
-                    "$field contains an entity not offered for this action"
-                }
-            }
-            requireCandidates("tappedPermanents", params.tappedPermanents, cost.validTapTargets)
-            requireCandidates("sacrificedPermanents", params.sacrificedPermanents, cost.validSacrificeTargets)
-            requireCandidates("discardedCards", params.discardedCards, cost.validDiscardTargets)
-            requireCandidates("exiledCards", params.exiledCards, cost.validExileTargets)
+            params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
+                cost.validDiscardTargets, cost.validExileTargets)
         }
         return apply(legalAction.action, params, state)
+    }
+
+    /** Complete a server controller's enriched offered action with the same cost checks as Gym. */
+    fun apply(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction {
+        params.allowOnly(info.action, info.parameterSpec)
+        info.additionalCostInfo?.let { cost ->
+            params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
+                cost.validDiscardTargets, cost.validExileTargets)
+        }
+        return apply(info.action, params, state)
+    }
+
+    private fun ActionParams.requireCostCandidates(
+        tap: List<EntityId>, sacrifice: List<EntityId>, discard: List<EntityId>, exile: List<EntityId>
+    ) {
+        fun check(field: String, selected: List<EntityId>, candidates: List<EntityId>) {
+            require(selected.all { it in candidates }) { "$field contains an entity not offered for this action" }
+        }
+        check("tappedPermanents", tappedPermanents, tap)
+        check("sacrificedPermanents", sacrificedPermanents, sacrifice)
+        check("discardedCards", discardedCards, discard)
+        check("exiledCards", exiledCards, exile)
     }
 
     /**

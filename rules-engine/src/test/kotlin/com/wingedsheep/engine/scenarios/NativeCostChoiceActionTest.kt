@@ -5,6 +5,8 @@ import com.wingedsheep.engine.core.ActionParams
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.view.LegalActionEnricher
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.lrw.cards.SpringleafDrum
@@ -12,6 +14,7 @@ import com.wingedsheep.mtg.sets.definitions.scg.cards.CarrionFeeder
 import com.wingedsheep.mtg.sets.definitions.big.cards.FomoriVault
 import com.wingedsheep.mtg.sets.definitions.eld.cards.ThrillOfPossibility
 import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
+import com.wingedsheep.mtg.sets.definitions.eoe.cards.SecludedStarforge
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
@@ -24,7 +27,7 @@ import io.kotest.assertions.throwables.shouldThrow
 class NativeCostChoiceActionTest : FunSpec({
     fun game(): GameTestDriver = GameTestDriver().apply {
         registerCards(TestCards.all + listOf(SpringleafDrum, CarrionFeeder, FomoriVault,
-            ThrillOfPossibility, VillageRites))
+            ThrillOfPossibility, VillageRites, SecludedStarforge))
         initMirrorMatch(Deck.of("Forest" to 40))
         passPriorityUntil(Step.PRECOMBAT_MAIN)
     }
@@ -99,6 +102,39 @@ class NativeCostChoiceActionTest : FunSpec({
         driver.state.getEntity(opponentCreature)!!.has<TappedComponent>() shouldBe false
     }
 
+    test("direct Tap X payment requires distinct controlled battlefield artifacts") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val opponent = driver.getOpponent(player)
+        val forge = driver.putPermanentOnBattlefield(player, "Secluded Starforge")
+        val first = driver.putPermanentOnBattlefield(player, "Springleaf Drum")
+        val second = driver.putPermanentOnBattlefield(player, "Springleaf Drum")
+        val theirs = driver.putPermanentOnBattlefield(opponent, "Springleaf Drum")
+        val handCard = driver.putCardInHand(player, "Springleaf Drum")
+        val target = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        driver.giveMana(player, Color.GREEN, 2)
+        val offered = driver.legalActions(player).first { legal ->
+            val action = legal.action as? ActivateAbility
+            action?.sourceId == forge && action.abilityId == SecludedStarforge.activatedAbilities[1].id
+        }.action
+        for (ids in listOf(listOf(first, first), listOf(first, theirs), listOf(first, handCard))) {
+            val direct = ActionParameterizer.apply(
+                offered, ActionParams(targets = listOf(target), xValue = 2, tappedPermanents = ids), driver.state
+            )
+            (driver.submit(direct).error != null) shouldBe true
+            driver.state.getEntity(first)!!.has<TappedComponent>() shouldBe false
+            driver.state.getEntity(second)!!.has<TappedComponent>() shouldBe false
+            driver.state.getEntity(theirs)!!.has<TappedComponent>() shouldBe false
+        }
+        val valid = ActionParameterizer.apply(
+            offered, ActionParams(targets = listOf(target), xValue = 2,
+                tappedPermanents = listOf(first, second)), driver.state
+        )
+        driver.submit(valid).error shouldBe null
+        driver.state.getEntity(first)!!.has<TappedComponent>() shouldBe true
+        driver.state.getEntity(second)!!.has<TappedComponent>() shouldBe true
+    }
+
     test("a one-creature spell sacrifice rejects overpayment") {
         val driver = game()
         val player = driver.activePlayer!!
@@ -153,6 +189,29 @@ class NativeCostChoiceActionTest : FunSpec({
         )
         (driver.submit(direct).error != null) shouldBe true
         (opponentCreature in driver.state.getBattlefield()) shouldBe true
+    }
+
+    test("server legal-action info exposes and enforces the same sacrifice contract") {
+        val driver = game()
+        val player = driver.activePlayer!!
+        val feeder = driver.putCreatureOnBattlefield(player, "Carrion Feeder")
+        val own = driver.putCreatureOnBattlefield(player, "Grizzly Bears")
+        val theirs = driver.putCreatureOnBattlefield(driver.getOpponent(player), "Grizzly Bears")
+        val offered = driver.legalActions(player).first { legal ->
+            (legal.action as? ActivateAbility)?.sourceId == feeder
+        }
+        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry), driver.cardRegistry)
+            .enrich(listOf(offered), driver.state, player).single()
+        ("sacrificedPermanents" in info.parameterSpec.allowedFields) shouldBe true
+        ("discardedCards" in info.parameterSpec.allowedFields) shouldBe false
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(info, ActionParams(sacrificedPermanents = listOf(theirs)), driver.state)
+        }
+        val valid = ActionParameterizer.apply(
+            info, ActionParams(sacrificedPermanents = listOf(own)), driver.state
+        )
+        driver.submit(valid).error shouldBe null
+        (own in driver.state.getBattlefield()) shouldBe false
     }
 
     test("discard rejects a card from another player's hand") {
