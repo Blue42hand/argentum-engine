@@ -310,6 +310,11 @@ data class LegalActionView(
     val maxTargets: Int = 0,
     val requiresDamageDistribution: Boolean = false,
     val isManaAbility: Boolean = false,
+    /** Fields accepted when this offered action ID is stepped with ActionParams. */
+    val parameterSpec: com.wingedsheep.engine.core.ActionParameterSpec =
+        com.wingedsheep.engine.core.ActionParameterSpec.EMPTY,
+    /** Engine-authored candidates and counts for explicit nonmana payment choices. */
+    val costChoices: NativeCostChoiceView? = null,
     /**
      * Creatures that may be declared as attackers (`kind == "DeclareAttackers"`), empty otherwise.
      * Pair each with one of [validAttackTargets] in `ActionParams.attackers` when stepping; step it
@@ -339,6 +344,22 @@ data class LegalActionView(
     val mandatoryBlockerAssignments: Map<EntityId, List<EntityId>> = emptyMap(),
     /** True when this entry was generated from [PendingDecisionView], not a GameAction. */
     val isDecisionOption: Boolean = false
+)
+
+@Serializable
+data class NativeCostChoiceView(
+    val costType: String,
+    val validTapTargets: List<EntityId> = emptyList(),
+    val tapCount: Int = 0,
+    val validSacrificeTargets: List<EntityId> = emptyList(),
+    val sacrificeCount: Int = 0,
+    val validDiscardTargets: List<EntityId> = emptyList(),
+    val discardCount: Int = 0,
+    val validExileTargets: List<EntityId> = emptyList(),
+    val exileMinCount: Int = 0,
+    val exileMaxCount: Int = 0,
+    val exileMinTotalWeight: Int = 0,
+    val exileCardWeights: Map<EntityId, Int> = emptyMap(),
 )
 
 /**
