@@ -30,6 +30,29 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 
 /** A cast offered using choice-dependent mana must be able to reach that mana choice. */
 class AbradePaymentAgreementTest : FunSpec({
+    test("legacy Emerge selection keeps its creature when Treasure supplies the missing mana") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(ElderDeepFiend, PredefinedTokens.Treasure))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Elder Deep-Fiend")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        val treasure = game.putPermanentOnBattlefield(caster, "Treasure")
+        game.giveMana(caster, Color.BLUE)
+        game.giveMana(caster, Color.GREEN, 3)
+        val legacyCast = CastSpell(caster, card, useAlternativeCost = true,
+            additionalCostPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)))
+
+        game.submit(legacyCast).isPaused shouldBe true
+        game.submit(ActivateAbility(caster, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
+            manaColorChoice = Color.BLUE)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        game.submitDecision(caster, ManaSourcesSelectedResponse(window.id)).error shouldBe null
+        (card in game.state.stack) shouldBe true
+        (creature in game.state.getBattlefield()) shouldBe false
+    }
+
     test("web-slinging cannot reuse its selected creature as a mana cost") {
         val game = GameTestDriver()
         game.registerCards(TestCards.all + listOf(SpiderUK, PhyrexianAltar))

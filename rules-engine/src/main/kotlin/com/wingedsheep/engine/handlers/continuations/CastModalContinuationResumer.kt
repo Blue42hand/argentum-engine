@@ -92,12 +92,14 @@ class CastModalContinuationResumer(
         val validationError = castSpellHandler.validateRemainingPayment(
             resumedState, action,
             continuation.lockedCost, continuation.paymentXValue, continuation.additionalCosts,
-            continuation.forageCostRequired, continuation.additionalLifeCost
+            continuation.forageCostRequired, continuation.additionalLifeCost,
+            continuation.dedicatedAlternativeCostType
         )
         if (validationError != null) return ExecutionResult.error(state, validationError)
         val result = castSpellHandler.executeWithLockedManaCost(
             resumedState, action, continuation.lockedCost, continuation.additionalCosts,
-            continuation.forageCostRequired, continuation.additionalLifeCost
+            continuation.forageCostRequired, continuation.additionalLifeCost,
+            continuation.dedicatedAlternativeCostType
         )
         return result
     }

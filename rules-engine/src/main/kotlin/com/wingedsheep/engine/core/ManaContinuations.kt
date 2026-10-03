@@ -537,4 +537,5 @@ data class CastManaSelectionContinuation(
     val additionalCosts: List<com.wingedsheep.sdk.scripting.AdditionalCost>,
     val forageCostRequired: Boolean,
     val additionalLifeCost: Int,
+    val dedicatedAlternativeCostType: AlternativeCostType?,
 ) : AnswerContinuation

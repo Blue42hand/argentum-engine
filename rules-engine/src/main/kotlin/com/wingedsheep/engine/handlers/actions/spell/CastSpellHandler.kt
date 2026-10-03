@@ -216,7 +216,8 @@ class CastSpellHandler(
     /** Only payment resources are rechecked after mana abilities; announced targets stay locked. */
     internal fun validateRemainingPayment(
         state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int,
-        additionalCosts: List<AdditionalCost>, forageCostRequired: Boolean, additionalLifeCost: Int
+        additionalCosts: List<AdditionalCost>, forageCostRequired: Boolean, additionalLifeCost: Int,
+        dedicatedAlternativeCostType: AlternativeCostType?
     ): String? {
         validateAdditionalCosts(state, additionalCosts, action)?.let { return it }
         if (forageCostRequired && !com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(
@@ -229,19 +230,19 @@ class CastSpellHandler(
         }
         // These alternative costs are paid directly by execute(), not through the scripted
         // AdditionalCost list. Their selected permanents must still exist after mana abilities.
-        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.SNEAK)) {
+        if (dedicatedAlternativeCostType == AlternativeCostType.SNEAK) {
             val bounced = action.additionalCostPayment?.bouncedPermanents.orEmpty()
             if (bounced.size != 1 || bounced.single() !in SneakWindow.unblockedAttackers(state, action.playerId)) {
                 return "The chosen creature is not an unblocked attacker you control"
             }
         }
-        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.WEB_SLINGING)) {
+        if (dedicatedAlternativeCostType == AlternativeCostType.WEB_SLINGING) {
             val bounced = action.additionalCostPayment?.bouncedPermanents.orEmpty()
             if (bounced.size != 1 || bounced.single() !in WebSlinging.tappedCreaturesYouControl(state, action.playerId)) {
                 return "The chosen creature is not a tapped creature you control"
             }
         }
-        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE)) {
+        if (dedicatedAlternativeCostType == AlternativeCostType.EMERGE) {
             val sacrificed = action.additionalCostPayment?.sacrificedPermanents.orEmpty()
             if (sacrificed.size != 1 || sacrificed.single() !in EmergeCasts.sacrificeCandidates(state, action.playerId)) {
                 return "The permanent chosen for emerge is not a creature you control"
@@ -989,7 +990,10 @@ class CastSpellHandler(
     }
 
     /** The [cost] and adjusted X actually charged as mana at payment time for a cast. */
-    private data class ComputedCastCost(val cost: ManaCost, val paymentXValue: Int)
+    private data class ComputedCastCost(
+        val cost: ManaCost, val paymentXValue: Int,
+        val dedicatedAlternativeCostType: AlternativeCostType? = null
+    )
 
     /**
      * The full mana-cost pipeline for a cast (CR 601.2f): alternative-cost base selection
@@ -1018,6 +1022,7 @@ class CastSpellHandler(
         val faceManaCostOverride: ManaCost? = action.faceIndex?.let { idx ->
             cardDef?.cardFaces?.getOrNull(idx)?.manaCost
         }
+        var dedicatedAlternativeCostType: AlternativeCostType? = null
         var effectiveCost = if (playForFree) {
             ManaCost.ZERO
         } else if (faceManaCostOverride != null && cardDef != null) {
@@ -1092,12 +1097,15 @@ class CastSpellHandler(
                     // Check emerge cost (CR 702.119 — mana portion; the sacrifice is paid separately).
                     val emergeAbility = EmergeCasts.printedEmerge(cardDef)
                     if (action.altAllows(AlternativeCostType.SNEAK) && sneakCost != null) {
+                        dedicatedAlternativeCostType = AlternativeCostType.SNEAK
                         costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, sneakCost, action.playerId)
                     } else if (action.altAllows(AlternativeCostType.WEB_SLINGING) && webSlingingAbility != null) {
+                        dedicatedAlternativeCostType = AlternativeCostType.WEB_SLINGING
                         costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, webSlingingAbility.cost, action.playerId)
                     } else if (action.altAllows(AlternativeCostType.EVOKE) && evokeAbility != null) {
                         costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, evokeAbility.cost, action.playerId)
                     } else if (action.altAllows(AlternativeCostType.EMERGE) && emergeAbility != null) {
+                        dedicatedAlternativeCostType = AlternativeCostType.EMERGE
                         // CR 702.119a — the emerge cost, then reduced by an amount of *generic*
                         // mana equal to the sacrificed creature's mana value. The reduction lands
                         // after the battlefield cost-modifier pipeline because it is a cost
@@ -1311,7 +1319,7 @@ class CastSpellHandler(
         // (and reduced by the waterbend taps), so it must NOT also be charged as {X} mana.
         val paymentXValue = if (cardDef?.script?.spellWaterbend?.isX == true) 0
             else harmonizePaymentXValue(state, action, cardDef, effectiveCost)
-        return ComputedCastCost(costAfterImprovise, paymentXValue)
+        return ComputedCastCost(costAfterImprovise, paymentXValue, dedicatedAlternativeCostType)
     }
 
     private fun validatePayment(state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int = action.xValue ?: 0): String? {
@@ -2400,7 +2408,8 @@ class CastSpellHandler(
         state: GameState, action: CastSpell, lockedCost: ManaCost?,
         lockedAdditionalCosts: List<AdditionalCost>? = null,
         lockedForageCostRequired: Boolean? = null,
-        lockedAdditionalLifeCost: Int? = null
+        lockedAdditionalLifeCost: Int? = null,
+        lockedDedicatedAlternativeCostType: AlternativeCostType? = null
     ): ExecutionResult {
         var currentState = state
         val events = mutableListOf<GameEvent>()
@@ -2537,7 +2546,8 @@ class CastSpellHandler(
                             ) && action.cardId in state.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD)),
                             if (action.targets.isNotEmpty()) costCalculator.calculateAdditionalLifeCost(
                                 state, action.playerId, action.targets
-                            ) else 0
+                            ) else 0,
+                            computed.dedicatedAlternativeCostType
                         ) }
                     )
                 }
@@ -3455,7 +3465,9 @@ class CastSpellHandler(
         // already taken off the generic portion of `effectiveCost` while it was on the battlefield.
         // The snapshot feeds "as it last existed on the battlefield" reads (CR 608.2h) exactly like
         // a scripted sacrifice cost does.
-        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE) &&
+        if (action.useAlternativeCost &&
+            (if (lockedCost != null) lockedDedicatedAlternativeCostType == AlternativeCostType.EMERGE
+                else action.altAllows(AlternativeCostType.EMERGE)) &&
             cardDef != null && EmergeCasts.printedEmerge(cardDef) != null
         ) {
             val emergeSacrifice = action.additionalCostPayment?.sacrificedPermanents?.firstOrNull()
@@ -3593,8 +3605,9 @@ class CastSpellHandler(
         // than the card's current zone.
         val wasSneaked = action.useAlternativeCost && cardDef != null &&
             action.altAllows(AlternativeCostType.SNEAK) &&
-            (lockedCost != null || cardDef.keywordAbilities.any { it.ninjutsuStyleCost != null } ||
-                SneakWindow.graveyardSneakGrantCost(currentState, action.playerId, cardRegistry) != null)
+            ((lockedCost != null && lockedDedicatedAlternativeCostType == AlternativeCostType.SNEAK) ||
+                (lockedCost == null && (cardDef.keywordAbilities.any { it.ninjutsuStyleCost != null } ||
+                SneakWindow.graveyardSneakGrantCost(currentState, action.playerId, cardRegistry) != null)))
         var sneakAttackDefenderId: EntityId? = null
         if (wasSneaked) {
             val bounceId = action.additionalCostPayment?.bouncedPermanents?.firstOrNull()
@@ -3615,9 +3628,10 @@ class CastSpellHandler(
         // (CR 118.9c — its own mana value, needed by Scarlet Spider, Ben Reilly) before it leaves.
         val wasWebSlung = action.useAlternativeCost && cardDef != null &&
             action.altAllows(AlternativeCostType.WEB_SLINGING) &&
-            (lockedCost != null || WebSlinging.effectiveWebSlinging(
+            ((lockedCost != null && lockedDedicatedAlternativeCostType == AlternativeCostType.WEB_SLINGING) ||
+                (lockedCost == null && WebSlinging.effectiveWebSlinging(
                 currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
-            ) != null)
+            ) != null))
         var webSlungReturnedManaValue = 0
         if (wasWebSlung) {
             val bounceId = action.additionalCostPayment?.bouncedPermanents?.firstOrNull()
