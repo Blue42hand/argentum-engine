@@ -205,8 +205,8 @@ class AiTournamentController(
                     winnerId = match.winnerId?.value,
                     isDraw = match.isDraw,
                     isSimulated = match.isSimulated,
-                    nativeGameOver = session?.isGameOver() == true,
-                    finalTurnNumber = session?.getStateSnapshot()?.turnNumber,
+                    nativeGameOver = match.nativeGameOver || session?.isGameOver() == true,
+                    finalTurnNumber = match.finalTurnNumber ?: session?.getStateSnapshot()?.turnNumber,
                 )
             }.sortedBy { it.gameSessionId }
 

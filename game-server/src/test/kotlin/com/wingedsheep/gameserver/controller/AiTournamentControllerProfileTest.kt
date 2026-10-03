@@ -3,14 +3,19 @@ package com.wingedsheep.gameserver.controller
 import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.gameserver.handler.LobbyHandler
+import com.wingedsheep.gameserver.lobby.LobbyState
+import com.wingedsheep.gameserver.lobby.TournamentLobby
 import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
+import com.wingedsheep.gameserver.tournament.TournamentManager
 import com.wingedsheep.sdk.core.GameRules
+import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.concurrent.ConcurrentHashMap
 
 class AiTournamentControllerProfileTest : FunSpec({
     val handler = mockk<LobbyHandler>()
@@ -50,5 +55,36 @@ class AiTournamentControllerProfileTest : FunSpec({
             )
         )
         response.statusCode.value() shouldBe 400
+    }
+
+    test("status retains native terminal evidence after the game session is removed") {
+        val lobbyId = "terminal-lobby"
+        val gameId = "played-game"
+        val krenko = EntityId("krenko")
+        val talrand = EntityId("talrand")
+        val tournament = TournamentManager(lobbyId, listOf(krenko to "Krenko", talrand to "Talrand"), 1)
+        val match = tournament.startNextRound()!!.matches.single()
+        match.gameSessionId = gameId
+        tournament.reportMatchResult(gameId, krenko, 17)
+        match.nativeGameOver = true
+        match.finalTurnNumber = 13
+
+        val lobby = mockk<TournamentLobby>()
+        every { lobby.lobbyId } returns lobbyId
+        every { lobby.state } returns LobbyState.TOURNAMENT_COMPLETE
+        every { lobby.players } returns ConcurrentHashMap()
+        val lobbyRepository = mockk<LobbyRepository>()
+        every { lobbyRepository.findLobbyById(lobbyId) } returns lobby
+        every { lobbyRepository.findTournamentById(lobbyId) } returns tournament
+        val gameRepository = mockk<GameRepository>()
+        every { gameRepository.findById(gameId) } returns null
+
+        val status = AiTournamentController(handler, mockk(), lobbyRepository, gameRepository)
+            .status(lobbyId).body!!
+
+        status.complete shouldBe true
+        status.completedGames.single().nativeGameOver shouldBe true
+        status.completedGames.single().finalTurnNumber shouldBe 13
+        status.completedGames.single().winnerId shouldBe krenko.value
     }
 })
