@@ -216,9 +216,37 @@ class CastSpellHandler(
     /** Only payment resources are rechecked after mana abilities; announced targets stay locked. */
     internal fun validateRemainingPayment(
         state: GameState, action: CastSpell, lockedCost: ManaCost, paymentXValue: Int,
-        additionalCosts: List<AdditionalCost>
+        additionalCosts: List<AdditionalCost>, forageCostRequired: Boolean, additionalLifeCost: Int
     ): String? {
         validateAdditionalCosts(state, additionalCosts, action)?.let { return it }
+        if (forageCostRequired && !com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(
+                state, action.playerId, excludeCardId = action.cardId
+            )) return "Cannot forage: need 3 other cards in graveyard or a Food"
+        val hand = state.getZone(ZoneKey(action.playerId, Zone.HAND))
+        if (action.splicedCardIds.any { it !in hand }) return "Spliced card is not in your hand"
+        if (additionalLifeCost > state.lifeTotal(action.playerId)) {
+            return "Not enough life to pay additional life cost ($additionalLifeCost life required)"
+        }
+        // These alternative costs are paid directly by execute(), not through the scripted
+        // AdditionalCost list. Their selected permanents must still exist after mana abilities.
+        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.SNEAK)) {
+            val bounced = action.additionalCostPayment?.bouncedPermanents.orEmpty()
+            if (bounced.size != 1 || bounced.single() !in SneakWindow.unblockedAttackers(state, action.playerId)) {
+                return "The chosen creature is not an unblocked attacker you control"
+            }
+        }
+        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.WEB_SLINGING)) {
+            val bounced = action.additionalCostPayment?.bouncedPermanents.orEmpty()
+            if (bounced.size != 1 || bounced.single() !in WebSlinging.tappedCreaturesYouControl(state, action.playerId)) {
+                return "The chosen creature is not a tapped creature you control"
+            }
+        }
+        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE)) {
+            val sacrificed = action.additionalCostPayment?.sacrificedPermanents.orEmpty()
+            if (sacrificed.size != 1 || sacrificed.single() !in EmergeCasts.sacrificeCandidates(state, action.playerId)) {
+                return "The permanent chosen for emerge is not a creature you control"
+            }
+        }
         val cardDef = state.getEntity(action.cardId)?.get<CardComponent>()
             ?.let { cardRegistry.getCard(it.cardDefinitionId) }
         if (action.conspiredCreatures.isNotEmpty() && cardDef != null) {
@@ -2370,7 +2398,9 @@ class CastSpellHandler(
 
     internal fun executeWithLockedManaCost(
         state: GameState, action: CastSpell, lockedCost: ManaCost?,
-        lockedAdditionalCosts: List<AdditionalCost>? = null
+        lockedAdditionalCosts: List<AdditionalCost>? = null,
+        lockedForageCostRequired: Boolean? = null,
+        lockedAdditionalLifeCost: Int? = null
     ): ExecutionResult {
         var currentState = state
         val events = mutableListOf<GameEvent>()
@@ -2501,7 +2531,13 @@ class CastSpellHandler(
                         ) },
                         answer = { decision -> com.wingedsheep.engine.core.CastManaSelectionContinuation(
                             action, payableCost, computed.paymentXValue, decision.availableSources,
-                            collectAllAdditionalCosts(state, action, cardDef)
+                            collectAllAdditionalCosts(state, action, cardDef),
+                            zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
+                                state, action.playerId, action.cardId, cardComponent
+                            ) && action.cardId in state.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD)),
+                            if (action.targets.isNotEmpty()) costCalculator.calculateAdditionalLifeCost(
+                                state, action.playerId, action.targets
+                            ) else 0
                         ) }
                     )
                 }
@@ -3452,9 +3488,9 @@ class CastSpellHandler(
         // can't be one of the three cards it exiles to pay for itself. The player's mode + card/Food
         // choice (when supplied via additionalCostPayment) is honored; otherwise a legal mode is
         // auto-paid. See [com.wingedsheep.engine.handlers.costs.ForageCostResolver].
-        val isForageCast = zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
+        val isForageCast = lockedForageCostRequired ?: (zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
             currentState, action.playerId, action.cardId, cardComponent
-        ) && action.cardId in currentState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
+        ) && action.cardId in currentState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD)))
         if (isForageCast) {
             when (val forageResult = com.wingedsheep.engine.handlers.costs.ForageCostResolver.pay(
                 currentState, action.playerId,
@@ -3486,7 +3522,7 @@ class CastSpellHandler(
         // (e.g. Terror of the Peaks: "Spells your opponents cast that target this creature
         // cost an additional 3 life to cast.").
         if (action.targets.isNotEmpty()) {
-            val additionalLifeCost = costCalculator.calculateAdditionalLifeCost(
+            val additionalLifeCost = lockedAdditionalLifeCost ?: costCalculator.calculateAdditionalLifeCost(
                 currentState, action.playerId, action.targets
             )
             if (additionalLifeCost > 0) {
@@ -3557,7 +3593,7 @@ class CastSpellHandler(
         // than the card's current zone.
         val wasSneaked = action.useAlternativeCost && cardDef != null &&
             action.altAllows(AlternativeCostType.SNEAK) &&
-            (cardDef.keywordAbilities.any { it.ninjutsuStyleCost != null } ||
+            (lockedCost != null || cardDef.keywordAbilities.any { it.ninjutsuStyleCost != null } ||
                 SneakWindow.graveyardSneakGrantCost(currentState, action.playerId, cardRegistry) != null)
         var sneakAttackDefenderId: EntityId? = null
         if (wasSneaked) {
@@ -3579,7 +3615,9 @@ class CastSpellHandler(
         // (CR 118.9c — its own mana value, needed by Scarlet Spider, Ben Reilly) before it leaves.
         val wasWebSlung = action.useAlternativeCost && cardDef != null &&
             action.altAllows(AlternativeCostType.WEB_SLINGING) &&
-            WebSlinging.effectiveWebSlinging(currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null
+            (lockedCost != null || WebSlinging.effectiveWebSlinging(
+                currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
+            ) != null)
         var webSlungReturnedManaValue = 0
         if (wasWebSlung) {
             val bounceId = action.additionalCostPayment?.bouncedPermanents?.firstOrNull()

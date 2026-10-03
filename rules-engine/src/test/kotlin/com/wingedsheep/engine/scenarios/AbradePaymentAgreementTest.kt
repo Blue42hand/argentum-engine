@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
@@ -14,6 +15,9 @@ import com.wingedsheep.mtg.sets.definitions.lrw.cards.SpringleafDrum
 import com.wingedsheep.mtg.sets.definitions.inv.cards.PhyrexianAltar
 import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
 import com.wingedsheep.mtg.sets.definitions.lrw.cards.Smokebraider
+import com.wingedsheep.mtg.sets.definitions.emn.cards.ElderDeepFiend
+import com.wingedsheep.mtg.sets.definitions.spm.cards.SpiderUK
+import com.wingedsheep.mtg.sets.definitions.tmt.cards.SplintersTechnique
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
@@ -26,6 +30,91 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 
 /** A cast offered using choice-dependent mana must be able to reach that mana choice. */
 class AbradePaymentAgreementTest : FunSpec({
+    test("web-slinging cannot reuse its selected creature as a mana cost") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(SpiderUK, PhyrexianAltar))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Spider-UK")
+        val altar = game.putPermanentOnBattlefield(caster, "Phyrexian Altar")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        game.tapPermanent(creature)
+        game.giveMana(caster, Color.WHITE)
+        game.giveMana(caster, Color.GREEN)
+        val cast = CastSpell(caster, card, useAlternativeCost = true,
+            alternativeCostType = AlternativeCostType.WEB_SLINGING,
+            additionalCostPayment = AdditionalCostPayment(bouncedPermanents = listOf(creature)))
+
+        game.submit(cast).isPaused shouldBe true
+        game.submit(ActivateAbility(caster, altar, PhyrexianAltar.activatedAbilities.single().id,
+            costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)),
+            manaColorChoice = Color.GREEN)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val rejected = game.submitDecision(caster, ManaSourcesSelectedResponse(window.id))
+        (rejected.error != null) shouldBe true
+        (card in game.state.getHand(caster)) shouldBe true
+    }
+
+    test("sneak cannot reuse its selected attacker as a mana cost") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(SplintersTechnique, PhyrexianAltar))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        val opponent = if (caster == game.player1) game.player2 else game.player1
+        val card = game.putCardInHand(caster, "Splinter's Technique")
+        val altar = game.putPermanentOnBattlefield(caster, "Phyrexian Altar")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        game.removeSummoningSickness(creature)
+        game.passPriorityUntil(Step.DECLARE_ATTACKERS)
+        game.declareAttackers(caster, listOf(creature), opponent).error shouldBe null
+        game.passPriorityUntil(Step.DECLARE_BLOCKERS)
+        game.declareBlockers(opponent, emptyMap()).error shouldBe null
+        var guard = 0
+        while (game.state.priorityPlayerId != null && game.state.priorityPlayerId != caster &&
+            game.state.step == Step.DECLARE_BLOCKERS && guard++ < 4
+        ) game.passPriority(game.state.priorityPlayerId!!)
+        game.giveMana(caster, Color.BLACK)
+        val cast = CastSpell(caster, card, useAlternativeCost = true,
+            alternativeCostType = AlternativeCostType.SNEAK,
+            additionalCostPayment = AdditionalCostPayment(bouncedPermanents = listOf(creature)))
+
+        game.submit(cast).isPaused shouldBe true
+        game.submit(ActivateAbility(caster, altar, PhyrexianAltar.activatedAbilities.single().id,
+            costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)),
+            manaColorChoice = Color.GREEN)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val rejected = game.submitDecision(caster, ManaSourcesSelectedResponse(window.id))
+        (rejected.error != null) shouldBe true
+        (card in game.state.getHand(caster)) shouldBe true
+    }
+
+    test("emerge cannot reuse its selected sacrifice as a mana cost") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(ElderDeepFiend, PhyrexianAltar))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val card = game.putCardInHand(caster, "Elder Deep-Fiend")
+        val altar = game.putPermanentOnBattlefield(caster, "Phyrexian Altar")
+        val creature = game.putCreatureOnBattlefield(caster, "Grizzly Bears")
+        game.giveMana(caster, Color.BLUE)
+        game.giveMana(caster, Color.GREEN, 3)
+        val cast = CastSpell(caster, card, useAlternativeCost = true,
+            alternativeCostType = AlternativeCostType.EMERGE,
+            additionalCostPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)))
+
+        game.submit(cast).isPaused shouldBe true
+        game.submit(ActivateAbility(caster, altar, PhyrexianAltar.activatedAbilities.single().id,
+            costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(creature)),
+            manaColorChoice = Color.BLUE)).error shouldBe null
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val rejected = game.submitDecision(caster, ManaSourcesSelectedResponse(window.id))
+        (rejected.error != null) shouldBe true
+        (card in game.state.getHand(caster)) shouldBe true
+        (card in game.state.stack) shouldBe false
+    }
+
     test("sacrificing an announced target for mana completes the cast") {
         val game = GameTestDriver()
         game.registerCards(TestCards.all + listOf(Abrade, PhyrexianAltar))

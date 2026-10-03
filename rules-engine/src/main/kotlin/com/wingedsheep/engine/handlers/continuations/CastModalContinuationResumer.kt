@@ -91,11 +91,13 @@ class CastModalContinuationResumer(
         // while retaining the mana price fixed when the payment window opened.
         val validationError = castSpellHandler.validateRemainingPayment(
             resumedState, action,
-            continuation.lockedCost, continuation.paymentXValue, continuation.additionalCosts
+            continuation.lockedCost, continuation.paymentXValue, continuation.additionalCosts,
+            continuation.forageCostRequired, continuation.additionalLifeCost
         )
         if (validationError != null) return ExecutionResult.error(state, validationError)
         val result = castSpellHandler.executeWithLockedManaCost(
-            resumedState, action, continuation.lockedCost, continuation.additionalCosts
+            resumedState, action, continuation.lockedCost, continuation.additionalCosts,
+            continuation.forageCostRequired, continuation.additionalLifeCost
         )
         return result
     }
