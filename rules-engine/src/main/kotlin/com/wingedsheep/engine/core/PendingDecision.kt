@@ -616,6 +616,9 @@ data class SelectManaSourcesDecision(
     val requiredCost: String,
     val autoPaySuggestion: List<EntityId>,
     val canDecline: Boolean = false,
+    /** Floating restricted mana the server permits for this nonspell payment. */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val eligibleRestrictedMana: List<EligibleRestrictedManaEntry> = emptyList(),
     /**
      * For a Ward—Waterbend cost (Avatar: The Last Airbender), the untapped artifacts and
      * creatures the paying player may tap to help pay the generic portion of [requiredCost] —
@@ -625,6 +628,12 @@ data class SelectManaSourcesDecision(
      */
     val waterbendPermanents: List<WaterbendPermanentChoice> = emptyList()
 ) : PendingDecision
+
+@Serializable
+data class EligibleRestrictedManaEntry(
+    val color: String?,
+    val restrictionDescription: String,
+)
 
 /**
  * An untapped artifact/creature offered as a Waterbend tap-to-help for a Ward—Waterbend payment.

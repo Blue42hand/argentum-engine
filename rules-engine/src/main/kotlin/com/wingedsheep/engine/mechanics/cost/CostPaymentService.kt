@@ -23,8 +23,11 @@ import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.library.MillAmountModifier
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
-import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
+import com.wingedsheep.engine.mechanics.mana.toComponent
+import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -33,6 +36,7 @@ import com.wingedsheep.engine.state.components.identity.ExiledFromZoneComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -500,19 +504,18 @@ class CostPaymentService(private val services: EngineServices) {
     private fun payMana(state: GameState, payerId: EntityId, manaCost: ManaCost, sourceId: EntityId): CostPaymentExecution {
         val playerEntity = state.getEntity(payerId) ?: return CostPaymentExecution(state, emptyList(), false)
         val poolComponent = playerEntity.get<ManaPoolComponent>() ?: ManaPoolComponent()
-        val pool = ManaPool(
-            poolComponent.white, poolComponent.blue, poolComponent.black,
-            poolComponent.red, poolComponent.green, poolComponent.colorless
-        )
+        val pool = poolComponent.toManaPool()
 
         // Spend floating mana first, then tap sources for the remainder.
-        val partial = pool.payPartial(manaCost)
+        val partial = pool.payPartial(manaCost, SpellPaymentContext())
         var combined = pool
         var current = state
         val events = mutableListOf<GameEvent>()
 
         if (!partial.remainingCost.isEmpty()) {
-            val solution = services.manaSolver.solve(current, payerId, partial.remainingCost)
+            val solution = services.manaSolver.solve(
+                current, payerId, partial.remainingCost, spellContext = SpellPaymentContext()
+            )
                 ?: return CostPaymentExecution(state, emptyList(), false)
             val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
                 .tapSourcesWithSideEffects(current, solution, payerId)
@@ -534,22 +537,25 @@ class CostPaymentService(private val services: EngineServices) {
             }
         }
 
-        val newPool = combined.pay(manaCost) ?: return CostPaymentExecution(state, emptyList(), false)
+        val newPool = combined.payNonSpellCost(manaCost) ?: return CostPaymentExecution(state, emptyList(), false)
         current = current.updateEntity(payerId) {
-            it.with(ManaPoolComponent(newPool.white, newPool.blue, newPool.black, newPool.red, newPool.green, newPool.colorless))
+            it.with(newPool.toComponent())
         }
 
         val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "the source"
+        fun restrictedSpent(color: Color?): Int =
+            combined.restrictedMana.count { it.color == color } -
+                newPool.restrictedMana.count { it.color == color }
         events.add(
             ManaSpentEvent(
                 playerId = payerId,
                 reason = "Pay cost for $sourceName",
-                white = combined.white - newPool.white,
-                blue = combined.blue - newPool.blue,
-                black = combined.black - newPool.black,
-                red = combined.red - newPool.red,
-                green = combined.green - newPool.green,
-                colorless = combined.colorless - newPool.colorless
+                white = combined.white - newPool.white + restrictedSpent(Color.WHITE),
+                blue = combined.blue - newPool.blue + restrictedSpent(Color.BLUE),
+                black = combined.black - newPool.black + restrictedSpent(Color.BLACK),
+                red = combined.red - newPool.red + restrictedSpent(Color.RED),
+                green = combined.green - newPool.green + restrictedSpent(Color.GREEN),
+                colorless = combined.colorless - newPool.colorless + restrictedSpent(null)
             )
         )
         return CostPaymentExecution(current, events, success = true)
@@ -756,7 +762,7 @@ class CostPaymentService(private val services: EngineServices) {
                 is PayCost.DynamicLife -> false
                 is PayCost.Choice -> c.options.any { canAfford(state, payerId, it, sourceId, manaSolver) }
                 is PayCost.Atom -> when (val atom = c.atom) {
-                    is CostAtom.Mana -> manaSolver.canPay(state, payerId, atom.cost)
+                    is CostAtom.Mana -> manaSolver.canPay(state, payerId, atom.cost, spellContext = SpellPaymentContext())
                     // CR 119.4 — a player may pay life only if their life total is at least the amount; paying
                     // life that would reduce them to 0 or less is legal (they then lose as a state-based action).
                     is CostAtom.PayLife -> life(state, payerId) >= atom.amount

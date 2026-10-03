@@ -103,8 +103,9 @@ export function ManaSourceSelectionUI({
         selectedManaSources,
         decision.availableSources,
         selectedWaterbend.length,
+        decision.eligibleRestrictedMana,
       ),
-    [costSymbols, manaPool, selectedManaSources, selectedWaterbend, decision.availableSources],
+    [costSymbols, manaPool, selectedManaSources, selectedWaterbend, decision.availableSources, decision.eligibleRestrictedMana],
   )
   const isCostCovered = coverage.every(isCovered)
   const floatingCoversAll = coverage.every((pip) => pip.floating || pip.symbol === 'X')

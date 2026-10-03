@@ -1829,7 +1829,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   token (creature or otherwise) with its own abilities — Treasure, Munitions, Cragflame — add a `CardDefinition`
   to `PredefinedTokens.kt` and expose an `Effects.Create<Name>Token()` facade that wraps
   `CreatePredefinedTokenEffect("<Name>", count)`. The predefined-token registry already supports noncreature type
-  lines (e.g. Munitions' `typeLine = "Artifact"`) and embedded triggered abilities. For a count computed at
+  lines (e.g. Munitions' `typeLine = "Artifact"`) and embedded triggered abilities.
+  **Vibranium** is a registered noncreature predefined token (`PredefinedTokens.Vibranium`): a colorless
+  Artifact — Vibranium with indestructible and `{T}: Add {C}. This mana can't be spent to cast a nonartifact
+  spell.` Create it with `Effects.CreateVibranium(count?, tapped?, controller?, imageUri?)`. Its mana uses
+  `ManaRestriction.CannotCastSpellsOtherThan(setOf(CardType.ARTIFACT))`, which restricts spell casting only;
+  ability costs, ward/tax payments, and special actions remain legal uses of that mana. For a count computed at
   resolution rather than a fixed integer, pass `dynamicCount = <DynamicAmount>` instead of `count` — the executor
   evaluates it (coerced to ≥ 0) and creates that many tokens (Lobelia Sackville-Baggins, LTR: "create X Treasure
   tokens, where X is the exiled card's power", via `DynamicAmount.EntityProperty(Target(0), Power)`).

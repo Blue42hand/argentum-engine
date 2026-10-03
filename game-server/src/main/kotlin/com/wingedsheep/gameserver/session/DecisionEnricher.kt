@@ -6,6 +6,9 @@ import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.isSatisfiedBy
 import com.wingedsheep.engine.view.Visibility
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.sdk.core.Zone
@@ -55,6 +58,13 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
 
     fun enrich(decision: PendingDecision, state: GameState, viewerId: EntityId): PendingDecision {
         return when (decision) {
+            is SelectManaSourcesDecision -> decision.copy(
+                eligibleRestrictedMana = if (viewerId == decision.playerId) {
+                    state.getEntity(decision.playerId)?.get<ManaPoolComponent>()?.restrictedMana.orEmpty()
+                        .filter { it.restriction.isSatisfiedBy(SpellPaymentContext()) }
+                        .map { EligibleRestrictedManaEntry(it.color?.symbol?.toString(), it.restriction.description) }
+                } else emptyList()
+            )
             is SearchLibraryDecision -> decision.copy(
                 cards = decision.cards.mapValues { (entityId, cardInfo) ->
                     cardInfo.copy(imageUri = imageUriFor(state, entityId))

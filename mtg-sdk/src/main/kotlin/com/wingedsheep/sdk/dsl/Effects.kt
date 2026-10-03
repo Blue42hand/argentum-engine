@@ -2794,6 +2794,22 @@ object Effects {
         CreatePredefinedTokenEffect("Treasure", count, controller, tapped = tapped, imageUri = imageUri)
 
     /**
+     * Create Vibranium tokens (CR 111.10w).
+     */
+    fun CreateVibranium(
+        count: Int = 1,
+        tapped: Boolean = false,
+        controller: EffectTarget? = null,
+        imageUri: String? = null
+    ): Effect = CreatePredefinedTokenEffect(
+        tokenType = "Vibranium",
+        count = count,
+        controller = controller,
+        tapped = tapped,
+        imageUri = imageUri
+    )
+
+    /**
      * Create a dynamic number of Treasure tokens — the count is evaluated at resolution
      * time. Used for cards like Goldvein Hydra ("create a number of tapped Treasure tokens
      * equal to its power") where the amount depends on game state.

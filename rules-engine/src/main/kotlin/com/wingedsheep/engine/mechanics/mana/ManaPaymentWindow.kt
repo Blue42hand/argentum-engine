@@ -88,7 +88,7 @@ object ManaPaymentWindow {
             }
         val remaining = remainingAfterFloating(state, playerId, cost)
         val suggestion = if (remaining.isEmpty()) emptyList()
-            else solver.solve(state, playerId, remaining)?.sources?.map { it.entityId }.orEmpty()
+            else solver.solve(state, playerId, remaining, spellContext = SpellPaymentContext())?.sources?.map { it.entityId }.orEmpty()
 
         return SelectManaSourcesDecision(
             id = decisionId,
@@ -136,7 +136,7 @@ object ManaPaymentWindow {
         var produced = ManaPool()
 
         if (response.autoPay) {
-            val solution = ManaSolver(services.cardRegistry).solve(current, playerId, remaining)
+            val solution = ManaSolver(services.cardRegistry).solve(current, playerId, remaining, spellContext = SpellPaymentContext())
                 ?: return FloatResult(state, emptyList(), paid = false)
             val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
                 .tapSourcesWithSideEffects(current, solution, playerId)
@@ -214,8 +214,7 @@ object ManaPaymentWindow {
         val pool = state.getEntity(playerId)
             ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
             ?: return cost
-        return ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless)
-            .payPartial(cost).remainingCost
+        return pool.toManaPool().payPartial(cost, SpellPaymentContext()).remainingCost
     }
 
     /** Adds [produced] to [playerId]'s pool, preserving restricted mana and provenance. */
@@ -317,7 +316,7 @@ object ManaPaymentWindow {
         val remaining = remainingCost(state, decision)
         val autoPaySuggestion = when {
             remaining == null || remaining.isEmpty() -> emptyList()
-            else -> solver.solve(state, decision.playerId, remaining)?.sources?.map { it.entityId }
+            else -> solver.solve(state, decision.playerId, remaining, spellContext = SpellPaymentContext())?.sources?.map { it.entityId }
                 ?: emptyList()
         }
 
@@ -341,8 +340,7 @@ object ManaPaymentWindow {
         val pool = state.getEntity(playerId)
             ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
             ?: return false
-        return ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless)
-            .payPartial(cost)
+        return pool.toManaPool().payPartial(cost, SpellPaymentContext())
             .remainingCost
             .isEmpty()
     }
@@ -357,8 +355,7 @@ object ManaPaymentWindow {
         val pool = state.getEntity(decision.playerId)
             ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
             ?: return cost
-        return ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless)
-            .payPartial(cost)
+        return pool.toManaPool().payPartial(cost, SpellPaymentContext())
             .remainingCost
     }
 }
