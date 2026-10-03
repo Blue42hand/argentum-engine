@@ -3,6 +3,8 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.core.DecisionPhase
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.support.GameTestDriver
+import com.wingedsheep.engine.support.exportPrivacyFixture
+import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
@@ -53,6 +55,7 @@ class LegendRuleTest : FunSpec({
         // There should be a pending SelectCardsDecision for the legend rule
         val decision = driver.pendingDecision
         decision.shouldBeInstanceOf<SelectCardsDecision>()
+        exportPrivacyFixture("structured-legend-decision", ClientStateTransformer(driver.cardRegistry).transform(driver.state, p1), pending = decision)
         decision.prompt.contains("legend rule") shouldBe true
         decision.options.size shouldBe 2
         decision.options.toSet() shouldBe setOf(firstRagavan, secondRagavan)

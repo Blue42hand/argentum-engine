@@ -2,6 +2,8 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.support.GameTestDriver
+import com.wingedsheep.engine.support.exportPrivacyFixture
+import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
@@ -65,6 +67,7 @@ class GravediggerCombatDeathTest : FunSpec({
         // Opponent blocks with their Grizzly Bears
         val blockResult = driver.declareBlockers(opponent, mapOf(blockerBears to listOf(attackerBears)))
         blockResult.isSuccess shouldBe true
+        exportPrivacyFixture("declared-combat", ClientStateTransformer(driver.cardRegistry).transform(driver.state, opponent))
 
         // Let combat damage happen - both creatures should die
         driver.passPriorityUntil(Step.POSTCOMBAT_MAIN)
