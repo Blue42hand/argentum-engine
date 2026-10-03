@@ -148,7 +148,7 @@ class ManaPaymentContinuationResumer(
                 )
             }
 
-            val solution = manaSolver.solve(state, playerId, partialResult.remainingCost)
+            val solution = manaSolver.solve(state, playerId, partialResult.remainingCost, spellContext = SpellPaymentContext())
             val autoPaySuggestion = solution?.sources?.map { it.entityId } ?: emptyList()
 
             val question = { decisionId: String -> SelectManaSourcesDecision(
@@ -661,7 +661,7 @@ class ManaPaymentContinuationResumer(
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
                 val manaSolver = ManaSolver(services.cardRegistry)
-                val solution = manaSolver.solve(currentState, playerId, remainingCost)
+                val solution = manaSolver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext())
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
@@ -936,7 +936,7 @@ class ManaPaymentContinuationResumer(
             )
         }
 
-        val solution = manaSolver.solve(state, playerId, partialResult.remainingCost)
+        val solution = manaSolver.solve(state, playerId, partialResult.remainingCost, spellContext = SpellPaymentContext())
         val autoPaySuggestion = solution?.sources?.map { it.entityId } ?: emptyList()
 
         val question = { decisionId: String -> SelectManaSourcesDecision(
@@ -1036,7 +1036,7 @@ class ManaPaymentContinuationResumer(
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
                 val manaSolver = ManaSolver(services.cardRegistry)
-                val solution = manaSolver.solve(currentState, playerId, remainingCost)
+                val solution = manaSolver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext())
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
@@ -1121,7 +1121,7 @@ class ManaPaymentContinuationResumer(
         }
 
         // Get auto-pay suggestion
-        val solution = manaSolver.solve(state, playerId, continuation.manaCost)
+        val solution = manaSolver.solve(state, playerId, continuation.manaCost, spellContext = SpellPaymentContext())
         val autoPaySuggestion = solution?.sources?.map { it.entityId } ?: emptyList()
 
         // Create mana source selection decision
@@ -1198,7 +1198,7 @@ class ManaPaymentContinuationResumer(
 
         if (!remainingCost.isEmpty()) {
             val manaSolver = ManaSolver(services.cardRegistry)
-            val solution = manaSolver.solve(currentState, playerId, remainingCost)
+            val solution = manaSolver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext())
                 ?: return ExecutionResult.error(state, "Cannot pay mana cost")
 
             for (source in solution.sources) {
@@ -1274,7 +1274,7 @@ class ManaPaymentContinuationResumer(
             if (response.autoPay) {
                 // Auto-tap: use ManaSolver
                 val manaSolver = ManaSolver(services.cardRegistry)
-                val solution = manaSolver.solve(currentState, playerId, remainingCost)
+                val solution = manaSolver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext())
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {

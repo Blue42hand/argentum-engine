@@ -88,7 +88,7 @@ object ManaPaymentWindow {
             }
         val remaining = remainingAfterFloating(state, playerId, cost)
         val suggestion = if (remaining.isEmpty()) emptyList()
-            else solver.solve(state, playerId, remaining)?.sources?.map { it.entityId }.orEmpty()
+            else solver.solve(state, playerId, remaining, spellContext = SpellPaymentContext())?.sources?.map { it.entityId }.orEmpty()
 
         return SelectManaSourcesDecision(
             id = decisionId,
@@ -136,7 +136,7 @@ object ManaPaymentWindow {
         var produced = ManaPool()
 
         if (response.autoPay) {
-            val solution = ManaSolver(services.cardRegistry).solve(current, playerId, remaining)
+            val solution = ManaSolver(services.cardRegistry).solve(current, playerId, remaining, spellContext = SpellPaymentContext())
                 ?: return FloatResult(state, emptyList(), paid = false)
             val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
                 .tapSourcesWithSideEffects(current, solution, playerId)
@@ -316,7 +316,7 @@ object ManaPaymentWindow {
         val remaining = remainingCost(state, decision)
         val autoPaySuggestion = when {
             remaining == null || remaining.isEmpty() -> emptyList()
-            else -> solver.solve(state, decision.playerId, remaining)?.sources?.map { it.entityId }
+            else -> solver.solve(state, decision.playerId, remaining, spellContext = SpellPaymentContext())?.sources?.map { it.entityId }
                 ?: emptyList()
         }
 

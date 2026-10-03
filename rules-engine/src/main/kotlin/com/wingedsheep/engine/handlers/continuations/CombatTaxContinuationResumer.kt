@@ -175,7 +175,7 @@ class CombatTaxContinuationResumer(
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
                 val solver = ManaSolver(services.cardRegistry)
-                val solution = solver.solve(currentState, playerId, remainingCost) ?: return null
+                val solution = solver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext()) ?: return null
                 for (source in solution.sources) {
                     val (tappedState, tapEvent) = tap(currentState, source.entityId)
                     currentState = tappedState

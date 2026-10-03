@@ -121,7 +121,9 @@ class PayManaCostRepeatedlyExecutor(
             // Hoisted once and threaded through every probe: nothing about the battlefield changes
             // between them, and the walk is O(bound) solver runs otherwise.
             val sources = solver.findAvailableManaSources(state, player)
-            val bound = maxTimes ?: solver.getAvailableManaCount(state, player, sources)
+            val bound = maxTimes ?: solver.getAvailableManaCount(
+                state, player, sources, com.wingedsheep.engine.mechanics.mana.SpellPaymentContext()
+            )
             if (bound <= 0) return 0
             var paid = 0
             while (paid < bound &&

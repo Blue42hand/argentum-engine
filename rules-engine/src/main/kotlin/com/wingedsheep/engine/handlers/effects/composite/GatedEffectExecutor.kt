@@ -13,6 +13,7 @@ import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -325,7 +326,7 @@ class GatedEffectExecutor(
             manaSolver, CostCalculator(cardRegistry), PredicateEvaluator(), cardRegistry
         )
         val waterbendPermanents = costUtils.findTapForGenericPermanents(state, playerId, TapForGeneric.WATERBEND)
-        val affordable = manaSolver.canPay(state, playerId, manaCost) ||
+        val affordable = manaSolver.canPay(state, playerId, manaCost, spellContext = SpellPaymentContext()) ||
             costUtils.canAffordWithTapForGeneric(state, playerId, manaCost, waterbendPermanents)
         if (!affordable) {
             // Can't pay → the "unless" fires (e.g. discard a card).
@@ -456,7 +457,7 @@ class GatedEffectExecutor(
             ?.let { TargetResolutionUtils.resolvePlayerTarget(it, context, state) }
             ?: context.controllerId
 
-        val maxAffordable = manaSolver.getAvailableManaCount(state, playerId)
+        val maxAffordable = manaSolver.getAvailableManaCount(state, playerId, spellContext = SpellPaymentContext())
         if (maxAffordable <= 0) {
             return effect.otherwise
                 ?.let { effectExecutor(state, it, context) }
@@ -554,7 +555,7 @@ class GatedEffectExecutor(
      */
     private fun canAfford(state: GameState, playerId: EntityId, cost: Effect, context: EffectContext): Boolean =
         when (cost) {
-            is PayManaCostEffect -> manaSolver.canPay(state, playerId, cost.cost)
+            is PayManaCostEffect -> manaSolver.canPay(state, playerId, cost.cost, spellContext = SpellPaymentContext())
             is PayDynamicManaCostEffect -> {
                 // Affordability must target whoever actually foots the bill — resolve the cost's own
                 // `payer` rather than trusting the gate's decisionMaker to match it. A computed
@@ -564,7 +565,8 @@ class GatedEffectExecutor(
                     .resolvePlayerTarget(EffectTarget.PlayerRef(cost.payer), context, state)
                     ?: playerId
                 amount <= 0 || manaSolver.canPay(
-                    state, payerId, PayDynamicManaCostExecutor.dynamicManaCost(amount, cost.color)
+                    state, payerId, PayDynamicManaCostExecutor.dynamicManaCost(amount, cost.color),
+                    spellContext = SpellPaymentContext()
                 )
             }
             is PayLifeEffect -> {

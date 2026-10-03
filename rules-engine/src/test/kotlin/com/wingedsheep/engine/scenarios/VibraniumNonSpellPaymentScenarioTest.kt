@@ -3,11 +3,15 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
+import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.core.EngineServices
+import com.wingedsheep.engine.mechanics.cost.CostPaymentService
+import com.wingedsheep.engine.mechanics.cost.PaymentResult
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -15,6 +19,7 @@ import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -72,9 +77,17 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
             effect = MayPayManaEffect(ManaCost.parse("{1}"), Effects.GainLife(1))
         }
     }
+    val counterUnlessPay = card("Test Vibranium Counter Unless Pay") {
+        manaCost = "{0}"
+        typeLine = "Instant"
+        spell {
+            target = Targets.Spell
+            effect = Effects.CounterUnlessPays("{1}")
+        }
+    }
 
     fun driver(): GameTestDriver = GameTestDriver().also {
-        it.registerCards(TestCards.all + listOf(PredefinedTokens.Vibranium, maker, wardedBear, wardTwoBear, smash, prison, optionalPayment))
+        it.registerCards(TestCards.all + listOf(PredefinedTokens.Vibranium, maker, wardedBear, wardTwoBear, smash, prison, optionalPayment, counterUnlessPay))
         it.initMirrorMatch(Deck.of("Forest" to 40), startingLife = 20)
     }
 
@@ -198,5 +211,64 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         game.submitDecision(player, ManaSourcesSelectedResponse(sources.id, emptyList(), autoPay = false)).isSuccess shouldBe true
         game.state.lifeTotal(player) shouldBe 21
         game.state.getEntity(player)?.get<ManaPoolComponent>()?.restrictedMana?.size shouldBe 0
+    }
+
+    test("PayCost mana window spends Vibranium floated after accepting payment") {
+        val game = driver()
+        val player = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val token = createVibranium(game, player)
+        val service = CostPaymentService(EngineServices(game.cardRegistry))
+        val cost = Costs.pay.Mana(ManaCost.parse("{1}"))
+        val pending = service.pay(game.state, player, cost, token).shouldBeInstanceOf<PaymentResult.Pending>()
+        game.replaceState(pending.state)
+        game.submitDecision(player, YesNoResponse(pending.pendingDecision.id, true)).error shouldBe null
+        game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+
+        tapVibranium(game, player, token)
+        val sources = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val paid = game.submitDecision(player, ManaSourcesSelectedResponse(sources.id, emptyList(), autoPay = false))
+        paid.error shouldBe null
+        paid.events.filterIsInstance<ManaSpentEvent>().single().colorless shouldBe 1
+        game.state.getEntity(player)?.get<ManaPoolComponent>()?.restrictedMana?.size shouldBe 0
+    }
+
+    test("optional trigger offers payment when Vibranium was floated before resolution") {
+        val game = driver()
+        val player = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val token = createVibranium(game, player)
+        val spell = game.putCardInHand(player, optionalPayment.name)
+        game.castSpell(player, spell).isSuccess shouldBe true
+        game.bothPass()
+        tapVibranium(game, player, token)
+        game.bothPass()
+
+        val offer = game.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
+        game.submitDecision(player, YesNoResponse(offer.id, true)).error shouldBe null
+        game.state.lifeTotal(player) shouldBe 21
+        game.state.getEntity(player)?.get<ManaPoolComponent>()?.restrictedMana?.size shouldBe 0
+    }
+
+    test("counter unless one offers payment from prefloated Vibranium") {
+        val game = driver()
+        val player = game.activePlayer!!
+        val opponent = game.getOpponent(player)
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val token = createVibranium(game, player)
+        val bear = game.putCreatureOnBattlefield(opponent, "Grizzly Bears")
+        val smashSpell = game.putCardInHand(player, smash.name)
+        game.castSpellWithTargets(player, smashSpell, listOf(ChosenTarget.Permanent(bear))).isSuccess shouldBe true
+        val spellOnStack = game.getTopOfStack()!!
+        val counter = game.putCardInHand(player, counterUnlessPay.name)
+        game.castSpellWithTargets(player, counter, listOf(ChosenTarget.Spell(spellOnStack))).isSuccess shouldBe true
+        tapVibranium(game, player, token)
+        game.bothPass()
+
+        val offer = game.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
+        game.submitDecision(player, YesNoResponse(offer.id, true)).error shouldBe null
+        game.state.getEntity(player)?.get<ManaPoolComponent>()?.restrictedMana?.size shouldBe 0
+        repeat(3) { if (game.state.priorityPlayerId != null) game.bothPass() }
+        game.findPermanent(opponent, "Grizzly Bears") shouldBe null
     }
 })

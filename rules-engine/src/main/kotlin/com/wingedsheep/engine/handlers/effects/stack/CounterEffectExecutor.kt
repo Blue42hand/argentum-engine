@@ -9,6 +9,7 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -126,7 +127,7 @@ class CounterEffectExecutor(
             ?: return EffectResult.error(state, "Spell not found on stack")
 
         val manaSolver = ManaSolver(cardRegistry)
-        if (!manaSolver.canPay(state, payingPlayerId, cost)) {
+        if (!manaSolver.canPay(state, payingPlayerId, cost, spellContext = SpellPaymentContext())) {
             return performCounter(state, effect, spellEntityId, context)
         }
 
@@ -154,7 +155,7 @@ class CounterEffectExecutor(
         val manaCost = ManaCost(listOf(ManaSymbol.Generic(totalGenericCost)))
 
         val manaSolver = ManaSolver(cardRegistry)
-        if (!manaSolver.canPay(state, payingPlayerId, manaCost)) {
+        if (!manaSolver.canPay(state, payingPlayerId, manaCost, spellContext = SpellPaymentContext())) {
             return performCounter(state, effect, spellEntityId, context)
         }
 

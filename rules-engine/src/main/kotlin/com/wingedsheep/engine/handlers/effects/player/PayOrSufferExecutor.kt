@@ -11,6 +11,7 @@ import com.wingedsheep.engine.mechanics.cost.CostPaymentContext
 import com.wingedsheep.engine.mechanics.cost.CostPaymentService
 import com.wingedsheep.engine.mechanics.cost.PaymentResult
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -819,7 +820,7 @@ class PayOrSufferExecutor(
     ): EffectResult {
         // Check if the player can pay the mana cost
         val manaSolver = ManaSolver(cardRegistry)
-        if (!manaSolver.canPay(state, controllerId, cost.cost)) {
+        if (!manaSolver.canPay(state, controllerId, cost.cost, spellContext = SpellPaymentContext())) {
             return executeSufferEffect(state, effect.suffer, context)
         }
 
@@ -983,7 +984,7 @@ class PayOrSufferExecutor(
                 // Null only when the source entity/CardComponent is missing; an empty mana cost
                 // (lands, tokens) is {0} and always payable — see the execute branch above.
                 val ownCost = state.getEntity(sourceId)?.get<CardComponent>()?.manaCost
-                ownCost != null && ManaSolver(cardRegistry).canPay(state, playerId, ownCost)
+                ownCost != null && ManaSolver(cardRegistry).canPay(state, playerId, ownCost, spellContext = SpellPaymentContext())
             }
             // Offered rather than filtered out: the amount can only be evaluated in the
             // resolving context, and handlePayLifeCost re-checks affordability for real before
@@ -1002,7 +1003,7 @@ class PayOrSufferExecutor(
                     val life = state.lifeTotal(playerId) // CR 810.9a — team's shared total
                     life > atom.amount
                 }
-                is CostAtom.Mana -> ManaSolver(cardRegistry).canPay(state, playerId, atom.cost)
+                is CostAtom.Mana -> ManaSolver(cardRegistry).canPay(state, playerId, atom.cost, spellContext = SpellPaymentContext())
                 is CostAtom.ExileFrom -> findValidCardsInZone(state, playerId, atom.filter, atom.zone, sourceId).size >= atom.count
                 is CostAtom.TapPermanents -> findValidUntappedPermanentsOnBattlefield(
                     state, playerId, atom.filter, selfExclusion(atom.excludeSelf, sourceId), sourceId

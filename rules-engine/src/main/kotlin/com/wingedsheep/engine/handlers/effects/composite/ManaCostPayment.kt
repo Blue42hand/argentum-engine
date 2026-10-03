@@ -3,9 +3,12 @@ package com.wingedsheep.engine.handlers.effects.composite
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.tap
-import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.ManaSource
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
+import com.wingedsheep.engine.mechanics.mana.toComponent
+import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
@@ -32,16 +35,9 @@ fun payManaCostFromPool(
     val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
         ?: return EffectResult.error(state, "Player has no mana pool")
 
-    val manaPool = ManaPool(
-        manaPoolComponent.white,
-        manaPoolComponent.blue,
-        manaPoolComponent.black,
-        manaPoolComponent.red,
-        manaPoolComponent.green,
-        manaPoolComponent.colorless
-    )
+    val manaPool = manaPoolComponent.toManaPool()
 
-    val partialResult = manaPool.payPartial(cost)
+    val partialResult = manaPool.payPartial(cost, SpellPaymentContext())
     val remainingCost = partialResult.remainingCost
     var currentPool = manaPool
     var currentState = state
@@ -49,7 +45,7 @@ fun payManaCostFromPool(
 
     if (!remainingCost.isEmpty()) {
         val manaSolver = ManaSolver(cardRegistry)
-        val solution = manaSolver.solve(currentState, player, remainingCost)
+        val solution = manaSolver.solve(currentState, player, remainingCost, spellContext = SpellPaymentContext())
             ?: return EffectResult.error(state, "Cannot pay mana cost")
 
         for (source in solution.sources) {
@@ -67,20 +63,11 @@ fun payManaCostFromPool(
         }
     }
 
-    val newPool = currentPool.pay(cost)
+    val newPool = currentPool.payNonSpellCost(cost)
         ?: return EffectResult.error(state, "Cannot pay mana cost after auto-tap")
 
     currentState = currentState.updateEntity(player) { container ->
-        container.with(
-            ManaPoolComponent(
-                white = newPool.white,
-                blue = newPool.blue,
-                black = newPool.black,
-                red = newPool.red,
-                green = newPool.green,
-                colorless = newPool.colorless
-            )
-        )
+        container.with(newPool.toComponent())
     }
 
     return EffectResult.success(currentState, events)
@@ -110,18 +97,11 @@ fun canAutoPayManaCost(
 ): Boolean {
     val manaPoolComponent = state.getEntity(player)?.get<ManaPoolComponent>() ?: return false
 
-    val manaPool = ManaPool(
-        manaPoolComponent.white,
-        manaPoolComponent.blue,
-        manaPoolComponent.black,
-        manaPoolComponent.red,
-        manaPoolComponent.green,
-        manaPoolComponent.colorless
-    )
+    val manaPool = manaPoolComponent.toManaPool()
 
-    val remainingCost = manaPool.payPartial(cost).remainingCost
+    val remainingCost = manaPool.payPartial(cost, SpellPaymentContext()).remainingCost
     if (remainingCost.isEmpty()) return true
 
     return ManaSolver(cardRegistry)
-        .solve(state, player, remainingCost, precomputedSources = precomputedSources) != null
+        .solve(state, player, remainingCost, spellContext = SpellPaymentContext(), precomputedSources = precomputedSources) != null
 }
