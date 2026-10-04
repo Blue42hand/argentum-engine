@@ -202,6 +202,7 @@ class ActivateAbilityHandler(
                             com.wingedsheep.engine.core.DecisionContext(sourceId = action.sourceId, sourceName = activation.sourceName,
                                 phase = com.wingedsheep.engine.core.DecisionPhase.CASTING), true, manaSolver,
                             excludeSources = excluded, spellContext = paymentContext,
+                            unknownAutoPayFeasibility = previewMana.xCount > 0 && (activation.effectiveXValue ?: 0) > 0,
                         ) },
                         answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, mana,
                             lockedAbilityCost = activation.effectiveCost, lockedAbilityX = activation.effectiveXValue,
