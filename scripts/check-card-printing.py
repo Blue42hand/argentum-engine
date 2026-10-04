@@ -86,6 +86,8 @@ class Printing:
     rarity: str
     oracle_id: str | None
     scryfall_id: str | None
+    layout: str = ""
+    face_oracle_ids: tuple[str, ...] = ()
 
 
 def slugify(name: str) -> str:
@@ -126,7 +128,11 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
         raise ValueError(f"Scryfall exact-name lookup for '{card_name}' has no Oracle ID")
 
     def same_oracle_card(rows: list[Printing]) -> list[Printing]:
-        matching = [p for p in rows if p.oracle_id == oracle_id]
+        matching = [
+            p for p in rows
+            if p.oracle_id == oracle_id
+            or (p.layout == "reversible_card" and oracle_id in p.face_oracle_ids)
+        ]
         if not matching:
             raise ValueError(f"Scryfall returned no printings for Oracle ID {oracle_id} ('{card_name}')")
         return matching
@@ -138,7 +144,11 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
         if age_days < CACHE_TTL_DAYS:
             try:
                 raw = json.loads(cache_path.read_text(encoding="utf-8"))
-                return same_oracle_card([Printing(**p) for p in raw])
+                cached = [Printing(**p) for p in raw]
+                # Older cache rows did not retain face IDs. An absent top-level ID
+                # might be a reversible printing of this card, so fetch it again.
+                if all(p.oracle_id or p.face_oracle_ids for p in cached):
+                    return same_oracle_card(cached)
             except (json.JSONDecodeError, TypeError):
                 pass  # fall through and re-fetch
 
@@ -161,6 +171,11 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
                     rarity=card.get("rarity", ""),
                     oracle_id=card.get("oracle_id"),
                     scryfall_id=card.get("id"),
+                    layout=card.get("layout", ""),
+                    face_oracle_ids=tuple(
+                        face["oracle_id"] for face in card.get("card_faces", [])
+                        if face.get("oracle_id")
+                    ) if card.get("layout") == "reversible_card" else (),
                 )
             )
         url = data.get("next_page") if data.get("has_more") else None
