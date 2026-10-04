@@ -47,6 +47,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body: 'Export any game as a compact replay file, and upload one to watch it back.',
   },
   {
+    id: 'set-one',
+    date: '2026-10-02',
+    kind: 'set',
+    setCode: 'ONE',
+    title: 'Phyrexia: All Will Be One is complete',
+    body:
+      'The Phyrexians’ metal home plane. Toxic creatures poison opponents toward ten counters, oil counters fuel Phyrexian machines, and corrupted cards turn deadly once a foe has three poison.',
+    tryIf: 'an alternate way to win and aggressive poison decks',
+  },
+  {
+    id: 'set-s99',
+    date: '2026-09-30',
+    kind: 'set',
+    setCode: 'S99',
+    title: 'Starter 1999 is complete',
+    body:
+      'A 1999 set made to teach the game: honest creatures, simple removal and card draw, and no complicated rules.',
+    tryIf: 'learning the basics, or a relaxed old-school game',
+  },
+  {
     id: 'set-ptk',
     date: '2026-09-29',
     kind: 'set',
@@ -55,6 +75,36 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'Portal’s retelling of China’s Three Kingdoms era. Beginner-friendly cards with almost no instants, and horsemanship: evasion only other horsemen can block.',
     tryIf: 'plain creature combat at an old-school pace',
+  },
+  {
+    id: 'set-mom',
+    date: '2026-09-29',
+    kind: 'set',
+    setCode: 'MOM',
+    title: 'March of the Machine is complete',
+    body:
+      'The Phyrexian invasion of the Multiverse. Battles are a new card type you attack to flip, incubate builds Phyrexian armies, and backup passes abilities across your team.',
+    tryIf: 'big multiverse battles and transforming cards',
+  },
+  {
+    id: 'set-p02',
+    date: '2026-09-28',
+    kind: 'set',
+    setCode: 'P02',
+    title: 'Portal Second Age is complete',
+    body:
+      'The 1998 follow-up to Portal: beginner-friendly cards, sorcery-speed tricks and straightforward creature battles.',
+    tryIf: 'simple, readable games at a slower pace',
+  },
+  {
+    id: 'set-chk',
+    date: '2026-09-27',
+    kind: 'set',
+    setCode: 'CHK',
+    title: 'Champions of Kamigawa is complete',
+    body:
+      'Mortals at war with the kami of a feudal-Japan-inspired world. Spirits and Arcane spells feed splice and soulshift, Samurai fight with bushido, and legendary heroes flip into stronger forms.',
+    tryIf: 'Spirits, legends and Japanese-inspired flavour',
   },
   {
     id: 'set-fra',
@@ -104,6 +154,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body: 'Five coached games against the AI that teach Magic and the table from scratch.',
   },
   {
+    id: 'set-arn',
+    date: '2026-08-24',
+    kind: 'set',
+    setCode: 'ARN',
+    title: 'Arabian Nights is complete',
+    body:
+      'Magic’s first expansion, from 1993, drawn from the Thousand and One Nights: djinn, efreet, flying carpets and the original City of Brass.',
+    tryIf: 'Magic history and classic old-school cards',
+  },
+  {
+    id: 'set-ddq',
+    date: '2026-08-24',
+    kind: 'set',
+    setCode: 'DDQ',
+    title: 'Duel Decks: Blessed vs. Cursed is complete',
+    body:
+      'Two ready-made Innistrad decks built to face each other: Humans and holy Spirits against Zombies and the curses of the night.',
+    tryIf: 'an evenly matched duel with no deckbuilding',
+  },
+  {
     id: 'set-fem',
     date: '2026-08-23',
     kind: 'set',
@@ -144,6 +214,16 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     tryIf: 'artifacts and fast, explosive starts',
   },
   {
+    id: 'set-msh',
+    date: '2026-08-17',
+    kind: 'set',
+    setCode: 'MSH',
+    title: 'Marvel Super Heroes is complete',
+    body:
+      'Marvel’s heroes and villains assemble. Power-up gives each hero a one-time boost that’s cheaper the turn it arrives, and teamwork lets you tap your creatures to supercharge a spell.',
+    tryIf: 'comic-book flavour and building a team',
+  },
+  {
     id: 'set-hob',
     date: '2026-08-15',
     kind: 'set',
@@ -172,6 +252,16 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'Marvel’s Spider-Man: heroes and villains of New York trade blows, with web-slinging and plenty of rogues’-gallery legends.',
     tryIf: 'comic-book flavour and legendary characters',
+  },
+  {
+    id: 'set-dft',
+    date: '2026-08-03',
+    kind: 'set',
+    setCode: 'DFT',
+    title: 'Aetherdrift is complete',
+    body:
+      'A death race across the Multiverse. Start your engines and build speed toward max-speed bonuses, crew Vehicles and saddle Mounts, and cash in exhaust abilities for one big burst.',
+    tryIf: 'fast, aggressive decks and Vehicles',
   },
   {
     id: 'set-woe',
@@ -210,6 +300,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'mode',
     title: 'Cube Draft',
     body: 'Build and edit your own cubes, then draft them or play straight from a cube pool.',
+  },
+  {
+    id: 'set-fdn',
+    date: '2026-07-27',
+    kind: 'set',
+    setCode: 'FDN',
+    title: 'Foundations is complete',
+    body:
+      'Magic’s long-running core set: clean, evergreen mechanics and familiar staples, designed as the best place to start.',
+    tryIf: 'a clean, classic draft, or learning the game',
+  },
+  {
+    id: 'set-atq',
+    date: '2026-07-27',
+    kind: 'set',
+    setCode: 'ATQ',
+    title: 'Antiquities is complete',
+    body:
+      'The 1994 story of the brothers Urza and Mishra: an all-artifact arms race of golems, war machines and the original Urza lands.',
+    tryIf: 'artifacts and Magic history',
   },
   {
     id: 'feature-new-menu',
@@ -310,13 +420,23 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     tryIf: 'instants and sorceries, and decks built around spells',
   },
   {
+    id: 'set-big',
+    date: '2026-06-18',
+    kind: 'set',
+    setCode: 'BIG',
+    title: 'The Big Score is complete',
+    body:
+      'Thunder Junction’s bonus sheet of heist loot: powerful artifacts and legendary treasures that turn up in Outlaws boosters.',
+    tryIf: 'flashy artifacts in your Thunder Junction drafts',
+  },
+  {
     id: 'set-otj',
     date: '2026-06-15',
     kind: 'set',
     setCode: 'OTJ',
     title: 'Outlaws of Thunder Junction is complete',
     body:
-      'A wild-west heist. Commit crimes by targeting opponents, plot cards to cast them free later, saddle Mounts, and hire Mercenaries — with The Big Score’s treasures alongside.',
+      'A wild-west heist. Commit crimes by targeting opponents, plot cards to cast them free later, saddle Mounts, and hire Mercenaries.',
     tryIf: 'outlaws, heists and flexible timing',
   },
   {
@@ -413,6 +533,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'A woodland of animal folk. Every two-colour pair is a creature type — Bats, Otters, Frogs, Lizards, Squirrels, Rabbits, Birds, Mice and Raccoons — with forage, offspring and gift.',
     tryIf: 'cute creatures and clear, synergy-driven archetypes',
+  },
+  {
+    id: 'set-ktk',
+    date: '2026-03-11',
+    kind: 'set',
+    setCode: 'KTK',
+    title: 'Khans of Tarkir is complete',
+    body:
+      'Five warring clans, each in three colours: Abzan outlast, Jeskai prowess, Sultai delve, Mardu raid and Temur ferocious, with morph creatures hiding everywhere.',
+    tryIf: 'three-colour decks and a classic, beloved draft',
+  },
+  {
+    id: 'set-lgn',
+    date: '2026-03-04',
+    kind: 'set',
+    setCode: 'LGN',
+    title: 'Legions is complete',
+    body:
+      'The only set made entirely of creatures: Slivers share their abilities with each other, morph hides every threat face down, and provoke forces blocks.',
+    tryIf: 'creature-heavy tribal battles',
   },
   {
     id: 'set-scg',
