@@ -238,9 +238,9 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 val afterLibrary = afterShuffle.zones.single {
                     it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
                 }
-                afterLibrary.cardIds.size shouldBe afterLibrary.size
-                afterLibrary.cardIds.none { it in game.state.getZone(ZoneKey(game.player1Id, Zone.LIBRARY)) } shouldBe true
-                afterLibrary.cardIds.contains(bears) shouldBe false
+                afterLibrary.size shouldBe 3
+                afterLibrary.cardIds shouldBe emptyList()
+                afterLibrary.positions shouldBe emptyList()
                 afterShuffle.cards.containsKey(bears) shouldBe false
                 // GameSession retains named, ID-bearing public history in the same update.
                 // That history must not identify a position in the freshly shuffled library.
