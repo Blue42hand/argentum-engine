@@ -34,6 +34,22 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
         window.canAutoPayNow shouldBe true
     }
 
+    test("a flattened X payment does not claim AutoPay feasibility") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all)
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.giveMana(caster, Color.RED, 4)
+
+        val window = ManaPaymentWindow.buildDecision(
+            game.state, caster, ManaCost.parse("{2}{R}{R}"), "x-payment",
+            "Pay the locked X cost", DecisionContext(), true, game.cardRegistry,
+            unknownAutoPayFeasibility = true
+        )
+        window.canAutoPayNow shouldBe null
+        ManaPaymentWindow.refresh(game.state, window, game.cardRegistry).canAutoPayNow shouldBe null
+    }
+
     test("Krenko payment window distinguishes affordable cast from executable AutoPay") {
         val game = GameTestDriver()
         game.registerCards(TestCards.all + listOf(KrenkoMobBoss, PredefinedTokens.Treasure))

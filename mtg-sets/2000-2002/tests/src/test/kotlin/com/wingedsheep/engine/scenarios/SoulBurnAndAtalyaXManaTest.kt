@@ -1,11 +1,16 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.core.ActivateAbility
+import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.inv.cards.AtalyaSamiteMaster
 import com.wingedsheep.mtg.sets.definitions.inv.cards.SoulBurn
+import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
@@ -14,6 +19,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
  * Invasion engine gap #8 — color-restricted `{X}` spend + per-color mana-spent-on-X tracking.
@@ -28,7 +34,7 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
 
     fun driver(): GameTestDriver {
         val d = GameTestDriver()
-        d.registerCards(TestCards.all + listOf(SoulBurn, AtalyaSamiteMaster))
+        d.registerCards(TestCards.all + listOf(SoulBurn, AtalyaSamiteMaster, PredefinedTokens.Treasure))
         return d
     }
 
@@ -76,6 +82,29 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
         solver.canPay(d.state, me, cost, xValue = 2).shouldBeTrue()
         // With "spend only black/red on X", the green mana can't pay X → not affordable.
         solver.canPay(d.state, me, cost, xValue = 2, xManaRestriction = brOnly).shouldBeFalse()
+    }
+
+    test("Soul Burn's flattened X window never promises AutoPay from off-color mana") {
+        val d = driver()
+        d.initMirrorMatch(Deck.of("Swamp" to 20))
+        val me = d.activePlayer!!
+        val opp = d.getOpponent(me)
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val soulBurn = d.putCardInHand(me, "Soul Burn")
+        d.putLandOnBattlefield(me, "Island")
+        val treasure = d.putPermanentOnBattlefield(me, "Treasure")
+        d.giveMana(me, Color.BLACK, 1)
+        d.giveMana(me, Color.BLUE, 1)
+
+        d.submit(CastSpell(me, soulBurn, targets = listOf(ChosenTarget.Player(opp)), xValue = 1))
+            .isPaused shouldBe true
+        d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
+
+        d.submit(ActivateAbility(
+            me, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
+            manaColorChoice = Color.GREEN
+        )).error shouldBe null
+        d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
     }
 
     test("Atalya: X can be paid only with white mana") {

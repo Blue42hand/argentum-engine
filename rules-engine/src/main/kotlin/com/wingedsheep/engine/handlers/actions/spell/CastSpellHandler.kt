@@ -2545,7 +2545,10 @@ class CastSpellHandler(
                             state, action.playerId, locked, id,
                             "Produce mana for ${cardComponent.name}",
                             DecisionContext(action.cardId, cardComponent.name, DecisionPhase.CASTING),
-                            canDecline = true, cardRegistry = cardRegistry, includeSacrificeSources = false
+                            canDecline = true, cardRegistry = cardRegistry, includeSacrificeSources = false,
+                            // The displayed cost has X folded into generic mana, but execution
+                            // still applies the spell's X-specific payment rules (e.g. Soul Burn).
+                            unknownAutoPayFeasibility = payableCost.xCount > 0 && computed.paymentXValue > 0
                         ) },
                         answer = { decision -> com.wingedsheep.engine.core.CastManaSelectionContinuation(
                             action, payableCost, computed.paymentXValue, decision.availableSources,

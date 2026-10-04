@@ -72,7 +72,8 @@ object ManaPaymentWindow {
         context: com.wingedsheep.engine.core.DecisionContext,
         canDecline: Boolean,
         cardRegistry: CardRegistry,
-        includeSacrificeSources: Boolean = true
+        includeSacrificeSources: Boolean = true,
+        unknownAutoPayFeasibility: Boolean = false
     ): SelectManaSourcesDecision {
         val solver = ManaSolver(cardRegistry)
         val sources = solver.findAvailableManaSources(state, playerId)
@@ -101,6 +102,7 @@ object ManaPaymentWindow {
             requiredCost = cost.toString(),
             autoPaySuggestion = suggestion.filter { id -> options.any { it.entityId == id } },
             canAutoPayNow = when {
+                unknownAutoPayFeasibility -> null
                 remaining.isEmpty() -> true
                 hasContextSensitiveMana(state, playerId, sources) -> null
                 else -> solution != null

@@ -188,7 +188,7 @@ export function ManaSourceSelectionUI({
       )}
 
       <div className={styles.buttonContainerSmall}>
-        {!decision.canDecline && (
+        {(!decision.canDecline || decision.canAutoPayNow != null) && (
           <button
             onClick={handleAutoPay}
             disabled={decision.canAutoPayNow === false}
