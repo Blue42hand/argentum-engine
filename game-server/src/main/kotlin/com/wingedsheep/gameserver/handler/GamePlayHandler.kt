@@ -2,6 +2,8 @@ package com.wingedsheep.gameserver.handler
 
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.ai.AiWebSocketSession
+import com.wingedsheep.gameserver.ai.PaymentCorrectionOutcome
+import com.wingedsheep.gameserver.ai.PaymentRetryAdmission
 import com.wingedsheep.gameserver.deck.SideboardSanitizer
 import com.wingedsheep.ai.engine.SealedDeckGenerator
 import com.wingedsheep.gameserver.protocol.ClientMessage
@@ -1328,30 +1330,63 @@ class GamePlayHandler(
         gameSession: GameSession,
         aiPlayerId: EntityId,
         action: com.wingedsheep.engine.core.GameAction,
-        interactionEpoch: String?
-    ) {
+        interactionEpoch: String?,
+        expectedPaymentDecisionId: String? = null,
+        expectedPaymentStateRevision: Long? = null,
+    ): PaymentCorrectionOutcome {
         try {
-            val result = gameSession.executeAiAction(aiPlayerId, action, interactionEpoch) ?: return
+            val result = if (expectedPaymentDecisionId == null) {
+                gameSession.executeAiAction(aiPlayerId, action, interactionEpoch)
+            } else {
+                gameSession.executeAiPaymentCorrection(
+                    aiPlayerId, action, interactionEpoch, expectedPaymentDecisionId,
+                    requireNotNull(expectedPaymentStateRevision))
+            } ?: return PaymentCorrectionOutcome.OBSOLETE
             when (result) {
                 is GameSession.ActionResult.Success -> {
                     logger.debug("AI action executed successfully")
                     broadcastStateUpdate(gameSession, result.events)
                     if (gameSession.isGameOver()) handleGameOver(gameSession, events = result.events)
+                    return PaymentCorrectionOutcome.ACCEPTED
                 }
                 is GameSession.ActionResult.PausedForDecision -> {
                     logger.debug("AI action paused for decision: ${result.decision}")
                     broadcastStateUpdate(gameSession, result.events)
+                    return PaymentCorrectionOutcome.ACCEPTED
                 }
                 is GameSession.ActionResult.Failure -> {
                     val aiSession = gameSession.getPlayerSession(aiPlayerId)?.webSocketSession as? AiWebSocketSession
                     if (aiSession?.allowActionsOnlyFallback == false) {
+                        val paymentResponse = (action as? com.wingedsheep.engine.core.SubmitDecision)
+                            ?.response as? com.wingedsheep.engine.core.ManaSourcesSelectedResponse
+                        if (paymentResponse != null && isRecoverableManaPaymentError(result.reason)) {
+                            val snapshot = gameSession.aiPaymentRetrySnapshot(
+                                aiPlayerId, interactionEpoch, paymentResponse.decisionId)
+                            if (snapshot != null) {
+                                aiSession.onPaymentCorrectionReady = { id, correction, epoch, questionId, revision ->
+                                    handleAiAction(gameSession, id, correction, epoch, questionId, revision)
+                                }
+                                when (aiSession.retryRejectedPayment(snapshot, result.reason,
+                                        { gameSession.isCurrentAiPaymentRetry(snapshot) },
+                                        gameSession.sessionId)) {
+                                    PaymentRetryAdmission.SCHEDULED -> {
+                                        logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
+                                            aiPlayerId.value, gameSession.sessionId, result.reason)
+                                        return PaymentCorrectionOutcome.RETRY_QUEUED
+                                    }
+                                    PaymentRetryAdmission.OBSOLETE -> return PaymentCorrectionOutcome.OBSOLETE
+                                    PaymentRetryAdmission.EXHAUSTED -> if (!gameSession.isCurrentAiPaymentRetry(snapshot))
+                                        return PaymentCorrectionOutcome.OBSOLETE
+                                }
+                            } else return PaymentCorrectionOutcome.OBSOLETE
+                        }
                         logger.error(
                             "External AI action failed for seat {} in game {}: {} — refusing server-side strategic fallback",
                             aiPlayerId.value,
                             gameSession.sessionId,
                             result.reason,
                         )
-                        return
+                        return PaymentCorrectionOutcome.FATAL
                     }
 
                     // The chosen action was rejected (e.g. an illegal block the AI's combat model
@@ -1365,7 +1400,8 @@ class GamePlayHandler(
                     var recovered = false
                     for (fallback in safeFallbackActions(gameSession, aiPlayerId)) {
                         // Undo can occur after the original rejection or between fallback attempts.
-                        val fb = gameSession.executeAiAction(aiPlayerId, fallback, interactionEpoch) ?: return
+                        val fb = gameSession.executeAiAction(aiPlayerId, fallback, interactionEpoch)
+                            ?: return PaymentCorrectionOutcome.OBSOLETE
                         when (fb) {
                             is GameSession.ActionResult.Success -> {
                                 broadcastStateUpdate(gameSession, fb.events)
@@ -1388,7 +1424,8 @@ class GamePlayHandler(
                         // it re-chooses the same rejected action, and nothing was applied for the
                         // stall guard to notice — so the seat gets a bounded number of chances and
                         // is then conceded. See [GameStallGuard.onActionRejected].
-                        val conceded = gameSession.noteAiActionRejected(aiPlayerId, interactionEpoch) ?: return
+                        val conceded = gameSession.noteAiActionRejected(aiPlayerId, interactionEpoch)
+                            ?: return PaymentCorrectionOutcome.OBSOLETE
                         if (conceded) {
                             logger.error(
                                 "AI seat {} has had {} actions in a row rejected with no legal " +
@@ -1406,12 +1443,29 @@ class GamePlayHandler(
                             broadcastStateUpdate(gameSession, emptyList())
                         }
                     }
+                    return PaymentCorrectionOutcome.ACCEPTED
                 }
             }
         } catch (e: Exception) {
             logger.error("Error handling AI action", e)
+            return PaymentCorrectionOutcome.FATAL
         }
     }
+
+    /** Cast-spell mana-selection errors only; ward/trigger payment paths are outside this retry contract. */
+    private fun isRecoverableManaPaymentError(reason: String): Boolean =
+        reason in setOf(
+            "Auto-pay is not available yet; activate a mana ability or select payment sources",
+            "Auto-pay cannot be combined with selected mana sources",
+            "The same mana source cannot be selected twice",
+            "Mana source was not offered for this payment",
+            "Mana source is no longer available for this payment",
+            "Selected mana sources cannot pay this spell's cost",
+            "Insufficient mana in pool to cast this spell",
+            "Not enough mana to cast this spell",
+            "Not enough mana to auto-pay",
+        ) || reason.startsWith("Mana source is already tapped:") ||
+            reason.startsWith("Mana source not found:")
 
     /**
      * Step-appropriate, always-legal recovery actions to try (in order) when an AI's chosen action

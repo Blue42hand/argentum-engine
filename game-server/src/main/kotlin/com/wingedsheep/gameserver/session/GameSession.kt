@@ -39,6 +39,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -88,6 +89,7 @@ class GameSession(
      * Read and changed only under [stateLock]. Never stored in engine state or replay inputs.
      */
     private var liveInteractionEpoch = UUID.randomUUID().toString()
+    private val liveStateRevision = AtomicLong()
 
     private fun liveDecisionId(engineId: String): String = "$liveInteractionEpoch:$engineId"
 
@@ -95,6 +97,7 @@ class GameSession(
     private var gameState: GameState? = null
         set(value) {
             field = value
+            liveStateRevision.incrementAndGet()
             if (value != null) recordEliminations(value)
         }
 
@@ -876,6 +879,20 @@ class GameSession(
         return executeLiveAction(playerId, LiveActionSubmission(action, origin))
     }
 
+    /** A correction may activate mana rather than answer the question; guard both paths. */
+    fun executeAiPaymentCorrection(
+        playerId: EntityId,
+        action: GameAction,
+        interactionEpoch: String?,
+        expectedDecisionId: String,
+        expectedStateRevision: Long,
+    ): ActionResult? {
+        val origin = interactionEpoch ?: return null
+        return executeLiveAction(playerId,
+            LiveActionSubmission(action, origin, expectedDecisionId = expectedDecisionId,
+                expectedStateRevision = expectedStateRevision))
+    }
+
     /**
      * Shared live ingress for both transports and AI recovery actions. Validate the origin and
      * current decision before checkpoints, replay, or idempotency bookkeeping can change.
@@ -884,7 +901,11 @@ class GameSession(
      */
     fun executeLiveAction(playerId: EntityId, submission: LiveActionSubmission): ActionResult? = synchronized(stateLock) {
         if (!isCurrentInteraction(submission.interactionEpoch)) return null
+        if (submission.expectedStateRevision != null &&
+            submission.expectedStateRevision != liveStateRevision.get()) return null
         val action = submission.action
+        if (submission.expectedDecisionId != null &&
+            submission.expectedDecisionId != gameState?.pendingDecision?.id) return null
         if (action is SubmitDecision && action.response.decisionId != gameState?.pendingDecision?.id) return null
         executeAction(playerId, action, submission.messageId)
     }
@@ -892,6 +913,45 @@ class GameSession(
     /** Must be checked under [stateLock], alongside the mutation it authorizes. */
     private fun isCurrentInteraction(interactionEpoch: String?): Boolean =
         interactionEpoch != null && interactionEpoch == liveInteractionEpoch
+
+    /** A read-only, seat-masked view for correcting a rejected mana payment. */
+    data class AiPaymentRetrySnapshot(
+        val state: ClientGameState,
+        val legalActions: List<LegalActionInfo>,
+        val pendingDecision: SelectManaSourcesDecision,
+        val interactionEpoch: String,
+        val stateRevision: Long,
+    )
+
+    /**
+     * Recheck the original live origin and question under the session lock. A newer action or
+     * undo can invalidate the failed response between its rejection and this read; in that case
+     * there is nothing to retry. This deliberately avoids createStateUpdate's delivery counters
+     * and logs, so a rejected attempt changes no session bookkeeping.
+     */
+    fun aiPaymentRetrySnapshot(
+        playerId: EntityId,
+        interactionEpoch: String?,
+        decisionId: String,
+    ): AiPaymentRetrySnapshot? = synchronized(stateLock) {
+        if (!isCurrentInteraction(interactionEpoch)) return null
+        val state = gameState ?: return null
+        val decision = state.pendingDecision as? SelectManaSourcesDecision ?: return null
+        if (decision.id != decisionId || state.actorFor(decision.playerId) != playerId) return null
+        AiPaymentRetrySnapshot(
+            state = aiStateTransformer.transform(state, playerId),
+            legalActions = getLegalActions(playerId),
+            pendingDecision = decisionEnricher.enrich(decision, state, playerId) as SelectManaSourcesDecision,
+            interactionEpoch = liveInteractionEpoch,
+            stateRevision = liveStateRevision.get(),
+        )
+    }
+
+    fun isCurrentAiPaymentRetry(snapshot: AiPaymentRetrySnapshot): Boolean = synchronized(stateLock) {
+        isCurrentInteraction(snapshot.interactionEpoch) &&
+            liveStateRevision.get() == snapshot.stateRevision &&
+            gameState?.pendingDecision?.id == snapshot.pendingDecision.id
+    }
 
     /**
      * Execute an immediate engine action. Browser submissions use [executeClientAction];
@@ -936,22 +996,16 @@ class GameSession(
             }
         }
 
-        // If the opponent takes a substantive action, invalidate the undo checkpoint —
-        // the opponent has seen the game state after the undoable action and made a decision
-        // based on it. A bare `PassPriority` is benign (no information revealed, no real
-        // decision), so it preserves the checkpoint; the engine's [UndoPolicyComputer] already
-        // returns PRESERVE for it. Keeping the checkpoint through opponent passes is what lets
-        // the active player undo back to precombat main when they auto-passed into
-        // declare-attackers by accident.
-        if (undoCheckpoint != null && undoCheckpointOwner != null
-            && playerId != undoCheckpointOwner
-            && action !is PassPriority) {
-            clearCheckpoint()
-        }
-
         val (result, undoPolicy) = actionProcessor.process(state, action)
 
         fun accept() {
+            // A rejected action must leave undo bookkeeping untouched. An accepted substantive
+            // opponent action invalidates the checkpoint; passing priority is still benign.
+            if (undoCheckpoint != null && undoCheckpointOwner != null
+                && playerId != undoCheckpointOwner
+                && action !is PassPriority) {
+                clearCheckpoint()
+            }
             applyUndoPolicy(undoPolicy, action, state, playerId)
             gameState = result.state
             recordAction(action)

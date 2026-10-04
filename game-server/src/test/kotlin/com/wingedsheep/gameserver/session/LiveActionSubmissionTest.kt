@@ -1,12 +1,22 @@
 package com.wingedsheep.gameserver.session
 
 import com.wingedsheep.engine.core.ChooseOptionDecision
+import com.wingedsheep.engine.core.ActivateAbility
+import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.PlayLand
+import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.SubmitDecision
+import com.wingedsheep.engine.support.GameTestDriver
+import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.gameserver.protocol.ServerMessage
+import com.wingedsheep.mtg.sets.definitions.m13.cards.KrenkoMobBoss
 import com.wingedsheep.mtg.sets.definitions.spm.cards.MultiversalPassage
+import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
+import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -47,6 +57,7 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
                 .shouldBeInstanceOf<GameSession.ActionResult.Failure>()
             session.executeAiAction(player, nextAction, oldEpoch) shouldBe null
             session.executeAiAction(player, nextAction, null) shouldBe null
+            session.executeAiPaymentCorrection(player, nextAction, oldEpoch, "old-payment", 0L) shouldBe null
             session.getStateForTesting() shouldBe beforeState
             session.getRecordedActions() shouldBe beforeActions
             session.getLastMessageIdsForPersistence() shouldBe beforeIds
@@ -64,6 +75,41 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
                 .shouldBeInstanceOf<GameSession.ActionResult.Failure>().reason shouldBe "Duplicate message"
             session.getStateForTesting() shouldBe accepted.state
             session.getRecordedActions() shouldBe listOf(nextAction)
+        }
+
+        test("an accepted mana activation invalidates a delayed correction in the same payment question") {
+            val game = GameTestDriver()
+            game.registerCards(TestCards.all + listOf(KrenkoMobBoss, PredefinedTokens.Treasure))
+            game.initMirrorMatch(Deck.of("Forest" to 40))
+            val caster = game.activePlayer!!
+            game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+            val krenko = game.putCardInHand(caster, "Krenko, Mob Boss")
+            val firstTreasure = game.putPermanentOnBattlefield(caster, "Treasure")
+            val secondTreasure = game.putPermanentOnBattlefield(caster, "Treasure")
+            game.giveColorlessMana(caster, 2)
+            game.submit(CastSpell(caster, krenko)).error shouldBe null
+
+            val session = GameSession(cardRegistry = game.cardRegistry)
+            val socket = mockk<WebSocketSession>(relaxed = true) { every { id } returns "caster" }
+            session.injectStateForTesting(game.state,
+                mapOf(caster to PlayerSession(socket, caster, "Caster")))
+            val origin = epoch(session, caster)
+            val decision = game.state.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+            val snapshot = session.aiPaymentRetrySnapshot(caster, origin, decision.id).shouldNotBeNull()
+            val first = ActivateAbility(caster, firstTreasure,
+                PredefinedTokens.Treasure.activatedAbilities.single().id, manaColorChoice = Color.RED)
+            session.executeAiAction(caster, first, origin)
+                .shouldBeInstanceOf<GameSession.ActionResult.PausedForDecision>()
+            val afterFirst = session.getStateForTesting().shouldNotBeNull()
+            afterFirst.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().id shouldBe decision.id
+            session.isCurrentAiPaymentRetry(snapshot) shouldBe false
+
+            val delayed = ActivateAbility(caster, secondTreasure,
+                PredefinedTokens.Treasure.activatedAbilities.single().id, manaColorChoice = Color.RED)
+            session.executeAiPaymentCorrection(caster, delayed, origin, decision.id,
+                snapshot.stateRevision) shouldBe null
+            session.getStateForTesting() shouldBe afterFirst
+            session.getRecordedActions() shouldBe listOf(first)
         }
 
         test("browser and AI adapters record the same canonical actions from equivalent snapshots") {
@@ -120,6 +166,17 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             session.isUndoAvailable(owner) shouldBe true
             val before = session.getStateForTesting()
             val beforeIds = session.getLastMessageIdsForPersistence()
+            // This reaches ActionProcessor (unlike obsolete routing) and is rejected because
+            // the other seat cannot answer the owner's decision. Rejection must not clear undo.
+            val liveQuestion = before!!.pendingDecision.shouldBeInstanceOf<ChooseOptionDecision>()
+            session.executeAiPaymentCorrection(other,
+                PlayLand(other, game.findCardsInHand(1, "Multiversal Passage").single()),
+                origin, "obsolete-payment", 0L) shouldBe null
+            session.executeAiAction(other,
+                SubmitDecision(other, OptionChosenResponse(liveQuestion.id, 0)), origin
+            ).shouldBeInstanceOf<GameSession.ActionResult.Failure>()
+            session.getStateForTesting() shouldBe before
+            session.isUndoAvailable(owner) shouldBe true
             val stale = SubmitDecision(other, OptionChosenResponse("obsolete-routing", 0))
             session.executeAiAction(other, stale, origin) shouldBe null
             session.executeClientAction(

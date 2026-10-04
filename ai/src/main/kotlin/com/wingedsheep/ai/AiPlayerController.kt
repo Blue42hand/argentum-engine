@@ -29,6 +29,19 @@ interface AiPlayerController {
     ): ActionResponse
 
     /**
+     * Optional correction after an engine-rejected mana payment. The server passes a fresh
+     * seat-masked view and the engine's error to the same controller instance. Returning null
+     * keeps the existing fail-stop behavior for providers that do not implement corrections.
+     */
+    fun chooseActionAfterRejectedPayment(
+        state: ClientGameState,
+        legalActions: List<LegalActionInfo>,
+        pendingDecision: PendingDecision,
+        recentGameLog: List<String>,
+        nativePaymentError: String,
+    ): ActionResponse? = null
+
+    /**
      * Decide whether to keep or mulligan.
      * @return true to keep, false to mulligan.
      */
