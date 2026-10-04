@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Swan Song — Theros #65
@@ -26,12 +26,9 @@ val SwanSong = card("Swan Song") {
 
     spell {
         target(
-            "target enchantment, instant, or sorcery spell",
-            TargetSpell(
-                filter = TargetFilter(
-                    GameObjectFilter.Enchantment or GameObjectFilter.InstantOrSorcery,
-                    zone = Zone.STACK,
-                ),
+            TargetFilter(
+                GameObjectFilter.Enchantment or GameObjectFilter.InstantOrSorcery,
+                zone = Zone.STACK,
             ),
         )
         effect = Effects.CreateToken(
@@ -42,7 +39,7 @@ val SwanSong = card("Swan Song") {
             keywords = setOf(Keyword.FLYING),
             controller = EffectTarget.TargetController,
             imageUri = "https://cards.scryfall.io/normal/front/c/a/ca72703f-d45b-4c80-98a8-55fad1fcf431.jpg?1783939699",
-        ).then(Effects.CounterSpell())
+        ) then Effects.CounterSpell()
     }
 
     metadata {

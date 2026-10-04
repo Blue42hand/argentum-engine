@@ -41,7 +41,9 @@ class MoveToZoneEntersWithChoiceTest : FunSpec({
         val cardId = driver.putCardInGraveyard(player, "Moved Type Chooser")
 
         val executor = MoveToZoneEffectExecutor(
+            driver.services.zones,
             driver.cardRegistry,
+            driver.services.targetFinder,
             effectExecutor = { _, _, _ -> error("no OnEnterRunEffect expected in this test") },
         )
         val result = executor.execute(
@@ -55,8 +57,8 @@ class MoveToZoneEntersWithChoiceTest : FunSpec({
         )
 
         // A pending decision is an expected pause, not a successful terminal effect result.
-        result.isPaused shouldBe true
-        result.state.getBattlefield() shouldContain cardId
+        (result.outcome is com.wingedsheep.engine.core.Outcome.Paused) shouldBe true
+        result.state.getBattlefield().contains(cardId) shouldBe false
         val decision = result.pendingDecision.shouldBeInstanceOf<ChooseOptionDecision>()
         decision.prompt shouldBe "Choose a card type"
         decision.options shouldContainExactly listOf("Artifact", "Creature", "Sorcery")

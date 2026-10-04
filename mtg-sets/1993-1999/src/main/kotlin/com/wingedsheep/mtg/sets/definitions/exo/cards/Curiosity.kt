@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.exo.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Curiosity
@@ -17,7 +16,7 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  * Whenever enchanted creature deals damage to an opponent, you may draw a card.
  *
  * Unlike the combat-damage-only Sleeper's Robe, Curiosity listens for every damage event from
- * the attached creature. [TriggerBinding.ATTACHED] binds the event source to the enchanted
+ * the attached creature. [Triggers.attached] binds the event source to the enchanted
  * creature while [RecipientFilter.Opponent] remains relative to Curiosity's controller.
  */
 val Curiosity = card("Curiosity") {
@@ -27,14 +26,11 @@ val Curiosity = card("Curiosity") {
     oracleText = "Enchant creature\n" +
         "Whenever enchanted creature deals damage to an opponent, you may draw a card."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = RecipientFilter.Opponent,
-            binding = TriggerBinding.ATTACHED,
-        )
-        effect = MayEffect(Effects.DrawCards(1))
+        trigger = Triggers.attached.dealsDamage(Recipient.Opponent)
+        effect = Effects.May(Effects.DrawCards(1))
     }
 
     metadata {

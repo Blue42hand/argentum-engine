@@ -30,7 +30,7 @@ class FaldornDreadWolfHeraldScenarioTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(
+            effect = Effects.Composite(listOf(
                 GatherCardsEffect(
                     source = CardSource.FromZone(
                         zone = Zone.EXILE,
@@ -42,7 +42,7 @@ class FaldornDreadWolfHeraldScenarioTest : FunSpec({
                     from = "exiledLands",
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD),
                 ),
-            )
+            ))
         }
     }
 
@@ -50,7 +50,7 @@ class FaldornDreadWolfHeraldScenarioTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(
+            effect = Effects.Composite(listOf(
                 GatherCardsEffect(
                     source = CardSource.FromZone(
                         zone = Zone.GRAVEYARD,
@@ -62,7 +62,7 @@ class FaldornDreadWolfHeraldScenarioTest : FunSpec({
                     from = "graveyardLands",
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD),
                 ),
-            )
+            ))
         }
     }
 

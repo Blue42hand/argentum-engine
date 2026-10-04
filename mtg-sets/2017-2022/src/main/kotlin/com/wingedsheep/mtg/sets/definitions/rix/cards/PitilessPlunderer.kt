@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.rix.cards
 
+import com.wingedsheep.sdk.dsl.Triggers
+
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -31,14 +33,7 @@ val PitilessPlunderer = card("Pitiless Plunderer") {
         "(It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")"
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl(),
-                from = Zone.BATTLEFIELD,
-                to = Zone.GRAVEYARD
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.CreateTreasure(1)
     }
 

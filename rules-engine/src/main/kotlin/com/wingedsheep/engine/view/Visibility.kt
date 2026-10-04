@@ -40,9 +40,8 @@ import com.wingedsheep.sdk.scripting.StaticAbility
 class Visibility(
     private val cardRegistry: CardRegistry,
     private val debugMode: Boolean = false,
+    private val conditionEvaluator: ConditionEvaluator
 ) {
-    private val conditionEvaluator = ConditionEvaluator()
-
     fun isZoneVisibleTo(
         state: GameState,
         zoneKey: ZoneKey,
@@ -58,7 +57,7 @@ class Visibility(
             ))
         Zone.SIDEBOARD -> debugMode || (!isSpectator && (
             zoneKey.ownerId == viewingPlayerId ||
-                state.actorFor(zoneKey.ownerId) == viewingPlayerId
+                state.getEntity(zoneKey.ownerId)?.get<com.wingedsheep.engine.state.components.player.HotseatControlComponent>()?.controllerId == viewingPlayerId
             ))
         Zone.BATTLEFIELD,
         Zone.GRAVEYARD,
@@ -152,6 +151,23 @@ class Visibility(
      * leaving ordered hidden-zone structure and consumer-specific presentation to the caller.
      */
     fun isCardIdentityVisibleTo(
+        state: GameState,
+        zoneKey: ZoneKey,
+        entityId: EntityId,
+        viewingPlayerId: EntityId,
+        isSpectator: Boolean = false,
+    ): Boolean {
+        if (isCardIdentityVisibleToBaseline(state, zoneKey, entityId, viewingPlayerId, isSpectator)) return true
+        if (isSpectator || zoneKey.zoneType == Zone.SIDEBOARD) return false
+        // Player control shares every in-game permission, including private library looks and
+        // face-down exile access. Baseline calls avoid recursion for mutually controlled seats.
+        return state.turnOrder.any { seat ->
+            seat != viewingPlayerId && state.actorFor(seat) == viewingPlayerId &&
+                isCardIdentityVisibleToBaseline(state, zoneKey, entityId, seat, false)
+        }
+    }
+
+    private fun isCardIdentityVisibleToBaseline(
         state: GameState,
         zoneKey: ZoneKey,
         entityId: EntityId,

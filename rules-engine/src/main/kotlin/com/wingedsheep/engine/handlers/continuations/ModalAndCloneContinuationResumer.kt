@@ -1,11 +1,13 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.state.components.identity.copiableCardComponent
 import com.wingedsheep.engine.core.*
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.effects.EntersWithReplacements
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
+import com.wingedsheep.engine.handlers.effects.copy.EffectCopyEntry
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
 import com.wingedsheep.engine.mechanics.modal.ChosenModeMemory
 import com.wingedsheep.engine.state.GameState
@@ -19,18 +21,23 @@ import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 class ModalAndCloneContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices
 ) : ContinuationResumerModule {
-
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val dynamicAmountEvaluator = services.dynamicAmountEvaluator
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(ModalContinuation::class, ::resumeModal),
         resumer(ModalTargetContinuation::class, ::resumeModalTarget),
+        resumer(EffectCopyEntryContinuation::class, ::resumeEffectCopyEntry),
+        resumer(EffectEntryChoiceContinuation::class, ::resumeEffectEntryChoice),
+        resumer(EffectDiscardDestinationContinuation::class, ::resumeEffectDiscardDestination),
+        resumer(EffectDiscardOrderContinuation::class, ::resumeEffectDiscardOrder),
+        resumer(EffectCopyAuraEntryContinuation::class, ::resumeEffectCopyAuraEntry),
+        resumer(CloneAuraEntryContinuation::class, ::resumeCloneAuraEntry),
         resumer(CloneEntersContinuation::class, ::resumeCloneEnters),
         resumer(CloneEntersOnBattlefieldContinuation::class, ::resumeCloneEntersOnBattlefield),
         resumer(EntersWithChoiceSpellContinuation::class, ::resumeEntersWithChoiceSpell),
@@ -47,6 +54,87 @@ class ModalAndCloneContinuationResumer(
         resumer(CreateTokenCopyAuraHostContinuation::class, ::resumeCreateTokenCopyAuraHost),
         resumer(ChooseActionContinuation::class, ::resumeChooseAction)
     )
+
+    private fun resumeEffectCopyAuraEntry(
+        state: GameState, continuation: EffectCopyAuraEntryContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is TargetsResponse) return ExecutionResult.error(state, "Expected enchant choice")
+        val context = continuation.context.copy(entryAuraHosts = continuation.context.entryAuraHosts +
+            (continuation.entityId to response.selectedTargets[0]?.firstOrNull()))
+        val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
+        if (result.outcome !is Outcome.Done) return result.toExecutionResult()
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
+    }
+
+    private fun resumeCloneAuraEntry(
+        state: GameState, continuation: CloneAuraEntryContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is TargetsResponse) return ExecutionResult.error(state, "Expected enchant choice")
+        return finishCloneEnters(state, continuation.clone, listOf(continuation.copiedEntityId),
+            checkForMore, response.selectedTargets[0]?.firstOrNull())
+    }
+
+    fun resumeEffectCopyEntry(
+        state: GameState,
+        continuation: EffectCopyEntryContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is CardsSelectedResponse) return ExecutionResult.error(state, "Expected copy selection")
+        val selected = response.selectedCards.firstOrNull()
+        val choice = com.wingedsheep.engine.handlers.effects.copy.EntryCopyChoice(
+            continuation.replacement, selected?.let { state.getEntity(it)?.copiableCardComponent() }, selected)
+        val context = continuation.context.copy(entryCopies = continuation.context.entryCopies +
+            (continuation.entityId to choice))
+        val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
+        if (result.outcome !is Outcome.Done) return result.toExecutionResult()
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
+    }
+
+    private fun resumeEffectEntryChoice(
+        state: GameState,
+        continuation: EffectEntryChoiceContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore,
+    ): ExecutionResult {
+        val (slot, value) = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
+            .decodeEntersChoice(continuation.question, response)
+            ?: return ExecutionResult.error(state, "Unexpected response for ${continuation.question.choiceType} choice")
+        val context = com.wingedsheep.engine.handlers.effects.EffectEntryChoices.answered(
+            continuation.context, continuation.entityId, continuation.question.choiceType, slot, value)
+        val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
+        if (result.outcome !is Outcome.Done) return result.toExecutionResult()
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
+    }
+
+    private fun resumeEffectDiscardDestination(
+        state: GameState, continuation: EffectDiscardDestinationContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is OptionChosenResponse || response.optionIndex !in 0..continuation.destinations.size)
+            return ExecutionResult.error(state, "Expected a discard destination")
+        val destination = continuation.destinations.getOrNull(response.optionIndex)
+        val context = continuation.context.copy(discardDestinations = continuation.context.discardDestinations + (continuation.cardId to destination))
+        val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
+        if (result.outcome !is Outcome.Done) return result.toExecutionResult()
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
+    }
+
+    private fun resumeEffectDiscardOrder(
+        state: GameState, continuation: EffectDiscardOrderContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is CardsSelectedResponse) return ExecutionResult.error(state, "Expected library ordering")
+        val expected = continuation.context.discardDestinations.filterValues { it?.zone == Zone.LIBRARY }.keys
+        if (response.selectedCards.size != expected.size || response.selectedCards.toSet() != expected)
+            return ExecutionResult.error(state, "Order each discarded library card once")
+        val context = continuation.context.copy(discardLibraryOrder = response.selectedCards)
+        val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
+        if (result.outcome !is Outcome.Done) return result.toExecutionResult()
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
+    }
 
     fun resumeModal(
         state: GameState,
@@ -222,7 +310,7 @@ class ModalAndCloneContinuationResumer(
     /**
      * Apply an `EntersAsCopy` copy onto [entityId] in place (CR 707.2): overwrite its
      * [CardComponent] with [targetCardComponent]'s copiable characteristics (re-homed to [newOwnerId]),
-     * add any [additionalSubtypes] / [additionalKeywords] and name / P-T overrides (via
+     * add any [additionalSubtypes] / [additionalColors] / [additionalKeywords] and name / P-T overrides (via
      * [CopyExceptionApplier], the same arithmetic every other copy path runs), and snapshot a
      * [com.wingedsheep.engine.state.components.identity.CopyOfComponent] so the permanent reverts to
      * its printed identity when it leaves the battlefield (CR 400.7 / 707.2).
@@ -239,20 +327,24 @@ class ModalAndCloneContinuationResumer(
         targetCardComponent: CardComponent,
         newOwnerId: EntityId?,
         additionalSubtypes: List<String>,
+        additionalColors: Set<com.wingedsheep.sdk.core.Color>,
         additionalKeywords: List<com.wingedsheep.sdk.core.Keyword>,
+        copyExceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions,
         nameOverride: String?,
         powerOverride: Int?,
         toughnessOverride: Int?,
+        duration: com.wingedsheep.sdk.scripting.Duration,
     ): GameState {
         // The riders are the same "except …" clause every other copy path carries (CR 707.9b), so
         // they go through the one engine-side implementation rather than a fourth hand-rolled copy.
-        val exceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions(
+        val exceptions = copyExceptions.over(com.wingedsheep.sdk.scripting.effects.CopyExceptions(
             nameOverride = nameOverride,
             addedKeywords = additionalKeywords.toSet(),
             addedSubtypes = additionalSubtypes.map { com.wingedsheep.sdk.core.Subtype(it) }.toSet(),
+            addedColors = additionalColors,
             powerOverride = powerOverride,
             toughnessOverride = toughnessOverride,
-        )
+        ))
         val copiedCardComponent = CopyExceptionApplier.apply(
             targetCardComponent.copy(
                 ownerId = newOwnerId,
@@ -272,6 +364,7 @@ class ModalAndCloneContinuationResumer(
                     copiedCardDefinitionId = targetCardComponent.cardDefinitionId,
                     originalCardComponent = originalCardComponent
                 ))
+                .let { EffectCopyEntry.tagCopyDuration(it, duration) }
         }
     }
 
@@ -297,7 +390,8 @@ class ModalAndCloneContinuationResumer(
         val count = dynamicAmountEvaluator.evaluate(state, amount, context)
         val entityName = state.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
         return EntersWithReplacements.placeEntryCounters(
-            state, entityId, CounterTypeFilter.PlusOnePlusOne, count, controllerId, entityName
+            state, entityId, CounterType.PLUS_ONE_PLUS_ONE, count, controllerId, entityName,
+            predicateEvaluator = services.predicateEvaluator
         )
     }
 
@@ -314,6 +408,13 @@ class ModalAndCloneContinuationResumer(
             return ExecutionResult.error(state, "Expected card selection response for clone")
         }
 
+        return finishCloneEnters(state, continuation, response.selectedCards, checkForMore)
+    }
+
+    private fun finishCloneEnters(
+        state: GameState, continuation: CloneEntersContinuation, selectedCards: List<EntityId>,
+        checkForMore: CheckForMore, auraHost: EntityId? = null,
+    ): ExecutionResult {
         val spellId = continuation.spellId
         val controllerId = continuation.controllerId
         val ownerId = continuation.ownerId
@@ -331,13 +432,12 @@ class ModalAndCloneContinuationResumer(
         var newState = state
 
         // If a creature was selected, copy its CardComponent
-        val selectedCreatureId = response.selectedCards.firstOrNull()
-        val copiedCardDef: com.wingedsheep.sdk.model.CardDefinition?
+        val selectedCreatureId = selectedCards.firstOrNull()
         var copyApplied = false
 
         if (selectedCreatureId != null) {
             val targetContainer = newState.getEntity(selectedCreatureId)
-            val targetCardComponent = targetContainer?.get<CardComponent>()
+            val targetCardComponent = targetContainer?.copiableCardComponent()
 
             if (targetCardComponent != null) {
                 copyApplied = true
@@ -351,10 +451,13 @@ class ModalAndCloneContinuationResumer(
                     targetCardComponent = targetCardComponent,
                     newOwnerId = ownerId,
                     additionalSubtypes = continuation.additionalSubtypes,
+                    additionalColors = continuation.additionalColors,
                     additionalKeywords = continuation.additionalKeywords,
+                    copyExceptions = continuation.exceptions,
                     nameOverride = continuation.nameOverride,
                     powerOverride = continuation.powerOverride,
                     toughnessOverride = continuation.toughnessOverride,
+                    duration = continuation.duration,
                 )
 
                 // "except it enters with X additional +1/+1 counters on it" (Altered Ego) — part of
@@ -369,48 +472,53 @@ class ModalAndCloneContinuationResumer(
                     newState = afterCounters
                     events.addAll(counterEvents)
                 }
-
-                // Look up the card definition for the copied creature
-                copiedCardDef = services.cardRegistry.getCard(targetCardComponent.cardDefinitionId)
-            } else {
-                // Target creature no longer exists - enter as itself
-                copiedCardDef = services.cardRegistry.getCard(originalCardComponent.cardDefinitionId)
             }
-        } else {
-            // Player declined to copy - enter as itself (0/0 Clone)
-            copiedCardDef = services.cardRegistry.getCard(originalCardComponent.cardDefinitionId)
+            // Otherwise the chosen object is gone — enter as itself, like a declined copy.
         }
 
         // Get the (possibly updated) card component for event names
         val finalCardComponent = newState.getEntity(spellId)?.get<CardComponent>() ?: originalCardComponent
 
-        // Track whether a copy was made (original name differs from final name)
-        val copyOfOriginalName = if (selectedCreatureId != null && finalCardComponent.name != originalCardComponent.name) {
-            originalCardComponent.name
-        } else null
+        if (copyApplied && finalCardComponent.isAura && !originalCardComponent.isAura) {
+            val hosts = com.wingedsheep.engine.handlers.effects.copy.CopyAuraEntry.legalHosts(
+                state, spellId, finalCardComponent, controllerId, services.cardRegistry, services.targetFinder,
+                services.predicateEvaluator)
+            if (hosts.isEmpty() || (auraHost != null && auraHost !in hosts)) {
+                // No legal enchant choice: the original card goes from stack to graveyard, never enters.
+                val moved = services.zones.moveToZone(state, spellId, Zone.GRAVEYARD)
+                return checkForMore(moved.state, moved.events + ResolvedEvent(spellId, originalCardComponent.name))
+            }
+            if (auraHost == null) {
+                return state.suspendForDecision(
+                    com.wingedsheep.engine.handlers.effects.copy.CopyAuraEntry.question(
+                        spellId, finalCardComponent.name, controllerId, hosts),
+                    CloneAuraEntryContinuation(continuation, selectedCreatureId!!))
+            }
+            // PermanentEntry consumes this attachment choice without targeting or ward triggers.
+            newState = newState.updateEntity(spellId) {
+                it.with(com.wingedsheep.engine.state.components.stack.TargetsComponent(
+                    listOf(entityIdToChosenTarget(newState, auraHost))))
+            }
+        }
 
-        // Complete the permanent entry using the shared helper
-        val (enterState, enterEvents) = services.stackResolver.enterPermanentOnBattlefield(
-            newState, spellId, spellComponent, finalCardComponent, copiedCardDef
-        )
-        newState = enterState
-        events.addAll(enterEvents.map { event ->
-            if (event is ZoneChangeEvent && event.entityId == spellId && event.toZone == Zone.BATTLEFIELD)
-                event.copy(copyOfOriginalName = copyOfOriginalName) else event
-        })
-
-        events.add(ResolvedEvent(spellId, finalCardComponent.name))
-
-        // "When you do, exile that card." (Superior Spider-Man) — exile the copied
-        // graveyard card after the copy has been applied and the permanent has entered.
+        // "When you do, exile that card." (Superior Spider-Man) — exile the copied graveyard card
+        // once the copy has been applied. Done before the rest of entry, which may pause for the
+        // copied identity's own as-enters choices.
         if (continuation.exileCopiedCard && copyApplied && selectedCreatureId != null) {
-            val exileResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                .moveToZone(newState, selectedCreatureId, Zone.EXILE)
+            val exileResult = services.zones.moveToZone(newState, selectedCreatureId, Zone.EXILE)
             newState = exileResult.state
             events.addAll(exileResult.events)
         }
 
-        return checkForMore(newState, events)
+        // The rest of entry runs from the copied identity (CR 614.12): its "as this enters" choices,
+        // amplify / devour / pay-life-or-tapped, then the move itself and any OnEnterRun. Each
+        // of those resumers completes entry — and emits the resolved event — if it pauses.
+        val entry = services.stackResolver.resolvePermanentSpellAfterEntryCopy(newState, spellId)
+        if (entry.outcome is Outcome.Paused) return ExecutionResult.propagatePause(entry.state, events + entry.events)
+        if (entry.outcome !is Outcome.Done) return entry
+        events.addAll(entry.events)
+        events.add(ResolvedEvent(spellId, finalCardComponent.name))
+        return checkForMore(entry.state, events)
     }
 
     /**
@@ -443,7 +551,7 @@ class ModalAndCloneContinuationResumer(
         val selectedId = response.selectedCards.firstOrNull()
 
         if (selectedId != null) {
-            val targetCardComponent = newState.getEntity(selectedId)?.get<CardComponent>()
+            val targetCardComponent = newState.getEntity(selectedId)?.copiableCardComponent()
             if (targetCardComponent != null) {
                 copyApplied = true
                 // Copy the chosen object's copiable characteristics (CR 707.2) onto this permanent,
@@ -455,10 +563,13 @@ class ModalAndCloneContinuationResumer(
                     targetCardComponent = targetCardComponent,
                     newOwnerId = originalCardComponent.ownerId,
                     additionalSubtypes = continuation.additionalSubtypes,
+                    additionalColors = continuation.additionalColors,
                     additionalKeywords = continuation.additionalKeywords,
+                    copyExceptions = continuation.exceptions,
                     nameOverride = continuation.nameOverride,
                     powerOverride = continuation.powerOverride,
                     toughnessOverride = continuation.toughnessOverride,
+                    duration = continuation.duration,
                 )
             }
         }
@@ -483,8 +594,7 @@ class ModalAndCloneContinuationResumer(
 
         // "When you do, exile that card." (graveyard copies) — exile the copied card afterward.
         if (copyApplied && continuation.exileCopiedCard && selectedId != null) {
-            val exileResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                .moveToZone(newState, selectedId, Zone.EXILE)
+            val exileResult = services.zones.moveToZone(newState, selectedId, Zone.EXILE)
             newState = exileResult.state
             outEvents.addAll(exileResult.events)
         }
@@ -493,6 +603,30 @@ class ModalAndCloneContinuationResumer(
         val copyOfOriginalName = if (copyApplied && finalCardComponent.name != originalCardComponent.name) {
             originalCardComponent.name
         } else null
+
+        // The copied land's own "as this enters, choose …" (CR 614.12) — a Vesuva copying a land
+        // that names a creature type makes that choice itself; the original's is not copiable.
+        // The choice resumer emits the entry event once the last choice is made. A choice that
+        // can't be presented is skipped for the next one.
+        if (copyApplied) {
+            val choices = services.cardRegistry.getCard(finalCardComponent.cardDefinitionId)
+                ?.script?.replacementEffects
+                ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>()
+                ?.sortedBy { it.choiceType.ordinal }
+                .orEmpty()
+            for (choice in choices) {
+                com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements.pauseForEntersWithChoice(
+                    newState, entityId, continuation.controllerId, finalCardComponent, choice,
+                    continuation.fromZone,
+                    carryEvents = outEvents,
+                    cardNameOptions = if (choice.choiceType == com.wingedsheep.sdk.scripting.ChoiceType.CARD_NAME) {
+                        services.cardRegistry.cardNamesIn(choice.cardNamePool).toList()
+                    } else emptyList(),
+                    entryOldObject = continuation.entryOldObject, entryNewObject = continuation.entryNewObject,
+                    copyOfOriginalName = copyOfOriginalName,
+                )?.let { return it }
+            }
+        }
 
         // Emit the entry event now that the final (copied) identity is in place — this is the
         // single ZoneChangeEvent the client sees for this land play (PlayLandHandler deliberately
@@ -507,18 +641,6 @@ class ModalAndCloneContinuationResumer(
             copyOfOriginalName = copyOfOriginalName,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        val triggers = services.triggerDetector.detectTriggers(newState, listOf(zoneChangeEvent))
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    outEvents + zoneChangeEvent + triggerResult.events
-                )
-            }
-            return checkForMore(triggerResult.newState, outEvents + zoneChangeEvent + triggerResult.events)
-        }
-
         return checkForMore(newState, outEvents + zoneChangeEvent)
     }
 
@@ -584,7 +706,9 @@ class ModalAndCloneContinuationResumer(
                 val modeId = continuation.modeOptionIds.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid mode option index: ${response.optionIndex}")
                 state.updateEntity(spellId) { c ->
-                    c.withCastChoice(ChoiceSlot.MODE, ChoiceValue.TextChoice(modeId))
+                    com.wingedsheep.engine.state.components.identity.EntryCharacteristicsBaking.bake(
+                        c.withCastChoice(ChoiceSlot.MODE, ChoiceValue.TextChoice(modeId)), modeId, services.cardRegistry
+                    )
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.BASIC_LAND_TYPE -> {
@@ -635,7 +759,7 @@ class ModalAndCloneContinuationResumer(
             if (modeId != null) {
                 val nm = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: "Unknown"
                 val (rs, re) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyGrantedRiotBranch(newState, spellId, controllerId, modeId, nm)
+                    .applyGrantedRiotBranch(newState, spellId, controllerId, modeId, nm, predicateEvaluator = services.predicateEvaluator)
                 newState = rs
                 syntheticRiotEvents.addAll(re)
             }
@@ -650,7 +774,7 @@ class ModalAndCloneContinuationResumer(
                         syntheticRiot = true,
                         syntheticRiotRemaining = continuation.syntheticRiotRemaining - 1
                     )
-                    if (repause != null && repause.isPaused) {
+                    if (repause != null && repause.outcome is Outcome.Paused) {
                         return ExecutionResult.propagatePause(
                             repause.state, syntheticRiotEvents + repause.events
                         )
@@ -691,12 +815,12 @@ class ModalAndCloneContinuationResumer(
         events.addAll(syntheticRiotEvents)
         events.addAll(enterEvents)
 
-        // The generic "as this permanent enters, …" replacement ([OnEnterRunEffect]) — the same
+        // The generic "as this permanent enters, …" replacement ([OnEnterRun]) — the same
         // call `StackResolver.resolvePermanentSpell` makes just after `enterPermanentOnBattlefield`.
         // It lives at both call sites because `enterPermanentOnBattlefield` returns a
         // `(GameState, events)` pair and this replacement may *pause*, which that signature can't
         // express. Without it here, a card carrying an `EntersWithChoice` **and** an
-        // `OnEnterRunEffect` silently loses the second one: the choice pauses before the permanent
+        // `OnEnterRun` silently loses the second one: the choice pauses before the permanent
         // enters, and this resume path is where entry is completed (Grifter's Blade — "choose a
         // creature you control it could be attached to. If you do, it enters attached to that
         // creature", which is the CREATURE_ON_BATTLEFIELD choice plus an attach).
@@ -709,7 +833,7 @@ class ModalAndCloneContinuationResumer(
         if (onEnterResult != null) {
             // A pause carries the entry events with it so the ETB triggers are deferred to the
             // resume path rather than lost — exactly as the spell path documents.
-            if (onEnterResult.isPaused) {
+            if (onEnterResult.outcome is Outcome.Paused) {
                 return ExecutionResult.propagatePause(
                     onEnterResult.state, events + onEnterResult.events
                 )
@@ -734,94 +858,16 @@ class ModalAndCloneContinuationResumer(
         checkForMore: CheckForMore
     ): ExecutionResult {
         val entityId = continuation.entityId
-        // Store the chosen value based on choice type — into the unified cast-choices bag.
-        var newState = when (continuation.choiceType) {
-            com.wingedsheep.sdk.scripting.ChoiceType.COLOR -> {
-                if (response !is ColorChosenResponse) {
-                    return ExecutionResult.error(state, "Expected color choice response")
-                }
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.COLOR, ChoiceValue.ColorChoice(response.color))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_TYPE -> {
-                if (response !is OptionChosenResponse) {
-                    return ExecutionResult.error(state, "Expected option chosen response for creature type choice")
-                }
-                val chosenType = continuation.creatureTypes.getOrNull(response.optionIndex)
-                    ?: return ExecutionResult.error(state, "Invalid creature type index: ${response.optionIndex}")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.CARD_TYPE -> {
-                if (response !is OptionChosenResponse) {
-                    return ExecutionResult.error(state, "Expected option chosen response for card type choice")
-                }
-                val chosenType = continuation.cardTypes.getOrNull(response.optionIndex)
-                    ?: return ExecutionResult.error(state, "Invalid card type index: ${response.optionIndex}")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.CARD_TYPE, ChoiceValue.TextChoice(chosenType.displayName))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_ON_BATTLEFIELD -> {
-                if (response !is CardsSelectedResponse) {
-                    return ExecutionResult.error(state, "Expected cards selected response for creature choice")
-                }
-                val chosenCreatureId = response.selectedCards.firstOrNull()
-                    ?: return ExecutionResult.error(state, "No creature selected")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.CREATURE, ChoiceValue.EntityChoice(chosenCreatureId))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.MODE -> {
-                if (response !is OptionChosenResponse) {
-                    return ExecutionResult.error(state, "Expected option chosen response for mode choice")
-                }
-                val modeId = continuation.modeOptionIds.getOrNull(response.optionIndex)
-                    ?: return ExecutionResult.error(state, "Invalid mode option index: ${response.optionIndex}")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.MODE, ChoiceValue.TextChoice(modeId))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.BASIC_LAND_TYPE -> {
-                if (response !is OptionChosenResponse) {
-                    return ExecutionResult.error(state, "Expected option chosen response for land type choice")
-                }
-                val chosenType = continuation.landTypes.getOrNull(response.optionIndex)
-                    ?: return ExecutionResult.error(state, "Invalid land type index: ${response.optionIndex}")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.LAND_TYPE, ChoiceValue.TextChoice(chosenType))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.OPPONENT -> {
-                if (response !is OptionChosenResponse) {
-                    return ExecutionResult.error(state, "Expected option chosen response for opponent choice")
-                }
-                val chosenOpponent = continuation.opponentIds.getOrNull(response.optionIndex)
-                    ?: return ExecutionResult.error(state, "Invalid opponent index: ${response.optionIndex}")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.OPPONENT, ChoiceValue.EntityChoice(chosenOpponent))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.CARD_NAME -> {
-                if (response !is OptionChosenResponse) {
-                    return ExecutionResult.error(state, "Expected option chosen response for card name choice")
-                }
-                val chosenName = continuation.cardNames.getOrNull(response.optionIndex)
-                    ?: return ExecutionResult.error(state, "Invalid card name index: ${response.optionIndex}")
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.CARD_NAME, ChoiceValue.TextChoice(chosenName))
-                }
-            }
-            com.wingedsheep.sdk.scripting.ChoiceType.NUMBER -> {
-                if (response !is NumberChosenResponse) {
-                    return ExecutionResult.error(state, "Expected number chosen response for number choice")
-                }
-                state.updateEntity(entityId) { c ->
-                    c.withCastChoice(ChoiceSlot.CHOSEN_NUMBER, ChoiceValue.NumberChoice(response.number))
-                }
-            }
+        // Store the chosen value into the unified cast-choices bag.
+        val (slot, value) = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
+            .decodeEntersChoice(continuation, response)
+            ?: return ExecutionResult.error(state, "Unexpected response for ${continuation.choiceType} choice")
+        var newState = state.updateEntity(entityId) { c ->
+            val recorded = c.withCastChoice(slot, value)
+            if (slot == ChoiceSlot.MODE && value is ChoiceValue.TextChoice) {
+                com.wingedsheep.engine.state.components.identity.EntryCharacteristicsBaking
+                    .bake(recorded, value.text, services.cardRegistry)
+            } else recorded
         }
 
         // Granted-Riot synthesis: apply the chosen +1/+1-counter / haste branch to the (already
@@ -833,7 +879,7 @@ class ModalAndCloneContinuationResumer(
             if (modeId != null) {
                 val nm = newState.getEntity(entityId)?.get<CardComponent>()?.name ?: "Unknown"
                 val (rs, re) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyGrantedRiotBranch(newState, entityId, continuation.controllerId, modeId, nm)
+                    .applyGrantedRiotBranch(newState, entityId, continuation.controllerId, modeId, nm, predicateEvaluator = services.predicateEvaluator)
                 newState = rs
                 syntheticRiotEvents.addAll(re)
             }
@@ -851,6 +897,7 @@ class ModalAndCloneContinuationResumer(
                             syntheticRiot = true,
                             syntheticRiotRemaining = continuation.syntheticRiotRemaining - 1,
                             entryOldObject = continuation.entryOldObject, entryNewObject = continuation.entryNewObject,
+                            copyOfOriginalName = continuation.copyOfOriginalName,
                         )
                     if (repause != null) return repause
                 }
@@ -862,53 +909,45 @@ class ModalAndCloneContinuationResumer(
         val cardComponent = entityContainer?.get<CardComponent>()
         val cardDef = cardComponent?.let { services.cardRegistry.getCard(it.cardDefinitionId) }
 
-        val nextChoice = cardDef?.script?.replacementEffects
+        val nextChoices = cardDef?.script?.replacementEffects
             ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>()
             ?.sortedBy { it.choiceType.ordinal }
-            ?.firstOrNull { it.choiceType.ordinal > continuation.choiceType.ordinal }
+            ?.filter { it.choiceType.ordinal > continuation.choiceType.ordinal }
+            .orEmpty()
 
-        if (nextChoice != null) {
-            val result = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements.pauseForEntersWithChoice(
-                newState, entityId, continuation.controllerId, cardComponent, nextChoice, continuation.fromZone,
+        // A chained choice that can't be presented (null) is skipped for the next one.
+        for (nextChoice in nextChoices) {
+            com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements.pauseForEntersWithChoice(
+                newState, entityId, continuation.controllerId, cardComponent!!, nextChoice, continuation.fromZone,
+                cardNameOptions = if (nextChoice.choiceType == com.wingedsheep.sdk.scripting.ChoiceType.CARD_NAME) {
+                    services.cardRegistry.cardNamesIn(nextChoice.cardNamePool).toList()
+                } else emptyList(),
                 entryOldObject = continuation.entryOldObject, entryNewObject = continuation.entryNewObject,
-            )
-            if (result != null) return result
-            // null means the chained choice couldn't be presented — fall through to fire triggers.
+                copyOfOriginalName = continuation.copyOfOriginalName,
+            )?.let { return it }
         }
 
-        // Final choice resolved — fire any triggers from the permanent entering (e.g. landfall,
-        // "when ~ enters"). The permanent already moved to the battlefield when it was placed; we
-        // synthesize the matching ZoneChangeEvent here so triggers can react now that the chosen
-        // value is recorded.
+        // Final choice resolved — emit the entry event, so the permanent's enters triggers (landfall,
+        // "when ~ enters") fire now that the chosen value is recorded. The permanent already moved to
+        // the battlefield when it was placed; the caller deliberately left this event to us.
         val zoneChangeEvent = ZoneChangeEvent(
             entityId,
             cardComponent?.name ?: "Unknown",
             continuation.fromZone,
             Zone.BATTLEFIELD,
             continuation.controllerId,
+            copyOfOriginalName = continuation.copyOfOriginalName,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        val triggerEvents = listOf(zoneChangeEvent)
-        val triggers = services.triggerDetector.detectTriggers(newState, triggerEvents)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    syntheticRiotEvents + triggerResult.events
-                )
-            }
-            return checkForMore(triggerResult.newState, syntheticRiotEvents + triggerResult.events)
-        }
-
-        return checkForMore(newState, syntheticRiotEvents)
+        return checkForMore(newState, syntheticRiotEvents + zoneChangeEvent)
     }
 
     /**
      * Resume after player answers yes/no to "pay life or enter tapped" for a land played directly.
      *
      * The land is already on the battlefield. If yes -> pay life, land stays untapped.
-     * If no -> land gets tapped. Then detect and process triggers from the land entering.
+     * If no -> land gets tapped. Then emit the land's entry event, which its enters triggers
+     * (landfall) fire from.
      */
     fun resumePayLifeOrEnterTappedLand(
         state: GameState,
@@ -926,7 +965,7 @@ class ModalAndCloneContinuationResumer(
         if (response.choice) {
             // Player chose to pay life
             val (afterPayment, paymentEvents) = LifePaymentService
-                .pay(newState, continuation.controllerId, continuation.lifeCost)
+                .pay(services.zones, newState, continuation.controllerId, continuation.lifeCost)
                 ?: return ExecutionResult.error(state, "Player has no life total")
             newState = afterPayment
             events.addAll(paymentEvents)
@@ -937,7 +976,7 @@ class ModalAndCloneContinuationResumer(
             }
         }
 
-        // Detect and process any triggers from the land entering (e.g., landfall)
+        // The land's entry event, which PlayLandHandler left to this resumer (landfall, etc.)
         val landContainer = newState.getEntity(continuation.landId)
         val cardComponent = landContainer?.get<CardComponent>()
         val zoneChangeEvent = ZoneChangeEvent(
@@ -948,25 +987,7 @@ class ModalAndCloneContinuationResumer(
             continuation.controllerId,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        val triggerEvents = listOf(zoneChangeEvent)
-        val triggers = services.triggerDetector.detectTriggers(newState, triggerEvents)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    events + triggerResult.events
-                )
-            }
-
-            return ExecutionResult.success(
-                triggerResult.newState,
-                events + triggerResult.events
-            )
-        }
-
-        return checkForMore(newState, events)
+        return checkForMore(newState, events + zoneChangeEvent)
     }
 
     /**
@@ -991,7 +1012,7 @@ class ModalAndCloneContinuationResumer(
         if (response.choice) {
             // Player chose to pay life
             val (afterPayment, paymentEvents) = LifePaymentService
-                .pay(newState, continuation.controllerId, continuation.lifeCost)
+                .pay(services.zones, newState, continuation.controllerId, continuation.lifeCost)
                 ?: return ExecutionResult.error(state, "Player has no life total")
             newState = afterPayment
             events.addAll(paymentEvents)
@@ -1055,34 +1076,13 @@ class ModalAndCloneContinuationResumer(
             chosenCreatureType = chosenType
         )
 
-        if (!castResult.isSuccess) {
+        if (castResult.outcome !is Outcome.Done) {
             return castResult
-        }
-
-        var allEvents = castResult.events
-
-        // Detect and process triggers from casting (same as CastSpellHandler does)
-        val triggers = services.triggerDetector.detectTriggers(castResult.newState, allEvents)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(castResult.newState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state.withPriority(continuation.casterId),
-                    allEvents + triggerResult.events
-                )
-            }
-
-            allEvents = allEvents + triggerResult.events
-            return ExecutionResult.success(
-                triggerResult.newState.withPriority(continuation.casterId),
-                allEvents
-            )
         }
 
         return ExecutionResult.success(
             castResult.newState.withPriority(continuation.casterId),
-            allEvents
+            castResult.events
         )
     }
 
@@ -1112,15 +1112,12 @@ class ModalAndCloneContinuationResumer(
         // Add counters based on revealed cards
         val revealEvents = mutableListOf<GameEvent>()
         if (revealedCards.isNotEmpty()) {
-            val resolvedCounterType = resolveCounterTypeFromString(continuation.counterType)
-            if (resolvedCounterType != null) {
-                val counterCount = revealedCards.size * continuation.countersPerReveal
-                val current = newState.getEntity(spellId)
-                    ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-                    ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
-                newState = newState.updateEntity(spellId) { c ->
-                    c.with(current.withAdded(resolvedCounterType, counterCount))
-                }
+            val counterCount = revealedCards.size * continuation.countersPerReveal
+            val current = newState.getEntity(spellId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+                ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
+            newState = newState.updateEntity(spellId) { c ->
+                c.with(current.withAdded(continuation.counterType, counterCount))
             }
 
             // Emit reveal event so opponent can see the revealed cards
@@ -1180,7 +1177,7 @@ class ModalAndCloneContinuationResumer(
         val events = mutableListOf<GameEvent>()
         val actuallyExiled = mutableListOf<com.wingedsheep.sdk.model.EntityId>()
         for (cardId in response.selectedCards) {
-            val transition = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+            val transition = services.zones.moveToZone(
                 newState, cardId, Zone.EXILE
             )
             newState = transition.state
@@ -1200,18 +1197,14 @@ class ModalAndCloneContinuationResumer(
                 container.with(com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent(linked + actuallyExiled))
             }
             val counterCount = actuallyExiled.size * continuation.countersPerCard
-            val counterFilter = when (continuation.counterType) {
-                "+1/+1" -> CounterTypeFilter.PlusOnePlusOne
-                "-1/-1" -> CounterTypeFilter.MinusOneMinusOne
-                else -> CounterTypeFilter.Named(continuation.counterType)
-            }
             val (counterState, counterEvents) = EntersWithReplacements.placeEntryCounters(
                 newState,
                 continuation.spellId,
-                counterFilter,
+                continuation.counterType,
                 counterCount,
                 continuation.controllerId,
                 newState.getEntity(continuation.spellId)?.get<CardComponent>()?.name ?: "",
+                predicateEvaluator = services.predicateEvaluator
             )
             newState = counterState
             events.addAll(counterEvents)
@@ -1265,8 +1258,7 @@ class ModalAndCloneContinuationResumer(
         // Place counters on the still-resolving spell entity.
         val counterCount = sacrificed.size * continuation.multiplier
         if (counterCount > 0) {
-            val resolvedCounterType = resolveCounterTypeFromString(continuation.counterType)
-                ?: com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
+            val resolvedCounterType = continuation.counterType
             val current = newState.getEntity(spellId)
                 ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
                 ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
@@ -1276,18 +1268,18 @@ class ModalAndCloneContinuationResumer(
             // Devour counters go on the object *as it enters* the battlefield, so CR 122.6a makes
             // the entering permanent's controller the placer regardless of whose effect it was.
             // The spell entity has no projected controller yet, so the flag is passed directly.
-            val (afterMark, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
+            val (afterMark, firstThisTurn, firstOfTypeThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
                 .recordCounterPlacement(
                     newState,
                     spellId,
-                    com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(resolvedCounterType),
+                    resolvedCounterType,
                     byController = true,
                 )
             newState = afterMark
             val spellName = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: ""
             events.add(
                 com.wingedsheep.engine.core.CountersAddedEvent(
-                    spellId, continuation.counterType, counterCount, spellName, firstThisTurn,
+                    spellId, continuation.counterType, counterCount, spellName, firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn,
                     placedBy = controllerId
                 )
             )
@@ -1337,8 +1329,7 @@ class ModalAndCloneContinuationResumer(
         var newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
             .trackPermanentSacrifice(state, sacrificed, controllerId)
         for (permanentId in sacrificed) {
-            val result = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                .moveToZone(newState, permanentId, com.wingedsheep.sdk.core.Zone.GRAVEYARD)
+            val result = services.zones.moveToZone(newState, permanentId, com.wingedsheep.sdk.core.Zone.GRAVEYARD)
             newState = result.state
             events.addAll(result.events)
         }
@@ -1383,11 +1374,12 @@ class ModalAndCloneContinuationResumer(
                 services.cardRegistry
             ),
             devourCounters = response.selectedCards.size * continuation.multiplier,
+            predicateEvaluator = services.predicateEvaluator
         ).toExecutionResult()
 
         // The mint can pause again (a devour creature that also has an as-enters choice); carry the
         // sacrifice events across that pause so they are not lost.
-        if (minted.isPaused) {
+        if (minted.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 minted.state,
                 sacrificeEvents + minted.events
@@ -1396,20 +1388,6 @@ class ModalAndCloneContinuationResumer(
         return checkForMore(minted.state, sacrificeEvents + minted.events)
     }
 
-    private fun resolveCounterTypeFromString(counterType: String): com.wingedsheep.sdk.core.CounterType? {
-        // Map string constants (from Counters object) to enum values
-        val byDescription = com.wingedsheep.sdk.core.CounterType.entries.associateBy { entry ->
-            entry.name.lowercase().replace('_', ' ')
-        }
-        return when (counterType) {
-            "+1/+1" -> com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
-            "-1/-1" -> com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE
-            else -> byDescription[counterType.lowercase()] ?: run {
-                System.err.println("WARNING: Unknown counter type '$counterType' in EntersWithRevealCounters, skipping counter placement")
-                null
-            }
-        }
-    }
 
     /**
      * Resume after player chose budget modal modes (Season cycle pawprints).
@@ -1458,7 +1436,7 @@ class ModalAndCloneContinuationResumer(
         )
 
         val result = services.effectExecutorRegistry.execute(state, CompositeEffect(effects), context).toExecutionResult()
-        if (result.isPaused) return result
+        if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
     }
 
@@ -1483,9 +1461,10 @@ class ModalAndCloneContinuationResumer(
         val staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry)
         val result = com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfChosenPermanentExecutor.createTokenCopy(
             state, chosenId, continuation.controllerId,
-            staticAbilityHandler, services.cardRegistry
+            staticAbilityHandler, services.cardRegistry,
+            predicateEvaluator = services.predicateEvaluator
         ).toExecutionResult()
-        if (result.isPaused) return result
+        if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
     }
 
@@ -1515,6 +1494,8 @@ class ModalAndCloneContinuationResumer(
         val executor = com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfTargetExecutor(
             staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry),
             cardRegistry = services.cardRegistry,
+            amountEvaluator = dynamicAmountEvaluator,
+            targetFinder = services.targetFinder
         )
         val created = executor.createTokens(
             state = state,
@@ -1535,7 +1516,7 @@ class ModalAndCloneContinuationResumer(
         // host prompt cannot be stacked on top of it; asking anyway trips the guard in
         // `suspendForDecision`. Report it rather than throwing out of the action processor.
         // Chaining the remaining prompts underneath that choice needs a continuation of its own.
-        if (created.isPaused) {
+        if (created.outcome is Outcome.Paused) {
             return ExecutionResult.error(
                 created.state,
                 "Cannot ask for the next Aura token host while the previous copy owes an as-enters choice"
@@ -1552,6 +1533,7 @@ class ModalAndCloneContinuationResumer(
             controllerId = continuation.controllerId,
             remaining = remaining,
             cardRegistry = services.cardRegistry,
+            targetFinder = services.targetFinder
         )
         val events = created.events.toList() + next.events.toList()
         if (next.pendingDecision == null) return checkForMore(next.state, events)
@@ -1635,7 +1617,7 @@ class ModalAndCloneContinuationResumer(
 
         val result = services.effectExecutorRegistry.execute(state, chosenEffect, context).toExecutionResult()
 
-        return if (result.isPaused) {
+        return if (result.outcome is Outcome.Paused) {
             result
         } else {
             checkForMore(result.state, result.events.toList())
@@ -1718,6 +1700,7 @@ internal fun processChosenModeQueue(
         TargetRequirementInfo(
             index = index,
             description = req.description,
+            mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
             minTargets = req.effectiveMinCount,
             maxTargets = req.count
         )
@@ -1844,7 +1827,7 @@ private fun executeChosenModeWithTail(
     val result = services.effectExecutorRegistry.execute(stateForExecution, effect, context).toExecutionResult()
     val events = accumulatedEvents + result.events
 
-    if (result.isPaused) {
+    if (result.outcome is Outcome.Paused) {
         return ExecutionResult.propagatePause(result.state, events)
     }
     if (result.error != null) {

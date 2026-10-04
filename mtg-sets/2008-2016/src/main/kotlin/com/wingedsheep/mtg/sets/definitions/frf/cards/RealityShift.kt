@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.frf.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
@@ -23,14 +23,12 @@ val RealityShift = card("Reality Shift") {
         "creature. If it's a creature card, it can be turned face up any time for its mana cost.)"
 
     spell {
-        target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.Exile(EffectTarget.ContextTarget(0)),
+        val creature = target(TargetFilter.Creature)
+        effect = (Effects.Exile(creature) then
             Effects.ForEachPlayer(
-                players = Player.ControllerOf("target creature"),
+                players = Player.ControllerOf(creature.name),
                 effects = Patterns.Library.manifest().effects,
-            ),
-        )
+            ))
     }
 
     metadata {

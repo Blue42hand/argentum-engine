@@ -49,6 +49,69 @@
     ]
 }
 
+// Buried Alive
+{
+    "name": "Buried Alive",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for up to three creature cards, put them into your graveyard, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "creature"
+                    },
+                    "storeAs": "searchable",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "63",
+        "rarity": "UNCOMMON",
+        "artist": "Brian Horton",
+        "flavorText": "\"Is it worse to walk while dead, or to be buried alive? I have witnessed both.\"\n—Crovax",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/56b92eb5-72b0-46b4-8b16-8a7a7ac80f56.jpg?1783946736",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "You can look in your library and then choose to find any number from zero to three creatures after you look at it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Disrupt
 {
     "name": "Disrupt",
@@ -81,7 +144,8 @@
                 "filter": {
                     "baseFilter": "instant|sorcery",
                     "zone": "Stack"
-                }
+                },
+                "id": "t0"
             }
         ]
     },
@@ -106,56 +170,52 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromMultipleZones",
-                                "zones": [
-                                    "Library",
-                                    "Graveyard"
-                                ]
-                            },
-                            "storeAs": "gathered0"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "gathered0",
-                            "selection": {
-                                "type": "ChooseExactly",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 5
-                                }
-                            },
-                            "storeSelected": "selected1",
-                            "storeRemainder": "remainder1",
-                            "prompt": "Choose five cards to put on top of your library",
-                            "selectedLabel": "Put on top of library",
-                            "remainderLabel": "Exile"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "remainder1",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Exile"
-                            }
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "selected1",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Library",
-                                "placement": "Top"
-                            },
-                            "order": "ControllerChooses"
-                        },
-                        "EmitLibrarySearchedEvent"
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromMultipleZones",
+                        "zones": [
+                            "Library",
+                            "Graveyard"
+                        ]
+                    },
+                    "storeAs": "gathered0",
+                    "search": true
                 },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
+                    "prompt": "Choose five cards to put on top of your library",
+                    "selectedLabel": "Put on top of library",
+                    "remainderLabel": "Exile"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "remainder1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Top"
+                    },
+                    "order": "ControllerChooses"
+                },
+                "EmitLibrarySearchedEvent",
                 {
                     "type": "LoseLife",
                     "amount": {
@@ -239,7 +299,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Festering Evil:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -262,7 +322,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -286,7 +346,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Festering Evil:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -317,7 +377,7 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -351,6 +411,38 @@
     ]
 }
 
+// Gerrard's Wisdom
+{
+    "name": "Gerrard's Wisdom",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "You gain 2 life for each card in your hand.",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Multiply",
+                "amount": {
+                    "type": "Count",
+                    "player": "You",
+                    "zone": "Hand"
+                },
+                "multiplier": 2
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "UNCOMMON",
+        "artist": "Heather Hudson",
+        "flavorText": "\"Fighting without an army is called a duel, and you'll lose a duel if your enemy comes expecting a war.\"\n—Gerrard of the *Weatherlight*",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/8/f81defa5-edb4-4f1f-b13c-7cfb34511138.jpg?1783946748"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Guided Strike
 {
     "name": "Guided Strike",
@@ -373,7 +465,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -381,7 +473,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -399,7 +491,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -427,7 +519,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hidden Horror:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -467,7 +559,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mind Stone:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -480,7 +572,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Mind Stone:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -513,6 +605,44 @@
     "colorIdentityOverride": []
 }
 
+// Relearn
+{
+    "name": "Relearn",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target instant or sorcery card from your graveyard to your hand.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "instant|sorcery own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "rarity": "UNCOMMON",
+        "artist": "Zina Saunders",
+        "flavorText": "\"Barrin taught me that the hardest lessons to grasp are the ones you've already learned.\"\n—Ertai, wizard adept",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/902f8480-8ae7-4b5f-abdf-1bd46066049e.jpg?1783946738"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Sage Owl
 {
     "name": "Sage Owl",
@@ -529,7 +659,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sage Owl:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -593,13 +723,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetPlayerOrPlaneswalker",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Thunderbolt deals 3 damage to target player or planeswalker"
@@ -613,7 +743,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -622,7 +752,7 @@
                             "filter": {
                                 "baseFilter": "creature kw:flying"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Thunderbolt deals 4 damage to target creature with flying"

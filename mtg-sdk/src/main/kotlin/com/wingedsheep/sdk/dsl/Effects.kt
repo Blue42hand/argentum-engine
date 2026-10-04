@@ -1,11 +1,12 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.scripting.effects.CopyRecipient
+import com.wingedsheep.sdk.scripting.effects.ChainCopyEffect
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Speed
@@ -17,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEff
 import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.LandControllerScope
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.scripting.effects.AddOneManaOfEachColorAmongEffect
@@ -30,7 +30,6 @@ import com.wingedsheep.sdk.scripting.effects.OpenLifeBidEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersUpToEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicCountersEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveAllLastKnownCountersEffect
 import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
 import com.wingedsheep.sdk.scripting.effects.SetLandTypeEffect
@@ -45,6 +44,8 @@ import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.effects.BecomePreparedEffect
 import com.wingedsheep.sdk.scripting.effects.UnprepareEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeSaddledEffect
+import com.wingedsheep.sdk.scripting.effects.AllowLoyaltyActivationsThisTurnEffect
+import com.wingedsheep.sdk.scripting.effects.BecomeMonstrousEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeRenownedEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeSolvedEffect
 import com.wingedsheep.sdk.scripting.effects.EachPermanentBecomesCopyOfTargetEffect
@@ -74,12 +75,12 @@ import com.wingedsheep.sdk.scripting.effects.SuspectEffect
 import com.wingedsheep.sdk.scripting.effects.CantBlockGroupEffect
 import com.wingedsheep.sdk.scripting.effects.CantActivateLoyaltyAbilitiesEffect
 import com.wingedsheep.sdk.scripting.effects.CantCastSpellsEffect
+import com.wingedsheep.sdk.scripting.effects.CantSearchLibrariesEffect
 import com.wingedsheep.sdk.scripting.effects.CantCastSpellsFromNonHandZonesEffect
 import com.wingedsheep.sdk.scripting.effects.CantPlayCardsFromHandEffect
 import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitBendEventEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
@@ -91,8 +92,9 @@ import com.wingedsheep.sdk.scripting.effects.PlayFromCollectionWithoutPayingCost
 import com.wingedsheep.sdk.scripting.effects.CastAnyNumberFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect
 import com.wingedsheep.sdk.scripting.costs.PayCost
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
+import com.wingedsheep.sdk.scripting.effects.DynamicHint
+import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.GrantDamageBonusEffect
 import com.wingedsheep.sdk.scripting.effects.DamageCantBePreventedThisTurnEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
@@ -171,6 +173,8 @@ import com.wingedsheep.sdk.scripting.effects.BecomeChosenManaColorEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorEffect
 import com.wingedsheep.sdk.scripting.effects.ChangeColorEffect
 import com.wingedsheep.sdk.scripting.effects.ChangeWordInTextEffect
+import com.wingedsheep.sdk.scripting.effects.TextWordCategory
+import com.wingedsheep.sdk.scripting.CardNamePool
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -184,6 +188,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
+import com.wingedsheep.sdk.scripting.effects.InvestigateEffect
 import com.wingedsheep.sdk.scripting.effects.CreateRoleTokenEffect
 import com.wingedsheep.sdk.scripting.effects.CounterAllOnStackEffect
 import com.wingedsheep.sdk.scripting.effects.CounterCondition
@@ -212,6 +217,7 @@ import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.effects.HijackNextTurnEffect
 import com.wingedsheep.sdk.scripting.effects.SkipNextDrawStepEffect
+import com.wingedsheep.sdk.scripting.effects.SkipNextUntapStepEffect
 import com.wingedsheep.sdk.scripting.effects.SkipNextTurnEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
@@ -222,6 +228,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
+import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
  * Facade object providing convenient factory methods for creating atomic Effects.
@@ -235,18 +242,10 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
  * Effects.DealDamage(3, EffectTarget.ContextTarget(0))
  * Effects.DrawCards(2)
  * Effects.GainLife(5)
- * Effects.Composite(effect1, effect2)
+ * effect1 then effect2
  * ```
  */
 object Effects {
-
-    /**
-     * Scryfall art for the white Spirit token created by Endure (Tarkir: Dragonstorm).
-     * Every Endure card produces this identical token (an N/N white Spirit), so the
-     * image is shared here rather than duplicated per card.
-     */
-    private const val ENDURE_SPIRIT_TOKEN_IMAGE =
-        "https://cards.scryfall.io/large/front/8/e/8ea4fc2f-95a4-49d0-b06e-b88d19637737.jpg?1743176763"
 
     // =========================================================================
     // Damage Effects
@@ -255,16 +254,36 @@ object Effects {
     /**
      * Deal damage to a target.
      * No default — every damage effect must explicitly declare its target.
+     *
+     * @param damageSource The object dealing the damage, when it isn't the resolving spell or
+     *   ability's source ("target creature you control deals damage equal to its power …").
+     * @param cantBePrevented "This damage can't be prevented" (Arrow Storm's raid rider).
      */
-    fun DealDamage(amount: Int, target: EffectTarget, damageSource: EffectTarget? = null): Effect =
-        DealDamageEffect(amount, target, damageSource = damageSource)
+    fun DealDamage(
+        amount: Int,
+        target: EffectTarget,
+        damageSource: EffectTarget? = null,
+        cantBePrevented: Boolean = false,
+        excessDamageVariable: String? = null
+    ): Effect = DealDamageEffect(
+        DynamicAmount.Fixed(amount), target, cantBePrevented = cantBePrevented, damageSource = damageSource,
+        excessDamageVariable = excessDamageVariable
+    )
 
     /**
      * Deal dynamic damage to a target.
      * Used for effects like "deal damage equal to the number of lands you control".
      */
-    fun DealDamage(amount: DynamicAmount, target: EffectTarget, damageSource: EffectTarget? = null): Effect =
-        DealDamageEffect(amount, target, damageSource = damageSource)
+    fun DealDamage(
+        amount: DynamicAmount,
+        target: EffectTarget,
+        damageSource: EffectTarget? = null,
+        cantBePrevented: Boolean = false,
+        excessDamageVariable: String? = null
+    ): Effect = DealDamageEffect(
+        amount, target, cantBePrevented = cantBePrevented, damageSource = damageSource,
+        excessDamageVariable = excessDamageVariable
+    )
 
     /**
      * Deal damage to a creature, dealing any excess (CR 120.4a — damage beyond lethal) to that
@@ -285,7 +304,7 @@ object Effects {
      *
      * The targets among which the total is split come from the ability's own target requirement,
      * not from here — so the requirement decides whether the wording is "1, 2, or 3 target
-     * creatures" (`TargetCreature(count = 3, minCount = 1)`) or "any number of target creatures
+     * creatures" (`targets(TargetFilter.Creature, count = 3, minCount = 1)`) or "any number of target creatures
      * and/or planeswalkers" (`TargetObject(unlimited = true, …)`). Because each chosen target must
      * be assigned at least 1 damage (CR 601.2d), cap the requirement's target count at the total:
      * pass `dynamicMaxCount = DynamicAmount.Fixed(total)` on an `unlimited` requirement, or let a
@@ -312,14 +331,36 @@ object Effects {
     )
 
     /**
-     * Install a turn-duration replacement that adds [bonus] to every noncombat damage instance
-     * a source you control would deal to any permanent or player this turn (CR 616).
-     * Combat damage is unaffected. Multiple installs stack additively.
-     *
-     * Taii Wakeen, Perfect Shot: `AmplifyNoncombatDamageThisTurn(DynamicAmount.XValue)`.
+     * [damageSource] deals [amount] damage divided among the permanents in [among] — untargeted, so
+     * [chooser] splits it as the effect resolves; members that left the battlefield are skipped and
+     * any member may get none. Master of the Wild Hunt's "that creature deals damage equal to its
+     * power divided as its controller chooses among any number of those Wolves".
      */
-    fun AmplifyNoncombatDamageThisTurn(bonus: DynamicAmount): Effect =
-        com.wingedsheep.sdk.scripting.effects.AmplifyNoncombatDamageThisTurnEffect(bonus)
+    fun DistributeDamageAmongCollection(
+        amount: DynamicAmount,
+        among: CollectionSlot,
+        damageSource: EffectTarget,
+        chooser: com.wingedsheep.sdk.scripting.effects.Chooser = com.wingedsheep.sdk.scripting.effects.Chooser.Controller
+    ): Effect = com.wingedsheep.sdk.scripting.effects.DistributeDamageAmongCollectionEffect(
+        amount = amount,
+        collectionName = among.key,
+        damageSource = damageSource,
+        chooser = chooser
+    )
+
+    /**
+     * Install a turn-duration replacement that adds [bonus] to every damage instance matching
+     * [appliesTo] for the rest of the turn (CR 616). The bonus is fixed at resolution; multiple
+     * installs stack additively. [appliesTo]'s `source` / `recipient` / `damageType` are "you"-relative
+     * to the effect's controller.
+     *
+     * - Taii Wakeen, Perfect Shot: `AmplifyDamageThisTurn(DynamicAmounts.xValue(),
+     *   DamageEvent(source = GameObjectFilter.Any.youControl(), damageType = DamageType.NonCombat))`.
+     * - Rankle and Torbran: `AmplifyDamageThisTurn(DynamicAmounts.fixed(2),
+     *   DamageEvent(recipient = Recipient.AnyPlayerOrBattle))`.
+     */
+    fun AmplifyDamageThisTurn(bonus: DynamicAmount, appliesTo: EventPattern.DamageEvent): Effect =
+        com.wingedsheep.sdk.scripting.effects.AmplifyDamageThisTurnEffect(bonus, appliesTo)
 
     /**
      * Install a duration-bounded replacement that doubles all damage — any source, combat or
@@ -356,8 +397,15 @@ object Effects {
     fun DamageCantBePreventedThisTurn(): Effect =
         DamageCantBePreventedThisTurnEffect
 
+    /**
+     * "Damage that would be dealt to [target] this turn can't be prevented" — the single-object
+     * scope of [DamageCantBePreventedThisTurn] (Whippoorwill).
+     */
+    fun DamageCantBePreventedThisTurn(target: EffectTarget): Effect =
+        com.wingedsheep.sdk.scripting.effects.DamageToTargetCantBePreventedThisTurnEffect(target)
+
     // =========================================================================
-    // Life Effects
+    // Life & Game Effects
     // =========================================================================
 
     /**
@@ -375,13 +423,32 @@ object Effects {
     /**
      * Pay life equal to a [DynamicAmount] (e.g. "pay life equal to its power"). Used as the
      * `cost` effect inside a [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] gate — pair with
-     * `Effects.OptionalCost` / `MayPayManaEffect`-style gating so the same dynamic amount can
-     * also feed the `ifPaid` effect. A non-positive evaluated amount pays nothing (still "paid").
+     * `Effects.OptionalCost` / `Effects.MayPay`-style gating so the same dynamic amount can
+     * also feed the `then` effect. A non-positive evaluated amount pays nothing (still "paid").
      */
     fun PayDynamicLife(
         amount: DynamicAmount,
         payer: Player = Player.You
     ): Effect = com.wingedsheep.sdk.scripting.effects.PayDynamicLifeEffect(amount, payer)
+
+    /**
+     * Pay [amount] life — the effect-position payment inside a gate ("you may pay 2 life. If you
+     * do, …"). The cost-position spelling is `Costs.PayLife`.
+     */
+    fun PayLife(amount: Int): Effect = com.wingedsheep.sdk.scripting.effects.PayLifeEffect(amount)
+
+    /**
+     * "Its owner gains [amount] life" — the owner of the spell's first target (Path of Peace,
+     * Misfortune's Gain).
+     */
+    fun OwnerGainsLife(amount: Int): Effect = com.wingedsheep.sdk.scripting.effects.OwnerGainsLifeEffect(amount)
+
+    /**
+     * "As this enters, pay any amount of life up to [maxAmount]" — the chosen amount is recorded on
+     * the permanent for its characteristic-defining ability (Nameless Race).
+     */
+    fun PayAnyAmountOfLifeAsEnters(maxAmount: DynamicAmount): Effect =
+        com.wingedsheep.sdk.scripting.effects.PayAnyAmountOfLifeAsEntersEffect(maxAmount)
 
     /**
      * Lose life. Default target is target opponent.
@@ -483,9 +550,15 @@ object Effects {
      * lost in the exchange (Mister Negative).
      */
     fun ExchangeLifeTotals(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         drawEqualToLifeLost: Boolean = false
     ): Effect = com.wingedsheep.sdk.scripting.effects.ExchangeLifeTotalsEffect(target, drawEqualToLifeLost)
+
+    /**
+     * "Redistribute any number of players' life totals." — the controller hands each player one of
+     * the current life totals (Reverse the Sands).
+     */
+    fun RedistributeLifeTotals(): Effect = com.wingedsheep.sdk.scripting.effects.RedistributeLifeTotalsEffect
 
     /**
      * Lose half your life, rounded up.
@@ -509,7 +582,7 @@ object Effects {
     )
 
     // =========================================================================
-    // Card Drawing Effects
+    // Card Drawing, Hand & Library Effects
     // =========================================================================
 
     /**
@@ -523,7 +596,7 @@ object Effects {
      * turn it face up. Pair with `Conditions.TargetIsCreatureCard` + `TurnFaceUpEffect` for
      * "Reveal target face-down permanent. If it's a creature card, you may turn it face up."
      */
-    fun RevealFaceDownPermanent(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun RevealFaceDownPermanent(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.RevealFaceDownPermanentEffect(target)
 
     /**
@@ -560,6 +633,15 @@ object Effects {
      * scries N" modes (Bumi, King of Three Trials).
      */
     fun Scry(count: Int, target: EffectTarget): Effect = LibraryPatterns.scry(count, target)
+
+    /**
+     * "Scry X" / "Target player scries X" with a dynamic count (CR 701.22) — X resolved at
+     * resolution (Kozilek's Command: "Target player scries X, then draws a card."). The scrying
+     * player is [target] (default: the controller); X = 0 is no scry event (CR 701.22b). See
+     * [LibraryPatterns.scry].
+     */
+    fun Scry(amount: DynamicAmount, target: EffectTarget = EffectTarget.Controller): Effect =
+        LibraryPatterns.scry(amount, target)
 
     /**
      * "Surveil [count]" (CR 701.25): look at the top [count] cards of your library, put any number
@@ -629,7 +711,7 @@ object Effects {
     fun UnlessYouWaterbend(amount: Int, otherwise: Effect): Effect =
         GatedEffect(
             gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{$amount}"), waterbend = true)),
-            then = Composite(),
+            then = Nothing,
             otherwise = otherwise,
             descriptionOverride =
                 "${otherwise.description.replaceFirstChar { it.uppercase() }} unless you waterbend {$amount}"
@@ -649,13 +731,21 @@ object Effects {
         HandPatterns.connive(target)
 
     /**
+     * Connive N (CR 701.50d): draw [count] cards, discard that many, then put a +1/+1 counter on
+     * [target] for each nonland card discarded — "connives X, where X is …" (Spymaster's Vault).
+     * A connive 0 does nothing and fires no connive trigger (CR 701.50e). See [HandPatterns.connive].
+     */
+    fun Connive(target: EffectTarget, count: DynamicAmount): Effect =
+        HandPatterns.connive(target, count)
+
+    /**
      * Connive whose +1/+1 counter lands on a *reflexively chosen* target rather than the conniving
      * permanent — "draw a card, then discard a card. When you discard a nonland card this way, put a
      * +1/+1 counter on target creature you control" (Teo, Spirited Glider).
      *
      * The counter recipient is selected at resolution, *after* a nonland card has actually been
      * discarded — so the player never picks a target up front or when the discard is a land. Pass the
-     * recipient's [requirement] (e.g. `Targets.CreatureYouControl`); do NOT also declare it as a
+     * recipient's [requirement] (e.g. `TargetObject(filter = TargetFilter.CreatureYouControl)`); do NOT also declare it as a
      * cast-time `target(...)` on the ability. See [HandPatterns.conniveTargeting].
      */
     fun ConniveTargeting(requirement: TargetRequirement): Effect =
@@ -695,16 +785,18 @@ object Effects {
      * Each player in APNAP order is offered the cost; the first to pay triggers [consequence].
      * (Prowling Pangolin: "any player may sacrifice two creatures. If a player does, sacrifice this.")
      */
-    fun AnyPlayerMayPay(cost: PayCost, consequence: Effect): Effect =
-        AnyPlayerMayPayEffect(cost = cost, consequence = consequence)
+    fun AnyPlayerMayPay(cost: PayCost, consequence: Effect, eligiblePlayers: Player = Player.Each): Effect =
+        AnyPlayerMayPayEffect(cost = cost, consequence = consequence, eligiblePlayers = eligiblePlayers)
 
     /**
      * "[effect] unless any player pays [cost]." — the inverse reading of [AnyPlayerMayPay].
      * Each player in APNAP order may pay; if any does, nothing happens. If none pays, [effect] runs.
      * (Aether Rift: "return it from your graveyard to the battlefield unless any player pays 5 life.")
      */
-    fun UnlessAnyPlayerPays(cost: PayCost, effect: Effect): Effect =
-        AnyPlayerMayPayEffect(cost = cost, consequence = null, consequenceIfNonePaid = effect)
+    fun UnlessAnyPlayerPays(cost: PayCost, effect: Effect, eligiblePlayers: Player = Player.Each): Effect =
+        AnyPlayerMayPayEffect(
+            cost = cost, consequence = null, consequenceIfNonePaid = effect, eligiblePlayers = eligiblePlayers
+        )
 
     /**
      * Each player returns a permanent they control to its owner's hand.
@@ -726,6 +818,33 @@ object Effects {
      * Used by the "Words of" enchantment cycle.
      */
     fun ReplaceNextDraw(effect: Effect): Effect = ReplaceNextDrawWithEffect(effect)
+
+    /**
+     * Each player discards a card or loses [lifeLoss] life, their choice (Strongarm Tactics).
+     */
+    fun EachPlayerDiscardsOrLosesLife(lifeLoss: Int): Effect =
+        com.wingedsheep.sdk.scripting.effects.EachPlayerDiscardsOrLoseLifeEffect(lifeLoss)
+
+    /** [target] player reveals their hand. */
+    fun RevealHand(target: EffectTarget): Effect =
+        com.wingedsheep.sdk.scripting.effects.RevealHandEffect(target)
+
+    /** Look at [target] player's hand. */
+    fun LookAtHand(target: EffectTarget): Effect =
+        com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect(target)
+
+    /**
+     * Look at a face-down permanent (or, with [scope], every face-down permanent its controller
+     * controls) — Smoke Teller, Spy Network.
+     */
+    fun LookAtFaceDown(
+        target: EffectTarget,
+        scope: com.wingedsheep.sdk.scripting.effects.FaceDownLookScope
+    ): Effect = com.wingedsheep.sdk.scripting.effects.LookAtFaceDownEffect(target, scope)
+
+    /** [target] player shuffles their library. */
+    fun ShuffleLibrary(target: EffectTarget = EffectTarget.Controller): Effect =
+        com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect(target)
 
     // =========================================================================
     // Zone Movement Effects
@@ -876,9 +995,9 @@ object Effects {
         ),
         // CR 701.65b: airbending fires "whenever you airbend" only if one or more objects were
         // actually exiled (an "up to one" airbend that chose nothing exiles nothing → no bend).
-        ConditionalEffect(
+        Effects.If(
             condition = CollectionContainsMatch("airbendExiled"),
-            effect = EmitBendEventEffect(BendType.AIR)
+            then = EmitBendEventEffect(BendType.AIR)
         )
     ))
 
@@ -918,9 +1037,9 @@ object Effects {
             fixedAlternativeManaCost = cost
         ),
         // CR 701.65b: fire "whenever you airbend" only if one or more objects were exiled.
-        ConditionalEffect(
+        Effects.If(
             condition = CollectionContainsMatch("airbendExiled"),
-            effect = EmitBendEventEffect(BendType.AIR)
+            then = EmitBendEventEffect(BendType.AIR)
         )
     ))
 
@@ -937,7 +1056,7 @@ object Effects {
 
     /**
      * Emit a "you bent" notification of [bendType] for the resolving effect's controller — fires
-     * [com.wingedsheep.sdk.dsl.Triggers.YouBend] triggers and records the type in the player's
+     * `Triggers.you.bends(types)` triggers and records the type in the player's
      * per-turn distinct-bend set. Wired into [Earthbend] / [Airbend] and the firebending attack
      * trigger; card authors normally reach a bend through those, not this facade (CR 701.65b /
      * 701.66b / 702.189b). Waterbend is emitted engine-side at cost payment (CR 701.67c).
@@ -963,7 +1082,7 @@ object Effects {
      * blink — pair with [ReturnNotedExileTappedWithAuras] on the source's leaves-the-battlefield
      * and becomes-untapped triggers (Tawnos's Coffin).
      */
-    fun ExileWithAurasNotingCounters(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun ExileWithAurasNotingCounters(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.ExileWithAurasNotingCountersEffect(target)
 
     /**
@@ -985,6 +1104,12 @@ object Effects {
      */
     fun ExileLinkedToSource(target: EffectTarget): Effect =
         MoveToZoneEffect(target, Zone.EXILE, linkToSource = true)
+
+    /** Append current battlefield identities from [from] to this source visit's named history. */
+    fun RecordSourceObjects(from: String, key: String): Effect =
+        com.wingedsheep.sdk.scripting.effects.RecordSourceObjectsEffect(from, key)
+
+    fun RecordSourceObjects(from: CollectionSlot, key: String): Effect = RecordSourceObjects(from.key, key)
 
     /**
      * Record the card selected into the pipeline collection [from] as the source's "last chosen
@@ -1054,7 +1179,7 @@ object Effects {
      * Return the source card from your graveyard to the battlefield with its back face up —
      * "Return this card from your graveyard to the battlefield transformed" (Garland, Knight
      * of Cornelia). Pair with `activateFromZone = Zone.GRAVEYARD` on the owning ability, or wire
-     * it to `Triggers.Dies` for the LCI "god cycle" dies-and-return templating. No-ops if the
+     * it to `Triggers.self.dies()` for the LCI "god cycle" dies-and-return templating. No-ops if the
      * source left the graveyard before resolution or is not a double-faced card.
      *
      * @param tapped return the back-face permanent tapped ("...return it to the battlefield
@@ -1086,8 +1211,12 @@ object Effects {
      * Return the target graveyard card and every other card with the same name in your graveyard
      * to the battlefield tapped (Rat King, Verminister).
      */
-    fun ReturnSameNamedFromGraveyard(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun ReturnSameNamedFromGraveyard(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.ReturnSameNamedFromGraveyardEffect(target)
+
+    // =========================================================================
+    // Emblems, Player Designations & Speed
+    // =========================================================================
 
     /**
      * Create a global triggered ability that is not attached to any specific permanent, lasting for
@@ -1232,6 +1361,16 @@ object Effects {
     ): Effect = com.wingedsheep.sdk.scripting.effects.LockLifeGainEffect(target, duration)
 
     /**
+     * "[target] can't lose life for [duration]" (CR 119.8) — damage and life loss leave the total
+     * unchanged and life can't be paid. The sibling of [LockLifeGain]; "your life total can't
+     * change" is both (Flare of Fortitude). Defaults to the rest of the game.
+     */
+    fun LockLifeLoss(
+        target: EffectTarget = EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.TargetPlayer),
+        duration: com.wingedsheep.sdk.scripting.Duration = com.wingedsheep.sdk.scripting.Duration.Permanent
+    ): Effect = com.wingedsheep.sdk.scripting.effects.LockLifeLossEffect(target, duration)
+
+    /**
      * "The Ring tempts you" (CR 701.54). The target player gets the Ring emblem (if they don't have
      * one), then chooses a creature they control to become their Ring-bearer. Defaults to the
      * controller. Tempting still happens even if the player controls no creatures.
@@ -1250,6 +1389,10 @@ object Effects {
     /** "Amass [subtype] X" with a dynamic amount (e.g. Fall of Cair Andros, The Mouth of Sauron). */
     fun Amass(amount: DynamicAmount, subtype: String): Effect =
         com.wingedsheep.sdk.scripting.effects.AmassEffect(amount, subtype)
+
+    // =========================================================================
+    // Return & Library Placement Effects
+    // =========================================================================
 
     /**
      * Return to hand.
@@ -1288,7 +1431,7 @@ object Effects {
 
     /**
      * Owner chooses to put target second from the top or on the bottom of their library.
-     * Used by Hinder/Spell Crumple-style effects (e.g., Temporal Cleansing).
+     * Used by Temporal Cleansing.
      */
     fun PutSecondFromTopOrBottomOfLibrary(target: EffectTarget): Effect =
         PutOnLibraryPositionOfChoiceEffect(
@@ -1298,9 +1441,13 @@ object Effects {
 
     /**
      * Shuffle into library.
+     *
+     * [fromZone] guards a self-reference that names its origin — "shuffle this card into your
+     * library from your graveyard" (Kogla and Yidaro): the move is skipped if the card has left that
+     * zone by resolution, so a card exiled in response stays in exile. See [ReturnToHandFromGraveyard].
      */
-    fun ShuffleIntoLibrary(target: EffectTarget): Effect =
-        MoveToZoneEffect(target, Zone.LIBRARY, ZonePlacement.Shuffled)
+    fun ShuffleIntoLibrary(target: EffectTarget, fromZone: Zone? = null): Effect =
+        MoveToZoneEffect(target, Zone.LIBRARY, ZonePlacement.Shuffled, fromZone = fromZone)
 
     /**
      * Put into owner's library at a specific position from the top.
@@ -1316,7 +1463,8 @@ object Effects {
      * Set [ownerControls] for "its owner may cast/play that card" (each card's owner is the
      * grantee, and a turn-keyed [expiry] follows that owner's turns), and [castColorRestriction]
      * for "you may cast red spells from among them" — a cast-time check on the face being cast,
-     * not a filter over the exiled cards.
+     * not a filter over the exiled cards. Set [singleUse] for "you may cast **a** spell from among
+     * them" — one play spends the grant for the whole group (Chandra, Hope's Beacon).
      *
      * Set [landEntersTapped] for "each land played this way enters tapped" clauses
      * (Lightstall Inquisitor). Pair with [GrantPlayWithCostIncrease] to also tax
@@ -1325,6 +1473,9 @@ object Effects {
      * The grant also covers cards left in a **graveyard** — set [castFaceIndex] for
      * "you may cast it from your graveyard as an Adventure" (Mosswood Dreadknight), which
      * authorizes only the card's alternative face at that index.
+     *
+     * Set [colorlessAsAnyColor] for "you may spend colorless mana as though it were mana of any
+     * color to cast that spell" (Abstruse Appropriation) — narrower than [withAnyManaType].
      */
     fun GrantMayPlayFromExile(
         from: String,
@@ -1334,23 +1485,27 @@ object Effects {
         condition: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
         landEntersTapped: Boolean = false,
         onPlayRider: Effect? = null,
-        exileAfterResolve: Boolean = false,
+        insteadOfGraveyard: AfterResolveDestination? = null,
         nonLandOnly: Boolean = false,
         castFaceIndex: Int? = null,
         ownerControls: Boolean = false,
-        castColorRestriction: Color? = null
+        castColorRestriction: Color? = null,
+        singleUse: Boolean = false,
+        colorlessAsAnyColor: Boolean = false
     ): Effect = GrantMayPlayFromExileEffect(
         from = from,
         expiry = expiry,
         withAnyManaType = withAnyManaType,
+        colorlessAsAnyColor = colorlessAsAnyColor,
         condition = condition,
         landEntersTapped = landEntersTapped,
         onPlayRider = onPlayRider,
-        exileAfterResolve = exileAfterResolve,
+        insteadOfGraveyard = insteadOfGraveyard,
         nonLandOnly = nonLandOnly,
         castFaceIndex = castFaceIndex,
         ownerControls = ownerControls,
-        castColorRestriction = castColorRestriction
+        castColorRestriction = castColorRestriction,
+        singleUse = singleUse
     )
 
     /**
@@ -1408,14 +1563,14 @@ object Effects {
 
     /**
      * Grant a single target entity in exile permission to be cast without paying its mana cost.
-     * Optionally marks the spell to be exiled instead of going to graveyard after resolution.
-     * Used for effects like "you may cast target card without paying its mana cost. If that
-     * spell would be put into a graveyard, exile it instead."
+     * [insteadOfGraveyard] is the cast-this-way destination rider — "If that spell would be put
+     * into a graveyard, exile it instead" (`EXILE`) or "…put it on the bottom of its owner's
+     * library instead" (`BOTTOM_OF_LIBRARY`, Quintorius, Loremaster).
      */
     fun GrantFreeCastTargetFromExile(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
-        exileAfterResolve: Boolean = false
-    ): Effect = GrantFreeCastTargetFromExileEffect(target, exileAfterResolve)
+        target: EffectTarget,
+        insteadOfGraveyard: AfterResolveDestination? = null
+    ): Effect = GrantFreeCastTargetFromExileEffect(target, insteadOfGraveyard)
 
     /**
      * Mark a spell on the stack so that it is exiled with the given counters on
@@ -1426,7 +1581,7 @@ object Effects {
      */
     fun MarkSpellExileWithCounters(
         target: EffectTarget = EffectTarget.TriggeringEntity,
-        counterType: String = com.wingedsheep.sdk.core.Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
         count: Int = 1
     ): Effect = com.wingedsheep.sdk.scripting.effects.MarkSpellExileWithCountersEffect(
         target = target,
@@ -1634,12 +1789,12 @@ object Effects {
     )
 
     // =========================================================================
-    // Stat Modification Effects
+    // Stat, Keyword, Ability, Counter & Type Effects
     // =========================================================================
 
     /** Switch power and toughness after other stat changes for the given duration. */
     fun SwitchPowerToughness(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = SwitchPowerToughnessEffect(target, duration)
 
@@ -1652,7 +1807,7 @@ object Effects {
     fun ModifyStats(
         power: Int,
         toughness: Int,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect =
         ModifyStatsEffect(power, toughness, target, duration)
@@ -1661,8 +1816,13 @@ object Effects {
      * Modify power and toughness by dynamic amounts.
      * Used for effects like "Target creature gets -X/-X where X is the number of Zombies."
      */
-    fun ModifyStats(power: DynamicAmount, toughness: DynamicAmount, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
-        ModifyStatsEffect(power, toughness, target)
+    fun ModifyStats(
+        power: DynamicAmount,
+        toughness: DynamicAmount,
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect =
+        ModifyStatsEffect(power, toughness, target, duration)
 
     /**
      * Grant hexproof to a target (player or permanent) until end of turn.
@@ -1685,7 +1845,7 @@ object Effects {
      */
     fun GrantKeyword(
         keyword: Keyword,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn,
         condition: com.wingedsheep.sdk.scripting.conditions.Condition? = null
     ): Effect =
@@ -1696,11 +1856,11 @@ object Effects {
      * can't be regenerated" wording (see [Destroy]'s `noRegenerate`), but also useful on its own as
      * a standing rider on a creature that was merely damaged — Runesword.
      */
-    fun CantBeRegenerated(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun CantBeRegenerated(target: EffectTarget): Effect =
         CantBeRegeneratedEffect(target)
 
     /** Create a regeneration shield for the target permanent. */
-    fun Regenerate(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun Regenerate(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.RegenerateEffect(target)
 
     /**
@@ -1708,15 +1868,22 @@ object Effects {
      * exile; a no-op on a non-creature. Composed after damage (Carbonize) or granted as a rider
      * on a creature that deals damage (Runesword).
      */
-    fun MarkExileOnDeath(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun MarkExileOnDeath(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect(target)
+
+    /**
+     * "If it would die this turn, exile it and its controller's graveyard instead" — the
+     * graveyard-wide sibling of [MarkExileOnDeath] (Burn Away).
+     */
+    fun MarkExileControllerGraveyardOnDeath(target: EffectTarget): Effect =
+        com.wingedsheep.sdk.scripting.effects.MarkExileControllerGraveyardOnDeathEffect(target)
 
     /**
      * Grant an ability flag to a target.
      */
     fun GrantKeyword(
         flag: AbilityFlag,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect =
         GrantKeywordEffect(flag.name, target, duration)
@@ -1725,8 +1892,8 @@ object Effects {
      * Grant a **point-of-use** static ability to a target until end of turn (or another
      * [duration]) — e.g. [com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan] so the combat
      * blocker validation honors a temporarily-conferred "can't be blocked by more than one
-     * creature" (Full Steam Ahead). Compose inside [ForEachInGroup] with [EffectTarget.Self] for
-     * "each creature you control gains ...".
+     * creature" (Full Steam Ahead). Compose inside [ForEachInGroup] with
+     * [EffectTarget.IterationEntity] for "each creature you control gains ...".
      *
      * The grant lands in `GameState.grantedStaticAbilities`, which the combat, casting, and
      * activation checks read alongside a permanent's printed statics. The **layer projector does
@@ -1741,9 +1908,67 @@ object Effects {
      */
     fun GrantStaticAbility(
         ability: com.wingedsheep.sdk.scripting.StaticAbility,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantStaticAbilityEffect(ability, target, duration)
+
+    /**
+     * [target] gains a triggered ability until [duration] ends — "until end of turn, target creature
+     * gains 'When this creature dies, …'".
+     */
+    fun GrantTriggeredAbility(
+        ability: TriggeredAbility,
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = GrantTriggeredAbilityEffect(ability, target, duration)
+
+    /** [target] gains a state-triggered ability (CR 603.8) until [duration] ends (Olivia, Crimson Bride). */
+    fun GrantStateTriggeredAbility(
+        ability: StateTriggeredAbility,
+        target: EffectTarget,
+        duration: Duration = Duration.Permanent
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantStateTriggeredAbilityEffect(ability, target, duration)
+
+    /** [target] gains an activated ability until [duration] ends ("… gains '{T}: Add {G}{G}{G}'"). */
+    /** Grant a repeatable special action. It executes immediately and retains this resolution's context. */
+    fun GrantPlayerAction(
+        cost: com.wingedsheep.sdk.scripting.costs.PayCost,
+        effect: Effect,
+        timing: com.wingedsheep.sdk.scripting.effects.PlayerActionTiming,
+        actionDescription: String,
+        target: EffectTarget = EffectTarget.Controller,
+        duration: Duration = Duration.EndOfTurn,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantPlayerActionEffect(
+        cost, effect, timing, target, duration, actionDescription
+    )
+
+    fun GrantActivatedAbility(
+        ability: ActivatedAbility,
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect(ability, target, duration)
+
+    /** Every permanent matching [filter] gains an activated ability until [duration] ends (Song of Freyalise). */
+    fun GrantActivatedAbilityToGroup(
+        ability: ActivatedAbility,
+        filter: GroupFilter = GroupFilter.AllCreaturesYouControl,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityToGroupEffect(ability, filter, duration)
+
+    /**
+     * "Enchanted creature and other creatures that share a creature type with it get
+     * [powerModifier]/[toughnessModifier] and gain [keyword] / protection from [protectionColors]
+     * until end of turn" — the Onslaught Crown cycle.
+     */
+    fun GrantToEnchantedCreatureTypeGroup(
+        powerModifier: Int = 0,
+        toughnessModifier: Int = 0,
+        keyword: Keyword? = null,
+        protectionColors: Set<Color> = emptySet(),
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantToEnchantedCreatureTypeGroupEffect(
+        powerModifier, toughnessModifier, keyword, protectionColors, duration
+    )
 
     /**
      * "[target] gains all activated abilities of [donor] until end of turn" — Quicksilver Elemental.
@@ -1781,7 +2006,7 @@ object Effects {
      * Mark a permanent so that if it would leave the battlefield, it is exiled instead.
      * Used by Kheru Lich Lord, Whip of Erebos, Sneak Attack, etc.
      */
-    fun GrantExileOnLeave(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun GrantExileOnLeave(target: EffectTarget): Effect =
         GrantExileOnLeaveEffect(target)
 
     /**
@@ -1790,7 +2015,7 @@ object Effects {
      */
     fun GrantKeywordToAttackersBlockedBy(
         keyword: Keyword,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantKeywordToAttackersBlockedByEffect(target, keyword.name, duration)
 
@@ -1798,27 +2023,27 @@ object Effects {
      * Remove a keyword from a single target.
      * "It loses defender."
      */
-    fun RemoveKeyword(keyword: Keyword, target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
+    fun RemoveKeyword(keyword: Keyword, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         RemoveKeywordEffect(keyword.name, target, duration)
 
     /**
      * Remove an ability flag from a single target.
      */
-    fun RemoveKeyword(flag: AbilityFlag, target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
+    fun RemoveKeyword(flag: AbilityFlag, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         RemoveKeywordEffect(flag.name, target, duration)
 
     /**
      * Remove all abilities from a target creature until end of turn (or other duration).
      * "Target creature loses all abilities until end of turn."
      */
-    fun RemoveAllAbilities(target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
+    fun RemoveAllAbilities(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         RemoveAllAbilitiesEffect(target, duration)
 
     /**
      * Remove all creature types from a target creature.
      * "Target creature loses all creature types until end of turn."
      */
-    fun LoseAllCreatureTypes(target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
+    fun LoseAllCreatureTypes(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         LoseAllCreatureTypesEffect(target, duration)
 
     /**
@@ -1836,15 +2061,39 @@ object Effects {
         AddCreatureTypeEffect(subtype, target, duration)
 
     /**
+     * [target] becomes the creature type of the controller's choice, other than [excludedTypes]
+     * (the Mistform cycle: "becomes the creature type of your choice until end of turn").
+     */
+    fun BecomeCreatureType(
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn,
+        excludedTypes: List<String> = emptyList()
+    ): Effect = com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect(target, duration, excludedTypes)
+
+    /**
+     * Change the text of [target] by replacing all instances of one creature type with another of
+     * the controller's choice, other than [excludedTypes] (Artificial Evolution).
+     */
+    fun ChangeCreatureTypeText(target: EffectTarget, excludedTypes: List<String> = emptyList()): Effect =
+        com.wingedsheep.sdk.scripting.effects.ChangeCreatureTypeTextEffect(target, excludedTypes)
+
+    /** Every creature matching [filter] becomes [subtypes] (replacing its creature types) until [duration] ends. */
+    fun SetGroupCreatureSubtypes(
+        subtypes: Set<String>,
+        filter: GroupFilter = GroupFilter.AllCreaturesYouControl,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.SetGroupCreatureSubtypesEffect(subtypes, filter, duration)
+
+    /**
      * Add counters.
      */
-    fun AddCounters(counterType: String, count: Int, target: EffectTarget): Effect =
+    fun AddCounters(counterType: CounterType, count: Int, target: EffectTarget): Effect =
         AddCountersEffect(counterType, count, target)
 
     /**
      * Add a dynamic number of counters.
      */
-    fun AddDynamicCounters(counterType: String, amount: DynamicAmount, target: EffectTarget): Effect =
+    fun AddDynamicCounters(counterType: CounterType, amount: DynamicAmount, target: EffectTarget): Effect =
         AddDynamicCountersEffect(counterType, amount, target)
 
     /**
@@ -1852,12 +2101,20 @@ object Effects {
      * "Put up to N [counterType] counters on target" — the single-kind mirror of
      * [Effects.RemoveAnyNumberOfCounters] / [RemoveAnyNumberOfCountersEffect].
      */
-    fun AddCountersUpTo(counterType: String, max: Int, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun AddCountersUpTo(counterType: CounterType, max: Int, target: EffectTarget): Effect =
         AddCountersUpToEffect(counterType, DynamicAmount.Fixed(max), target)
 
     /** [AddCountersUpTo] with a dynamic ceiling ("put up to X counters"). */
-    fun AddCountersUpTo(counterType: String, max: DynamicAmount, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun AddCountersUpTo(counterType: CounterType, max: DynamicAmount, target: EffectTarget): Effect =
         AddCountersUpToEffect(counterType, max, target)
+
+    /**
+     * "Choose a kind of counter on [target]. Put [count] additional counter(s) of that kind on
+     * it." — the player picks among the kinds already there (no prompt when only one). The
+     * one-kind sibling of the targeted [Proliferate]. Ichormoon Gauntlet.
+     */
+    fun AddCountersOfChosenKind(target: EffectTarget = EffectTarget.ContextTarget(0), count: Int = 1): Effect =
+        com.wingedsheep.sdk.scripting.effects.AddCountersOfChosenKindEffect(target, count)
 
     /**
      * Put every counter that was on the triggering source onto a target.
@@ -1865,7 +2122,7 @@ object Effects {
      * not just +1/+1 counters. Use for "put its counters on target creature you
      * control" style triggered abilities (e.g., Essence Channeler).
      */
-    fun MoveAllLastKnownCounters(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun MoveAllLastKnownCounters(target: EffectTarget): Effect =
         MoveAllLastKnownCountersEffect(target)
 
     /**
@@ -1886,10 +2143,10 @@ object Effects {
     fun GrantCounterPlacementModifier(
         modifier: Int = 1,
         duration: Duration = Duration.EndOfTurn,
-        counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter =
-            com.wingedsheep.sdk.scripting.events.CounterTypeFilter.PlusOnePlusOne,
-        recipient: com.wingedsheep.sdk.scripting.events.RecipientFilter =
-            com.wingedsheep.sdk.scripting.events.RecipientFilter.CreatureYouControl
+        counterType: CounterType =
+            CounterType.PLUS_ONE_PLUS_ONE,
+        recipient: com.wingedsheep.sdk.scripting.events.Recipient =
+            com.wingedsheep.sdk.scripting.events.Recipient.CreatureYouControl
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.GrantCounterPlacementModifierEffect(
             modifier = modifier,
@@ -1905,8 +2162,8 @@ object Effects {
      * counters as they are placed in the future. Used by Sage of the Fang.
      */
     fun DoubleCounters(
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
-        target: EffectTarget = EffectTarget.ContextTarget(0)
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
+        target: EffectTarget
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.DoubleCountersEffect(counterType, target)
 
@@ -1917,15 +2174,23 @@ object Effects {
      * normal. No-op when the target has no counters at all. Used by Zimone, Paradox Sculptor.
      */
     fun DoubleAllCounters(
-        target: EffectTarget = EffectTarget.ContextTarget(0)
+        target: EffectTarget
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.DoubleCountersEffect(counterType = null, target = target)
 
     /**
-     * Remove counters of a given type from a target. No-op if the target has fewer
-     * than `count` counters of that type.
+     * Remove counters of a given type from a target. A target carrying fewer than `count`
+     * counters of that type loses as many as it has.
      */
-    fun RemoveCounters(counterType: String, count: Int, target: EffectTarget): Effect =
+    fun RemoveCounters(counterType: CounterType, count: Int, target: EffectTarget): Effect =
+        RemoveCountersEffect(counterType, DynamicAmount.Fixed(count), target)
+
+    /**
+     * [RemoveCounters] with a resolution-time count — "remove that many reprieve counters from
+     * this creature" (Magnanimous Magistrate). As a [MayPay] cost it is all-or-nothing: the "yes"
+     * is only offered when the target carries the full amount.
+     */
+    fun RemoveCounters(counterType: CounterType, count: DynamicAmount, target: EffectTarget): Effect =
         RemoveCountersEffect(counterType, count, target)
 
     /**
@@ -1933,7 +2198,7 @@ object Effects {
      * how many of each kind to remove (one prompt per counter kind currently on the
      * target). Used by Rhys, the Evermore.
      */
-    fun RemoveAnyNumberOfCounters(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun RemoveAnyNumberOfCounters(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.RemoveAnyNumberOfCountersEffect(target)
 
     /**
@@ -1942,7 +2207,7 @@ object Effects {
      * the budget-capped form of [RemoveAnyNumberOfCounters] (same effect, with `maxTotal` set).
      * Used by Heartless Act's "Remove up to three counters from target creature".
      */
-    fun RemoveCountersUpTo(maxCount: Int, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun RemoveCountersUpTo(maxCount: Int, target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.RemoveAnyNumberOfCountersEffect(
             target, maxTotal = DynamicAmount.Fixed(maxCount)
         )
@@ -1959,7 +2224,7 @@ object Effects {
      * really does say "up to".
      */
     fun RemoveCounterOfAnyKind(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         count: Int = 1
     ): Effect = RemoveCounterOfAnyKind(target, DynamicAmount.Fixed(count))
 
@@ -1986,7 +2251,7 @@ object Effects {
      * "You get {E}{E}{E}" (three energy counters) is `GetEnergy(3)`.
      */
     fun GetEnergy(amount: Int, target: EffectTarget = EffectTarget.Controller): Effect =
-        AddCountersEffect(Counters.ENERGY, amount, target)
+        AddCountersEffect(CounterType.ENERGY, amount, target)
 
     /**
      * [player] pays any amount of [counterType] counters they currently have (CR 107.14's "pay
@@ -1996,9 +2261,9 @@ object Effects {
      *
      * "you may pay any amount of {E}. [~] deals that much damage to that permanent." (Galvanic
      * Discharge) composes as
-     * `Composite(PayCounters(Counters.ENERGY, storeAmountAs = "paid"), DealDamage(VariableReference("paid"), target))`.
+     * `Composite(PayCounters(CounterType.ENERGY, storeAmountAs = "paid"), DealDamage(VariableReference("paid"), target))`.
      */
-    fun PayCounters(counterType: String, player: Player = Player.You, storeAmountAs: String): Effect =
+    fun PayCounters(counterType: CounterType, player: Player = Player.You, storeAmountAs: String): Effect =
         com.wingedsheep.sdk.scripting.effects.PayCountersEffect(counterType, player, storeAmountAs)
 
     /**
@@ -2008,8 +2273,12 @@ object Effects {
      * is the payment decision, and per the 2024-06-07 ruling on {E} you can't pay a partial amount
      * for a partial effect, so this fails outright rather than clamping when unaffordable.
      */
-    fun PayFixedCounters(counterType: String, amount: Int, player: Player = Player.You): Effect =
-        com.wingedsheep.sdk.scripting.effects.PayFixedCountersEffect(counterType, amount, player)
+    fun PayExactCounters(counterType: CounterType, amount: Int, player: Player = Player.You): Effect =
+        PayExactCounters(counterType, DynamicAmount.Fixed(amount), player)
+
+    /** Pay an exact resolution-computed amount; compose with MayPay or ReflexiveTrigger. */
+    fun PayExactCounters(counterType: CounterType, amount: DynamicAmount, player: Player = Player.You): Effect =
+        com.wingedsheep.sdk.scripting.effects.PayExactCountersEffect(counterType, amount, player)
 
     /**
      * [player] collects evidence [amount] (CR 701.59a) — exiles any number of cards from their
@@ -2019,7 +2288,7 @@ object Effects {
      * `action` half of a [ReflexiveTrigger] for "you may collect evidence 3. When you do, …"
      * (Sample Collector), or under an "if you do" gate for Izoni, Center of the Web. Per CR 701.59b
      * a player who cannot reach [amount] is never offered the choice at all, so — like
-     * [PayFixedCounters] — the outer "may" is only shown when the payment can actually be made.
+     * [PayExactCounters] — the outer "may" is only shown when the payment can actually be made.
      *
      * For collect evidence as a *cost*, use `Costs.CollectEvidence(n)` (activated abilities),
      * `Costs.additional.CollectEvidence(n)` (mandatory cast cost), or the `collectEvidence()` DSL
@@ -2056,7 +2325,7 @@ object Effects {
      * "move X +1/+1 counters from this creature onto another target creature".
      */
     fun MoveCounters(
-        counterType: String,
+        counterType: CounterType,
         amount: DynamicAmount,
         source: EffectTarget,
         destination: EffectTarget
@@ -2077,22 +2346,36 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.MoveChosenCountersToTargetEffect(source, destination, drawCardOnMove)
 
     /**
+     * "Move a counter from [source] onto [destination]" — the player picks *which kind* moves, but
+     * not *whether* one does (Nesting Grounds). The floored form of [MoveChosenCountersToTarget]:
+     * exactly [count] counters move, chosen across whatever kinds [source] carries; a source with a
+     * single kind raises no prompt, and one with fewer than [count] moves all it has.
+     */
+    fun MoveCounterOfAnyKind(
+        source: EffectTarget,
+        destination: EffectTarget,
+        count: Int = 1
+    ): Effect = com.wingedsheep.sdk.scripting.effects.MoveChosenCountersToTargetEffect(
+        source, destination, maxTotal = count, minTotal = count
+    )
+
+    /**
      * Remove every counter (of any kind) from a target permanent. Mandatory; clears
      * all counter kinds currently on the target. Used by Perfect Intimidation.
      */
-    fun RemoveAllCounters(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun RemoveAllCounters(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.RemoveAllCountersEffect(target)
 
     /** Remove every counter of [type] from [target], preserving counters of other kinds. */
     fun RemoveAllCountersOfType(
-        type: String,
-        target: EffectTarget = EffectTarget.ContextTarget(0)
+        type: CounterType,
+        target: EffectTarget
     ): Effect = com.wingedsheep.sdk.scripting.effects.RemoveAllCountersOfTypeEffect(type, target)
 
     /**
      * Add counters to all entities in a named collection.
      */
-    fun AddCountersToCollection(collectionName: String, counterType: String, count: Int = 1): Effect =
+    fun AddCountersToCollection(collectionName: String, counterType: CounterType, count: Int = 1): Effect =
         AddCountersToCollectionEffect(collectionName, counterType, count)
 
     /**
@@ -2100,21 +2383,21 @@ object Effects {
      * "create a token, then put X counters on it, where X is [amount]" (Emil, Vastlands Roamer).
      * Pair with a token-creating effect that publishes the well-known `CREATED_TOKENS` collection.
      */
-    fun AddCountersToCollection(collectionName: String, counterType: String, amount: DynamicAmount): Effect =
+    fun AddCountersToCollection(collectionName: String, counterType: CounterType, amount: DynamicAmount): Effect =
         AddCountersToCollectionEffect(collectionName, counterType, amount = amount)
 
     /**
      * Distribute any number of counters from this creature onto other creatures.
      * Used for Forgotten Ancient's upkeep ability.
      */
-    fun DistributeCountersFromSelf(counterType: String = Counters.PLUS_ONE_PLUS_ONE): Effect =
+    fun DistributeCountersFromSelf(counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE): Effect =
         com.wingedsheep.sdk.scripting.effects.DistributeCountersFromSelfEffect(counterType)
 
     /**
      * Distribute counters among targets from context.
      * "Distribute N counters among one or more target creatures."
      */
-    fun DistributeCountersAmongTargets(totalCounters: Int, counterType: String = Counters.PLUS_ONE_PLUS_ONE, minPerTarget: Int = 1): Effect =
+    fun DistributeCountersAmongTargets(totalCounters: Int, counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE, minPerTarget: Int = 1): Effect =
         com.wingedsheep.sdk.scripting.effects.DistributeCountersAmongTargetsEffect(
             DynamicAmount.Fixed(totalCounters), counterType, minPerTarget
         )
@@ -2127,7 +2410,7 @@ object Effects {
      */
     fun DistributeCountersAmongTargets(
         totalCounters: DynamicAmount,
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
         minPerTarget: Int = 1,
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.DistributeCountersAmongTargetsEffect(totalCounters, counterType, minPerTarget)
@@ -2135,11 +2418,11 @@ object Effects {
     /**
      * Distribute [totalCounters] new counters among permanents matching [filter], chosen at
      * resolution (not the spell's targets). `minPerTarget = 0` models "among any number of".
-     * Crashing Wave: `DistributeCountersAmongFiltered(3, Counters.STUN, Filters.Creature.tapped().opponentControls())`.
+     * Crashing Wave: `DistributeCountersAmongFiltered(3, CounterType.STUN, Filters.Creature.tapped().opponentControls())`.
      */
     fun DistributeCountersAmongFiltered(
         totalCounters: Int,
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
         minPerTarget: Int = 0,
     ): Effect =
@@ -2171,6 +2454,10 @@ object Effects {
     fun AddSubtype(subtype: String, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         AddSubtypeEffect(subtype, target, duration)
 
+    /** [target] gains the subtype chosen into [fromChosen] (pipeline form — Navigator's Compass). */
+    fun AddSubtype(target: EffectTarget, fromChosen: ChosenSlot, duration: Duration = Duration.EndOfTurn): Effect =
+        AddSubtypeEffect("", target, duration, fromChosen.key)
+
     /**
      * Set a target land's basic land subtype, replacing all existing land subtypes (Rule 305.7).
      * "Target land becomes an Island until end of turn." Pass [fromChosenValueKey] to read the
@@ -2178,10 +2465,17 @@ object Effects {
      */
     fun SetLandType(
         landType: String = "",
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn,
         fromChosenValueKey: String? = null
     ): Effect = SetLandTypeEffect(landType, target, duration, fromChosenValueKey)
+
+    /** Set a target land's basic land subtype to the one chosen into [fromChosen] (pipeline form). */
+    fun SetLandType(
+        target: EffectTarget,
+        fromChosen: ChosenSlot,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = SetLandTypeEffect("", target, duration, fromChosen.key)
 
     /** Choose a color and store it on a target permanent. */
     fun ChooseColorForTarget(
@@ -2204,10 +2498,17 @@ object Effects {
      * Pass an empty set to make the target colorless.
      */
     fun ChangeColor(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         colors: Set<Color>,
         duration: Duration = Duration.EndOfTurn
     ): Effect = ChangeColorEffect(target, colors.map { it.name }.toSet(), duration)
+
+    /** Every creature matching [filter] becomes [colors] (replacing its colors) until [duration] ends. */
+    fun ChangeGroupColor(
+        colors: Set<Color>,
+        filter: GroupFilter = GroupFilter.AllCreaturesYouControl,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.ChangeGroupColorEffect(colors.map { it.name }.toSet(), filter, duration)
 
     /**
      * Add [colors] to a single target in addition to its existing colors (default duration:
@@ -2233,7 +2534,7 @@ object Effects {
      * Used by Tam, Mindful First-Year: "Target creature you control becomes all colors until end of turn."
      */
     fun BecomeAllColors(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = ChangeColorEffect(target, Color.entries.map { it.name }.toSet(), duration)
 
@@ -2242,21 +2543,24 @@ object Effects {
      * block — reads the chosen color from the effect context. The target may be a spell on the
      * stack or a permanent. Used by Blind Seer:
      * "{1}{U}: Target spell or permanent becomes the color of your choice until end of turn."
+     * Inside a [ChooseColorsThen] block it takes the whole chosen set (Quickchange: "the color or
+     * colors of your choice").
      */
     fun ChangeColorToChosen(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = ChangeColorToChosenEffect(target = target, duration = duration)
 
     /**
      * Change the text of a target spell or permanent by replacing one color word with another,
      * or one basic land type with another, for [duration]. The player chooses the word to replace
-     * and its replacement at resolution. Used by Crystal Spray (until end of turn).
+     * and its replacement at resolution, limited to the nonempty [categories] set.
      */
     fun ChangeWordInText(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        categories: Set<TextWordCategory>,
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
-    ): Effect = ChangeWordInTextEffect(target = target, duration = duration)
+    ): Effect = ChangeWordInTextEffect(categories = categories, target = target, duration = duration)
 
     /**
      * Set a creature's base power to a dynamic value (Layer 7b, set values), leaving toughness alone.
@@ -2305,7 +2609,7 @@ object Effects {
     fun SetBasePowerAndToughness(
         power: Int,
         toughness: Int,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = SetBaseStatsEffect(target, DynamicAmount.Fixed(power), DynamicAmount.Fixed(toughness), duration)
 
@@ -2317,7 +2621,7 @@ object Effects {
     fun SetBasePowerAndToughness(
         power: DynamicAmount,
         toughness: DynamicAmount,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn,
         reevaluateContinuously: Boolean = false
     ): Effect = SetBaseStatsEffect(target, power, toughness, duration, reevaluateContinuously)
@@ -2332,13 +2636,17 @@ object Effects {
      * [riders] attaches side-effects that fire on whatever spell this mana ends up paying for
      * (Pyromancer's Goggles: "When that mana is spent to cast a red instant or sorcery spell, copy
      * that spell"). See [com.wingedsheep.sdk.scripting.effects.ManaSpellRider].
+     * [expiry] is when the mana leaves the pool if unspent ("until end of combat" — Firebending;
+     * "until end of turn, you don't lose this mana as steps and phases end" —
+     * [com.wingedsheep.sdk.scripting.effects.ManaExpiry.KEPT_UNTIL_END_OF_TURN]).
      */
     fun AddMana(
         color: Color,
         amount: Int = 1,
         restriction: ManaRestriction? = null,
-        riders: Set<com.wingedsheep.sdk.scripting.effects.ManaSpellRider> = emptySet()
-    ): Effect = AddManaEffect(color, DynamicAmount.Fixed(amount), restriction, riders = riders)
+        riders: Set<ManaSpellRider> = emptySet(),
+        expiry: com.wingedsheep.sdk.scripting.effects.ManaExpiry = com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_TURN
+    ): Effect = AddManaEffect(color, DynamicAmount.Fixed(amount), restriction, expiry, riders)
 
     /**
      * Add a dynamic amount of mana of a specific color.
@@ -2348,14 +2656,25 @@ object Effects {
         color: Color,
         amount: DynamicAmount,
         restriction: ManaRestriction? = null,
-        riders: Set<com.wingedsheep.sdk.scripting.effects.ManaSpellRider> = emptySet()
-    ): Effect = AddManaEffect(color, amount, restriction, riders = riders)
+        riders: Set<ManaSpellRider> = emptySet(),
+        expiry: com.wingedsheep.sdk.scripting.effects.ManaExpiry = com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_TURN
+    ): Effect = AddManaEffect(color, amount, restriction, expiry, riders)
 
     /**
-     * Add colorless mana.
+     * Add colorless mana. [riders] attach side-effects to whatever spell this mana pays for
+     * (Boseiju, Who Shelters All's `ManaSpellRider.MakesSpellUncounterable(InstantOrSorcery)`).
      */
-    fun AddColorlessMana(amount: Int, restriction: ManaRestriction? = null): Effect =
-        AddColorlessManaEffect(amount, restriction)
+    fun AddColorlessMana(
+        amount: Int,
+        restriction: ManaRestriction? = null,
+        riders: Set<ManaSpellRider> = emptySet(),
+    ): Effect = AddColorlessManaEffect(DynamicAmount.Fixed(amount), restriction, riders)
+
+    /**
+     * Pay a mana cost at resolution — the payment inside a gate or a reflexive trigger ("you may
+     * pay {U}. When you do, …"). The cost-position spelling is `Costs.Mana` / `Costs.pay.Mana`.
+     */
+    fun PayMana(cost: String): Effect = PayManaCostEffect(ManaCost.parse(cost))
 
     /**
      * "Until end of turn, you don't lose unspent mana of [colors] as steps and phases end."
@@ -2364,6 +2683,10 @@ object Effects {
      */
     fun RetainUnspentMana(vararg colors: Color): Effect =
         com.wingedsheep.sdk.scripting.effects.RetainUnspentManaEffect(colors.toSet())
+
+    /** Forced mana loss, independent of step/phase retention abilities. */
+    fun LoseUnspentMana(target: EffectTarget = EffectTarget.Controller): Effect =
+        com.wingedsheep.sdk.scripting.effects.LoseUnspentManaEffect(target)
 
     /**
      * Add a dynamic amount of colorless mana.
@@ -2418,9 +2741,32 @@ object Effects {
         amount: Int = 1,
         restriction: ManaRestriction? = null,
         recipient: EffectTarget = EffectTarget.Controller,
-    ): Effect = AddManaOfChoiceEffect(
-        colorSet, DynamicAmount.Fixed(amount), restriction, recipient = recipient
+        colorChosenByRecipient: Boolean = false,
+        riders: Set<ManaSpellRider> = emptySet(),
+    ): Effect = AddManaOfChoice(
+        colorSet, DynamicAmount.Fixed(amount), restriction, recipient, colorChosenByRecipient, riders
     )
+
+    /**
+     * "Choose a player. That player adds [amount] mana of any color they choose." — a
+     * **non-targeting** player choice made as the ability resolves, then mana of the chosen
+     * player's chosen color into that player's pool (Spectral Searchlight). Because nothing is
+     * targeted this stays a mana ability (CR 605.1a) when used on a `{T}:` ability marked
+     * `manaAbility`. Choosing yourself is legal (ruling), in which case you pick the color.
+     */
+    fun ChoosePlayerThenTheyAddManaOfAnyColor(amount: Int = 1): Effect {
+        val chosen = "chosenManaRecipient"
+        return CompositeEffect(
+            listOf(
+                SelectTargetEffect(requirement = TargetPlayer(descriptionOverride = "a player"), storeAs = chosen, nonTargeting = true),
+                AddManaOfChoiceEffect(
+                    ManaColorSet.AnyColor, DynamicAmount.Fixed(amount),
+                    recipient = EffectTarget.PipelineTarget(chosen),
+                    colorChosenByRecipient = true
+                )
+            )
+        )
+    }
 
     /**
      * Dynamic-amount variant of [AddManaOfChoice].
@@ -2433,7 +2779,12 @@ object Effects {
         amount: DynamicAmount,
         restriction: ManaRestriction? = null,
         recipient: EffectTarget = EffectTarget.Controller,
-    ): Effect = AddManaOfChoiceEffect(colorSet, amount, restriction, recipient = recipient)
+        colorChosenByRecipient: Boolean = false,
+        riders: Set<ManaSpellRider> = emptySet(),
+    ): Effect = AddManaOfChoiceEffect(
+        colorSet, amount, restriction, riders, recipient = recipient,
+        colorChosenByRecipient = colorChosenByRecipient
+    )
 
     /**
      * Add N mana of any *one* color ("Add three mana of any one color" — Gilded Lotus):
@@ -2600,17 +2951,22 @@ object Effects {
         tapped: Boolean = false,
         artifactToken: Boolean = false,
         enchantmentToken: Boolean = false,
-        staticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
+        staticAbilities: List<StaticAbility> = emptyList(),
         exileAtStep: com.wingedsheep.sdk.core.Step? = null,
-        sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null
-    ): Effect = CreateTokenEffect(
-        count = DynamicAmount.Fixed(count), power = power, toughness = toughness,
-        colors = colors, creatureTypes = creatureTypes, keywords = keywords,
-        controller = controller, imageUri = imageUri, name = name,
-        legendary = legendary, tapped = tapped,
-        artifactToken = artifactToken, enchantmentToken = enchantmentToken,
-        staticAbilities = staticAbilities, exileAtStep = exileAtStep,
-        sacrificeAtStep = sacrificeAtStep
+        sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null,
+        attacking: Boolean = false,
+        triggeredAbilities: List<TriggeredAbility> = emptyList(),
+        activatedAbilities: List<ActivatedAbility> = emptyList(),
+        dynamicPower: DynamicAmount? = null,
+        dynamicToughness: DynamicAmount? = null,
+        initialCounters: Map<CounterType, Int> = emptyMap(),
+        stampCreator: Boolean = false,
+        numericKeywords: List<KeywordAbility.Numeric> = emptyList(),
+    ): CreateTokenEffect = CreateToken(
+        DynamicAmount.Fixed(count), power, toughness, colors, creatureTypes, keywords, controller, imageUri,
+        name, legendary, tapped, artifactToken, enchantmentToken, staticAbilities, exileAtStep,
+        sacrificeAtStep, attacking, triggeredAbilities, activatedAbilities, dynamicPower, dynamicToughness,
+        initialCounters, stampCreator, numericKeywords,
     )
 
     /**
@@ -2618,7 +2974,14 @@ object Effects {
      * time (e.g. "create X 1/1 green Saproling creature tokens" for Verdeloth the Ancient,
      * where X is the kicker amount read via [DynamicAmount.XValue]). Distinct from the
      * `Int`-count overload above; callers pass `count = DynamicAmount.XValue` etc.
-     * Both delayed zone-change parameters are also available for dynamic token counts.
+     *
+     * @param attacking The tokens enter tapped and attacking when paired with `tapped = true`.
+     * @param triggeredAbilities / [activatedAbilities] / [staticAbilities] The token's own abilities.
+     * @param dynamicPower / [dynamicToughness] Base P/T evaluated at resolution, overriding
+     *   [power] / [toughness] ("an X/X token").
+     * @param initialCounters Counters the token enters with.
+     * @param stampCreator Record the creating permanent on each token, for "tokens created with
+     *   this" ([com.wingedsheep.sdk.scripting.predicates.StatePredicate.CreatedBySource]).
      */
     fun CreateToken(
         count: DynamicAmount,
@@ -2629,17 +2992,32 @@ object Effects {
         keywords: Set<Keyword> = emptySet(),
         controller: EffectTarget? = null,
         imageUri: String? = null,
+        name: String? = null,
         legendary: Boolean = false,
         tapped: Boolean = false,
-        staticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
+        artifactToken: Boolean = false,
+        enchantmentToken: Boolean = false,
+        staticAbilities: List<StaticAbility> = emptyList(),
         exileAtStep: com.wingedsheep.sdk.core.Step? = null,
-        sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null
-    ): Effect = CreateTokenEffect(
+        sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null,
+        attacking: Boolean = false,
+        triggeredAbilities: List<TriggeredAbility> = emptyList(),
+        activatedAbilities: List<ActivatedAbility> = emptyList(),
+        dynamicPower: DynamicAmount? = null,
+        dynamicToughness: DynamicAmount? = null,
+        initialCounters: Map<CounterType, Int> = emptyMap(),
+        stampCreator: Boolean = false,
+        numericKeywords: List<KeywordAbility.Numeric> = emptyList(),
+    ): CreateTokenEffect = CreateTokenEffect(
         count = count, power = power, toughness = toughness, colors = colors,
-        creatureTypes = creatureTypes, keywords = keywords,
-        controller = controller, imageUri = imageUri, legendary = legendary, tapped = tapped,
-        staticAbilities = staticAbilities, exileAtStep = exileAtStep,
-        sacrificeAtStep = sacrificeAtStep
+        creatureTypes = creatureTypes, keywords = keywords, name = name, imageUri = imageUri,
+        controller = controller, dynamicPower = dynamicPower, dynamicToughness = dynamicToughness,
+        tapped = tapped, attacking = attacking, legendary = legendary,
+        artifactToken = artifactToken, enchantmentToken = enchantmentToken,
+        staticAbilities = staticAbilities, triggeredAbilities = triggeredAbilities,
+        activatedAbilities = activatedAbilities, exileAtStep = exileAtStep,
+        sacrificeAtStep = sacrificeAtStep, initialCounters = initialCounters, stampCreator = stampCreator,
+        numericKeywords = numericKeywords,
     )
 
     /**
@@ -2695,14 +3073,34 @@ object Effects {
         removeLegendary: Boolean = false,
         exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions =
             com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+        exileAtStep: com.wingedsheep.sdk.core.Step? = null,
+        addCardTypes: Set<String> = emptySet(),
     ): Effect =
         CreateTokenCopyOfSourceEffect(
             count,
             overridePower,
             overrideToughness,
+            exileAtStep = exileAtStep,
+            addCardTypes = addCardTypes,
             removeLegendary = removeLegendary,
             exceptions = exceptions,
         )
+
+    /**
+     * Create a token that's a copy of a permanent matching [filter] the controller chooses as this
+     * resolves — no target (Season of Weaving).
+     */
+    fun CreateTokenCopyOfChosenPermanent(filter: GameObjectFilter = GameObjectFilter.Permanent): Effect =
+        com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfChosenPermanentEffect(filter)
+
+    /**
+     * Remove every [counterType] counter from the source and create one token from [tokenFactory]
+     * for each counter removed (Tetravus).
+     */
+    fun ConvertCountersToTokens(
+        tokenFactory: CreateTokenEffect,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE
+    ): Effect = com.wingedsheep.sdk.scripting.effects.ConvertCountersToTokensEffect(counterType, tokenFactory)
 
     /**
      * Create a token that's a copy of a randomly chosen creature card with mana value [manaValue]
@@ -2743,7 +3141,8 @@ object Effects {
         exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions =
             com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
         stampCreator: Boolean = false,
-    ): Effect = CreateTokenCopyOfTargetEffect(
+        attachedTo: EffectTarget? = null,
+    ): Effect = CreateTokenCopyOfTarget(
         target = target,
         count = DynamicAmount.Fixed(count),
         overridePower = overridePower,
@@ -2769,6 +3168,68 @@ object Effects {
         controller = controller,
         exceptions = exceptions,
         stampCreator = stampCreator,
+        attachedTo = attachedTo,
+    )
+
+    /**
+     * [CreateTokenCopyOfTarget] with a count evaluated at resolution ("create X tokens that are
+     * copies of target creature" — For the Common Good).
+     */
+    fun CreateTokenCopyOfTarget(
+        target: EffectTarget,
+        count: DynamicAmount,
+        overridePower: Int? = null,
+        overrideToughness: Int? = null,
+        tapped: Boolean = false,
+        attacking: Boolean = false,
+        triggeredAbilities: List<TriggeredAbility> = emptyList(),
+        addedKeywords: Set<com.wingedsheep.sdk.core.Keyword> = emptySet(),
+        addedSupertypes: Set<com.wingedsheep.sdk.core.Supertype> = emptySet(),
+        removedSupertypes: Set<com.wingedsheep.sdk.core.Supertype> = emptySet(),
+        overrideColors: Set<com.wingedsheep.sdk.core.Color>? = null,
+        addedColors: Set<com.wingedsheep.sdk.core.Color> = emptySet(),
+        overrideSubtypes: Set<com.wingedsheep.sdk.core.Subtype>? = null,
+        addedSubtypes: Set<com.wingedsheep.sdk.core.Subtype> = emptySet(),
+        overrideCardTypes: Set<com.wingedsheep.sdk.core.CardType>? = null,
+        activatedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
+        addedStaticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
+        sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null,
+        sacrificeOnlyOnControllersTurn: Boolean = false,
+        addCardTypes: Set<String> = emptySet(),
+        exileAtStep: com.wingedsheep.sdk.core.Step? = null,
+        exileUnlessSourceIsRingBearer: Boolean = false,
+        controller: EffectTarget? = null,
+        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions =
+            com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+        stampCreator: Boolean = false,
+        attachedTo: EffectTarget? = null,
+    ): Effect = CreateTokenCopyOfTargetEffect(
+        target = target,
+        count = count,
+        overridePower = overridePower,
+        overrideToughness = overrideToughness,
+        tapped = tapped,
+        attacking = attacking,
+        triggeredAbilities = triggeredAbilities,
+        addedKeywords = addedKeywords,
+        addedSupertypes = addedSupertypes,
+        removedSupertypes = removedSupertypes,
+        overrideColors = overrideColors,
+        addedColors = addedColors,
+        overrideSubtypes = overrideSubtypes,
+        addedSubtypes = addedSubtypes,
+        overrideCardTypes = overrideCardTypes,
+        activatedAbilities = activatedAbilities,
+        addedStaticAbilities = addedStaticAbilities,
+        sacrificeAtStep = sacrificeAtStep,
+        sacrificeOnlyOnControllersTurn = sacrificeOnlyOnControllersTurn,
+        addCardTypes = addCardTypes,
+        exileAtStep = exileAtStep,
+        exileUnlessSourceIsRingBearer = exileUnlessSourceIsRingBearer,
+        controller = controller,
+        exceptions = exceptions,
+        stampCreator = stampCreator,
+        attachedTo = attachedTo,
     )
 
     /**
@@ -2779,6 +3240,28 @@ object Effects {
         removeLegendary: Boolean = false,
         grantHaste: Boolean = false
     ): Effect = CreateTokenCopyOfEquippedCreatureEffect(removeLegendary, grantHaste)
+
+    /**
+     * Create [count] of a predefined token — one whose full definition lives in the token registry
+     * by [tokenType] ("Sword", "Doombot", "The Void"). The common ones have their own facade
+     * ([CreateTreasure], [CreateFood], [CreateClue], …); use this for the rest.
+     */
+    fun CreatePredefinedToken(
+        tokenType: String,
+        count: Int = 1,
+        controller: EffectTarget? = null,
+        tapped: Boolean = false,
+        imageUri: String? = null
+    ): Effect = CreatePredefinedTokenEffect(tokenType, count, controller, tapped, imageUri = imageUri)
+
+    /** [CreatePredefinedToken] with a count evaluated at resolution. */
+    fun CreatePredefinedToken(
+        tokenType: String,
+        count: DynamicAmount,
+        controller: EffectTarget? = null,
+        tapped: Boolean = false,
+        imageUri: String? = null
+    ): Effect = CreatePredefinedTokenEffect(tokenType, controller = controller, tapped = tapped, dynamicCount = count, imageUri = imageUri)
 
     /**
      * Create Treasure tokens.
@@ -2792,6 +3275,22 @@ object Effects {
      */
     fun CreateTreasure(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null, imageUri: String? = null): Effect =
         CreatePredefinedTokenEffect("Treasure", count, controller, tapped = tapped, imageUri = imageUri)
+
+    /**
+     * Create Vibranium tokens (CR 111.10w).
+     */
+    fun CreateVibranium(
+        count: Int = 1,
+        tapped: Boolean = false,
+        controller: EffectTarget? = null,
+        imageUri: String? = null
+    ): Effect = CreatePredefinedTokenEffect(
+        tokenType = "Vibranium",
+        count = count,
+        controller = controller,
+        tapped = tapped,
+        imageUri = imageUri
+    )
 
     /**
      * Create a dynamic number of Treasure tokens — the count is evaluated at resolution
@@ -2822,6 +3321,17 @@ object Effects {
         CreatePredefinedTokenEffect("Pest", count, controller)
 
     /**
+     * Create N 1/1 colorless Phyrexian Mite artifact creature tokens with toxic 1 and "This token
+     * can't block." — Phyrexia: All Will Be One's Mite (`PredefinedTokens.PhyrexianMite`).
+     */
+    fun CreatePhyrexianMite(count: Int = 1, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Phyrexian Mite", count, controller)
+
+    /** [CreatePhyrexianMite] with a count evaluated at resolution — White Sun's Twilight's X. */
+    fun CreatePhyrexianMite(count: DynamicAmount, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Phyrexian Mite", controller = controller, dynamicCount = count)
+
+    /**
      * Create a dynamic number of 0/1 colorless Eldrazi Spawn creature tokens.
      * The count is evaluated at resolution time.
      */
@@ -2843,8 +3353,9 @@ object Effects {
      */
     fun Behold(
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-        ifBeheld: Effect? = null
-    ): Effect = com.wingedsheep.sdk.scripting.effects.BeholdEffect(filter, ifBeheld)
+        ifBeheld: Effect? = null,
+        otherwise: Effect? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.BeholdEffect(filter, ifBeheld, otherwise)
 
     /**
      * Create Meteorite artifact tokens (Roxanne, Starfall Savant).
@@ -2909,14 +3420,16 @@ object Effects {
         CreatePredefinedTokenEffect("Clue", controller = controller, dynamicCount = count)
 
     /**
-     * Investigate (keyword action, CR 701.36): create [count] Clue tokens. Synonymous with
-     * [CreateClue]; named after the keyword action so card text "investigate" maps directly.
+     * Investigate (keyword action, CR 701.16a): create a Clue token, [count] times. Unlike
+     * [CreateClue] this *is* the keyword action, so "whenever you investigate" payoffs see it —
+     * use it exactly when the card text says "investigate", and [CreateClue] when it says "create
+     * a Clue token".
      *
-     * @param count Number of Clue tokens to create (e.g. "investigate twice" → 2)
-     * @param controller Who controls the tokens (null = spell controller)
+     * @param count Number of times to investigate (e.g. "investigate twice" → 2)
+     * @param controller Who investigates and controls the Clues (null = spell controller)
      */
     fun Investigate(count: Int = 1, controller: EffectTarget? = null): Effect =
-        CreatePredefinedTokenEffect("Clue", count, controller)
+        InvestigateEffect(DynamicAmount.Fixed(count), controller)
 
     /**
      * Investigate a dynamic number of times — "investigate once for each …" (Wojek Investigator),
@@ -2924,7 +3437,7 @@ object Effects {
      * all, which is what the wording means when nothing qualifies.
      */
     fun Investigate(count: DynamicAmount, controller: EffectTarget? = null): Effect =
-        CreatePredefinedTokenEffect("Clue", controller = controller, dynamicCount = count)
+        InvestigateEffect(count, controller)
 
     /**
      * Create Lander artifact tokens.
@@ -2949,6 +3462,40 @@ object Effects {
         CreatePredefinedTokenEffect("Shard", count, controller)
 
     /**
+     * Create Heartwood artifact tokens (Reality Fracture).
+     * A red and green "Artifact — Heartwood" with "{T}: Add {R} or {G}."
+     *
+     * @param count Number of tokens to create
+     * @param tapped Whether the tokens enter the battlefield tapped
+     * @param controller Who controls the tokens (null = spell controller)
+     */
+    fun CreateHeartwood(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Heartwood", count, controller, tapped)
+
+    /**
+     * Create Lotus artifact tokens (Reality Fracture — Kwia Vigorbloom).
+     * A colorless "Artifact" named Lotus with "{T}, Sacrifice this token: Add three mana of any
+     * one color."
+     *
+     * @param count Number of tokens to create
+     * @param controller Who controls the tokens (null = spell controller)
+     */
+    fun CreateLotus(count: Int = 1, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Lotus", count, controller)
+
+    /**
+     * Create Forest Tentacle tokens (Reality Fracture — Verdant Kraken).
+     * A 3/3 green "Land Creature — Forest Tentacle"; its "{T}: Add {G}." is the Forest type's
+     * intrinsic mana ability (CR 305.6), subject to summoning sickness like any creature's.
+     *
+     * @param count Number of tokens to create
+     * @param tapped Whether the tokens enter the battlefield tapped
+     * @param controller Who controls the tokens (null = the ability's controller)
+     */
+    fun CreateForestTentacle(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Forest Tentacle", count, controller, tapped)
+
+    /**
      * Create Mutavault land tokens.
      * "{T}: Add {C}."
      * "{1}: This token becomes a 2/2 creature with all creature types until end of turn.
@@ -2969,7 +3516,7 @@ object Effects {
      * @param roleName The Role type (e.g., "Sorcerer Role")
      * @param target The creature to attach the Role to
      */
-    fun CreateRoleToken(roleName: String, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun CreateRoleToken(roleName: String, target: EffectTarget): Effect =
         CreateRoleTokenEffect(roleName, target)
 
     /**
@@ -2998,7 +3545,7 @@ object Effects {
      *
      * @param target The creature that explores (default: context target 0)
      */
-    fun Explore(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun Explore(target: EffectTarget): Effect =
         ExploreEffect(target)
 
     /**
@@ -3008,8 +3555,8 @@ object Effects {
      *
      * @param count Number of tokens to create
      */
-    fun CreateMapToken(count: Int = 1, imageUri: String? = null): Effect =
-        CreatePredefinedTokenEffect("Map", count, imageUri = imageUri)
+    fun CreateMapToken(count: Int = 1, imageUri: String? = null, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Map", count, controller, imageUri = imageUri)
 
     /**
      * Create a dynamic number of Map tokens — the count is evaluated at resolution time.
@@ -3083,7 +3630,7 @@ object Effects {
         CreatePredefinedTokenEffect("Everywhere", count, controller, tapped)
 
     // =========================================================================
-    // Protection Effects
+    // Protection, Choice & Keyword-Grant Effects
     // =========================================================================
 
     /**
@@ -3095,7 +3642,7 @@ object Effects {
      */
     fun GrantProtectionFromColor(
         color: Color,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantKeywordEffect("PROTECTION_FROM_${color.name}", target, duration)
 
@@ -3111,7 +3658,7 @@ object Effects {
      */
     fun GrantProtectionFromCardType(
         cardType: CardType,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantKeywordEffect("PROTECTION_FROM_CARDTYPE_${cardType.name}", target, duration)
 
@@ -3127,6 +3674,17 @@ object Effects {
     ): Effect = ChooseColorThenEffect(then, prompt)
 
     /**
+     * Choose **one or more** colors — "the color or colors of your choice" — then run [then] with
+     * the whole chosen set exposed via the effect context (`chosenColors`). Pair with
+     * [ChangeColorToChosen] for Quickchange: "Target creature becomes the color or colors of your
+     * choice until end of turn." Colorless is never a choice: at least one color is picked.
+     */
+    fun ChooseColorsThen(
+        then: Effect,
+        prompt: String = "Choose one or more colors"
+    ): Effect = ChooseColorThenEffect(then, prompt, maxColors = Color.entries.size)
+
+    /**
      * Choose a number, then run [then] with the chosen number exposed via the effect
      * context (as X). Atomic effects and filters under [then] read it through
      * [com.wingedsheep.sdk.scripting.predicates.CardPredicate.ManaValueEqualsX] (via
@@ -3139,13 +3697,31 @@ object Effects {
         minValue: Int = 0,
         maxValue: Int = 16,
         prompt: String = "Choose a number"
+    ): Effect = ChooseNumberThenEffect(then, minValue, DynamicAmount.Fixed(maxValue), prompt)
+
+    /** Choose a number with a ceiling evaluated before the choice replaces X. */
+    fun ChooseNumberThen(
+        then: Effect,
+        maxValue: DynamicAmount,
+        minValue: Int = 0,
+        prompt: String = "Choose a number"
     ): Effect = ChooseNumberThenEffect(then, minValue, maxValue, prompt)
+
+    /** Place counters while limiting the resulting total, including replacement effects. */
+    fun AddCountersWithLimit(
+        counterType: CounterType,
+        amount: DynamicAmount,
+        totalLimit: DynamicAmount,
+        target: EffectTarget
+    ): Effect = com.wingedsheep.sdk.scripting.effects.AddCountersWithLimitEffect(
+        counterType, amount, totalLimit, target
+    )
 
     /**
      * Choose a number in [[minValue], [maxValue]] and store it durably on the source permanent
      * under [slot], to be read by a characteristic-defining ability (or any later ability)
      * through [com.wingedsheep.sdk.scripting.values.DynamicAmount.CastChoice]. Re-callable: the
-     * last chosen value wins. Use at entry (wrapped in `OnEnterRunEffect`) and/or from an
+     * last chosen value wins. Use at entry (wrapped in `OnEnterRun`) and/or from an
      * upkeep trigger. For a "you may choose" clause, mark the running triggered ability
      * `optional = true`. Powers Shapeshifter's repeatable 0–7 P/T choice.
      */
@@ -3198,9 +3774,21 @@ object Effects {
      */
     fun GrantToxic(
         amount: Int,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantKeywordEffect("TOXIC_$amount", target, duration)
+
+    /**
+     * "[target] gains bushido [amount]" (Sensei Golden-Tail) — [GrantKeywordEffect] with the
+     * `BUSHIDO_<n>` string keyword ([com.wingedsheep.sdk.scripting.Bushido.grantedKeyword]). The
+     * engine derives the CR 702.45a trigger from it and `KeywordValue(BUSHIDO)` counts it, exactly
+     * as for printed bushido; see [com.wingedsheep.sdk.scripting.Bushido].
+     */
+    fun GrantBushido(
+        amount: Int,
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = GrantKeywordEffect(com.wingedsheep.sdk.scripting.Bushido.grantedKeyword(amount), target, duration)
 
     /**
      * Grant Harmonize (CR 702.180) to a target instant or sorcery card in a graveyard.
@@ -3211,7 +3799,7 @@ object Effects {
      * pass a [ManaCost] to grant a fixed harmonize cost instead.
      */
     fun GrantHarmonize(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         cost: ManaCost? = null,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantHarmonizeEffect(target, cost, duration)
@@ -3225,7 +3813,7 @@ object Effects {
      * pass a [ManaCost] to grant a fixed flashback cost instead (e.g. `{0}` when saddled).
      */
     fun GrantFlashback(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         cost: ManaCost? = null,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantFlashbackEffect(target, cost, duration)
@@ -3239,7 +3827,7 @@ object Effects {
      * [ManaCost] to grant a fixed embalm cost instead.
      */
     fun GrantEmbalm(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         cost: ManaCost? = null,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantEmbalmEffect(target, cost, duration)
@@ -3249,7 +3837,7 @@ object Effects {
      * [ChooseColorThen] block — reads the chosen color from the effect context.
      */
     fun GrantHexproofFromChosenColor(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantHexproofFromChosenColorEffect(target, duration)
 
@@ -3260,9 +3848,20 @@ object Effects {
      * under one [ChooseColorThen] for multi-grant cards.
      */
     fun GrantProtectionFromChosenColor(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantProtectionFromChosenColorEffect(target, duration)
+
+    /**
+     * [target] gains every protection ability some permanent in [group] has, read at resolution
+     * — the protection clause of Concerted Effort. Fan it over the group with [ForEachInGroup]
+     * and [EffectTarget.IterationEntity]. See [GrantProtectionsSharedByGroupEffect].
+     */
+    fun GrantProtectionsSharedByGroup(
+        group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantProtectionsSharedByGroupEffect(group, target, duration)
 
     /**
      * Grant "protection from the card type of your choice" to a target (CR 702.16). The
@@ -3272,9 +3871,20 @@ object Effects {
      * Pippin, Guard of the Citadel.
      */
     fun GrantProtectionFromChosenCardType(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantProtectionFromChosenCardTypeEffect(target, duration)
+
+    /**
+     * Grant "protection from colorless or from the color of your choice" to a target (CR 702.16).
+     * Self-contained like [GrantProtectionFromChosenCardType]: the executor offers Colorless plus
+     * the five colors and grants a floating `PROTECTION_FROM_COLORLESS` / `PROTECTION_FROM_<COLOR>`
+     * keyword. Used by Angelic Intervention.
+     */
+    fun GrantProtectionFromColorlessOrChosenColor(
+        target: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantProtectionFromColorlessOrChosenColorEffect(target, duration)
 
     /**
      * Grant a **player** protection from [scope] for [duration] (CR 702.16) — the
@@ -3295,8 +3905,8 @@ object Effects {
      * "[group] gain protection from each of [source]'s colors" (Éowyn, Fearless Knight) is:
      *
      *     Effects.ForEachColorOf(
-     *         source = EntityReference.Target(0),
-     *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.Self)),
+     *         source = EffectTarget.ContextTarget(0),
+     *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)),
      *     )
      *
      * Colors are read from projected state on the battlefield (Layer-5 / Devoid honored),
@@ -3305,7 +3915,7 @@ object Effects {
      * exile/destroy step so its projected colors are still readable.
      */
     fun ForEachColorOf(
-        source: EntityReference,
+        source: EffectTarget.SingleEntity,
         effect: Effect
     ): Effect = ForEachColorOfEffect(source, effect)
 
@@ -3315,7 +3925,7 @@ object Effects {
      * the effect context.
      */
     fun GrantCantBeBlockedByChosenColor(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantCantBeBlockedByChosenColorEffect(target, duration)
 
@@ -3335,22 +3945,47 @@ object Effects {
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantCantBeBlockedExceptByEffect(target, blockerFilter, duration)
 
+    /** Remember the objects in [collection]; alternative blockers are checked when blocking. */
+    fun GrantCantBeBlockedExceptByCollection(
+        target: EffectTarget,
+        collection: CollectionSlot,
+        alternativeFilter: GameObjectFilter,
+        duration: Duration
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantCantBeBlockedExceptByCollectionEffect(
+        target, collection.key, alternativeFilter, duration
+    )
+
     // =========================================================================
     // Control Effects
     // =========================================================================
 
     /**
-     * Gain control of target permanent.
+     * Gain control of target permanent — or of target spell on the stack, until it leaves the stack
+     * ([duration] is ignored for a spell).
      */
     fun GainControl(target: EffectTarget, duration: Duration = Duration.Permanent): Effect =
         GainControlEffect(target, duration)
 
     /**
+     * [newController] (a player) gains control of [permanent] — "target opponent gains control of
+     * this creature" (Stiltzkin), "enchanted creature's controller changes to target player".
+     */
+    fun GiveControl(
+        permanent: EffectTarget,
+        newController: EffectTarget,
+        duration: Duration = Duration.Permanent
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect(permanent, newController, duration)
+
+    /** The active player gains control of [target] (Contested Game Ball, Risky Move). */
+    fun GainControlByActivePlayer(target: EffectTarget = EffectTarget.Self): Effect =
+        com.wingedsheep.sdk.scripting.effects.GainControlByActivePlayerEffect(target)
+
+    /**
      * Exchange control of two target creatures.
      */
     fun ExchangeControl(
-        target1: EffectTarget = EffectTarget.ContextTarget(0),
-        target2: EffectTarget = EffectTarget.ContextTarget(1)
+        target1: EffectTarget,
+        target2: EffectTarget
     ): Effect = ExchangeControlEffect(target1, target2)
 
     /**
@@ -3392,17 +4027,153 @@ object Effects {
         CreatureTypePatterns.chooseCreatureTypeGainControl(duration)
 
     // =========================================================================
-    // Composite Effects
+    // Conditional & optional effects — every "if" and "you may" is one GatedEffect
+    // =========================================================================
+    //
+    // Four printed shapes, four facades, one frame. Each lowers to a [GatedEffect] whose [Gate]
+    // names *what* must succeed; the gated executor owns the unwind order for all of them (targets
+    // lock when the ability is put on the stack, the gate resolves at resolution, then `then` or
+    // `otherwise` runs). Card code never builds a `GatedEffect` or a `Gate` itself.
+
+    /**
+     * "If [condition], [then]. Otherwise, [otherwise]." — a state test evaluated at resolution;
+     * no decision, no pause.
+     */
+    fun If(
+        condition: Condition,
+        then: Effect,
+        otherwise: Effect? = null,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.WhenCondition(condition),
+        then = then,
+        otherwise = otherwise,
+        descriptionOverride = descriptionOverride
+    )
+
+    /**
+     * "You may [effect]." — the controller (or [decisionMaker]) answers yes or no at resolution.
+     *
+     * @param otherwise Runs iff the chooser declines ("If that player doesn't, …").
+     * @param decisionMaker Who answers. Defaults to the controller; only the prompt is delegated
+     *   (e.g. [EffectTarget.TargetController] for "that creature's controller may …").
+     * @param sourceRequiredZone Skip silently if the source has left this zone by resolution.
+     * @param inlineOnTrigger Render the yes/no inline on the triggering permanent.
+     * @param hint Reminder text shown under the prompt.
+     * @param dynamicHint Reminder text whose `{n}` is filled in at resolution ([DynamicHint]); use it
+     *   when several instances of one ability can be on the stack carrying different numbers.
+     * @param feasibility Precondition for the action being possible at all. Unmet at resolution ⇒ the
+     *   prompt is skipped and [otherwise] runs directly. Only for preconditions the *engine* can
+     *   decide — never to pre-empt a genuine player choice.
+     * @param prompt The question the yes/no asks, when it differs from the effect's description
+     *   ("Buy your way out of Worms of the Earth?").
+     * @param descriptionOverride Hand-written ability text instead of the derived "You may …".
+     */
+    fun May(
+        effect: Effect,
+        otherwise: Effect? = null,
+        prompt: String? = null,
+        decisionMaker: EffectTarget? = null,
+        sourceRequiredZone: Zone? = null,
+        inlineOnTrigger: Boolean = false,
+        hint: String? = null,
+        dynamicHint: DynamicHint? = null,
+        feasibility: FeasibilityCheck? = null,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.MayDecide(
+            prompt = prompt,
+            hint = hint,
+            dynamicHint = dynamicHint,
+            sourceRequiredZone = sourceRequiredZone,
+            inlineOnTrigger = inlineOnTrigger,
+            feasibility = feasibility
+        ),
+        then = effect,
+        otherwise = otherwise,
+        decisionMaker = decisionMaker,
+        descriptionOverride = descriptionOverride
+    )
+
+    /**
+     * "You may [cost]. If you do, [then]. Otherwise, [otherwise]." — the gate is *paying* a
+     * recognized cost primitive (mana, life, …); the player is only asked when they can pay.
+     *
+     * @param decisionMaker Who is offered the payment ("…unless that creature's controller pays
+     *   {1}"). Defaults to the controller.
+     */
+    fun MayPay(
+        cost: Effect,
+        then: Effect,
+        otherwise: Effect? = null,
+        decisionMaker: EffectTarget? = null,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.MayPay(cost),
+        then = then,
+        otherwise = otherwise,
+        decisionMaker = decisionMaker,
+        descriptionOverride = descriptionOverride
+    )
+
+    /**
+     * "You may pay [cost]. If you do, [then]." — the mana form of [MayPay]. With no [otherwise] the
+     * engine gives it the optional-mana-payment UX (manual source selection; for a targeted trigger,
+     * pay → select mana → choose target).
+     */
+    fun MayPay(cost: ManaCost, then: Effect, otherwise: Effect? = null): GatedEffect =
+        MayPay(PayManaCostEffect(cost), then, otherwise)
+
+    /**
+     * "You may pay {X}. If you do, [then]." — prompts for X (0 to the most the player can afford),
+     * pays it, and binds it into [then]'s context as `DynamicAmount.XValue`.
+     */
+    fun MayPayX(then: Effect): GatedEffect = GatedEffect(gate = Gate.MayPayX, then = then)
+
+    /**
+     * "You may pay any amount of life. If you do, [then]." — prompts for X (0 to the most life the
+     * player can pay), pays it, and binds it into [then]'s context as `DynamicAmount.XValue`
+     * (Necrodominance: "draw that many cards").
+     */
+    fun MayPayAnyAmountOfLife(then: Effect): GatedEffect =
+        GatedEffect(gate = Gate.MayPayAnyAmountOfLife, then = then)
+
+    /**
+     * "[action]. If you do, [then]. If you don't, [otherwise]." — gates on whether [action]
+     * actually accomplished its work, not on a decision. Wrap in [May] for the common
+     * "You may [action]. If you do, [then]".
+     *
+     * The default [SuccessCriterion.Auto] is only legal on action shapes it can infer success
+     * from (a terminal zone move) — card-load validation rejects it elsewhere; pass
+     * [SuccessCriterion.Always] / [SuccessCriterion.CollectionNonEmpty] explicitly for actions
+     * whose outcome isn't a zone-size delta.
+     */
+    fun IfYouDo(
+        action: Effect,
+        then: Effect,
+        otherwise: Effect? = null,
+        successCriterion: SuccessCriterion = SuccessCriterion.Auto,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.DoAction(action, successCriterion),
+        then = then,
+        otherwise = otherwise,
+        descriptionOverride = descriptionOverride
+    )
+
+    // =========================================================================
+    // Composite, Iteration, Trigger & Modal Effects
     // =========================================================================
 
     /**
-     * Combine multiple effects.
+     * Do nothing — the empty sequence, for a branch that has no effect ("otherwise, nothing
+     * happens"). Sequencing effects is `a then b`; see [Effect.then].
      */
-    fun Composite(vararg effects: Effect): Effect =
-        CompositeEffect(effects.toList())
+    val Nothing: Effect = CompositeEffect(emptyList())
 
     /**
-     * Combine multiple effects from a list.
+     * Combine a *computed* list of effects — one built by mapping over data, or one that needs a
+     * [descriptionOverride]. A written-out sequence is `a then b then c` ([Effect.then]).
      *
      * @param stopOnError when true, abort the remaining effects if one fails.
      * @param descriptionOverride render a single hand-written sentence instead of joining sub-effects.
@@ -3414,6 +4185,173 @@ object Effects {
         descriptionOverride: String? = null,
         descriptionAmounts: List<DynamicAmount> = emptyList()
     ): Effect = CompositeEffect(effects, stopOnError, descriptionOverride, descriptionAmounts)
+
+    /**
+     * Run [effects] once per target of the spell or ability, each iteration seeing only its own
+     * target as `ContextTarget(0)` ("put a +1/+1 counter on each of up to two target creatures").
+     */
+    fun ForEachTarget(vararg effects: Effect): Effect = ForEachTarget(effects.toList())
+
+    /** [ForEachTarget] over a list of per-target effects. */
+    fun ForEachTarget(effects: List<Effect>): Effect = com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect(effects)
+
+    /**
+     * Run [body] [amount] times, the count evaluated once at resolution ("for each blight counter on
+     * it, each opponent …" — Rottenmouth Viper).
+     */
+    fun Repeat(amount: DynamicAmount, body: Effect): Effect = com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect(amount, body)
+
+    /**
+     * "[player] may [cost]. If they don't, [suffer]." — a punisher choice made at resolution.
+     * [consequenceDescription] overrides the rendered "if they don't" clause.
+     */
+    fun PayOrSuffer(
+        cost: PayCost,
+        suffer: Effect,
+        player: EffectTarget = EffectTarget.Controller,
+        consequenceDescription: String? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect(cost, suffer, player, consequenceDescription)
+
+    /**
+     * A reflexive trigger (CR 603.12): do [action] (optionally — "you may"), and *when you do*,
+     * [reflexiveEffect] goes on the stack with its own [reflexiveTargetRequirements], chosen then.
+     */
+    fun ReflexiveTrigger(
+        action: Effect,
+        reflexiveEffect: Effect,
+        optional: Boolean = true,
+        reflexiveTargetRequirements: List<TargetRequirement> = emptyList(),
+        hint: String? = null,
+        descriptionOverride: String? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect(
+        action, optional, reflexiveEffect, reflexiveTargetRequirements, hint, descriptionOverride
+    )
+
+    /**
+     * [ReflexiveTrigger] whose "when you do" effect declares its own targets — chosen when the
+     * reflexive trigger goes on the stack, after [action] was done:
+     *
+     * ```kotlin
+     * Effects.ReflexiveTrigger(action = Effects.PayMana("{U}")) {
+     *     val attacker = target(TargetFilter.AttackingCreature.other())
+     *     effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker)
+     * }
+     * ```
+     */
+    fun ReflexiveTrigger(
+        action: Effect,
+        optional: Boolean = true,
+        hint: String? = null,
+        descriptionOverride: String? = null,
+        whenYouDo: TargetedEffectBuilder.() -> Unit
+    ): Effect {
+        val body = TargetedEffectBuilder().apply(whenYouDo)
+        return com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect(
+            action, optional, body.requireEffect("A reflexive trigger"), body.declaredTargets, hint, descriptionOverride
+        )
+    }
+
+    /**
+     * Create a delayed triggered ability (CR 603.7) — at the next [step] ("at the beginning of the
+     * next end step, …") or on a [trigger] event (optionally [watchedTarget]-scoped), until [expiry].
+     * See [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect] for every field.
+     */
+    fun CreateDelayedTrigger(
+        effect: Effect,
+        step: com.wingedsheep.sdk.core.Step? = null,
+        trigger: TriggerSpec? = null,
+        watchedTarget: EffectTarget? = null,
+        watchedRecipient: EffectTarget? = null,
+        expiry: com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry = com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry.EndOfTurn,
+        fireOnce: Boolean = false,
+        repeatAtEachMatchingStep: Boolean = false,
+        timing: com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming = com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
+        targetRequirement: TargetRequirement? = null,
+        additionalTargetRequirements: List<TargetRequirement> = emptyList(),
+        fireOnPlayer: EffectTarget? = null,
+        carryCollections: List<String> = emptyList()
+    ): Effect = com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
+        step, effect, trigger, watchedTarget, watchedRecipient, expiry, fireOnce, repeatAtEachMatchingStep,
+        timing, targetRequirement, additionalTargetRequirements, fireOnPlayer, carryCollections
+    )
+
+    /**
+     * [CreateDelayedTrigger] whose effect declares its own targets, chosen when the delayed
+     * trigger fires ("at the beginning of the next combat, target creature you control …").
+     */
+    fun CreateDelayedTrigger(
+        step: com.wingedsheep.sdk.core.Step? = null,
+        trigger: TriggerSpec? = null,
+        watchedTarget: EffectTarget? = null,
+        watchedRecipient: EffectTarget? = null,
+        expiry: com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry = com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry.EndOfTurn,
+        fireOnce: Boolean = false,
+        repeatAtEachMatchingStep: Boolean = false,
+        timing: com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming = com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
+        fireOnPlayer: EffectTarget? = null,
+        carryCollections: List<String> = emptyList(),
+        body: TargetedEffectBuilder.() -> Unit
+    ): Effect {
+        val built = TargetedEffectBuilder().apply(body)
+        val requirements = built.declaredTargets
+        return com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
+            step, built.requireEffect("A delayed trigger"), trigger, watchedTarget, watchedRecipient, expiry,
+            fireOnce, repeatAtEachMatchingStep, timing, requirements.firstOrNull(), requirements.drop(1),
+            fireOnPlayer, carryCollections
+        )
+    }
+
+    /**
+     * A modal effect — choose [chooseCount] (at least [minChooseCount]) of [modes]. The common
+     * shapes have shorter spellings: `ModalEffect.chooseOne(…)`, `chooseTwo`, `chooseUpToDynamic`.
+     * See [ModalEffect] for every field.
+     */
+    fun Modal(
+        modes: List<Mode>,
+        chooseCount: Int = 1,
+        minChooseCount: Int = chooseCount,
+        allowRepeat: Boolean = false,
+        additionalManaCostPerExtraMode: String? = null,
+        additionalCostPerExtraMode: com.wingedsheep.sdk.scripting.costs.CostAtom? = null,
+        chooseAllIfBlightPaid: Boolean = false,
+        dynamicChooseCount: DynamicAmount? = null,
+        dynamicMinChooseCount: DynamicAmount? = null,
+        excludePreviouslyChosenModes: Boolean = false,
+        excludeModesChosenThisTurn: Boolean = false,
+        countsAsModalSpell: Boolean = true
+    ): Effect = ModalEffect(
+        modes, chooseCount, minChooseCount, allowRepeat, additionalManaCostPerExtraMode,
+        additionalCostPerExtraMode, chooseAllIfBlightPaid, dynamicChooseCount, dynamicMinChooseCount,
+        excludePreviouslyChosenModes, excludeModesChosenThisTurn, countsAsModalSpell
+    )
+
+    /**
+     * A budget modal ("choose up to [budget] {P} worth of modes" — the Season cycle): each mode
+     * costs [com.wingedsheep.sdk.scripting.effects.BudgetMode.cost] pips and may repeat.
+     */
+    fun BudgetModal(budget: Int, modes: List<com.wingedsheep.sdk.scripting.effects.BudgetMode>): Effect =
+        com.wingedsheep.sdk.scripting.effects.BudgetModalEffect(budget, modes)
+
+    /** Flip a coin; [wonEffect] if you win the flip, [lostEffect] if you lose it. */
+    fun FlipCoin(wonEffect: Effect? = null, lostEffect: Effect? = null): Effect =
+        com.wingedsheep.sdk.scripting.effects.FlipCoinEffect(wonEffect, lostEffect)
+
+    /** Flip two coins: [bothHeadsEffect], [bothTailsEffect], or [mixedEffect] (Two-Headed Giant). */
+    fun FlipTwoCoins(
+        bothHeadsEffect: Effect? = null,
+        bothTailsEffect: Effect? = null,
+        mixedEffect: Effect? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.FlipTwoCoinsEffect(bothHeadsEffect, bothTailsEffect, mixedEffect)
+
+    /**
+     * Each player secretly bids an amount of life; the highest / lowest / tied bidders get their
+     * effect, with the bid readable as `DynamicAmount.XValue` (Menacing Ogre).
+     */
+    fun SecretBid(
+        highestBidderEffect: Effect? = null,
+        lowestBidderEffect: Effect? = null,
+        tiedBidderEffect: Effect? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.SecretBidEffect(highestBidderEffect, lowestBidderEffect, tiedBidderEffect)
 
     /**
      * Compose an inline Gather → Select → Move pipeline with typed slot handles —
@@ -3440,6 +4378,169 @@ object Effects {
         descriptionAmounts: List<DynamicAmount> = emptyList(),
         block: PipelineBuilder.() -> Unit
     ): Effect = PipelineBuilder.build(stopOnError, descriptionOverride, descriptionAmounts, block)
+
+    // -------------------------------------------------------------------------
+    // Collection-reading effects, typed. Each takes a pipeline handle from an
+    // `Effects.Pipeline { }` step, so card code never spells a collection key.
+    // -------------------------------------------------------------------------
+
+    /** Run [effect] once per entity in [collection], bound as [EffectTarget.IterationEntity]. */
+    fun ForEachInCollection(collection: CollectionSlot, effect: Effect): Effect =
+        com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect(collection.key, effect)
+
+    /** Run [effect] once for each player matching [players] (see the list form). */
+    fun ForEachPlayer(players: Player, effect: Effect): Effect = ForEachPlayerEffect(players, listOf(effect))
+
+    /** Tap (or, with [tap] = false, untap) every permanent in [collection]. */
+    fun TapCollection(collection: CollectionSlot, tap: Boolean = true): Effect =
+        com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect(collection.key, tap)
+
+    /** Put [count] [counterType] counters on each entity in [collection]. */
+    fun AddCountersToCollection(collection: CollectionSlot, counterType: CounterType, count: Int = 1): Effect =
+        AddCountersToCollectionEffect(collection.key, counterType, count)
+
+    /** Put [amount] [counterType] counters, evaluated at resolution, on each entity in [collection]. */
+    fun AddCountersToCollection(collection: CollectionSlot, counterType: CounterType, amount: DynamicAmount): Effect =
+        AddCountersToCollectionEffect(collection.key, counterType, amount = amount)
+
+    /** The cards in [from] may be played from exile — see the String overload for the parameters. */
+    fun GrantMayPlayFromExile(
+        from: CollectionSlot,
+        expiry: com.wingedsheep.sdk.scripting.effects.MayPlayExpiry =
+            com.wingedsheep.sdk.scripting.effects.MayPlayExpiry.EndOfTurn,
+        withAnyManaType: Boolean = false,
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
+        landEntersTapped: Boolean = false,
+        onPlayRider: Effect? = null,
+        insteadOfGraveyard: AfterResolveDestination? = null,
+        nonLandOnly: Boolean = false,
+        castFaceIndex: Int? = null,
+        ownerControls: Boolean = false,
+        castColorRestriction: Color? = null,
+        recipient: EffectTarget = EffectTarget.Controller,
+        asThoughFlash: Boolean = false,
+        singleUse: Boolean = false,
+        colorlessAsAnyColor: Boolean = false
+    ): Effect = GrantMayPlayFromExileEffect(
+        from = from.key,
+        expiry = expiry,
+        withAnyManaType = withAnyManaType,
+        colorlessAsAnyColor = colorlessAsAnyColor,
+        condition = condition,
+        landEntersTapped = landEntersTapped,
+        onPlayRider = onPlayRider,
+        ownerControls = ownerControls,
+        recipient = recipient,
+        insteadOfGraveyard = insteadOfGraveyard,
+        asThoughFlash = asThoughFlash,
+        nonLandOnly = nonLandOnly,
+        castFaceIndex = castFaceIndex,
+        castColorRestriction = castColorRestriction,
+        singleUse = singleUse
+    )
+
+    /** Waterbend-cast the cards in [from] from exile (see the String overload). */
+    fun WaterbendCastFromExile(
+        from: CollectionSlot,
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
+    ): Effect = WaterbendCastFromExile(from.key, condition)
+
+    /** The cards in [from] become plotted. */
+    fun MakePlotted(from: CollectionSlot, ownerControls: Boolean = false): Effect =
+        MakePlottedEffect(from.key, ownerControls)
+
+    /** Until end of turn, the cards in [from] may be played without paying their mana costs. */
+    fun GrantPlayWithoutPayingCost(from: CollectionSlot): Effect = GrantPlayWithoutPayingCostEffect(from.key)
+
+    /** Casting the cards in [from] this turn requires [additionalCost]. */
+    fun GrantPlayWithAdditionalCost(from: CollectionSlot, additionalCost: AdditionalCost): Effect =
+        GrantPlayWithAdditionalCostEffect(from.key, additionalCost)
+
+    /** Each spell cast from [from] costs [amount] more. */
+    fun GrantPlayWithCostIncrease(from: CollectionSlot, amount: Int): Effect =
+        GrantPlayWithCostIncrease(from.key, amount)
+
+    /** Cast a card from [from] without paying its mana cost (see the String overload). */
+    fun CastFromCollectionWithoutPayingCost(
+        from: CollectionSlot,
+        insteadOfGraveyard: AfterResolveDestination? = null,
+        caster: com.wingedsheep.sdk.scripting.effects.Chooser =
+            com.wingedsheep.sdk.scripting.effects.Chooser.Controller,
+        storeCastTo: String? = null,
+    ): Effect = CastFromCollectionWithoutPayingCost(from.key, storeCastTo, insteadOfGraveyard, caster)
+
+    /**
+     * Cast a card from [from], paying its mana cost (see the String overload). [additionalManaCost]
+     * is "by paying {R}{R} in addition to its other costs" (Ogre Battlecaster) — owed on top of the
+     * mana cost for this one cast.
+     */
+    fun CastFromCollection(
+        from: CollectionSlot,
+        insteadOfGraveyard: AfterResolveDestination? = null,
+        caster: com.wingedsheep.sdk.scripting.effects.Chooser =
+            com.wingedsheep.sdk.scripting.effects.Chooser.Controller,
+        storeCastTo: String? = null,
+        additionalManaCost: String? = null,
+    ): Effect = CastFromCollection(from.key, storeCastTo, insteadOfGraveyard, caster, additionalManaCost)
+
+    /**
+     * "Cast that card by paying [cost] rather than paying its mana cost" — during this effect's
+     * resolution, like [CastFromCollectionWithoutPayingCost], but owing [cost] in place of the mana
+     * cost (an alternative cost, CR 118.9). Amped Raptor: `CastFromCollectionByPaying(card,
+     * Costs.additional.PayPlayerCounters(CounterType.ENERGY, DynamicAmounts.sourceManaValue()))` —
+     * "an amount of {E} equal to its mana value", priced off the spell being cast. Nothing is cast
+     * when the caster can't afford [cost]; wrap in [May] for the "you may" wording.
+     */
+    fun CastFromCollectionByPaying(
+        from: CollectionSlot,
+        cost: com.wingedsheep.sdk.scripting.AdditionalCost,
+        storeCastTo: String? = null,
+    ): Effect = CastFromCollectionWithoutPayingCostEffect(
+        from = from.key,
+        storeCastTo = storeCastTo,
+        alternativeCost = cost,
+    )
+
+    /** Play (land or spell) a card from [from] without paying its mana cost. */
+    fun PlayFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
+        PlayFromCollectionWithoutPayingCost(from.key)
+
+    /** Cast any number of the cards in [from] without paying their mana costs. */
+    fun CastAnyNumberFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
+        CastAnyNumberFromCollectionWithoutPayingCost(from.key)
+
+    /** Cast up to [maxCasts] of the cards in [from] without paying their mana costs. */
+    fun CastUpToNFromCollectionWithoutPayingCost(from: CollectionSlot, maxCasts: Int): Effect =
+        CastUpToNFromCollectionWithoutPayingCost(from.key, maxCasts)
+
+    /** Cast any number of the cards in [from] with total mana value [maxTotalManaValue] or less, without paying their mana costs. */
+    fun CastWithTotalManaValueFromCollectionWithoutPayingCost(from: CollectionSlot, maxTotalManaValue: Int): Effect =
+        CastWithTotalManaValueFromCollectionWithoutPayingCost(from.key, maxTotalManaValue)
+
+    /** Cast any number of the cards in [from], paying their mana costs. */
+    fun CastAnyNumberFromCollection(from: CollectionSlot): Effect = CastAnyNumberFromCollection(from.key)
+
+    /**
+     * Deal [damagePerEntity] damage to [target] for each card of [collection] still in [zone] —
+     * Dragonhawk's "for each of those cards that are still exiled", usually from a delayed trigger
+     * (which pins the collection's entities when it is created).
+     */
+    fun DealDamagePerCardStillIn(
+        collection: CollectionSlot,
+        zone: Zone = Zone.EXILE,
+        damagePerEntity: Int = 1,
+        target: EffectTarget = EffectTarget.PlayerRef(Player.EachOpponent),
+        damageSource: EffectTarget? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.DealDamagePerEntityInZoneEffect(
+        collectionName = collection.key,
+        zone = zone,
+        damagePerEntity = damagePerEntity,
+        target = target,
+        damageSource = damageSource
+    )
+
+    /** Record the card in [from] as this source's chosen linked-exile card. */
+    fun RecordChosenLinkedExile(from: CollectionSlot): Effect = RecordChosenLinkedExile(from.key)
 
     /**
      * Move [target] to [destination] zone — the foundational single-target zone-change effect.
@@ -3475,7 +4576,8 @@ object Effects {
 
     /**
      * Apply [effect] to every entity matching [filter] (Rule: "each", "all"). Within the inner
-     * effect, [EffectTarget.Self] resolves to the current iteration entity.
+     * effect, [EffectTarget.IterationEntity] names the entity being visited; [EffectTarget.Self]
+     * stays the source.
      *
      * The group is snapshotted before any iteration applies.
      *
@@ -3547,6 +4649,25 @@ object Effects {
         caster = caster,
     )
 
+    /** Each activated mana ability must contribute at least one unit to the nested instruction's payments. */
+    fun WithManaSpendingObligations(effect: Effect, player: EffectTarget = EffectTarget.Controller): Effect =
+        com.wingedsheep.sdk.scripting.effects.WithManaSpendingObligationsEffect(effect, player)
+
+    /** Source filters are evaluated from the affected player's perspective, at activation time. */
+    fun WithManaAbilitySources(
+        effect: Effect,
+        sources: GameObjectFilter,
+        player: EffectTarget = EffectTarget.Controller,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.WithManaAbilitySourcesEffect(effect, sources, player)
+
+    /** Instruct [player] to play the first gathered card if able, paying its costs. */
+    fun ForcePlay(from: String, player: EffectTarget = EffectTarget.Controller, storePlayedTo: String? = null): Effect =
+        com.wingedsheep.sdk.scripting.effects.ForcePlayEffect(from, player, storePlayedTo)
+
+    /** Instruct [player] to play the first gathered card if able, paying its costs. */
+    fun ForcePlay(from: CollectionSlot, player: EffectTarget = EffectTarget.Controller, storePlayedTo: CollectionSlot? = null): Effect =
+        ForcePlay(from.key, player, storePlayedTo?.key)
+
     /**
      * Play the (0..1) card stored under [from] immediately during resolution without paying its
      * mana cost. Unlike [CastFromCollectionWithoutPayingCost], this also supports lands; playing
@@ -3560,7 +4681,7 @@ object Effects {
      * cast it" wording without "without paying its mana cost" — Kaervek, the Punisher). The card
      * must already be in a zone where casting is legal (e.g. exile after a copy step). When
      * [storeCastTo] is set, the cast card's id is published to that pipeline collection on a
-     * successful cast, so an enclosing [IfYouDoEffect] with
+     * successful cast, so an enclosing [Effects.IfYouDo] with
      * [com.wingedsheep.sdk.scripting.effects.SuccessCriterion.CollectionNonEmpty] can gate a
      * follow-up ("If you do, …").
      */
@@ -3570,12 +4691,14 @@ object Effects {
         insteadOfGraveyard: AfterResolveDestination? = null,
         caster: com.wingedsheep.sdk.scripting.effects.Chooser =
             com.wingedsheep.sdk.scripting.effects.Chooser.Controller,
+        additionalManaCost: String? = null,
     ): Effect = CastFromCollectionWithoutPayingCostEffect(
         from = from,
         payManaCost = true,
         storeCastTo = storeCastTo,
         insteadOfGraveyard = insteadOfGraveyard,
         caster = caster,
+        additionalManaCost = additionalManaCost?.let { com.wingedsheep.sdk.core.ManaCost.parse(it) },
     )
 
     /**
@@ -3593,7 +4716,7 @@ object Effects {
     fun Suspend(target: EffectTarget, timeCounters: Int): Effect =
         CompositeEffect(
             listOf(
-                AddCountersEffect(Counters.TIME, timeCounters, target),
+                AddCountersEffect(CounterType.TIME, timeCounters, target),
                 GrantSuspendEffect(target),
             )
         )
@@ -3623,6 +4746,18 @@ object Effects {
     }
 
     /**
+     * Cast any number of the cards stored under [from] **with total mana value [maxTotalManaValue]
+     * or less** without paying their mana costs, during this effect's resolution — "you may cast
+     * any number of spells with total mana value 6 or less from among the copies without paying
+     * their mana costs" (Uldaros Theorix). Each pick spends its mana value from the budget; only
+     * cards that still fit are offered, and the controller may stop at any point.
+     */
+    fun CastWithTotalManaValueFromCollectionWithoutPayingCost(from: String, maxTotalManaValue: Int): Effect {
+        require(maxTotalManaValue >= 0) { "maxTotalManaValue must not be negative (was $maxTotalManaValue)" }
+        return CastAnyNumberFromCollectionWithoutPayingCostEffect(from = from, maxTotalManaValue = maxTotalManaValue)
+    }
+
+    /**
      * Cast any number of the cards stored under [from], **paying each one's normal mana cost**,
      * during this effect's resolution (the "you may cast any number of [them]" wording without
      * "without paying their mana costs" — The Tale of Tamiyo IV). The controller is offered the
@@ -3639,23 +4774,6 @@ object Effects {
         RepeatWhileEffect(body, repeatCondition)
 
     /**
-     * "[action]. If you do, [ifYouDo]" — gates [ifYouDo] on whether [action] actually
-     * accomplished its work, not on a yes/no decision. Wrap with `MayEffect` for the
-     * common "You may [action]. If you do, [effect]" pattern.
-     *
-     * The default [SuccessCriterion.Auto] is only legal on action shapes it can infer
-     * success from (a terminal zone move) — card-load validation rejects it elsewhere;
-     * pass [SuccessCriterion.Always] / [SuccessCriterion.CollectionNonEmpty] explicitly
-     * for actions whose outcome isn't a zone-size delta.
-     */
-    fun IfYouDo(
-        action: Effect,
-        ifYouDo: Effect,
-        ifYouDont: Effect? = null,
-        successCriterion: SuccessCriterion = SuccessCriterion.Auto
-    ): Effect = IfYouDoEffect(action, ifYouDo, ifYouDont, successCriterion)
-
-    /**
      * Present a player with labeled options and execute the chosen effect.
      *
      * Infeasible options (per [FeasibilityCheck]) are filtered out at execution time.
@@ -3667,7 +4785,7 @@ object Effects {
     ): Effect = ChooseActionEffect(choices, player)
 
     // =========================================================================
-    // Counter Effects
+    // Stack Effects (counter, copy, retarget)
     // =========================================================================
 
     /**
@@ -3697,11 +4815,22 @@ object Effects {
         CounterEffect(counterDestination = CounterDestination.Hand)
 
     /**
+     * Counter target spell. If countered, put it into its owner's library instead of their
+     * graveyard — at the one position given (Memory Lapse: `Top`), or at the counter's
+     * controller's choice among several (Hinder: `Top, Bottom`).
+     *
+     * A real counter, like [CounterSpellToHand]. Prefer [PutOnTopOrBottomOfLibrary] only for
+     * cards that move a spell into its library without countering it (Swat Away).
+     */
+    fun CounterSpellToLibrary(vararg positions: LibraryChoicePosition): Effect =
+        CounterEffect(counterDestination = CounterDestination.Library(positions.toList()))
+
+    /**
      * Counter the spell that triggered this ability (non-targeted).
      * "Counter that spell."
      */
-    fun CounterTriggeringSpell(): Effect =
-        CounterEffect(targetSource = CounterTargetSource.TriggeringEntity)
+    fun CounterTriggeringSpell(counterDestination: CounterDestination = CounterDestination.Graveyard): Effect =
+        CounterEffect(targetSource = CounterTargetSource.TriggeringEntity, counterDestination = counterDestination)
 
     /**
      * Exile target spell (CR 718, "exile target spell" — Aven Interrupter). Not a counter: it
@@ -3709,7 +4838,7 @@ object Effects {
      * spell still fails to resolve. Pass [makePlotted] = true for "it becomes plotted" (the
      * card's owner may cast it for free on a later turn), or [fixedAlternativeManaCost] for the
      * **Airbend** stack branch ("its owner may cast it for {2} rather than its mana cost" — Aang,
-     * Swift Savior). Pair with `Targets.Spell`.
+     * Swift Savior). Pair with `target(TargetFilter.SpellOnStack)`.
      *
      * [linkToSource] = true records the exiled card in the source's linked-exile pile so a later
      * ability of the same source can refer to "the exiled card" — Spell Queller's leaves-the-
@@ -3725,6 +4854,19 @@ object Effects {
             makePlotted = makePlotted,
             fixedAlternativeManaCost = fixedAlternativeManaCost,
             linkToSource = linkToSource
+        )
+
+    /**
+     * Exile the spell that fired this trigger — "whenever a player casts an instant or sorcery
+     * card, exile it" (Eye of the Storm). Not a counter, like [ExileTargetSpell]: the spell still
+     * fails to resolve because it left the stack, but nothing is targeted and no "countered"
+     * trigger fires. [linkToSource] = true records the card in the source's linked-exile pile
+     * (`CardSource.FromLinkedExile()`). A no-op when the spell already left the stack.
+     */
+    fun ExileTriggeringSpell(linkToSource: Boolean = false): Effect =
+        ExileTargetSpellEffect(
+            linkToSource = linkToSource,
+            spell = com.wingedsheep.sdk.scripting.effects.CounterTargetSource.TriggeringEntity
         )
 
     /**
@@ -3828,7 +4970,7 @@ object Effects {
      * ("spell or nonland permanent") must go to hand regardless of which it is. Like
      * [ReturnSpellToOwnersHand], bouncing a spell this way is not a counter.
      */
-    fun ReturnSpellOrPermanentToOwnersHand(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun ReturnSpellOrPermanentToOwnersHand(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.ReturnSpellOrPermanentToOwnersHandEffect(target)
 
     /**
@@ -3879,12 +5021,15 @@ object Effects {
         ChangeSpellTargetEffect(targetMustBeSource)
 
     /**
-     * Change the target of target spell or ability with a single target.
+     * Change the target of target spell or ability with a single target. Pass [to] for "… to this
+     * creature" (Hydroelectric Specimen): the target becomes that object if it's a legal target,
+     * with no choice offered.
      */
     fun ChangeTarget(
         newTargetMustBePlayer: Boolean = false,
         onlyIfCurrentTargetIsController: Boolean = false,
-    ): Effect = ChangeTargetEffect(newTargetMustBePlayer, onlyIfCurrentTargetIsController)
+        to: EffectTarget? = null,
+    ): Effect = ChangeTargetEffect(newTargetMustBePlayer, onlyIfCurrentTargetIsController, to)
 
     /**
      * Reselect the target of the triggering spell or ability at random.
@@ -3907,6 +5052,18 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.ChangeTriggeringObjectTargetsEffect(chooser, spell)
 
     /**
+     * The owner of the single card in [chooserOwnerOf] may change the targets of [spell]
+     * ([com.wingedsheep.sdk.scripting.effects.RetargetChooser.OwnerOfStored]) — Psychic Battle.
+     */
+    fun ChangeTriggeringObjectTargets(
+        chooserOwnerOf: CollectionSlot,
+        spell: EffectTarget = EffectTarget.TriggeringEntity
+    ): Effect = ChangeTriggeringObjectTargets(
+        com.wingedsheep.sdk.scripting.effects.RetargetChooser.OwnerOfStored(chooserOwnerOf.key),
+        spell
+    )
+
+    /**
      * Copy target instant or sorcery spell. You may choose new targets for the copy.
      *
      * If [keywordsForCopy] is non-empty, the copy will also be treated as having those
@@ -3917,7 +5074,7 @@ object Effects {
      * (Thousand-Year Storm). A count of zero or less makes no copies.
      */
     fun CopyTargetSpell(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         keywordsForCopy: List<com.wingedsheep.sdk.core.Keyword> = emptyList(),
         removeLegendary: Boolean = false,
         addedTokenKeywords: Set<com.wingedsheep.sdk.core.Keyword> = emptySet(),
@@ -3985,7 +5142,7 @@ object Effects {
     /**
      * Copy target triggered ability. You may choose new targets for the copy.
      */
-    fun CopyTargetTriggeredAbility(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun CopyTargetTriggeredAbility(target: EffectTarget): Effect =
         CopyTargetTriggeredAbilityEffect(target)
 
     /**
@@ -4002,7 +5159,7 @@ object Effects {
      * be chosen independently for each copy.
      */
     fun CopyTargetSpellOrAbility(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         copies: DynamicAmount = DynamicAmount.Fixed(1)
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.CopyTargetSpellOrAbilityEffect(target, copies)
@@ -4055,17 +5212,31 @@ object Effects {
     ): Effect = com.wingedsheep.sdk.scripting.effects.GrantNextSpellAffinityEffect(spellFilter, forType)
 
     /**
-     * "Spells you cast this turn that match [spellFilter] cost {X} less to cast, where X is
-     * [amount]" (Will, Scion of Peace / Rowan, Scion of War).
-     *
-     * [amount] is locked in when this effect resolves and applies to every matching spell for the
-     * rest of the turn; it reduces only generic mana. Unlike [GrantNextSpellAffinity] the discount
-     * is not consumed by the first matching spell.
+     * Grant the next [spellFilter] spell you cast this turn a cost-payment [keyword] — improvise,
+     * convoke or delve (Archway of Innovation: "The next spell you cast this turn has improvise.").
+     * The rider is consumed by the next matching cast.
      */
-    fun ReduceSpellCostsThisTurn(
+    fun GrantNextSpellKeyword(
+        keyword: com.wingedsheep.sdk.core.Keyword,
+        spellFilter: GameObjectFilter = GameObjectFilter.Any
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantNextSpellKeywordEffect(keyword, spellFilter)
+
+    /**
+     * "Spells you cast this turn that match [spellFilter] cost {X} less to cast, where X is
+     * [amount]" (Will, Scion of Peace / Rowan, Scion of War); with
+     * `duration = Duration.UntilYourNextTurn`, "until your next turn, … spells you cast cost {X}
+     * less" (Ral, Leyline Prodigy).
+     *
+     * [amount] is locked in when this effect resolves and applies to every matching spell until
+     * [duration] ends; it reduces only generic mana. Unlike [GrantNextSpellAffinity] the discount
+     * is not consumed by the first matching spell. Only `EndOfTurn` and `UntilYourNextTurn` are
+     * accepted.
+     */
+    fun ReduceSpellCosts(
         spellFilter: GameObjectFilter,
         amount: DynamicAmount,
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsThisTurnEffect(spellFilter, amount)
+        duration: Duration = Duration.EndOfTurn,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsEffect(spellFilter, amount, duration)
 
     // =========================================================================
     // Sacrifice Effects
@@ -4096,8 +5267,8 @@ object Effects {
      * is what 56 cards did for want of this factory — Argentum Assay's differential is what
      * reported the split.
      */
-    fun SacrificeOwn(filter: GameObjectFilter, count: Int = 1): Effect =
-        com.wingedsheep.sdk.scripting.effects.SacrificeEffect(filter = filter, count = count)
+    fun SacrificeOwn(filter: GameObjectFilter, count: Int = 1, excludeSource: Boolean = false): Effect =
+        com.wingedsheep.sdk.scripting.effects.SacrificeEffect(filter = filter, count = count, excludeSource = excludeSource)
 
     /**
      * "Sacrifice any number of [filter]" — the resolving player chooses 0 or more of their own
@@ -4122,8 +5293,8 @@ object Effects {
      * Sacrifice a specific permanent identified by target.
      * Used in delayed triggers where the exact permanent was determined at resolution time.
      */
-    fun SacrificeTarget(target: EffectTarget): Effect =
-        SacrificeTargetEffect(target)
+    fun SacrificeTarget(target: EffectTarget, sacrificedByItsController: Boolean = false): Effect =
+        SacrificeTargetEffect(target, sacrificedByItsController)
 
     // =========================================================================
     // Reveal Effects
@@ -4148,7 +5319,7 @@ object Effects {
     ): Effect = com.wingedsheep.sdk.scripting.effects.MayRevealCardFromHandEffect(filter, otherwise)
 
     // =========================================================================
-    // Tap/Untap Effects
+    // Tap/Untap, Door & Phasing Effects
     // =========================================================================
 
     /**
@@ -4169,7 +5340,7 @@ object Effects {
      * (`TargetFilter.…hasLockedDoor()`). Emits the same door-unlock events as the unlock-cost
      * special action, so "When you unlock this door" triggers fire. Used by Ghostly Keybearer.
      */
-    fun UnlockDoor(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun UnlockDoor(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.UnlockDoorEffect(target)
 
     /**
@@ -4179,7 +5350,7 @@ object Effects {
      * which to lock at resolution. Emits only a `DoorLockedEvent` — locking is never a trigger
      * source and can't fully unlock a Room (see `LockDoorEffect`).
      */
-    fun LockDoor(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun LockDoor(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.LockDoorEffect(target)
 
     /**
@@ -4191,7 +5362,7 @@ object Effects {
      * mode then locks/unlocks one of that Room's doors, prompting for which door if the choice is
      * ambiguous.
      */
-    fun LockOrUnlockDoor(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun LockOrUnlockDoor(target: EffectTarget): Effect =
         ModalEffect.chooseOne(
             Mode.noTarget(LockDoor(target), "Lock a door"),
             Mode.noTarget(UnlockDoor(target), "Unlock a door"),
@@ -4235,7 +5406,7 @@ object Effects {
      * [tapOnPhaseIn] to tap the permanent as it phases back in.
      */
     fun PhaseOutUntilLeaves(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         tapOnPhaseIn: Boolean = false
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.PhaseOutUntilLeavesEffect(target, tapOnPhaseIn)
@@ -4248,7 +5419,7 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.PhaseInLinkedToSourceEffect
 
     // =========================================================================
-    // Group Effects (atomic effect classes)
+    // Combat Restriction & Designation Effects
     // =========================================================================
 
     /**
@@ -4266,7 +5437,7 @@ object Effects {
     /**
      * Target creature can't attack this turn.
      */
-    fun CantAttack(target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
+    fun CantAttack(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         CantAttackEffect(target, duration)
 
     /**
@@ -4277,7 +5448,7 @@ object Effects {
      * then free to block anything else; only the named attacker is off limits.
      */
     fun CantBlock(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn,
         attacker: EffectTarget? = null
     ): Effect = CantBlockEffect(target, duration, attacker)
@@ -4285,8 +5456,28 @@ object Effects {
     /**
      * Target creature can't attack or block this turn.
      */
-    fun CantAttackOrBlock(target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
+    fun CantAttackOrBlock(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         CompositeEffect(listOf(CantAttackEffect(target, duration), CantBlockEffect(target, duration)))
+
+    /**
+     * [target] must be blocked this turn if able — by every creature able to block it
+     * ([allCreatures], Lure-style) or by at least one (Gaea's Protector).
+     */
+    fun MustBeBlocked(target: EffectTarget, allCreatures: Boolean = true): Effect =
+        com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect(target, allCreatures)
+
+    /** "During target player's next turn, creatures that player controls attack you if able." (Taunt) */
+    fun Taunt(target: EffectTarget): Effect = com.wingedsheep.sdk.scripting.effects.TauntEffect(target)
+
+    /**
+     * Creatures matching [filter] can't be blocked this turn except by [canOnlyBeBlockedByColor]
+     * creatures (Dread Charge).
+     */
+    fun GrantCantBeBlockedExceptByColor(
+        filter: GroupFilter,
+        canOnlyBeBlockedByColor: Color,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantCantBeBlockedExceptByColorEffect(filter, canOnlyBeBlockedByColor, duration)
 
     /**
      * Goad target creature (CR 701.15). Until the goader's next turn, the creature
@@ -4295,11 +5486,11 @@ object Effects {
      * goaders stack, and a goader re-goading their own already-goaded creature is a
      * no-op (CR 701.15c-d).
      */
-    fun Goad(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun Goad(target: EffectTarget): Effect =
         GoadEffect(target)
 
     /** Mark a creature as required to attack this turn if able. */
-    fun MarkMustAttackThisTurn(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun MarkMustAttackThisTurn(target: EffectTarget): Effect =
         MarkMustAttackThisTurnEffect(target)
 
     /**
@@ -4310,7 +5501,7 @@ object Effects {
      * attacker: this one is satisfied by blocking any attacker at all. A requirement only — a
      * creature that is tapped or otherwise unable to block just doesn't block (CR 509.1c).
      */
-    fun MarkMustBlockThisTurn(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun MarkMustBlockThisTurn(target: EffectTarget): Effect =
         MarkMustBlockThisTurnEffect(target)
 
     /**
@@ -4325,7 +5516,7 @@ object Effects {
      * under one timestamp, so Rule 613 treats them as a single application and
      * [NoLongerSuspected] still lifts them as one bundle.
      */
-    fun Suspect(target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.Permanent): Effect =
+    fun Suspect(target: EffectTarget, duration: Duration = Duration.Permanent): Effect =
         SuspectEffect(target, duration)
 
     /**
@@ -4336,15 +5527,11 @@ object Effects {
      * [Suspect] creates are one application (they share a timestamp), so they come off as one too.
      * Menace or can't-block a creature has from anywhere else survives.
      */
-    fun NoLongerSuspected(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun NoLongerSuspected(target: EffectTarget): Effect =
         RemoveSuspectedEffect(target)
 
     // =========================================================================
-    // Special Effects
-    // =========================================================================
-
-    // =========================================================================
-    // Player Restriction Effects
+    // Player Restriction & Turn Effects
     // =========================================================================
 
     /**
@@ -4353,6 +5540,14 @@ object Effects {
      */
     fun CantCastSpells(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         CantCastSpellsEffect(target, duration)
+
+    /**
+     * Target player(s) can't search libraries for the duration (default: this turn). Pass
+     * `EffectTarget.PlayerRef(Player.Each)` for "Players can't search libraries this turn"
+     * (Shadow of Doubt). Blocks gathers marked `search = true`; see [CantSearchLibrariesEffect].
+     */
+    fun CantSearchLibraries(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
+        CantSearchLibrariesEffect(target, duration)
 
     /**
      * Target player can't play cards from their hand for the duration (default: until your
@@ -4393,6 +5588,40 @@ object Effects {
         CantActivateLoyaltyAbilitiesEffect(target, duration)
 
     /**
+     * "[You] may activate loyalty abilities of [planeswalkerFilter] planeswalkers on any player's
+     * turn any time you could cast an instant" for [duration] (Jace's Machinations). Lifts only the
+     * sorcery-timing half of CR 606.3 — the once-per-turn limit still applies.
+     */
+    fun InstantSpeedLoyaltyAbilities(
+        planeswalkerFilter: com.wingedsheep.sdk.scripting.GameObjectFilter =
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Planeswalker.youControl(),
+        duration: Duration = Duration.EndOfTurn,
+        target: EffectTarget = EffectTarget.Controller,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantInstantSpeedLoyaltyAbilitiesEffect(
+        target = target,
+        planeswalkerFilter = planeswalkerFilter,
+        duration = duration,
+    )
+
+    /**
+     * "[You] may tap [permanentFilter]s you don't control for mana" for [duration]; the mana carries
+     * [restriction] (Piracy: `restriction = ManaRestriction.SpellsOnly`). Lifts CR 602.2's
+     * controller-only rule for {T} mana abilities alone (CR 106.12); the mana goes to the activator.
+     */
+    fun TapForManaPermanentsYouDontControl(
+        permanentFilter: com.wingedsheep.sdk.scripting.GameObjectFilter =
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Land,
+        restriction: com.wingedsheep.sdk.scripting.effects.ManaRestriction? = null,
+        duration: Duration = Duration.EndOfTurn,
+        target: EffectTarget = EffectTarget.Controller,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.TapForManaPermanentsYouDontControlEffect(
+        target = target,
+        permanentFilter = permanentFilter,
+        restriction = restriction,
+        duration = duration,
+    )
+
+    /**
      * Target player skips their next [count] turns (default one).
      * Used for cards like Lethal Vapors (one turn) and Ral Zarek, Guest Lecturer (a coin-flip
      * tally of turns, via [DynamicAmount.VariableReference]).
@@ -4401,6 +5630,26 @@ object Effects {
         target: EffectTarget = EffectTarget.Controller,
         count: DynamicAmount = DynamicAmount.Fixed(1)
     ): Effect = SkipNextTurnEffect(target, count)
+
+    /**
+     * [target] player's creatures and/or lands don't untap during their next untap step
+     * (Exhaustion, Blinding Beam).
+     */
+    fun SkipUntap(target: EffectTarget, affectsCreatures: Boolean = true, affectsLands: Boolean = true): Effect =
+        com.wingedsheep.sdk.scripting.effects.SkipUntapEffect(target, affectsCreatures, affectsLands)
+
+    /** [target] player skips their combat phases during their next turn (False Peace). */
+    fun SkipCombatPhases(target: EffectTarget): Effect = com.wingedsheep.sdk.scripting.effects.SkipCombatPhasesEffect(target)
+
+    /** "You may play [count] additional lands this turn." (Explore, Summer Bloom) */
+    fun PlayAdditionalLands(count: Int): Effect = com.wingedsheep.sdk.scripting.effects.PlayAdditionalLandsEffect(count)
+
+    /**
+     * "Until end of turn, you may cast creature spells from your graveyard by foraging in addition
+     * to paying their other costs" (Osteomancer Adept).
+     */
+    fun GrantCastCreaturesFromGraveyardWithForage(duration: Duration = Duration.EndOfTurn): Effect =
+        com.wingedsheep.sdk.scripting.effects.GrantCastCreaturesFromGraveyardWithForageEffect(duration)
 
     /**
      * Flip [count] coins and store the number that came up heads under [storeHeadsAs] in the
@@ -4427,6 +5676,14 @@ object Effects {
      */
     fun SkipNextDrawStep(target: EffectTarget = EffectTarget.Controller): Effect =
         SkipNextDrawStepEffect(target)
+
+    /**
+     * [target] skips their entire next untap step (CR 500.11, 614.10a) — nothing untaps or phases,
+     * and repeated skips stack. Wider than [SkipUntap], which only holds creatures and/or lands
+     * tapped during an untap step that still happens. Used by Shisato, Whispering Hunter.
+     */
+    fun SkipNextUntapStep(target: EffectTarget): Effect =
+        SkipNextUntapStepEffect(target)
 
     /**
      * The target player skips **every** instance of [part] for the rest of this turn — the
@@ -4457,6 +5714,12 @@ object Effects {
         storeExiledAs = storeExiledAs
     )
 
+    /** Control a player only while the captured stack object resolves, including paused decisions. */
+    fun ControlPlayerDuringResolution(
+        target: EffectTarget,
+        resolvingObject: EffectTarget? = null,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.ControlPlayerDuringResolutionEffect(target, resolvingObject)
+
     /**
      * Controller controls the target player during that player's next **turn**
      * (Mindslaver-style). Used by The Dominion Bracelet.
@@ -4473,25 +5736,38 @@ object Effects {
     fun HijackNextCombatPhase(target: EffectTarget = EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.TargetOpponent)): Effect =
         HijackNextTurnEffect(target, com.wingedsheep.sdk.scripting.effects.HijackScope.NextCombatPhase)
 
+    /** Replace declarations with optional blocker piles assigned randomly to attackers. */
+    fun RandomizedBlockerPiles(duration: Duration = Duration.EndOfTurn): Effect =
+        com.wingedsheep.sdk.scripting.effects.RandomizedBlockerPilesEffect(duration)
+
+    /**
+     * "You choose which creatures attack this turn. You choose which creatures block this turn and
+     * how those creatures block." (Master Warcraft.) Moves every attack and block *declaration* this
+     * turn to the controller — nothing else. Pair with
+     * `castOnlyIf(Conditions.BeforeAttackersDeclared)` for the card's timing line.
+     */
+    fun ChooseAttackersAndBlockersThisTurn(): Effect =
+        com.wingedsheep.sdk.scripting.effects.ControlCombatDeclarationsThisTurnEffect
+
     /**
      * Grant a flat damage bonus to a player's sources this turn.
      * Used for cards like The Flame of Keld (Chapter III).
      */
     fun GrantDamageBonus(
         bonusAmount: Int,
-        sourceFilter: com.wingedsheep.sdk.scripting.events.SourceFilter = com.wingedsheep.sdk.scripting.events.SourceFilter.Any,
+        sourceFilter: GameObjectFilter = GameObjectFilter.Any,
         target: EffectTarget = EffectTarget.Controller,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantDamageBonusEffect(bonusAmount, sourceFilter, target, duration)
 
     // =========================================================================
-    // Combat Effects
+    // Combat, Turn-Structure & Prevention Effects
     // =========================================================================
 
     /**
      * Provoke: untap target creature and force it to block the source creature if able.
      */
-    fun Provoke(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun Provoke(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.ProvokeEffect(target)
 
     /**
@@ -4504,7 +5780,7 @@ object Effects {
      * (Tolsimir, Midnight's Light: "blocks **that Wolf** this combat if able").
      */
     fun ForceBlock(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         attacker: EffectTarget = EffectTarget.Self
     ): Effect = com.wingedsheep.sdk.scripting.effects.ForceBlockEffect(target, attacker)
 
@@ -4531,13 +5807,20 @@ object Effects {
 
     /**
      * Insert a single additional (postcombat) main phase. The atomic counterpart to [AddCombatPhase];
-     * `Effects.Composite(listOf(AddCombatPhase, AddMainPhase))` reproduces "an additional combat phase
+     * `AddCombatPhase then AddMainPhase` reproduces "an additional combat phase
      * followed by an additional main phase" (Aggravated Assault, All-Out Assault). CR 500.8 / 505.1a.
      */
     val AddMainPhase: Effect = com.wingedsheep.sdk.scripting.effects.AddMainPhaseEffect
 
     /**
-     * End the turn (CR 720): exile the whole stack (including this source) and any pending
+     * Insert a single additional beginning phase — untap, upkeep and draw — after this phase, still
+     * within the current turn (Shadow of the Second Sun). Composes with [AddCombatPhase] /
+     * [AddMainPhase]; see [com.wingedsheep.sdk.scripting.effects.AddBeginningPhaseEffect].
+     */
+    val AddBeginningPhase: Effect = com.wingedsheep.sdk.scripting.effects.AddBeginningPhaseEffect
+
+    /**
+     * End the turn (CR 724.1): exile the whole stack (including this source) and any pending
      * triggers, remove creatures from combat, then skip straight to the cleanup step (discard to
      * maximum hand size, damage wears off, "until end of turn" effects end) and begin the next
      * turn. Used for Ultima ("Destroy all artifacts and creatures. End the turn."), Time Stop, etc.
@@ -4577,322 +5860,189 @@ object Effects {
     // Damage Prevention (unified via PreventDamageEffect)
     // -------------------------------------------------------------------------
 
+    /** Choose a source at resolution, then prevent all but [amountToLeave] of its next damage instance. */
+    fun PreventNextDamageLeavingAmount(
+        amountToLeave: DynamicAmount,
+        target: EffectTarget = EffectTarget.Controller,
+        eligibleSource: GameObjectFilter = GameObjectFilter.Any,
+        combatOnly: Boolean = false,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.PreventNextDamageLeavingAmountEffect(
+        amountToLeave, target, eligibleSource,
+        if (combatOnly) PreventionScope.CombatOnly else PreventionScope.AllDamage, duration
+    )
+
+    /**
+     * Prevent damage — the one facade over [PreventDamageEffect]. Every parameter mirrors a field of
+     * the effect under a name that reads like the Oracle sentence, and every default is the plain
+     * "prevent all damage that would be dealt to you this turn" shield, so a call names only the
+     * words the card prints:
+     *
+     * - "Prevent all damage that would be dealt to target creature this turn." →
+     *   `PreventDamage(target = creature)`
+     * - "Prevent all damage that would be dealt to you and creatures you control this turn by
+     *   creatures." → `PreventDamage(toGroup = Creature.youControl(), alsoToYou = true,
+     *   sources = Matching(Creature))`
+     * - "Prevent all damage that would be dealt by creatures this turn. You gain life equal to the
+     *   damage prevented this way." → `PreventDamage(direction = FromTarget,
+     *   sources = Matching(Creature), gainLifeFromPrevented = true)`
+     * - "The next time an artifact source of your choice would deal damage to you this turn,
+     *   prevent that damage." → `PreventDamage(sources = Chosen(Artifact), nextInstanceOnly = true)`
+     *
+     * @param target The single recipient ([PreventionDirection.ToTarget]) or silenced source
+     *   ([PreventionDirection.FromTarget]); ignored when [toGroup] or [alsoToYou] names the recipients.
+     * @param direction Damage dealt *to* [target], *by* it, or both.
+     * @param sources Which damage sources are covered: every source, those matching a filter, or one
+     *   the controller chooses at resolution (see [PreventionSourceFilter]).
+     * @param amount "The next N damage"; null prevents all of it.
+     * @param combatOnly "Combat damage" rather than all damage.
+     * @param toGroup Protect every permanent matching this filter instead of [target] — "to
+     *   creatures you control" — re-evaluated whenever damage would be dealt.
+     * @param alsoToYou Add the controller to the recipients: "to **you and** creatures you control",
+     *   or, without [toGroup], "to you" alone for a [PreventionSourceFilter.Matching] shield
+     *   (Scarecrow, Heavy Fog).
+     * @param nextInstanceOnly Prevent only the next instance of damage from a covered source, then
+     *   spend the shield (the Circle of Protection family).
+     * @param halve With [nextInstanceOnly], prevent half that instance, rounded down (Dark Sphere).
+     * @param onPrevented "When damage is prevented this way, …" — run with the prevented amount as
+     *   [DynamicAmounts.preventedDamage] and the source's controller as
+     *   [EffectTarget.ControllerOfTriggeringEntity] (Deflecting Palm, New Way Forward).
+     * @param stillDealt The damage is dealt anyway and only [onPrevented] reacts (Eye for an Eye).
+     * @param gainLifeFromColors Gain life whenever damage from a source of these colors is prevented
+     *   this way (Samite Ministration).
+     * @param gainLifeFromPrevented Gain life equal to the damage prevented this way (Chant of Vitu-Ghazi).
+     * @param toPlayersOnly Only damage that would be dealt to a player — "would deal combat damage to
+     *   one or more players" (Ria Ivor, Bane of Bladehold). Needs `direction = FromTarget` plus
+     *   [onPrevented].
+     */
+    fun PreventDamage(
+        target: EffectTarget = EffectTarget.Controller,
+        direction: PreventionDirection = PreventionDirection.ToTarget,
+        sources: PreventionSourceFilter = PreventionSourceFilter.AnySource,
+        amount: DynamicAmount? = null,
+        combatOnly: Boolean = false,
+        toGroup: GameObjectFilter? = null,
+        alsoToYou: Boolean = false,
+        nextInstanceOnly: Boolean = false,
+        halve: Boolean = false,
+        onPrevented: Effect? = null,
+        stillDealt: Boolean = false,
+        gainLifeFromColors: Set<Color> = emptySet(),
+        gainLifeFromPrevented: Boolean = false,
+        toPlayersOnly: Boolean = false,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect =
+        PreventDamageEffect(
+            target = target,
+            recipientGroup = toGroup,
+            recipientGroupIncludesController = alsoToYou,
+            amount = amount,
+            scope = if (combatOnly) PreventionScope.CombatOnly else PreventionScope.AllDamage,
+            direction = direction,
+            sourceFilter = sources,
+            onPrevented = onPrevented,
+            gainLifeFromColors = gainLifeFromColors,
+            duration = duration,
+            preventDamage = !stillDealt,
+            nextInstanceOnly = nextInstanceOnly,
+            halvePreventedDamage = halve,
+            gainLifeFromPrevented = gainLifeFromPrevented,
+            toPlayersOnly = toPlayersOnly
+        )
+
     /**
      * Prevent the next N damage that would be dealt to target this turn.
      */
     fun PreventNextDamage(amount: DynamicAmount, target: EffectTarget): Effect =
-        PreventDamageEffect(target = target, amount = amount)
+        PreventDamage(target = target, amount = amount)
 
     /**
      * Prevent the next N damage that would be dealt to target this turn.
      */
     fun PreventNextDamage(amount: Int, target: EffectTarget): Effect =
-        PreventDamageEffect(target = target, amount = DynamicAmount.Fixed(amount))
+        PreventDamage(target = target, amount = DynamicAmount.Fixed(amount))
 
     /**
-     * Prevent all combat damage that would be dealt this turn.
+     * Prevent all combat damage that would be dealt this turn (Fog).
      */
     fun PreventAllCombatDamage(): Effect =
-        PreventDamageEffect(scope = PreventionScope.CombatOnly)
+        PreventDamage(combatOnly = true)
 
     /**
-     * Prevent all combat damage that would be dealt to [target] this turn (Fleeting Flight).
+     * Prevent all combat damage that would be dealt by sources matching [source] this turn —
+     * "prevent all combat damage that would be dealt by non-Soldier creatures" (Frontline
+     * Strategist). The filter is re-evaluated against projected state when damage would be dealt.
      */
-    fun PreventAllCombatDamageTo(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
-        PreventDamageEffect(target = target, scope = PreventionScope.CombatOnly, duration = duration)
-
-    /**
-     * Prevent all combat damage that would be dealt by creatures matching a filter.
-     */
-    fun PreventCombatDamageFrom(source: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter, duration: Duration = Duration.EndOfTurn): Effect =
-        PreventDamageEffect(
-            scope = PreventionScope.CombatOnly,
+    fun PreventCombatDamageFrom(source: GameObjectFilter, duration: Duration = Duration.EndOfTurn): Effect =
+        PreventDamage(
             direction = PreventionDirection.FromTarget,
-            sourceFilter = PreventionSourceFilter.FromGroup(source),
+            sources = PreventionSourceFilter.Matching(source),
+            combatOnly = true,
             duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to every permanent matching [group] for [duration]
-     * (default this turn) — "prevent all damage that would be dealt to creatures you control this
-     * turn" (Summon: Alexander). The group is re-evaluated against projected state when each damage
-     * instance would be dealt, with the shield's controller as the "you" reference, so permanents
-     * that come under your control later in the turn are protected too. Pass [PreventionScope.CombatOnly]
-     * for a combat-only variant ("prevent all combat damage to creatures you control").
-     */
-    fun PreventAllDamageToGroup(
-        group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        scope: PreventionScope = PreventionScope.AllDamage,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            recipientGroup = group,
-            scope = scope,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to **you and** every permanent matching [group] for
-     * [duration], optionally only from sources matching [fromSources] — "prevent all damage that
-     * would be dealt to you and creatures you control this turn by creatures" (Eerie Interference).
-     *
-     * The player-inclusive sibling of [PreventAllDamageToGroup]: a player is not a permanent, so
-     * "you" can't come from the [GroupFilter] and rides along as
-     * [PreventDamageEffect.recipientGroupIncludesController] instead. Both the recipient group and
-     * [fromSources] are re-evaluated against projected state at the moment damage would be dealt,
-     * with the shield's controller as the "you" reference — so a creature that changes controller
-     * or stops being a creature mid-turn is judged as it is when the damage happens.
-     *
-     * @param fromSources Restrict the shield to damage from sources matching this filter
-     *   (`GroupFilter(GameObjectFilter.Creature)` for "by creatures"); null protects from every source.
-     */
-    fun PreventAllDamageToYouAndGroup(
-        group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        fromSources: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter? = null,
-        scope: PreventionScope = PreventionScope.AllDamage,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            recipientGroup = group,
-            recipientGroupIncludesController = true,
-            sourceFilter = fromSources?.let { PreventionSourceFilter.FromGroup(it) }
-                ?: PreventionSourceFilter.AnySource,
-            scope = scope,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to **you** for [duration], from sources matching
-     * [fromSources] — "prevent all damage that would be dealt to you this turn by creatures with
-     * flying" (Scarecrow).
-     *
-     * The permanent-less member of the recipient-shield family: [PreventAllDamageToGroup] names
-     * permanents, [PreventAllDamageToYouAndGroup] names you *and* permanents, and this one names
-     * you alone, so all three are the same
-     * [PreventDamageEffect.recipientGroup]/[PreventDamageEffect.recipientGroupIncludesController]
-     * shield with a different half filled in. [fromSources] is re-evaluated against projected
-     * state at the moment damage would be dealt, and a damage instance whose source can't be
-     * identified is *not* prevented — a "by creatures with flying" shield must not swallow damage
-     * it can't attribute.
-     *
-     * Not combat-only by default: an activated ability of a flying creature that damages you is
-     * prevented too. Pass [PreventionScope.CombatOnly] for the combat-only wording.
-     */
-    fun PreventAllDamageToYouFrom(
-        fromSources: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        scope: PreventionScope = PreventionScope.AllDamage,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            recipientGroupIncludesController = true,
-            sourceFilter = PreventionSourceFilter.FromGroup(fromSources),
-            scope = scope,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to controller this turn by attacking creatures.
-     */
-    fun PreventDamageFromAttackingCreatures(): Effect =
-        PreventDamageEffect(
-            target = EffectTarget.Controller,
-            sourceFilter = PreventionSourceFilter.AttackingCreatures
         )
 
     /**
      * Prevent all combat damage that would be dealt to and dealt by a creature this turn.
      */
     fun PreventCombatDamageToAndBy(target: EffectTarget = EffectTarget.Self): Effect =
-        PreventDamageEffect(
-            target = target,
-            scope = PreventionScope.CombatOnly,
-            direction = PreventionDirection.Both
-        )
+        PreventDamage(target = target, direction = PreventionDirection.Both, combatOnly = true)
 
-    /**
-     * Prevent all damage target creature or spell would deal, this turn by default. Pass a
-     * [duration] for the open-ended wordings — [Duration.WhileSourceOnBattlefield] gives "prevent
-     * all damage that would be dealt by up to one target creature for as long as this Saga remains
-     * on the battlefield" (Old Fat Spider Can't See Me), which the shield honors like any other
-     * source-keyed floating effect: it stops applying the moment the source leaves.
-     */
     /**
      * Prevent all damage [target] would deal for [duration].
      *
      * [scope] narrows *which* damage: the default [PreventionScope.AllDamage] covers combat and
      * noncombat alike, while [PreventionScope.CombatOnly] is what a printed line saying "prevent
-     * all **combat** damage that would be dealt by …" actually means (Restrain, Safeguard).
+     * all **combat** damage that would be dealt by …" actually means (Restrain, Safeguard). An
+     * open-ended [duration] such as [Duration.WhileSourceOnBattlefield] gives "for as long as this
+     * Saga remains on the battlefield" (Old Fat Spider Can't See Me).
      */
     fun PreventAllDamageDealtBy(
         target: EffectTarget,
         duration: Duration = Duration.EndOfTurn,
         scope: PreventionScope = PreventionScope.AllDamage
     ): Effect =
-        PreventDamageEffect(
+        PreventDamage(
             target = target,
-            scope = scope,
             direction = PreventionDirection.FromTarget,
+            combatOnly = scope == PreventionScope.CombatOnly,
             duration = duration
         )
 
-    /**
-     * Prevent the next damage instance [target] would deal this turn, then run [onPrevented] as a
-     * linked delayed trigger with the prevented amount available through
-     * [DynamicAmounts.preventedDamage].
-     */
-    fun PreventNextDamageDealtBy(target: EffectTarget, onPrevented: Effect): Effect =
-        PreventDamageEffect(
-            target = target,
-            direction = PreventionDirection.FromTarget,
-            onPrevented = onPrevented,
-            nextInstanceOnly = true
-        )
+    /** Choose the source during resolution, independently of the ability's targets. */
+    fun RedirectDamageFromChosenSource(
+        protectedTarget: EffectTarget,
+        redirectTo: EffectTarget,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.RedirectDamageFromChosenSourceEffect(
+        protectedTarget, redirectTo, duration
+    )
 
     /**
-     * Choose a source on resolution, prevent the next damage it would deal to you this turn, then run
-     * [onPrevented] — an arbitrary follow-up effect — as a triggered ability when that damage is
-     * prevented ("When damage is prevented this way, …"). Inside the follow-up the prevented amount is
-     * [DynamicAmounts.preventedDamage] ("that much"/"that many") and the prevented source's controller
-     * is `EffectTarget.ControllerOfTriggeringEntity` ("that source's controller"). Compose the payoff
-     * from ordinary atomic effects — no bespoke reaction type: Deflecting Palm reflects
-     * (`DealDamage(ControllerOfTriggeringEntity, preventedDamage())`); New Way Forward reflects and draws.
+     * Redirect damage that would be dealt to [protectedTargets] to [redirectTo] instead — the next
+     * [amount] (or the next instance when null) under [scope] (Zealous Inquisitor, Glarecaster).
      */
-    fun PreventNextDamageFromChosenSource(onPrevented: Effect): Effect =
-        PreventDamageEffect(
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            onPrevented = onPrevented
-        )
+    fun RedirectNextDamage(
+        protectedTargets: List<EffectTarget>,
+        redirectTo: EffectTarget,
+        amount: Int? = null,
+        scope: com.wingedsheep.sdk.scripting.effects.RedirectScope = com.wingedsheep.sdk.scripting.effects.RedirectScope.NEXT_INSTANCE,
+        creaturesOnly: Boolean = false,
+        optional: Boolean = false
+    ): Effect = com.wingedsheep.sdk.scripting.effects.RedirectNextDamageEffect(protectedTargets, redirectTo, amount, scope, creaturesOnly, optional)
+
+    /** All combat damage [target] would deal this turn is dealt to its controller instead (Goblin Psychopath). */
+    fun RedirectCombatDamageToController(target: EffectTarget = EffectTarget.Self): Effect =
+        com.wingedsheep.sdk.scripting.effects.RedirectCombatDamageToControllerEffect(target)
 
     /**
-     * Choose a source, prevent the next damage it would deal to you this turn, and deal that much
-     * damage to its controller (Deflecting Palm) — the canonical reflect, expressed as a follow-up.
+     * "This turn, whenever an attacking creature deals combat damage to you, it deals that much damage
+     * to its controller" (Harsh Justice).
      */
-    fun DeflectNextDamageFromChosenSource(): Effect =
-        PreventNextDamageFromChosenSource(
-            onPrevented = DealDamageEffect(
-                amount = DynamicAmounts.preventedDamage(),
-                target = EffectTarget.ControllerOfTriggeringEntity
-            )
-        )
+    fun ReflectCombatDamage(target: EffectTarget = EffectTarget.Controller): Effect =
+        com.wingedsheep.sdk.scripting.effects.ReflectCombatDamageEffect(target)
 
-    /**
-     * Choose a source; the next time it would deal damage to you this turn, the damage is still
-     * dealt to you in full **and** that much damage is dealt to that source's controller (Eye for
-     * an Eye). Same chosen-source reaction machinery as [DeflectNextDamageFromChosenSource], but
-     * with `preventDamage = false` so the original damage is not prevented.
-     */
-    fun ReflectNextDamageFromChosenSourceToController(): Effect =
-        PreventDamageEffect(
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            preventDamage = false,
-            onPrevented = DealDamageEffect(
-                amount = DynamicAmounts.preventedDamage(),
-                target = EffectTarget.ControllerOfTriggeringEntity
-            )
-        )
-
-    /**
-     * Prevent the next N damage that would be dealt to a target this turn by a source of your choice.
-     */
-    fun PreventNextDamageFromChosenSource(amount: Int, target: EffectTarget): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = DynamicAmount.Fixed(amount),
-            sourceFilter = PreventionSourceFilter.ChosenSource
-        )
-
-    /**
-     * The next time a source of your choice would deal damage to [target] this turn, prevent **half**
-     * that damage, rounded down (Dark Sphere). Single-instance shield like the Circle of Protection
-     * family: the unprevented half is still dealt, and the shield is spent either way — a 1-damage
-     * instance halves to 0 prevented and consumes it.
-     */
-    fun PreventHalfNextDamageFromChosenSource(
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            nextInstanceOnly = true,
-            halvePreventedDamage = true
-        )
-
-    /**
-     * Prevent all damage that would be dealt to a target this turn by a source of your choice.
-     * If [gainLifeFromColors] is non-empty, whenever damage from a source of one of those colors is
-     * prevented this way, the controller gains that much life (Samite Ministration).
-     */
-    fun PreventAllDamageFromChosenSource(
-        target: EffectTarget = EffectTarget.Controller,
-        gainLifeFromColors: Set<com.wingedsheep.sdk.core.Color> = emptySet()
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            gainLifeFromColors = gainLifeFromColors
-        )
-
-    /**
-     * Prevent all damage that would be dealt to a target this turn by a source of your choice
-     * that shares a color with the mana spent — i.e. only colored sources are eligible
-     * (a colorless source shares a color with no mana). Protective Sphere.
-     */
-    fun PreventAllDamageFromChosenColoredSource(
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenColoredSource
-        )
-
-    /**
-     * Prevent **all** damage that a source of your choice matching [filter] would deal this turn —
-     * to anything, with no recipient clause (Mourner's Shield: "Prevent all damage that would be
-     * dealt this turn by a source of your choice that shares a color with the exiled card").
-     *
-     * The recipient-free sibling of [PreventAllDamageFromChosenSource], which shields one recipient
-     * against the chosen source. `PreventionDirection.FromTarget` is what distinguishes them: it
-     * already means "damage dealt *by*" for a targeted source, and reads the same way for a chosen
-     * one. [filter] is evaluated relative to the ability's source, so it may reference the source or
-     * its linked exile.
-     */
-    fun PreventAllDamageFromChosenSourceMatching(filter: GameObjectFilter): Effect =
-        PreventDamageEffect(
-            amount = null,
-            direction = PreventionDirection.FromTarget,
-            sourceFilter = PreventionSourceFilter.ChosenSourceMatching(filter)
-        )
-
-    /**
-     * The next time an artifact source of your choice would deal damage to [target] this turn,
-     * prevent that damage (Circle of Protection: Artifacts). Single-instance shield: only artifact
-     * sources are eligible for the choice, and the whole next instance from the chosen source is
-     * prevented, then the shield is consumed. Built from the generic `ChosenSourceMatching`
-     * eligibility filter (`GameObjectFilter.Artifact`) plus `nextInstanceOnly = true`; a future
-     * "an enchantment/red/… source of your choice" Circle of Protection reuses the same shape with
-     * a different filter.
-     */
-    fun PreventNextDamageFromChosenArtifactSource(
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenSourceMatching(GameObjectFilter.Artifact),
-            nextInstanceOnly = true
-        )
-
-    /**
-     * Prevent the next time a creature of the chosen type would deal damage to you this turn.
-     */
-    fun PreventNextDamageFromChosenCreatureType(): Effect =
-        PreventDamageEffect(
-            target = EffectTarget.Controller,
-            sourceFilter = PreventionSourceFilter.ChosenCreatureType
-        )
+    /** Remove a prevention shield previously placed on [target] (Pyramids). */
+    fun RemoveDamageShield(target: EffectTarget): Effect = com.wingedsheep.sdk.scripting.effects.RemoveDamageShieldEffect(target)
 
     /**
      * Remove a creature from combat.
@@ -4903,6 +6053,10 @@ object Effects {
      *   Ydwen Efreet's "Creatures it was blocking that had become blocked by only this
      *   creature this combat become unblocked."
      */
+    /** Make a creature block an attacker immediately; declaration restrictions do not apply. */
+    fun BecomeBlocking(blocker: EffectTarget, attacker: EffectTarget): Effect =
+        com.wingedsheep.sdk.scripting.effects.BecomeBlockingEffect(blocker, attacker)
+
     fun RemoveFromCombat(target: EffectTarget, unblockSoleBlockedAttackers: Boolean = false): Effect =
         RemoveFromCombatEffect(target, unblockSoleBlockedAttackers)
 
@@ -4958,6 +6112,16 @@ object Effects {
         promptNameVariable = promptNameVariable,
     )
 
+    /** [PlayerGuessesCondition] whose prompt names the card chosen into [promptName] (Liar's Pendulum). */
+    fun PlayerGuessesCondition(
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition,
+        prompt: String,
+        promptName: ChosenSlot,
+        storeGuessedRightAs: String = "guessedRight",
+        guesser: com.wingedsheep.sdk.scripting.effects.Chooser =
+            com.wingedsheep.sdk.scripting.effects.Chooser.Opponent,
+    ): Effect = PlayerGuessesCondition(condition, prompt, storeGuessedRightAs, guesser, promptName.key)
+
     /**
      * Let a creature attack this turn as though it didn't have defender (Krotiq Nestguard).
      * The activated/temporary counterpart to the static [com.wingedsheep.sdk.scripting.CanAttackDespiteDefender].
@@ -4970,7 +6134,7 @@ object Effects {
      * on the battlefield" until end of turn.
      */
     fun GrantAttackBlockTaxPerCreatureType(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         creatureType: String,
         manaCostPer: String,
         duration: Duration = Duration.EndOfTurn
@@ -4986,7 +6150,7 @@ object Effects {
      * Attach this equipment to a target creature.
      * Detaches from the currently equipped creature first.
      */
-    fun AttachEquipment(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+    fun AttachEquipment(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect(target)
 
     /**
@@ -4994,11 +6158,22 @@ object Effects {
      * Both the Equipment and creature are explicit targets (not the source).
      */
     fun AttachTargetEquipmentToCreature(
-        equipmentTarget: EffectTarget = EffectTarget.ContextTarget(0),
-        creatureTarget: EffectTarget = EffectTarget.ContextTarget(1)
+        equipmentTarget: EffectTarget,
+        creatureTarget: EffectTarget
     ): Effect = com.wingedsheep.sdk.scripting.effects.AttachTargetEquipmentToCreatureEffect(
         equipmentTarget, creatureTarget
     )
+
+    /**
+     * Attach an Aura/Equipment already on the battlefield to **another** permanent matching
+     * [hostFilter] that the controller chooses at resolution (not targeted), restricted to hosts it
+     * can legally be attached to — "Attach target Aura attached to a creature to another creature"
+     * (Autumn-Tail, Kitsune Sage; Crown of the Ages). No legal host: nothing happens (CR 701.3b).
+     */
+    fun AttachToChosenHost(
+        attachment: EffectTarget,
+        hostFilter: GameObjectFilter = GameObjectFilter.Creature
+    ): Effect = com.wingedsheep.sdk.scripting.effects.AttachToChosenHostEffect(attachment, hostFilter)
 
     /**
      * Unattach an Aura/Equipment from its host without moving zones (CR 701.3d). No-op if [target]
@@ -5013,7 +6188,7 @@ object Effects {
      * Auras and Equipment; the host is chosen, not targeted (One Last Job).
      */
     fun PutOntoBattlefieldAttachedToChosen(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         hostFilter: com.wingedsheep.sdk.scripting.GameObjectFilter =
             com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.youControl()
     ): Effect = com.wingedsheep.sdk.scripting.effects.PutOntoBattlefieldAttachedToChosenEffect(
@@ -5021,14 +6196,50 @@ object Effects {
     )
 
     // =========================================================================
-    // Animate Effects
+    // Transform & Face-Down Effects
     // =========================================================================
+
+    /** Transform a double-faced permanent (CR 701.28) — "transform this creature". */
+    fun Transform(target: EffectTarget = EffectTarget.Self): Effect = com.wingedsheep.sdk.scripting.effects.TransformEffect(target)
+
+    /** Flip a flip-card permanent (CR 710) — "flip this creature". One-way; keeps mana cost and colour. */
+    fun Flip(target: EffectTarget = EffectTarget.Self): Effect = com.wingedsheep.sdk.scripting.effects.FlipEffect(target)
+
+    /** Turn a face-down permanent face up (Break Open). */
+    fun TurnFaceUp(target: EffectTarget): Effect = com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect(target)
+
+    /** Turn a permanent with a morph ability face down (Backslide). */
+    fun TurnFaceDown(target: EffectTarget): Effect = com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect(target)
+
+    // =========================================================================
+    // Animate & Become Effects
+    // =========================================================================
+
+    /**
+     * [target] becomes an artifact with [cardTypes] / [subtypes] / [colors] (each `null` = keep the
+     * existing ones), optionally losing all other abilities, renamed to [name], and gaining
+     * [grantedAbility] / [grantedStaticAbilities] — "becomes a Treasure artifact with '…' and loses
+     * all other card types and abilities" (Ultima, Origin of Oblivion; The Irencrag).
+     */
+    fun BecomeArtifact(
+        target: EffectTarget,
+        cardTypes: Set<String>? = setOf("ARTIFACT"),
+        subtypes: Set<String>? = emptySet(),
+        colors: Set<Color>? = emptySet(),
+        loseAllAbilities: Boolean = true,
+        name: String? = null,
+        grantedAbility: ActivatedAbility? = null,
+        grantedStaticAbilities: List<StaticAbility> = emptyList(),
+        duration: Duration = Duration.Permanent
+    ): Effect = com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect(
+        target, cardTypes, subtypes, colors, loseAllAbilities, name, grantedAbility, grantedStaticAbilities, duration
+    )
 
     /**
      * Target land becomes an X/Y creature until end of turn. It's still a land.
      */
     fun AnimateLand(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         power: Int = 1,
         toughness: Int = 1,
         duration: Duration = Duration.EndOfTurn
@@ -5073,7 +6284,7 @@ object Effects {
         CompositeEffect(listOf(
             AnimateLandEffect(target, 0, 0, Duration.Permanent),
             GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
             GrantTriggeredAbilityEffect(earthbendReturnTapped(), target, Duration.Permanent),
             // CR 701.66b: earthbending fires "whenever you earthbend" once the effect resolves.
             EmitBendEventEffect(BendType.EARTH),
@@ -5089,7 +6300,7 @@ object Effects {
         CompositeEffect(listOf(
             AnimateLandEffect(target, 0, 0, Duration.Permanent),
             GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
-            AddDynamicCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+            AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
             GrantTriggeredAbilityEffect(earthbendReturnTapped(), target, Duration.Permanent),
             // CR 701.66b: earthbending fires "whenever you earthbend" once the effect resolves.
             EmitBendEventEffect(BendType.EARTH),
@@ -5099,10 +6310,12 @@ object Effects {
      * The shared "When this dies or is exiled, return it to the battlefield tapped"
      * self-trigger granted by every earthbend. Single grant on any battlefield-leave,
      * gated to the graveyard then exile zones so non-grave/exile leaves resolve as a
-     * no-op (matching the printed "When it dies or is exiled" reading).
+     * no-op (matching the printed "When it dies or is exiled" reading). Keyword-scoped id, like
+     * the other keyword-synthesized triggers: every earthbend grants the same ability.
      */
     private fun earthbendReturnTapped(): TriggeredAbility =
         TriggeredAbility.create(
+            id = AbilityId("earthbend_return_tapped"),
             trigger = EventPattern.ZoneChangeEvent(from = Zone.BATTLEFIELD, to = null),
             binding = TriggerBinding.SELF,
             effect = CompositeEffect(listOf(
@@ -5135,7 +6348,7 @@ object Effects {
      */
     fun GrantFirebending(
         n: Int,
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantTriggeredAbilityEffect(firebendingAttackTrigger(n), target, duration)
 
@@ -5166,6 +6379,10 @@ object Effects {
      * The polarity follows the printed rule: the counters are the "may", the Spirit is the
      * "unless".
      *
+     * The Spirit carries no `imageUri`: its art comes from the token art registry, keyed by the
+     * set the enduring card was printed in (Tarkir: Dragonstorm prints 1/1, 2/2, 3/3 and X/X
+     * Spirits), so a reprint mints its own set's token rather than one baked into the SDK.
+     *
      * @param amount N — [DynamicAmount.Fixed] for "endure 2",
      *   [DynamicAmount.XValue] for "endures X" (Krumar Initiate), or any other
      *   dynamic value (Warden of the Grove endures "the number of counters on
@@ -5177,8 +6394,8 @@ object Effects {
     fun Endure(
         amount: DynamicAmount,
         target: EffectTarget = EffectTarget.Self
-    ): Effect = MayEffect(
-        effect = AddDynamicCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+    ): Effect = Effects.May(
+        effect = AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
         otherwise = CreateTokenEffect(
             count = DynamicAmount.Fixed(1),
             power = 0,
@@ -5186,8 +6403,7 @@ object Effects {
             colors = setOf(Color.WHITE),
             creatureTypes = setOf("Spirit"),
             dynamicPower = amount,
-            dynamicToughness = amount,
-            imageUri = ENDURE_SPIRIT_TOKEN_IMAGE
+            dynamicToughness = amount
         ),
         hint = "Put ${amount.description} +1/+1 counter(s) on ${target.description}? " +
             "If you don't, create a ${amount.description}/${amount.description} white Spirit " +
@@ -5268,7 +6484,7 @@ object Effects {
         duration: Duration = Duration.EndOfTurn
     ): Effect {
         val manaValue = DynamicAmount.EntityProperty(
-            entity = com.wingedsheep.sdk.scripting.values.EntityReference.AffectedEntity,
+            entity = com.wingedsheep.sdk.scripting.targets.EffectTarget.AffectedEntity,
             numericProperty = com.wingedsheep.sdk.scripting.values.EntityNumericProperty.ManaValue
         )
         return BecomeCreatureEffect(
@@ -5300,11 +6516,55 @@ object Effects {
         BecomeSolvedEffect(target)
 
     /**
+     * "You may activate loyalty abilities of [target] twice this turn rather than only once"
+     * (Kaito, Dancing Shadow) — see
+     * [com.wingedsheep.sdk.scripting.effects.AllowLoyaltyActivationsThisTurnEffect]. Not additive
+     * with a second grant or with Oath of Teferi.
+     */
+    fun AllowLoyaltyActivationsThisTurn(times: Int = 2, target: EffectTarget = EffectTarget.Self): Effect =
+        AllowLoyaltyActivationsThisTurnEffect(target, times)
+
+    /**
      * Target permanent becomes renowned (CR 702.112b) — the designation half of renown. Sticky
      * and one-way; see [com.wingedsheep.sdk.scripting.effects.BecomeRenownedEffect].
      */
     fun BecomeRenowned(target: EffectTarget = EffectTarget.Self): Effect =
         BecomeRenownedEffect(target)
+
+    /**
+     * Target permanent becomes monstrous (CR 701.37b). Sticky and one-way; see
+     * [com.wingedsheep.sdk.scripting.effects.BecomeMonstrousEffect]. Cards write [Monstrosity].
+     */
+    fun BecomeMonstrous(target: EffectTarget = EffectTarget.Self): Effect =
+        BecomeMonstrousEffect(target)
+
+    /**
+     * "Monstrosity N" (CR 701.37a): "If this permanent isn't monstrous, put N +1/+1 counters on it
+     * and it becomes monstrous." The resolving effect of an activated ability such as
+     * `{3}{B}{B}: Monstrosity 3.` The monstrous check happens at resolution, so activating it
+     * again while the first activation is on the stack does nothing once the first resolves.
+     */
+    fun Monstrosity(n: Int): Effect = Monstrosity(DynamicAmount.Fixed(n))
+
+    /**
+     * "Monstrosity X" — [amount] is usually [DynamicAmount.XValue], the X paid in the ability's
+     * cost (Domesticated Hydra). A permanent still becomes monstrous when X is 0.
+     */
+    fun Monstrosity(amount: DynamicAmount): Effect {
+        val counters = (amount as? DynamicAmount.Fixed)?.amount
+        val counterText = when (counters) {
+            null -> "X +1/+1 counters"
+            1 -> "a +1/+1 counter"
+            else -> "$counters +1/+1 counters"
+        }
+        return If(
+            condition = Conditions.Not(Conditions.SourceIsMonstrous),
+            then = AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, amount, EffectTarget.Self) then
+                BecomeMonstrous(EffectTarget.Self),
+            descriptionOverride = "Monstrosity ${counters ?: "X"}. (If this creature isn't monstrous, " +
+                "put $counterText on it and it becomes monstrous.)",
+        )
+    }
 
     /**
      * [target] becomes prepared (Secrets of Strixhaven). The target must be a PREPARE-layout
@@ -5348,7 +6608,7 @@ object Effects {
      * token-copy path uses.
      */
     fun EachPermanentBecomesCopyOfTarget(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         filter: GroupFilter = GroupFilter(
             com.wingedsheep.sdk.scripting.GameObjectFilter.NonlandPermanent.youControl()
         ),
@@ -5439,16 +6699,20 @@ object Effects {
      *
      * @param excludeBasicLandNames When true, the five basic land card names are not
      *   offered ("other than a basic land card name").
+     * @param pool Which registered names are offered — [CardNamePool.NONLAND] for "choose a
+     *   nonland card name" (Cranial Extraction), [CardNamePool.LAND] for "a land card name".
      */
     fun ChooseCardName(
         storeAs: String = "chosenCardName",
         prompt: String? = null,
-        excludeBasicLandNames: Boolean = false
+        excludeBasicLandNames: Boolean = false,
+        pool: CardNamePool = CardNamePool.ANY
     ): Effect = ChooseOptionEffect(
         optionType = OptionType.CARD_NAME,
         storeAs = storeAs,
         prompt = prompt,
-        excludedOptions = if (excludeBasicLandNames) BASIC_LAND_CARD_NAMES else emptyList()
+        excludedOptions = if (excludeBasicLandNames) BASIC_LAND_CARD_NAMES else emptyList(),
+        cardNamePool = pool
     )
 
     /**
@@ -5488,99 +6752,27 @@ object Effects {
     // =========================================================================
 
     /**
-     * Destroy target permanent, then its controller may copy this spell.
-     * Used for Chain of Acid.
+     * "[action]. Then [offerTo] may [copyCost] to copy this spell and may choose a new target for
+     * that copy." — Onslaught's Chain of X cycle. The copy offered is a real copy of the resolving
+     * spell (it chains again), targeted by [copyTarget].
+     *
+     * ```kotlin
+     * val t = target(TargetFilter.NoncreaturePermanent)
+     * effect = Effects.ChainCopy(Effects.Destroy(t), t, CopyRecipient.TARGET_CONTROLLER, copyTarget = permanent)
+     * ```
      */
-    fun DestroyAndChainCopy(
+    fun ChainCopy(
+        action: Effect,
         target: EffectTarget,
-        targetFilter: com.wingedsheep.sdk.scripting.filters.unified.TargetFilter,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = Destroy(target),
+        offerTo: CopyRecipient,
+        copyTarget: TargetRequirement,
+        copyCost: PayCost? = null
+    ): Effect = ChainCopyEffect(
+        action = action,
         target = target,
-        targetFilter = targetFilter,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_CONTROLLER,
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetObject(filter = targetFilter),
-        spellName = spellName
-    )
-
-    /**
-     * Bounce target permanent, then its controller may sacrifice a land to copy.
-     * Used for Chain of Vapor.
-     */
-    fun BounceAndChainCopy(
-        target: EffectTarget,
-        targetFilter: com.wingedsheep.sdk.scripting.filters.unified.TargetFilter,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = ReturnToHand(target),
-        target = target,
-        targetFilter = targetFilter,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_CONTROLLER,
-        copyCost = com.wingedsheep.sdk.scripting.costs.PayCost.Atom(
-            com.wingedsheep.sdk.scripting.costs.CostAtom.Sacrifice(
-                filter = com.wingedsheep.sdk.scripting.GameObjectFilter.Land
-            )
-        ),
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetObject(filter = targetFilter),
-        spellName = spellName
-    )
-
-    /**
-     * Deal damage to any target, then that player may discard a card to copy.
-     * Used for Chain of Plasma.
-     */
-    fun DamageAndChainCopy(
-        amount: Int,
-        target: EffectTarget,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = DealDamage(amount, target),
-        target = target,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.AFFECTED_PLAYER,
-        copyCost = com.wingedsheep.sdk.scripting.costs.PayCost.Atom(
-            com.wingedsheep.sdk.scripting.costs.CostAtom.Discard()
-        ),
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.AnyTarget(),
-        spellName = spellName
-    )
-
-    /**
-     * Target player discards cards, then may copy and choose a new target.
-     * Used for Chain of Smog.
-     */
-    fun DiscardAndChainCopy(
-        count: Int,
-        target: EffectTarget,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = HandPatterns.discardCards(count, target),
-        target = target,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_PLAYER,
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetPlayer(),
-        spellName = spellName
-    )
-
-    /**
-     * Prevent all damage target creature would deal, then its controller may sacrifice a land to copy.
-     * Used for Chain of Silence.
-     */
-    fun PreventDamageAndChainCopy(
-        target: EffectTarget,
-        targetFilter: com.wingedsheep.sdk.scripting.filters.unified.TargetFilter,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = PreventAllDamageDealtBy(target),
-        target = target,
-        targetFilter = targetFilter,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_CONTROLLER,
-        copyCost = com.wingedsheep.sdk.scripting.costs.PayCost.Atom(
-            com.wingedsheep.sdk.scripting.costs.CostAtom.Sacrifice(
-                filter = com.wingedsheep.sdk.scripting.GameObjectFilter.Land
-            )
-        ),
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetObject(filter = targetFilter),
-        spellName = spellName
+        copyRecipient = offerTo,
+        copyCost = copyCost,
+        copyTargetRequirement = copyTarget
     )
 
     // =========================================================================

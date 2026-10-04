@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Nullpriest of Oblivion
@@ -50,18 +49,10 @@ val NullpriestOfOblivion = card("Nullpriest of Oblivion") {
     // When this creature enters, if it was kicked, return target creature card from your graveyard
     // to the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasKicked
-        val t = target(
-            "target creature card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
-            ),
-        )
-        effect = Effects.PutOntoBattlefield(t)
+        val t = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
+        effect = Effects.PutOntoBattlefieldFromGraveyard(t)
         description = "When this creature enters, if it was kicked, return target creature card " +
             "from your graveyard to the battlefield."
     }

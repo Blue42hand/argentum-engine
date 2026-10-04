@@ -36,15 +36,17 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
                 manifest.getValue("verified") shouldBe JsonPrimitive(true)
                 var state = json.decodeFromString<GameState>(original.toString())
                 state.zoneReturns shouldBe emptyList()
+                state.playerActionPermissions shouldBe emptyList()
                 state.nextRoutingId shouldBe original.getValue("nextRoutingId").jsonPrimitive.content.toLong()
                 state.pendingDecision shouldBe json.decodeFromString<PendingDecision>(original.getValue("pendingDecision").toString())
 
                 // The reader changes only suspension representation. Entity state, RNG, counters,
                 // permissions, and all other saved fields are retained exactly on initial load.
-                // Object identity and zone returns postdate these captures. Compare the saved
-                // fields after checking that the new return bookkeeping starts empty.
+                // Object identity, zone returns and the waiting-trigger queue postdate these
+                // captures. Compare the saved fields after checking that the new return
+                // bookkeeping starts empty.
                 val encoded = encodeState(state)
-                JsonObject(encoded - "continuationStack" - POST_CAPTURE_FIELDS) shouldBe
+                withoutPostCaptureCardDefaults(JsonObject(encoded - "continuationStack" - POST_CAPTURE_FIELDS)) shouldBe
                     JsonObject(original - "continuationStack" - "pendingDecision")
                 assertCurrentRoundTrip(state)
 
@@ -93,7 +95,8 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
             val action = json.decodeFromString<List<GameAction>>(fixtureText(fixture, "actions.json")).single()
             val result = actionProcessor.process(state, action).result
             result.error shouldBe null
-            result.state shouldBe json.decodeFromString<GameState>(fixtureText(fixture, "after-1.json"))
+            result.state.copy(controlAtTurnStart = null) shouldBe
+                json.decodeFromString<GameState>(fixtureText(fixture, "after-1.json"))
             result.events shouldBe json.decodeFromString<List<GameEvent>>(fixtureText(fixture, "events-1.json"))
             result.state.pendingDecision shouldBe null
             result.state.continuationStack shouldBe emptyList()
@@ -140,11 +143,15 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
             )
             // Every field the legacy frame carried survives untouched. Fields added since the
             // capture (object identity's, and anything later) decode to their defaults and are
-            // not the reader's doing, so the comparison is restricted to the captured shape.
-            val capturedAnswer = JsonObject(original[0].jsonObject - "decisionId")
+            // not the reader's doing, so the comparison is restricted to the captured shape. The
+            // capture predates the trigger-fact record, so its flat trigger keys are compared as the
+            // reader lifts them (LegacyTriggerContextLift) — all null here, so they simply fold away.
+            val capturedAnswer = LegacyTriggerContextLift.lift(JsonObject(original[0].jsonObject - "decisionId")).jsonObject
             restrictTo(saved.getValue("answer"), capturedAnswer) shouldBe capturedAnswer
-            migrated.last().jsonObject.getValue("question") shouldBe
-                fixtureObject("suspended-mana-window", "state.json").getValue("pendingDecision")
+            // Same rule for the pending question: fields added to the decision since the capture
+            // (ChooseColorDecision.maxColors) decode to their defaults, so compare the captured shape.
+            val capturedQuestion = fixtureObject("suspended-mana-window", "state.json").getValue("pendingDecision")
+            restrictTo(migrated.last().jsonObject.getValue("question"), capturedQuestion) shouldBe capturedQuestion
         }
 
         test("legacy combat question is retained once and the duplicate answer shape is removed") {
@@ -267,9 +274,14 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
         else -> false
     }
 
-    /** Normalize only the allocation counter and owned question IDs, never entity/payload identity. */
+    /**
+     * Preserve the captured state and payload identities; normalize routing and omit control history,
+     * which postdates this trace and is verified by ControlHistoryTest and scenario tests.
+     * Source-choice target references also postdate the trace; ChosenSourceDamageRedirectionTest
+     * independently verifies their capture, retention after departure and serialization.
+     */
     private fun normalizeRouting(value: JsonElement, root: Boolean = false): JsonElement = when (value) {
-        is JsonObject -> JsonObject(value.mapValues { (key, child) ->
+        is JsonObject -> JsonObject(((if (root) value - "controlAtTurnStart" else value) - "targetObjectRefs" - "referencedObjects").mapValues { (key, child) ->
             when {
                 root && key == "nextRoutingId" -> JsonPrimitive(0)
                 key == "question" && "answer" in value -> {
@@ -280,6 +292,39 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
             }
         })
         is JsonArray -> JsonArray(value.map { normalizeRouting(it) })
+        else -> value
+    }
+
+    /**
+     * Added copiable rules data postdates the capture; old identities must default those lists empty.
+     * Likewise a may-play permission's later `colorlessAsAnyColor` rider and the card's later
+     * `hasCycling` flag must default false.
+     */
+    private fun withoutPostCaptureCardDefaults(value: JsonElement): JsonElement = when (value) {
+        is JsonObject -> {
+            val fields = if (value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.identity.CardComponent"
+                )) {
+                value.getValue("copyTriggeredAbilities") shouldBe JsonArray(emptyList())
+                value.getValue("copyActivatedAbilities") shouldBe JsonArray(emptyList())
+                value.getValue("manaSpendingGrants") shouldBe JsonArray(emptyList())
+                value.getValue("hasCycling") shouldBe JsonPrimitive(false)
+                value - "copyTriggeredAbilities" - "copyActivatedAbilities" - "manaSpendingGrants" - "hasCycling"
+            } else if (value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.player.ManaPoolComponent"
+                )) {
+                // Snow-mana tracking (CR 107.4h) postdates the capture.
+                value.getValue("snowMana") shouldBe JsonObject(emptyMap())
+                value.getValue("snowColorless") shouldBe JsonPrimitive(0)
+                value - "snowMana" - "snowColorless"
+            } else if ("colorlessAsAnyColor" in value && "singleUse" in value) {
+                // MayPlayPermission's colorless-as-any-color rider postdates the capture.
+                value.getValue("colorlessAsAnyColor") shouldBe JsonPrimitive(false)
+                value - "colorlessAsAnyColor"
+            } else value
+            JsonObject(fields.mapValues { withoutPostCaptureCardDefaults(it.value) })
+        }
+        is JsonArray -> JsonArray(value.map(::withoutPostCaptureCardDefaults))
         else -> value
     }
 
@@ -303,6 +348,11 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
         private const val CORE = "com.wingedsheep.engine.core."
 
         /** Fields introduced after these captures; decoding supplies their defaults. */
-        private val POST_CAPTURE_FIELDS = setOf("objectIdentities", "nextObjectGeneration", "zoneReturns")
+        private val POST_CAPTURE_FIELDS = setOf(
+            "playerActionPermissions",
+            "objectIdentities", "nextObjectGeneration", "zoneReturns", "pendingTriggers", "controlAtTurnStart",
+            "playersDealtNoncombatDamageThisTurn", "playersDealtNoncombatDamageLastTurn", "playersWhoLostLifeLastTurn",
+            "pendingReplacementRiders", "playersDealtCombatDamageSinceTheirLastTurn",
+        )
     }
 }

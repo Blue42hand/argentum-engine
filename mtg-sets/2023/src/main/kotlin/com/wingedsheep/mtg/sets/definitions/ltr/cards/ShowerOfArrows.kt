@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Shower of Arrows
@@ -24,27 +22,12 @@ val ShowerOfArrows = card("Shower of Arrows") {
     oracleText = "Destroy target artifact, enchantment, or creature with flying. Scry 1."
 
     spell {
-        // artifact, enchantment, or creature with flying
         val targetFilter = TargetFilter(
-            GameObjectFilter(
-                cardPredicates = listOf(
-                    CardPredicate.Or(
-                        listOf(
-                            CardPredicate.IsArtifact,
-                            CardPredicate.IsEnchantment,
-                            CardPredicate.And(
-                                listOf(
-                                    CardPredicate.IsCreature,
-                                    CardPredicate.HasKeyword(Keyword.FLYING)
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+            GameObjectFilter.Artifact or GameObjectFilter.Enchantment or
+                GameObjectFilter.Creature.withKeyword(Keyword.FLYING)
         )
-        val permanent = target("target artifact, enchantment, or creature with flying", TargetObject(filter = targetFilter))
-        effect = Effects.Destroy(permanent).then(Patterns.Library.scry(1))
+        val permanent = target(targetFilter)
+        effect = Effects.Destroy(permanent) then Patterns.Library.scry(1)
     }
 
     metadata {

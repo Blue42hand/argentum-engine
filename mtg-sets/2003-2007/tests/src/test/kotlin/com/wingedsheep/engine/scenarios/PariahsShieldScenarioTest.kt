@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.EntityId
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Pariah's Shield — {5} Artifact — Equipment (Ravnica: City of Guilds #267)
@@ -49,7 +50,7 @@ class PariahsShieldScenarioTest : FunSpec({
                 abilityId = equipAbilityId,
                 targets = listOf(ChosenTarget.Permanent(creature))
             )
-        ).isSuccess shouldBe true
+        ).outcome shouldBe Outcome.Done
         bothPass()
         state.getEntity(shield)?.get<AttachedToComponent>()?.targetId shouldBe creature
         return shield to creature
@@ -85,6 +86,30 @@ class PariahsShieldScenarioTest : FunSpec({
         d.state.getEntity(shield)?.get<AttachedToComponent>() shouldBe null
         withClue("no equipped creature, so nothing absorbs the damage") {
             d.getLifeTotal(d.player1) shouldBe 17
+        }
+    }
+
+    test("combat damage aimed at you lands on the equipped creature instead") {
+        val d = driver()
+        val attacker = d.activePlayer!!
+        val defender = d.getOpponent(attacker)
+
+        // Shield owner is the defending player; attach directly (equip is sorcery speed).
+        val shield = d.putPermanentOnBattlefield(defender, "Pariah's Shield")
+        val lions = d.putCreatureOnBattlefield(defender, "Savannah Lions") // 1/1
+        d.replaceState(d.state.updateEntity(shield) { it.with(AttachedToComponent(lions)) })
+        val bears = d.putCreatureOnBattlefield(attacker, "Grizzly Bears") // 2/2
+        d.removeSummoningSickness(bears)
+
+        d.passPriorityUntil(Step.DECLARE_ATTACKERS)
+        d.declareAttackers(attacker, listOf(bears), defender).error shouldBe null
+        d.passPriorityUntil(Step.END_COMBAT)
+
+        withClue("the 2 combat damage never reached the player") {
+            d.getLifeTotal(defender) shouldBe 20
+        }
+        withClue("it went to the equipped creature, which 2 damage kills") {
+            d.findPermanent(defender, "Savannah Lions") shouldBe null
         }
     }
 })

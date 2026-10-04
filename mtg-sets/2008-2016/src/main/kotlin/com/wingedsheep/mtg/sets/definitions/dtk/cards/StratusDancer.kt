@@ -1,9 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.dtk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -22,11 +23,11 @@ val StratusDancer = card("Stratus Dancer") {
 
     keywords(Keyword.FLYING)
     morph = "{1}{U}"
-    morphFaceUpEffect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+    morphFaceUpEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
-        target = Targets.InstantOrSorcerySpell
+        trigger = Triggers.self.turnedFaceUp()
+        target = TargetObject(filter = TargetFilter.InstantOrSorcerySpellOnStack)
         effect = Effects.CounterSpell()
     }
 

@@ -138,7 +138,7 @@ data class GrantTriggeredAbilityEffect(
  * when its condition *becomes* true, polled at every priority pass. The two need separate effects
  * because the engine reads them through different paths — a `TriggeredAbility` reaches the
  * `TriggerIndex`, while a [StateTriggeredAbility] is only ever produced by the
- * `StateTriggerPoller`, which has its own latch bookkeeping.
+ * `StateTriggerPoller`, which suppresses another firing while the original trigger is outstanding.
  *
  * Authored on Olivia, Crimson Bride, whose reanimated creature gains
  * `"When you don't control a legendary Vampire, exile this creature."` — a state trigger, not an
@@ -350,7 +350,7 @@ data class GrantEmbalmEffect(
  * to the entity and read at the point of use — e.g. the combat blocker validation consults
  * granted [com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan] alongside the creature's
  * printed static abilities. Compose inside [com.wingedsheep.sdk.dsl.Effects.ForEachInGroup]
- * with [EffectTarget.Self] to grant it to each creature in a group (Full Steam Ahead).
+ * with [EffectTarget.IterationEntity] to grant it to each creature in a group (Full Steam Ahead).
  *
  * @property ability The static ability to grant
  * @property target The permanent to grant the ability to

@@ -20,7 +20,7 @@ val MonologueTax = card("Monologue Tax") {
     oracleText = "Whenever an opponent casts their second spell each turn, you create a Treasure token."
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.EachOpponent)
+        trigger = Triggers.anOpponent.castsNth(2)
         effect = Effects.CreateTreasure(1)
     }
 

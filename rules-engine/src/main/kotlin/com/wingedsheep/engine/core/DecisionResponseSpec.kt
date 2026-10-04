@@ -36,6 +36,10 @@ enum class DecisionResponseFieldKind {
  * discover the mismatch during a live game.
  */
 fun PendingDecision.responseSpec(): DecisionResponseSpec = when (this) {
+    is PlayCardDecision -> DecisionResponseSpec(
+        responseType = "PlayCardResponse",
+        requiredFields = mapOf("action" to DecisionResponseFieldKind.MAP),
+    )
     is ChooseTargetsDecision -> DecisionResponseSpec(
         responseType = "TargetsResponse",
         requiredFields = mapOf("selectedTargets" to DecisionResponseFieldKind.MAP),

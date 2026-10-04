@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Smite
@@ -26,7 +27,7 @@ val Smite = card("Smite") {
     oracleText = "Destroy target blocked creature."
 
     spell {
-        val victim = target("target", Targets.BlockedCreature)
+        val victim = target(TargetFilter.BlockedCreature)
         effect = Effects.Destroy(victim)
     }
 

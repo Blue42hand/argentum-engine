@@ -34,13 +34,30 @@ class CastModalContinuationResumer(
     private val services: EngineServices
 ) : ContinuationResumerModule {
 
-    private val castSpellHandler: CastSpellHandler by lazy { CastSpellHandler.create(services) }
+    private val castSpellHandler: CastSpellHandler get() = services.castSpellHandler
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(CastModalModeSelectionContinuation::class, ::resumeCastModalModeSelection),
         resumer(CastModalTargetSelectionContinuation::class, ::resumeCastModalTargetSelection),
-        resumer(CastSpellAdditionalCostContinuation::class, ::resumeCastSpellAdditionalCost)
+        resumer(CastSpellAdditionalCostContinuation::class, ::resumeCastSpellAdditionalCost),
+        resumer(com.wingedsheep.engine.core.CastCostChoiceContinuation::class, ::resumeCostChoice)
     )
+
+    private fun resumeCostChoice(
+        state: GameState,
+        continuation: com.wingedsheep.engine.core.CastCostChoiceContinuation,
+        response: DecisionResponse,
+        @Suppress("UNUSED_PARAMETER") checkForMore: CheckForMore,
+    ): ExecutionResult {
+        val action = continuation.baseCastAction
+        if (response is CancelDecisionResponse) return ExecutionResult.success(state.withPriority(action.playerId))
+        val index = (response as? OptionChosenResponse)?.optionIndex
+            ?.let { continuation.offeredIndices.getOrNull(it) }
+            ?: return ExecutionResult.error(state, "Invalid additional-cost branch")
+        return castSpellHandler.execute(state.withPriority(action.playerId), action.copy(
+            additionalCostChoices = action.additionalCostChoices + (continuation.slot to index)
+        ))
+    }
 
     /**
      * Resume after the caster picks how to pay one selection-requiring additional cost on a free

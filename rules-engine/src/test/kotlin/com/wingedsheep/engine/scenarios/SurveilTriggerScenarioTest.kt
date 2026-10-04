@@ -11,7 +11,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -29,8 +28,8 @@ import io.kotest.matchers.shouldBe
 /**
  * Substrate tests for the "Whenever you surveil" (CR 701.25) and combined "Whenever you scry or
  * surveil" (CR 701.22 / 701.25) triggers: `Patterns.Library.surveil(N)` ends by emitting
- * [SurveiledEvent], which drives `Triggers.WheneverYouSurveil` /
- * `Triggers.WheneverYouScryOrSurveil` and surfaces "the number of cards looked at" via
+ * [SurveiledEvent], which drives `Triggers.you.surveils()` /
+ * `Triggers.you.scriesOrSurveils()` and surfaces "the number of cards looked at" via
  * [ContextPropertyKey.TRIGGER_SCRY_COUNT]. The event is distinct from the scry event, so a scry
  * never fires a surveil trigger (and vice versa) — proven by the isolation test.
  */
@@ -53,14 +52,24 @@ class SurveilTriggerScenarioTest : FunSpec({
     val SurveilZero = surveilSpell("Surveil Zero", 0)
     val ScryOne = scrySpell("Scry One", 1)
 
+    // The dynamic-count pipeline (`surveil(DynamicAmount)`), whose event tail is gated at resolution.
+    fun dynamicSurveilSpell(name: String, n: Int) = card(name) {
+        manaCost = "{0}"
+        typeLine = "Sorcery"
+        oracleText = "Surveil X."
+        spell { effect = Patterns.Library.surveil(DynamicAmount.Fixed(n)) }
+    }
+    val DynamicSurveilTwo = dynamicSurveilSpell("Dynamic Surveil Two", 2)
+    val DynamicSurveilZero = dynamicSurveilSpell("Dynamic Surveil Zero", 0)
+
     // "Whenever you surveil, put a +1/+1 counter on it." — fires once per surveil.
     val SurveilWatcher = card("Surveil Watcher") {
         manaCost = "{0}"
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouSurveil
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            trigger = Triggers.you.surveils()
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -70,8 +79,8 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouScry
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            trigger = Triggers.you.scries()
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -81,8 +90,8 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouScryOrSurveil
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            trigger = Triggers.you.scriesOrSurveils()
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -92,9 +101,9 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouSurveil
+            trigger = Triggers.you.surveils()
             effect = Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT),
                 EffectTarget.Self
             )
@@ -105,7 +114,7 @@ class SurveilTriggerScenarioTest : FunSpec({
         val driver = GameTestDriver()
         driver.registerCards(
             TestCards.all + listOf(
-                SurveilOne, SurveilThree, SurveilZero, ScryOne,
+                SurveilOne, SurveilThree, SurveilZero, ScryOne, DynamicSurveilTwo, DynamicSurveilZero,
                 SurveilWatcher, ScryWatcher, BothWatcher, SurveilCounter
             )
         )
@@ -284,6 +293,38 @@ class SurveilTriggerScenarioTest : FunSpec({
 
         driver.events.drop(before).filterIsInstance<SurveiledEvent>() shouldBe emptyList()
         driver.events.drop(before).filterIsInstance<ScriedEvent>() shouldBe emptyList()
+        driver.plusOneCounters(watcher) shouldBe 0
+    }
+
+    test("dynamic surveil X emits one SurveiledEvent with the cards looked at") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))
+        val active = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val watcher = driver.putCreatureOnBattlefield(active, "Surveil Watcher")
+
+        val before = driver.events.size
+        driver.castLook(active, "Dynamic Surveil Two")
+        driver.bothPass()
+
+        driver.events.drop(before).filterIsInstance<SurveiledEvent>().single().count shouldBe 2
+        driver.plusOneCounters(watcher) shouldBe 1
+    }
+
+    test("dynamic surveil with X = 0 fires no trigger and emits no event (CR 701.25c)") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))
+        val active = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val watcher = driver.putCreatureOnBattlefield(active, "Surveil Watcher")
+
+        val before = driver.events.size
+        driver.castLook(active, "Dynamic Surveil Zero")
+        driver.bothPass()
+
+        driver.events.drop(before).filterIsInstance<SurveiledEvent>() shouldBe emptyList()
         driver.plusOneCounters(watcher) shouldBe 0
     }
 })

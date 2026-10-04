@@ -1,7 +1,7 @@
 package com.wingedsheep.sdk.serialization
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.AdditionalCost
@@ -31,6 +31,9 @@ class CostAtomSerializationTest : FunSpec({
     val representatives: List<CostAtom> = listOf(
         CostAtom.Mana(ManaCost.parse("{2}{U}")),
         CostAtom.PayLife(3),
+        CostAtom.PayPlayerCounters(CounterType.ENERGY),
+        CostAtom.PayPlayerCounters(CounterType.ENERGY, com.wingedsheep.sdk.scripting.values.DynamicAmount.XValue),
+        CostAtom.PayPlayerCounters(CounterType.ENERGY, CostAtom.CollectEvidence.TARGET_SUM),
         CostAtom.Sacrifice(GameObjectFilter.Creature, count = 2),
         CostAtom.Discard(count = 1, filter = GameObjectFilter.Any, random = true),
         CostAtom.ExileFrom(Zone.GRAVEYARD, GameObjectFilter.Creature, count = 3),
@@ -40,17 +43,19 @@ class CostAtomSerializationTest : FunSpec({
         CostAtom.TapPermanents(count = 1, filter = GameObjectFilter.Creature),
         CostAtom.ReturnToHand(GameObjectFilter.Any, count = 1),
         CostAtom.RevealFromHand(GameObjectFilter.Any, count = 1),
-        CostAtom.RemoveCounters(Counters.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Creature),
-        CostAtom.RemoveCounters("charge", self = true),
+        CostAtom.PutFromHandOnTopOfLibrary(count = 1, filter = GameObjectFilter.Any),
+        CostAtom.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Creature),
+        CostAtom.RemoveCounters(CounterType.CHARGE, self = true),
         CostAtom.RemoveCounters(counterType = null, filter = GameObjectFilter.Creature),
-        CostAtom.PutCountersOnSelf(Counters.PAGE, count = 1),
-        CostAtom.PutCountersOnPermanent(Counters.MINUS_ONE_MINUS_ONE, filter = GameObjectFilter.Creature),
+        CostAtom.PutCountersOnSelf(CounterType.PAGE, count = 1),
+        CostAtom.PutCountersOnPermanent(CounterType.MINUS_ONE_MINUS_ONE, filter = GameObjectFilter.Creature),
         CostAtom.CollectEvidence(amount = 6),
         // Urgent Necropsy's derived threshold — the shape that made `amount` a DynamicAmount, and
         // so the one whose round-trip is worth pinning separately from the literal.
         CostAtom.CollectEvidence(CostAtom.CollectEvidence.TARGET_SUM),
         CostAtom.RevealNotedCreatureType,
         CostAtom.DiscardHand,
+        CostAtom.SacrificeAll(GameObjectFilter.Creature),
         CostAtom.Unattach,
         CostAtom.ExileFromGraveyardForTotal(
             filter = GameObjectFilter.Any.withColor(Color.BLACK),
@@ -60,6 +65,11 @@ class CostAtomSerializationTest : FunSpec({
         CostAtom.ExileFromGraveyardForTotal(
             measure = CardMeasure.ManaValue,
             minTotal = 6,
+        ),
+        CostAtom.ExileFromGraveyardForTotal(
+            measure = CardMeasure.DistinctCardTypes,
+            minTotal = 4,
+            excludeSelf = true,
         )
     )
 

@@ -27,7 +27,7 @@ val HallOfHeliodsGenerosity = card("Hall of Heliod's Generosity") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddColorlessManaEffect(1)
+        effect = Effects.AddColorlessMana(1)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
@@ -35,12 +35,9 @@ val HallOfHeliodsGenerosity = card("Hall of Heliod's Generosity") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap)
         val target = target(
-            "target enchantment card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Enchantment.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                )
+            TargetFilter(
+                GameObjectFilter.Enchantment.ownedByYou(),
+                zone = Zone.GRAVEYARD,
             )
         )
         effect = Effects.Move(target, Zone.LIBRARY, ZonePlacement.Top)

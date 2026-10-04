@@ -2,12 +2,15 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.YesNoDecision
+import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -15,37 +18,68 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.AbilityId
+import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Scenario tests for the unified [GatedEffect] resolution frame (phase-rs Lesson 1).
  *
  * Exercised through inline test cards whose ETB triggers carry gated effects:
- *  - [Gate.MayPay] (the lowering target for `OptionalCostEffect`) — pay / decline / can't-afford.
+ *  - [Gate.MayPay] (the lowering target for `Effects.MayPay`) — pay / decline / can't-afford.
  *  - The may-vs-target canonical order: a targeted `then` locks its target at trigger time
  *    (CR 603.3d), *before* the may-pay decision is offered at resolution (CR 117.3a). This is
- *    the timing the old wrapper nesting (`MayEffect(IfYouDoEffect(...))`) had to get right by
+ *    the timing the old wrapper nesting (`Effects.May(Effects.IfYouDo(...))`) had to get right by
  *    hand; the single frame makes it correct by construction.
- *  - [Gate.MayDecide] — the pure yes/no gate new cards can opt into, and the `MayEffect` facade
+ *  - [Gate.MayDecide] — the pure yes/no gate new cards can opt into, and the `Effects.May` facade
  *    that lowers onto it (yes/no end-to-end, plus the `sourceRequiredZone` skip the wrapper owned).
- *  - [Gate.DoAction] — the action-outcome gate (the lowering target for `IfYouDoEffect`): an action
- *    runs, then its outcome (not a decision) gates `then` vs `otherwise`, and the `IfYouDoEffect`
+ *  - [Gate.DoAction] — the action-outcome gate (the lowering target for `Effects.IfYouDo`): an action
+ *    runs, then its outcome (not a decision) gates `then` vs `otherwise`, and the `Effects.IfYouDo`
  *    facade that lowers onto it.
  */
 class GatedEffectScenarioTest : ScenarioTestBase() {
 
     init {
+        // "This creature enters with two charge counters on it. When it enters, you may remove X
+        // charge counters from it, where X is the number of cards in your hand. If you do, draw a
+        // card." → Gate.MayPay over a dynamic-count RemoveCounters cost (Magnanimous Magistrate's shape)
+        cardRegistry.register(
+            CardDefinition.creature(
+                name = "Counter Spender",
+                manaCost = ManaCost.parse("{0}"),
+                subtypes = setOf(Subtype("Wizard")),
+                power = 1,
+                toughness = 1,
+                script = CardScript(
+                    replacementEffects = listOf(
+                        EntersWithCounters(counterType = CounterType.CHARGE, count = 2, selfOnly = true)
+                    ),
+                    triggeredAbilities = listOf(
+                        TriggeredAbility(
+                            id = AbilityId("GatedEffectScenarioTest_counters"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
+                            effect = Effects.MayPay(
+                                cost = Effects.RemoveCounters(
+                                    CounterType.CHARGE, DynamicAmounts.cardsInYourHand(), EffectTarget.Self
+                                ),
+                                then = DrawCardsEffect(1)
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
         // "When this enters, you may pay 2 life. If you do, draw a card." → Gate.MayPay
         cardRegistry.register(
             CardDefinition.creature(
@@ -57,12 +91,12 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
-                            effect = OptionalCostEffect(
+                            id = AbilityId("GatedEffectScenarioTest_1"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
+                            effect = Effects.MayPay(
                                 cost = PayLifeEffect(2),
-                                ifPaid = DrawCardsEffect(1)
+                                then = DrawCardsEffect(1)
                             )
                         )
                     )
@@ -82,14 +116,14 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
-                            effect = OptionalCostEffect(
+                            id = AbilityId("GatedEffectScenarioTest_2"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
+                            effect = Effects.MayPay(
                                 cost = PayLifeEffect(2),
-                                ifPaid = Effects.Destroy(EffectTarget.ContextTarget(0))
+                                then = Effects.Destroy(EffectTarget.ContextTarget(0))
                             ),
-                            targetRequirement = Targets.Creature
+                            targetRequirement = TargetObject(filter = TargetFilter.Creature)
                         )
                     )
                 )
@@ -107,9 +141,9 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            id = AbilityId("GatedEffectScenarioTest_3"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = GatedEffect(
                                 gate = Gate.MayDecide(),
                                 then = DrawCardsEffect(1)
@@ -130,7 +164,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             )
         )
 
-        // "When this enters, you may draw a card." authored via the MayEffect facade — proves the
+        // "When this enters, you may draw a card." authored via the Effects.May facade — proves the
         // facade lowers to a Gate.MayDecide that resolves end-to-end through the GatedEffect frame.
         cardRegistry.register(
             CardDefinition.creature(
@@ -142,17 +176,17 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
-                            effect = MayEffect(DrawCardsEffect(1))
+                            id = AbilityId("GatedEffectScenarioTest_4"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
+                            effect = Effects.May(DrawCardsEffect(1))
                         )
                     )
                 )
             )
         )
 
-        // A MayEffect whose source must be in the graveyard to act. On an ETB trigger the source is
+        // A Effects.May whose source must be in the graveyard to act. On an ETB trigger the source is
         // on the battlefield, so the gate is skipped silently — no prompt, no draw.
         cardRegistry.register(
             CardDefinition.creature(
@@ -164,10 +198,10 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
-                            effect = MayEffect(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
+                            id = AbilityId("GatedEffectScenarioTest_5"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
+                            effect = Effects.May(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
                         )
                     )
                 )
@@ -187,9 +221,9 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            id = AbilityId("GatedEffectScenarioTest_6"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = GatedEffect(
                                 gate = Gate.DoAction(action = Patterns.Library.mill(1)),
                                 then = DrawCardsEffect(1),
@@ -201,7 +235,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             )
         )
 
-        // Same behavior authored via the IfYouDoEffect facade — proves the facade lowers to a
+        // Same behavior authored via the Effects.IfYouDo facade — proves the facade lowers to a
         // Gate.DoAction that resolves end-to-end through the GatedEffect frame.
         cardRegistry.register(
             CardDefinition.creature(
@@ -213,13 +247,13 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
-                            effect = IfYouDoEffect(
+                            id = AbilityId("GatedEffectScenarioTest_7"),
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
+                            effect = Effects.IfYouDo(
                                 action = Patterns.Library.mill(1),
-                                ifYouDo = DrawCardsEffect(1),
-                                ifYouDont = Effects.LoseLife(1, EffectTarget.Controller)
+                                then = DrawCardsEffect(1),
+                                otherwise = Effects.LoseLife(1, EffectTarget.Controller)
                             )
                         )
                     )
@@ -227,7 +261,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             )
         )
 
-        context("Gate.MayPay (OptionalCostEffect lowering)") {
+        context("Gate.MayPay (Effects.MayPay lowering)") {
 
             test("paying the cost runs the payoff") {
                 val game = scenario()
@@ -295,6 +329,55 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 withClue("no card drawn (it cast the creature, so hand is one smaller)") {
                     game.handSize(1) shouldBe handBefore - 1
                 }
+            }
+        }
+
+        context("Gate.MayPay over a dynamic RemoveCounters cost") {
+
+            fun charge(game: TestGame): Int {
+                val id = game.findPermanent("Counter Spender")!!
+                return game.state.getEntity(id)?.get<CountersComponent>()?.getCount(CounterType.CHARGE) ?: 0
+            }
+
+            test("the full amount on the permanent offers the payment and removes exactly that many") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Counter Spender")
+                    .withCardInHand(1, "Target Dummy") // X = 1 once the Spender is cast
+                    .withCardInLibrary(1, "Target Dummy")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpell(1, "Counter Spender").error shouldBe null
+                game.resolveStack()
+
+                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
+                game.answerYesNo(true)
+                game.resolveStack()
+
+                withClue("removed X = 1 of its 2 charge counters") { charge(game) shouldBe 1 }
+                withClue("drew a card") { game.handSize(1) shouldBe 2 }
+            }
+
+            test("fewer counters than X is unpayable: no prompt, nothing removed, no payoff") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Counter Spender")
+                    .withCardInHand(1, "Target Dummy")
+                    .withCardInHand(1, "Target Dummy")
+                    .withCardInHand(1, "Target Dummy") // X = 3 > 2 counters
+                    .withCardInLibrary(1, "Target Dummy")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpell(1, "Counter Spender").error shouldBe null
+                game.resolveStack()
+
+                withClue("no yes/no prompt for a partial removal") { game.hasPendingDecision() shouldBe false }
+                withClue("both charge counters stay") { charge(game) shouldBe 2 }
+                withClue("no card drawn") { game.handSize(1) shouldBe 3 }
             }
         }
 
@@ -395,7 +478,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             }
         }
 
-        context("MayEffect facade (lowered to Gate.MayDecide)") {
+        context("Effects.May facade (lowered to Gate.MayDecide)") {
 
             test("the facade resolves a yes/no end-to-end through the gated frame") {
                 val game = scenario()
@@ -439,7 +522,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             }
         }
 
-        context("Gate.DoAction (IfYouDoEffect lowering)") {
+        context("Gate.DoAction (Effects.IfYouDo lowering)") {
 
             test("the action accomplishing its work runs `then`, not `otherwise`") {
                 val game = scenario()
@@ -482,7 +565,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 withClue("the mill found nothing, so `otherwise` ran") { game.getLifeTotal(1) shouldBe 19 }
             }
 
-            test("the IfYouDoEffect facade lowers and branches the same way") {
+            test("the Effects.IfYouDo facade lowers and branches the same way") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardInHand(1, "Outcome Drawer")

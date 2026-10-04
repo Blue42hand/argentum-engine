@@ -34,7 +34,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ayli, Eternal Pilgrim:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -59,14 +59,14 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     }
                 },
                 "descriptionOverride": "You gain life equal to the sacrificed creature's toughness."
             },
             {
-                "id": "ability_2",
+                "id": "Ayli, Eternal Pilgrim:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -91,7 +91,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -101,7 +101,7 @@
                         "filter": {
                             "baseFilter": "nonland permanent"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -166,7 +166,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -174,7 +174,7 @@
                     "keyword": "TRAMPLE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 }
             ]
@@ -185,7 +185,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -229,7 +229,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cinder Barrens:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -239,7 +239,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Cinder Barrens:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -281,7 +281,7 @@
                     "keyword": "HASTE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -299,7 +299,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -342,12 +342,12 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -374,7 +374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meandering River:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -384,7 +384,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Meandering River:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -446,6 +446,59 @@
     ]
 }
 
+// Stalking Drone
+{
+    "name": "Stalking Drone",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Eldrazi Drone",
+    "oracleText": "Devoid (This card has no color.)\n{C}: This creature gets +1/+2 until end of turn. Activate only once each turn. ({C} represents colorless mana.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Stalking Drone:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{C}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "Self"
+                },
+                "restrictions": [
+                    "OncePerTurn"
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "124",
+        "artist": "Slawomir Maniak",
+        "flavorText": "As the Eldrazi adapted to the jungles of Zendikar, some took on the tactics of more familiar predators.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/2/12bc5b4c-a809-43f0-8848-38812ce865c2.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Submerged Boneyard
 {
     "name": "Submerged Boneyard",
@@ -455,7 +508,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Submerged Boneyard:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -465,7 +518,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Submerged Boneyard:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -530,7 +583,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thought-Knot Seer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -542,7 +595,7 @@
                             "type": "RevealHand",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target opponent"
+                                "name": "t0"
                             }
                         },
                         {
@@ -551,8 +604,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 },
                                 "filter": "nonland"
                             },
@@ -578,8 +631,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 }
                             }
                         }
@@ -587,12 +640,12 @@
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "target opponent"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature enters, target opponent reveals their hand. You choose a nonland card from it and exile that card."
             },
             {
-                "id": "ability_2",
+                "id": "Thought-Knot Seer:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -605,12 +658,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target opponent"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "target opponent"
+                    "id": "t1"
                 },
                 "descriptionOverride": "When this creature leaves the battlefield, target opponent draws a card."
             }
@@ -634,7 +687,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Timber Gorge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -644,7 +697,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Timber Gorge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -680,7 +733,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tranquil Expanse:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -690,7 +743,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Tranquil Expanse:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -753,6 +806,45 @@
     ]
 }
 
+// Vampire Envoy
+{
+    "name": "Vampire Envoy",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Vampire Cleric Ally",
+    "oracleText": "Flying\nWhenever this creature becomes tapped, you gain 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Vampire Envoy:1",
+                "trigger": "TapEvent",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "92",
+        "artist": "Johannes Voss",
+        "flavorText": "\"Zendikar will fight until it has bled its last.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3ba8e7aa-9a87-410e-b846-5f5c910585cf.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Warden of Geometries
 {
     "name": "Warden of Geometries",
@@ -769,7 +861,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Warden of Geometries:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",

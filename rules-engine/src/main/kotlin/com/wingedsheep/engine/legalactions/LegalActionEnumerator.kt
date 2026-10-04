@@ -1,13 +1,16 @@
 package com.wingedsheep.engine.legalactions
 
+import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.TurnManager
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.enumerators.*
+import com.wingedsheep.engine.mechanics.SplitSecond
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.forcedPlayFor
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
@@ -30,25 +33,28 @@ class LegalActionEnumerator(
 
     private val enumerators: List<ActionEnumerator> = listOf(
         PassPriorityEnumerator(),
+        PlayerActionEnumerator(),
         PlayLandEnumerator(),
         MorphCastEnumerator(),
-        CastSpellEnumerator(),
+        CastSpellEnumerator(predicateEvaluator = predicateEvaluator),
         SneakCastEnumerator(),
         EmergeCastEnumerator(),
+        AnnouncedCharacteristicsCastEnumerator(CharacteristicsAnnouncement.BESTOW),
+        AnnouncedCharacteristicsCastEnumerator(CharacteristicsAnnouncement.PROTOTYPE),
         WebSlingingCastEnumerator(),
         CyclingEnumerator(),
         PlotEnumerator(),
         ForetellEnumerator(),
         SuspendEnumerator(),
-        CastFromZoneEnumerator(),
-        ManaAbilityEnumerator(),
-        TurnFaceUpEnumerator(),
+        CastFromZoneEnumerator(predicateEvaluator = predicateEvaluator),
+        ManaAbilityEnumerator(predicateEvaluator = predicateEvaluator),
+        TurnFaceUpEnumerator(predicateEvaluator = predicateEvaluator),
         UnlockRoomDoorEnumerator(),
-        ActivatedAbilityEnumerator(),
+        ActivatedAbilityEnumerator(predicateEvaluator = predicateEvaluator),
         CrewEnumerator(),
         SaddleEnumerator(),
-        ZoneActivatedAbilityEnumerator(Zone.GRAVEYARD),
-        ZoneActivatedAbilityEnumerator(Zone.HAND),
+        ZoneActivatedAbilityEnumerator(Zone.GRAVEYARD, predicateEvaluator = predicateEvaluator),
+        ZoneActivatedAbilityEnumerator(Zone.HAND, predicateEvaluator = predicateEvaluator),
         CommandZoneAbilityEnumerator()
     )
 
@@ -66,6 +72,9 @@ class LegalActionEnumerator(
         playerId: EntityId,
         mode: EnumerationMode = EnumerationMode.FULL
     ): List<LegalAction> {
+        if (state.continuationStack.any { it is com.wingedsheep.engine.core.FinishForcedPlayContinuation } &&
+            state.pendingDecision != null && (state.pendingDecision !is com.wingedsheep.engine.core.PlayCardDecision ||
+                state.pendingDecision?.playerId != playerId)) return emptyList()
         val context = EnumerationContext(
             state = state,
             playerId = playerId,
@@ -78,13 +87,29 @@ class LegalActionEnumerator(
             mode = mode
         )
 
-        // Combat declaration steps are exclusive — only combat actions, no spells/abilities/pass
-        if (combatEnumerator.isCombatDeclarationStep(context)) {
+        val forced = state.forcedPlayFor(playerId)
+        // A resolving instruction can play its card during a combat declaration step.
+        if (forced == null && combatEnumerator.isCombatDeclarationStep(context)) {
             return combatEnumerator.enumerate(context)
         }
 
         // Normal priority: enumerate all action categories
-        return enumerators.flatMap { it.enumerate(context) }
+        val offers = enumerators.flatMap { it.enumerate(context) }.filter { offer ->
+            forced == null || when (val action = offer.action) {
+                is com.wingedsheep.engine.core.CastSpell -> action.cardId == forced.card.entityId
+                is com.wingedsheep.engine.core.PlayLand -> action.cardId == forced.card.entityId
+                else -> false
+            }
+        }
+        // Split second (CR 702.61): while a spell with it is on the stack, withhold every spell and
+        // non-mana activated ability — the same verdict ActionProcessor.validate reaches.
+        val permitted = if (SplitSecond.isLocked(state, cardRegistry)) {
+            offers.filterNot { SplitSecond.forbids(it.action, it.isManaAbility) }
+        } else {
+            offers
+        }
+        return com.wingedsheep.engine.legalactions.enumerators.AdditionalManaForCountersOffer
+            .annotate(context, permitted, predicateEvaluator = predicateEvaluator)
     }
 
     /**
@@ -98,46 +123,23 @@ class LegalActionEnumerator(
         state: GameState,
         playerId: EntityId,
         mode: EnumerationMode = EnumerationMode.FULL
-    ): List<LegalAction> = ManaAbilityEnumerator().enumerate(
-        EnumerationContext(
-            state = state,
-            playerId = playerId,
-            cardRegistry = cardRegistry,
-            manaSolver = manaSolver,
-            costCalculator = costCalculator,
-            predicateEvaluator = predicateEvaluator,
-            conditionEvaluator = conditionEvaluator,
-            turnManager = turnManager,
-            mode = mode
+    ): List<LegalAction> {
+        val context = EnumerationContext(
+            state, playerId, cardRegistry, manaSolver, costCalculator,
+            predicateEvaluator, conditionEvaluator, turnManager, mode,
         )
-    )
+        return ManaAbilityEnumerator(predicateEvaluator = predicateEvaluator).enumerate(context) +
+            PlayerActionEnumerator(manaOnly = true).enumerate(context)
+    }
 
     companion object {
         /**
-         * Create a LegalActionEnumerator with the same dependencies as LegalActionsCalculator.
+         * A standalone enumerator for a caller that holds only a [CardRegistry], backed by an engine
+         * graph of its own. A caller that already has an [EngineServices] uses its
+         * [EngineServices.legalActionEnumerator] instead, so the enumerator shares that engine's
+         * turn manager and evaluators.
          */
-        fun create(
-            cardRegistry: CardRegistry,
-            manaSolver: ManaSolver = ManaSolver(cardRegistry),
-            costCalculator: CostCalculator = CostCalculator(cardRegistry),
-            predicateEvaluator: PredicateEvaluator = PredicateEvaluator(),
-            conditionEvaluator: ConditionEvaluator = ConditionEvaluator(),
-            turnManager: TurnManager = TurnManager(
-                combatManager = com.wingedsheep.engine.mechanics.combat.CombatManager(
-                    cardRegistry,
-                    com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor.noOp(cardRegistry)
-                ),
-                cardRegistry = cardRegistry
-            )
-        ): LegalActionEnumerator {
-            return LegalActionEnumerator(
-                cardRegistry = cardRegistry,
-                manaSolver = manaSolver,
-                costCalculator = costCalculator,
-                predicateEvaluator = predicateEvaluator,
-                conditionEvaluator = conditionEvaluator,
-                turnManager = turnManager
-            )
-        }
+        fun create(cardRegistry: CardRegistry): LegalActionEnumerator =
+            EngineServices(cardRegistry).legalActionEnumerator
     }
 }

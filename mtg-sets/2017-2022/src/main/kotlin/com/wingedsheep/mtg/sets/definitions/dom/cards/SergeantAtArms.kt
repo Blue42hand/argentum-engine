@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Sergeant-at-Arms
@@ -28,17 +27,15 @@ val SergeantAtArms = card("Sergeant-at-Arms") {
     keywordAbility(KeywordAbility.kicker("{2}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        effect = ConditionalEffect(
-            condition = WasKicked,
-            effect = CreateTokenEffect(
-                count = 2,
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.WHITE),
-                creatureTypes = setOf("Soldier"),
-                imageUri = "https://cards.scryfall.io/normal/front/c/c/cc7d137c-f6c0-44e5-af9f-a8bbd52d3b2a.jpg?1562702338"
-            )
+        trigger = Triggers.self.enters()
+        interveningIf = WasKicked
+        effect = Effects.CreateToken(
+            count = 2,
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.WHITE),
+            creatureTypes = setOf("Soldier"),
+            imageUri = "https://cards.scryfall.io/normal/front/c/c/cc7d137c-f6c0-44e5-af9f-a8bbd52d3b2a.jpg?1562702338"
         )
     }
 

@@ -24,7 +24,12 @@ import kotlinx.serialization.Serializable
  *   "becomes a copy of that creature until end of turn"). [Duration.UntilNextEndStep] reverts on
  *   entry to the next end step (Niko, Light of Hope), and [Duration.UntilYourNextTurn] reverts
  *   after the untap step of the effect's controller's next turn (Absorbing Man, Taskmaster —
- *   "until your next turn, this becomes a copy of …"). Any other duration falls back to permanent.
+ *   "until your next turn, this becomes a copy of …"). [Duration.WhileSourceAttachedToAffected]
+ *   keeps the copy only while the effect's source (an Equipment/Aura) stays attached to the copied
+ *   permanent, reverting via the attached-copy state-based check (Blade of Shared Souls — "for as
+ *   long as this Equipment remains attached to it, you may have that creature become a copy of
+ *   another target creature you control"); a permanent the source isn't attached to at resolution
+ *   is left alone. Any other duration falls back to permanent.
  * @property excludeTarget When true, the copy source [target] itself is excluded from the set of
  *   permanents that become copies — for "each **other** creature you control becomes a copy of
  *   that creature" wordings, where the target keeps its own identity (and any counter just placed
@@ -78,20 +83,25 @@ data class EachPermanentBecomesCopyOfTargetEffect(
             Duration.UntilYourNextTurn -> " until your next turn"
             else -> ""
         }
+        val durationPrefix = if (duration == Duration.WhileSourceAttachedToAffected) {
+            "for as long as this remains attached to it, "
+        } else ""
         val clauses = exceptions.clauses() +
             (if (retainActivatingAbility) listOf("it has this ability") else emptyList())
         val exceptSuffix =
             if (clauses.isEmpty()) "" else ", except ${clauses.joinToString(" and ")}"
         if (affected != null) {
-            "${affected.description} becomes a copy of ${target.description}$durationSuffix$exceptSuffix"
+            "$durationPrefix${affected.description} becomes a copy of ${target.description}$durationSuffix$exceptSuffix"
         } else {
-            "Each ${if (excludeTarget) "other " else ""}${filter.baseFilter.description} becomes a copy of ${target.description}$durationSuffix$exceptSuffix"
+            "${durationPrefix}Each ${if (excludeTarget) "other " else ""}${filter.baseFilter.description} becomes a copy of ${target.description}$durationSuffix$exceptSuffix"
         }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = filter.applyTextReplacement(replacer)
-        return if (newFilter !== filter) copy(filter = newFilter) else this
+        val newExceptions = exceptions.applyTextReplacement(replacer)
+        return if (newFilter !== filter || newExceptions !== exceptions)
+            copy(filter = newFilter, exceptions = newExceptions) else this
     }
 }
 
@@ -107,7 +117,7 @@ data class EachPermanentBecomesCopyOfTargetEffect(
  * ceases to exist if it's an instant/sorcery (Rule 707.10).
  *
  * This is the zone-side half of the "copy a card, then cast the copy" pattern: pair it with
- * [CastFromCollectionWithoutPayingCostEffect] (wrapped in `MayEffect` for "you may cast")
+ * [CastFromCollectionWithoutPayingCostEffect] (wrapped in `Effects.May` for "you may cast")
  * reading the same [storeAs] collection. A copy that is never cast is removed by the
  * Rule 707.10a state-based action (a copy of a card outside the stack/battlefield ceases to
  * exist), so no explicit cleanup step is needed.
@@ -116,7 +126,7 @@ data class EachPermanentBecomesCopyOfTargetEffect(
  *     CompositeEffect(listOf(
  *         MoveToZoneEffect(target, Zone.EXILE),
  *         CopyCardIntoCollectionEffect(target, storeAs = "copy"),
- *         MayEffect(CastFromCollectionWithoutPayingCostEffect("copy")),
+ *         Effects.May(CastFromCollectionWithoutPayingCostEffect("copy")),
  *     ))
  *
  * @property source The card to copy (e.g. `ContextTarget(0)` for a targeted graveyard card).
