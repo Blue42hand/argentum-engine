@@ -45,6 +45,76 @@
     "colorIdentityOverride": []
 }
 
+// Coretapper
+{
+    "name": "Coretapper",
+    "manaCost": "{2}",
+    "typeLine": "Artifact Creature — Myr",
+    "oracleText": "{T}: Put a charge counter on target artifact.\nSacrifice this creature: Put two charge counters on target artifact.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "charge",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target artifact"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact"
+                        },
+                        "id": "target artifact"
+                    }
+                ],
+                "descriptionOverride": "{T}: Put a charge counter on target artifact."
+            },
+            {
+                "id": "ability_2",
+                "cost": "CostSacrificeSelf",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "charge",
+                    "count": 2,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target artifact"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact"
+                        },
+                        "id": "target artifact"
+                    }
+                ],
+                "descriptionOverride": "Sacrifice this creature: Put two charge counters on target artifact."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "107",
+        "rarity": "UNCOMMON",
+        "artist": "Dany Orizio",
+        "flavorText": "It converts the faintest surges of power from Mirrodin's core into usable energy, providing endless power for Memnarch's creations on the surface.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/b/bbeaca72-aadd-4ef8-939a-36f320100e6e.jpg?1783944428"
+    },
+    "colorIdentityOverride": []
+}
+
 // Crazed Goblin
 {
     "name": "Crazed Goblin",
