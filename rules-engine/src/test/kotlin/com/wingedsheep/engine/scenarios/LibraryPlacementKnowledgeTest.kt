@@ -57,22 +57,20 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any),
-                    storeAs = "hand"
-                ),
+            effect = GatherCardsEffect(
+                source = CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any),
+                storeAs = "hand"
+            ) then
                 SelectFromCollectionEffect(
                     from = "hand",
                     selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
                     storeSelected = "toTop",
                     selectedLabel = "Put on top of your library"
-                ),
+                ) then
                 MoveCollectionEffect(
                     from = "toTop",
                     destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Top)
                 )
-            )
         }
     }
 
@@ -225,7 +223,7 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 game.selectCards(listOf(bears))
                 game.resolveStack()
                 game.state.revealedTo(bears) shouldBe setOf(game.player1Id)
-                val beforeShuffle = ClientStateTransformer(cardRegistry).transform(game.state, game.player1Id)
+                val beforeShuffle = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
                 val beforeLibrary = beforeShuffle.zones.single {
                     it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
                 }
@@ -239,13 +237,13 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 withClue("a shuffle wipes what anyone knew about this library's contents") {
                     game.state.revealedTo(bears) shouldBe emptySet()
                 }
-                val afterShuffle = ClientStateTransformer(cardRegistry).transform(game.state, game.player1Id)
+                val afterShuffle = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
                 val afterLibrary = afterShuffle.zones.single {
                     it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
                 }
-                afterLibrary.cardIds.size shouldBe afterLibrary.size
-                afterLibrary.cardIds.none { it in game.state.getZone(ZoneKey(game.player1Id, Zone.LIBRARY)) } shouldBe true
-                afterLibrary.cardIds.contains(bears) shouldBe false
+                afterLibrary.size shouldBe 3
+                afterLibrary.cardIds shouldBe emptyList()
+                afterLibrary.positions shouldBe emptyList()
                 afterShuffle.cards.containsKey(bears) shouldBe false
                 // GameSession retains named, ID-bearing public history in the same update.
                 // That history must not identify a position in the freshly shuffled library.

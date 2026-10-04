@@ -20,7 +20,7 @@ val ShatterwingPegasus = card("Shatterwing Pegasus") {
 
     activatedAbility {
         cost = Costs.Mana("{4}{W}")
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, Effects.ModifyStats(1, 1, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, Effects.ModifyStats(1, 1, EffectTarget.IterationEntity))
     }
 
     metadata {

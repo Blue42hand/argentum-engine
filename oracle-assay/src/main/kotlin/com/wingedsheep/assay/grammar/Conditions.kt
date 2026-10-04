@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.conditions.PutCounterKindOnCreatureThisTurn
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Conditions as SdkConditions
 
 /**
@@ -179,7 +179,7 @@ object Conditions {
         // "Whenever a player plays a land or casts a spell, **if it shares a card type with the
         // exiled card**, …" — the Crimson Vow cemetery cycle. The pronoun is the object the trigger
         // just reported (a played land or a cast spell), and "the exiled card" is the CR 607
-        // imprint anaphor `EntityReference.LinkedExiledCard` — the same handle Mirrodin's imprint
+        // imprint anaphor `EffectTarget.LinkedExiledCard` — the same handle Mirrodin's imprint
         // payoffs read. So the whole clause is one `EntityMatches` over a one-predicate filter, and
         // there is nothing in it to slot: neither side of the comparison is a noun phrase the text
         // varies. A card that compared some *other* characteristic with the exiled card ("shares a
@@ -189,11 +189,16 @@ object Conditions {
         constant(
             "it shares a card type with the exiled card",
             SdkConditions.TriggeringSpellMatches(
-                GameObjectFilter.Any.sharingCardTypeWith(EntityReference.LinkedExiledCard()),
+                GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard()),
             ),
         ),
         constant("it's bargained", SdkConditions.WasBargained),
-        constant("it's kicked", SdkConditions.WasKicked),
+        // "When ~ enters, **if it was kicked**, …" — the kicker permanents' intervening-if. Past
+        // tense is the only printed spelling (81 cards); the row used to read "it's kicked" by
+        // analogy with "it's bargained" above, which Oracle never prints. Bargain is the other way
+        // round: the present is its cost-position spelling, so its trigger form ("if it was
+        // bargained") is a separate, positional question this row doesn't answer.
+        constant("it was kicked", SdkConditions.WasKicked),
         // The life-state conditions Bloomburrow's Bats and Lizards check. Each is one whole clause
         // with a facade of its own, so they are constants rather than a shape: `Conditions` names
         // the gained/lost pair and both of its joins, and the printed English draws the same
@@ -211,6 +216,17 @@ object Conditions {
         constant("you gained and lost life this turn", SdkConditions.YouGainedAndLostLifeThisTurn),
         constant("you've lost life this turn", SdkConditions.YouLostLifeThisTurn),
         constant("an opponent lost life this turn", SdkConditions.OpponentLostLifeThisTurn),
+        // Morbid's condition and its controller-scoped sibling. "A creature died this turn" is global
+        // — any player's creature counts — and "under your control" narrows it to your own; the
+        // SDK names the two as separate facades, so each printed clause is one constant. The
+        // subtype-filtered spellings ("a Zombie died this turn") are a different model and stay out.
+        constant("a creature died this turn", SdkConditions.CreatureDiedThisTurn),
+        constant("a creature died under your control this turn", SdkConditions.ControlledCreatureDiedThisTurn),
+        // Raid's condition — "At the beginning of your end step, if you attacked this turn, …",
+        // "Activate only if you attacked this turn." One whole clause, one facade, past simple its
+        // only printed spelling. "You attacked with N or more creatures this turn" is the counted
+        // sibling, `YouAttackedWithCreaturesThisTurn`, left for a band of its own.
+        constant("you attacked this turn", SdkConditions.YouAttackedThisTurn),
         discardedACardThisTurn,
         eitherControlled,
         countAtLeast(
@@ -267,7 +283,36 @@ object Conditions {
             Zone.GRAVEYARD,
             ComparisonOperator.GTE,
         ),
+        // Delirium and Matzalantli's gate — the same graveyard count by *distinct types* rather than
+        // by cards. The noun is the row and the threshold the slot: "card types" and "permanent
+        // types" are two `Aggregation`s with a facade each, and both print the one sentence shape.
+        graveyardTypes("card", SdkConditions::Delirium),
+        graveyardTypes("permanent", SdkConditions::DistinctPermanentTypesInGraveyard),
     )
+
+    /**
+     * "There are four or more card types among cards in your graveyard" — delirium's condition.
+     *
+     * A row of its own rather than a member of [zoneCount], because the amount is a different value:
+     * `AggregateZone` over a distinct-type aggregation, not a `Count` of the zone. The facades own
+     * that composition, so `build` calls them and `match` rebuilds through the same facade and
+     * compares the whole model — a filtered or opponent-side tally refuses to print rather than
+     * reading as your whole graveyard.
+     */
+    private fun graveyardTypes(kind: String, condition: (Int) -> Condition): Phrase<Condition> =
+        phrase(
+            "there are {n} or more $kind types among cards in your graveyard",
+            name = "$kind types in your graveyard",
+        ) {
+            slot("n", Cardinals.word)
+            build { condition(it.int("n")) }
+            match { value ->
+                val compare = value as? Compare ?: return@match null
+                val limit = (compare.right as? DynamicAmount.Fixed)?.amount ?: return@match null
+                if (!Cardinals.spellable(limit) || value != condition(limit)) return@match null
+                bind("n" to limit)
+            }
+        }
 
     /**
      * "There are seven or more cards in your graveyard", "that player has two or fewer cards in

@@ -1,7 +1,7 @@
 package com.wingedsheep.gym.server.dto
 
 import com.wingedsheep.engine.core.DecisionResponse
-import com.wingedsheep.gym.contract.ActionParams
+import com.wingedsheep.engine.core.ActionParams
 import com.wingedsheep.gym.contract.Observation
 import com.wingedsheep.gym.service.EnvConfig
 import com.wingedsheep.gym.service.EnvId

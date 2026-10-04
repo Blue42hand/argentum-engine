@@ -89,7 +89,7 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             val firstTreasure = game.putPermanentOnBattlefield(caster, "Treasure")
             val secondTreasure = game.putPermanentOnBattlefield(caster, "Treasure")
             game.giveColorlessMana(caster, 2)
-            game.submit(CastSpell(caster, krenko)).isPaused shouldBe true
+            game.submit(CastSpell(caster, krenko)).error shouldBe null
 
             val session = GameSession(cardRegistry = game.cardRegistry)
             val socket = mockk<WebSocketSession>(relaxed = true) { every { id } returns "caster" }

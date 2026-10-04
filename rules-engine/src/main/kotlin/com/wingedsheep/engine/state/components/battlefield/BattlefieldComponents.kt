@@ -179,6 +179,19 @@ data object SolvedComponent : Component
 data object RenownedComponent : Component
 
 /**
+ * Marks a permanent as monstrous (CR 701.37b) — the designation a permanent gains when a
+ * monstrosity ability resolves on it. Read via
+ * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsMonstrous] to gate monstrosity's own
+ * "if this permanent isn't monstrous" and the "as long as this creature is monstrous" payoffs.
+ *
+ * Sticky like [RenownedComponent]: survives cleanup and stays until the permanent leaves the
+ * battlefield (stripped in `ZoneMovementUtils.stripBattlefieldComponents`). Not a copiable value,
+ * so a copy of a monstrous creature enters not monstrous.
+ */
+@Serializable
+data object MonstrousComponent : Component
+
+/**
  * Records the distinct creatures that have crewed (CR 702.122) or saddled (CR 702.171) this
  * permanent during the current turn — the creatures tapped to pay a Crew or Saddle cost on it.
  * A permanent is only ever a Vehicle (crew) or a Mount (saddle), so one set covers both keywords.
@@ -310,7 +323,11 @@ data class CastRecordComponent(
      * when the spell resolved, so an enters-the-battlefield payoff (Bat Colony's "a Bat for each mana
      * from a Cave spent to cast it") can read it after the spell object is gone. See [ManaSpentReader].
      */
-    val manaSpentBySubtype: Map<com.wingedsheep.sdk.core.Subtype, Int> = emptyMap()
+    val manaSpentBySubtype: Map<com.wingedsheep.sdk.core.Subtype, Int> = emptyMap(),
+    /** Producing-source card type → count of mana carrying it spent to cast this permanent. */
+    val manaSpentByCardType: Map<com.wingedsheep.sdk.core.CardType, Int> = emptyMap(),
+    /** Mana from snow sources spent to cast this permanent ("{S} spent", CR 107.4h). */
+    val snowSpent: Int = 0
 ) : Component
 
 /**
@@ -467,9 +484,11 @@ data class ProtectorComponent(
  * would never be cast. Damage dealt by a *resolving* spell needs no marker: triggers from that
  * resolution are already detected before the next SBA pass.
  *
- * The marker buys exactly one SBA pass. `BattleDefenseCheck` clears it instead of binning the
- * battle, so if the defeat trigger never materialises (it was countered, or the permanent stopped
- * being a Siege) the very next check puts the battle into its owner's graveyard as normal. A Siege
+ * The marker lasts until the Settler's trigger-detection pass: `BattleDefenseCheck` reads it but
+ * never clears it (an SBA pass can loop several times inside the combat damage step), and the
+ * Settler removes it once triggers are queued ([com.wingedsheep.engine.mechanics.battle.Battles.disarmDefeatTriggers]).
+ * From then on the queued defeat trigger is what spares the Siege; if none materialised (the
+ * permanent stopped being a Siege) the next check puts the battle into its owner's graveyard. A Siege
  * that never had a defense counter is never marked, which is what makes the "you won't exile it or
  * cast the other face" ruling fall out.
  */
@@ -621,8 +640,24 @@ data class AbilityActivatedThisTurnComponent(
      * Battleflies' "Activate no more than twice each turn"). Distinct from [abilityIds],
      * which only records whether an ability was activated at all (once-per-turn).
      */
-    val activationCounts: Map<AbilityId, Int> = emptyMap()
+    val activationCounts: Map<AbilityId, Int> = emptyMap(),
+    /**
+     * Whether *any* activated ability of this permanent was activated this turn, restricted or
+     * not — the "planeswalker that was activated this turn" of Cut Short. Stamped on every
+     * activation, unlike [abilityIds], which only records abilities whose restrictions need it.
+     */
+    val anyActivated: Boolean = false,
+    /**
+     * This planeswalker's own loyalty-activation allowance for the turn, raised by a one-shot
+     * grant ("you may activate loyalty abilities of Kaito twice this turn rather than only once").
+     * Not additive — a second grant of "twice" still means twice — and it lives on this
+     * turn-scoped tracker, so it lapses at cleanup and when the permanent changes zones.
+     */
+    val loyaltyActivationLimit: Int = 1
 ) : Component {
+    fun withAnyActivated(): AbilityActivatedThisTurnComponent =
+        if (anyActivated) this else copy(anyActivated = true)
+
     fun withActivated(abilityId: AbilityId): AbilityActivatedThisTurnComponent =
         copy(
             abilityIds = abilityIds + abilityId,
@@ -637,9 +672,20 @@ data class AbilityActivatedThisTurnComponent(
     fun withLoyaltyActivated(): AbilityActivatedThisTurnComponent =
         copy(loyaltyActivationCount = loyaltyActivationCount + 1)
 
-    /** @return true if the loyalty activation limit has been reached for the given max. */
-    fun hasReachedLoyaltyLimit(maxActivations: Int): Boolean =
-        loyaltyActivationCount >= maxActivations
+    /** Raise this permanent's per-turn loyalty allowance to at least [limit] (never lowers it). */
+    fun withLoyaltyActivationLimitAtLeast(limit: Int): AbilityActivatedThisTurnComponent =
+        if (limit <= loyaltyActivationLimit) this else copy(loyaltyActivationLimit = limit)
+
+    /**
+     * The effective per-turn loyalty allowance: the larger of the controller-wide maximum
+     * [playerMax] (Oath of Teferi) and this permanent's own [loyaltyActivationLimit]. The two
+     * don't stack — each says "twice rather than only once".
+     */
+    fun effectiveLoyaltyLimit(playerMax: Int): Int = maxOf(playerMax, loyaltyActivationLimit)
+
+    /** @return true if the loyalty activation limit has been reached for the given player max. */
+    fun hasReachedLoyaltyLimit(playerMax: Int): Boolean =
+        loyaltyActivationCount >= effectiveLoyaltyLimit(playerMax)
 }
 
 /**
@@ -725,18 +771,19 @@ data class ChosenModesThisTurnComponent(
 }
 
 /**
- * Tracks which triggered abilities have fired this turn for "once each turn" restrictions.
- * Used for cards like Scavenger's Talent: "This ability triggers only once each turn."
+ * Counts how many times each capped triggered ability has fired this turn, for the per-turn trigger
+ * caps — "This ability triggers only once each turn" (Scavenger's Talent, `oncePerTurn`) and "…only
+ * twice each turn" (Nadu, Winged Wisdom, `triggersPerTurn`).
  * Cleared at end of turn by CleanupPhaseManager.
  */
 @Serializable
 data class TriggeredAbilityFiredThisTurnComponent(
-    val abilityIds: Set<AbilityId> = emptySet()
+    val counts: Map<AbilityId, Int> = emptyMap()
 ) : Component {
     fun withFired(abilityId: AbilityId): TriggeredAbilityFiredThisTurnComponent =
-        copy(abilityIds = abilityIds + abilityId)
+        copy(counts = counts + (abilityId to timesFired(abilityId) + 1))
 
-    fun hasFired(abilityId: AbilityId): Boolean = abilityId in abilityIds
+    fun timesFired(abilityId: AbilityId): Int = counts[abilityId] ?: 0
 }
 
 /**
@@ -776,33 +823,6 @@ data class TriggeredAbilityFiredEverComponent(
         copy(abilityIds = abilityIds + abilityId)
 
     fun hasFired(abilityId: AbilityId): Boolean = abilityId in abilityIds
-}
-
-/**
- * Per-permanent latch state for [com.wingedsheep.sdk.scripting.StateTriggeredAbility]
- * instances (CR 603.8). An [AbilityId] is in [latched] iff the engine has fired this
- * state trigger and the condition has not yet become false again — preventing repeat
- * firings while the condition stays true. (See [com.wingedsheep.sdk.scripting.StateTriggeredAbility]
- * for why this latch resets on condition-false rather than on leaves-the-stack.)
- * The [com.wingedsheep.engine.event.StateTriggerPoller]
- * adds the id when emitting a [com.wingedsheep.engine.event.PendingTrigger] and removes
- * it as soon as the condition next evaluates false.
- *
- * NOT cleared at end of turn — the latch follows the permanent for as long as the
- * condition stays true, possibly across turns. Removed automatically when the entity
- * leaves the battlefield (component lives on the entity).
- */
-@Serializable
-data class StateTriggerLatchesComponent(
-    val latched: Set<AbilityId> = emptySet()
-) : Component {
-    fun withLatched(abilityId: AbilityId): StateTriggerLatchesComponent =
-        copy(latched = latched + abilityId)
-
-    fun withoutLatched(abilityId: AbilityId): StateTriggerLatchesComponent =
-        copy(latched = latched - abilityId)
-
-    fun isLatched(abilityId: AbilityId): Boolean = abilityId in latched
 }
 
 /**
@@ -861,14 +881,14 @@ data class ReceivedCountersThisTurnComponent(
      * `StatePredicate.ReceivedCounterThisTurn` be `counterTypes.isNotEmpty()` instead of a separate
      * marker-presence test that the by-controller axis could not mirror.
      */
-    val counterTypes: Set<String> = emptySet(),
+    val counterTypes: Set<CounterType> = emptySet(),
     /**
      * The subset of [counterTypes] placed by this permanent's own controller (as of the placement).
      * "You've put …" reads this; "counters would be put …" reads [counterTypes].
      */
-    val typesFromController: Set<String> = emptySet()
+    val typesFromController: Set<CounterType> = emptySet()
 ) : Component {
-    fun with(counterType: String, byController: Boolean): ReceivedCountersThisTurnComponent {
+    fun with(counterType: CounterType, byController: Boolean): ReceivedCountersThisTurnComponent {
         return copy(
             counterTypes = counterTypes + counterType,
             typesFromController =
@@ -1292,9 +1312,18 @@ data object DamageUnpreventableThisTurnComponent : Component
  * memory of dealing damage (CR 400.7).
  *
  * [lastDealtDamageTurn] has no default: every stamp site must name the turn it is recording.
+ *
+ * [lastDealtCombatDamageTurn] is the same record narrowed to combat damage (to any recipient), for
+ * `HasDealtDamage(combatOnly = true)` — Ruric Thar, Magecrusher's "as long as they haven't dealt
+ * combat damage yet". Null means this object has never dealt combat damage. It survives a later
+ * noncombat stamp (the one stamp site carries it forward), and it goes with the marker on a zone
+ * change. Its default exists only so a serialized state from before the field reads back.
  */
 @Serializable
-data class HasDealtDamageComponent(val lastDealtDamageTurn: Int) : Component
+data class HasDealtDamageComponent(
+    val lastDealtDamageTurn: Int,
+    val lastDealtCombatDamageTurn: Int? = null
+) : Component
 
 /** Actual damage total, scoped to a turn and object incarnation, including resolving spells. */
 @Serializable
@@ -1305,23 +1334,38 @@ data class DamageDealtThisTurnComponent(
 ) : Component
 
 /**
- * The players and planeswalkers this permanent has dealt damage to **this game** — the memory
- * behind The Fallen ("this creature deals 1 damage to each opponent and planeswalker it has dealt
- * damage to this game").
+ * The players and planeswalkers this permanent has dealt damage to **this game**, each stamped with
+ * the turn of the most recent damage — the memory behind The Fallen ("this creature deals 1 damage
+ * to each opponent and planeswalker it has dealt damage to this game") and, through the stamp, behind
+ * the per-turn readings "a creature that dealt damage to you this turn" (Reciprocate) and "target
+ * player dealt damage by this creature this turn" (Wicked Akuba).
+ *
+ * One fact, two windows, the [HasDealtDamageComponent] shape: key presence answers "this game",
+ * a stamp equal to the current turn answers "this turn", and nothing is cleared at end of turn —
+ * a stale stamp simply stops matching once the turn number moves on.
  *
  * Unlike [DealtCombatDamageToPlayersThisTurnComponent] this is not a per-turn marker: it is never
- * cleared by `CleanupPhaseManager`, so it accumulates across every turn the permanent spends on the
- * battlefield. It *is* stripped on a zone change like the rest of the damage memory, because a
- * permanent that leaves and returns is a new object with no history (CR 400.7) — which is the
- * printed behaviour: a Fallen that dies and is reanimated has dealt damage to nobody.
+ * cleared by `CleanupPhaseManager`. It has the [LastKnownPermanentComponent] lifetime instead: it
+ * survives the permanent's move off the battlefield, so an ability that outlives its source still
+ * knows whom the source damaged (CR 113.7a, CR 608.2h), and is dropped on the entity's next zone
+ * change — a permanent that leaves and returns is a new object with no history (CR 400.7), which is
+ * the printed behaviour: a Fallen that dies and is reanimated has dealt damage to nobody.
  *
  * Both combat and noncombat damage count, and it records planeswalkers alongside players; the
  * consumer filters to what the card asks for.
  */
 @Serializable
 data class DealtDamageToThisGameComponent(
-    val recipientIds: Set<EntityId> = emptySet()
-) : Component
+    val lastDamageTurnByRecipient: Map<EntityId, Int> = emptyMap()
+) : Component {
+    val recipientIds: Set<EntityId> get() = lastDamageTurnByRecipient.keys
+
+    fun dealtDamageToOnTurn(recipientId: EntityId, turnNumber: Int): Boolean =
+        lastDamageTurnByRecipient[recipientId] == turnNumber
+
+    fun withDamageTo(recipientId: EntityId, turnNumber: Int): DealtDamageToThisGameComponent =
+        copy(lastDamageTurnByRecipient = lastDamageTurnByRecipient + (recipientId to turnNumber))
+}
 
 /**
  * A number the controller chose as this permanent entered the battlefield, kept for as long as the

@@ -5,8 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val TributaryVaulter = card("Tributary Vaulter") {
     manaCost = "{2}{W}"
@@ -20,11 +20,8 @@ val TributaryVaulter = card("Tributary Vaulter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
-        val merfolk = target(
-            "merfolk",
-            TargetObject(filter = TargetFilter.OtherCreatureYouControl.withSubtype("Merfolk"))
-        )
+        trigger = Triggers.self.becomesTapped()
+        val merfolk = target(TargetFilter(GameObjectFilter.Permanent.youControl().withSubtype("Merfolk")).other())
         effect = Effects.ModifyStats(2, 0, merfolk)
     }
 

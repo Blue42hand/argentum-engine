@@ -1,10 +1,13 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
+import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -14,7 +17,10 @@ import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.scripting.effects.PlayerActionTiming
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -41,7 +47,7 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
     fun solver(): ManaSolver {
         val registry = CardRegistry()
         registry.register(TestCards.all + listOf(SoulBurn, AtalyaSamiteMaster))
-        return ManaSolver(registry)
+        return ManaSolver(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
     }
 
     test("Soul Burn: life gained equals the black mana spent on X") {
@@ -84,27 +90,54 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
         solver.canPay(d.state, me, cost, xValue = 2, xManaRestriction = brOnly).shouldBeFalse()
     }
 
-    test("Soul Burn's flattened X window never promises AutoPay from off-color mana") {
+    test("Soul Burn's flattened X window retains unknown AutoPay feasibility") {
         val d = driver()
         d.initMirrorMatch(Deck.of("Swamp" to 20))
         val me = d.activePlayer!!
         val opp = d.getOpponent(me)
         d.passPriorityUntil(Step.PRECOMBAT_MAIN)
         val soulBurn = d.putCardInHand(me, "Soul Burn")
-        d.putLandOnBattlefield(me, "Island")
         val treasure = d.putPermanentOnBattlefield(me, "Treasure")
         d.giveMana(me, Color.BLACK, 1)
+        d.giveMana(me, Color.RED, 1)
         d.giveMana(me, Color.BLUE, 1)
 
         d.submit(CastSpell(me, soulBurn, targets = listOf(ChosenTarget.Player(opp)), xValue = 1))
-            .isPaused shouldBe true
+            .error shouldBe null
         d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
 
         d.submit(ActivateAbility(
             me, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
-            manaColorChoice = Color.GREEN
+            manaColorChoice = Color.BLACK
         )).error shouldBe null
+        val refreshed = d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        refreshed.canAutoPayNow shouldBe null
+        d.submitDecision(me, ManaSourcesSelectedResponse(refreshed.id, autoPay = true)).error shouldBe null
+        (soulBurn in d.state.stack) shouldBe true
+    }
+
+    test("Atalya's flattened X window retains unknown AutoPay feasibility after green mana") {
+        val d = driver()
+        d.initMirrorMatch(Deck.of("Plains" to 20))
+        val me = d.activePlayer!!
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val atalya = d.putCreatureOnBattlefield(me, "Atalya, Samite Master")
+        d.removeSummoningSickness(atalya)
+        val treasure = d.putPermanentOnBattlefield(me, "Treasure")
+        d.replaceState(d.services.effectExecutorRegistry.execute(d.state,
+            Effects.GrantPlayerAction(Costs.pay.PayLife(1), Effects.AddColorlessMana(1),
+                PlayerActionTiming.ManaAbility, "Life mana"), EffectContext(null, me)).state)
+
+        d.submit(ActivateAbility(me, atalya, AtalyaSamiteMaster.activatedAbilities.single().id,
+            xValue = 1)).error shouldBe null
         d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
+
+        d.submit(ActivateAbility(me, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
+            manaColorChoice = Color.GREEN)).error shouldBe null
+        val refreshed = d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        refreshed.canAutoPayNow shouldBe null
+        (d.submitDecision(me, ManaSourcesSelectedResponse(refreshed.id, autoPay = true)).error != null)
+            .shouldBeTrue()
     }
 
     test("Atalya: X can be paid only with white mana") {

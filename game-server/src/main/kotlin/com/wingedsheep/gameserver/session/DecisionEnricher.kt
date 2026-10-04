@@ -1,18 +1,22 @@
 package com.wingedsheep.gameserver.session
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.isSatisfiedBy
 import com.wingedsheep.engine.view.Visibility
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
 class DecisionEnricher(private val cardRegistry: CardRegistry) {
-    private val visibility = Visibility(cardRegistry)
+    private val visibility = Visibility(cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
 
     /**
      * Whether [entityId]'s real name must be hidden from [viewerId]. The engine visibility authority
@@ -55,6 +59,13 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
 
     fun enrich(decision: PendingDecision, state: GameState, viewerId: EntityId): PendingDecision {
         return when (decision) {
+            is SelectManaSourcesDecision -> decision.copy(
+                eligibleRestrictedMana = if (viewerId == decision.playerId) {
+                    state.getEntity(decision.playerId)?.get<ManaPoolComponent>()?.restrictedMana.orEmpty()
+                        .filter { it.restriction.isSatisfiedBy(SpellPaymentContext()) }
+                        .map { EligibleRestrictedManaEntry(it.color?.symbol?.toString(), it.restriction.description) }
+                } else emptyList()
+            )
             is SearchLibraryDecision -> decision.copy(
                 cards = decision.cards.mapValues { (entityId, cardInfo) ->
                     cardInfo.copy(imageUri = imageUriFor(state, entityId))
@@ -119,6 +130,7 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
     ): ServerMessage.OpponentDecisionStatus {
         val displayText = when (decision) {
             is SelectCardsDecision -> "Selecting cards"
+            is com.wingedsheep.engine.core.PlayCardDecision -> "Playing a card"
             is ChooseTargetsDecision -> "Choosing targets"
             is YesNoDecision -> "Making a choice"
             is BatchYesNoDecision -> "Making a choice"
@@ -126,7 +138,7 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
             is ChooseColorDecision -> "Choosing a color"
             is ChooseNumberDecision -> "Choosing a number"
             is DistributeDecision -> "Distributing"
-            is OrderObjectsDecision -> "Ordering blockers"
+            is OrderObjectsDecision -> decision.orderingTitle ?: "Ordering blockers"
             is SplitPilesDecision -> "Splitting piles"
             is SearchLibraryDecision -> "Searching library"
             is ReorderLibraryDecision -> "Reordering cards"
@@ -141,7 +153,8 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
             playerId = decision.playerId.value,
             decisionType = decision::class.simpleName ?: "Unknown",
             displayText = displayText,
-            sourceName = maskedSourceName(decision, state, viewerId)
+            sourceName = maskedSourceName(decision, state, viewerId),
+            sourceId = decision.context.sourceId?.value
         )
     }
 }

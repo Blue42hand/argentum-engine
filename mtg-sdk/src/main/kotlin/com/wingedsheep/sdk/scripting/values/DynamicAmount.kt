@@ -2,9 +2,10 @@ package com.wingedsheep.sdk.scripting.values
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -55,6 +56,12 @@ enum class TurnTracker {
      * losing 3 in a turn leaves the amount lost at 3).
      */
     LIFE_LOST_AMOUNT,
+    /**
+     * [LIFE_LOST] one turn back: whether the player lost life during the previous turn, whoever's
+     * turn that was. Snapshotted at the turn boundary, before the this-turn marker is cleared.
+     * Powers "if an opponent lost life last turn" (Feast on the Fallen).
+     */
+    LIFE_LOST_LAST_TURN,
     /** Indicator (0 or 1) that the player declared at least one attacker this turn. */
     PLAYER_ATTACKED,
     /** Indicator (0 or 1) that the player was dealt combat damage this turn. */
@@ -66,6 +73,26 @@ enum class TurnTracker {
      * "if an opponent was dealt combat damage by a legendary creature this turn" (Blitzball).
      */
     DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE,
+    /**
+     * Indicator (0 or 1) that the player was dealt noncombat damage this turn — any source, any
+     * amount above zero after prevention. Powers "as long as an opponent was dealt noncombat damage
+     * this turn" (Whiplash Wordsmith, Grim Repriser).
+     */
+    DEALT_NONCOMBAT_DAMAGE,
+    /**
+     * [DEALT_NONCOMBAT_DAMAGE] one turn back: whether the player was dealt noncombat damage during
+     * the previous turn, whoever's turn that was. Rolled over at the turn boundary. Powers "if an
+     * opponent was dealt noncombat damage last turn" (Command the Stage).
+     */
+    DEALT_NONCOMBAT_DAMAGE_LAST_TURN,
+    /**
+     * Indicator (0 or 1) that the player has been dealt combat damage since their own last turn
+     * ended — every other player's turn in between, plus their current turn so far. Cleared when
+     * the player's own turn ends, so it survives the turn boundaries a "this turn" tracker resets
+     * at. Powers "if you haven't been dealt combat damage since your last turn" (Marchesa,
+     * Resolute Monarch).
+     */
+    DEALT_COMBAT_DAMAGE_SINCE_YOUR_LAST_TURN,
     /** Indicator (0 or 1) that the player put one or more counters on a creature this turn. */
     COUNTERS_PUT_ON_CREATURE,
     /** Number of land cards the player played this turn (derived from `LandDropsComponent`). */
@@ -111,6 +138,14 @@ enum class TurnTracker {
     /** Indicator (0 or 1) that the player sacrificed at least one Food this turn. */
     FOOD_SACRIFICED,
     /**
+     * Indicator (0 or 1) that the player scried or surveilled this turn — "if you've scried or
+     * surveilled this turn" (Surveillance Phantasm, Desperate Futurescribe, Proctor of Potential).
+     * Recorded by the same executors that emit the scry / surveil events, so it is set exactly when
+     * a "whenever you scry or surveil" trigger would fire: a scry 0 or surveil 0 is no event at all
+     * (CR 701.22b / 701.25c) and never marks it, while a scry into an empty library still does.
+     */
+    SCRIED_OR_SURVEILED,
+    /**
      * Indicator (0 or 1) that the player sacrificed at least one artifact this turn — the
      * card-type sibling of [FOOD_SACRIFICED], recorded by the same central sacrifice hook and
      * read off the projected type line, so a permanent that was only an artifact through a
@@ -124,6 +159,14 @@ enum class TurnTracker {
     ARTIFACT_SACRIFICED,
     /** Total cards that left the player's graveyard this turn (Bonecache Overseer). */
     CARDS_LEFT_GRAVEYARD,
+    /**
+     * Number of permanents (tokens included) put into the player's hand from the battlefield this
+     * turn — bounced by any effect, keyed on the card's owner, whose hand it goes to. Turn history:
+     * the card leaving the hand again doesn't undo the count. Powers "if a permanent was put into
+     * your hand from the battlefield this turn" (Barrin, Tolarian Archmage) — reach for it via
+     * `Conditions.PermanentPutIntoYourHandFromBattlefieldThisTurn`.
+     */
+    PERMANENTS_PUT_INTO_HAND_FROM_BATTLEFIELD,
     /**
      * Number of times the player descended this turn (CR 700.11) — count of nontoken
      * permanent cards put into the player's graveyard from any zone. Backs the descend
@@ -142,6 +185,13 @@ enum class TurnTracker {
      * creature card was put into your graveyard from anywhere this turn" (Macabre Reconstruction).
      */
     CREATURE_CARDS_PUT_INTO_GRAVEYARD,
+    /**
+     * Number of cards put into the player's graveyard **from their library** this turn — mill,
+     * surveil, and any other library → graveyard move, keyed on the card's owner. Backed by
+     * `CardsPutIntoGraveyardFromLibraryThisTurnComponent`, cleared at end of turn. Turn history:
+     * a card that later leaves the graveyard still counts. Cruel Calculations draws this many.
+     */
+    CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY,
     /**
      * Number of cards the player has drawn this turn (CR 120). Backed by
      * `CardsDrawnThisTurnComponent`, reset to 0 for every player at the start of each turn.
@@ -220,6 +270,19 @@ enum class TurnTracker {
      */
     ARTIFACTS_DIED,
     /**
+     * Count of permanents of **every** type — lands, enchantments, planeswalkers, battles and
+     * tokens included — put into a graveyard from the battlefield under the player's control this
+     * turn. The type-agnostic sibling of [CREATURES_DIED] and [ARTIFACTS_DIED], recorded by the
+     * same `ZoneTransitionService` battlefield→graveyard hook and credited to the last-known
+     * controller. Tokens count even though they cease to exist in the graveyard (CR 704.5d), which
+     * is why this is a player tally and not a scan of the graveyards.
+     *
+     * Read it with [Player.Each] for the game-wide "if a permanent was put into a graveyard from
+     * the battlefield this turn" (Ashen Reaper). Distinct from `PermanentLeftBattlefieldThisTurn`
+     * (any destination).
+     */
+    PERMANENTS_PUT_INTO_GRAVEYARD_FROM_BATTLEFIELD,
+    /**
      * How many cards the player had in hand **at the beginning of this turn** — a snapshot taken
      * in the turn's untap step, before any draw, not a running count. Backed by
      * `CardsInHandAtTurnStartComponent`, rewritten for every player at each turn start.
@@ -230,7 +293,38 @@ enum class TurnTracker {
      * things the card is measuring. `Compare(TurnTracking(You, CARDS_IN_HAND_AT_TURN_START), GTE,
      * Fixed(1))` powers Mindstorm Crown.
      */
-    CARDS_IN_HAND_AT_TURN_START;
+    CARDS_IN_HAND_AT_TURN_START,
+    /**
+     * Number of loyalty abilities (CR 606) the player has activated this turn. Backed by
+     * `LoyaltyAbilitiesActivatedThisTurnComponent`, reset to 0 for every player at the start of
+     * each turn and counted at activation time (CR 602.2), so an ability that was later countered —
+     * or whose planeswalker has since left the battlefield — still counts.
+     * `Compare(TurnTracking(You, LOYALTY_ABILITIES_ACTIVATED), GTE, Fixed(1))` is "if you've
+     * activated a loyalty ability this turn" (Kiora of Salt and Sand) — reach for it via
+     * `Conditions.YouActivatedLoyaltyAbilityThisTurn`.
+     */
+    LOYALTY_ABILITIES_ACTIVATED,
+    /**
+     * How many energy counters ({E}) the player has paid or lost this turn — every energy counter
+     * removed from the player, whether paid as a cost or removed by an effect. Gaining energy never
+     * nets against it. Backed by `PlayerCountersRemovedThisTurnComponent`, recorded at the settle
+     * boundary from every `CountersRemovedEvent` on the player and cleared at end of turn.
+     * `Compare(TurnTracking(You, ENERGY_PAID_OR_LOST), GTE, Fixed(4))` is "if you've paid or lost
+     * four or more {E} this turn" (Izzet Generatorium) — reach for it via
+     * `Conditions.YouPaidOrLostEnergyThisTurn`.
+     */
+    ENERGY_PAID_OR_LOST,
+    /**
+     * How many +1/+1 counters the player has put on creatures they controlled this turn — counted
+     * per counter, not per placement, with counters a creature entered with included (CR 122.6a:
+     * its controller puts them there). Turn history: the counters leaving, or the creature dying or
+     * changing control afterwards, doesn't undo the count. Backed by
+     * `PlusOneCountersPutOnYourCreaturesThisTurnComponent`, recorded at the settle boundary from
+     * every `CountersAddedEvent` and cleared at end of turn. Powers "create a 1/1 green Insect
+     * creature token for each +1/+1 counter you've put on creatures under your control this turn"
+     * (Iridescent Hornbeetle) — reach for it via `DynamicAmounts.plusOneCountersPutOnYourCreaturesThisTurn()`.
+     */
+    PLUS_ONE_COUNTERS_PUT_ON_YOUR_CREATURES;
 
     fun descriptionFor(player: Player): String = when (this) {
         CREATURES_DIED -> "the number of creatures that died under ${player.possessive} control this turn"
@@ -243,10 +337,15 @@ enum class TurnTracker {
         LIFE_GAINED -> "the amount of life ${player.possessive} gained this turn"
         LIFE_LOST -> "whether ${player.description} lost life this turn"
         LIFE_LOST_AMOUNT -> "the amount of life ${player.possessive} lost this turn"
+        LIFE_LOST_LAST_TURN -> "whether ${player.description} lost life last turn"
         PLAYER_ATTACKED -> "whether ${player.description} attacked this turn"
         DEALT_COMBAT_DAMAGE -> "whether ${player.description} were dealt combat damage this turn"
         DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE ->
             "whether ${player.description} were dealt combat damage by a legendary creature this turn"
+        DEALT_NONCOMBAT_DAMAGE -> "whether ${player.description} were dealt noncombat damage this turn"
+        DEALT_NONCOMBAT_DAMAGE_LAST_TURN -> "whether ${player.description} were dealt noncombat damage last turn"
+        DEALT_COMBAT_DAMAGE_SINCE_YOUR_LAST_TURN ->
+            "whether ${player.description} were dealt combat damage since their last turn"
         COUNTERS_PUT_ON_CREATURE -> "whether ${player.description} put a counter on a creature this turn"
         LANDS_PLAYED -> "the number of lands ${player.description} played this turn"
         LANDS_ENTERED_UNDER_CONTROL -> "the number of lands that entered the battlefield under ${player.possessive} control this turn"
@@ -254,11 +353,16 @@ enum class TurnTracker {
         CREATURES_ENTERED_UNDER_CONTROL -> "the number of creatures that entered the battlefield under ${player.possessive} control this turn"
         TOKENS_CREATED -> "the number of tokens ${player.description} created this turn"
         FOOD_SACRIFICED -> "whether ${player.description} sacrificed a Food this turn"
+        SCRIED_OR_SURVEILED -> "whether ${player.description} scried or surveilled this turn"
         ARTIFACT_SACRIFICED -> "whether ${player.description} sacrificed an artifact this turn"
         CARDS_LEFT_GRAVEYARD -> "the number of cards that left ${player.possessive} graveyard this turn"
+        PERMANENTS_PUT_INTO_HAND_FROM_BATTLEFIELD ->
+            "the number of permanents put into ${player.possessive} hand from the battlefield this turn"
         DESCENDED -> "the number of times ${player.description} descended this turn"
         CREATURE_CARDS_PUT_INTO_GRAVEYARD ->
             "the number of creature cards put into ${player.possessive} graveyard this turn"
+        CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY ->
+            "the number of cards that were put into ${player.possessive} graveyard from their library this turn"
         CARDS_DRAWN -> "the number of cards ${player.description} have drawn this turn"
         CARDS_DISCARDED -> "the number of cards ${player.description} have discarded this turn"
         CARDS_PUT_INTO_EXILE -> "the number of cards put into exile this turn"
@@ -272,8 +376,20 @@ enum class TurnTracker {
             "the number of artifacts put into graveyards from the battlefield under " +
                 "${player.possessive} control this turn"
         }
+        PERMANENTS_PUT_INTO_GRAVEYARD_FROM_BATTLEFIELD -> if (player == Player.Each) {
+            "the number of permanents that were put into graveyards from the battlefield this turn"
+        } else {
+            "the number of permanents put into graveyards from the battlefield under " +
+                "${player.possessive} control this turn"
+        }
         CARDS_IN_HAND_AT_TURN_START ->
             "the number of cards ${player.description} had in hand at the beginning of this turn"
+        ENERGY_PAID_OR_LOST -> "the amount of {E} ${player.description} paid or lost this turn"
+        PLUS_ONE_COUNTERS_PUT_ON_YOUR_CREATURES ->
+            "the number of +1/+1 counters ${player.description} put on creatures under " +
+                "${player.possessive} control this turn"
+        LOYALTY_ABILITIES_ACTIVATED ->
+            "the number of loyalty abilities ${player.description} activated this turn"
     }
 }
 
@@ -526,20 +642,37 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     /**
      * How many counters of [counterType] a player currently has — the player-scoped sibling of
      * [EntityProperty]'s [com.wingedsheep.sdk.scripting.values.EntityNumericProperty.CounterCount]
-     * (which reads a permanent/object; `EntityReference` has no case for "a player" since players
-     * aren't targeted the way permanents are). Counters placed directly on a player rather than a
-     * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.Counters.POISON]), energy
-     * ([com.wingedsheep.sdk.core.Counters.ENERGY], CR 107.14), and rad counters all live here.
+     * (which reads one object named by an `EffectTarget.SingleEntity`; player roles are not
+     * among those). Counters placed directly on a player rather than a
+     * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.CounterType.POISON]), energy
+     * ([com.wingedsheep.sdk.core.CounterType.ENERGY], CR 107.14), and rad counters all live here.
+     * A multi-player [player] scope sums across those players; for "an opponent has N or more" test
+     * each player separately with [GreatestAmongPlayers] (`Conditions.Corrupted`).
      *
      * Examples:
      * ```kotlin
-     * PlayerCounterCount(Counters.ENERGY, Player.You)  // "your energy counters" — Longtusk Cub
+     * PlayerCounterCount(CounterType.ENERGY, Player.You)  // "your energy counters" — Longtusk Cub
      * ```
      */
     @SerialName("PlayerCounterCount")
     @Serializable
-    data class PlayerCounterCount(val counterType: String, val player: Player = Player.You) : DynamicAmount {
-        override val description: String = "${player.possessive} $counterType counters"
+    data class PlayerCounterCount(val counterType: CounterType, val player: Player = Player.You) : DynamicAmount {
+        override val description: String = "${player.possessive} ${counterType.printed} counters"
+    }
+
+    /**
+     * How many times a player has cycled a card this game — every cycling activation, typecycling
+     * included (CR 702.29f), counted when the card is discarded to pay the cost. [cardName] narrows
+     * the count to cards with that exact name: "if you've cycled a card named Yidaro, Wandering
+     * Monster four or more times this game" counts every physical copy, not just this object.
+     * `null` counts every card cycled. A multi-player [player] scope sums across those players.
+     */
+    @SerialName("CardsCycledThisGame")
+    @Serializable
+    data class CardsCycledThisGame(val player: Player = Player.You, val cardName: String? = null) : DynamicAmount {
+        override val description: String =
+            if (cardName == null) "the number of times ${player.description} cycled a card this game"
+            else "the number of times ${player.description} cycled a card named $cardName this game"
     }
 
     /**
@@ -618,7 +751,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *    own source — Lost Isle Calling: "{4}{U}{U}, Exile this enchantment: Draw a card for each
      *    verse counter on this enchantment. If it had seven or more verse counters on it, take an
      *    extra turn after this one." Both the draw amount and the seven-or-more test read
-     *    `LastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE))`.
+     *    `LastKnownSourceCounters(CounterType.VERSE)`.
      *  - the **leaves-the-battlefield trigger** snapshot, for a dies/leaves ability reading the
      *    counters its source had as it died — Nine-Lives Familiar: "When this creature dies, if it
      *    had a revival counter on it, return it … with one fewer revival counter on it."
@@ -632,10 +765,10 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("LastKnownSourceCounters")
     @Serializable
     data class LastKnownSourceCounters(
-        val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+        val counterType: CounterType?
     ) : DynamicAmount {
         override val description: String =
-            "the number of ${counterType.description} counters on it".replace("  ", " ")
+            "the number of ${counterType?.printed ?: ""} counters on it".replace("  ", " ")
     }
 
     /**
@@ -695,6 +828,10 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      * [com.wingedsheep.sdk.scripting.ChoiceSlot] value off the cast-choices bag, falling back to the
      * resolution context so a spell that never becomes a permanent (an instant/sorcery) still
      * resolves it from the value paid at cast.
+     *
+     * An entity-list slot reads as its size: `CastChoice(ChoiceSlot.CONVOKED_CREATURES)` is "the
+     * number of creatures that convoked it" (CR 702.51c), counting every creature that tapped for
+     * convoke even if it has since left the battlefield.
      *
      * The non-numeric slots (color, creature type, mode) are read by conditions
      * ([com.wingedsheep.sdk.scripting.conditions.CastChoiceMade] /
@@ -759,6 +896,22 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
+     * The amount of mana from snow sources spent to cast the current spell — the "{S} spent" of
+     * CR 107.4h, which counts snow mana spent on *any* part of the cost, not only on `{S}` pips.
+     * Berg Strider's "if {S} was spent to cast this spell" is `Compare(SnowManaSpent, GTE, 1)`;
+     * "for each {S} spent" reads it directly.
+     *
+     * Like [ManaSpentFromSubtype] it reads the source entity's recorded payment, so it resolves
+     * while the spell is on the stack and as the permanent's enters ability resolves; a permanent
+     * put onto the battlefield without being cast spent no mana, so this is 0 for it.
+     */
+    @SerialName("SnowManaSpent")
+    @Serializable
+    data object SnowManaSpent : DynamicAmount {
+        override val description: String = "the amount of {S} spent to cast this"
+    }
+
+    /**
      * The number of distinct *colors* of mana spent to cast the source spell (0–5).
      *
      * Backs the **Converge** ability word — "Converge — … for each color of mana spent to
@@ -816,7 +969,9 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("VariableReference")
     @Serializable
     data class VariableReference(val variableName: String) : DynamicAmount {
-        override val description: String = "the stored $variableName"
+        // Pipeline keys are generated names, never card text: render the value in words.
+        override val description: String =
+            if (variableName.endsWith("_count")) "the number of those cards" else "that much"
     }
 
     /**
@@ -1024,7 +1179,11 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("PlayerCount")
     @Serializable
     data class PlayerCount(val scope: Player = Player.EachOpponent) : DynamicAmount {
-        override val description: String = "the number of ${scope.description}"
+        override val description: String = when (scope) {
+            Player.EachOpponent -> "the number of opponents"
+            Player.Each -> "the number of players"
+            else -> "the number of ${scope.description}"
+        }
     }
 
     /**
@@ -1051,6 +1210,21 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     // =========================================================================
     // Zone-based Counting — generic counting primitives
     // =========================================================================
+
+    /** Count matching cards above or below a current object in its graveyard. */
+    @Serializable
+    @SerialName("GraveyardRelativeCount")
+    data class GraveyardRelativeCount(
+        val entity: EffectTarget.SingleEntity,
+        val above: Boolean,
+        val filter: GameObjectFilter = GameObjectFilter.Any,
+    ) : DynamicAmount {
+        override val description: String = "the number of ${pluralize(filter.description)} ${if (above) "above" else "below"} ${entity.description} in its graveyard"
+        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
+            val replaced = filter.applyTextReplacement(replacer)
+            return if (replaced !== filter) copy(filter = replaced) else this
+        }
+    }
 
     /**
      * Count game objects in a zone matching a unified filter.
@@ -1163,6 +1337,13 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *   This expresses "the total number of <kind> counters among <filter> you control" — e.g. Tom
      *   Bombadil's "four or more lore counters among Sagas you control". Takes precedence over
      *   [property] when both are present.
+     * @param excludeTriggeringEntity Leave the trigger's *triggering entity* out of the tally — the
+     *   "other" of "Whenever a Forest you control enters, if you control at least five other
+     *   Forests" (Roiling Canopy), where "other" is relative to the permanent that entered rather
+     *   than to the ability's source. Distinct from [excludeSelf] because the two differ whenever
+     *   the source isn't the thing that triggered it. Counting the whole group against one more
+     *   is not equivalent: it breaks once the entering permanent leaves (or stops matching) before
+     *   the intervening "if" is rechecked on resolution. Has no effect outside a trigger context.
      */
     @SerialName("AggregateBattlefield")
     @Serializable
@@ -1172,7 +1353,8 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
         val aggregation: Aggregation = Aggregation.COUNT,
         val property: CardNumericProperty? = null,
         val excludeSelf: Boolean = false,
-        val counterType: CounterTypeFilter? = null
+        val counterType: CounterType? = null,
+        val excludeTriggeringEntity: Boolean = false
     ) : DynamicAmount {
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
             val newFilter = filter.applyTextReplacement(replacer)
@@ -1182,64 +1364,75 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
             when (aggregation) {
                 Aggregation.COUNT -> {
                     append("the number of ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.MAX -> {
                     append("the greatest ${property?.description ?: "value"} among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.MIN -> {
                     append("the least ${property?.description ?: "value"} among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.SUM -> {
-                    val what = counterType?.let { "${it.description} counters" } ?: (property?.description ?: "value")
+                    val what = counterType?.let { "${it.printed} counters" } ?: (property?.description ?: "value")
                     append("the total $what ")
                     append(if (counterType != null) "among " else "of ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_TYPES -> {
                     append("the number of card types among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_PERMANENT_TYPES -> {
                     append("the number of permanent types among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COLORS -> {
                     append("the number of colors among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COLOR_PAIRS -> {
                     append("the number of different color pairs among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_NAMES -> {
                     append("the number of differently named ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_BASIC_LAND_SUBTYPES -> {
                     append("the number of basic land types among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
+                    append(pluralize(filter.description))
+                }
+                Aggregation.DISTINCT_PLANESWALKER_SUBTYPES -> {
+                    append("the number of planeswalker types among ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COUNTER_TYPES -> {
                     append("the number of different kinds of counters among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_VALUES -> {
                     append("the number of different ${property?.description ?: "value"} among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
+                    append(pluralize(filter.description))
+                }
+                Aggregation.LARGEST_SAME_NAME_GROUP -> {
+                    append("the greatest number of ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
+                    append("same-named ")
                     append(pluralize(filter.description))
                 }
             }
@@ -1386,12 +1579,20 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                     append("the number of basic land types among ")
                     append(pluralize(filter.description))
                 }
+                Aggregation.DISTINCT_PLANESWALKER_SUBTYPES -> {
+                    append("the number of planeswalker types among ")
+                    append(pluralize(filter.description))
+                }
                 Aggregation.DISTINCT_COUNTER_TYPES -> {
                     append("the number of different kinds of counters among ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_VALUES -> {
                     append("the number of different ${property?.description ?: "value"} among ")
+                    append(pluralize(filter.description))
+                }
+                Aggregation.LARGEST_SAME_NAME_GROUP -> {
+                    append("the greatest number of same-named ")
                     append(pluralize(filter.description))
                 }
             }
@@ -1413,16 +1614,16 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *
      * Examples:
      * ```kotlin
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.Power)        // SourcePower
-     * EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue) // TargetManaValue
-     * EntityProperty(EntityReference.Sacrificed(), EntityNumericProperty.Power)  // SacrificedPermanentPower
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)) // CountersOnSelf
+     * EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)        // SourcePower
+     * EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue) // TargetManaValue
+     * EntityProperty(EffectTarget.SacrificedAsCost(), EntityNumericProperty.Power)  // SacrificedPermanentPower
+     * EntityProperty(EffectTarget.Self, EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)) // CountersOnSelf
      * ```
      */
     @SerialName("EntityProperty")
     @Serializable
     data class EntityProperty(
-        val entity: EntityReference,
+        val entity: EffectTarget.SingleEntity,
         val numericProperty: EntityNumericProperty
     ) : DynamicAmount {
         override val description: String = "${entity.description}'s ${numericProperty.description}"
@@ -1657,6 +1858,27 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
+     * The number of [cardType] permanents that entered the battlefield under [player]'s control this
+     * turn — the card-type sibling of [SubtypeEnteredUnderControlThisTurn] over the same per-player
+     * entry log (Malcator, Purity Overseer — "if three or more artifacts entered the battlefield
+     * under your control this turn"). An entry counts if the permanent had [cardType] (in projected
+     * state) at the moment it entered; it stays counted after the permanent leaves, changes
+     * controller or loses the type, and a permanent that leaves and re-enters counts twice (CR 400.7).
+     *
+     * Backed by `PermanentsEnteredUnderControlThisTurnComponent`.
+     */
+    @SerialName("CardTypeEnteredUnderControlThisTurn")
+    @Serializable
+    data class CardTypeEnteredUnderControlThisTurn(
+        val player: Player,
+        val cardType: com.wingedsheep.sdk.core.CardType
+    ) : DynamicAmount {
+        override val description: String =
+            "the number of ${cardType.name.lowercase()}s that entered the battlefield under " +
+                "${player.possessive} control this turn"
+    }
+
+    /**
      * The number of permanents with **any** of [subtypes] that entered the battlefield under
      * [player]'s control this turn (counting even those that have since left or changed type —
      * the entry event is what's tracked). When [excludeTriggeringEntity] is true, the permanent
@@ -1693,6 +1915,35 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
+     * The number of creatures with [subtype] that died (were put into a graveyard from the
+     * battlefield) this turn while under [player]'s control. Defaults to [Player.Each] — the
+     * game-wide count every printed card so far wants ("for each Zubera that died this turn",
+     * the Champions of Kamigawa Zubera cycle).
+     *
+     * A turn-history count over the same per-death record as the
+     * [com.wingedsheep.sdk.scripting.conditions.CreatureWithSubtypeDiedThisTurn] condition
+     * (`CreatureSubtypesDiedThisTurnComponent`, one entry per death holding the creature's
+     * last-known subtypes). A dies trigger's own source is already recorded when the trigger
+     * resolves, so "for each Zubera that died this turn" counts the Zubera itself, and a creature
+     * that was a Zubera only through a continuous effect counts too.
+     */
+    @SerialName("CreaturesWithSubtypeDiedThisTurn")
+    @Serializable
+    data class CreaturesWithSubtypeDiedThisTurn(
+        val subtype: com.wingedsheep.sdk.core.Subtype,
+        val player: Player = Player.Each
+    ) : DynamicAmount {
+        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
+            val new = replacer.replaceSubtype(subtype)
+            return if (new == subtype) this else copy(subtype = new)
+        }
+        override val description: String = buildString {
+            append("the number of ${subtype.value}s that died this turn")
+            if (player != Player.Each) append(" under ${player.possessive} control")
+        }
+    }
+
+    /**
      * Number of permanents sacrificed by the current resolving effect ("this way"). Reads the
      * effect context's `sacrificedPermanents` snapshot list, populated when an edict (e.g. "each
      * opponent sacrifices a creature") resolves earlier in the same composite. Used by "Create a
@@ -1702,6 +1953,20 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @Serializable
     data object PermanentsSacrificedThisWay : DynamicAmount {
         override val description: String = "the number of permanents sacrificed this way"
+    }
+
+    /**
+     * The number of counters the resolving activated ability's costs removed — "the number of aim
+     * counters removed this way" (Hankyu), "the number of +1/+1 counters removed this way" (Molten
+     * Hydra). Summed off the cost's own counter-removal events as the ability is activated, so it is
+     * the number that actually came off, not the permanent's count at resolution (which a
+     * "remove all" cost has just set to zero). Zero for a spell, a triggered ability, or an
+     * activation whose costs removed no counters.
+     */
+    @SerialName("CountersRemovedAsCost")
+    @Serializable
+    data object CountersRemovedAsCost : DynamicAmount {
+        override val description: String = "the number of counters removed this way"
     }
 
     /**

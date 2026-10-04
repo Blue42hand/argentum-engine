@@ -56,7 +56,12 @@ import com.wingedsheep.sdk.model.EntityId
  */
 class GameTestDriver {
     val cardRegistry: CardRegistry = CardRegistry()
-    private val processor: ActionProcessor = ActionProcessor(cardRegistry)
+    /** This driver's engine graph — reach for its services instead of constructing new ones. */
+    val services = com.wingedsheep.engine.core.EngineServices(cardRegistry)
+    private val processor: ActionProcessor = ActionProcessor(services)
+
+    /** The engine's zone service — for tests that move a card the way an effect would. */
+    val zones get() = services.zones
     private var _state: GameState = GameState()
     private val _events = mutableListOf<GameEvent>()
 
@@ -129,6 +134,7 @@ class GameTestDriver {
         val initializer = GameInitializer(cardRegistry)
         val result = initializer.initializeGame(
             GameConfig(
+                preserveGraveyardOrder = false,
                 players = listOf(
                     PlayerConfig("Player 1", deck1, startingLife),
                     PlayerConfig("Player 2", deck2, startingLife)
@@ -162,6 +168,8 @@ class GameTestDriver {
      * @param commanders Commander card name per seat, positionally matched to [decks]. Empty for a
      *   non-commander game. As in a real game the commander is *not* part of its deck list —
      *   `GameInitializer` instantiates it separately into that seat's command zone.
+     * @param teams Seat indices per team (`listOf(listOf(0, 1), listOf(2, 3))` with
+     *   `Format.TwoHeadedGiant`); null for a free-for-all.
      */
     fun initMultiplayer(
         decks: List<Deck>,
@@ -170,10 +178,12 @@ class GameTestDriver {
         startingPlayer: Int = 0,
         format: com.wingedsheep.sdk.core.Format = com.wingedsheep.sdk.core.Format.Standard,
         commanders: List<String> = emptyList(),
+        teams: List<List<Int>>? = null,
     ): List<EntityId> {
         val initializer = GameInitializer(cardRegistry)
         val result = initializer.initializeGame(
             GameConfig(
+                preserveGraveyardOrder = false,
                 format = format,
                 players = decks.mapIndexed { index, deck ->
                     PlayerConfig(
@@ -182,7 +192,8 @@ class GameTestDriver {
                     )
                 },
                 skipMulligans = skipMulligans,
-                startingPlayerIndex = startingPlayer
+                startingPlayerIndex = startingPlayer,
+                teams = teams,
             )
         )
 
@@ -205,7 +216,7 @@ class GameTestDriver {
      */
     fun submit(action: GameAction): ExecutionResult {
         val result = processor.process(_state, action).result
-        if (result.isSuccess || result.isPaused) {
+        if (result.outcome is Outcome.Done || result.outcome is Outcome.Paused) {
             _state = result.newState
             _events.addAll(result.events)
         }
@@ -217,7 +228,7 @@ class GameTestDriver {
      */
     fun submitSuccess(action: GameAction): ExecutionResult {
         val result = submit(action)
-        if (!result.isSuccess) {
+        if (result.outcome !is Outcome.Done) {
             throw AssertionError("Expected action to succeed but got: ${result.error}")
         }
         return result
@@ -225,7 +236,6 @@ class GameTestDriver {
 
     // Lazily-built enumerator; stateless (takes current state), shared across calls.
     private val legalActionEnumerator by lazy {
-        val services = com.wingedsheep.engine.core.EngineServices(cardRegistry)
         com.wingedsheep.engine.legalactions.LegalActionEnumerator(
             services.cardRegistry, services.manaSolver, services.costCalculator,
             services.predicateEvaluator, services.conditionEvaluator, services.turnManager
@@ -245,7 +255,7 @@ class GameTestDriver {
      */
     fun submitExpectFailure(action: GameAction): ExecutionResult {
         val result = processor.process(_state, action).result
-        if (result.isSuccess) {
+        if (result.outcome is Outcome.Done) {
             throw AssertionError("Expected action to fail but it succeeded")
         }
         return result
@@ -268,7 +278,7 @@ class GameTestDriver {
     fun bothPass(): ExecutionResult {
         autoSubmitCombatDeclarationIfNeeded()
         var result = passPriority(state.priorityPlayerId ?: player1)
-        if (result.isSuccess && state.priorityPlayerId != null) {
+        if (result.outcome is Outcome.Done && state.priorityPlayerId != null) {
             autoSubmitCombatDeclarationIfNeeded()
             result = passPriority(state.priorityPlayerId!!)
         }
@@ -670,6 +680,7 @@ class GameTestDriver {
             spellEffect = cardDef.spellEffect,
             hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
             hasActivatedAbility = cardDef.hasActivatedAbility,
+            hasCycling = cardDef.hasCycling,
             // Keep driver-minted cards in step with CardEntityFactory: precomputed printed
             // characteristics other code reads back (SpellCastPredicate.CastAsAdventure,
             // CardPredicate.HasAdventure / OriginallyPrintedInSet).
@@ -730,6 +741,7 @@ class GameTestDriver {
             spellEffect = cardDef.spellEffect,
             hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
             hasActivatedAbility = cardDef.hasActivatedAbility,
+            hasCycling = cardDef.hasCycling,
             // Keep driver-minted cards in step with CardEntityFactory: precomputed printed
             // characteristics other code reads back (SpellCastPredicate.CastAsAdventure,
             // CardPredicate.HasAdventure / OriginallyPrintedInSet).
@@ -826,6 +838,7 @@ class GameTestDriver {
             spellEffect = cardDef.spellEffect,
             hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
             hasActivatedAbility = cardDef.hasActivatedAbility,
+            hasCycling = cardDef.hasCycling,
             // Keep driver-minted cards in step with CardEntityFactory: precomputed printed
             // characteristics other code reads back (SpellCastPredicate.CastAsAdventure,
             // CardPredicate.HasAdventure / OriginallyPrintedInSet).
@@ -891,6 +904,7 @@ class GameTestDriver {
             spellEffect = cardDef.spellEffect,
             hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
             hasActivatedAbility = cardDef.hasActivatedAbility,
+            hasCycling = cardDef.hasCycling,
             // Keep driver-minted cards in step with CardEntityFactory: precomputed printed
             // characteristics other code reads back (SpellCastPredicate.CastAsAdventure,
             // CardPredicate.HasAdventure / OriginallyPrintedInSet).
@@ -1008,6 +1022,7 @@ class GameTestDriver {
             spellEffect = cardDef.spellEffect,
             hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
             hasActivatedAbility = cardDef.hasActivatedAbility,
+            hasCycling = cardDef.hasCycling,
             // Keep driver-minted cards in step with CardEntityFactory: precomputed printed
             // characteristics other code reads back (SpellCastPredicate.CastAsAdventure,
             // CardPredicate.HasAdventure / OriginallyPrintedInSet).
@@ -1240,7 +1255,7 @@ class GameTestDriver {
             val land = findCardInHand(playerId, landName)
             if (land != null) {
                 val result = playLand(playerId, land)
-                if (!result.isSuccess) {
+                if (result.outcome !is Outcome.Done) {
                     // May have already played a land this turn - advance to next turn
                     passPriorityUntil(Step.END)
                     bothPass()

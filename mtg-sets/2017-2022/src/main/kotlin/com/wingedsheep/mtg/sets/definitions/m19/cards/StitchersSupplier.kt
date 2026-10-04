@@ -5,21 +5,33 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Stitcher's Supplier
+ * {B}
+ * Creature — Zombie
+ * 1/1
+ * When this creature enters or dies, mill three cards. (Put the top three cards of your library
+ * into your graveyard.)
+ *
+ * "Enters or dies" is two triggered abilities (Crow of Dark Tidings' shape), each a
+ * `Patterns.Library.mill(3)` for the controller.
+ */
 val StitchersSupplier = card("Stitcher's Supplier") {
     manaCost = "{B}"
     colorIdentity = "B"
     typeLine = "Creature — Zombie"
-    oracleText = "When this creature enters or dies, mill three cards. " +
-        "(Put the top three cards of your library into your graveyard.)"
     power = 1
     toughness = 1
+    oracleText = "When this creature enters or dies, mill three cards. (Put the top three cards of " +
+        "your library into your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
     }
+
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Patterns.Library.mill(3)
     }
 

@@ -7,10 +7,15 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 
 /**
- * Kokusho, the Evening Star — Champions of Kamigawa #122
+ * Kokusho, the Evening Star
+ * {4}{B}{B}
+ * Legendary Creature — Dragon Spirit
+ * 5/5
+ * Flying
+ * When Kokusho dies, each opponent loses 5 life. You gain life equal to the life lost this way.
  *
- * [Effects.DrainLife] aggregates the life actually lost by every opponent into one gain for
- * Kokusho's controller, preserving the printed multiplayer behavior.
+ * Exsanguinate's drain on a dies trigger: [Effects.DrainLife] gains the life *actually* lost, so
+ * an opponent who can't lose life (or no opponent at all) yields nothing.
  */
 val KokushoTheEveningStar = card("Kokusho, the Evening Star") {
     manaCost = "{4}{B}{B}"
@@ -18,16 +23,15 @@ val KokushoTheEveningStar = card("Kokusho, the Evening Star") {
     typeLine = "Legendary Creature — Dragon Spirit"
     power = 5
     toughness = 5
-    oracleText = "Flying\nWhen Kokusho dies, each opponent loses 5 life. You gain life equal to " +
-        "the life lost this way."
+    oracleText = "Flying\n" +
+        "When Kokusho dies, each opponent loses 5 life. You gain life equal to the life lost this way."
 
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrainLife(5)
-        description = "When Kokusho dies, each opponent loses 5 life. You gain life equal to the " +
-            "life lost this way."
+        description = "When Kokusho dies, each opponent loses 5 life. You gain life equal to the life lost this way."
     }
 
     metadata {

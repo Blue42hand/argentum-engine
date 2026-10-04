@@ -45,7 +45,10 @@ class NativeBlockTargetsTest : FunSpec({
         offered.validBlockers!!.toSet() shouldBe setOf(drake, lion)
         offered.validBlockTargets!![drake] shouldBe listOf(bear)
         offered.validBlockTargets[lion]!!.toSet() shouldBe setOf(piledriver, bear)
-        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry), driver.cardRegistry)
+        val info = LegalActionEnricher(
+            ManaSolver(driver.cardRegistry, com.wingedsheep.engine.handlers.PredicateEvaluator(driver.cardRegistry)),
+            driver.cardRegistry
+        )
             .enrich(listOf(offered), driver.state, defender).single()
         info.validBlockTargets shouldBe offered.validBlockTargets
         shouldThrow<IllegalArgumentException> {

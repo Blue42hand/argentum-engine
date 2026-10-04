@@ -116,7 +116,10 @@ sealed interface ServerMessage {
         val playerId: String,
         val decisionType: String,
         val displayText: String,
-        val sourceName: String? = null
+        val sourceName: String? = null,
+        /** The spell/ability source entity, so the client can show its card from its own
+         *  (already viewer-masked) game state. */
+        val sourceId: String? = null
     )
 
     /**
@@ -979,7 +982,9 @@ sealed interface ServerMessage {
         val playerId: String,
         val decisionType: String,
         val displayText: String,
-        val sourceName: String? = null
+        val sourceName: String? = null,
+        /** The spell/ability source entity; the client resolves its card from the masked spectator state. */
+        val sourceId: String? = null
     )
 
     /**

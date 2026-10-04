@@ -29,8 +29,7 @@ val MedicsKitesail = card("Medic's Kitesail") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
+                trigger = Triggers.self.attacks(),
                 effect = Effects.GainLife(1)
             ),
             filter = Filters.EquippedCreature

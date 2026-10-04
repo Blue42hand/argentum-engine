@@ -32,7 +32,7 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
 
         val window = ManaPaymentWindow.buildDecision(
             game.state, caster, ManaCost.parse("{2}{R}{R}"), "pool-covered",
-            "Pay Krenko's mana cost", DecisionContext(), true, game.cardRegistry
+            "Pay Krenko's mana cost", DecisionContext(), true, game.services.manaSolver
         )
         window.autoPaySuggestion shouldBe emptyList()
         window.canAutoPayNow shouldBe true
@@ -47,11 +47,11 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
 
         val window = ManaPaymentWindow.buildDecision(
             game.state, caster, ManaCost.parse("{2}{R}{R}"), "x-payment",
-            "Pay the locked X cost", DecisionContext(), true, game.cardRegistry,
+            "Pay the locked X cost", DecisionContext(), true, game.services.manaSolver,
             unknownAutoPayFeasibility = true
         )
         window.canAutoPayNow shouldBe null
-        ManaPaymentWindow.refresh(game.state, window, game.cardRegistry).canAutoPayNow shouldBe null
+        ManaPaymentWindow.refresh(game.state, window, game.services.manaSolver).canAutoPayNow shouldBe null
     }
 
     test("Krenko payment window distinguishes affordable cast from executable AutoPay") {
@@ -69,7 +69,7 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
             it.actionType == "CastSpell" && (it.action as? CastSpell)?.cardId == krenko
         }
         cast.affordable shouldBe true
-        game.submit(cast.action).isPaused shouldBe true
+        game.submit(cast.action).error shouldBe null
 
         val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
         window.requiredCost shouldBe "{2}{R}{R}"
@@ -112,7 +112,7 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
         val treasure = game.putPermanentOnBattlefield(caster, "Treasure")
         game.giveColorlessMana(caster, 2)
 
-        game.submit(CastSpell(caster, krenko)).isPaused shouldBe true
+        game.submit(CastSpell(caster, krenko)).error shouldBe null
         val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
         val before = game.state
         val rejected = game.submitDecision(caster, ManaSourcesSelectedResponse(

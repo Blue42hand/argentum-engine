@@ -1,13 +1,16 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.core.CardsRevealedEvent
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.LeylineDecisionContinuation
 import com.wingedsheep.engine.core.LeylinePhaseContinuation
+import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.core.ZoneChangeEvent
+import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
 import com.wingedsheep.engine.handlers.effects.ZoneEntryOptions
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -19,6 +22,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.CardNamePool
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
+import com.wingedsheep.sdk.scripting.effects.Effect
 
 /**
  * Resumes [LeylineDecisionContinuation] frames: the per-card yes/no walk through every
@@ -34,8 +38,8 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
  *     "As this enchantment enters, choose a creature type").
  *  3. Looks for the next leyline decision via [com.wingedsheep.engine.handlers.MulliganHandler.getNextLeylineChoice].
  *     If one exists, pauses with the next [com.wingedsheep.engine.core.YesNoDecision]; otherwise
- *     returns success, leaving the state at `step = UNTAP` with no pending decision so that
- *     `SubmitDecisionHandler` advances into the first turn via `turnManager.advanceStep`.
+ *     advances from UNTAP into the first turn via `turnManager.advanceStep`, the same call the
+ *     mulligan handlers make when no one has a leyline.
  *
  * Step 3 also runs from the auto-resumed [LeylinePhaseContinuation], which step 2 parks beneath
  * the as-enters choice so the walk survives that pause.
@@ -79,11 +83,16 @@ class LeylineContinuationResumer(
             }
         }
 
+        val revealEffect = openingHandRevealOf(newState, continuation.leylineCardId)
+        if (response.choice && revealEffect != null) {
+            return revealFromOpeningHand(newState, continuation, revealEffect, checkForMore)
+        }
+
         if (response.choice) {
             // Route the card to the battlefield through the standard zone-change pipeline.
             // Owner == controller for leyline starts; the card must already exist with its
             // CardComponent + OwnerComponent set (it does — it was instantiated at init).
-            val transition = ZoneTransitionService.moveToZone(
+            val transition = services.zones.moveToZone(
                 state = newState,
                 entityId = continuation.leylineCardId,
                 destinationZone = Zone.BATTLEFIELD,
@@ -110,8 +119,8 @@ class LeylineContinuationResumer(
      * fires the entry's ETB triggers off a synthesized [ZoneChangeEvent].
      *
      * Because that resumer owns the entry triggers, [transitionEvents] is forwarded *without* the
-     * entry [ZoneChangeEvent] — `SubmitDecisionHandler` runs trigger detection over a paused
-     * resume's events, so carrying it would fire every enters-the-battlefield trigger twice.
+     * entry [ZoneChangeEvent]. The settle boundary runs trigger detection over a paused resume's
+     * events, so carrying it would fire every enters-the-battlefield trigger twice.
      *
      * A [LeylinePhaseContinuation] is parked beneath the choice so the walk over the remaining
      * leylines resumes once the choice (and any chained choice) resolves.
@@ -153,6 +162,52 @@ class LeylineContinuationResumer(
         )
     }
 
+    /** The card's opening-hand reveal payoff, or null when its opening-hand action is a leyline start. */
+    private fun openingHandRevealOf(state: GameState, cardId: EntityId): Effect? {
+        val cardComponent = state.getEntity(cardId)?.get<CardComponent>() ?: return null
+        val script = services.cardRegistry.getCard(cardComponent.cardDefinitionId)?.script ?: return null
+        return script.openingHandReveal?.takeUnless { script.mayStartOnBattlefield }
+    }
+
+    /**
+     * "You may reveal this card from your opening hand. If you do, …" (CR 103.6b): reveal the card
+     * to every player — it stays in hand — then run the card's payoff with the card as source and
+     * its owner as controller. The payoff is normally a delayed trigger, which CR 603.7a lets a
+     * player action create.
+     *
+     * A [LeylinePhaseContinuation] is parked beneath the payoff so that, should it ever pause for a
+     * decision, the opening-hand walk resumes once it finishes; when it completes synchronously
+     * the park is popped again and the walk continues inline.
+     */
+    private fun revealFromOpeningHand(
+        state: GameState,
+        continuation: LeylineDecisionContinuation,
+        effect: Effect,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        val card = state.getEntity(continuation.leylineCardId)?.get<CardComponent>()
+        val revealed = CardsRevealedEvent(
+            revealingPlayerId = continuation.playerId,
+            cardIds = listOf(continuation.leylineCardId),
+            cardNames = listOf(continuation.cardName),
+            imageUris = listOf(card?.imageUri),
+            source = continuation.cardName,
+            revealToSelf = false
+        )
+        val context = EffectContext(
+            sourceId = continuation.leylineCardId,
+            controllerId = continuation.playerId
+        )
+        val result = services.effectExecutorRegistry
+            .execute(state.pushContinuation(LeylinePhaseContinuation), effect, context)
+            .toExecutionResult()
+        val events = listOf<GameEvent>(revealed) + result.events
+        if (result.outcome is Outcome.Paused) return result.copy(events = events)
+        if (result.outcome is Outcome.Rejected) return result
+        val (_, unparked) = result.state.popContinuation()
+        return continueLeylinePhase(unparked, events, checkForMore)
+    }
+
     /**
      * Ask the next player's leyline yes/no, or finish the phase. Shared by the yes/no resumer and
      * by the [LeylinePhaseContinuation] auto-resume that picks the walk back up after an as-enters
@@ -172,8 +227,7 @@ class LeylineContinuationResumer(
             }
         }
 
-        // No more leyline prompts. Let SubmitDecisionHandler's "step == UNTAP, no pending"
-        // branch fire turnManager.advanceStep to start turn 1.
-        return checkForMore(state, events)
+        // No more leyline prompts: the game begins, exactly as it does when no one has a leyline.
+        return mergeAndContinue(services.turnManager.advanceStep(state), events, checkForMore)
     }
 }

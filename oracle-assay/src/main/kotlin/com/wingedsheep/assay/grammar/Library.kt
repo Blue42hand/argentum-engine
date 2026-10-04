@@ -5,6 +5,7 @@ import com.wingedsheep.assay.syntax.alternate
 import com.wingedsheep.assay.syntax.bind
 import com.wingedsheep.assay.syntax.phrase
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -108,14 +108,14 @@ object Library {
     /**
      * "You may shuffle." — the optional shuffle Omen ends on.
      *
-     * `MayEffect` is the SDK's spelling of a player-chosen action inside a spell's effect. Note the
+     * `Effects.May` is the SDK's spelling of a player-chosen action inside a spell's effect. Note the
      * deliberate asymmetry with [Triggers]: on a *triggered ability* the same English lowers to the
      * ability's `optional` flag instead, because that is the field the hand-written cards set and
      * the one the trigger's own sentence introduces. Two SDK spellings of "you may", each canonical
      * in the sentence context that owns it, and [Triggers.abilityFor] is the lowering between them.
      */
     private val mayShuffle: Phrase<CardScript> = run {
-        val script = CardScript(spellEffect = MayEffect(ShuffleLibraryEffect()))
+        val script = CardScript(spellEffect = Effects.May(ShuffleLibraryEffect()))
         phrase("you may shuffle", name = "you may shuffle") {
             build { script }
             match { if (it == script) bind() else null }
@@ -203,11 +203,13 @@ object Library {
         canonicalForm: Boolean = true,
         destination: SearchDestination,
         reveal: Boolean = false,
+        entersTapped: Boolean = false,
     ): Phrase<CardScript> {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
             spellEffect = Patterns.Library.searchLibrary(
                 filter = filter,
                 destination = destination,
+                entersTapped = entersTapped,
                 reveal = reveal,
             )
         )
@@ -426,6 +428,23 @@ object Library {
             "search your library for a card to the battlefield (pronoun)",
             canonicalForm = false,
             destination = SearchDestination.BATTLEFIELD,
+        ),
+        // The tapped fetch — Evolving Wilds, Rampant Growth — is the same recipe with
+        // `entersTapped`. Here the pronoun is the majority printing (Oracle prints "put it onto the
+        // battlefield tapped" about five times as often as "put that card …"), so it is canonical
+        // and "that card" is the alternate, the reverse of the untapped pair above.
+        search(
+            "search your library for {filter}, put it onto the battlefield tapped, then shuffle",
+            "search your library for a card to the battlefield tapped",
+            destination = SearchDestination.BATTLEFIELD,
+            entersTapped = true,
+        ),
+        search(
+            "search your library for {filter}, put that card onto the battlefield tapped, then shuffle",
+            "search your library for a card to the battlefield tapped (that card)",
+            canonicalForm = false,
+            destination = SearchDestination.BATTLEFIELD,
+            entersTapped = true,
         ),
         search(
             "search your library for {filter}, reveal it, then shuffle and put that card on top",

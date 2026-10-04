@@ -5,7 +5,9 @@ import com.wingedsheep.engine.event.GrantedActivatedAbility
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ObjectRef
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
 import kotlin.reflect.KClass
 
@@ -21,7 +23,7 @@ import kotlin.reflect.KClass
  * (e.g. Glorious Sunrise grants a land "{T}: Add {G}{G}{G}"). The type of a valid
  * target is already constrained by the effect's [GrantActivatedAbilityEffect.target]
  * requirement, so the executor only verifies the resolved target is a permanent on the
- * battlefield.
+ * battlefield or a permanent spell on the stack ([ObjectGrantTarget]).
  */
 class GrantActivatedAbilityExecutor : EffectExecutor<GrantActivatedAbilityEffect> {
 
@@ -36,20 +38,21 @@ class GrantActivatedAbilityExecutor : EffectExecutor<GrantActivatedAbilityEffect
         val targetId = context.resolveTarget(effect.target)
             ?: return EffectResult.error(state, "No valid target for activated ability grant")
 
-        // Verify target exists and is a permanent on the battlefield.
+        // Verify target exists and is a permanent or a permanent spell.
         val targetContainer = state.getEntity(targetId)
             ?: return EffectResult.error(state, "Target no longer exists")
         targetContainer.get<CardComponent>()
             ?: return EffectResult.error(state, "Target is not a card")
-        if (!state.getBattlefield().contains(targetId)) {
-            return EffectResult.error(state, "Target is not on the battlefield")
+        if (!ObjectGrantTarget.canReceive(state, targetId)) {
+            return EffectResult.error(state, ObjectGrantTarget.NOT_A_PERMANENT_OR_PERMANENT_SPELL)
         }
 
         val grant = GrantedActivatedAbility(
             entityId = targetId,
             ability = effect.ability,
             duration = effect.duration,
-            sourceId = context.sourceId
+            sourceId = context.sourceId,
+            sourceObject = exiledSourceObject(state, effect, context)
         )
 
         val newState = state.copy(
@@ -57,5 +60,22 @@ class GrantActivatedAbilityExecutor : EffectExecutor<GrantActivatedAbilityEffect
         )
 
         return EffectResult.success(newState)
+    }
+
+    /**
+     * For [Duration.UntilSourceCastFromExile], the source card's current exile object — the one
+     * whose cast ends the grant (see `SpellCaster`). Null when the source is not in exile right now:
+     * "this card" can then never be cast from exile as the object the effect names, so the grant
+     * lasts indefinitely (CR 400.7).
+     */
+    private fun exiledSourceObject(
+        state: GameState,
+        effect: GrantActivatedAbilityEffect,
+        context: EffectContext
+    ): ObjectRef? {
+        if (effect.duration != Duration.UntilSourceCastFromExile) return null
+        val sourceId = context.sourceId ?: return null
+        val inExile = state.turnOrder.any { sourceId in state.getExile(it) }
+        return if (inExile) state.objectRef(sourceId) else null
     }
 }

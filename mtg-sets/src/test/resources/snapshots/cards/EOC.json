@@ -1,0 +1,29 @@
+// Glittering Massif
+{
+    "name": "Glittering Massif",
+    "manaCost": "",
+    "typeLine": "Land — Mountain Plains",
+    "oracleText": "({T}: Add {R} or {W}.)\nThis land enters tapped.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}"
+        }
+    ],
+    "script": {
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "22",
+        "rarity": "RARE",
+        "artist": "Cristi Balanescu",
+        "flavorText": "Iridescent debris and chromatic chemical fires litter Kavaron with the beauty of destruction.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c6ab42e4-4c87-4fc1-b7a9-1c0ff7d791fb.jpg?1783906060"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}

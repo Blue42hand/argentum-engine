@@ -56,7 +56,7 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
     }
 
     private val visibility: Visibility
-        get() = Visibility(cardRegistry)
+        get() = Visibility(cardRegistry, conditionEvaluator = services.conditionEvaluator)
 
     init {
         cardRegistry.register(listOf(openThoughts, publicTop, privateTop))
@@ -84,7 +84,7 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
                 game.player1Id,
             ) shouldBe false
 
-            val clientView = ClientStateTransformer(cardRegistry).transform(state, game.player1Id)
+            val clientView = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id)
             clientView.cards.keys shouldContain ownCard
             clientView.cards.keys shouldNotContain opposingCard
         }
@@ -115,7 +115,7 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
                 visibility.isCardIdentityVisibleTo(state, player2Hand, known, bystander) shouldBe false
             }
 
-            val client = ClientStateTransformer(cardRegistry)
+            val client = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator)
             client.transform(state, base.player1Id).cards.keys.let {
                 it shouldContain known
                 it shouldNotContain unknown
@@ -278,9 +278,9 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
 
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player1Id) shouldBe false
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player2Id) shouldBe false
-            val ownerCard = ClientStateTransformer(cardRegistry).transform(state, game.player1Id).cards[exiled]
-            exportPrivacyFixture("own-face-down-exile", ClientStateTransformer(cardRegistry).transform(state, game.player1Id), listOf(exiled))
-            exportPrivacyFixture("opponent-face-down-exile", ClientStateTransformer(cardRegistry).transform(state, game.player2Id), listOf(exiled))
+            val ownerCard = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id).cards[exiled]
+            exportPrivacyFixture("own-face-down-exile", ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id), listOf(exiled))
+            exportPrivacyFixture("opponent-face-down-exile", ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player2Id), listOf(exiled))
             ownerCard?.isFaceDown shouldBe true
             ownerCard?.name shouldBe "Face-down card"
             ownerCard?.revealedName shouldBe null
@@ -302,8 +302,8 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
             }
 
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player1Id) shouldBe true
-            exportPrivacyFixture("own-foretold-exile", ClientStateTransformer(cardRegistry).transform(state, game.player1Id), listOf(exiled))
-            ClientStateTransformer(cardRegistry).transform(state, game.player1Id).cards[exiled]?.name shouldBe "Craw Wurm"
+            exportPrivacyFixture("own-foretold-exile", ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id), listOf(exiled))
+            ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id).cards[exiled]?.name shouldBe "Craw Wurm"
             withClue("the opponent never gets to look") {
                 visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player2Id) shouldBe false
             }

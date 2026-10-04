@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.session
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.view.ClientEventTransformer
 import com.wingedsheep.engine.view.ClientGameState
@@ -10,9 +11,12 @@ import com.wingedsheep.gameserver.ai.AiReplayHistory
 import com.wingedsheep.gameserver.ai.AiRuntimeSnapshot
 import com.wingedsheep.gameserver.protocol.GameOverReason
 import com.wingedsheep.engine.view.LegalActionInfo
+import com.wingedsheep.engine.view.Visibility
+import com.wingedsheep.gameserver.persistence.dto.PersistentSeatNames
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.priority.AutoPassManager
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.mechanics.combat.CombatDeclarationControl
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
 import com.wingedsheep.engine.registry.CardRegistry
@@ -30,6 +34,8 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardEntry
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
@@ -48,7 +54,7 @@ private val logger = LoggerFactory.getLogger(GameSession::class.java)
 class GameSession(
     val sessionId: String = UUID.randomUUID().toString(),
     private val services: EngineServices,
-    private val stateTransformer: ClientStateTransformer = ClientStateTransformer(services.cardRegistry),
+    private val stateTransformer: ClientStateTransformer = ClientStateTransformer(services.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)),
     private val useHandSmoother: Boolean = false,
     /**
      * Number of seats this session fills before it is [isReady] to start. Defaults to 2 (the
@@ -61,18 +67,18 @@ class GameSession(
     constructor(
         sessionId: String = UUID.randomUUID().toString(),
         cardRegistry: CardRegistry,
-        stateTransformer: ClientStateTransformer = ClientStateTransformer(cardRegistry),
+        stateTransformer: ClientStateTransformer = ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)),
         useHandSmoother: Boolean = false,
         debugMode: Boolean = false,
         printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry? = null,
         maxPlayers: Int = 2,
         tokenArtRegistry: com.wingedsheep.engine.registry.TokenArtRegistry? = null,
-    ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true) else stateTransformer, useHandSmoother, maxPlayers)
+    ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true, predicateEvaluator = PredicateEvaluator(cardRegistry = null)) else stateTransformer, useHandSmoother, maxPlayers)
 
     private val cardRegistry: CardRegistry get() = services.cardRegistry
     // Debug mode is for a local browser view, never for an AI policy's observation. The latter
     // receives engine decision IDs and must still see only what its seat may legally know.
-    private val aiStateTransformer = ClientStateTransformer(services.cardRegistry)
+    private val aiStateTransformer = ClientStateTransformer(services.cardRegistry, predicateEvaluator = services.predicateEvaluator)
     // Lock for synchronizing state modifications to prevent lost updates
     private val stateLock = Any()
 
@@ -306,6 +312,13 @@ class GameSession(
 
     /** Per-player cache of last sent ClientGameState for delta computation */
     private val lastSentState = java.util.concurrent.ConcurrentHashMap<EntityId, ClientGameState>()
+
+    /**
+     * The card names each browser seat knows, so a card it loses track of can't be followed by its
+     * id ([SeatIdentities]). In-process AI seats read raw engine state and keep engine ids.
+     */
+    private val seatIdentities = java.util.concurrent.ConcurrentHashMap<EntityId, SeatIdentities>()
+    private val visibility by lazy { Visibility(services.cardRegistry, conditionEvaluator = services.conditionEvaluator) }
 
     /** Monotonically increasing version counter, included in every state update so clients can detect missed messages */
     private val stateVersions = java.util.concurrent.ConcurrentHashMap<EntityId, Long>()
@@ -589,6 +602,7 @@ class GameSession(
         // roster (now that gameState exists, seatInfos() reflects the real turn order).
         replaySetup = com.wingedsheep.gameserver.replay.ReplaySetup(
             seed = result.seed,
+            preserveGraveyardOrder = config.preserveGraveyardOrder,
             format = engineFormat,
             attackMode = attackMode,
             startingHandSize = config.startingHandSize,
@@ -724,8 +738,10 @@ class GameSession(
      */
     fun chooseBottomCards(playerId: EntityId, cardIds: List<EntityId>): MulliganActionResult = synchronized(stateLock) {
         val state = gameState ?: return MulliganActionResult.Failure("Game not started")
+        val engineIds = fromSeat(playerId, cardIds, ListSerializer(EntityId.serializer()))
+            ?: return MulliganActionResult.Failure(STALE_CARD_NAME)
 
-        val action = BottomCards(playerId, cardIds)
+        val action = BottomCards(playerId, engineIds)
         val result = actionProcessor.process(state, action).result
 
         val error = result.error
@@ -752,13 +768,13 @@ class GameSession(
         // mulligan correctly shows "bottom 0".
         val cardsToPutOnBottom = state?.getEntity(playerId)
             ?.get<MulliganStateComponent>()?.cardsToBottom ?: count
-        return ServerMessage.MulliganDecision(
+        return toSeat(playerId, ServerMessage.MulliganDecision(
             hand = hand,
             mulliganCount = count,
             cardsToPutOnBottom = cardsToPutOnBottom,
             cards = cards,
             isOnThePlay = isOnThePlay
-        )
+        ), ServerMessage.MulliganDecision.serializer())
     }
 
     /**
@@ -769,11 +785,11 @@ class GameSession(
         if (count == 0) return null
         val hand = getHand(playerId)
         val state = gameState
-        return ServerMessage.ChooseBottomCards(
+        return toSeat(playerId, ServerMessage.ChooseBottomCards(
             hand = hand,
             cardsToPutOnBottom = count,
             cards = mulliganCardInfo(state, hand)
-        )
+        ), ServerMessage.ChooseBottomCards.serializer())
     }
 
     /**
@@ -821,10 +837,12 @@ class GameSession(
      */
     fun executeClientAction(
         playerId: EntityId,
-        action: GameAction,
+        seatAction: GameAction,
         messageId: String? = null,
         interactionEpoch: String? = null,
     ): ActionResult {
+        val action = fromSeat(playerId, seatAction, GameAction.serializer())
+            ?: return ActionResult.Failure(STALE_CARD_NAME)
         val submission = if (action is SubmitDecision) {
             val wireId = action.response.decisionId
             val separator = wireId.indexOf(':')
@@ -953,15 +971,26 @@ class GameSession(
     ): ActionResult = synchronized(stateLock) {
         val state = gameState ?: return ActionResult.Failure("Game not started")
 
-        // Seat authorization: a seat may submit actions tagged with its own playerId, or
-        // act on behalf of a player whose turn it currently controls (Mindslaver-style).
+        // Only the current input authority may submit a player's actions.
         // The action.playerId always represents the in-game actor (whose mana, cards,
         // and spell-controllership this action is); the controller is just the input
         // device. Concede is excluded — the affected player can always concede regardless
         // of who's controlling them.
         val actionPlayerId = action.playerId
-        if (action !is Concede && playerId != actionPlayerId && state.actorFor(actionPlayerId) != playerId) {
-            return ActionResult.Failure("Not authorized to submit actions for player $actionPlayerId")
+        // Master Warcraft: while another player has taken over a combat declaration, only they may
+        // submit it — not even the seat that owes it.
+        val combatDeclarer = if (action is DeclareAttackers || action is DeclareBlockers) {
+            CombatDeclarationControl.declarerFor(state, actionPlayerId)
+        } else null
+        if (combatDeclarer != null) {
+            if (combatDeclarer != playerId) {
+                return ActionResult.Failure("Another player chooses this combat declaration")
+            }
+        } else {
+            val inputAuthority = if (action is Concede) actionPlayerId else state.actorFor(actionPlayerId)
+            if (playerId != inputAuthority) {
+                return ActionResult.Failure("Not authorized to submit actions for player $actionPlayerId")
+            }
         }
 
         // Idempotency check: if this messageId was already processed, skip
@@ -984,31 +1013,38 @@ class GameSession(
 
         val (result, undoPolicy) = actionProcessor.process(state, action)
 
-        val error = result.error
-        if (error != null) {
-            return ActionResult.Failure(error)
+        fun accept() {
+            // A rejected action must leave undo bookkeeping untouched. An accepted substantive
+            // opponent action invalidates the checkpoint; passing priority is still benign.
+            if (undoCheckpoint != null && undoCheckpointOwner != null
+                && playerId != undoCheckpointOwner
+                && action !is PassPriority) {
+                clearCheckpoint()
+            }
+            applyUndoPolicy(undoPolicy, action, state, playerId)
+            gameState = result.state
+            recordAction(action)
+            if (messageId != null) lastProcessedMessageId[playerId] = messageId
         }
 
-        // Rejected actions are atomic, including session bookkeeping. A substantive action by
-        // the opponent invalidates the owner's undo checkpoint only after the engine accepts it;
-        // a bare PassPriority remains benign and retains the checkpoint through opponent passes.
-        if (undoCheckpoint != null && undoCheckpointOwner != null
-            && playerId != undoCheckpointOwner
-            && action !is PassPriority) {
-            clearCheckpoint()
-        }
-
-        // Apply the engine's undo policy
-        applyUndoPolicy(undoPolicy, action, state, playerId)
-
-        gameState = result.state
-        recordAction(action)
-        if (messageId != null) lastProcessedMessageId[playerId] = messageId
-        val pendingDecision = result.pendingDecision
-        return if (pendingDecision != null) {
-            ActionResult.PausedForDecision(result.state, pendingDecision, result.events)
-        } else {
-            ActionResult.Success(result.state, result.events)
+        return when (val outcome = result.outcome) {
+            is Outcome.Rejected -> {
+                // An illegal action is routine (a stale or wrong client request). A failure during
+                // execution means validation let through something the engine could not carry
+                // out, which is worth a look.
+                if (outcome.reason is Rejection.ExecutionFailed) {
+                    logger.warn("Action ${action::class.simpleName} by $playerId failed during execution: ${outcome.reason.message}")
+                }
+                ActionResult.Failure(outcome.reason.message)
+            }
+            is Outcome.Paused -> {
+                accept()
+                ActionResult.PausedForDecision(result.state, outcome.decision, result.events)
+            }
+            Outcome.Done -> {
+                accept()
+                ActionResult.Success(result.state, result.events)
+            }
         }
     }
 
@@ -1047,6 +1083,11 @@ class GameSession(
             return legalActionEnricher.enrich(manaActions, state, window.playerId)
         }
 
+        (state.pendingDecision as? com.wingedsheep.engine.core.PlayCardDecision)?.let { play ->
+            if (state.actorFor(play.playerId) != playerId) return emptyList()
+            return legalActionEnricher.enrich(legalActionEnumerator.enumerate(state, play.playerId), state, play.playerId)
+        }
+
         val priorityPlayer = state.priorityPlayerId ?: return emptyList()
         // The seat this connection may act as right now. Normally the priority player, or — when
         // their turn is hijacked — whoever this connection is the actor for. Legal actions are
@@ -1058,8 +1099,10 @@ class GameSession(
         // The baton holder is tried first so a hotseat client (the actor for every seat) keeps
         // driving exactly the seat the UI is focused on. Outside a shared-turns format
         // [GameState.priorityTeam] is the singleton baton holder and this is the old expression.
+        // A combat declaration taken over by Master Warcraft routes to its new declarer (and away
+        // from the seat's usual actor) — CombatDeclarationControl.inputActorFor.
         val actingSeat = (listOf(priorityPlayer) + state.priorityTeam.filter { it != priorityPlayer })
-            .firstOrNull { state.actorFor(it) == playerId }
+            .firstOrNull { CombatDeclarationControl.inputActorFor(state, it) == playerId }
             ?: return emptyList()
         if (state.pendingDecision != null) return emptyList()
         val engineActions = legalActionEnumerator.enumerate(state, actingSeat)
@@ -1078,30 +1121,48 @@ class GameSession(
         useEngineDecisionIds: Boolean = false,
     ): ServerMessage? = synchronized(stateLock) {
         val state = gameState ?: return null
-        val clientState = if (useEngineDecisionIds) {
+        val names = if (useEngineDecisionIds) null else seatIdentities.getOrPut(playerId) { SeatIdentities() }
+        names?.forgetUntrackable(state, playerId, visibility)
+        val engineClientState = if (useEngineDecisionIds) {
             aiStateTransformer.transform(state, playerId)
         } else {
-            stateTransformer.transform(state, playerId)
+            getClientState(playerId) ?: return null
         }
-        val legalActions = getLegalActions(playerId)
+        val engineLegalActions = getLegalActions(playerId)
 
         // Transform raw engine events to client events
-        val clientEvents = ClientEventTransformer.transform(events, playerId)
-
-        // Accumulate into persistent game log (filter noisy events)
-        val logEntries = clientEvents.filter { it !is ClientEvent.PermanentTapped && it !is ClientEvent.PermanentUntapped && it !is ClientEvent.ManaAdded }
-        val playerLog = gameLogs.getOrPut(playerId) { mutableListOf() }
-        playerLog.addAll(logEntries)
+        val engineClientEvents = ClientEventTransformer.transform(events, playerId, state)
 
         // Include pending decision only for the player who needs to make it — i.e. the
         // actor for the affected player. During a hijacked turn this routes the
         // decision to the controller, not the affected player.
         // Enrich with imageUri from card registry since engine doesn't have access to metadata
-        val pendingDecision = state.pendingDecision?.takeIf { state.actorFor(it.playerId) == playerId }?.let {
+        val enginePendingDecision = state.pendingDecision?.takeIf { state.actorFor(it.playerId) == playerId }?.let {
             val enriched = decisionEnricher.enrich(it, state, playerId)
             // In-process AI simulates against raw engine state; browser clients echo a live ID.
             if (useEngineDecisionIds) enriched else enriched.withClientRoutingId(liveDecisionId(it.id))
         }
+
+        // A browser seat gets everything in its own card names.
+        // A card the seat renamed is in this message only if the seat can see it again, and then it
+        // is among these cards, zones, events or decision; if none is, nothing needs renaming.
+        var renaming: SeatIdentities? = null
+        if (names != null) {
+            val sent = engineClientState.cards.keys + engineClientState.zones.flatMap { it.cardIds } +
+                names.idsIn(engineClientEvents, clientEventsSerializer) +
+                (enginePendingDecision?.let { names.idsIn(it, PendingDecision.serializer()) } ?: emptySet())
+            names.noteSeen(state, playerId, visibility, sent)
+            if (names.renamesAny(sent)) renaming = names
+        }
+        val clientState = renaming?.toSeat(engineClientState, ClientGameState.serializer()) ?: engineClientState
+        val legalActions = renaming?.toSeat(engineLegalActions, legalActionsSerializer) ?: engineLegalActions
+        val clientEvents = renaming?.toSeat(engineClientEvents, clientEventsSerializer) ?: engineClientEvents
+        val pendingDecision = enginePendingDecision?.let { renaming?.toSeat(it, PendingDecision.serializer()) ?: it }
+
+        // Accumulate into persistent game log (filter noisy events)
+        val logEntries = clientEvents.filter { it !is ClientEvent.PermanentTapped && it !is ClientEvent.PermanentUntapped && it !is ClientEvent.ManaAdded }
+        val playerLog = gameLogs.getOrPut(playerId) { mutableListOf() }
+        playerLog.addAll(logEntries)
 
         // Calculate next stop point for the Pass button (only if player has priority,
         // or is the actor for whoever has priority during a hijacked turn).
@@ -1109,7 +1170,7 @@ class GameSession(
         val playerMode = getPriorityMode(playerId)
         // "Can this connection act in the current priority window?" — the baton holder's seat, or
         // (CR 805.5) any seat on the baton holder's team under shared team turns.
-        val isActorForPriority = state.priorityTeam.any { state.actorFor(it) == playerId }
+        val isActorForPriority = state.priorityTeam.any { CombatDeclarationControl.inputActorFor(state, it) == playerId }
         val nextStopPoint = if (isActorForPriority && playerMode != PriorityMode.FULL_CONTROL) {
             // The same notion of "meaningful" the stop decision itself uses — otherwise the
             // button can promise a stop (say, at the opponent's end step for a spell we can't
@@ -1152,6 +1213,20 @@ class GameSession(
 
         // First update — send full state
         return ServerMessage.StateUpdate(stateWithLog, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch)
+    }
+
+    /** [value] with every card id in [playerId]'s own names; unchanged for a seat that has none. */
+    fun <T> toSeat(playerId: EntityId, value: T, serializer: KSerializer<T>): T = synchronized(stateLock) {
+        seatIdentities[playerId]?.toSeat(value, serializer) ?: value
+    }
+
+    /**
+     * [value], sent by [playerId]'s browser, with its card names turned back into engine ids; null
+     * if it names a card by a name the seat no longer has.
+     */
+    fun <T> fromSeat(playerId: EntityId, value: T, serializer: KSerializer<T>): T? = synchronized(stateLock) {
+        val names = seatIdentities[playerId] ?: return value
+        names.fromSeat(value, serializer)
     }
 
     /**
@@ -1284,7 +1359,7 @@ class GameSession(
         // The actor is whoever is actually clicking — normally the priority player, or
         // the controller during a hijacked turn. Auto-pass settings track per-seat,
         // so consult the actor's preferences and the actor's legal-actions view.
-        val actorPlayer = state.actorFor(priorityPlayer)
+        val actorPlayer = CombatDeclarationControl.inputActorFor(state, priorityPlayer)
 
         // Check if player has full control enabled - never auto-pass
         val playerMode = getPriorityMode(actorPlayer)
@@ -1983,6 +2058,11 @@ class GameSession(
     internal fun getLogsForPersistence(): Map<EntityId, List<ClientEvent>> =
         gameLogs.mapValues { it.value.toList() }
 
+    /** Each browser seat's card names, for persistence. */
+    internal fun getSeatNamesForPersistence(): Map<EntityId, PersistentSeatNames> = synchronized(stateLock) {
+        seatIdentities.mapValues { it.value.toPersistent() }
+    }
+
     /**
      * Get the last processed message IDs for persistence.
      */
@@ -2001,7 +2081,8 @@ class GameSession(
         decks: Map<EntityId, List<String>>,
         logs: Map<EntityId, MutableList<ClientEvent>>,
         lastIds: Map<EntityId, String>,
-        sideboardLists: Map<EntityId, List<String>> = emptyMap()
+        sideboardLists: Map<EntityId, List<String>> = emptyMap(),
+        seatNames: Map<EntityId, PersistentSeatNames> = emptyMap(),
     ) {
         synchronized(stateLock) {
             gameState = state?.initializeObjectIdentities()
@@ -2013,6 +2094,8 @@ class GameSession(
             gameLogs.putAll(logs)
             lastProcessedMessageId.clear()
             lastProcessedMessageId.putAll(lastIds)
+            seatIdentities.clear()
+            seatNames.forEach { (seat, names) -> seatIdentities[seat] = SeatIdentities.fromPersistent(names) }
             lastSentState.clear()
         }
     }
@@ -2113,3 +2196,7 @@ class GameSession(
         playerPersistenceInfo.putAll(info)
     }
 }
+
+private val clientEventsSerializer = ListSerializer(ClientEvent.serializer())
+private val legalActionsSerializer = ListSerializer(LegalActionInfo.serializer())
+private const val STALE_CARD_NAME = "Refers to a card by a name you no longer have"

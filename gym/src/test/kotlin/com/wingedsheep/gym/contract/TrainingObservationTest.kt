@@ -8,6 +8,8 @@ import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.gym.GameEnvironment
+import com.wingedsheep.gym.GameGymEnv
+import com.wingedsheep.engine.core.ActionParams
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -65,6 +67,40 @@ class TrainingObservationTest : FunSpec({
     }
 
     val json = Json { prettyPrint = false; ignoreUnknownKeys = true }
+
+    test("forced play exposes scoped ordinary actions as executable decision templates") {
+        val env = newEnv()
+        val player = env.state.activePlayerId!!
+        val land = env.state.getHand(player).first { id ->
+            env.state.getEntity(id)!!.get<com.wingedsheep.engine.state.components.identity.CardComponent>()!!.name == "Mountain"
+        }
+        val services = com.wingedsheep.engine.core.EngineServices(env.cardRegistry)
+        val forced = services.effectExecutorRegistry.execute(env.state, Effects.ForcePlay("chosen"),
+            com.wingedsheep.engine.handlers.EffectContext(sourceId = null, controllerId = player,
+                pipeline = com.wingedsheep.engine.handlers.PipelineState(storedCollections = mapOf("chosen" to listOf(land)))))
+        env.restore(forced.state, env.playerIds)
+        val result = ObservationBuilder(env.cardRegistry).build(env.state, player, env.legalActions())
+        val observation = result.observation as TrainingObservation
+        observation.pendingDecision!!.kind shouldBe PendingDecisionKind.PLAY_CARD
+        observation.pendingDecision!!.requiresStructuredResponse.shouldBeFalse()
+        observation.pendingDecision!!.subjectEntityId shouldBe land
+        observation.legalActions.shouldNotBeEmpty()
+        observation.legalActions.all { it.isDecisionOption }.shouldBeTrue()
+        val observer = env.playerIds.first { it != player }
+        val hidden = ObservationBuilder(env.cardRegistry).build(env.state, observer, env.legalActions())
+        val hiddenObservation = hidden.observation as TrainingObservation
+        hiddenObservation.pendingDecision!!.subjectEntityId shouldBe null
+        hiddenObservation.legalActions.shouldBeEmpty()
+        hidden.registry.size shouldBe 0
+        val response = result.registry.decisionResponses.single().second as com.wingedsheep.engine.core.PlayCardResponse
+        (response.action as com.wingedsheep.engine.core.PlayLand).cardId shouldBe land
+        val gym = GameGymEnv(env, perspectivePlayerIndex = 0, defaultRevealAll = false)
+        val gymObservation = gym.observe().observation as TrainingObservation
+        gymObservation.pendingDecision!!.requiresStructuredResponse.shouldBeFalse()
+        gym.step(gymObservation.legalActions.single().actionId, ActionParams())
+        env.lastRejection shouldBe null
+        env.state.getBattlefield(player).contains(land).shouldBeTrue()
+    }
 
     test("observation includes all basic state fields and round-trips through JSON") {
         val env = newEnv()

@@ -4,13 +4,12 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val ArchiveArbiter = card("Archive Arbiter") {
     manaCost = "{6}"
@@ -26,15 +25,12 @@ val ArchiveArbiter = card("Archive Arbiter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                target = TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.NonlandPermanent.notCreature())
-                ),
-                description = "Destroy target noncreature, nonland permanent."
-            ),
+            mode("Destroy target noncreature, nonland permanent.") {
+                val nonlandPermanent = target(TargetFilter(GameObjectFilter.NonlandPermanent.notCreature()))
+                effect = Effects.Destroy(nonlandPermanent)
+            },
             Mode.noTarget(
                 effect = Effects.GainLife(4),
                 description = "You gain 4 life."

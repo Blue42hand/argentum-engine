@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val RescueGirlFirstResponder = card("Rescue Girl, First Responder") {
     manaCost = "{2}{W}"
@@ -23,10 +22,7 @@ val RescueGirlFirstResponder = card("Rescue Girl, First Responder") {
     activatedAbility {
         cost = Costs.Tap
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
-        val permanent = target(
-            "another target permanent you control",
-            TargetPermanent(filter = TargetFilter.Permanent.youControl().other()),
-        )
+        val permanent = target(TargetFilter.Permanent.youControl().other())
         effect = Effects.ReturnToHand(permanent)
         description = "{T}: Return another target permanent you control to its owner's hand."
     }

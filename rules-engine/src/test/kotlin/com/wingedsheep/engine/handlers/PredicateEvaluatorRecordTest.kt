@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.core.Supertype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -24,7 +24,7 @@ import io.kotest.matchers.shouldBe
  */
 class PredicateEvaluatorRecordTest : FunSpec({
 
-    val evaluator = PredicateEvaluator()
+    val evaluator = PredicateEvaluator(cardRegistry = null)
 
     fun record(
         typeLine: TypeLine,
@@ -201,6 +201,22 @@ class PredicateEvaluatorRecordTest : FunSpec({
                 filter(CardPredicate.IsMulticolored)
             ) shouldBe false
         }
+
+        test("HasExactlyColors matches only that many colors") {
+            val two = filter(CardPredicate.HasExactlyColors(2))
+            evaluator.matchesFilter(
+                record(TypeLine.instant(), colors = setOf(Color.RED, Color.GREEN)), two
+            ) shouldBe true
+            evaluator.matchesFilter(record(TypeLine.instant(), colors = setOf(Color.RED)), two) shouldBe false
+            evaluator.matchesFilter(
+                record(TypeLine.instant(), colors = setOf(Color.RED, Color.GREEN, Color.WHITE)), two
+            ) shouldBe false
+            evaluator.matchesFilter(record(TypeLine.instant(), colors = emptySet()), two) shouldBe false
+            evaluator.matchesFilter(
+                record(TypeLine.instant(), colors = emptySet()),
+                filter(CardPredicate.Not(CardPredicate.HasExactlyColors(2)))
+            ) shouldBe true
+        }
     }
 
     // --- Subtype predicates -------------------------------------------------
@@ -272,7 +288,7 @@ class PredicateEvaluatorRecordTest : FunSpec({
             evaluator.matchesFilter(rec, filter(CardPredicate.HasChosenSubtype)) shouldBe false
             evaluator.matchesFilter(
                 rec,
-                filter(CardPredicate.SharesCreatureTypeWith(EntityReference.Source))
+                filter(CardPredicate.SharesCreatureTypeWith(EffectTarget.Self))
             ) shouldBe false
             evaluator.matchesFilter(rec, filter(CardPredicate.HasSubtypeFromVariable("x"))) shouldBe false
             evaluator.matchesFilter(rec, filter(CardPredicate.HasSubtypeInStoredList("x"))) shouldBe false

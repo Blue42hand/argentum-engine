@@ -1,13 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
-import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Kapow!
@@ -23,22 +20,11 @@ val Kapow = card("Kapow!") {
     oracleText = "Put a +1/+1 counter on target creature you control. It fights target creature an opponent controls. (Each deals damage equal to its power to the other.)"
 
     spell {
-        val yourCreature = target("creature you control", Targets.CreatureYouControl)
-        val theirCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yourCreature)
-            .then(
-                ConditionalEffect(
-                    condition = Conditions.All(
-                        Conditions.TargetMatchesFilter(
-                            GameObjectFilter.Creature.youControl(), targetIndex = 0
-                        ),
-                        Conditions.TargetMatchesFilter(
-                            GameObjectFilter.Creature.opponentControls(), targetIndex = 1
-                        )
-                    ),
-                    effect = Effects.Fight(yourCreature, theirCreature)
-                )
-            )
+        val yourCreature = target(TargetFilter.CreatureYouControl)
+        val theirCreature = target(TargetFilter.CreatureOpponentControls)
+        // An illegal target resolves to nothing (CR 608.2b), so the fight does nothing on its own.
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yourCreature) then
+            Effects.Fight(yourCreature, theirCreature)
     }
 
     metadata {

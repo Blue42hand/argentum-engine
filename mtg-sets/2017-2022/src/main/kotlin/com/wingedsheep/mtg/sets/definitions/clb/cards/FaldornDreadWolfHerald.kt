@@ -33,14 +33,10 @@ val FaldornDreadWolfHerald = card("Faldorn, Dread Wolf Herald") {
 
     triggeredAbility {
         trigger = Triggers.or(
-            Triggers.youCastSpell(
+            Triggers.you.casts(
                 requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
             ),
-            Triggers.entersBattlefield(
-                filter = GameObjectFilter.Land.youControl(),
-                from = Zone.EXILE,
-                binding = TriggerBinding.ANY,
-            ),
+            Triggers.a(GameObjectFilter.Land.youControl()).enters(from = Zone.EXILE),
         )
         effect = Effects.CreateToken(
             power = 2,

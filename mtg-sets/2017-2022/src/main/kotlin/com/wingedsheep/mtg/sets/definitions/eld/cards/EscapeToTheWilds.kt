@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Printing
@@ -27,7 +28,7 @@ val EscapeToTheWilds = card("Escape to the Wilds") {
         effect = Patterns.Exile.impulse(
             count = 5,
             expiry = MayPlayExpiry.UntilEndOfNextTurn,
-        ).then(PlayAdditionalLandsEffect(count = 1))
+        ) then Effects.PlayAdditionalLands(1)
     }
 
     metadata {

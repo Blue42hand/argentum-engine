@@ -133,6 +133,12 @@ export interface TargetingState {
   minTotalWeight?: number
   cardWeights?: Record<string, number>
   weightUnit?: string
+  /**
+   * Per-card card types for a union-measured exile (Nethergoyf's "four or more card types among
+   * them"). When set, the tally toward `minTotalWeight` is the count of distinct types across the
+   * selection instead of the sum of `cardWeights`.
+   */
+  cardTypes?: Record<string, readonly string[]>
   /** The zone the current targets are in (e.g., "Graveyard"). Set by server via targetRequirements. */
   targetZone?: string
   /** Description of the current target requirement (e.g., "non-Zombie creature") */
@@ -319,6 +325,8 @@ export interface XSelectionState {
   selectedX: number
   /** When true, this is a repeat count selector (not X cost) */
   isRepeatCount?: boolean
+  /** When true, this picks the optional extra mana paid for entry counters (Chorus of the Conclave) */
+  isAdditionalManaForCounters?: boolean
 }
 
 /**
@@ -732,6 +740,8 @@ export interface SpectatingState {
 export interface MatchIntro {
   playerName: string
   opponentName: string
+  /** Every opponent's name in seat order (length > 1 in a multiplayer game). */
+  opponentNames: string[]
   round?: number
   playerRecord?: string
   opponentRecord?: string
@@ -752,9 +762,11 @@ export interface LogEntry {
  */
 export interface DrawAnimation {
   id: string
-  cardId: EntityId
+  cardId: EntityId | null
   cardName: string | null
   imageUri: string | null
+  /** The drawing player — picks *which* opponent's library and hand the card flies between. */
+  playerId: EntityId
   isOpponent: boolean
   startTime: number
 }
@@ -827,6 +839,8 @@ export type PipelinePhase =
   | { type: 'modalModes' }
   | { type: 'counterDistribution' }
   | { type: 'xSelection' }
+  /** "You may pay any amount of mana" as an additional cost (Chorus of the Conclave). */
+  | { type: 'additionalManaForCounters' }
   | { type: 'delve' }
   | { type: 'convoke' }
   | { type: 'tapForGeneric' }
@@ -858,6 +872,7 @@ export type PhaseResult =
       distributedCounterRemovals: ReadonlyArray<{ entityId: EntityId; counterType: string; count: number }>
     }
   | { type: 'xSelection'; xValue: number; isRepeatCount?: boolean }
+  | { type: 'additionalManaForCounters'; amount: number }
   | { type: 'delve'; delvedCards: EntityId[]; modifiedManaCost: string }
   | { type: 'convoke'; convokedCreatures: Record<string, { color: string | null }> }
   | { type: 'tapForGeneric'; tapForGenericPermanents: EntityId[] }
@@ -948,7 +963,7 @@ export type GameStore = {
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
-  submitColorDecision: (decisionId: string, color: string) => void
+  submitColorDecision: (decisionId: string, color: string, colors?: readonly string[]) => void
   submitManaSourcesDecision: (
     decisionId: string,
     selectedSources: readonly EntityId[],
@@ -1086,6 +1101,7 @@ export type GameStore = {
   followAction: boolean
   overviewMode: boolean
   collapsedSeats: readonly EntityId[]
+  expandedStackCardIds: ReadonlySet<EntityId>
   eliminatedSpectating: boolean
   eliminatedBottomSeatId: EntityId | null
   spectatorBottomSeatId: EntityId | null
@@ -1097,6 +1113,7 @@ export type GameStore = {
   toggleFollowAction: () => void
   toggleOverviewMode: () => void
   toggleSeatCollapsed: (playerId: EntityId) => void
+  setStackExpanded: (cardIds: readonly EntityId[], expanded: boolean) => void
   enterEliminatedSpectate: () => void
   setEliminatedBottomSeat: (playerId: EntityId | null) => void
   followViewTo: (playerId: EntityId) => void
@@ -1145,6 +1162,13 @@ export type GameStore = {
      * `false` = an opponent. Absent for single-player reveals (use [isYourReveal]).
      */
     cardOwnerIsYours?: readonly boolean[]
+    /**
+     * Owner of each revealed card (parallel to cardIds), present alongside [cardOwnerIsYours].
+     * Lets a multiplayer reveal name *which* opponent a card belongs to (clash).
+     */
+    cardOwnerIds?: readonly EntityId[]
+    /** Player who performed the reveal; absent for locally-triggered reveals. */
+    revealingPlayerId?: EntityId
     /** Zone the card came from (e.g., 'Graveyard', 'Exile') when this reveal is a zone transition. */
     fromZone?: string | null
     /** Zone the card moved to (e.g., 'Hand', 'Library') when this reveal is a zone transition. */
