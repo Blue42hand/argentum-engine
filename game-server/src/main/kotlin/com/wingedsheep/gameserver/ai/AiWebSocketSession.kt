@@ -143,11 +143,13 @@ class AiWebSocketSession(
                 paymentRetryCount = 0
                 pendingPaymentRetry = null
             }
-            if (paymentRetryCount >= 2) return PaymentRetryAdmission.EXHAUSTED
             if (paymentRetryInFlight) {
+                // A duplicate rejection must await the active correction's outcome, including
+                // when that correction is the final allowed attempt. It may still succeed.
                 pendingPaymentRetry = PaymentRetryRequest(snapshot, nativePaymentError, isCurrent, gameId)
                 return PaymentRetryAdmission.SCHEDULED
             }
+            if (paymentRetryCount >= 2) return PaymentRetryAdmission.EXHAUSTED
             paymentRetryCount++
             paymentRetryInFlight = true
         }

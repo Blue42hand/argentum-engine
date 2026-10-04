@@ -21,6 +21,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 class ExternalAiPaymentRetryTest : FunSpec({
@@ -88,6 +89,61 @@ class ExternalAiPaymentRetryTest : FunSpec({
                 controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), any())
             }
         } finally { socket.close() }
+    }
+
+    test("a duplicate during the second in-flight correction waits for its successful outcome") {
+        val secondEntered = CountDownLatch(1)
+        val releaseSecond = CountDownLatch(1)
+        val secondDelivered = CountDownLatch(1)
+        val current = AtomicBoolean(true)
+        val calls = AtomicInteger()
+        val deliveries = AtomicInteger()
+        val corrected = PassPriority(seat)
+        val controller = mockk<AiPlayerController>()
+        every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } answers {
+            if (calls.incrementAndGet() == 2) {
+                secondEntered.countDown()
+                check(releaseSecond.await(3, TimeUnit.SECONDS))
+            }
+            ActionResponse.SubmitAction(corrected)
+        }
+        val socket = AiWebSocketSession(
+            aiPlayerId = seat, controller = controller, thinkingDelayMs = 0,
+            onActionReady = { _, _, _ -> error("Unexpected action") },
+            onMulliganKeep = {}, onMulliganTake = {}, onBottomCards = { _, _ -> },
+            allowActionsOnlyFallback = false,
+        )
+        val snapshot = GameSession.AiPaymentRetrySnapshot(
+            mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
+        val isCurrent = { current.get() }
+        socket.onPaymentCorrectionReady = { _, _, _, _, _ ->
+            if (deliveries.incrementAndGet() == 1) {
+                socket.retryRejectedPayment(snapshot, reason, isCurrent, "game-1") shouldBe
+                    PaymentRetryAdmission.SCHEDULED
+                PaymentCorrectionOutcome.RETRY_QUEUED
+            } else {
+                current.set(false) // An accepted correction advances the live state.
+                secondDelivered.countDown()
+                PaymentCorrectionOutcome.ACCEPTED
+            }
+        }
+        try {
+            socket.retryRejectedPayment(snapshot, reason, isCurrent, "game-1") shouldBe
+                PaymentRetryAdmission.SCHEDULED
+            check(secondEntered.await(3, TimeUnit.SECONDS))
+            socket.retryRejectedPayment(snapshot, reason, isCurrent, "game-1") shouldBe
+                PaymentRetryAdmission.SCHEDULED
+            releaseSecond.countDown()
+            check(secondDelivered.await(3, TimeUnit.SECONDS))
+            Thread.sleep(100)
+            calls.get() shouldBe 2
+            deliveries.get() shouldBe 2
+            socket.retryRejectedPayment(snapshot, reason, isCurrent, "game-1") shouldBe
+                PaymentRetryAdmission.OBSOLETE
+        } finally {
+            releaseSecond.countDown()
+            socket.close()
+        }
     }
 
     fun handler(sender: MessageSender) = GamePlayHandler(
