@@ -4,9 +4,9 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
-import com.wingedsheep.engine.core.DecisionContext
+import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
-import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
+import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -21,6 +21,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
  * Invasion engine gap #8 — color-restricted `{X}` spend + per-color mana-spent-on-X tracking.
@@ -85,30 +86,30 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
         solver.canPay(d.state, me, cost, xValue = 2, xManaRestriction = brOnly).shouldBeFalse()
     }
 
-    test("a Soul Burn shaped flattened X window never promises AutoPay from off-color mana") {
+    test("Soul Burn's flattened X window never promises AutoPay from off-color mana") {
         val d = driver()
         d.initMirrorMatch(Deck.of("Swamp" to 20))
         val me = d.activePlayer!!
+        val opp = d.getOpponent(me)
         d.passPriorityUntil(Step.PRECOMBAT_MAIN)
-        d.putLandOnBattlefield(me, "Island")
+        val soulBurn = d.putCardInHand(me, "Soul Burn")
         val treasure = d.putPermanentOnBattlefield(me, "Treasure")
+        d.giveMana(me, Color.BLACK, 1)
         d.giveMana(me, Color.RED, 1)
         d.giveMana(me, Color.BLUE, 1)
 
-        // The display has already folded X=1 into the three generic mana in Soul Burn's
-        // {X}{2}{B} cost. A generic solver alone cannot prove the red/black X restriction.
-        val window = ManaPaymentWindow.buildDecision(
-            d.state, me, ManaCost.parse("{3}{B}"), "soul-burn-x",
-            "Pay Soul Burn's locked X cost", DecisionContext(), true, d.services.manaSolver,
-            unknownAutoPayFeasibility = true,
-        )
-        window.canAutoPayNow shouldBe null
+        d.submit(CastSpell(me, soulBurn, targets = listOf(ChosenTarget.Player(opp)), xValue = 1))
+            .error shouldBe null
+        d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
 
         d.submit(ActivateAbility(
             me, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
-            manaColorChoice = Color.GREEN
+            manaColorChoice = Color.BLACK
         )).error shouldBe null
-        ManaPaymentWindow.refresh(d.state, window, d.services.manaSolver).canAutoPayNow shouldBe null
+        val refreshed = d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        refreshed.canAutoPayNow shouldBe null
+        d.submitDecision(me, ManaSourcesSelectedResponse(refreshed.id, autoPay = true)).error shouldBe null
+        (soulBurn in d.state.stack) shouldBe true
     }
 
     test("Atalya: X can be paid only with white mana") {
