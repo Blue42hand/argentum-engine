@@ -65,7 +65,7 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
             it.actionType == "CastSpell" && (it.action as? CastSpell)?.cardId == krenko
         }
         cast.affordable shouldBe true
-        game.submit(cast.action).isPaused shouldBe true
+        game.submit(cast.action).error shouldBe null
 
         val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
         window.requiredCost shouldBe "{2}{R}{R}"
