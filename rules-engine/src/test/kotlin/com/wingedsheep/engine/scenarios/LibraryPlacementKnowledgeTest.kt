@@ -221,7 +221,7 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 game.selectCards(listOf(bears))
                 game.resolveStack()
                 game.state.revealedTo(bears) shouldBe setOf(game.player1Id)
-                val beforeShuffle = ClientStateTransformer(cardRegistry).transform(game.state, game.player1Id)
+                val beforeShuffle = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
                 val beforeLibrary = beforeShuffle.zones.single {
                     it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
                 }
@@ -234,7 +234,7 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 withClue("a shuffle wipes what anyone knew about this library's contents") {
                     game.state.revealedTo(bears) shouldBe emptySet()
                 }
-                val afterShuffle = ClientStateTransformer(cardRegistry).transform(game.state, game.player1Id)
+                val afterShuffle = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
                 val afterLibrary = afterShuffle.zones.single {
                     it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
                 }
