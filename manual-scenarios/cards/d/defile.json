@@ -1,0 +1,22 @@
+{
+  "player1Name": "Defile pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Defile"],
+    "battlefield": [{"name": "Swamp"}, {"name": "Swamp"}, {"name": "Watery Grave"}],
+    "graveyard": [],
+    "library": ["Swamp", "Swamp", "Swamp"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [],
+    "battlefield": [{"name": "Hill Giant"}, {"name": "Swamp"}],
+    "graveyard": [],
+    "library": ["Mountain", "Mountain", "Mountain"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "mode": "TWO_PLAYER"
+}

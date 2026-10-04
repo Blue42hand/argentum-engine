@@ -1,8 +1,10 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.registry.CardRegistry
@@ -41,7 +43,7 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
     fun solver(): ManaSolver {
         val registry = CardRegistry()
         registry.register(TestCards.all + listOf(SoulBurn, AtalyaSamiteMaster))
-        return ManaSolver(registry)
+        return ManaSolver(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
     }
 
     test("Soul Burn: life gained equals the black mana spent on X") {
@@ -91,20 +93,23 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
         val opp = d.getOpponent(me)
         d.passPriorityUntil(Step.PRECOMBAT_MAIN)
         val soulBurn = d.putCardInHand(me, "Soul Burn")
-        d.putLandOnBattlefield(me, "Island")
         val treasure = d.putPermanentOnBattlefield(me, "Treasure")
         d.giveMana(me, Color.BLACK, 1)
+        d.giveMana(me, Color.RED, 1)
         d.giveMana(me, Color.BLUE, 1)
 
         d.submit(CastSpell(me, soulBurn, targets = listOf(ChosenTarget.Player(opp)), xValue = 1))
-            .isPaused shouldBe true
+            .error shouldBe null
         d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
 
         d.submit(ActivateAbility(
             me, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
-            manaColorChoice = Color.GREEN
+            manaColorChoice = Color.BLACK
         )).error shouldBe null
-        d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
+        val refreshed = d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        refreshed.canAutoPayNow shouldBe null
+        d.submitDecision(me, ManaSourcesSelectedResponse(refreshed.id, autoPay = true)).error shouldBe null
+        (soulBurn in d.state.stack) shouldBe true
     }
 
     test("Atalya: X can be paid only with white mana") {

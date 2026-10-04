@@ -35,18 +35,12 @@ val BojukaBog = card("Bojuka Bog") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target("target player", Targets.Player)
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer),
-                storeAs = "targetGraveyard",
-            ),
-            MoveCollectionEffect(
-                from = "targetGraveyard",
-                destination = CardDestination.ToZone(Zone.EXILE),
-            ),
-        )
+        trigger = Triggers.self.enters()
+        target(Targets.Player)
+        effect = Effects.Pipeline {
+            val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))
+            move(graveyard, CardDestination.ToZone(Zone.EXILE))
+        }
     }
 
     activatedAbility {

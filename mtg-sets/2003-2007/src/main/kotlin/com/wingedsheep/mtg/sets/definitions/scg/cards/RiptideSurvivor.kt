@@ -24,17 +24,16 @@ val RiptideSurvivor = card("Riptide Survivor") {
     oracleText = "Morph {1}{U}{U}\nWhen Riptide Survivor is turned face up, discard two cards, then draw three cards."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
-        effect = Patterns.Hand.discardCards(2, EffectTarget.Controller)
-            .then(Effects.DrawCards(3))
+        trigger = Triggers.self.turnedFaceUp()
+        effect = Patterns.Hand.discardCards(2, EffectTarget.Controller) then Effects.DrawCards(3)
     }
 
     morph = "{1}{U}{U}"
 
     metadata {
         rarity = Rarity.UNCOMMON
-        collectorNumber = "45"
-        artist = "Glen Angus"
+        collectorNumber = "48"
+        artist = "Thomas M. Baxa"
         flavorText = "Rootwater showed him wonders that air dwellers could scarcely comprehend."
         imageUri = "https://cards.scryfall.io/normal/front/7/5/7515187f-4821-400d-b78f-cec173df6b84.jpg?1562530669"
     }

@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.mechanics.cost.SharedCreatureTypeTapCost
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
 import com.wingedsheep.engine.handlers.effects.zones.ForceExileMultiZoneExecutor
@@ -14,8 +16,11 @@ import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
-import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
+import com.wingedsheep.engine.mechanics.mana.toComponent
+import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -41,7 +46,8 @@ class SacrificeAndPayContinuationResumer(
         resumer(PayOrSufferManaSelectionContinuation::class, ::resumePayOrSufferManaSelection),
         resumer(PayOrSufferChoiceContinuation::class, ::resumePayOrSufferChoice),
         resumer(AnyPlayerMayPayContinuation::class, ::resumeAnyPlayerMayPay),
-        resumer(UntapChoiceContinuation::class, ::resumeUntapChoice)
+        resumer(UntapChoiceContinuation::class, ::resumeUntapChoice),
+        resumer(UntapStepSkipChoiceContinuation::class, ::resumeUntapStepSkipChoice)
     )
 
     fun resumeSacrifice(
@@ -83,7 +89,7 @@ class SacrificeAndPayContinuationResumer(
         }
 
         for (permanentId in selectedPermanents) {
-            val transitionResult = ZoneTransitionService.moveToZone(
+            val transitionResult = services.zones.moveToZone(
                 newState, permanentId, Zone.GRAVEYARD
             )
             newState = transitionResult.state
@@ -94,7 +100,7 @@ class SacrificeAndPayContinuationResumer(
 
         // If there are remaining players (from "each opponent" effects), process them
         if (continuation.remainingPlayers.isNotEmpty() && continuation.filter != null) {
-            val executor = ForceSacrificeExecutor()
+            val executor = ForceSacrificeExecutor(services.zones, dynamicAmountEvaluator = services.dynamicAmountEvaluator)
             val result = executor.processPlayers(
                 newState, continuation.remainingPlayers, continuation.filter,
                 continuation.count, continuation.sourceId
@@ -102,15 +108,30 @@ class SacrificeAndPayContinuationResumer(
             val resultStateWithSnaps =
                 withSacrificeSnapshots(result.state, result.updatedSacrificedPermanents)
             val allEvents = events + result.events
-            return if (result.isPaused) {
+            return if (result.outcome is Outcome.Paused) {
                 // Another player needs a decision — return paused with combined events
                 ExecutionResult.propagatePause(resultStateWithSnaps, allEvents)
             } else {
-                checkForMore(resultStateWithSnaps, allEvents)
+                finishSacrificeInstruction(resultStateWithSnaps, allEvents, checkForMore)
             }
         }
 
-        return checkForMore(newState, events)
+        return finishSacrificeInstruction(newState, events, checkForMore)
+    }
+
+    /** Finalize the resumed instruction before a sibling can read its graveyard order. */
+    private fun finishSacrificeInstruction(
+        state: GameState,
+        events: List<GameEvent>,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        // Sacrifice snapshots were already published to the enclosing effect frames;
+        // the ordering continuation parks the move events until the owner answers.
+        val ordered = com.wingedsheep.engine.mechanics.GraveyardOrdering.finish(
+            ExecutionResult.success(state, events)
+        )
+        return if (ordered.outcome is Outcome.Paused) ordered
+        else checkForMore(ordered.state, ordered.events)
     }
 
     /**
@@ -149,6 +170,7 @@ class SacrificeAndPayContinuationResumer(
         }
 
         val result = ForceExileMultiZoneExecutor.exileEntities(
+            services.zones,
             state, continuation.playerId, response.selectedCards
         )
 
@@ -213,16 +235,12 @@ class SacrificeAndPayContinuationResumer(
                 pipeline = PipelineState(
                     namedTargets = continuation.namedTargets,
                     storedCollections = continuation.storedCollections,
-                    // Rebind the enclosing ForEach loop's entity: the consequence may refer back to it
-                    // (Tidal Flats' "creatures you control blocking *that creature*"), and a null here
-                    // matches nothing at all rather than failing loudly.
-                    iterationTarget = continuation.iterationEntityId
                 ),
                 triggeringEntityId = continuation.triggeringEntityId,
                 triggeringPlayerId = continuation.triggeringPlayerId
             )
             val result = services.effectExecutorRegistry.execute(state, continuation.sufferEffect, context).toExecutionResult()
-            return if (result.isPaused) result else checkForMore(result.state, result.events.toList())
+            return if (result.outcome is Outcome.Paused) result else checkForMore(result.state, result.events.toList())
         }
 
         // Player chose a cost option — create a single-cost PayOrSufferEffect and execute it
@@ -240,16 +258,12 @@ class SacrificeAndPayContinuationResumer(
             pipeline = PipelineState(
                 namedTargets = continuation.namedTargets,
                 storedCollections = continuation.storedCollections,
-                // Rebind the enclosing ForEach loop's entity: the consequence may refer back to it
-                // (Tidal Flats' "creatures you control blocking *that creature*"), and a null here
-                // matches nothing at all rather than failing loudly.
-                iterationTarget = continuation.iterationEntityId
             ),
             triggeringEntityId = continuation.triggeringEntityId,
             triggeringPlayerId = continuation.triggeringPlayerId
         )
         val result = services.effectExecutorRegistry.execute(state, singleCostEffect, context).toExecutionResult()
-        return if (result.isPaused) result else checkForMore(result.state, result.events.toList())
+        return if (result.outcome is Outcome.Paused) result else checkForMore(result.state, result.events.toList())
     }
 
     /**
@@ -276,7 +290,7 @@ class SacrificeAndPayContinuationResumer(
 
         // Player paid the cost — discard the selected cards through the shared discard path, so a
         // card-intrinsic discard replacement (madness, CR 702.35a) applies here too.
-        val result = ZoneTransitionService.discardCards(state, playerId, selectedCards)
+        val result = services.zones.discardCards(state, playerId, selectedCards)
         return checkForMore(result.state, result.events)
     }
 
@@ -300,6 +314,7 @@ class SacrificeAndPayContinuationResumer(
 
         // Player chose to pay - execute random discard
         val result = com.wingedsheep.engine.handlers.effects.player.PayOrSufferExecutor.executeRandomDiscard(
+            services.zones,
             state,
             continuation.playerId,
             continuation.filter,
@@ -330,6 +345,7 @@ class SacrificeAndPayContinuationResumer(
         }
 
         val result = com.wingedsheep.engine.handlers.effects.player.PayOrSufferExecutor.executeDiscardHand(
+            services.zones,
             state,
             continuation.playerId
         )
@@ -368,7 +384,7 @@ class SacrificeAndPayContinuationResumer(
         newState = ZoneTransitionService.trackPermanentSacrifice(newState, selectedPermanents, playerId)
 
         for (permanentId in selectedPermanents) {
-            val transitionResult = ZoneTransitionService.moveToZone(
+            val transitionResult = services.zones.moveToZone(
                 newState, permanentId, Zone.GRAVEYARD
             )
             newState = transitionResult.state
@@ -407,7 +423,7 @@ class SacrificeAndPayContinuationResumer(
         val events = mutableListOf<GameEvent>()
 
         for (permanentId in selectedPermanents) {
-            val transitionResult = ZoneTransitionService.moveToZone(newState, permanentId, Zone.HAND)
+            val transitionResult = services.zones.moveToZone(newState, permanentId, Zone.HAND)
             newState = transitionResult.state
             events.addAll(transitionResult.events)
         }
@@ -431,8 +447,11 @@ class SacrificeAndPayContinuationResumer(
 
         val selectedPermanents = response.selectedCards
 
-        // If player didn't select enough untapped permanents, execute the suffer effect.
-        if (selectedPermanents.size < continuation.requiredCount) {
+        // If player didn't select enough untapped permanents (or ones that don't share a creature
+        // type when the cost demands it), execute the suffer effect.
+        if (selectedPermanents.size < continuation.requiredCount ||
+            !SharedCreatureTypeTapCost.satisfiedBy(state, continuation.sharedCreatureType, selectedPermanents)
+        ) {
             return executePayOrSufferConsequence(state, continuation, checkForMore)
         }
 
@@ -469,10 +488,8 @@ class SacrificeAndPayContinuationResumer(
             return executePayOrSufferConsequence(state, continuation, checkForMore)
         }
 
-        val counterName = continuation.counterType
+        val counterType = continuation.counterType
             ?: return ExecutionResult.error(state, "Put-counters payment has no counter type")
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(counterName)
 
         // Counters put on to pay a cost are an ordinary counter placement (CR 121.6), so this runs
         // the same four-step chokepoint as CostHandler's PutCountersOnSelf and AddCountersExecutor:
@@ -488,25 +505,23 @@ class SacrificeAndPayContinuationResumer(
             if (!newState.projectedState.canReceiveCounters(permanentId)) continue
             val counters = container.get<CountersComponent>() ?: CountersComponent()
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                newState, permanentId, counterType, continuation.requiredCounters, placerId = placerId
+                newState, permanentId, counterType, continuation.requiredCounters, placerId = placerId,
+                predicateEvaluator = services.predicateEvaluator
             )
             val firstThisTurn = DamageUtils.isFirstCounterThisTurn(newState, permanentId)
+            val firstOfTypeThisTurn = DamageUtils.isFirstCounterOfTypeThisTurn(newState, permanentId, counterType)
             newState = newState.updateEntity(permanentId) { c ->
                 c.with(counters.withAdded(counterType, modifiedCount))
             }.let {
-                DamageUtils.markCounterPlacedOnCreature(
-                    it, placerId, permanentId,
-                    com.wingedsheep.engine.handlers.effects.permanent.counters
-                        .counterTypeToString(counterType)
-                )
+                DamageUtils.markCounterPlacedOnCreature(it, placerId, permanentId, counterType)
             }
             events.add(
                 CountersAddedEvent(
                     permanentId,
-                    counterName,
+                    counterType,
                     modifiedCount,
                     container.get<CardComponent>()?.name ?: "Permanent",
-                    firstThisTurn,
+                    firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn,
                     placedBy = placerId,
                 )
             )
@@ -535,7 +550,7 @@ class SacrificeAndPayContinuationResumer(
 
         // Player chose to pay life
         val (newState, events) = LifePaymentService
-            .pay(state, continuation.playerId, continuation.requiredCount)
+            .pay(services.zones, state, continuation.playerId, continuation.requiredCount)
             ?: return ExecutionResult.error(state, "Player has no life total")
 
         return checkForMore(newState, events)
@@ -563,9 +578,9 @@ class SacrificeAndPayContinuationResumer(
         }
 
         val playerId = continuation.playerId
-        val count = MillAmountModifier.apply(state, playerId, continuation.requiredCount)
+        val count = MillAmountModifier.apply(state, playerId, continuation.requiredCount, predicateEvaluator = services.predicateEvaluator)
         val milled = state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(count)
-        val result = ZoneTransitionService.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
+        val result = services.zones.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
 
         return checkForMore(result.state, result.events)
     }
@@ -638,7 +653,7 @@ class SacrificeAndPayContinuationResumer(
                     phase = DecisionPhase.RESOLUTION
                 ),
                 canDecline = true,
-                cardRegistry = services.cardRegistry
+                manaSolver = services.manaSolver
             ) },
             answer = { decision -> PayOrSufferManaSelectionContinuation(
                 inner = continuation,
@@ -663,6 +678,7 @@ class SacrificeAndPayContinuationResumer(
         }
         val inner = continuation.inner
         val floated = ManaPaymentWindow.floatSelectedMana(
+            services.zones,
             state, inner.playerId, continuation.manaCost, response, continuation.availableSources, services
         )
         if (!floated.paid) return executePayOrSufferConsequence(floated.state, inner, checkForMore)
@@ -724,14 +740,7 @@ class SacrificeAndPayContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = ManaPool(
-            manaPoolComponent.white,
-            manaPoolComponent.blue,
-            manaPoolComponent.black,
-            manaPoolComponent.red,
-            manaPoolComponent.green,
-            manaPoolComponent.colorless
-        )
+        val manaPool = manaPoolComponent.toManaPool()
 
         val currentPool = manaPool
         var currentState = state
@@ -740,20 +749,11 @@ class SacrificeAndPayContinuationResumer(
         // No solver fallback here: everything the payer meant to tap is already in the pool —
         // either they had the mana floating, or the source window put it there. Auto-tapping the
         // shortfall would silently overrule what they picked.
-        val newPool = currentPool.pay(manaCost)
+        val newPool = currentPool.payNonSpellCost(manaCost)
             ?: return executePayOrSufferConsequence(state, continuation, checkForMore)
 
         currentState = currentState.updateEntity(playerId) { container ->
-            container.with(
-                ManaPoolComponent(
-                    white = newPool.white,
-                    blue = newPool.blue,
-                    black = newPool.black,
-                    red = newPool.red,
-                    green = newPool.green,
-                    colorless = newPool.colorless
-                )
-            )
+            container.with(newPool.toComponent())
         }
 
         return checkForMore(currentState, events)
@@ -789,10 +789,6 @@ class SacrificeAndPayContinuationResumer(
                 // Carried across the pause so a collection-reading suffer effect still resolves —
                 // Wand of Ith discards "the card revealed this way".
                 storedCollections = continuation.storedCollections,
-                // Rebind the enclosing ForEach loop's entity: the consequence may refer back to it
-                // (Tidal Flats' "creatures you control blocking *that creature*"), and a null here
-                // matches nothing at all rather than failing loudly.
-                iterationTarget = continuation.iterationEntityId
             ),
             triggeringEntityId = continuation.triggeringEntityId,
             triggeringPlayerId = continuation.triggeringPlayerId
@@ -801,7 +797,7 @@ class SacrificeAndPayContinuationResumer(
         // Execute the suffer effect using the registry
         val result = services.effectExecutorRegistry.execute(state, sufferEffect, context).toExecutionResult()
 
-        return if (result.isPaused) {
+        return if (result.outcome is Outcome.Paused) {
             result
         } else {
             checkForMore(result.state, result.events.toList())
@@ -842,7 +838,7 @@ class SacrificeAndPayContinuationResumer(
                 events.add(PermanentsSacrificedEvent(playerId, selectedPermanents))
                 newState = ZoneTransitionService.trackPermanentSacrifice(newState, selectedPermanents, playerId)
                 for (permanentId in selectedPermanents) {
-                    val transitionResult = ZoneTransitionService.moveToZone(newState, permanentId, Zone.GRAVEYARD)
+                    val transitionResult = services.zones.moveToZone(newState, permanentId, Zone.GRAVEYARD)
                     newState = transitionResult.state
                     events.addAll(transitionResult.events)
                 }
@@ -858,7 +854,7 @@ class SacrificeAndPayContinuationResumer(
                 }
 
                 val (newState, paymentEvents) = LifePaymentService
-                    .pay(state, playerId, continuation.requiredCount)
+                    .pay(services.zones, state, playerId, continuation.requiredCount)
                     ?: return ExecutionResult.error(state, "Player has no life total")
                 val events = paymentEvents.toMutableList()
                 return runAnyPlayerMayPayConsequence(newState, continuation, continuation.consequence, events, checkForMore)
@@ -887,19 +883,13 @@ class SacrificeAndPayContinuationResumer(
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences.authorize(priorEvents),
             controllerId = continuation.controllerId,
-            pipeline = PipelineState(
-                storedCollections = continuation.storedCollections,
-                // The enclosing per-permanent loop's current entity, so a consequence written as
-                // `EffectTarget.Self` still means that permanent after the pay-or-decline pause
-                // (Cleansing: "for each land, destroy that land unless any player pays 1 life").
-                iterationTarget = continuation.iterationTarget
-            ),
+            pipeline = PipelineState(storedCollections = continuation.storedCollections),
             triggeringEntityId = continuation.triggeringEntityId,
             triggeringPlayerId = continuation.triggeringPlayerId
         )
         val result = services.effectExecutorRegistry.execute(state, consequence, context).toExecutionResult()
         val allEvents = priorEvents + result.events
-        return if (result.isPaused) result.copy(events = allEvents) else checkForMore(result.state, allEvents)
+        return if (result.outcome is Outcome.Paused) result.copy(events = allEvents) else checkForMore(result.state, allEvents)
     }
 
     /**
@@ -924,7 +914,8 @@ class SacrificeAndPayContinuationResumer(
             state,
             cost.filter.youControl(),
             PredicateContext(controllerId = playerId),
-            excludeSelfId = if (cost.excludeSelf) sourceId else null
+            excludeSelfId = if (cost.excludeSelf) sourceId else null,
+            predicateEvaluator = services.predicateEvaluator
         )
 
     /**
@@ -975,8 +966,8 @@ class SacrificeAndPayContinuationResumer(
                 }
 
                 is CostAtom.PayLife -> {
-                    val life = state.lifeTotal(nextPlayerId) // CR 810.9a — team's shared total
-                    if (life >= atom.amount) {
+                    // CR 810.9a — team's shared total; CR 119.8 — a life-loss lock forbids paying.
+                    if (state.canPayLife(nextPlayerId, atom.amount)) {
                         val prompt = "Pay ${atom.amount} life to prevent ${continuation.sourceName}'s effect?"
                         val question = { decisionId: String -> YesNoDecision(
                             id = decisionId,
@@ -1008,6 +999,12 @@ class SacrificeAndPayContinuationResumer(
 
         // No player paid - run the "none paid" branch.
         return runAnyPlayerMayPayConsequence(state, continuation, continuation.consequenceIfNonePaid, emptyList(), checkForMore)
+    }
+
+    fun resumeUntapStepSkipChoice(state: GameState, continuation: UntapStepSkipChoiceContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore): ExecutionResult {
+        val result = services.turnManager.beginningPhaseManager.resumeUntapStepSkipChoice(state, continuation, response)
+        return if (result.outcome is Outcome.Done) checkForMore(result.state, result.events) else result
     }
 
     fun resumeUntapChoice(
@@ -1085,6 +1082,7 @@ class SacrificeAndPayContinuationResumer(
             }
         }
 
-        return ExecutionResult.success(newState, events)
+        // The rest of the turn (TurnManager parks it beneath this choice) carries on from here.
+        return checkForMore(newState, events)
     }
 }

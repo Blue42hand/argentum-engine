@@ -3,7 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.drb.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Kokusho, the Evening Star reprint in DRB. Canonical CardDefinition lives in CHK. */
+/**
+ * Kokusho, the Evening Star reprint in DRB. Canonical CardDefinition lives in its earliest set.
+ */
 val KokushoTheEveningStarReprint = Printing(
     oracleId = "cf631c93-b7fb-4e4f-b405-3778c15b1117",
     name = "Kokusho, the Evening Star",

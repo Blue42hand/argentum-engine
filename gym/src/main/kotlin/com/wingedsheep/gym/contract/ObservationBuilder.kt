@@ -1,5 +1,6 @@
 package com.wingedsheep.gym.contract
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AssignDamageDecision
 import com.wingedsheep.engine.core.BatchYesNoDecision
 import com.wingedsheep.engine.core.BatchYesNoResponse
@@ -86,7 +87,7 @@ class ObservationBuilder(
     cardRegistry: CardRegistry,
     private val schemaHash: String = SchemaHash.CURRENT
 ) {
-    private val visibility = Visibility(cardRegistry)
+    private val visibility = Visibility(cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
 
     fun build(
         state: GameState,
@@ -106,14 +107,29 @@ class ObservationBuilder(
 
         val pendingDecisionAndRegistry = state.pendingDecision
             ?.let { buildPendingDecision(it) }
-        val pendingDecisionView = pendingDecisionAndRegistry?.first
+        val canSeePlay = state.pendingDecision?.let { revealAll || perspectivePlayerId == it.playerId ||
+            perspectivePlayerId == state.actorFor(it.playerId) } ?: false
+        var pendingDecisionView = pendingDecisionAndRegistry?.first?.let {
+            if (canSeePlay) it else it.copy(subjectEntityId = null)
+        }
         val decisionRegistry = pendingDecisionAndRegistry?.second ?: ActionRegistry.EMPTY
 
         // Build legal-action views and their registry. When mid-decision the
         // engine's `legalActions` is empty — we use the decision options instead.
         val legalActionViews: List<LegalActionView>
         val actionRegistry: ActionRegistry
-        if (state.pendingDecision != null) {
+        if (state.pendingDecision is com.wingedsheep.engine.core.PlayCardDecision) {
+            val play = state.pendingDecision as com.wingedsheep.engine.core.PlayCardDecision
+            val visiblePlays = if (canSeePlay) legalActions else emptyList()
+            legalActionViews = visiblePlays.mapIndexed { idx, la -> legalActionToView(idx, la).copy(isDecisionOption = true) }
+            actionRegistry = ActionRegistry.ofPlayCardResponses(play.id, visiblePlays)
+            if (visiblePlays.isNotEmpty()) {
+                pendingDecisionView = pendingDecisionView?.copy(
+                    requiresStructuredResponse = false,
+                    responseSpec = null,
+                )
+            }
+        } else if (state.pendingDecision != null) {
             val responses = decisionRegistry.decisionResponses.map { it.second }
             legalActionViews = buildDecisionOptionViews(state.pendingDecision!!, responses)
             actionRegistry = decisionRegistry
@@ -432,6 +448,9 @@ class ObservationBuilder(
                     exileMaxCount = cost.exileMaxCount,
                     exileMinTotalWeight = cost.exileMinTotalWeight,
                     exileCardWeights = cost.exileCardWeights,
+                    exileWeightUnit = cost.exileWeightUnit,
+                    exileCardTypes = cost.exileCardTypes,
+                    exileWeightPerTarget = cost.exileWeightPerTarget,
                 )
             },
             // Combat candidates. The enumerator offers one DeclareAttackers / DeclareBlockers action
@@ -528,6 +547,9 @@ class ObservationBuilder(
                 val view = baseView(decision, PendingDecisionKind.CHOOSE_COLOR, shape, structured = false)
                 view to ActionRegistry.ofDecisionResponses(responses)
             }
+            is com.wingedsheep.engine.core.PlayCardDecision ->
+                baseView(decision, PendingDecisionKind.PLAY_CARD, baseShape, structured = true)
+                    .copy(subjectEntityId = decision.cardId) to ActionRegistry.EMPTY
             is ChooseOptionDecision -> {
                 val responses = decision.options.indices.map {
                     OptionChosenResponse(decision.id, it)

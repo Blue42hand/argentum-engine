@@ -14,6 +14,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Tests for Gravedigger's ETB ability when the creature in graveyard
@@ -59,15 +60,15 @@ class GravediggerCombatDeathTest : FunSpec({
 
         // Active player attacks with Grizzly Bears
         val attackResult = driver.declareAttackers(activePlayer, listOf(attackerBears), opponent)
-        attackResult.isSuccess shouldBe true
+        attackResult.outcome shouldBe Outcome.Done
 
         // Advance to declare blockers
         driver.passPriorityUntil(Step.DECLARE_BLOCKERS)
 
         // Opponent blocks with their Grizzly Bears
         val blockResult = driver.declareBlockers(opponent, mapOf(blockerBears to listOf(attackerBears)))
-        blockResult.isSuccess shouldBe true
-        exportPrivacyFixture("declared-combat", ClientStateTransformer(driver.cardRegistry).transform(driver.state, opponent))
+        blockResult.outcome shouldBe Outcome.Done
+        exportPrivacyFixture("declared-combat", ClientStateTransformer(driver.cardRegistry, predicateEvaluator = driver.services.predicateEvaluator).transform(driver.state, opponent))
 
         // Let combat damage happen - both creatures should die
         driver.passPriorityUntil(Step.POSTCOMBAT_MAIN)
@@ -82,7 +83,7 @@ class GravediggerCombatDeathTest : FunSpec({
 
         // Cast Gravedigger
         val castResult = driver.castSpell(activePlayer, gravedigger)
-        castResult.isSuccess shouldBe true
+        castResult.outcome shouldBe Outcome.Done
 
         // Resolve the spell
         driver.bothPass()

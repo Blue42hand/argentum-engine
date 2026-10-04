@@ -38,7 +38,7 @@ val PiaNalaarConsulOfRevival = card("Pia Nalaar, Consul of Revival") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youPlayLand(fromZone = Zone.EXILE)
+        trigger = Triggers.you.playsLand(fromZone = Zone.EXILE)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -53,7 +53,7 @@ val PiaNalaarConsulOfRevival = card("Pia Nalaar, Consul of Revival") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
+        trigger = Triggers.you.casts(
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE))
         )
         effect = Effects.CreateToken(

@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.ai
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.ai.ActionResponse
 import com.wingedsheep.ai.AiPlayerController
 import com.wingedsheep.ai.engine.EngineAiPlayerController
@@ -39,7 +40,7 @@ class JevControllerProvider(
 
     override fun create(context: AiControllerContext): AiPlayerController {
         val processor = ActionProcessor(registry)
-        val viewTransformer = ClientStateTransformer(registry)
+        val viewTransformer = ClientStateTransformer(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val fallback = EngineAiPlayerController(registry, context.playerId, { context.snapshot()?.state })
         return JevAiPlayerController(context.playerId, JevClient(JevConfig(apiKey, endpoint, model, timeoutMs)), fallback,
             validate = { response ->

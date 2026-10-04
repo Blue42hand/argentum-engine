@@ -62,6 +62,8 @@ object DecisionValidators {
      */
     fun validate(decision: PendingDecision, response: DecisionResponse, state: GameState? = null): String? {
         return when (decision) {
+            is com.wingedsheep.engine.core.PlayCardDecision ->
+                if (response is com.wingedsheep.engine.core.PlayCardResponse) null else "Play the instructed card"
             is ChooseTargetsDecision -> validateTargets(decision, response, state)
             is SelectCardsDecision -> validateSelectCards(decision, response, state)
             is YesNoDecision -> validateYesNo(response)
@@ -202,6 +204,18 @@ object DecisionValidators {
             if (selectedIds.size != selectedIds.toSet().size) {
                 return "The same target can't be chosen more than once for requirement $reqIndex"
             }
+
+            // Separate requirements are separate "target" words, so they may share a pick (Seeds
+            // of Strength) — except an "another target" requirement, which must avoid every
+            // earlier requirement's picks.
+            if (decision.targetRequirements.first { it.index == reqIndex }.mustDifferFromEarlier) {
+                val earlier = response.selectedTargets
+                    .filterKeys { it < reqIndex }
+                    .values.flatten().toSet()
+                if (selectedIds.any { it in earlier }) {
+                    return "Target for requirement $reqIndex must differ from the other chosen targets"
+                }
+            }
         }
 
         // Every *declared* requirement is then checked against the group that answered it, so the
@@ -260,6 +274,13 @@ object DecisionValidators {
                 if (controllers.size != controllers.toSet().size) {
                     return "Targets for requirement $reqIndex must be controlled by different players"
                 }
+            }
+            // "Up to one target ... of each card type" (Uldaros Theorix). TargetValidator is
+            // authoritative; this rejects it interactively too.
+            if (req.onePerCardType && selectedIds.size > 1 && state != null &&
+                !com.wingedsheep.engine.mechanics.targeting.OnePerCardType.isSatisfied(state, selectedIds)
+            ) {
+                return "Targets for requirement $reqIndex must be at most one of each card type"
             }
         }
         return null
@@ -361,6 +382,22 @@ object DecisionValidators {
         if (response.color !in decision.availableColors) {
             return "Invalid color: ${response.color} is not available"
         }
+        if (response.colors.isNotEmpty()) {
+            // Multi-color answer ("the color or colors of your choice"): a nonempty set of
+            // distinct, offered colors, no larger than the decision allows, naming `color` too.
+            if (response.colors.size > decision.maxColors) {
+                return "Too many colors: at most ${decision.maxColors} may be chosen"
+            }
+            if (response.colors.toSet().size != response.colors.size) {
+                return "Duplicate colors in response"
+            }
+            response.colors.firstOrNull { it !in decision.availableColors }?.let {
+                return "Invalid color: $it is not available"
+            }
+            if (response.color !in response.colors) {
+                return "The primary color must be one of the chosen colors"
+            }
+        }
         return null
     }
 
@@ -402,6 +439,10 @@ object DecisionValidators {
                 return "Target $targetId cannot receive more than $maxForTarget"
             }
         }
+        // A target left out of the map would receive nothing, so a minimum covers every target.
+        if (decision.minPerTarget > 0 && decision.targets.any { it !in response.distribution }) {
+            return "Each target must receive at least ${decision.minPerTarget}"
+        }
         return null
     }
 
@@ -431,6 +472,24 @@ object DecisionValidators {
             return "Expected pile split response"
         }
 
+        if (decision.allowUnassigned || decision.maxPileMemberships.isNotEmpty() || decision.pileOptions.isNotEmpty() || decision.requiredAssignments != null) {
+            if (response.piles.size != decision.numberOfPiles) return "Incorrect number of piles"
+            if (response.piles.any { it.size != it.distinct().size }) return "A pile contains duplicate cards"
+            for ((index, pile) in response.piles.withIndex()) {
+                val options = decision.pileOptions[index]
+                if (options != null && pile.any { it !in options }) return "Invalid card for pile"
+            }
+            if (decision.requiredAssignments != null && response.piles.sumOf { it.size } != decision.requiredAssignments)
+                return "Incorrect number of assignments"
+            val counts = response.piles.flatten().groupingBy { it }.eachCount()
+            if (counts.keys.any { it !in decision.cards }) return "Invalid card in pile"
+            for (card in decision.cards) {
+                val count = counts[card] ?: 0
+                if (!decision.allowUnassigned && count == 0) return "Every card must be assigned"
+                if (count > (decision.maxPileMemberships[card] ?: 1)) return "Too many piles for a card"
+            }
+            return null
+        }
         // Flattened rather than set-compared: a card can't be in two piles at once, so a split that
         // duplicates one card and drops another has the same set as a legal one (the multiplicity
         // hole [isSameCollection] closes for orderings).

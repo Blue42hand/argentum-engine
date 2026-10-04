@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.registry.CardRegistry
@@ -8,6 +9,8 @@ import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.SuppressesWardForGroupComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.EmblemStaticAbilityComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
@@ -40,7 +43,8 @@ class BattlefieldStaticsIndex private constructor(
      */
     val triggerGrantProviders: List<TriggerIndex.GrantProviderEntry>,
     /**
-     * Battlefield-scope [GrantWard] statics, with the granter's projected controller (needed to
+     * Battlefield-scope [GrantWard] statics — printed on a permanent or owned by an emblem
+     * ([EmblemStaticAbilityComponent]) — with the granter's projected controller (needed to
      * evaluate "you control" / "an opponent controls" predicates) and its id (needed for
      * `excludeSelf`).
      */
@@ -55,7 +59,7 @@ class BattlefieldStaticsIndex private constructor(
      * unfiltered — consumers apply their own face-down / card-definition checks, exactly as they
      * did while scanning the battlefield themselves.
      */
-    val attachmentsByTarget: Map<EntityId, List<EntityId>>,
+    val attachmentsByTarget: Map<EntityId, List<EntityId>>
 ) {
     data class WardGrantProvider(
         val sourceId: EntityId,
@@ -75,9 +79,9 @@ class BattlefieldStaticsIndex private constructor(
     companion object {
         val EMPTY = BattlefieldStaticsIndex(emptyList(), emptyList(), emptyList(), emptyMap())
 
-        fun build(state: GameState, cardRegistry: CardRegistry): BattlefieldStaticsIndex {
+        fun build(state: GameState, cardRegistry: CardRegistry, predicateEvaluator: PredicateEvaluator): BattlefieldStaticsIndex {
             // Reused across the whole walk; ConditionEvaluator is stateless.
-            val conditionEvaluator = ConditionEvaluator()
+            val conditionEvaluator = predicateEvaluator.conditions
             var triggerGrants: MutableList<TriggerIndex.GrantProviderEntry>? = null
             var wardGrants: MutableList<WardGrantProvider>? = null
             var suppressors: MutableList<WardSuppressor>? = null
@@ -149,6 +153,20 @@ class BattlefieldStaticsIndex private constructor(
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            // "Knights you control have ward {1}" on an emblem (Teferi Akosa of Zhalfir). The
+            // emblem entity lives in no zone, so the battlefield walk above never reaches it; its
+            // grant reads exactly like one printed on a permanent its controller controls.
+            for ((emblemId, container) in state.entities) {
+                val statics = container.get<EmblemStaticAbilityComponent>() ?: continue
+                val emblemControllerId = container.get<ControllerComponent>()?.playerId ?: continue
+                for (ability in statics.abilities) {
+                    if (ability is GrantWard && ability.filter.scope is Scope.Battlefield) {
+                        (wardGrants ?: mutableListOf<WardGrantProvider>().also { wardGrants = it })
+                            .add(WardGrantProvider(emblemId, ability, emblemControllerId))
                     }
                 }
             }

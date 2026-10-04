@@ -9,5 +9,5 @@ package com.wingedsheep.gym.contract
  * mistaken for equivalent observations/actions.
  */
 object SchemaHash {
-    const val CURRENT: String = "argentum-gym-contract@v1.13-autopay-feasibility"
+    const val CURRENT: String = "argentum-gym-contract@v1.15-autopay-and-native-cost-data"
 }

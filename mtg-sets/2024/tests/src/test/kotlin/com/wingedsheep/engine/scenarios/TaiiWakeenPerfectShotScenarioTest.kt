@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Taii Wakeen, Perfect Shot — {R}{W} 2/3 Legendary Creature — Human Mercenary
@@ -119,7 +120,7 @@ class TaiiWakeenPerfectShotScenarioTest : FunSpec({
         val activation = driver.submit(
             ActivateAbility(playerId = me, sourceId = taii, abilityId = taiiAbilityId, xValue = 2)
         )
-        activation.isSuccess shouldBe true
+        activation.outcome shouldBe Outcome.Done
         driver.bothPass() // resolve the ability -> install the until-end-of-turn +2 amplification
 
         // Bolt the opponent: 3 base + 2 = 5 damage.
@@ -148,14 +149,14 @@ class TaiiWakeenPerfectShotScenarioTest : FunSpec({
 
         // The amplification floating effect is live this turn.
         driver.state.floatingEffects.count {
-            it.effect.modification is SerializableModification.AmplifyNoncombatDamage
+            it.effect.modification is SerializableModification.AmplifyDamage
         } shouldBe 1
 
         // Advance to the next turn — the until-end-of-turn effect is cleaned up.
         driver.passPriorityUntil(Step.UPKEEP)
 
         driver.state.floatingEffects.count {
-            it.effect.modification is SerializableModification.AmplifyNoncombatDamage
+            it.effect.modification is SerializableModification.AmplifyDamage
         } shouldBe 0
     }
 })

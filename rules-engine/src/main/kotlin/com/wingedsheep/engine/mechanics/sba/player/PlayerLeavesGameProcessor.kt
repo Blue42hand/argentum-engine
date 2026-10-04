@@ -3,8 +3,10 @@ package com.wingedsheep.engine.mechanics.sba.player
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEndReason
 import com.wingedsheep.engine.core.PlayerLeftGameEvent
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.isResolving
 import com.wingedsheep.engine.mechanics.combat.CombatRemovalHelper
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockedComponent
@@ -57,7 +59,7 @@ import com.wingedsheep.sdk.scripting.Duration
  */
 object PlayerLeavesGameProcessor {
 
-    fun process(state: GameState, leaver: EntityId, reason: GameEndReason): ExecutionResult {
+    fun process(zones: ZoneTransitionService, state: GameState, leaver: EntityId, reason: GameEndReason): ExecutionResult {
         var s = state
 
         // 1. End any effect granting the leaver control of an object (CR 800.4a). Removing
@@ -140,11 +142,23 @@ object PlayerLeavesGameProcessor {
         // 8. Mark the leave processing done so the SBA loop never re-applies it.
         s = s.updateEntity(leaver) { it.with(PlayerLeftGameComponent) }
 
+        // Player control ends when its controller leaves, or when an abandoned resolution loses
+        // its bottom frame. Retain only grants for living seats and still-existing stack visits.
+        val expiredControl = s.resolutionControls.filter {
+            it.controllerId == leaver || it.playerId == leaver ||
+                (!s.isCurrentObject(it.resolvingObject) && !s.isResolving(it.resolvingObject)) ||
+                (state.isResolving(it.resolvingObject) && !s.isResolving(it.resolvingObject))
+        }
+        s = s.copy(resolutionControls = s.resolutionControls - expiredControl.toSet())
+        val controlEvents = expiredControl.map {
+            com.wingedsheep.engine.core.ResolutionControlEvent(it, com.wingedsheep.engine.core.ResolutionControlEvent.Stage.ENDED)
+        }
+
         // Leaving the game ends zone-return durations without producing a return trigger.
-        val returns = com.wingedsheep.engine.handlers.effects.ZoneReturnService.returnDepartedSources(s)
+        val returns = com.wingedsheep.engine.handlers.effects.ZoneReturnService.returnDepartedSources(zones, s)
         return ExecutionResult.success(
             returns.state,
-            listOf(PlayerLeftGameEvent(leaver, reason, toRemove.size)) + returns.events
+            listOf(PlayerLeftGameEvent(leaver, reason, toRemove.size)) + controlEvents + returns.events
         )
     }
 
@@ -195,10 +209,8 @@ object PlayerLeavesGameProcessor {
             container.get<BlockingComponent>()?.let { blocking ->
                 val kept = blocking.blockedAttackerIds.filter { it !in removed }
                 if (kept.size != blocking.blockedAttackerIds.size) {
-                    s = s.updateEntity(id) { c ->
-                        if (kept.isEmpty()) c.without<BlockingComponent>()
-                        else c.with(BlockingComponent(kept))
-                    }
+                    // Still a blocking creature with nothing left to block (CR 509.1g).
+                    s = s.updateEntity(id) { c -> c.with(BlockingComponent(kept)) }
                 }
             }
 

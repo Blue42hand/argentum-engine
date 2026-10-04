@@ -13,17 +13,12 @@ import java.util.concurrent.Callable
 fun MultiEnvService.createBatch(configs: List<EnvConfig>): List<CreatedEnv> {
     if (configs.isEmpty()) return emptyList()
 
-    val lifecycleLock = Any()
     val createdIds = mutableListOf<EnvId>()
-    var abandoned = false
     val tasks = configs.mapIndexed { index, config ->
         Callable<CreateBatchOutcome> {
             try {
                 val created = create(config)
-                synchronized(lifecycleLock) {
-                    // Interrupted callers may have returned while this worker was still initializing.
-                    if (abandoned) dispose(listOf(created.envId)) else createdIds.add(created.envId)
-                }
+                synchronized(createdIds) { createdIds.add(created.envId) }
                 CreateBatchOutcome.Success(created)
             } catch (error: Exception) {
                 CreateBatchOutcome.Failure(index, error)
@@ -36,10 +31,9 @@ fun MultiEnvService.createBatch(configs: List<EnvConfig>): List<CreatedEnv> {
         if (failure != null) throwCreateBatchFailure(failure)
         return outcomes.map { (it as CreateBatchOutcome.Success).created }
     } catch (error: Throwable) {
-        synchronized(lifecycleLock) {
-            abandoned = true
-            dispose(createdIds)
-        }
+        // invokeAll settles every worker before it returns or throws, so no create can still be
+        // registering behind this cleanup.
+        synchronized(createdIds) { dispose(createdIds) }
         throw error
     }
 }

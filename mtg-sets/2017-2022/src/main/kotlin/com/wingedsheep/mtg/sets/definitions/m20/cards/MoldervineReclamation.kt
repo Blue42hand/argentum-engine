@@ -16,11 +16,7 @@ val MoldervineReclamation = card("Moldervine Reclamation") {
     oracleText = "Whenever a creature you control dies, you gain 1 life and draw a card."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.GainLife(1) then Effects.DrawCards(1)
     }
 

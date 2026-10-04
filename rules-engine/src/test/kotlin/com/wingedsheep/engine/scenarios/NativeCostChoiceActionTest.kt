@@ -17,7 +17,6 @@ import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
 import com.wingedsheep.mtg.sets.definitions.eoe.cards.SecludedStarforge
 import com.wingedsheep.mtg.sets.definitions.ktk.cards.TreasureCruise
 import com.wingedsheep.mtg.sets.definitions.ktk.cards.EmptyThePits
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
@@ -204,7 +203,7 @@ class NativeCostChoiceActionTest : FunSpec({
         val offered = driver.legalActions(player).first { legal ->
             (legal.action as? ActivateAbility)?.sourceId == feeder
         }
-        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry), driver.cardRegistry)
+        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry, com.wingedsheep.engine.handlers.PredicateEvaluator(driver.cardRegistry)), driver.cardRegistry)
             .enrich(listOf(offered), driver.state, player).single()
         ("sacrificedPermanents" in info.parameterSpec.allowedFields) shouldBe true
         ("discardedCards" in info.parameterSpec.allowedFields) shouldBe false
@@ -230,7 +229,10 @@ class NativeCostChoiceActionTest : FunSpec({
         val offered = driver.legalActions(player).first {
             (it.action as? CastSpell)?.cardId == cruise
         }
-        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry), driver.cardRegistry)
+        val info = LegalActionEnricher(
+            ManaSolver(driver.cardRegistry, com.wingedsheep.engine.handlers.PredicateEvaluator(driver.cardRegistry)),
+            driver.cardRegistry
+        )
             .enrich(listOf(offered), driver.state, player).single()
 
         offered.affordable shouldBe true
@@ -276,7 +278,7 @@ class NativeCostChoiceActionTest : FunSpec({
         val chosen = ActionParameterizer.apply(
             offered, ActionParams(delvedCards = graveyard), driver.state
         )
-        driver.replaceState(ZoneTransitionService.moveToZone(
+        driver.replaceState(driver.zones.moveToZone(
             driver.state, graveyard.first(), Zone.EXILE
         ).state)
 
@@ -301,7 +303,7 @@ class NativeCostChoiceActionTest : FunSpec({
         val action = ActionParameterizer.apply(
             offered, ActionParams(delvedCards = graveyard), driver.state
         )
-        driver.replaceState(ZoneTransitionService.moveToZone(driver.state, island, Zone.HAND).state)
+        driver.replaceState(driver.zones.moveToZone(driver.state, island, Zone.HAND).state)
 
         (driver.submit(action).error != null) shouldBe true
         driver.state.getGraveyard(player).containsAll(graveyard) shouldBe true

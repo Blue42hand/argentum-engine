@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
+import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -11,6 +12,8 @@ import com.wingedsheep.sdk.model.Deck
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.engine.core.Outcome
+import io.kotest.matchers.shouldNotBe
 
 /**
  * Zell Dincht (FIN) — {2}{R} Legendary Creature — Human Monk 0/3.
@@ -60,16 +63,16 @@ class ZellDinchtScenarioTest : FunSpec({
         driver.putCreatureOnBattlefield(me, "Zell Dincht")
 
         val land1 = driver.putCardInHand(me, "Mountain")
-        driver.playLand(me, land1).isSuccess shouldBe true
+        driver.playLand(me, land1).outcome shouldBe Outcome.Done
         driver.state.getEntity(me)?.get<LandDropsComponent>()?.remaining shouldBe 0
 
         // The static bonus grants one more land play this turn.
         val land2 = driver.putCardInHand(me, "Mountain")
-        driver.playLand(me, land2).isSuccess shouldBe true
+        driver.playLand(me, land2).outcome shouldBe Outcome.Done
 
         // Now the extra drop is consumed; a third land play is illegal.
         val land3 = driver.putCardInHand(me, "Mountain")
-        driver.submitExpectFailure(com.wingedsheep.engine.core.PlayLand(me, land3)).isSuccess shouldBe false
+        driver.submitExpectFailure(com.wingedsheep.engine.core.PlayLand(me, land3)).outcome shouldNotBe Outcome.Done
     }
 
     test("returns a land you control to its owner's hand at your end step") {
@@ -78,14 +81,20 @@ class ZellDinchtScenarioTest : FunSpec({
 
         driver.putCreatureOnBattlefield(me, "Zell Dincht")
         val land = driver.putLandOnBattlefield(me, "Mountain")
+        val kept = driver.putLandOnBattlefield(me, "Mountain")
         val handBefore = driver.getHandSize(me)
 
-        // Advance to the end step; the trigger goes on the stack and asks which land to return.
+        // Advance to the end step. The bounce doesn't target (CR 115.10a), so the land is chosen
+        // as the trigger resolves, not when it goes on the stack.
         driver.passPriorityUntil(Step.END)
         repeat(20) {
             if (!driver.state.getZone(me, Zone.BATTLEFIELD).contains(land)) return@repeat
             when (val pending = driver.pendingDecision) {
-                is ChooseTargetsDecision -> driver.submitTargetSelection(pending.playerId, listOf(land))
+                is ChooseTargetsDecision -> error("The bounce must not target")
+                is SelectCardsDecision -> {
+                    pending.options.toSet() shouldBe setOf(land, kept)
+                    driver.submitCardSelection(pending.playerId, listOf(land))
+                }
                 null -> {
                     if (driver.state.stack.isEmpty()) return@repeat
                     driver.bothPass()
@@ -98,6 +107,7 @@ class ZellDinchtScenarioTest : FunSpec({
             driver.state.getZone(me, Zone.BATTLEFIELD).contains(land) shouldBe false
             driver.state.getZone(me, Zone.HAND).contains(land) shouldBe true
             driver.getHandSize(me) shouldBe handBefore + 1
+            driver.state.getZone(me, Zone.BATTLEFIELD).contains(kept) shouldBe true
         }
     }
 })

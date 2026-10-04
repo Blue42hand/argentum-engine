@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dst.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Skullclamp — Darksteel #140
@@ -34,7 +32,7 @@ val Skullclamp = card("Skullclamp") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(to = Zone.GRAVEYARD, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.dies()
         effect = Effects.DrawCards(2)
         description = "Whenever equipped creature dies, draw two cards."
     }

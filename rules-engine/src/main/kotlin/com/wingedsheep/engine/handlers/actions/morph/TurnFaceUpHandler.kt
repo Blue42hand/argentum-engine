@@ -1,14 +1,13 @@
 package com.wingedsheep.engine.handlers.actions.morph
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.TurnFaceUp
 import com.wingedsheep.engine.core.TurnFaceUpEvent
-import com.wingedsheep.engine.event.TriggerDetector
-import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.actions.ActionHandler
@@ -53,8 +52,6 @@ class TurnFaceUpHandler(
     private val manaSolver: ManaSolver,
     private val costHandler: CostHandler,
     private val costCalculator: CostCalculator,
-    private val triggerDetector: TriggerDetector,
-    private val triggerProcessor: TriggerProcessor,
     private val effectExecutorRegistry: com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
     private val costPaymentService: CostPaymentService,
@@ -148,8 +145,10 @@ class TurnFaceUpHandler(
                             red = poolComponent.red,
                             green = poolComponent.green,
                             colorless = poolComponent.colorless,
-                            restrictedMana = poolComponent.restrictedMana
-                        )
+                            restrictedMana = poolComponent.restrictedMana,
+                            snowMana = poolComponent.snowMana,
+                            snowColorless = poolComponent.snowColorless
+                        ).withSpendingColors(state, action.playerId)
                         if (!costHandler.canPayManaCost(pool, withXResolved(manaCost, xValue), faceUpContext)) {
                             return "Insufficient mana in pool to turn this creature face up"
                         }
@@ -231,8 +230,10 @@ class TurnFaceUpHandler(
                             red = poolComponent.red,
                             green = poolComponent.green,
                             colorless = poolComponent.colorless,
-                            restrictedMana = poolComponent.restrictedMana
-                        )
+                            restrictedMana = poolComponent.restrictedMana,
+                            snowMana = poolComponent.snowMana,
+                            snowColorless = poolComponent.snowColorless
+                        ).withSpendingColors(currentState, action.playerId)
 
                         val newPool = costHandler.payManaCost(pool, withXResolved(manaCost, xValue), faceUpContext)
                             ?: return ExecutionResult.error(currentState, "Insufficient mana in pool")
@@ -246,7 +247,9 @@ class TurnFaceUpHandler(
                                     red = newPool.red,
                                     green = newPool.green,
                                     colorless = newPool.colorless,
-                                    restrictedMana = newPool.restrictedMana
+                                    restrictedMana = newPool.restrictedMana,
+                                    snowMana = newPool.snowMana,
+                                    snowColorless = newPool.snowColorless
                                 )
                             )
                         }
@@ -276,8 +279,10 @@ class TurnFaceUpHandler(
                             red = poolComponent.red,
                             green = poolComponent.green,
                             colorless = poolComponent.colorless,
-                            restrictedMana = poolComponent.restrictedMana
-                        )
+                            restrictedMana = poolComponent.restrictedMana,
+                            snowMana = poolComponent.snowMana,
+                            snowColorless = poolComponent.snowColorless
+                        ).withSpendingColors(currentState, action.playerId)
 
                         val partialResult = pool.payPartial(manaCost, faceUpContext)
                         var poolAfterPayment = partialResult.newPool
@@ -295,7 +300,7 @@ class TurnFaceUpHandler(
                         val xSymbolCount = manaCost.xCount.coerceAtLeast(1)
                         var xRemainingToPay = xValue * xSymbolCount
                         while (xRemainingToPay > 0 && poolAfterPayment.colorless > 0) {
-                            poolAfterPayment = poolAfterPayment.copy(colorless = poolAfterPayment.colorless - 1)
+                            poolAfterPayment = poolAfterPayment.spendColorless()!!
                             colorlessSpent++
                             xRemainingToPay--
                         }
@@ -310,11 +315,11 @@ class TurnFaceUpHandler(
                                 }
                                 if (current <= 0) break
                                 poolAfterPayment = when (color) {
-                                    Color.WHITE -> poolAfterPayment.copy(white = poolAfterPayment.white - 1).also { whiteSpent++ }
-                                    Color.BLUE -> poolAfterPayment.copy(blue = poolAfterPayment.blue - 1).also { blueSpent++ }
-                                    Color.BLACK -> poolAfterPayment.copy(black = poolAfterPayment.black - 1).also { blackSpent++ }
-                                    Color.RED -> poolAfterPayment.copy(red = poolAfterPayment.red - 1).also { redSpent++ }
-                                    Color.GREEN -> poolAfterPayment.copy(green = poolAfterPayment.green - 1).also { greenSpent++ }
+                                    Color.WHITE -> poolAfterPayment.spend(color)!!.also { whiteSpent++ }
+                                    Color.BLUE -> poolAfterPayment.spend(color)!!.also { blueSpent++ }
+                                    Color.BLACK -> poolAfterPayment.spend(color)!!.also { blackSpent++ }
+                                    Color.RED -> poolAfterPayment.spend(color)!!.also { redSpent++ }
+                                    Color.GREEN -> poolAfterPayment.spend(color)!!.also { greenSpent++ }
                                 }
                                 xRemainingToPay--
                             }
@@ -329,7 +334,9 @@ class TurnFaceUpHandler(
                                     red = poolAfterPayment.red,
                                     green = poolAfterPayment.green,
                                     colorless = poolAfterPayment.colorless,
-                                    restrictedMana = poolAfterPayment.restrictedMana
+                                    restrictedMana = poolAfterPayment.restrictedMana,
+                                    snowMana = poolAfterPayment.snowMana,
+                                    snowColorless = poolAfterPayment.snowColorless
                                 )
                             )
                         }
@@ -372,9 +379,9 @@ class TurnFaceUpHandler(
 
                     is PaymentStrategy.Explicit -> {
                         for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                            val (tappedState, tapEvent) = tap(currentState, sourceId)
+                            val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
                             currentState = tappedState
-                            tapEvent?.let(events::add)
+                            events.addAll(tapEvents)
                         }
                     }
                 }
@@ -390,7 +397,7 @@ class TurnFaceUpHandler(
             else -> {
                 val flip: com.wingedsheep.sdk.scripting.effects.Effect =
                     faceUpEffect
-                        ?.let { Effects.Composite(TurnFaceUpEffect(EffectTarget.Self), it) }
+                        ?.let { TurnFaceUpEffect(EffectTarget.Self) then it }
                         ?: TurnFaceUpEffect(EffectTarget.Self)
                 return when (
                     val result = costPaymentService.pay(
@@ -457,24 +464,6 @@ class TurnFaceUpHandler(
             container.with(TurnedPermanentFaceUpThisTurnComponent(existing.count + 1))
         }
 
-        // Detect and process "when turned face up" triggers
-        val triggers = triggerDetector.detectTriggers(currentState, events)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = triggerProcessor.processTriggers(currentState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state.withPriority(action.playerId),
-                    events + triggerResult.events
-                )
-            }
-
-            return ExecutionResult.success(
-                triggerResult.newState.withPriority(action.playerId),
-                events + triggerResult.events
-            )
-        }
-
         // Player retains priority after turning face up.
         // Must call withPriority to clear priorityPassedBy — otherwise the opponent's
         // earlier pass is treated as still valid, causing both players to appear "passed"
@@ -489,11 +478,9 @@ class TurnFaceUpHandler(
                 services.manaSolver,
                 services.costHandler,
                 services.costCalculator,
-                services.triggerDetector,
-                services.triggerProcessor,
                 services.effectExecutorRegistry,
                 services.manaAbilitySideEffectExecutor,
-                CostPaymentService(services)
+                services.costPaymentService
             )
         }
     }

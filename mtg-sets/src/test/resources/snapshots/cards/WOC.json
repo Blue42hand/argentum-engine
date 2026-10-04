@@ -15,7 +15,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tegwyll, Duke of Splendor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Faerie ctrl:you",

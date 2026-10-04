@@ -87,7 +87,11 @@ class GameSimulator(
      * [SimulationResult.StoppedAtLimit], never as successful completion.
      */
     fun simulate(state: GameState, action: GameAction): SimulationResult {
-        val result = processor.process(state, action).result
+        val play = state.pendingDecision as? PlayCardDecision
+        val submission = if (play != null && (action is CastSpell || action is PlayLand)) {
+            SubmitDecision(play.playerId, PlayCardResponse(play.id, action))
+        } else action
+        val result = processor.process(state, submission).result
         return resolveToQuietState(result)
     }
 
@@ -123,6 +127,13 @@ class GameSimulator(
             .map { action -> ActionOutcome(action, simulate(state, action.action)) }
     }
 
+    /** Cheap completion for a forced play when no strategic picker is installed. */
+    internal fun completeForcedPlay(state: GameState, playerId: EntityId): GameAction {
+        val offer = getLegalActions(state, playerId).first { it.affordable && !it.hasUnfillableTargetRequirement }
+        val bound = XCostSelection.bindBestX(state, offer)
+        return TargetSelection.fillHeuristically(state, bound, playerId, fillPartialRequirements = true)
+    }
+
     /**
      * Resolve to a "quiet" state: auto-pass priority for both players and
      * auto-resolve trivial decisions until the stack is empty or a real
@@ -150,7 +161,7 @@ class GameSimulator(
             }
 
             // Auto-resolve trivial decisions; use decisionResolver for non-trivial ones
-            if (current.isPaused) {
+            if (current.outcome is Outcome.Paused) {
                 val decision = current.pendingDecision!!
                 val trivialResponse = trivialResponseFor(decision)
                 if (trivialResponse != null) {
@@ -176,7 +187,9 @@ class GameSimulator(
                         // it beats stopping: an abandoned resolution scores a board with the ward
                         // unpaid or the combat damage unassigned — a position the game never
                         // actually reaches.
-                        fallbackResponder.respond(current.state, decision, decision.playerId)
+                        if (decision is PlayCardDecision) {
+                            PlayCardResponse(decision.id, completeForcedPlay(current.state, decision.playerId))
+                        } else fallbackResponder.respond(current.state, decision, decision.playerId)
                     } else {
                         try {
                             isResolving = true

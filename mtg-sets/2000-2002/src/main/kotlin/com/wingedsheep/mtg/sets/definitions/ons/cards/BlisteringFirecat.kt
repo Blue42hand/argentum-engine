@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Blistering Firecat
@@ -26,7 +27,7 @@ val BlisteringFirecat = card("Blistering Firecat") {
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = SacrificeSelfEffect
     }
 
@@ -35,7 +36,7 @@ val BlisteringFirecat = card("Blistering Firecat") {
     metadata {
         rarity = Rarity.RARE
         collectorNumber = "189"
-        artist = "Dario Calmese"
+        artist = "Arnie Swekel"
         flavorText = "\"The next one who summons a cat is going to get it.\"\n—Arcanis the Omnipotent"
         imageUri = "https://cards.scryfall.io/normal/front/e/0/e0ddcf4a-1943-49dd-a02c-75804ce4bc3e.jpg?1562948535"
     }
