@@ -1370,13 +1370,25 @@ class GamePlayHandler(
                                         { gameSession.isCurrentAiPaymentRetry(snapshot) },
                                         gameSession.sessionId)) {
                                     PaymentRetryAdmission.SCHEDULED -> {
-                                        logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
-                                            aiPlayerId.value, gameSession.sessionId, result.reason)
+                                        if (result.paymentPreflight) {
+                                            logger.warn("External AI payment preflight rejected for seat {} in game {}; same pilot is correcting: {}",
+                                                aiPlayerId.value, gameSession.sessionId, result.reason)
+                                        } else {
+                                            logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
+                                                aiPlayerId.value, gameSession.sessionId, result.reason)
+                                        }
                                         return PaymentCorrectionOutcome.RETRY_QUEUED
                                     }
                                     PaymentRetryAdmission.OBSOLETE -> return PaymentCorrectionOutcome.OBSOLETE
-                                    PaymentRetryAdmission.EXHAUSTED -> if (!gameSession.isCurrentAiPaymentRetry(snapshot))
-                                        return PaymentCorrectionOutcome.OBSOLETE
+                                    PaymentRetryAdmission.EXHAUSTED -> {
+                                        if (!gameSession.isCurrentAiPaymentRetry(snapshot))
+                                            return PaymentCorrectionOutcome.OBSOLETE
+                                        logger.error(
+                                            "External AI action failed for seat {} in game {}: payment correction attempt limit reached after {} — refusing server-side strategic fallback",
+                                            aiPlayerId.value, gameSession.sessionId, result.reason,
+                                        )
+                                        return PaymentCorrectionOutcome.FATAL
+                                    }
                                 }
                             } else return PaymentCorrectionOutcome.OBSOLETE
                         }
