@@ -42,11 +42,7 @@ val TegwyllDukeOfSplendor = card("Tegwyll, Duke of Splendor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.FAERIE).youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.FAERIE).youControl()).dies()
         effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
 

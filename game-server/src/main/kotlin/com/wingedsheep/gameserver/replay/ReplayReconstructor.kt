@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.replay
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActionProcessor
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.GameAction
@@ -153,6 +154,9 @@ class ReplayReconstructor(
         return state
     }
 
+    /** The state a replay starts from, as reconstruction builds it. */
+    internal fun initialState(replay: CompactReplay): GameState = engineFor(replay).initialState(replay)
+
     /**
      * Engine services bound to this replay's pinned card definitions. Built per reconstruction
      * because the pinned corpus differs per replay; the overlay is a thin child registry, so this
@@ -176,7 +180,7 @@ private class ReplayEngine(
 ) {
     private val actionProcessor = ActionProcessor(EngineServices(cardRegistry, printingRegistry, tokenArtRegistry))
     private val gameInitializer = GameInitializer(cardRegistry, printingRegistry)
-    val spectatorStateBuilder = SpectatorStateBuilder(cardRegistry, ClientStateTransformer(cardRegistry))
+    val spectatorStateBuilder = SpectatorStateBuilder(cardRegistry, ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)))
 
     fun initialState(replay: CompactReplay): GameState {
         val setup = replay.setup
@@ -199,6 +203,9 @@ private class ReplayEngine(
             attackMode = setup.attackMode,
             teams = setup.teams,
             seed = setup.seed,
+            preserveGraveyardOrder = setup.preserveGraveyardOrder,
+            shuffledDeckIds = replay.version >= CompactReplay.SHUFFLED_DECK_IDS_VERSION,
+            shuffledTeamSeats = replay.version >= CompactReplay.SHUFFLED_TEAM_SEATS_VERSION,
         )
         return applyYields(gameInitializer.initializeGame(config).state, replay.yields, afterActionCount = 0)
     }

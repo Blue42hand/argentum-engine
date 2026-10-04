@@ -1,9 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.mat.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -45,50 +46,29 @@ val RoccoStreetChef = card("Rocco, Street Chef") {
         "Sacrifice this token: You gain 3 life.\")"
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
-        effect = Effects.ForEachPlayer(
-            Player.ActivePlayerFirst,
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You),
-                    storeAs = "roccoExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "roccoExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    storeMovedAs = "roccoExiled",
-                ),
-                GrantMayPlayFromExileEffect(
-                    from = "roccoExiled",
-                    expiry = MayPlayExpiry.UntilNextEndStep,
-                ),
-            ),
-        )
+        trigger = Triggers.you.beginningOf(Step.END)
+        effect = Effects.ForEachPlayer(Player.ActivePlayerFirst, Effects.Pipeline {
+            val topCard = gather(CardSource.TopOfLibrary(1, Player.You))
+            val exiled = moveTracked(topCard, CardDestination.ToZone(Zone.EXILE))
+            run(Effects.GrantMayPlayFromExile(exiled, expiry = MayPlayExpiry.UntilNextEndStep))
+        })
         description = "At the beginning of your end step, each player exiles the top card of " +
             "their library. Until your next end step, each player may play the card they exiled " +
             "this way."
     }
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerPlaysLand(fromZone = Zone.EXILE)
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.CreateFood())
+        trigger = Triggers.anyPlayer.playsLand(fromZone = Zone.EXILE)
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.CreateFood()
         description = "Whenever a player plays a land from exile, you put a +1/+1 counter on " +
             "target creature and create a Food token."
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.SpellCastEvent(
-                player = Player.Each,
-                requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
-            ),
-            binding = TriggerBinding.ANY,
-        )
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.CreateFood())
+        trigger = Triggers.anyPlayer.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.CreateFood()
         description = "Whenever a player casts a spell from exile, you put a +1/+1 counter on " +
             "target creature and create a Food token."
     }

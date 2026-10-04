@@ -19,11 +19,8 @@ val ScreechingSoulbreaker = card("Screeching Soulbreaker") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        trigger = Triggers.self.attacks()
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     metadata {

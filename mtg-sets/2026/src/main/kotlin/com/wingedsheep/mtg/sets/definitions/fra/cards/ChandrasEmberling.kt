@@ -1,12 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 val ChandrasEmberling = card("Chandra's Emberling") {
     manaCost = "{2}{R}"
@@ -19,8 +20,8 @@ val ChandrasEmberling = card("Chandra's Emberling") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

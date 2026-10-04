@@ -200,7 +200,7 @@ class NativeCostChoiceActionTest : FunSpec({
         val offered = driver.legalActions(player).first { legal ->
             (legal.action as? ActivateAbility)?.sourceId == feeder
         }
-        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry), driver.cardRegistry)
+        val info = LegalActionEnricher(ManaSolver(driver.cardRegistry, com.wingedsheep.engine.handlers.PredicateEvaluator(driver.cardRegistry)), driver.cardRegistry)
             .enrich(listOf(offered), driver.state, player).single()
         ("sacrificedPermanents" in info.parameterSpec.allowedFields) shouldBe true
         ("discardedCards" in info.parameterSpec.allowedFields) shouldBe false

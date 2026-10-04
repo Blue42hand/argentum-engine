@@ -9,12 +9,11 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
@@ -23,6 +22,8 @@ import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Engine-level coverage for `ReflexiveTriggerEffectExecutor.isActionFeasible` — the walker that
@@ -66,7 +67,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         toughness = 1
         oracleText = "Whenever you attack, you may discard a card. When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Discard(1),
                 optional = true,
@@ -84,9 +85,9 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may draw a card, then discard a card. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
-                action = Effects.DrawCards(1).then(Patterns.Hand.discardCards(1)),
+                action = Effects.DrawCards(1) then Patterns.Hand.discardCards(1),
                 optional = true,
                 reflexiveEffect = Effects.GainLife(3)
             )
@@ -101,7 +102,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         toughness = 1
         oracleText = "Whenever you attack, you may discard two cards. When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Discard(2),
                 optional = true,
@@ -124,12 +125,10 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may remove a counter from a creature you control. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
-                action = Effects.Composite(
-                    Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "counterSource"),
-                    Effects.RemoveCounterOfAnyKind(EffectTarget.PipelineTarget("counterSource", 0))
-                ),
+                action = Effects.SelectTarget(TargetObject(filter = TargetFilter.CreatureYouControl), storeAs = "counterSource") then
+                    Effects.RemoveCounterOfAnyKind(EffectTarget.PipelineTarget("counterSource", 0)),
                 optional = true,
                 reflexiveEffect = Effects.GainLife(3)
             )
@@ -150,9 +149,9 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may remove a -1/-1 counter from this creature. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
-                action = Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
+                action = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
                 optional = true,
                 reflexiveEffect = Effects.GainLife(3)
             )
@@ -168,7 +167,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may remove a counter from this creature. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.RemoveCounterOfAnyKind(EffectTarget.Self),
                 optional = true,
@@ -185,9 +184,22 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         toughness = 1
         oracleText = "Whenever you attack, discard a card. When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Discard(1),
+                optional = false,
+                reflexiveEffect = Effects.GainLife(3)
+            )
+        }
+    }
+
+    val SacrificeSelf = card("Feasibility Test Sacrifice Self") {
+        typeLine = "Land"
+        oracleText = "When this land enters, sacrifice it. When you do, you gain 3 life."
+        triggeredAbility {
+            trigger = Triggers.self.enters()
+            effect = ReflexiveTriggerEffect(
+                action = Effects.SacrificeTarget(EffectTarget.Self),
                 optional = false,
                 reflexiveEffect = Effects.GainLife(3)
             )
@@ -198,7 +210,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         registerCards(
             TestCards.all + listOf(
                 Prompter, DrawThenDiscard, DiscardTwo, MandatoryDiscard,
-                RemoveNamedCounter, RemoveAnyCounter, RemoveFromSelectedCreature
+                RemoveNamedCounter, RemoveAnyCounter, RemoveFromSelectedCreature, SacrificeSelf
             )
         )
         initMirrorMatch(deck = Deck.of("Mountain" to 40), startingLife = 20)
@@ -266,6 +278,34 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
 
     fun GameTestDriver.counterTotal(entityId: EntityId): Int =
         state.getEntity(entityId)?.get<CountersComponent>()?.counters?.values?.sum() ?: 0
+
+    test("an actual self-sacrifice creates the reflexive payoff") {
+        val d = driver()
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val you = d.player1
+        val land = d.putCardInHand(you, "Feasibility Test Sacrifice Self")
+        d.playLand(you, land).error shouldBe null
+        d.bothPass()
+        d.state.stack.isNotEmpty() shouldBe true
+        d.bothPass()
+        d.getLifeTotal(you) shouldBe 23
+    }
+
+    test("a self-sacrifice prevented by the land leaving creates no reflexive payoff") {
+        val d = driver()
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val you = d.player1
+        val land = d.putCardInHand(you, "Feasibility Test Sacrifice Self")
+        d.playLand(you, land).error shouldBe null
+        val permanent = d.findPermanent(you, "Feasibility Test Sacrifice Self")!!
+        val boomerang = d.putCardInHand(you, "Boomerang")
+        d.giveMana(you, Color.BLUE, 2)
+        d.castSpell(you, boomerang, listOf(permanent)).error shouldBe null
+        d.bothPass()
+        d.bothPass()
+        d.state.stack.isEmpty() shouldBe true
+        d.getLifeTotal(you) shouldBe 20
+    }
 
     test("an empty hand is never asked to discard, and never pays out") {
         val d = attackWith("Feasibility Test Prompter") { emptyHand(it) }

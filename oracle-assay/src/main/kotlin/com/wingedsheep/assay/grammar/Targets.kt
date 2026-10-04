@@ -11,12 +11,10 @@ import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.targets.TargetOpponentOrPlaneswalker
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
@@ -67,7 +65,7 @@ object Targets {
 
     /** "target creature you control and target creature an opponent controls" — one of several. */
     fun permanent(filter: GameObjectFilter, index: Int): TargetRequirement =
-        TargetPermanent(filter = TargetFilter(filter), id = slot(index))
+        TargetObject(filter = TargetFilter(filter), id = slot(index))
 
     /**
      * "target player" — the requirement half.
@@ -99,6 +97,22 @@ object Targets {
     /** …and the reference half, for the effect that acts on it. */
     fun bound(): EffectTarget = EffectTarget.BoundVariable(SLOT)
 
+    /**
+     * The name a clause uses for **the target declared before it** — the one slot a clause can read
+     * while declaring a target of its own.
+     *
+     * "Target creature you control gets +1/+0 until end of turn. It fights target creature you
+     * don't control." (Swift Kick): the second clause's "it" is the first target and its object is
+     * a new one, so it cannot spell the pronoun as [SLOT], which its own declaration owns. It spells
+     * it as this instead, and [Steps]' numbering resolves it to the slot the previous declaring
+     * clause was given — and back again when a line is split for printing. Never left in a model: a
+     * clause that reads it in first position, with nothing declared before it, refuses.
+     */
+    const val PRIOR = "$SLOT before"
+
+    /** …and the reference half. */
+    fun prior(): EffectTarget = EffectTarget.BoundVariable(PRIOR)
+
     /** True when [target] is a reference to the single slot this grammar mints. */
     fun isBound(target: EffectTarget): Boolean =
         target is EffectTarget.BoundVariable && target.name == SLOT
@@ -121,7 +135,7 @@ object Targets {
         if (filter == GameObjectFilter.CreatureOrPlaneswalker) {
             TargetCreatureOrPlaneswalker(optional = optional, id = SLOT)
         } else {
-            TargetPermanent(optional = optional, filter = TargetFilter(filter), id = SLOT)
+            TargetObject(optional = optional, filter = TargetFilter(filter), id = SLOT)
         }
 
     /**
@@ -180,7 +194,7 @@ object Targets {
      * ever hand this that filter.
      */
     fun several(count: Int, filter: GameObjectFilter, optional: Boolean): TargetRequirement =
-        TargetCreature(count = count, optional = optional, filter = TargetFilter(filter), id = SLOT)
+        TargetObject(count = count, optional = optional, filter = TargetFilter(filter), id = SLOT)
 
     /**
      * "up to X target creatures" — the count is not a number in the text but the X the spell was
@@ -227,7 +241,7 @@ object Targets {
      * forms denote one model, which is the redundant-reading class the gate holds at zero. It stays
      * declined until the SDK can tell the two requirements apart.
      */
-    fun upToX(filter: GameObjectFilter): TargetRequirement = TargetCreature(
+    fun upToX(filter: GameObjectFilter): TargetRequirement = TargetObject(
         optional = true,
         filter = TargetFilter(filter),
         id = SLOT,
@@ -244,7 +258,7 @@ object Targets {
      * built the same way before there was a table to put it in.
      */
     fun anyNumber(filter: GameObjectFilter): TargetRequirement =
-        TargetCreature(unlimited = true, filter = TargetFilter(filter), id = SLOT)
+        TargetObject(unlimited = true, filter = TargetFilter(filter), id = SLOT)
 
     /** The marker a [Quantifier.prefix] spells a count with, and the slot name the rule binds. */
     const val COUNT_SLOT = "n"
@@ -334,7 +348,8 @@ object Targets {
     const val QUANTIFIER_PLACEHOLDER = "{q}"
 
     /**
-     * Every quantifier English prints in front of "target", as six rows.
+     * Every quantifier English prints in front of "target", as ten rows — six, and the four that add
+     * "other" ([other]).
      *
      * They are exhaustive over the *printed* forms, not over the SDK's fields: "one or two target
      * creatures" is a `minCount` below its `count` and is a seventh row nobody has needed
@@ -358,7 +373,36 @@ object Targets {
         Quantifier("any number of targets", prefix = "any number of ", plural = true) { _, filter ->
             anyNumber(filter)
         },
+        Quantifier("another target", prefix = "another ", plural = false) { _, filter -> other(filter) },
+        Quantifier("up to one other target", prefix = "up to one other ", plural = false) { _, filter ->
+            other(filter, optional = true)
+        },
+        Quantifier("several other targets", prefix = "$COUNT_PLACEHOLDER other ", plural = true) { n, filter ->
+            other(filter, count = n)
+        },
+        Quantifier("up to several other targets", prefix = "up to $COUNT_PLACEHOLDER other ", plural = true) { n, filter ->
+            other(filter, count = n, optional = true)
+        },
     )
+
+    /**
+     * "**another** target creature", "up to one **other** target creature", "two **other** target
+     * creatures" — a requirement that cannot choose the object whose ability it is, which the SDK
+     * carries as [TargetFilter.excludeSelf] and which 88 hand-written goldens spell that way.
+     *
+     * The self-exclusion is the only thing these rows add, so they are the [quantifiers] rows they
+     * sit beside with one flag flipped rather than a second noun phrase layer: "another" is English's
+     * singular for "one other", and the plural rows move the word after the number the way English
+     * does. Always a [TargetObject], even over "creature or planeswalker": the filterless
+     * [TargetCreatureOrPlaneswalker] [permanent] prefers there has nowhere to carry the flag.
+     */
+    private fun other(filter: GameObjectFilter, count: Int = 1, optional: Boolean = false): TargetRequirement =
+        TargetObject(
+            count = count,
+            optional = optional,
+            filter = TargetFilter(filter, excludeSelf = true),
+            id = SLOT,
+        )
 
     /**
      * The rows whose noun stays singular — bare "target creature" and "up to one target creature".
@@ -380,7 +424,7 @@ object Targets {
      * module's fail-closed matching exists to catch. So the row set is part of what a family declares,
      * and the *reason* a family declares a subset is always that English changes the sentence rather
      * than the noun. Where it changes only the noun ([Steps.quantifiedPermanentSteps], the pump, the
-     * grants), the family takes all six.
+     * grants), the family takes all ten.
      */
     val singularQuantifiers: List<Quantifier> = quantifiers.filterNot { it.plural }
 

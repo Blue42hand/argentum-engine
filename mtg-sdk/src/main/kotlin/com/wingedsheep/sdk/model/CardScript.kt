@@ -64,7 +64,7 @@ data class ReturnTransformedFromGraveyard(
  *         TriggeredAbility.create(
  *             trigger = OnEnterBattlefield(),
  *             effect = DealDamageEffect(4, EffectTarget.ContextTarget(0)),
- *             targetRequirement = TargetCreature()
+ *             targetRequirement = TargetObject(filter = TargetFilter.Creature)
  *         )
  *     )
  * )
@@ -75,7 +75,7 @@ data class ReturnTransformedFromGraveyard(
  * CardScript(
  *     activatedAbilities = listOf(
  *         ActivatedAbility(
- *             id = AbilityId.generate(),
+ *             id = AbilityId.next(),
  *             cost = AbilityCost.Tap,
  *             effect = AddColorlessManaEffect(2),
  *             isManaAbility = true
@@ -166,9 +166,20 @@ data class CardScript(
     /**
      * For Aura spells, defines what the aura can enchant.
      * If set, this permanent is an Aura that attaches to valid targets.
-     * Example: TargetCreature() for "Enchant creature"
+     * Example: `TargetObject(filter = TargetFilter.Creature)` for "Enchant creature"
      */
     val auraTarget: TargetRequirement? = null,
+
+    /**
+     * A narrower requirement an Aura *spell's* target must meet **as it is cast** — and only then.
+     * Dream Leash: "Enchant permanent / You can't choose an untapped permanent as this spell's
+     * target as you cast it." The printed restriction applies to the choice only (its 2005-10-01
+     * ruling), so it is not what the spell re-checks on resolution (CR 608.2b re-checks [auraTarget]),
+     * not what the enchant state-based action reads, and not what an Aura put onto the battlefield
+     * without being cast checks. Null for every Aura whose cast target is just its enchant
+     * restriction. Read through [castAuraTarget].
+     */
+    val auraCastTarget: TargetRequirement? = null,
 
     /**
      * Timing and conditional restrictions on when this spell can be cast.
@@ -192,6 +203,14 @@ data class CardScript(
      * When true, attempts to counter this spell simply fail.
      */
     val cantBeCountered: Boolean = false,
+
+    /**
+     * "If [condition], this spell can't be countered." Checked against the spell *on the stack*
+     * whenever something tries to counter it — the condition reads the spell's own cast-time
+     * values (its X, mana spent) and its caster as `Player.You` (Banefire: X is 5 or more).
+     * Use [cantBeCountered] for the unconditional form.
+     */
+    val cantBeCounteredIf: @Serializable Condition? = null,
 
     /**
      * Whether this spell can't be copied (CR 707.10). When true, any effect that would
@@ -248,6 +267,13 @@ data class CardScript(
      * The variant is applied at cast time so the resolving spell only ever carries the cleaved shape.
      */
     val cleaveSpellEffect: Effect? = null,
+
+    /**
+     * Spell effect used when this spell is cast for its overload cost (CR 702.96) — the printed
+     * effect with every "target" read as "each", written out by the card author. An overloaded spell
+     * has no target requirements at all (CR 702.96b), so this effect must not read chosen targets.
+     */
+    val overloadSpellEffect: Effect? = null,
 
     /**
      * Class level abilities (for Class enchantments).
@@ -375,6 +401,21 @@ data class CardScript(
     val mayStartOnBattlefield: Boolean = false,
 
     /**
+     * "You may reveal this card from your opening hand. If you do, …" (CR 103.6b). When non-null
+     * the card carries that opening-hand action: in the same post-mulligan walk as
+     * [mayStartOnBattlefield], its owner is asked whether to reveal it, and a "yes" reveals the card
+     * and runs this effect with the card as source and its owner as controller. The payoff is
+     * almost always a delayed trigger (CR 603.7a — created "as a result of a static ability that
+     * allows a player to take an action"), e.g. Devourer of Destiny's
+     * `Effects.CreateDelayedTrigger(step = UPKEEP, fireOnPlayer = PlayerRef(You)) { … }` for
+     * "at the beginning of your first upkeep" — the trigger is created before turn 1, so its next
+     * matching step *is* the first one.
+     *
+     * Wired via the `revealFromOpeningHand(effect)` DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder].
+     */
+    val openingHandReveal: Effect? = null,
+
+    /**
      * "As you cast this spell" condition captures (CR 601.2i). Each is a named condition the engine
      * evaluates the moment this spell finishes being cast; the names whose condition was true are
      * frozen onto the spell on the stack and read back at resolution via
@@ -428,6 +469,15 @@ data class CardScript(
      */
     val isAura: Boolean
         get() = auraTarget != null
+
+    /**
+     * The requirement an Aura spell's target is chosen against while casting: [auraCastTarget]
+     * when the card narrows the choice, otherwise its [auraTarget]. Legal-action enumeration and
+     * cast validation read this; the requirement captured on the stack for resolution stays
+     * [auraTarget].
+     */
+    val castAuraTarget: TargetRequirement?
+        get() = auraCastTarget ?: auraTarget
 
     /**
      * Whether this spell requires targets when cast.

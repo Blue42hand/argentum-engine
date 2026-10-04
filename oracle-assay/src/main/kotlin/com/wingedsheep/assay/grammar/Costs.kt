@@ -350,7 +350,7 @@ object Costs {
             name = "remove a counter from this permanent",
         ) {
             slot("kind", Primitives.singularCounterKind)
-            build { atomOf(SdkCosts.RemoveCounterFromSelf(it.text("kind"))) }
+            build { atomOf(SdkCosts.RemoveCounterFromSelf(it.value("kind"))) }
             match { atom ->
                 val remove = atom as? CostAtom.RemoveCounters ?: return@match null
                 val kind = remove.counterType ?: return@match null
@@ -365,7 +365,7 @@ object Costs {
         ) {
             slot("n", Cardinals.word)
             slot("kind", Primitives.counterKind)
-            build { atomOf(SdkCosts.RemoveCounterFromSelf(it.text("kind"), it.int("n"))) }
+            build { atomOf(SdkCosts.RemoveCounterFromSelf(it.value("kind"), it.int("n"))) }
             match { atom ->
                 val remove = atom as? CostAtom.RemoveCounters ?: return@match null
                 val kind = remove.counterType ?: return@match null
@@ -405,7 +405,7 @@ object Costs {
                 name = "remove a chosen number of counters from this permanent",
             )
             slot("kind", Primitives.counterKind)
-            build { atomOf(SdkCosts.RemoveXCounters(counterType = it.text("kind"), self = true)) }
+            build { atomOf(SdkCosts.RemoveXCounters(counterType = it.value("kind"), self = true)) }
             match { atom ->
                 val remove = atom as? CostAtom.RemoveCounters ?: return@match null
                 val kind = remove.counterType ?: return@match null
@@ -546,6 +546,39 @@ object Costs {
     }
 
     val cost: Phrase<AbilityCost> = oneOf("an activation cost", atom, composite)
+
+    /**
+     * "{3}{B}, Exile this card from your graveyard" — the cost of an ability that works from the
+     * graveyard, paid by the card exiling itself from there.
+     *
+     * The model is the same `AbilityCost.ExileSelf` [exileSelf] builds, because the SDK keeps the
+     * zone on the ability (`activateFromZone`) and not on the cost. That is why this is a phrase of
+     * its own rather than a row of [abilityOnly]: one cost value with two printings needs the
+     * ability around it to choose between them, and [Activated] is the one that can see the zone.
+     * The exile is always the last cost printed, so the rule takes it off the end of the list.
+     */
+    val fromGraveyard: Phrase<AbilityCost> = oneOf(
+        "a cost paid from the graveyard",
+        bothCases("exile", "exile this card from your graveyard") { verb ->
+            constant("$verb ${Normalizer.SELF} from your graveyard", AbilityCost.ExileSelf)
+        },
+        bothCases("exile", "costs, then exile this card from your graveyard") { verb ->
+            phrase("{cost}, $verb ${Normalizer.SELF} from your graveyard", name = "costs, then exile this card from your graveyard") {
+                slot("cost", cost)
+                build { bindings ->
+                    val before = bindings.value<AbilityCost>("cost")
+                    val paid = (before as? AbilityCost.Composite)?.costs ?: listOf(before)
+                    SdkCosts.Composite(paid + AbilityCost.ExileSelf)
+                }
+                match { paid ->
+                    val parts = (paid as? AbilityCost.Composite)?.costs ?: return@match null
+                    if (parts.size < 2 || parts.last() != AbilityCost.ExileSelf) return@match null
+                    val before = parts.dropLast(1)
+                    bind("cost" to (before.singleOrNull() ?: SdkCosts.Composite(before)))
+                }
+            }
+        },
+    )
 
     // -------------------------------------------------------------------------------------------
     // Lifted into a spell's additional cost

@@ -131,21 +131,29 @@ internal class JevActions(
                 remaining -= amount
             }
         }
+        // "Sacrifice any number of …" (Devouring Greed) returns its picks in the variable-count channel.
+        val variableSacrifice = c.costType == "SacrificeVariable"
         return AdditionalCostPayment(
-            sacrificedPermanents = select("Sacrifice for ${c.description}", c.validSacrificeTargets, c.sacrificeCount),
+            sacrificedPermanents = if (variableSacrifice) emptyList()
+            else select("Sacrifice for ${c.description}", c.validSacrificeTargets, c.sacrificeCount),
             discardedCards = select("Discard for ${c.description}", c.validDiscardTargets, c.discardCount),
             tappedPermanents = select("Tap for ${c.description}", c.validTapTargets, c.tapCount),
             bouncedPermanents = select("Return to hand for ${c.description}", c.validBounceTargets, c.bounceCount),
             exiledCards = if (c.validCraftMaterials.isNotEmpty())
                 select("Exile craft materials", c.validCraftMaterials, c.craftMinCount, c.craftMaxCount ?: c.validCraftMaterials.size)
-            else select("Exile for ${c.description}; required total weight ${c.exileMinTotalWeight}",
+            else select(
+                if (c.exileCardTypes.isNotEmpty())
+                    "Exile for ${c.description}; ${c.exileMinTotalWeight} or more distinct card types among them"
+                else "Exile for ${c.description}; required total weight ${c.exileMinTotalWeight}",
                 c.validExileTargets, c.exileMinCount, c.exileMaxCount),
             beheldCards = select("Behold for ${c.description}", c.validBeholdTargets, c.beholdCount),
             revealedCards = select("Reveal for ${c.description}", c.validRevealTargets, c.revealCount),
             blightTargets = select("Blight for ${c.description}", c.validBlightTargets, 1),
             blightAmount = if (c.blightVariableMaxX > 0) q.number("Choose blight X", 0, c.blightVariableMaxX) else 0,
             payXLifeAmount = if (c.payXLifeMaxX > 0) q.number("Choose life to pay", 0, c.payXLifeMaxX) else 0,
-            variableCostPermanents = cards("Tap creatures with total power at least ${c.tapForPowerRequired}", c.tapForPowerCreatures.map { it.entityId }),
+            variableCostPermanents = if (variableSacrifice)
+                select("Sacrifice for ${c.description}", c.validSacrificeTargets, c.sacrificeCount, c.validSacrificeTargets.size)
+            else cards("Tap creatures with total power at least ${c.tapForPowerRequired}", c.tapForPowerCreatures.map { it.entityId }),
             distributedCounterRemovals = removals,
         )
     }

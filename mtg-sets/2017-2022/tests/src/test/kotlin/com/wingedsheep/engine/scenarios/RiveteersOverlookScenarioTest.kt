@@ -82,6 +82,7 @@ class RiveteersOverlookScenarioTest : FunSpec({
         game.bothPass() // Boomerang resolves first
         game.bothPass() // ETB action cannot sacrifice the absent incarnation
 
+        game.state.stack.isEmpty() shouldBe true
         game.pendingDecision shouldBe null
         game.getLifeTotal(you) shouldBe 20
         game.findPermanent(you, "Forest") shouldBe null

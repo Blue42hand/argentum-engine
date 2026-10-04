@@ -8,16 +8,19 @@ import com.wingedsheep.engine.handlers.effects.ExecutorModule
  * Module providing all combat-related effect executors.
  */
 class CombatExecutors(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
-    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
+    private val amountEvaluator: DynamicAmountEvaluator,
+    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry
 ) : ExecutorModule {
     override fun executors(): List<EffectExecutor<*>> = listOf(
+        RandomizedBlockerPilesExecutor(),
         MustBeBlockedExecutor(),
         ProvokeExecutor(),
         ForceBlockExecutor(),
         PreventDamageExecutor(amountEvaluator),
-        GrantCantBeBlockedExceptByColorExecutor(),
+        PreventNextDamageLeavingAmountExecutor(amountEvaluator),
+        GrantCantBeBlockedExceptByColorExecutor(predicateEvaluator = amountEvaluator.predicates),
         GrantCantBeBlockedExceptByExecutor(),
+        GrantCantBeBlockedExceptByCollectionExecutor(),
         ReflectCombatDamageExecutor(),
         TauntExecutor(),
         CantAttackGroupExecutor(),
@@ -25,7 +28,8 @@ class CombatExecutors(
         CantAttackExecutor(),
         CantBlockExecutor(),
         RemoveFromCombatExecutor(),
-        SwapBlockingAssignmentsExecutor(cardRegistry),
+        BecomeBlockingExecutor(),
+        SwapBlockingAssignmentsExecutor(cardRegistry, predicateEvaluator = amountEvaluator.predicates),
         OpponentGuessesTopCardKindExecutor(),
         PlayerGuessesConditionExecutor(),
         MarkMustAttackThisTurnExecutor(),
@@ -33,6 +37,7 @@ class CombatExecutors(
         GoadExecutor(),
         CanAttackDespiteDefenderThisTurnExecutor(),
         RedirectNextDamageExecutor(),
+        RedirectDamageFromChosenSourceExecutor(),
         RedirectCombatDamageToControllerExecutor(),
         GrantAttackBlockTaxPerCreatureTypeExecutor(),
         GrantKeywordToAttackersBlockedByExecutor(),

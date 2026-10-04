@@ -17,7 +17,7 @@ val TheEchoverseFulcrum = card("The Echoverse Fulcrum") {
         "{5}, {T}, Exile The Echoverse Fulcrum: Destroy all creatures. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.loot(draw = 1, discard = 1)
         description = "When The Echoverse Fulcrum enters, draw a card, then discard a card."
     }

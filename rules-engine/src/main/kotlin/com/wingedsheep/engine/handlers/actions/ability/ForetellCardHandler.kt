@@ -1,11 +1,12 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.ForetellCard
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.actions.ActionHandler
@@ -118,8 +119,10 @@ class ForetellCardHandler(
             black = poolComponent.black,
             red = poolComponent.red,
             green = poolComponent.green,
-            colorless = poolComponent.colorless
-        )
+            colorless = poolComponent.colorless,
+            snowMana = poolComponent.snowMana,
+            snowColorless = poolComponent.snowColorless
+        ).withSpendingColors(currentState, action.playerId)
         val partialResult = pool.payPartial(setupCost)
         val poolAfterPayment = partialResult.newPool
         val remainingCost = partialResult.remainingCost
@@ -140,7 +143,9 @@ class ForetellCardHandler(
                     black = poolAfterPayment.black,
                     red = poolAfterPayment.red,
                     green = poolAfterPayment.green,
-                    colorless = poolAfterPayment.colorless
+                    colorless = poolAfterPayment.colorless,
+                    snowMana = poolAfterPayment.snowMana,
+                    snowColorless = poolAfterPayment.snowColorless
                 )
             )
         }
@@ -148,9 +153,9 @@ class ForetellCardHandler(
         if (!remainingCost.isEmpty()) {
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvent) = tap(currentState, sourceId)
+                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
                     currentState = tappedState
-                    tapEvent?.let(events::add)
+                    events.addAll(tapEvents)
                 }
             } else {
                 val solution = manaSolver.solve(currentState, action.playerId, remainingCost, 0)

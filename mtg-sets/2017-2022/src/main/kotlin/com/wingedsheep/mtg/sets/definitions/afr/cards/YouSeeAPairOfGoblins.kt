@@ -24,7 +24,7 @@ val YouSeeAPairOfGoblins = card("You See a Pair of Goblins") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.ModifyStats(2, 0, EffectTarget.Self),
+                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity),
                 ),
                 "Creatures you control get +2/+0 until end of turn",
             ),

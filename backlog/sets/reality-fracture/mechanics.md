@@ -16,11 +16,11 @@ Look at the top cards; put any in the graveyard and the rest back in any order (
 
 Cards: Academic Ascent; Arcane Amphisbaena; Avatar of Burgeoning Echoes; Campus Crier; Chandra, Chill of Compliance; Countersculpt; Diviner of Victory; Enlightened Confidant; Eye of Jace; Fatehold Chronologist; Hexhaven Battalion; Inspired Tethermage; Jace's Machinations; Keeper of the Quiet Hour; Mindseeker Oculus; No Admittance; Overwrite the Multiverse; Plan for All Outcomes; Proctor of Potential; Protege's Awakening; Prudent Fateseer; Refute Destiny; Repurposed Enforcer; Rewrite Regrets; Semester Foreseer; Solve for Disappointment; Surveillance Phantasm; Tam's Resistance; Theorist's Proxy; Violent Echoes; Vraska's Final Mercy; Way of the Cryomancer; Way of the Deathbringer; Way of the Healer; Way of the Mentor; Way of the Mind Sculptor; Way of the Necromancer; Way of the Paradox; Way of the Pyromancer; Way of the Warlord; Way of the Wildspeaker; Your Fate Ends Here; Yuriko, Hope from the Shadows
 
-### - [ ] Empower Jace (35 cards)
+### - [x] Empower Jace (35 cards)
 
 Choose a Jace planeswalker token you control, creating one with zero loyalty and the specified two loyalty abilities first if necessary, then add the specified loyalty counters (CR 701.71).
 
-**Engine support:** Not implemented: needs reusable find-or-create composition, planeswalker token construction with loyalty abilities, and selection when multiple Jace tokens exist. This is the highest-impact shared prerequisite.
+**Engine support:** `Patterns.Mechanic.empowerJace(n)` (fixed or `DynamicAmount`) over the predefined `Jace` planeswalker token; `EmpowerJaceScenarioTest` covers creation, reuse, the multi-token choice, nontoken Jaces, and empower Jace 0. "Planeswalkers you control have '[−N]: …'" is `GrantActivatedAbility(grantedLoyaltyAbility(-N) { … }, GroupFilter(Planeswalker.youControl()))`; granted loyalty abilities appear in the planeswalker's ability menu.
 
 Cards: Academic Ascent; Arcane Amphisbaena; Avatar of Burgeoning Echoes; Campus Crier; Countersculpt; Fatehold Charm; Hexhaven Battalion; Inspired Tethermage; Jace's Machinations; Jace, Reality Sculptor; Keeper of the Quiet Hour; Mindseeker Oculus; No Admittance; Overwrite the Multiverse; Plan for All Outcomes; Protege's Awakening; Repurposed Enforcer; Rewrite Regrets; Sanctum Lurker; Solve for Disappointment; Tam's Resistance; Theorist's Proxy; Theorist's Sanctum; Violent Echoes; Vraska's Final Mercy; Way of the Cryomancer; Way of the Deathbringer; Way of the Healer; Way of the Mentor; Way of the Mind Sculptor; Way of the Necromancer; Way of the Paradox; Way of the Pyromancer; Way of the Warlord; Way of the Wildspeaker
 
@@ -96,11 +96,11 @@ Move the specified number of cards from the top of a library into its graveyard 
 
 Cards: Dark Matter Manipulator; Liliana the Repentant; Paradox Shaper; Primal Witchstalker; Something Worth Saving; Theorix Charm; Theorix Metamage; Void Extrapolator
 
-### - [ ] Scry and surveil payoffs (8 cards)
+### - [x] Scry and surveil payoffs (8 cards)
 
 Reward scry/surveil events or test whether either action occurred this turn.
 
-**Engine support:** Event triggers exist as `Triggers.WheneverYouScryOrSurveil`. Turn-history conditions for Desperate Futurescribe, Proctor of Potential and Surveillance Phantasm need verification or implementation.
+**Engine support:** Event triggers exist as `Triggers.WheneverYouScryOrSurveil`. Turn history is `Conditions.ScriedOrSurveiledThisTurn` (`TurnTracker.SCRIED_OR_SURVEILED`), used by Desperate Futurescribe, Proctor of Potential and Surveillance Phantasm.
 
 Cards: Denzilore Fatehold; Desperate Futurescribe; Diviner of Victory; Proctor of Potential; Proft, Consulting Detective; Prudent Fateseer; Saheeli, Consul of Oversight; Surveillance Phantasm
 
@@ -132,15 +132,15 @@ Cards: Chandra's Emberling; Craterclaw Colossus; Darklight Phoenix; Frostbite Py
 
 Create red and green artifact tokens with a tap ability producing red or green mana.
 
-**Engine support:** `Effects.CreateToken`, token colors/types, and activated mana abilities. Heartwood Crafter’s restricted mana is a separate investigation.
+**Engine support:** `Effects.CreateHeartwood(count?, tapped?, controller?)` over the predefined `Heartwood` token (red and green `Artifact — Heartwood`, `{T}: Add {R} or {G}`). Heartwood Crafter’s restricted mana (“can’t be spent to cast spells from your hand”) is a separate investigation.
 
 Cards: Aerid Konstrari; Heartwood Crafter; Hungering Puppetbeast; Konstrari Improviser; Tenured Tethermage; Woodwork Prodigy
 
-### - [ ] Loyalty activation interactions (6 cards)
+### - [x] Loyalty activation interactions (6 cards)
 
 Trigger on, modify timing of, or inspect activation of loyalty abilities.
 
-**Engine support:** Generic ability-activation events and granted activated abilities exist. Loyalty-specific event filtering, counters spent, history and restricted instant-speed permissions are not covered by a generic planeswalker source filter.
+**Engine support:** `Triggers.YouActivateLoyaltyAbility` / `Triggers.OpponentActivatesLoyaltyAbility` (Gideon the Oathless, Way of the Paradox); counters spent on the activation via `Triggers.YouActivateLoyaltyAbilityRemovingAtLeast(n)` (Way of the Mind Sculptor); this-turn history via `TurnTracker.LOYALTY_ABILITIES_ACTIVATED` / `Conditions.YouActivatedLoyaltyAbilityThisTurn` (Kiora of Salt and Sand); instant-speed permission via `Effects.InstantSpeedLoyaltyAbilities` (Jace's Machinations).
 
 Cards: Ajani Unrelenting; Gideon the Oathless; Jace's Machinations; Kiora of Salt and Sand; Way of the Mind Sculptor; Way of the Paradox
 
@@ -152,11 +152,11 @@ Requires at least two blockers (CR 702.111).
 
 Cards: Apex Witchstalker; Gallia, Tragic Host; Jiang Yanggu, Alone; Master of Barbs; Primal Witchstalker; Proft, Sinister Mastermind
 
-### - [ ] Noncombat damage payoffs (6 cards)
+### - [x] Noncombat damage payoffs (6 cards)
 
 Reward, replace, or remember noncombat damage; several cards test damage this turn or last turn.
 
-**Engine support:** Damage events/replacements exist. Generic opponent noncombat-damage turn history and grouped one-or-more-opponents triggers require focused engine review.
+**Engine support:** Turn history is `Conditions.OpponentWasDealtNoncombatDamageThisTurn` / `…LastTurn` (`TurnTracker.DEALT_NONCOMBAT_DAMAGE(_LAST_TURN)`), used by Whiplash Wordsmith, Grim Repriser and Command the Stage. "One or more opponents are dealt noncombat damage" is `Triggers.dealsDamage(NonCombat, RecipientFilter.Opponent, binding = ANY, batch = true)` (Master of Barbs). Tomik, Izzet Sparkmage's "plus 1" is `NoncombatDamageBonus(1)`.
 
 Cards: Command the Stage; Grim Repriser; Massacre Girl, Most Wanted; Master of Barbs; Tomik, Izzet Sparkmage; Whiplash Wordsmith
 
@@ -317,7 +317,7 @@ Cards: Tam, the Possibility
 These are review targets, not declarations that new effect types are necessary. Prefer existing compositions and add behavioral tests for any new engine vocabulary.
 
 - **Samut, Tyrant of Naktamun:** split second and granting it to controlled instant/sorcery spells are absent from the keyword vocabulary.
-- **Sanctum Lurker:** exception to the zero-loyalty state-based action, plus granted loyalty ability.
+- **Sanctum Lurker:** done — `GrantKeyword(AbilityFlag.SURVIVES_ZERO_LOYALTY.name, …)` exempts planeswalkers from CR 704.5i; the +2 is a `grantedLoyaltyAbility`.
 - **Loot, the Anomaly:** treating negative power as positive for combat damage. **Loot, the Nexus:** distinct-power aggregation already exists; use it rather than adding another amount type.
 - **Ruric Thar, Magecrusher:** lifetime history of combat damage, including damage to nonplayers. A damage-to-player predicate is insufficient.
 - **Ruric Thar, Biomagus:** two independent prowess instances must survive representation and both trigger.
@@ -337,7 +337,7 @@ These are review targets, not declarations that new effect types are necessary. 
 
 1. FRA now has all five basic land types (25 artwork variants) and the five allied slowland reprints (10 printing records). Add the remaining reprints using their earliest canonical definitions. Scryfall still marks these basic-land variants outside boosters, so their limited-deckbuilding availability remains disabled pending corrected metadata.
 2. Run `just assay-ready FRA` to identify cards that compose existing vocabulary. Implement and verify those in small related batches.
-3. Build Empower Jace as a reusable mechanic with a planeswalker-token scenario, including multiple existing Jace tokens and zero added counters.
+3. ~~Build Empower Jace~~ — done (`Patterns.Mechanic.empowerJace`).
 4. Extend loyalty activation events/history and permissions, then author their payoffs. Address the focused investigations in separate mechanic-sized changes.
 
 Use current Scryfall data for canonical printing placement, metadata and rulings when implementing each card. Neither this map nor a checked mechanic replaces the Assay differential gate or behavioral tests.

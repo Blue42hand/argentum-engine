@@ -99,7 +99,7 @@ data class BecomeCreatureEffect(
      * Optional dynamic base power. When non-null, the Layer 7b base-P/T floating effect uses
      * [SerializableModification.SetPowerToughnessDynamic] with this amount instead of the fixed
      * [power], recomputed continuously at projection. Use `DynamicAmount.EntityProperty(
-     * EntityReference.AffectedEntity, EntityNumericProperty.ManaValue)` for "power equal to its
+     * EffectTarget.AffectedEntity, EntityNumericProperty.ManaValue)` for "power equal to its
      * mana value" (Xenic Poltergeist). Both [dynamicPower] and [dynamicToughness] must be supplied
      * together; the fixed [power]/[toughness] then serve only as the rules-text display.
      */
@@ -329,6 +329,58 @@ data class BecomeRenownedEffect(
 }
 
 /**
+ * Target permanent becomes monstrous (CR 701.37b) — the designation half of the monstrosity
+ * keyword action. Stamps the engine's `MonstrousComponent`, which monstrosity payoffs read back
+ * through `Conditions.SourceIsMonstrous` / `StatePredicate.IsMonstrous`.
+ *
+ * Sticky and one-way like [BecomeRenownedEffect]: once a permanent becomes monstrous it stays
+ * monstrous until it leaves the battlefield. Monstrous is neither an ability nor part of the
+ * permanent's copiable values (CR 701.37b), so a copy of a monstrous creature is not monstrous.
+ *
+ * Authored through `Effects.Monstrosity(n)` rather than called directly; the [target] is
+ * parameterized so an outside effect could reuse it.
+ *
+ * @property target The permanent to give the monstrous designation
+ */
+@SerialName("BecomeMonstrous")
+@Serializable
+data class BecomeMonstrousEffect(
+    val target: EffectTarget = EffectTarget.Self
+) : Effect {
+    override val description: String = "${target.description} becomes monstrous"
+}
+
+/**
+ * "You may activate loyalty abilities of [target] [times] times this turn rather than only once"
+ * — a one-shot, per-planeswalker relaxation of the once-per-turn loyalty rule (CR 606.3) for the
+ * rest of the turn (Kaito, Dancing Shadow). The per-permanent sibling of the controller-wide
+ * static [com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation] (Oath of Teferi).
+ *
+ * Not additive: resolving it twice, or alongside Oath of Teferi, still allows [times]
+ * activations — the allowance is the largest one granted, not a sum. Activations already made
+ * this turn count against it, so a grant after one activation allows exactly one more. The
+ * allowance lapses at end of turn and if the permanent leaves the battlefield (it's a new object).
+ *
+ * @property target The planeswalker whose loyalty abilities may be activated more often
+ * @property times The total number of loyalty activations allowed this turn
+ */
+@SerialName("AllowLoyaltyActivationsThisTurn")
+@Serializable
+data class AllowLoyaltyActivationsThisTurnEffect(
+    val target: EffectTarget = EffectTarget.Self,
+    val times: Int = 2
+) : Effect {
+    init {
+        require(times >= 2) { "AllowLoyaltyActivationsThisTurnEffect.times must be at least 2, was $times" }
+    }
+
+    override val description: String =
+        "you may activate loyalty abilities of ${target.description} ${timesWord(times)} this turn rather than only once"
+
+    private fun timesWord(n: Int): String = if (n == 2) "twice" else "$n times"
+}
+
+/**
  * Make [target] become prepared (Secrets of Strixhaven). The target must be a permanent whose
  * card has the [com.wingedsheep.sdk.model.CardLayout.PREPARE] layout. Becoming prepared creates a
  * copy of its prepare spell in the controller's exile that may be cast (paying that spell's cost);
@@ -438,6 +490,30 @@ data class AttachTargetEquipmentToCreatureEffect(
     val creatureTarget: EffectTarget = EffectTarget.ContextTarget(1)
 ) : Effect {
     override val description: String = "Attach ${equipmentTarget.description} to ${creatureTarget.description}"
+}
+
+/**
+ * Attach an Aura or Equipment that is already on the battlefield to **another** permanent that the
+ * effect's controller chooses at resolution — the new host is not a target. Models "Attach target
+ * Aura attached to a creature to another creature" (Autumn-Tail, Kitsune Sage; Crown of the Ages)
+ * and "Attach it to another permanent it can enchant" (Aura Graft).
+ *
+ * Only hosts the attachment could legally be attached to are offered (CR 701.3a — an Aura's enchant
+ * restriction and protection, an Equipment's "creature" requirement), and the permanent it is
+ * currently attached to is excluded ("another"). With no such host the effect does nothing and the
+ * attachment stays where it is (CR 701.3b). Hexproof and shroud don't matter: the host isn't targeted.
+ *
+ * @property attachment The Aura or Equipment to move (e.g. the ability's target).
+ * @property hostFilter Which permanents are eligible new hosts, before the legality check.
+ */
+@SerialName("AttachToChosenHost")
+@Serializable
+data class AttachToChosenHostEffect(
+    val attachment: EffectTarget = EffectTarget.ContextTarget(0),
+    val hostFilter: GameObjectFilter = GameObjectFilter.Creature
+) : Effect {
+    override val description: String =
+        "Attach ${attachment.description} to another ${hostFilter.description}"
 }
 
 /**

@@ -9,41 +9,36 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": "XValue",
-                                "player": "Each",
-                                "isMill": true
-                            },
-                            "storeAs": "milled"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "milled",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard",
-                                "player": "Each"
-                            }
-                        }
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": "XValue",
+                        "player": "Each",
+                        "isMill": true
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "gathered0",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": "Each"
+                    }
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "milled",
+                    "from": "gathered0",
                     "selection": "SelectAll",
                     "filter": "creature",
-                    "storeSelected": "milledCreatures"
+                    "storeSelected": "selected2"
                 },
                 {
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "milledCreatures"
+                        "collection": "selected2"
                     },
                     "body": {
                         "type": "CreateToken",
@@ -74,6 +69,73 @@
     ]
 }
 
+// Gigantoplasm
+{
+    "name": "Gigantoplasm",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Shapeshifter",
+    "oracleText": "You may have this creature enter as a copy of any creature on the battlefield, except it has \"{X}: This creature has base power and toughness X/X.\"",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "exceptions": {
+                    "addedActivatedAbilities": [
+                        {
+                            "id": "Gigantoplasm:1",
+                            "cost": {
+                                "type": "CostAtomWrapper",
+                                "atom": {
+                                    "type": "AtomMana",
+                                    "cost": "{X}"
+                                }
+                            },
+                            "effect": {
+                                "type": "SetBaseStats",
+                                "target": "Self",
+                                "power": "XValue",
+                                "toughness": "XValue"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "rarity": "RARE",
+        "artist": "Kev Walker",
+        "flavorText": "\"I appreciate things that exceed expectations.\"\n—Mizzix",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/27163b43-61e2-495c-b544-55c349eba99c.jpg?1783938115",
+        "rulings": [
+            {
+                "date": "2015-11-04",
+                "text": "The activated ability Gigantoplasm gives itself becomes part of its copiable values. Unless the ability is overwritten by another copy effect, a creature that's a copy of Gigantoplasm will have that ability."
+            },
+            {
+                "date": "2015-11-04",
+                "text": "However, the effect of that ability isn't copiable. That is, if Gigantoplasm is a copy of a creature with base power and toughness 2/2 and you activate its ability making it a 4/4 creature, another creature that becomes a copy of Gigantoplasm will have base power and toughness 2/2."
+            },
+            {
+                "date": "2015-11-04",
+                "text": "Effects that modify Gigantoplasm's power and/or toughness, such as the effect of Giant Growth or Glorious Anthem, will apply to Gigantoplasm no matter when they started applying. The same is true for counters that affect its power and/or toughness and effects that switch its power and toughness."
+            },
+            {
+                "date": "2015-11-04",
+                "text": "You can choose not to copy anything. In that case, Gigantoplasm enters the battlefield as a 0/0 Shapeshifter creature, and is probably put into the graveyard immediately."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Meren of Clan Nel Toth
 {
     "name": "Meren of Clan Nel Toth",
@@ -87,7 +149,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meren of Clan Nel Toth:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -97,14 +159,14 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "experience",
+                    "counterType": "EXPERIENCE",
                     "count": 1,
                     "target": "Controller"
                 },
                 "descriptionOverride": "Whenever another creature you control dies, you get an experience counter."
             },
             {
-                "id": "ability_2",
+                "id": "Meren of Clan Nel Toth:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -118,13 +180,16 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "operator": "LTE",
                             "right": {
                                 "type": "PlayerCounterCount",
-                                "counterType": "experience"
+                                "counterType": "EXPERIENCE"
                             }
                         }
                     },
@@ -132,7 +197,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target creature card in your graveyard"
+                            "name": "t0"
                         },
                         "destination": "Battlefield"
                     },
@@ -140,7 +205,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target creature card in your graveyard"
+                            "name": "t0"
                         },
                         "destination": "Hand"
                     }
@@ -151,7 +216,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target creature card in your graveyard"
+                    "id": "t0"
                 },
                 "descriptionOverride": "At the beginning of your end step, choose target creature card in your graveyard. If that card's mana value is less than or equal to the number of experience counters you have, return it to the battlefield. Otherwise, put it into your hand."
             }
@@ -200,7 +265,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oreskos Explorer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -215,7 +280,8 @@
                                 "zone": "Library",
                                 "filter": "land Plains"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -265,7 +331,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thought Vessel:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",

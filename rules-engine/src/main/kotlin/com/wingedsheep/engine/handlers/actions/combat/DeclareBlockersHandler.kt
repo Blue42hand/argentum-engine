@@ -4,9 +4,6 @@ import com.wingedsheep.engine.core.DeclareBlockers
 import com.wingedsheep.engine.state.components.combat.BlockersDeclaredThisCombatComponent
 import com.wingedsheep.engine.mechanics.combat.CombatDefenders
 import com.wingedsheep.engine.core.ExecutionResult
-import com.wingedsheep.engine.core.PendingTriggersContinuation
-import com.wingedsheep.engine.event.TriggerDetector
-import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.actions.ActionHandler
 import com.wingedsheep.engine.mechanics.combat.CombatManager
@@ -17,13 +14,11 @@ import kotlin.reflect.KClass
 /**
  * Handler for the DeclareBlockers action.
  *
- * Delegates to CombatManager for the actual block declaration,
- * then processes any block triggers.
+ * Delegates to CombatManager for the actual block declaration. Block triggers are put on the
+ * stack by the settle boundary.
  */
 class DeclareBlockersHandler(
-    private val combatManager: CombatManager,
-    private val triggerDetector: TriggerDetector,
-    private val triggerProcessor: TriggerProcessor
+    private val combatManager: CombatManager
 ) : ActionHandler<DeclareBlockers> {
     override val actionType: KClass<DeclareBlockers> = DeclareBlockers::class
 
@@ -35,58 +30,21 @@ class DeclareBlockersHandler(
         if (state.step != Step.DECLARE_BLOCKERS) {
             return "You can only declare blockers during the declare blockers step"
         }
+        if (state.getEntity(action.playerId)?.has<BlockersDeclaredThisCombatComponent>() == true) {
+            return "Blockers have already been declared"
+        }
         // Additional validation is done by CombatManager
         return null
     }
 
     override fun execute(state: GameState, action: DeclareBlockers): ExecutionResult {
-        val result = combatManager.declareBlockers(state, action.playerId, action.blockers)
-
-        if (result.isPaused) {
-            // Paused for a block tax (the only remaining mid-declare pause now that damage-
-            // assignment ordering is folded into the combat resolution board). If any block
-            // triggers were detected, queue them as a PendingTriggersContinuation so they fire
-            // after the pause resolves (via checkForMoreContinuations).
-            val triggers = triggerDetector.detectTriggers(result.newState, result.events)
-            if (triggers.isNotEmpty()) {
-                val pendingTriggers = PendingTriggersContinuation(
-                    remainingTriggers = triggers
-                )
-                // Insert BELOW the active suspension so the question resolves first, then
-                // checkForMoreContinuations picks up the triggers afterwards.
-                val stack = result.newState.continuationStack
-                val newStack = stack.dropLast(1) + pendingTriggers + stack.last()
-                val stateWithTriggers = result.newState.copy(continuationStack = newStack)
-                return ExecutionResult.propagatePause(
-                    stateWithTriggers,
-                    result.events
-                )
-            }
-            return result
-        }
-
-        if (!result.isSuccess) {
-            return result
-        }
-
-        // Detect and process block triggers (e.g., "when this creature blocks")
-        val triggers = triggerDetector.detectTriggers(result.newState, result.events)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = triggerProcessor.processTriggers(result.newState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    result.events + triggerResult.events
-                )
-            }
-
-            return ExecutionResult.success(
-                handToNextUndeclaredDefender(triggerResult.newState),
-                result.events + triggerResult.events
-            )
-        }
-
+        // Block triggers ("whenever this creature blocks") are the settle boundary's job, including
+        // those that wait out a block tax's payment question.
+        val result = if (com.wingedsheep.engine.mechanics.combat.RandomizedBlockerPiles.isActive(state)) {
+            if (action.blockers.isNotEmpty()) return ExecutionResult.error(state, "Choose piles instead of specific blockers")
+            combatManager.beginBlockerPiles(state, action.playerId)
+        } else combatManager.declareBlockers(state, action.playerId, action.blockers)
+        if (result.error != null || result.pendingDecision != null) return result
         return ExecutionResult.success(handToNextUndeclaredDefender(result.newState), result.events)
     }
 
@@ -108,11 +66,7 @@ class DeclareBlockersHandler(
 
     companion object {
         fun create(services: EngineServices): DeclareBlockersHandler {
-            return DeclareBlockersHandler(
-                services.combatManager,
-                services.triggerDetector,
-                services.triggerProcessor
-            )
+            return DeclareBlockersHandler(services.combatManager)
         }
     }
 }

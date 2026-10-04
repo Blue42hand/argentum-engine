@@ -14,8 +14,8 @@ val ArtifistAcumen = card("Artifist Acumen") {
     oracleText = "Creatures you control gain first strike until end of turn.\nDraw a card."
 
     spell {
-        effect = Patterns.Group.grantKeywordToAll(Keyword.FIRST_STRIKE, Filters.Group.creaturesYouControl)
-            .then(Effects.DrawCards(1))
+        effect = Patterns.Group.grantKeywordToAll(Keyword.FIRST_STRIKE, Filters.Group.creaturesYouControl) then
+            Effects.DrawCards(1)
     }
 
     metadata {

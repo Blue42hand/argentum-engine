@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 
 /**
  * Brazen Collector
@@ -17,8 +18,8 @@ import com.wingedsheep.sdk.model.Rarity
  * Whenever this creature attacks, add {R}. Until end of turn, you don't lose
  * this mana as steps and phases end.
  *
- * Note: The "don't lose this mana" clause is effectively a no-op in this engine
- * since mana pools are only emptied at end of turn, not between steps/phases.
+ * The mana is [ManaExpiry.KEPT_UNTIL_END_OF_TURN], so it survives the pool emptying at the end of
+ * declare attackers, blockers, damage and combat, and can be spent in a main phase later this turn.
  */
 val BrazenCollector = card("Brazen Collector") {
     manaCost = "{1}{R}"
@@ -31,8 +32,8 @@ val BrazenCollector = card("Brazen Collector") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
-        effect = Effects.AddMana(Color.RED, 1)
+        trigger = Triggers.self.attacks()
+        effect = Effects.AddMana(Color.RED, 1, expiry = ManaExpiry.KEPT_UNTIL_END_OF_TURN)
     }
 
     metadata {

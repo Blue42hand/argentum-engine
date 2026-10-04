@@ -109,7 +109,7 @@ class ScenarioBuilderService(
             for (card in battlefield) {
                 if (!registry.hasCard(card.name)) errors += "Unknown card: ${card.name}"
                 card.counters?.keys?.forEach { key ->
-                    if (runCatching { CounterType.valueOf(key) }.isFailure) {
+                    if (CounterType.of(key) !in CounterType.KNOWN) {
                         errors += "Unknown counter type '$key' on ${card.name}."
                     }
                 }
@@ -205,7 +205,7 @@ class ScenarioBuilderService(
      */
     private class ScenarioBuilder(private val cardRegistry: CardRegistry) {
         private val entityIdCounter = AtomicLong(1000)
-        private var state = GameState()
+        private var state = GameState(preserveGraveyardOrder = true)
 
         private val playerIds = mutableListOf<EntityId>()
 
@@ -288,7 +288,7 @@ class ScenarioBuilderService(
             }
 
             if (counters.isNotEmpty()) {
-                val counterMap = counters.mapKeys { CounterType.valueOf(it.key) }
+                val counterMap = counters.mapKeys { CounterType.of(it.key) }
                 container = container.with(CountersComponent(counterMap))
             }
 
@@ -498,6 +498,7 @@ class ScenarioBuilderService(
                 // craft material filter). Omitting them made scenario permanents look ability-less.
                 hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
                 hasActivatedAbility = cardDef.hasActivatedAbility,
+                hasCycling = cardDef.hasCycling,
                 // Mirror CardEntityFactory so CardPredicate.HasAdventure (Frantic Firebolt's
                 // graveyard tally) sees adventurer cards created in dev scenarios.
                 hasAdventure = cardDef.isAdventure,

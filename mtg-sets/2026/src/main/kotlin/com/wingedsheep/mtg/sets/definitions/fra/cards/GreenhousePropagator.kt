@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 val GreenhousePropagator = card("Greenhouse Propagator") {
     manaCost = "{2}{G}"
@@ -16,7 +17,7 @@ val GreenhousePropagator = card("Greenhouse Propagator") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.GainLife(1)
     }
 

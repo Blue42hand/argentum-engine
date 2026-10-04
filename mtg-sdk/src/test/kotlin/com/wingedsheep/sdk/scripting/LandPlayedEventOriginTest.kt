@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 class LandPlayedEventOriginTest : FunSpec({
 
     test("an exact exile origin is represented independently of a non-hand origin") {
-        val event = Triggers.anyPlayerPlaysLand(fromZone = Zone.EXILE).event
+        val event = Triggers.anyPlayer.playsLand(fromZone = Zone.EXILE).event
             as EventPattern.LandPlayedEvent
 
         event.player shouldBe Player.Each
