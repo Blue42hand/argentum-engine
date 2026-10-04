@@ -77,7 +77,7 @@ class GameSession(
     private val cardRegistry: CardRegistry get() = services.cardRegistry
     // Debug mode is for a local browser view, never for an AI policy's observation. The latter
     // receives engine decision IDs and must still see only what its seat may legally know.
-    private val aiStateTransformer = ClientStateTransformer(services.cardRegistry)
+    private val aiStateTransformer = ClientStateTransformer(services.cardRegistry, predicateEvaluator = services.predicateEvaluator)
     // Lock for synchronizing state modifications to prevent lost updates
     private val stateLock = Any()
 

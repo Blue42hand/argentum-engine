@@ -77,6 +77,11 @@ class ManaPaymentContinuationResumer(
         )
         if (!floated.paid) return ExecutionResult.error(state, "Selected sources cannot pay the announced cost")
         val current = floated.state.withPriority(player)
+        (continuation.action as? CastSpell)?.let { action ->
+            services.castSpellHandler.validateRemainingNonManaCosts(current, action)?.let { reason ->
+                return ExecutionResult.error(state, reason)
+            }
+        }
         val result = when (val action = continuation.action) {
             is CastSpell -> services.castSpellHandler.executeWithLockedManaCost(current, action, continuation.lockedCastCost)
             is ActivateAbility -> com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler.create(services).executeWithLockedCost(current, action,

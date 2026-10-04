@@ -236,6 +236,18 @@ internal class CastValidator(
         return validateTargetLifeTaxes(state, action)
     }
 
+    /** Recheck announced cost objects after mana abilities have changed the board. Targets may
+     * legally leave during payment, so this deliberately does not revalidate spell targets. */
+    fun validateRemainingNonManaCosts(state: GameState, action: CastSpell): String? {
+        val card = state.getEntity(action.cardId)?.get<CardComponent>()
+            ?: return "Card not found: ${action.cardId}"
+        val definition = com.wingedsheep.engine.mechanics.CastCharacteristics.definitionForCast(
+            cardRegistry.getCard(card.cardDefinitionId), action
+        )
+        return validateAlternativeCostSelections(state, action, definition)
+            ?: validateOwedCosts(state, action, definition)
+    }
+
     /**
      * The route this card is being cast by (CR 601.2a), or null when none applies. A card outside
      * the caster's hand needs a permission, and the routes are tried in a fixed order so a card two

@@ -192,6 +192,11 @@ class CastSpellHandler(
 
     override fun validate(state: GameState, action: CastSpell): String? = castValidator.validate(state, action)
 
+    /** The mana window resumes without public action validation, but announced costs still need
+     * their own check after a mana ability taps or sacrifices a chosen permanent. */
+    fun validateRemainingNonManaCosts(state: GameState, action: CastSpell): String? =
+        castValidator.validateRemainingNonManaCosts(state, action)
+
     fun executeDuringResolution(state: GameState, action: CastSpell): ExecutionResult {
         if (com.wingedsheep.engine.mechanics.SplitSecond.isLocked(state, cardRegistry)) {
             return ExecutionResult.error(state, com.wingedsheep.engine.mechanics.SplitSecond.REJECTION)
@@ -332,27 +337,45 @@ class CastSpellHandler(
             }
         }
 
-        // A life-funded mana action is intentionally never auto-paid. Surface the mana window
-        // before any cost is committed, retaining both the announcement and its locked price.
-        if (lockedCost == null && action.paymentStrategy is com.wingedsheep.engine.core.PaymentStrategy.AutoPay &&
-            announcedState.playerActionPermissions.any { it.playerId == action.playerId && it.action.timing == com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility }) {
+        // Manual mana abilities and life-funded mana actions cannot be auto-paid. Surface a
+        // window before any cost is committed, retaining the announcement and its locked price.
+        if (lockedCost == null && action.paymentStrategy is com.wingedsheep.engine.core.PaymentStrategy.AutoPay) {
             val computed = castCostTotaller.validationCost(announcedState, action, cardDef, cardComponent, playForFree,
                 zoneResolver.hasCommanderCastPermission(announcedState, action.playerId, action.cardId))
             if (computed != null) {
-                val sources = manaSolver.findAvailableManaSources(announcedState, action.playerId)
-                    .filter { !it.requiresSacrifice && it.tapPermanentsSubCost == null }.map { it.entityId }
-                val explicit = action.copy(paymentStrategy = com.wingedsheep.engine.core.PaymentStrategy.Explicit(sources))
-                if (castCostPayer.validateManaPayment(announcedState, explicit, computed.cost, computed.paymentXValue) != null) {
+                val context = castCostPayer.spellPaymentContext(announcedState, action, cardComponent)
+                val payableCost = if (castCostPayer.isCastWithAnyManaType(announcedState, action))
+                    computed.cost.relaxColors() else computed.cost
+                val needsManualMana = action.alternativePayment == null && cardDef != null &&
+                    computed.cost.phyrexianSymbols.isEmpty() &&
+                    !manaSolver.canPay(announcedState, action.playerId, payableCost, computed.paymentXValue,
+                        spellContext = context, includeManualMana = false) &&
+                    manaSolver.canPay(announcedState, action.playerId, payableCost, computed.paymentXValue,
+                        spellContext = context)
+                val hasLifeFundedAction = announcedState.playerActionPermissions.any {
+                    it.playerId == action.playerId && it.action.timing == com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility
+                }
+                val needsLifeFundedMana = if (hasLifeFundedAction) {
+                    val sources = manaSolver.findAvailableManaSources(announcedState, action.playerId)
+                        .filter { !it.requiresSacrifice && it.tapPermanentsSubCost == null }.map { it.entityId }
+                    val explicit = action.copy(paymentStrategy = com.wingedsheep.engine.core.PaymentStrategy.Explicit(sources))
+                    castCostPayer.validateManaPayment(announcedState, explicit, computed.cost, computed.paymentXValue) != null
+                } else false
+                if (needsManualMana || needsLifeFundedMana) {
+                    // Sacrifice mana abilities require an explicit activation. Their sources must
+                    // not appear as one-click cast-window payment choices.
+                    val sacrificeSources = manaSolver.findAvailableManaSources(announcedState, action.playerId, context)
+                        .filter { it.requiresSacrifice }.map { it.entityId }.toSet()
                     val cost = (if (castCostPayer.isCastWithAnyManaType(announcedState, action)) computed.cost.relaxColors() else computed.cost)
                         .withXAs(computed.paymentXValue)
                     return announcedState.suspendForDecision(
                         question = { id -> com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow.buildDecision(
                             announcedState, action.playerId, cost, id, "Produce mana for ${cardComponent.name}",
                             DecisionContext(sourceId = action.cardId, sourceName = cardComponent.name, phase = DecisionPhase.CASTING),
-                            true, manaSolver, spellContext = castCostPayer.spellPaymentContext(announcedState, action, cardComponent),
+                            true, manaSolver, excludeSources = sacrificeSources, spellContext = context,
                         ) },
                         answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, cost, lockedCastCost = totalCost,
-                            paymentContext = castCostPayer.spellPaymentContext(announcedState, action, cardComponent)),
+                            excludedSources = sacrificeSources, paymentContext = context),
                     )
                 }
             }

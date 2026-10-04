@@ -2622,7 +2622,9 @@ class ManaSolver(
         /** Internal recursion tally for Phyrexian pips tentatively paid with life. */
         phyrexianLifePipsCommitted: Int = 0,
         /** False to ask whether mana alone pays [cost], every Phyrexian pip included. */
-        allowPhyrexianLife: Boolean = true
+        allowPhyrexianLife: Boolean = true,
+        /** False to check only sources the auto-payment solver can tap without a player choice. */
+        includeManualMana: Boolean = true
     ): Boolean {
         // A Phyrexian pip may be paid with 2 life instead of its color. Try each distinct pip
         // choice before the mana-only solver below; recursive calls see a strictly smaller cost.
@@ -2638,7 +2640,8 @@ class ManaSolver(
                 val reduced = cost.withPhyrexianPaidByLife(listOf(lifeColor)) ?: continue
                 if (canPay(
                         state, playerId, reduced, xValue, excludeSources, spellContext,
-                        precomputedSources, xManaRestriction, phyrexianLifePipsCommitted + 1
+                        precomputedSources, xManaRestriction, phyrexianLifePipsCommitted + 1,
+                        allowPhyrexianLife, includeManualMana
                     )) return true
             }
         }
@@ -2709,6 +2712,8 @@ class ManaSolver(
 
         // Check if we can tap sources for the remaining cost (including remaining X)
         if (solve(state, playerId, remainingCost, xRemainingToPay, excludeSources, spellContext, precomputedSources, xManaRestriction) != null) return true
+
+        if (!includeManualMana) return false
 
         // Fallback: check if "extras" — mana abilities the auto-tap solver doesn't pick — can
         // cover the remaining cost. Two flavors:
