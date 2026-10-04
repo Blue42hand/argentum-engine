@@ -240,9 +240,12 @@ class PlayerActionPermissionTest : ScenarioTestBase() {
             game.submitDecision(answer).error shouldBe null
             game.resolveStack()
             val pool = game.state.getEntity(game.player1Id)!!.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()!!
-            // Eligible restricted mana is spent first; the surplus is Channel's unrestricted mana.
-            pool.colorless shouldBe 1
-            pool.restrictedMana.size shouldBe 0
+            // Cast payment spends mana already floating before tapping a new source. The
+            // source's extra mana stays restricted to creature spells for later payments.
+            pool.colorless shouldBe 0
+            pool.restrictedMana.size shouldBe 1
+            pool.restrictedMana.single().restriction shouldBe
+                com.wingedsheep.sdk.scripting.effects.ManaRestriction.CreatureSpellsOnly
             game.getLifeTotal(1) shouldBe 18
         }
 

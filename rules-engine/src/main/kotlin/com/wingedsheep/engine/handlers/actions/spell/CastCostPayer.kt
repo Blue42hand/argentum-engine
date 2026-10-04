@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.actions.spell
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.LockedCastPayment
 import com.wingedsheep.engine.core.LifeChangeReason
 import com.wingedsheep.engine.core.LifeChangedEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
@@ -127,21 +128,24 @@ internal class CastCostPayer(
         totalCost: ManaCost,
         owedCosts: List<AdditionalCost>,
         playForFree: Boolean,
+        lockedPayment: LockedCastPayment? = null,
     ): CastPaymentOutcome {
         val action = ledger.action
         // Fixed before any cost is paid: a granted emerge must survive the granter leaving or
         // changing control during payment (Herigast's ruling).
-        val isEmergeCast = action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE) &&
+        val isEmergeCast = lockedPayment?.dedicatedAlternativeCostType == AlternativeCostType.EMERGE ||
+            (lockedPayment == null && action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE) &&
             EmergeCasts.effectiveEmerge(
                 ledger.state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
-            ) != null
+            ) != null)
         payAdditionalCosts(ledger, owedCosts)?.let { return CastPaymentOutcome.Failed(it) }
         payConspire(ledger)
         payCasualty(ledger)
 
         // The X charged as mana (see CastCostTotaller.paymentXValue); action.xValue — the effect's
         // X — is untouched.
-        val paymentXValue = castCostTotaller.paymentXValue(ledger.state, action, cardDef, totalCost)
+        val paymentXValue = lockedPayment?.paymentXValue
+            ?: castCostTotaller.paymentXValue(ledger.state, action, cardDef, totalCost)
         var cost = payWithPermanentsAndCards(ledger, totalCost, cardDef, playForFree)
 
         // "Mana of any type can be spent" — relax colored requirements for cast-from-exile
@@ -175,14 +179,14 @@ internal class CastCostPayer(
 
         // Forage from a graveyard via MayCastCreaturesFromGraveyardWithForageComponent (e.g.,
         // Osteomancer Adept). See payGraveyardForage.
-        val isForageCast = zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
+        val isForageCast = lockedPayment?.forageCostRequired ?: (zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
             ledger.state, action.playerId, action.cardId, cardComponent
-        ) && action.cardId in ledger.state.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
+        ) && action.cardId in ledger.state.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD)))
         if (isForageCast) {
             payGraveyardForage(ledger)?.let { return CastPaymentOutcome.Failed(it) }
         }
         payGraveyardLifeCost(ledger)
-        payTargetLifeTaxes(ledger)
+        payTargetLifeTaxes(ledger, lockedPayment?.additionalLifeCost)?.let { return CastPaymentOutcome.Failed(it) }
 
         return CastPaymentOutcome.Paid(
             CastPayment(
@@ -205,7 +209,8 @@ internal class CastCostPayer(
             val lifeToPay = SpellCosts.lifeToPay(SpellCostCheck(ledger.state, ledger.action, costHandler, predicateEvaluator), cost)
             if (lifeToPay == 0) continue
             val (afterPayment, paymentEvents) =
-                LifePaymentService.pay(zones, ledger.state, ledger.playerId, lifeToPay) ?: continue
+                LifePaymentService.pay(zones, ledger.state, ledger.playerId, lifeToPay)
+                    ?: return "Not enough life to pay additional cost ($lifeToPay life required)"
             ledger.state = afterPayment
             ledger.events.addAll(paymentEvents)
         }
@@ -383,16 +388,16 @@ internal class CastCostPayer(
      * the Peaks: "Spells your opponents cast that target this creature cost an additional 3 life to
      * cast.").
      */
-    private fun payTargetLifeTaxes(ledger: SpellCostLedger) {
+    private fun payTargetLifeTaxes(ledger: SpellCostLedger, lockedCost: Int?): String? {
         val action = ledger.action
-        if (action.targets.isEmpty()) return
-        val additionalLifeCost = costCalculator.calculateAdditionalLifeCost(ledger.state, action.playerId, action.targets)
-        if (additionalLifeCost <= 0) return
-        LifePaymentService.pay(zones, ledger.state, action.playerId, additionalLifeCost)
-            ?.let { (afterPayment, paymentEvents) ->
-                ledger.state = afterPayment
-                ledger.events.addAll(paymentEvents)
-            }
+        val additionalLifeCost = lockedCost ?: if (action.targets.isEmpty()) 0 else
+            costCalculator.calculateAdditionalLifeCost(ledger.state, action.playerId, action.targets)
+        if (additionalLifeCost <= 0) return null
+        val (afterPayment, paymentEvents) = LifePaymentService.pay(zones, ledger.state, action.playerId, additionalLifeCost)
+            ?: return "Not enough life to pay additional life cost ($additionalLifeCost life required)"
+        ledger.state = afterPayment
+        ledger.events.addAll(paymentEvents)
+        return null
     }
 
     /**
@@ -407,12 +412,13 @@ internal class CastCostPayer(
      * - Web-slinging (CR 702.188a) returns a tapped creature; its own mana value is captured first
      *   (CR 118.9c — Scarlet Spider, Ben Reilly reads it).
      */
-    fun returnForAlternativeCost(ledger: SpellCostLedger, cardDef: CardDefinition?): ReturnedForAlternativeCost {
+    fun returnForAlternativeCost(ledger: SpellCostLedger, cardDef: CardDefinition?, lockedPayment: LockedCastPayment? = null): ReturnedForAlternativeCost {
         val action = ledger.action
-        val wasSneaked = action.useAlternativeCost && cardDef != null &&
+        val wasSneaked = lockedPayment?.dedicatedAlternativeCostType == AlternativeCostType.SNEAK ||
+            (lockedPayment == null && action.useAlternativeCost && cardDef != null &&
             action.altAllows(AlternativeCostType.SNEAK) &&
             (cardDef.keywordAbilities.any { it.ninjutsuStyleCost != null } ||
-                SneakWindow.graveyardSneakGrantCost(ledger.state, action.playerId, cardRegistry) != null)
+                SneakWindow.graveyardSneakGrantCost(ledger.state, action.playerId, cardRegistry) != null))
         var sneakAttackDefenderId: EntityId? = null
         if (wasSneaked) {
             action.additionalCostPayment?.bouncedPermanents?.firstOrNull()?.let { bounceId ->
@@ -421,9 +427,10 @@ internal class CastCostPayer(
             }
         }
 
-        val wasWebSlung = action.useAlternativeCost && cardDef != null &&
+        val wasWebSlung = lockedPayment?.dedicatedAlternativeCostType == AlternativeCostType.WEB_SLINGING ||
+            (lockedPayment == null && action.useAlternativeCost && cardDef != null &&
             action.altAllows(AlternativeCostType.WEB_SLINGING) &&
-            WebSlinging.effectiveWebSlinging(ledger.state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null
+            WebSlinging.effectiveWebSlinging(ledger.state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null)
         var webSlungReturnedManaValue = 0
         if (wasWebSlung) {
             action.additionalCostPayment?.bouncedPermanents?.firstOrNull()?.let { bounceId ->

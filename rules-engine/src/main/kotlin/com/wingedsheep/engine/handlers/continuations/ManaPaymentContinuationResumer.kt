@@ -64,6 +64,43 @@ class ManaPaymentContinuationResumer(
     ): ExecutionResult {
         if (response !is ManaSourcesSelectedResponse) return ExecutionResult.error(state, "Expected mana sources")
         val player = continuation.action.playerId
+        if (continuation.action is CastSpell) {
+            val action = continuation.action
+            val locked = continuation.castPayment
+                ?: return ExecutionResult.error(state, "Missing announced cast payment")
+            val lockedCost = continuation.lockedCastCost
+                ?: return ExecutionResult.error(state, "Missing locked cast cost")
+            if (response.waterbendPermanents.isNotEmpty()) {
+                return ExecutionResult.error(state, "Waterbend is not part of this spell's mana payment")
+            }
+            if (response.selectedSources.size != response.selectedSources.distinct().size) {
+                return ExecutionResult.error(state, "The same mana source cannot be selected twice")
+            }
+            val offered = locked.availableSources.map { it.entityId }.toSet()
+            if (response.selectedSources.any { it !in offered }) {
+                return ExecutionResult.error(state, "Mana source was not offered for this payment")
+            }
+            val available = services.manaSolver.findAvailableManaSources(state, player, continuation.paymentContext)
+                .map { it.entityId }.toSet()
+            if (response.selectedSources.any { it !in available || it in continuation.excludedSources }) {
+                return ExecutionResult.error(state, "Mana source is no longer available for this payment")
+            }
+            val poolCoversCost = services.castSpellHandler.lockedCostCoveredByPool(
+                state.withPriority(player), action, lockedCost, locked.paymentXValue
+            )
+            if (response.isDecline(poolCoversCost)) return checkForMore(state.withPriority(player), emptyList())
+            val strategy = when {
+                response.autoPay -> PaymentStrategy.AutoPay
+                response.selectedSources.isNotEmpty() -> PaymentStrategy.Explicit(response.selectedSources)
+                else -> PaymentStrategy.FromPool
+            }
+            val resumed = action.copy(paymentStrategy = strategy)
+            val current = state.withPriority(player)
+            services.castSpellHandler.validateRemainingPayment(current, resumed, lockedCost, locked)?.let { reason ->
+                return ExecutionResult.error(state, reason)
+            }
+            return services.castSpellHandler.executeWithLockedManaCost(current, resumed, lockedCost, locked)
+        }
         if (response.declined) return checkForMore(state.withPriority(player), emptyList())
         val decision = services.manaSolver.findAvailableManaSources(state, player, continuation.paymentContext)
             .filter { it.entityId !in continuation.excludedSources && it.tapPermanentsSubCost == null &&
@@ -77,13 +114,7 @@ class ManaPaymentContinuationResumer(
         )
         if (!floated.paid) return ExecutionResult.error(state, "Selected sources cannot pay the announced cost")
         val current = floated.state.withPriority(player)
-        (continuation.action as? CastSpell)?.let { action ->
-            services.castSpellHandler.validateRemainingNonManaCosts(current, action)?.let { reason ->
-                return ExecutionResult.error(state, reason)
-            }
-        }
         val result = when (val action = continuation.action) {
-            is CastSpell -> services.castSpellHandler.executeWithLockedManaCost(current, action, continuation.lockedCastCost)
             is ActivateAbility -> com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler.create(services).executeWithLockedCost(current, action,
                 continuation.lockedAbilityCost ?: return ExecutionResult.error(state, "Missing locked ability cost"), continuation.lockedAbilityX)
             else -> return ExecutionResult.error(state, "Unsupported mana-payment action")
