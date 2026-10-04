@@ -54,5 +54,8 @@ data class PersistentMatch(
     val player1GameWins: Int = 0,
     val player2GameWins: Int = 0,
     /** Defaulted so a payload written before simulated matches existed still decodes. */
-    val isSimulated: Boolean = false
+    val isSimulated: Boolean = false,
+    /** Defaulted for tournaments persisted before native terminal evidence was recorded. */
+    val nativeGameOver: Boolean = false,
+    val finalTurnNumber: Int? = null
 )

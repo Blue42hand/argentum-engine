@@ -126,11 +126,20 @@ class TournamentMatchHandler(
         val lock = ctx.roundLocks.computeIfAbsent(lobbyId) { Any() }
         synchronized(lock) {
             val tournament = ctx.lobbyRepository.findTournamentById(lobbyId) ?: return
+            // The native result callback runs before GamePlayHandler removes the session.
+            // Save its terminal state with the match so status stays truthful after cleanup.
+            val terminalSnapshot = gameRepository.findById(gameSessionId)?.getStateSnapshot()
+            val nativeGameOver = terminalSnapshot?.gameOver == true
+            val finalTurnNumber = terminalSnapshot?.turnNumber
             tournament.reportMatchResult(gameSessionId, winnerId, winnerLifeRemaining)
-            ctx.lobbyRepository.saveTournament(lobbyId, tournament)
 
             val resultRound = tournament.getRoundForMatch(gameSessionId)
             val match = resultRound?.matches?.find { it.gameSessionId == gameSessionId }
+            if (nativeGameOver && match != null && !match.isSimulated) {
+                match.nativeGameOver = true
+                match.finalTurnNumber = finalTurnNumber
+            }
+            ctx.lobbyRepository.saveTournament(lobbyId, tournament)
             afterMatchResult(lobbyId, resultRound, match)
         }
     }

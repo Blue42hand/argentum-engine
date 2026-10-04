@@ -80,7 +80,10 @@ data class TournamentMatch(
      * had a [gameSessionId], so it has no replay and never appeared as an active match to spectate;
      * the flag is what lets the standings say so instead of passing it off as a played result.
      */
-    var isSimulated: Boolean = false
+    var isSimulated: Boolean = false,
+    /** Captured before the native GameSession is removed after a played result. */
+    var nativeGameOver: Boolean = false,
+    var finalTurnNumber: Int? = null
 ) {
     val isBye: Boolean get() = player2Id == null
 
