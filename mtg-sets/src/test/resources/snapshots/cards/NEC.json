@@ -1,0 +1,44 @@
+// Organic Extinction
+{
+    "name": "Organic Extinction",
+    "manaCost": "{8}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Improvise (Your artifacts can help cast this spell. Each artifact you tap after you're done activating mana abilities pays for {1}.)\nDestroy all nonartifact creatures.",
+    "keywords": [
+        "IMPROVISE"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "creature nonartifact"
+                    },
+                    "storeAs": "destroyAll_gathered"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "destroyAll_gathered",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Destroy"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "RARE",
+        "artist": "Cristi Balanescu",
+        "flavorText": "\"Technology evolves faster than a blade can swing.\"\n—Arima, lead inventor of the Futurists",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/fea0f8be-c242-49dd-bae3-0b306107ac0b.jpg?1783923996"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
