@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.iko.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -27,7 +28,7 @@ val BastionOfRemembrance = card("Bastion of Remembrance") {
         "Whenever a creature you control dies, each opponent loses 1 life and you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -38,7 +39,7 @@ val BastionOfRemembrance = card("Bastion of Remembrance") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
             Effects.GainLife(1)
     }

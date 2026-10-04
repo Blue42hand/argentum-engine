@@ -1,63 +1,56 @@
 package com.wingedsheep.mtg.sets.definitions.wwk.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
-import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
- * Avenger of Zendikar — Worldwake #96
+ * Avenger of Zendikar
+ * {5}{G}{G}
+ * Creature — Elemental
+ * 5/5
+ * When this creature enters, create a 0/1 green Plant creature token for each land you control.
+ * Landfall — Whenever a land you control enters, you may put a +1/+1 counter on each Plant
+ * creature you control.
  *
- * The ETB count is evaluated when the trigger resolves. Each optional landfall resolution gathers
- * the controller's Plants at that moment and puts one +1/+1 counter on every one of them.
+ * The ETB is [Effects.CreateToken] with a dynamic count of [DynamicAmounts.landsYouControl]
+ * (counted on resolution). Landfall is `Triggers.a(Land.youControl()).enters()`, made optional,
+ * over an [Effects.ForEachInGroup] of Plant creatures you control adding one +1/+1 counter each.
  */
 val AvengerOfZendikar = card("Avenger of Zendikar") {
     manaCost = "{5}{G}{G}"
     colorIdentity = "G"
     typeLine = "Creature — Elemental"
+    oracleText = "When this creature enters, create a 0/1 green Plant creature token for each land you control.\n" +
+        "Landfall — Whenever a land you control enters, you may put a +1/+1 counter on each Plant creature you control."
     power = 5
     toughness = 5
-    oracleText = "When this creature enters, create a 0/1 green Plant creature token for each land " +
-        "you control.\nLandfall — Whenever a land you control enters, you may put a +1/+1 counter " +
-        "on each Plant creature you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.landsYouControl(),
             power = 0,
             toughness = 1,
             colors = setOf(Color.GREEN),
             creatureTypes = setOf("Plant"),
-            imageUri = "https://cards.scryfall.io/normal/front/c/1/c1424e8d-1f96-44af-9382-c337b6695ddf.jpg?1783942069",
         )
-        description = "When this creature enters, create a 0/1 green Plant creature token for each " +
-            "land you control."
     }
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         optional = true
-        effect = Effects.Pipeline {
-            val plants = gather(
-                CardSource.FromZone(
-                    zone = Zone.BATTLEFIELD,
-                    player = Player.You,
-                    filter = GameObjectFilter.Creature.withSubtype(Subtype.PLANT),
-                ),
-            )
-            run(Effects.AddCountersToCollection(plants.key, Counters.PLUS_ONE_PLUS_ONE))
-        }
-        description = "Whenever a land you control enters, you may put a +1/+1 counter on each " +
-            "Plant creature you control."
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withSubtype("Plant").youControl()),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+        )
     }
 
     metadata {

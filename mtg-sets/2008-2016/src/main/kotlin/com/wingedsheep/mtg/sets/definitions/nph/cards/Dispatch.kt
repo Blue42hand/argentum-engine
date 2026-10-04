@@ -2,11 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.nph.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Dispatch
@@ -28,10 +27,10 @@ val Dispatch = card("Dispatch") {
         "Metalcraft — If you control three or more artifacts, exile that creature."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.Tap(creature) then ConditionalEffect(
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.Tap(creature) then Effects.If(
             condition = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact),
-            effect = Effects.Exile(creature),
+            then = Effects.Exile(creature),
         )
     }
 

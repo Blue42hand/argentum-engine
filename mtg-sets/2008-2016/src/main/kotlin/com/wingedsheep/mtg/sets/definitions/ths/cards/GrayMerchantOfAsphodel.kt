@@ -30,7 +30,7 @@ val GrayMerchantOfAsphodel = card("Gray Merchant of Asphodel") {
         "control counts toward your devotion to black.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrainLife(DynamicAmounts.devotionTo(Color.BLACK))
     }
 

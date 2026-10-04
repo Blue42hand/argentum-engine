@@ -76,8 +76,12 @@ abstract class ScenarioTestBase : FunSpec() {
             register(set.code, TokenArtData.forSet(set), set.cards.map { it.name })
         }
     }
-    protected val actionProcessor = ActionProcessor(EngineServices(cardRegistry, tokenArtRegistry = tokenArtRegistry))
-    protected val stateTransformer = ClientStateTransformer(cardRegistry)
+    protected val services = EngineServices(cardRegistry, tokenArtRegistry = tokenArtRegistry)
+    protected val actionProcessor = ActionProcessor(services)
+
+    /** The engine's zone service — for tests that move a card the way an effect would. */
+    protected val zones get() = services.zones
+    protected val stateTransformer = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator)
 
     /**
      * Builder for constructing test scenarios with specific game states.
@@ -489,6 +493,7 @@ abstract class ScenarioTestBase : FunSpec() {
                 player1Id = player1Id!!,
                 player2Id = player2Id!!,
                 cardRegistry = cardRegistry,
+                services = services,
                 actionProcessor = actionProcessor,
                 stateTransformer = stateTransformer
             )
@@ -514,6 +519,8 @@ abstract class ScenarioTestBase : FunSpec() {
                 spellEffect = cardDef.spellEffect,
                 imageUri = cardDef.metadata.imageUri,
                 hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
+                hasActivatedAbility = cardDef.hasActivatedAbility,
+                hasCycling = cardDef.hasCycling,
                 originalSetCode = cardDef.setCode,
                 hasAdventure = cardDef.isAdventure,
                 isDoubleFaced = cardDef.isDoubleFaced,
@@ -548,9 +555,13 @@ abstract class ScenarioTestBase : FunSpec() {
         val player1Id: EntityId,
         val player2Id: EntityId,
         private val cardRegistry: CardRegistry,
+        private val services: EngineServices,
         private val actionProcessor: ActionProcessor,
         private val stateTransformer: ClientStateTransformer
     ) {
+        /** The engine's zone service — for tests that move a card the way an effect would. */
+        val zones get() = services.zones
+
         /**
          * Run one full state-based action pass (CR 704) against the current state.
          *
@@ -561,8 +572,7 @@ abstract class ScenarioTestBase : FunSpec() {
          * player decision) surface as `pendingDecision`, exactly as in a real game.
          */
         fun checkStateBasedActions(): ExecutionResult {
-            val result = com.wingedsheep.engine.mechanics.StateBasedActionChecker(cardRegistry = cardRegistry)
-                .checkAndApply(state)
+            val result = services.sbaChecker.checkAndApply(state)
             if (result.error == null) {
                 state = result.state
             }
@@ -794,6 +804,15 @@ abstract class ScenarioTestBase : FunSpec() {
             )
         }
 
+        /** Cast a prototype card from hand prototyped (CR 718.3). */
+        fun castSpellPrototyped(playerNumber: Int, spellName: String): ExecutionResult {
+            val playerId = if (playerNumber == 1) player1Id else player2Id
+            val cardId = state.getHand(playerId).find { entityId ->
+                state.getEntity(entityId)?.get<CardComponent>()?.name == spellName
+            } ?: error("Card '$spellName' not found in player $playerNumber's hand")
+            return execute(CastSpell(playerId, cardId, castPrototyped = true))
+        }
+
         /**
          * Cast a spell for its Cleave cost (CR 702.148), optionally targeting a permanent. Cleave
          * is an alternative cost, so this drives [CastSpell.useAlternativeCost] gated on
@@ -828,6 +847,22 @@ abstract class ScenarioTestBase : FunSpec() {
                 xValue = xValue,
                 useAlternativeCost = true,
                 alternativeCostType = AlternativeCostType.CLEAVE
+            ))
+        }
+
+        /**
+         * Cast a spell for its Overload cost (CR 702.96). An overloaded spell has no targets
+         * (CR 702.96b), so none are passed.
+         */
+        fun castSpellWithOverload(playerNumber: Int, spellName: String): ExecutionResult {
+            val playerId = if (playerNumber == 1) player1Id else player2Id
+            val cardId = state.getHand(playerId).find { entityId ->
+                state.getEntity(entityId)?.get<CardComponent>()?.name == spellName
+            } ?: error("Card '$spellName' not found in player $playerNumber's hand")
+            return execute(CastSpell(
+                playerId, cardId,
+                useAlternativeCost = true,
+                alternativeCostType = AlternativeCostType.OVERLOAD
             ))
         }
 
@@ -1085,7 +1120,6 @@ abstract class ScenarioTestBase : FunSpec() {
         // Built lazily and shared across calls; both are stateless (they take the
         // current [state] as an argument), so a single pair serves the whole game.
         private val legalActionEngine by lazy {
-            val services = EngineServices(cardRegistry)
             LegalActionEnumerator(
                 services.cardRegistry, services.manaSolver, services.costCalculator,
                 services.predicateEvaluator, services.conditionEvaluator, services.turnManager
@@ -1103,7 +1137,7 @@ abstract class ScenarioTestBase : FunSpec() {
         fun getLegalActions(playerNumber: Int): List<LegalActionInfo> {
             val playerId = if (playerNumber == 1) player1Id else player2Id
             val priorityPlayer = state.priorityPlayerId ?: return emptyList()
-            if (state.actorFor(priorityPlayer) != playerId) return emptyList()
+            if (com.wingedsheep.engine.mechanics.combat.CombatDeclarationControl.inputActorFor(state, priorityPlayer) != playerId) return emptyList()
             if (state.pendingDecision != null) return emptyList()
             val (enumerator, enricher) = legalActionEngine
             val engineActions = enumerator.enumerate(state, priorityPlayer)

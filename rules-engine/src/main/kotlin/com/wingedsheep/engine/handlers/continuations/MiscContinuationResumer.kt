@@ -1,16 +1,20 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.CoinFlipService
 import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.engine.handlers.effects.composite.FlipCoinExecutor
 import com.wingedsheep.engine.handlers.effects.composite.FlipTwoCoinsExecutor
+import com.wingedsheep.engine.handlers.effects.composite.RepeatWhileExecutor
 import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
 import com.wingedsheep.sdk.scripting.effects.FlipCoinsEffect
 import com.wingedsheep.sdk.scripting.effects.FlipCoinsUntilLossEffect
 import com.wingedsheep.sdk.scripting.effects.FlipTwoCoinsEffect
+import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
 import com.wingedsheep.engine.handlers.effects.permanent.counters.ProliferateExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.counters.MoveChosenCountersFlow
 import com.wingedsheep.engine.handlers.effects.permanent.counters.RemoveAnyNumberOfCountersFlow
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
@@ -30,6 +34,10 @@ class MiscContinuationResumer(
 ) : ContinuationResumerModule {
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
+        resumer(TurnStartReplacementContinuation::class) { state, continuation, response, checkForMore ->
+            val result = services.turnManager.resumeTurnStartReplacement(state, continuation, response)
+            if (result.outcome is Outcome.Done) checkForMore(result.state, result.events) else result
+        },
         resumer(DrawUpToContinuation::class, ::resumeDrawUpTo),
         resumer(RepeatWhileDecisionContinuation::class, ::resumeRepeatWhile),
         resumer(FlipCoinsUntilLossContinuation::class, ::resumeFlipCoinsUntilLoss),
@@ -43,7 +51,9 @@ class MiscContinuationResumer(
         resumer(DistributeCountersContinuation::class, ::resumeDistributeCounters),
         resumer(RemoveAnyNumberOfCountersContinuation::class, ::resumeRemoveAnyNumberOfCounters),
         resumer(AddCountersUpToContinuation::class, ::resumeAddCountersUpTo),
+        resumer(AddCountersOfChosenKindContinuation::class, ::resumeAddCountersOfChosenKind),
         resumer(com.wingedsheep.engine.core.PayAnyAmountOfLifeAsEntersContinuation::class, ::resumePayAnyAmountOfLifeAsEnters),
+        resumer(MayPayLifeXContinuation::class, ::resumeMayPayLifeX),
         resumer(PayCountersContinuation::class, ::resumePayCounters),
         resumer(ConvertCountersToTokensContinuation::class, ::resumeConvertCountersToTokens),
         resumer(MoveChosenCountersToTargetContinuation::class, ::resumeMoveChosenCountersToTarget),
@@ -84,7 +94,7 @@ class MiscContinuationResumer(
             targets = selectedTargets,
             targetRequirements = continuation.targetRequirements
         )
-        if (!stackResult.isSuccess) return stackResult
+        if (stackResult.outcome !is Outcome.Done) return stackResult
 
         return checkForMore(stackResult.newState, stackResult.events)
     }
@@ -122,7 +132,7 @@ class MiscContinuationResumer(
             // doesn't itself re-trigger "whenever you activate an ability" abilities.
             emitActivationEvent = false
         )
-        if (!stackResult.isSuccess) return stackResult
+        if (stackResult.outcome !is Outcome.Done) return stackResult
 
         return checkForMore(stackResult.newState, stackResult.events)
     }
@@ -152,19 +162,17 @@ class MiscContinuationResumer(
         val push = com.wingedsheep.engine.handlers.effects.stack.CopyTargetSpellOrAbilityExecutor
             .cloneAndPush(
                 state = state,
-                stackResolver = services.stackResolver,
                 abilityEntityId = continuation.abilityEntityId,
                 controllerId = continuation.controllerId,
                 targets = selectedTargets,
                 targetRequirements = continuation.targetRequirements
             )
-        if (!push.isSuccess) return push
+        if (push.outcome !is Outcome.Done) return push
 
         // Continue the loop for the remaining copies (may pause again for the next copy's targets).
         val driveResult = com.wingedsheep.engine.handlers.effects.stack.CopyTargetSpellOrAbilityExecutor
             .driveAbilityCopies(
                 state = push.newState,
-                stackResolver = services.stackResolver,
                 targetFinder = services.targetFinder,
                 abilityEntityId = continuation.abilityEntityId,
                 controllerId = continuation.controllerId,
@@ -173,7 +181,7 @@ class MiscContinuationResumer(
                 totalCopies = continuation.totalCopies,
                 priorEvents = push.events
             )
-        return if (driveResult.isPaused) driveResult
+        return if (driveResult.outcome is Outcome.Paused) driveResult
         else checkForMore(driveResult.newState, driveResult.events)
     }
 
@@ -206,9 +214,37 @@ class MiscContinuationResumer(
         )
         val result = services.effectExecutorRegistry.execute(state, addEffect, addContext).toExecutionResult()
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
+
+        return checkForMore(result.state, result.events.toList())
+    }
+
+    private fun resumeAddCountersOfChosenKind(
+        state: GameState,
+        continuation: AddCountersOfChosenKindContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is OptionChosenResponse) {
+            return ExecutionResult.error(state, "Expected option chosen response for AddCountersOfChosenKind")
+        }
+        val kind = continuation.counterKinds.getOrNull(response.optionIndex)
+            ?: return ExecutionResult.error(state, "Invalid counter kind index: ${response.optionIndex}")
+
+        val addEffect = com.wingedsheep.sdk.scripting.effects.AddCountersEffect(
+            counterType = kind,
+            count = continuation.count,
+            target = com.wingedsheep.sdk.scripting.targets.EffectTarget.SpecificEntity(continuation.recipientId)
+        )
+        val addContext = EffectContext(
+            sourceId = continuation.sourceId,
+            objectReferences = continuation.objectReferences,
+            controllerId = continuation.controllerId,
+        )
+        val result = services.effectExecutorRegistry.execute(state, addEffect, addContext).toExecutionResult()
+        if (result.outcome is Outcome.Paused) return result
 
         return checkForMore(result.state, result.events.toList())
     }
@@ -240,11 +276,49 @@ class MiscContinuationResumer(
             )
             val result = services.effectExecutorRegistry.execute(newState, payEffect, payContext)
                 .toExecutionResult()
-            if (result.isPaused) return result
+            if (result.outcome is Outcome.Paused) return result
             return checkForMore(result.state, result.events.toList())
         }
 
         return checkForMore(newState, emptyList())
+    }
+
+    /**
+     * Pay the chosen amount of life for a "you may pay any amount of life. If you do, …" gate and
+     * run the gated effect with that amount as X. Choosing 0 is the decline and runs the gate's
+     * `otherwise`. The payment goes through [LifePaymentService], so life-payment replacements apply,
+     * and a lock that appeared since the prompt makes the payment fail — which is also "you don't".
+     */
+    private fun resumeMayPayLifeX(
+        state: GameState,
+        continuation: MayPayLifeXContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is NumberChosenResponse) {
+            return ExecutionResult.error(state, "Expected number response for pay-any-amount-of-life")
+        }
+        val chosen = response.number
+        if (chosen !in 0..continuation.maxX) {
+            return ExecutionResult.error(state, "Life payment $chosen is outside 0..${continuation.maxX}")
+        }
+
+        val paid = if (chosen > 0 && state.canPayLife(continuation.playerId, chosen)) {
+            LifePaymentService.pay(services.zones, state, continuation.playerId, chosen)
+        } else null
+
+        val (afterPayment, payEvents) = paid ?: (state to emptyList())
+        val branch = if (paid != null) continuation.effect else continuation.otherwise
+            ?: return checkForMore(state, emptyList())
+        val context = if (paid != null) continuation.effectContext.copy(xValue = chosen) else continuation.effectContext
+
+        val effectResult = services.effectExecutorRegistry.execute(afterPayment, branch, context)
+            .toExecutionResult()
+        if (effectResult.error != null) return effectResult
+        if (effectResult.outcome is Outcome.Paused) {
+            return effectResult.copy(events = payEvents + effectResult.events)
+        }
+        return checkForMore(effectResult.state, payEvents + effectResult.events)
     }
 
     private fun resumePayCounters(
@@ -261,8 +335,7 @@ class MiscContinuationResumer(
         val events = mutableListOf<GameEvent>()
 
         val chosen = response.number.coerceAtLeast(0)
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(continuation.counterType)
+        val counterType = continuation.counterType
 
         if (chosen > 0) {
             val current = newState.getEntity(continuation.playerId)
@@ -320,7 +393,7 @@ class MiscContinuationResumer(
         )
         val result = services.effectExecutorRegistry.execute(currentState, drawEffect, drawContext).toExecutionResult()
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
@@ -338,29 +411,26 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected yes/no response for RepeatWhile")
         }
 
+        val repeatWhile = RepeatWhileExecutor
         if (!response.choice) {
-            // Player chose not to repeat — done
-            return checkForMore(state, emptyList())
+            // Player chose not to repeat — done; publish what the loop collected.
+            return checkForMore(exposeCollectionsToNextFrame(state, repeatWhile.published(continuation)), emptyList())
         }
 
         // Player chose to repeat — execute another iteration
-        val context = continuation.effectContext
-        val result = com.wingedsheep.engine.handlers.effects.composite.RepeatWhileExecutor.executeIteration(
+        val result = repeatWhile.executeIteration(
             state = state,
-            body = continuation.body,
-            repeatCondition = continuation.repeatCondition,
-            resolvedDeciderId = continuation.resolvedDeciderId,
-            context = context,
-            sourceName = continuation.sourceName,
+            loop = continuation,
             effectExecutor = services.effectExecutorRegistry::execute,
-            priorEvents = emptyList()
+            priorEvents = emptyList(),
+            conditionEvaluator = services.conditionEvaluator
         )
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result.toExecutionResult()
         }
 
-        return checkForMore(result.state, result.events.toList())
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events.toList())
     }
 
     /**
@@ -406,7 +476,7 @@ class MiscContinuationResumer(
             priorEvents = emptyList()
         )
 
-        if (result.isPaused) return result.toExecutionResult()
+        if (result.outcome is Outcome.Paused) return result.toExecutionResult()
 
         val published = exposeCollectionsToNextFrame(
             result.state,
@@ -490,7 +560,7 @@ class MiscContinuationResumer(
                         decisionHandler = decisionHandler,
                         priorEvents = settled.events
                     )
-                if (result.isPaused) return result.toExecutionResult()
+                if (result.outcome is Outcome.Paused) return result.toExecutionResult()
                 val published = exposeCollectionsToNextFrame(
                     result.state,
                     collections = emptyMap(),
@@ -520,7 +590,7 @@ class MiscContinuationResumer(
     ): ExecutionResult {
         if (subEffect == null) return checkForMore(state, flipEvents)
         val result = effectRunner.executeRemainingEffects(state, listOf(subEffect), context)
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 result.state,
                 flipEvents + result.events
@@ -554,7 +624,7 @@ class MiscContinuationResumer(
             targetRequirements = continuation.targetRequirements,
             controllerId = continuation.controllerId
         )
-        if (!copyResult.isSuccess) return copyResult
+        if (copyResult.outcome !is Outcome.Done) return copyResult
         val mutated = com.wingedsheep.engine.handlers.effects.stack.StormCopyEffectExecutor
             .applyCopyMutations(
                 copyResult.newState, copyResult.events,
@@ -565,7 +635,6 @@ class MiscContinuationResumer(
         val result = com.wingedsheep.engine.handlers.effects.stack.CopyEachTargetSpellExecutor
             .driveCopyEachSpell(
                 state = mutated,
-                stackResolver = services.stackResolver,
                 targetFinder = services.targetFinder,
                 controllerId = continuation.controllerId,
                 remainingSpellIds = continuation.remainingSpellIds.drop(1),
@@ -575,7 +644,7 @@ class MiscContinuationResumer(
             )
         // Propagate a further pause (another copy needs retargeting) or an error as-is;
         // otherwise let the engine continue resolving the stack.
-        if (result.isPaused || result.error != null) return result
+        if (result.outcome is Outcome.Paused || result.error != null) return result
         return checkForMore(result.newState, result.events)
     }
 
@@ -607,11 +676,11 @@ class MiscContinuationResumer(
             copyTotal = continuation.totalCopies,
             controllerId = continuation.controllerId
         )
-        if (!stackResult.isSuccess) return stackResult
+        if (stackResult.outcome !is Outcome.Done) return stackResult
         currentState = com.wingedsheep.engine.handlers.effects.stack.StormCopyEffectExecutor
             .applyCopyMutations(
                 stackResult.newState, stackResult.events,
-                continuation.keywordsForCopy, continuation.removeLegendary
+                continuation.keywordsForCopy, continuation.removeLegendary, continuation.tokenRiders
             )
         allEvents.addAll(stackResult.events)
 
@@ -647,11 +716,11 @@ class MiscContinuationResumer(
                     copyTotal = continuation.totalCopies,
                     controllerId = continuation.controllerId
                 )
-                if (!res.isSuccess) return res
+                if (res.outcome !is Outcome.Done) return res
                 loopState = com.wingedsheep.engine.handlers.effects.stack.StormCopyEffectExecutor
                     .applyCopyMutations(
                         res.newState, res.events,
-                        continuation.keywordsForCopy, continuation.removeLegendary
+                        continuation.keywordsForCopy, continuation.removeLegendary, continuation.tokenRiders
                     )
                 loopEvents.addAll(res.events)
                 copiesLeft--
@@ -669,12 +738,14 @@ class MiscContinuationResumer(
             objectReferences = continuation.objectReferences,
             totalCopies = continuation.totalCopies,
             keywordsForCopy = continuation.keywordsForCopy,
-            removeLegendary = continuation.removeLegendary
+            removeLegendary = continuation.removeLegendary,
+            tokenRiders = continuation.tokenRiders
         )
         val targetReqInfos = continuation.spellTargetRequirements.mapIndexed { index, req ->
             TargetRequirementInfo(
                 index = index,
-                description = req.description
+                description = req.description,
+                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
             )
         }
 
@@ -718,7 +789,6 @@ class MiscContinuationResumer(
 
         val result = com.wingedsheep.engine.handlers.effects.stack.StormCopyEffectExecutor.driveStormModalCopies(
             state = state,
-            stackResolver = services.stackResolver,
             targetFinder = services.targetFinder,
             sourceId = continuation.sourceId,
             controllerId = continuation.controllerId,
@@ -734,7 +804,7 @@ class MiscContinuationResumer(
             removeLegendary = continuation.removeLegendary
         )
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
@@ -751,17 +821,7 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected distribution response for counter distribution")
         }
 
-        val counterType = try {
-            com.wingedsheep.sdk.core.CounterType.valueOf(
-                continuation.counterType.uppercase()
-                    .replace(' ', '_')
-                    .replace('+', 'P')
-                    .replace('-', 'M')
-                    .replace("/", "_")
-            )
-        } catch (e: IllegalArgumentException) {
-            com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
-        }
+        val counterType = continuation.counterType
 
         val distribution = response.distribution
         val totalMoved = distribution.values.sum()
@@ -794,7 +854,8 @@ class MiscContinuationResumer(
         for ((targetId, amount) in distribution) {
             if (amount > 0) {
                 val modifiedAmount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                    newState, targetId, counterType, amount, placerId = continuation.controllerId
+                    newState, targetId, counterType, amount, placerId = continuation.controllerId,
+                    predicateEvaluator = services.predicateEvaluator
                 )
                 val targetCounters = newState.getEntity(targetId)
                     ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
@@ -804,20 +865,18 @@ class MiscContinuationResumer(
                     container.with(targetCounters.withAdded(counterType, modifiedAmount))
                 }
                 // The distributing effect's controller is the placer (CR 122.5 for the "move"
-                // shape, plain placement for the "distribute N new counters" one); record the kind
-                // and the placer so the scoped readings of ReceivedCounterThisTurn see this.
-                val (afterMark, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
-                    .recordCounterPlacement(
-                        newState,
-                        targetId,
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType),
-                        placerId = continuation.controllerId,
-                    )
-                newState = afterMark
+                // shape, plain placement for the "distribute N new counters" one). Stamp every
+                // recipient with the kind and placer for the scoped readings of
+                // ReceivedCounterThisTurn, and credit "you put a counter on a creature this turn"
+                // when the recipient is a creature.
+                val (afterMark, firstThisTurn, firstOfTypeThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
+                    .recordCounterPlacement(newState, targetId, counterType, placerId = continuation.controllerId)
+                newState = com.wingedsheep.engine.handlers.effects.DamageUtils
+                    .markCounterPlacedOnCreature(afterMark, continuation.controllerId, targetId, counterType)
 
                 val targetName = newState.getEntity(targetId)
                     ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
-                events.add(CountersAddedEvent(targetId, continuation.counterType, modifiedAmount, targetName, firstThisTurn, placedBy = continuation.controllerId))
+                events.add(CountersAddedEvent(targetId, continuation.counterType, modifiedAmount, targetName, firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn, placedBy = continuation.controllerId))
             }
         }
 
@@ -834,8 +893,7 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected number response for convert-counters-to-tokens")
         }
 
-        val counterType = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-            .resolveCounterType(continuation.counterType)
+        val counterType = continuation.counterType
         val available = state.getEntity(continuation.sourceId)
             ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
             ?.getCount(counterType) ?: 0
@@ -852,7 +910,7 @@ class MiscContinuationResumer(
         val events = mutableListOf<GameEvent>(
             com.wingedsheep.engine.core.CountersRemovedEvent(
                 continuation.sourceId,
-                continuation.counterType.description,
+                continuation.counterType,
                 chosen,
                 state.getEntity(continuation.sourceId)
                     ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
@@ -869,7 +927,7 @@ class MiscContinuationResumer(
             controllerId = continuation.controllerId
         )
         val tokenResult = effectRunner.executeRemainingEffects(newState, listOf(tokenEffect), tokenContext)
-        if (tokenResult.isPaused) return tokenResult.toExecutionResult()
+        if (tokenResult.outcome is Outcome.Paused) return tokenResult.toExecutionResult()
         newState = tokenResult.state
         events.addAll(tokenResult.events)
 
@@ -937,124 +995,45 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected number response for move-chosen-counters")
         }
 
-        val chosen = response.number.coerceIn(0, continuation.currentMaxAmount)
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(continuation.currentCounterType)
+        // Coerce into the prompt's own bounds, floor included — the floor is what makes "move a
+        // counter" mandatory, so a client answering 0 under a floor of 1 can't skip the move.
+        val chosen = response.number.coerceIn(continuation.currentMinAmount, continuation.currentMaxAmount)
+        val move = MoveChosenCountersFlow.Move(
+            sourceId = continuation.sourceId,
+            destinationId = continuation.destinationId,
+            controllerId = continuation.controllerId,
+            sourceName = continuation.sourceName,
+            destinationName = continuation.destinationName,
+            drawCardOnMove = continuation.drawCardOnMove,
+            objectReferences = continuation.objectReferences
+        )
+        val (afterMove, moveEvents) = MoveChosenCountersFlow.moveCounters(
+            state, move, continuation.currentCounterType, chosen, services.predicateEvaluator
+        )
 
-        var newState = state
-        val events = mutableListOf<GameEvent>()
-        var anyMoved = continuation.anyMovedSoFar
-
-        if (chosen > 0) {
-            // Remove the chosen counters from the source.
-            val sourceCounters = newState.getEntity(continuation.sourceId)
-                ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-                ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
-            val actuallyRemovable = minOf(chosen, sourceCounters.getCount(counterType))
-            if (actuallyRemovable > 0) {
-                newState = newState.updateEntity(continuation.sourceId) { container ->
-                    container.with(sourceCounters.withRemoved(counterType, actuallyRemovable))
+        val outcome = MoveChosenCountersFlow.advance(
+            state = afterMove,
+            move = move,
+            order = continuation.remainingCounterTypes.map { it.first },
+            budget = continuation.remainingBudget?.minus(chosen),
+            floor = (continuation.remainingFloor - chosen).coerceAtLeast(0),
+            anyMovedSoFar = continuation.anyMovedSoFar || moveEvents.isNotEmpty(),
+            predicates = services.predicateEvaluator,
+            priorEvents = moveEvents
+        )
+        return when (outcome) {
+            is MoveChosenCountersFlow.Outcome.Prompt ->
+                ExecutionResult.propagatePause(outcome.state, outcome.events)
+            is MoveChosenCountersFlow.Outcome.Done -> {
+                // All kinds processed. Draw a card if requested and at least one counter moved.
+                if (continuation.drawCardOnMove && outcome.anyMoved) {
+                    val drawResult = services.turnManager.drawCards(outcome.state, continuation.controllerId, 1)
+                    checkForMore(drawResult.state, outcome.events + drawResult.events)
+                } else {
+                    checkForMore(outcome.state, outcome.events)
                 }
-                events.add(
-                    CountersRemovedEvent(
-                        continuation.sourceId,
-                        continuation.currentCounterType,
-                        actuallyRemovable,
-                        continuation.sourceName
-                    )
-                )
-
-                // Add them to the destination (honoring counter-placement replacements).
-                val modified = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                    newState, continuation.destinationId, counterType, actuallyRemovable,
-                    placerId = continuation.controllerId
-                )
-                if (modified > 0) {
-                    val destCounters = newState.getEntity(continuation.destinationId)
-                        ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-                        ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
-                    newState = newState.updateEntity(continuation.destinationId) { container ->
-                        container.with(destCounters.withAdded(counterType, modified))
-                    }
-                    val (afterMark, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
-                        .recordCounterPlacement(
-                            newState,
-                            continuation.destinationId,
-                            com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType),
-                            placerId = continuation.controllerId,
-                        )
-                    newState = afterMark
-                    events.add(
-                        CountersAddedEvent(
-                            continuation.destinationId,
-                            continuation.currentCounterType,
-                            modified,
-                            continuation.destinationName,
-                            firstThisTurn,
-                            // CR 122.5: moving a counter "puts" it onto the destination, so this is a
-                            // placement by the moving effect's controller (drives "whenever you put
-                            // counters" triggers).
-                            placedBy = continuation.controllerId
-                        )
-                    )
-                }
-                anyMoved = true
             }
         }
-
-        // Prompt for the next kind still present on the source, if any.
-        val live = newState.getEntity(continuation.sourceId)
-            ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-        val nextPrompt = continuation.remainingCounterTypes
-            .map { (type, _) ->
-                type to (live?.getCount(
-                    com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType(type)
-                ) ?: 0)
-            }
-            .firstOrNull { it.second > 0 }
-
-        if (nextPrompt != null) {
-            val (nextType, nextMax) = nextPrompt
-            val remainingAfter = continuation.remainingCounterTypes
-                .dropWhile { it.first != nextType }
-                .drop(1)
-
-            val question = { decisionId: String -> ChooseNumberDecision(
-                id = decisionId,
-                playerId = continuation.controllerId,
-                prompt = "Move how many $nextType counters from ${continuation.sourceName} onto ${continuation.destinationName}? (0-$nextMax)",
-                context = DecisionContext(
-                    sourceId = continuation.sourceId,
-                    sourceName = continuation.sourceName,
-                    phase = DecisionPhase.RESOLUTION
-                ),
-                minValue = 0,
-                maxValue = nextMax
-            ) }
-            val nextContinuation = MoveChosenCountersToTargetContinuation(
-                sourceId = continuation.sourceId,
-            objectReferences = continuation.objectReferences,
-                destinationId = continuation.destinationId,
-                controllerId = continuation.controllerId,
-                currentCounterType = nextType,
-                currentMaxAmount = nextMax,
-                remainingCounterTypes = remainingAfter,
-                sourceName = continuation.sourceName,
-                destinationName = continuation.destinationName,
-                drawCardOnMove = continuation.drawCardOnMove,
-                anyMovedSoFar = anyMoved
-            )
-            return newState.suspendForDecision(question, nextContinuation, events)
-        }
-
-        // All kinds processed. Draw a card if requested and at least one counter moved.
-        if (continuation.drawCardOnMove && anyMoved) {
-            val drawResult = services.turnManager.drawCards(newState, continuation.controllerId, 1)
-            newState = drawResult.state
-            events.addAll(drawResult.events)
-        }
-
-        return checkForMore(newState, events)
     }
 
     private fun resumeReturnFromLinkedExile(
@@ -1092,16 +1071,26 @@ class MiscContinuationResumer(
         }
 
         val chosen = response.selectedCards.filter { it in continuation.eligibleEntities }
-        if (chosen.isEmpty()) {
-            return checkForMore(state, emptyList())
-        }
+        // Choosing nothing is still proliferating: "whenever you proliferate" fires either way.
+        val proliferated = ProliferatedEvent(continuation.controllerId, continuation.sourceName)
 
         // Same placement rule as the targeted form of the effect (Powerful Broker) — only the
         // way the recipients were chosen differs.
-        val (newState, events) =
-            ProliferateExecutor.addOneOfEachKind(state, chosen, continuation.controllerId)
+        val (newState, events) = if (chosen.isEmpty()) state to emptyList() else
+            ProliferateExecutor.addOneOfEachKind(state, chosen, continuation.controllerId, predicateEvaluator = services.predicateEvaluator)
 
-        return checkForMore(newState, events)
+        // Under "proliferate twice instead" the next proliferate starts only now, so it sees the
+        // counters this one just placed.
+        val result = ProliferateExecutor.proliferate(
+            newState,
+            continuation.controllerId,
+            continuation.sourceId,
+            continuation.sourceName,
+            continuation.proliferatesRemaining,
+            events + proliferated
+        )
+        if (result.outcome is Outcome.Paused) return result
+        return checkForMore(result.state, result.events)
     }
 
     private fun resumeAddDynamicMana(
@@ -1121,7 +1110,7 @@ class MiscContinuationResumer(
             state, continuation.playerId,
             mapOf(continuation.firstColor to firstAmount, continuation.secondColor to secondAmount),
             continuation.restriction
-        )
+        ).let { ManaProvenanceTracker.markSnowProduction(state, it, continuation.sourceId, continuation.playerId) }
 
         return checkForMore(newState, emptyList())
     }
@@ -1147,7 +1136,7 @@ class MiscContinuationResumer(
             state, continuation.playerId,
             mapOf(color to 1),
             continuation.restriction
-        )
+        ).let { ManaProvenanceTracker.markSnowProduction(state, it, continuation.sourceId, continuation.playerId) }
 
         val event = ManaAddedEvent(
             playerId = continuation.playerId,

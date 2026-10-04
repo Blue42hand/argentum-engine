@@ -67,6 +67,10 @@ import kotlinx.serialization.Serializable
  * @property toughnessOverride Replaces the copied base toughness.
  * @property noManaCost "except it … has no mana cost" — the copy has no mana cost and so mana
  *   value 0 (Embalm / Eternalize, CR 702.128a).
+ * @property addedNumericKeywords Numeric keywords the copy has *in addition* to the ones it copied —
+ *   "except it's 1/1 and it has toxic 1" (Kinzu of the Bleak Coven). Kept apart from
+ *   [addedKeywords] because the N is part of the ability; instances stack with the copied ones
+ *   (toxic 2 copied + toxic 1 added is a total of toxic 3, CR 702.164b).
  */
 @Serializable
 data class CopyExceptions(
@@ -83,7 +87,27 @@ data class CopyExceptions(
     val powerOverride: Int? = null,
     val toughnessOverride: Int? = null,
     val noManaCost: Boolean = false,
+    val addedNumericKeywords: List<com.wingedsheep.sdk.scripting.KeywordAbility.Numeric> = emptyList(),
+    /** Abilities added as copiable rules text, including multiple identical instances. */
+    val addedTriggeredAbilities: List<com.wingedsheep.sdk.scripting.TriggeredAbility> = emptyList(),
+    /**
+     * Activated abilities added as copiable rules text — "except it has '{X}: This creature has base
+     * power and toughness X/X'" (Gigantoplasm). Like [addedTriggeredAbilities] they are copiable
+     * values (CR 707.9a), so a later copy of the copy has them too. Non-mana abilities activated
+     * from the battlefield only: the mana-ability readers (solver, mana enumerator) look at the
+     * printed script, so a mana ability here would be offered nowhere — rejected up front instead.
+     */
+    val addedActivatedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
 ) {
+    init {
+        require(addedActivatedAbilities.none { it.isManaAbility }) {
+            "CopyExceptions.addedActivatedAbilities can't carry a mana ability"
+        }
+        require(addedActivatedAbilities.all { it.activateFromZone == com.wingedsheep.sdk.core.Zone.BATTLEFIELD }) {
+            "CopyExceptions.addedActivatedAbilities must be activated from the battlefield"
+        }
+    }
+
     /** True when nothing is modified — a plain copy with no "except" clause. */
     val isEmpty: Boolean get() = this == None
 
@@ -117,7 +141,19 @@ data class CopyExceptions(
             powerOverride = powerOverride ?: base.powerOverride,
             toughnessOverride = toughnessOverride ?: base.toughnessOverride,
             noManaCost = noManaCost || base.noManaCost,
+            addedNumericKeywords = base.addedNumericKeywords + addedNumericKeywords,
+            addedTriggeredAbilities = base.addedTriggeredAbilities + addedTriggeredAbilities,
+            addedActivatedAbilities = base.addedActivatedAbilities + addedActivatedAbilities,
         )
+    }
+
+    /** Text changes affect the added rules text before the copy is made. */
+    fun applyTextReplacement(replacer: com.wingedsheep.sdk.scripting.text.TextReplacer): CopyExceptions {
+        if (addedTriggeredAbilities.isEmpty() && addedActivatedAbilities.isEmpty()) return this
+        val triggered = addedTriggeredAbilities.map { it.applyTextReplacement(replacer) }
+        val activated = addedActivatedAbilities.map { it.applyTextReplacement(replacer) }
+        return if (triggered == addedTriggeredAbilities && activated == addedActivatedAbilities) this
+        else copy(addedTriggeredAbilities = triggered, addedActivatedAbilities = activated)
     }
 
     /**
@@ -160,7 +196,10 @@ data class CopyExceptions(
         if (addedKeywords.isNotEmpty()) {
             add("it has ${addedKeywords.joinToString(", ") { it.name.lowercase().replace('_', ' ') }}")
         }
+        for (numeric in addedNumericKeywords) add("it has ${numeric.keyword.displayName.lowercase()} ${numeric.n}")
         if (noManaCost) add("it has no mana cost")
+        for (ability in addedTriggeredAbilities) add("it has \"${ability.description}\"")
+        for (ability in addedActivatedAbilities) add("it has \"${ability.description}\"")
     }
 
     /**

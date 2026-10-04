@@ -1,15 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val EdgarAncientBloodlord = card("Edgar, Ancient Bloodlord") {
@@ -22,11 +20,7 @@ val EdgarAncientBloodlord = card("Edgar, Ancient Bloodlord") {
         "{2}, Sacrifice another creature or planeswalker: Put a +1/+1 counter on Edgar. He gains menace until end of turn. (He can't be blocked except by two or more creatures.)"
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.CreatureOrPlaneswalker.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.CreatureOrPlaneswalker.youControl()).dies()
         effect = Effects.GainLife(1)
     }
 
@@ -35,10 +29,8 @@ val EdgarAncientBloodlord = card("Edgar, Ancient Bloodlord") {
             Costs.Mana("{2}"),
             Costs.SacrificeAnother(GameObjectFilter.CreatureOrPlaneswalker)
         )
-        effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
-        )
     }
 
     metadata {

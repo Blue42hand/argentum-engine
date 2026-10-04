@@ -39,14 +39,22 @@ Sent whenever the game state changes.
           {
             "id": "ent-2",
             "name": "Generous Gift"
-          },
-          // Visible to owner
-          {
-            "id": "ent-3",
-            "name": "???"
           }
-          // Masked to opponent
+          // Visible to owner. An opponent receives no entry at all, only the zone's size:
+          // a hidden card is never referenced by ID, since an ID is enough to follow the card.
+          // For the same reason a browser seat that loses track of a card it saw (a revealed
+          // hand card cast face down, a card shuffled away and manifested) gets it under a new,
+          // seat-specific ID ("h1", "h2", …). The client echoes IDs back as received; a stale
+          // one is rejected ("Refers to a card by a name you no longer have").
         ]
+      },
+      {
+        "name": "LIBRARY",
+        "ownerId": "player-1",
+        "size": 53,
+        "cards": [],
+        "positions": []
+        // Only cards the viewer may identify are listed, each with its index from the top.
       }
     ]
   },
@@ -181,6 +189,9 @@ panel is the pre-existing view, and shows card backs for everything not revealed
 `StateDelta.deck` is sent only when a count actually moved (a draw, a mill, a tutor), so the
 many updates that just shuffle the battlefield around don't re-send the list. Absent from a delta
 means unchanged — the client carries the previous value forward.
+
+`StateDelta.activeYields` and `StateDelta.voidActive` follow the same rule: present only when
+they changed. `StateDeltaTest` fails when a new `ClientGameState` field is left off `StateDelta`.
 
 ### C. Connection Liveness (Client <-> Server)
 
@@ -768,6 +779,23 @@ AI/human games tend to have shorter action logs — but the same or larger pins.
 ./gradlew :game-server:test --tests "*.CompactReplaySizeBenchmark" -Dbenchmark=true -DbenchmarkGames=40 -DbenchmarkSet=BLB
 ```
 
+### Replay files (export / upload)
+
+A finished game's `CompactReplay` can leave the server as a file and come back to be watched:
+
+- **Export** — `GET /api/public/replays/{gameId}/export` returns the record's plain JSON
+  (`ReplayCodec.encodeJson`, pins included) as an `argentum-replay-<gameId>.json` attachment.
+  `FINISHED` records only: the seed plus decklists reveal every hand and library order.
+- **Upload** — `POST /api/public/replays/upload` takes the raw file as the body (plain or gzipped
+  JSON), re-simulates it without storing it, and answers in the same `{metadata, initialSnapshot,
+  deltas}` shape as `GET /api/public/replays/{gameId}`, with `stateReproducible: false` (nothing is
+  stored for the scenario endpoints to find). `ReplayFile` caps the upload size, its inflated size,
+  seats, deck sizes, pinned cards and action count before anything runs; errors are `400 {error}`,
+  and a server already re-simulating its quota of uploads answers `429`.
+
+The same `FINISHED` gate covers `ReplayService.reconstructStateAt`, so neither the full-state
+download nor `from-replay-frame` can read a game still in progress.
+
 ### "Share frame as scenario" (replay)
 
 The replay viewer can also reproduce an **exact full-state snapshot** — stack, targets, floating
@@ -787,3 +815,24 @@ replay up to the requested frame (so no full `GameState` is stored per frame). T
 A snapshot is exact but **not editable** in the card-search builder; the builder's own name-based
 `?s=` share remains for authoring/editing. The engine `GameState` is (de)serialized with
 `persistenceJson` (`allowStructuredMapKeys` — `zones` is keyed by `ZoneKey`).
+
+### Pile decision membership
+
+`SplitPilesDecision` includes `allowUnassigned` (default false), `maxPileMemberships` (entity ID to
+maximum distinct pile count, absent entries default to one), and `useTargetingUI` (default false).
+Responses continue to use `PilesSplitResponse` with a list of piles, including empty piles. For
+randomized blocker piles, the legal action's description is "Choose blocker piles"; submitting its
+empty `DeclareBlockers` opens the decision instead of declaring no blockers.
+
+For a constrained split, `pileOptions` limits the cards eligible for each pile and
+`requiredAssignments` fixes the total number of memberships. `suggestedPiles` supplies one
+server-validated plan for automated responders. After randomized assignment, these fields let the
+player choose a legal subset on the battlefield without rerolling or enumerating every combination.
+The continuation also checks the resulting combat restrictions before committing any block.
+
+### Mana spending permissions
+
+`ClientPlayer.manaPaymentColors` is an optional map from required pip symbols to accepted actual
+mana colors, computed by the engine. For Sunglasses of Urza it includes `"R": ["R", "W"]`.
+The existing mana readouts consume these server-provided options; mana source/pool colors and printed
+costs remain unchanged. The field defaults to empty and is public information.

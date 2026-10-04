@@ -174,6 +174,8 @@ export interface OpponentDecisionStatus {
   readonly decisionType: string
   readonly displayText: string
   readonly sourceName?: string | null
+  /** The source entity; resolve its card from the (viewer-masked) game state. */
+  readonly sourceId?: EntityId | null
 }
 
 /**
@@ -250,6 +252,8 @@ export interface StateDelta {
   readonly winnerId?: EntityId | null
   /** Day/night designation (CR 731). Null means unchanged — the game never returns to neither. */
   readonly dayNight?: ClientGameState['dayNight'] | null
+  /** Whether the Void condition holds this turn. Null means unchanged. */
+  readonly voidActive?: boolean | null
   /** Combat state changes */
   readonly combat?: ClientCombatState | null
   readonly combatCleared?: boolean | null
@@ -262,6 +266,8 @@ export interface StateDelta {
   readonly hotseat?: boolean | null
   /** The viewer's decklist, present only when a `remaining` count moved (draw, mill, tutor). */
   readonly deck?: readonly ClientDeckCard[] | null
+  /** The viewer's persistent yields, present only when they changed. */
+  readonly activeYields?: ClientGameState['activeYields'] | null
 }
 
 /**
@@ -356,6 +362,12 @@ export interface SelectCardsDecision extends PendingDecisionBase {
   /** When true, at most one card of each colour may be selected (colourless unconstrained) */
   readonly onePerColor?: boolean
   /**
+   * When true, at most one card of each name may be selected ("cards with different names" —
+   * Behold the Sinister Six!, Extrapolate the Impossible). The server enforces this; the UI
+   * disables cards sharing an already-selected card's name.
+   */
+  readonly onePerCardName?: boolean
+  /**
    * When true, at most one land of each basic land type may be selected (a kept land claims
    * every basic type it has); a land with no basic land type can't be selected (Global Ruin).
    */
@@ -435,6 +447,12 @@ export interface TargetRequirementInfo {
    * Already resolved to a concrete number server-side.
    */
   readonly totalManaValueAtMost?: number | null
+  /**
+   * True for "another target" wording: a pick here must differ from every target chosen for an
+   * earlier requirement. Absent/false lets separate "target" instances choose the same object
+   * (Seeds of Strength), so earlier picks stay in this requirement's pool.
+   */
+  readonly mustDifferFromEarlier?: boolean
 }
 
 /**
@@ -488,6 +506,9 @@ export interface ReorderLibraryDecision extends PendingDecisionBase {
  */
 export interface OrderObjectsDecision extends PendingDecisionBase {
   readonly type: 'OrderObjectsDecision'
+  readonly orderingTitle?: string
+  readonly firstLabel?: string
+  readonly lastLabel?: string
   readonly objects: readonly EntityId[]
   readonly cardInfo?: Record<EntityId, SearchCardInfo>
 }
@@ -569,6 +590,8 @@ export interface DistributeDecision extends PendingDecisionBase {
 export interface ChooseColorDecision extends PendingDecisionBase {
   readonly type: 'ChooseColorDecision'
   readonly availableColors: readonly string[]
+  /** How many distinct colors may be chosen; >1 means "one or more" (toggle + confirm). */
+  readonly maxColors?: number
 }
 
 /**
@@ -610,6 +633,8 @@ export interface SelectManaSourcesDecision extends PendingDecisionBase {
   readonly autoPaySuggestion: readonly EntityId[]
   readonly canAutoPayNow?: boolean | null
   readonly canDecline?: boolean
+  /** Restricted floating mana the server found eligible for this payment. */
+  readonly eligibleRestrictedMana?: readonly ClientRestrictedManaEntry[]
   /**
    * Untapped artifacts/creatures that may be tapped to pay {1} each toward the cost via
    * Waterbend (e.g. Ward—Waterbend). Empty for ordinary mana-only costs.
@@ -724,6 +749,12 @@ export interface CombatResolutionDecision extends PendingDecisionBase {
  */
 export interface SplitPilesDecision extends PendingDecisionBase {
   readonly type: 'SplitPilesDecision'
+  readonly allowUnassigned?: boolean
+  readonly pileOptions?: Readonly<Record<number, readonly EntityId[]>>
+  readonly requiredAssignments?: number | null
+  readonly suggestedPiles?: readonly (readonly EntityId[])[] | null
+  readonly maxPileMemberships?: Readonly<Record<EntityId, number>>
+  readonly useTargetingUI?: boolean
   readonly cards: readonly EntityId[]
   readonly numberOfPiles: number
   readonly pileLabels: readonly string[]
@@ -766,6 +797,11 @@ export interface BatchYesNoDecision extends PendingDecisionBase {
 /**
  * Union of all pending decision types.
  */
+export interface PlayCardDecision extends PendingDecisionBase {
+  readonly type: 'PlayCardDecision'
+  readonly cardId: EntityId
+}
+
 export type PendingDecision =
   | SelectCardsDecision
   | YesNoDecision
@@ -780,6 +816,7 @@ export type PendingDecision =
   | BudgetModalDecision
   | DistributeDecision
   | ChooseColorDecision
+  | PlayCardDecision
   | SelectManaSourcesDecision
   | AssignDamageDecision
   | CombatResolutionDecision
@@ -821,6 +858,12 @@ export interface LegalActionTargetInfo {
    * selectable targets to the X chosen at cast time.
    */
   readonly xConstrainsCount?: boolean
+  /**
+   * True for "another target" wording: a pick here must differ from every target chosen for an
+   * earlier requirement. Absent/false lets separate "target" instances choose the same object
+   * (Seeds of Strength), so earlier picks stay in this requirement's pool.
+   */
+  readonly mustDifferFromEarlier?: boolean
 }
 
 /**
@@ -886,6 +929,11 @@ export interface LegalActionInfo {
   readonly hasXCost?: boolean
   /** Maximum X value the player can afford (null if not X cost spell) */
   readonly maxAffordableX?: number
+  /**
+   * Set when the caster may pay "any amount of mana" as an additional cost (Chorus of the
+   * Conclave): the upper bound for the amount picker. Sent back as `additionalManaForCounters`.
+   */
+  readonly maxAdditionalManaForCounters?: number
   /** Minimum X value (usually 0) */
   readonly minX?: number
   /** Whether this is a mana ability (doesn't highlight card as playable) */
@@ -1156,6 +1204,12 @@ export interface AdditionalCostInfo {
   readonly exileMinTotalWeight?: number
   readonly exileCardWeights?: Readonly<Record<EntityId, number>>
   readonly exileWeightUnit?: string
+  /**
+   * Each offered card's card types, for a cost measured by a *union* rather than a sum —
+   * Nethergoyf's "four or more card types among them". When present, the running total is the
+   * number of distinct types across the selected cards, not the sum of `exileCardWeights`.
+   */
+  readonly exileCardTypes?: Readonly<Record<EntityId, readonly string[]>>
   /**
    * What each legal target would add to `exileMinTotalWeight` — present only for a cost whose
    * threshold is priced off the spell's targets rather than printed (Urgent Necropsy's "collect
@@ -1888,6 +1942,8 @@ export interface SpectatorDecisionStatus {
   readonly decisionType: string
   readonly displayText: string
   readonly sourceName?: string | null
+  /** The source entity; resolve its card from the (viewer-masked) game state. */
+  readonly sourceId?: EntityId | null
 }
 
 export interface SpectatorStateUpdateMessage {

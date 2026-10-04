@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * "{2}, Sacrifice this token: Draw a card.")
  *
  * Firebending 2 is the set keyword combat-mana helper. The attack trigger composes
- * `Effects.LoseLife` (the controller, Player.You) with `Effects.Investigate` (which mints the
+ * `Effects.LoseLife` (the controller, Player.You) with `Effects.CreateClue` (which mints the
  * standard Clue token), both firing whenever Azula attacks.
  */
 val AzulaOnTheHunt = card("Azula, On the Hunt") {
@@ -35,11 +35,8 @@ val AzulaOnTheHunt = card("Azula, On the Hunt") {
     firebending(2)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)),
-            Effects.Investigate(),
-        )
+        trigger = Triggers.self.attacks()
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)) then Effects.CreateClue()
         description = "Whenever Azula attacks, you lose 1 life and create a Clue token."
     }
 

@@ -28,7 +28,7 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
 
         val window = ManaPaymentWindow.buildDecision(
             game.state, caster, ManaCost.parse("{2}{R}{R}"), "pool-covered",
-            "Pay Krenko's mana cost", DecisionContext(), true, game.cardRegistry
+            "Pay Krenko's mana cost", DecisionContext(), true, game.services.manaSolver
         )
         window.autoPaySuggestion shouldBe emptyList()
         window.canAutoPayNow shouldBe true
@@ -43,11 +43,11 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
 
         val window = ManaPaymentWindow.buildDecision(
             game.state, caster, ManaCost.parse("{2}{R}{R}"), "x-payment",
-            "Pay the locked X cost", DecisionContext(), true, game.cardRegistry,
+            "Pay the locked X cost", DecisionContext(), true, game.services.manaSolver,
             unknownAutoPayFeasibility = true
         )
         window.canAutoPayNow shouldBe null
-        ManaPaymentWindow.refresh(game.state, window, game.cardRegistry).canAutoPayNow shouldBe null
+        ManaPaymentWindow.refresh(game.state, window, game.services.manaSolver).canAutoPayNow shouldBe null
     }
 
     test("Krenko payment window distinguishes affordable cast from executable AutoPay") {

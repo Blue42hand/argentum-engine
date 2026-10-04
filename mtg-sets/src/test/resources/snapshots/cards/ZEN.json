@@ -7,7 +7,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Adventuring Gear:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -31,7 +31,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Adventuring Gear:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -79,7 +79,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Akoum Refuge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -95,7 +95,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Akoum Refuge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -105,7 +105,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Akoum Refuge:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -140,7 +140,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arid Mesa:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -165,7 +165,8 @@
                                 "zone": "Library",
                                 "filter": "land Mountain|Plains"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -216,7 +217,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Baloth Woodcrasher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -307,7 +308,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blazing Torch:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -364,7 +365,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Blazing Torch:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -379,13 +380,16 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t0"
                         },
                         "damageSource": "GrantingSource"
                     },
                     "targetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "t0"
+                        }
                     ],
                     "descriptionOverride": "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target."
                 }
@@ -415,7 +419,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bloodghast:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -525,7 +529,7 @@
                 },
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "t0"
                 }
             },
             "otherwise": {
@@ -536,14 +540,14 @@
                 },
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "t0"
                 }
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -570,7 +574,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Caller of Gales:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -589,7 +593,7 @@
                     "keyword": "FLYING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -598,7 +602,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -648,7 +652,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Carnage Altar:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -728,7 +732,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Crypt Ripper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -826,7 +830,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Devout Lightcaster:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -835,7 +839,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "permanent"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -844,7 +848,7 @@
                     "filter": {
                         "baseFilter": "permanent black"
                     },
-                    "id": "permanent"
+                    "id": "t0"
                 }
             }
         ]
@@ -880,7 +884,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -889,7 +893,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -920,7 +924,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Emeria Angel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -970,7 +974,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Expedition Map:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -995,7 +999,8 @@
                                 "zone": "Library",
                                 "filter": "land"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -1048,7 +1053,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1068,7 +1073,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ],
         "castRestrictions": [
@@ -1125,7 +1130,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Geyser Glider:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1195,7 +1200,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Bushwhacker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1221,12 +1226,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1264,7 +1269,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Shortcutter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1273,7 +1278,7 @@
                     "type": "CantBlockTargetCreatures",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -1281,7 +1286,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             }
         ]
@@ -1342,7 +1347,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Graypelt Refuge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1358,7 +1363,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Graypelt Refuge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1368,7 +1373,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Graypelt Refuge:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1407,7 +1412,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grazing Gladehart:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1466,7 +1471,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Greenweaver Druid:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1508,7 +1513,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Hand"
                     },
@@ -1519,7 +1524,7 @@
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Return target creature card from your graveyard to your hand"
@@ -1529,7 +1534,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -1540,7 +1545,7 @@
                                 "baseFilter": "land own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target land card from your graveyard to your hand"
@@ -1574,7 +1579,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hagra Crocodile:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1623,7 +1628,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hagra Diabolist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1642,13 +1647,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "player"
+                            "name": "t0"
                         }
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetPlayer",
-                    "id": "player"
+                    "id": "t0"
                 }
             }
         ]
@@ -1681,7 +1686,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Halo Hunter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1690,7 +1695,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "Angel"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1700,7 +1705,7 @@
                     "filter": {
                         "baseFilter": "permanent Angel"
                     },
-                    "id": "Angel"
+                    "id": "t0"
                 }
             }
         ]
@@ -1730,7 +1735,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hedron Scrabbler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1773,7 +1778,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hellfire Mongrel:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -1838,8 +1843,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -1864,7 +1869,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "nonland permanent"
-                }
+                },
+                "id": "t0"
             }
         ]
     },
@@ -1888,7 +1894,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jwar Isle Refuge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1904,7 +1910,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Jwar Isle Refuge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1914,7 +1920,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Jwar Isle Refuge:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1949,7 +1955,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kabira Crossroads:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1965,7 +1971,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Kabira Crossroads:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2006,7 +2012,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kazandu Blademaster:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2018,7 +2024,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2047,7 +2053,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kazandu Refuge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2063,7 +2069,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Kazandu Refuge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2073,7 +2079,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Kazandu Refuge:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2112,7 +2118,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kor Cartographer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2130,7 +2136,8 @@
                                     "zone": "Library",
                                     "filter": "land Plains"
                                 },
-                                "storeAs": "searchable"
+                                "storeAs": "searchable",
+                                "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -2237,7 +2244,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lotus Cobra:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2275,7 +2282,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "creature"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -2284,7 +2291,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ],
         "additionalCosts": [
@@ -2324,7 +2331,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Makindi Shieldmate:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2336,7 +2343,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2364,7 +2371,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Marsh Flats:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2389,7 +2396,8 @@
                                 "zone": "Library",
                                 "filter": "land Plains|Swamp"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -2443,7 +2451,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merfolk Seastalkers:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2455,7 +2463,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature without flying"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2472,7 +2480,7 @@
                                 ]
                             }
                         },
-                        "id": "creature without flying"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2506,7 +2514,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merfolk Wayfinder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2532,10 +2540,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land Island"
-                            },
+                            "filter": "land Island",
                             "storeMatching": "kept",
                             "storeNonMatching": "rest"
                         },
@@ -2582,7 +2587,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Misty Rainforest:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2607,7 +2612,8 @@
                                 "zone": "Library",
                                 "filter": "land Forest|Island"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -2658,7 +2664,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Molten Ravager:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2707,7 +2713,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "permanent you control"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -2726,7 +2732,7 @@
                 "filter": {
                     "baseFilter": "permanent ctrl:you"
                 },
-                "id": "permanent you control"
+                "id": "t0"
             }
         ]
     },
@@ -2754,7 +2760,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nimana Sell-Sword:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2766,7 +2772,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2834,7 +2840,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oran-Rief Survivalist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2846,7 +2852,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2894,7 +2900,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Piranha Marsh:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2907,19 +2913,19 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target player"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetPlayer",
-                    "id": "target player"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this land enters, target player loses 1 life."
             }
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Piranha Marsh:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2959,7 +2965,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Plated Geopede:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3008,7 +3014,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rampaging Baloths:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3054,7 +3060,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Reckless Scholar:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -3067,7 +3073,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -3079,8 +3085,8 @@
                                         "type": "FromZone",
                                         "zone": "Hand",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "t0"
                                         }
                                     },
                                     "storeAs": "hand"
@@ -3106,8 +3112,8 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "t0"
                                         }
                                     },
                                     "moveType": "Discard"
@@ -3119,7 +3125,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3159,7 +3165,7 @@
                 "type": "CreateTokenCopyOfTarget",
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "t0"
                 },
                 "count": {
                     "type": "Fixed",
@@ -3170,7 +3176,7 @@
                 "type": "CreateTokenCopyOfTarget",
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "t0"
                 }
             }
         },
@@ -3180,7 +3186,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -3204,7 +3210,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scalding Tarn:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3229,7 +3235,8 @@
                                 "zone": "Library",
                                 "filter": "land Island|Mountain"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -3280,7 +3287,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scute Mob:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3288,7 +3295,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 4,
                     "target": "Self"
                 },
@@ -3336,7 +3343,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scythe Tiger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3379,7 +3386,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sea Gate Loremaster:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DrawCards",
@@ -3433,7 +3440,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3457,7 +3464,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sejiri Refuge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3473,7 +3480,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sejiri Refuge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3483,7 +3490,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Sejiri Refuge:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3567,7 +3574,7 @@
             "type": "PreventDamageShield",
             "target": {
                 "type": "BoundVariable",
-                "name": "any target"
+                "name": "t0"
             },
             "amount": {
                 "type": "Fixed",
@@ -3577,7 +3584,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ]
     },
@@ -3608,7 +3615,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shoal Serpent:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3680,7 +3687,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -3688,7 +3695,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 }
             ]
@@ -3699,7 +3706,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ]
     },
@@ -3723,7 +3730,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soaring Seacliff:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3733,7 +3740,7 @@
                     "keyword": "FLYING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -3741,13 +3748,13 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             }
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Soaring Seacliff:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3780,7 +3787,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spidersilk Net:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3844,13 +3851,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "any target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ]
     },
@@ -3878,7 +3885,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Steppe Lynx:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3976,7 +3983,7 @@
                     "baseFilter": "creature",
                     "zone": "Stack"
                 },
-                "id": "creature spell"
+                "id": "t0"
             }
         ]
     },
@@ -4005,7 +4012,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Surrakar Marauder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -4042,17 +4049,15 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
+                "type": "PreventFromMatching",
                 "filter": {
-                    "baseFilter": {
-                        "cardPredicates": [
-                            "IsCreature",
-                            {
-                                "type": "NotKeyword",
-                                "keyword": "TRAMPLE"
-                            }
-                        ]
-                    }
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "NotKeyword",
+                            "keyword": "TRAMPLE"
+                        }
+                    ]
                 }
             }
         }
@@ -4077,7 +4082,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Teetering Peaks:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4094,7 +4099,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -4102,13 +4107,13 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             }
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Teetering Peaks:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4173,7 +4178,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Territorial Baloth:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -4215,7 +4220,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trusty Machete:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4277,7 +4282,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tuktuk Grunts:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -4289,7 +4294,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -4317,7 +4322,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Turntimber Grove:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4334,7 +4339,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -4342,13 +4347,13 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             }
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Turntimber Grove:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4388,7 +4393,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Umara Raptor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -4400,7 +4405,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -4474,7 +4479,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Verdant Catacombs:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4499,7 +4504,8 @@
                                 "zone": "Library",
                                 "filter": "land Swamp|Forest"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -4623,7 +4629,7 @@
                 "filter": {
                     "baseFilter": "creature ctrl:you"
                 },
-                "id": "two target creatures you control"
+                "id": "t0"
             }
         ]
     },
@@ -4655,7 +4661,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Windrider Eel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",

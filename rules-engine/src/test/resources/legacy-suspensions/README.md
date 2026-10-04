@@ -34,3 +34,22 @@ HAND->STACK cast plus the stack-origin on the graveyard move in `free-cast-targe
 `nested-may`, `repeat-while` and `suspended-mana-window` event lists still match the
 original parent capture byte for byte, which is what shows the suspension change itself
 did not alter behaviour.
+
+Edited on 2026-09-24 when a `ForEach` loop's current object moved from
+`PipelineState.iterationTarget` into `ObjectReferenceEnvironment.iteration` (replacing
+`selfBinding`). Every capture held both as `null`, so the obsolete `iterationTarget` keys were
+dropped and `selfBinding` renamed in place; no other byte of `state.json`, `actions.json` or
+`after-N.json` changed.
+
+Representation-refreshed on 2026-09-25 when card target declarations stopped carrying
+author-written names: the DSL now mints each target's binding id (`t0`, `t1`, … unique per card)
+and the targeting prompt is derived from the requirement. The only edits were the recorded
+binding name `"target"` → `"t0"` (requirement `id` and the `BoundVariable` reading it) and the
+recorded prompt `"target"` → `"target artifact or enchantment"` (Naturalize's derived wording).
+No action or event payload changed, and no gameplay was rerun.
+
+Edited on 2026-09-28 when mana provenance gained a producing-source card-type axis
+(`ManaPoolComponent.manaByCardType`, `SpellOnStackComponent.manaSpentByCardType`,
+`RestrictedManaEntry.source`). The new keys were inserted with their defaults in the
+`encodeDefaults = true` captures; the one tagged pool — Birds of Paradise's floating mana in
+`suspended-mana-window/after-1.json` — carries `{"CREATURE": 1}`, as the engine now records.

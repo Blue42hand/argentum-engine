@@ -42,8 +42,8 @@ val AlelaArtfulProvocateur = card("Alela, Artful Provocateur") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Artifact or GameObjectFilter.Enchantment,
+        trigger = Triggers.you.casts(
+            spell = GameObjectFilter.Artifact or GameObjectFilter.Enchantment,
         )
         effect = Effects.CreateToken(
             power = 1,

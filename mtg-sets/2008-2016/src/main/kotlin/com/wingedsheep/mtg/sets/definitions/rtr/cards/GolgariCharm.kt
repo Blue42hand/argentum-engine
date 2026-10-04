@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /** Golgari Charm — Return to Ravnica #164. */
 val GolgariCharm = card("Golgari Charm") {
@@ -24,20 +23,17 @@ val GolgariCharm = card("Golgari Charm") {
             mode("All creatures get -1/-1 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreatures,
-                    ModifyStatsEffect(-1, -1, EffectTarget.Self),
+                    Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity),
                 )
             }
             mode("Destroy target enchantment") {
-                val enchantment = target(
-                    "target enchantment",
-                    TargetPermanent(filter = TargetFilter(GameObjectFilter.Enchantment)),
-                )
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             }
             mode("Regenerate each creature you control") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    RegenerateEffect(EffectTarget.Self),
+                    Effects.Regenerate(EffectTarget.IterationEntity),
                 )
             }
         }

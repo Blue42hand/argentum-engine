@@ -1,11 +1,13 @@
 package com.wingedsheep.engine.handlers.effects.damage
 
+import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.DamageUtils.dealDamageToTarget
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -17,7 +19,8 @@ import kotlin.reflect.KClass
  * multi-player targets (e.g., PlayerRef(Player.Each), PlayerRef(Player.EachOpponent)).
  */
 class DealDamageExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val zones: ZoneTransitionService,
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<DealDamageEffect> {
 
     override val effectType: KClass<DealDamageEffect> = DealDamageEffect::class
@@ -47,6 +50,9 @@ class DealDamageExecutor(
             context.sourceId
         }
 
+        val damageSourceRef = if (damageSourceTarget == null) context.objectReferences.origin
+            ?: sourceId?.let(state::objectRef) else sourceId?.let(state::objectRef)
+
         // "Each opponent and planeswalker it has dealt damage to this game" (The Fallen): a set
         // that mixes players and permanents, read off the damage source's accumulated memory.
         // Empty is a legal no-op, not an error — a Fallen that has damaged nobody yet does nothing.
@@ -62,7 +68,7 @@ class DealDamageExecutor(
             var newState = readyState
             val events = mutableListOf<EngineGameEvent>()
             for (recipientId in recipients) {
-                val result = dealDamageToTarget(newState, recipientId, amount, sourceId, effect.cantBePrevented)
+                val result = dealDamageToTarget(zones, newState, recipientId, amount, sourceId, effect.cantBePrevented, damageSourceRef = damageSourceRef)
                 newState = result.newState
                 events.addAll(result.events)
             }
@@ -86,7 +92,7 @@ class DealDamageExecutor(
             var newState = readyState
             val events = mutableListOf<EngineGameEvent>()
             for (playerId in playerIds) {
-                val result = dealDamageToTarget(newState, playerId, amount, sourceId, effect.cantBePrevented)
+                val result = dealDamageToTarget(zones, newState, playerId, amount, sourceId, effect.cantBePrevented, damageSourceRef = damageSourceRef)
                 newState = result.newState
                 events.addAll(result.events)
             }
@@ -106,10 +112,19 @@ class DealDamageExecutor(
         )
         if (pause != null) return pause
 
-        return dealDamageToTarget(
+        val result = dealDamageToTarget(
+            zones,
             readyState, targetId, amount, sourceId, effect.cantBePrevented,
-            excessToController = effect.excessToController
+            excessToController = effect.excessToController, damageSourceRef = damageSourceRef
         )
+        val excessVariable = effect.excessDamageVariable ?: return result
+        // Excess damage (CR 120.4a) dealt to this target by this instruction, read off the actual
+        // DamageDealtEvent so prevention, deathtouch, marked damage and loyalty are all accounted.
+        val excess = result.events
+            .filterIsInstance<DamageDealtEvent>()
+            .filter { it.targetId == targetId }
+            .sumOf { it.excessAmount }
+        return result.copy(updatedStoredNumbers = result.updatedStoredNumbers + (excessVariable to excess))
     }
 
     /**

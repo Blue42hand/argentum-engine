@@ -65,7 +65,7 @@ class GustcloakHarrierTest : FunSpec({
         // Trigger fires and goes on stack. Both pass to resolve.
         driver.bothPass()
 
-        // MayEffect creates a yes/no decision. Choose yes.
+        // Effects.May creates a yes/no decision. Choose yes.
         driver.submitYesNo(attacker, true)
 
         // Harrier should be untapped (from the effect)
@@ -77,8 +77,8 @@ class GustcloakHarrierTest : FunSpec({
         // Harrier should not be marked as blocked
         driver.state.getEntity(harrier)?.has<BlockedComponent>() shouldBe false
 
-        // The blocker should no longer be blocking (since the attacker was removed)
-        driver.state.getEntity(blocker)?.has<BlockingComponent>() shouldBe false
+        // The blocker is still a blocking creature, now blocking nothing (CR 509.1g)
+        driver.state.getEntity(blocker)?.get<BlockingComponent>()?.blockedAttackerIds shouldBe emptyList()
 
         // Skip through combat - no damage should be dealt since Harrier was removed
         driver.passPriorityUntil(Step.POSTCOMBAT_MAIN)
@@ -123,7 +123,7 @@ class GustcloakHarrierTest : FunSpec({
         // Trigger fires. Both pass to resolve.
         driver.bothPass()
 
-        // MayEffect creates a yes/no decision. Choose no.
+        // Effects.May creates a yes/no decision. Choose no.
         driver.submitYesNo(attacker, false)
 
         // Harrier should still be tapped and attacking

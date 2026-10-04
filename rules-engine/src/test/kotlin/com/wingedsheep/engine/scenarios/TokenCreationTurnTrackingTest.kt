@@ -22,7 +22,7 @@ import io.kotest.matchers.shouldBe
 class TokenCreationTurnTrackingTest : ScenarioTestBase() {
 
     private fun createdCondition(game: TestGame, playerId: EntityId): Boolean =
-        ConditionEvaluator().evaluate(
+        ConditionEvaluator(services.predicateEvaluator).evaluate(
             game.state,
             Conditions.YouCreatedTokensThisTurn,
             EffectContext(sourceId = null, controllerId = playerId),
@@ -59,7 +59,7 @@ class TokenCreationTurnTrackingTest : ScenarioTestBase() {
             createdCondition(game, game.player1Id) shouldBe true
             createdCondition(game, game.player2Id) shouldBe false
 
-            game.state = ZoneTransitionService.moveToZone(
+            game.state = zones.moveToZone(
                 game.state, tokenId, Zone.GRAVEYARD,
             ).state
             createdCondition(game, game.player1Id) shouldBe true
@@ -83,7 +83,7 @@ class TokenCreationTurnTrackingTest : ScenarioTestBase() {
                 container.with(TokensCreatedThisTurnComponent(1))
             }
 
-            val nextTurn = TurnManager(cardRegistry).startTurn(game.state, game.player2Id)
+            val nextTurn = services.turnManager.startTurn(game.state, game.player2Id)
             nextTurn.error shouldBe null
             nextTurn.state.getEntity(game.player1Id)
                 ?.get<TokensCreatedThisTurnComponent>()?.count shouldBe 0

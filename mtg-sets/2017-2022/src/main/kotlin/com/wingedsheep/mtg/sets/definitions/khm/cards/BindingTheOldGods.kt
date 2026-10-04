@@ -22,10 +22,7 @@ val BindingTheOldGods = card("Binding the Old Gods") {
         "III — Creatures you control gain deathtouch until end of turn."
 
     sagaChapter(1) {
-        val permanent = target(
-            "nonland permanent an opponent controls",
-            TargetObject(filter = TargetFilter(GameObjectFilter.NonlandPermanent.opponentControls())),
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.opponentControls())
         effect = Effects.Destroy(permanent)
     }
     sagaChapter(2) {
