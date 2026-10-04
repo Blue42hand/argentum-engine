@@ -8,7 +8,11 @@ import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.mtg.sets.definitions.emn.cards.HanweirBattlements
 import com.wingedsheep.mtg.sets.definitions.m13.cards.KrenkoMobBoss
+import com.wingedsheep.mtg.sets.definitions.mh3.cards.ArenaOfGlory
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
@@ -91,6 +95,44 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
             refreshed.id, selectedSources = listOf(mountain), autoPay = true
         )).error shouldBe "Auto-pay cannot be combined with selected mana sources"
         game.submitDecision(caster, ManaSourcesSelectedResponse(refreshed.id, autoPay = true)).error shouldBe null
+        (krenko in game.state.stack) shouldBe true
+    }
+
+    test("underpaying with Arena preserves the mana window and permits a corrected payment") {
+        val game = GameTestDriver()
+        game.registerCards(TestCards.all + listOf(
+            KrenkoMobBoss, ArenaOfGlory, HanweirBattlements, PredefinedTokens.Treasure
+        ))
+        game.initMirrorMatch(Deck.of("Forest" to 40))
+        val caster = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val krenko = game.putCardInHand(caster, "Krenko, Mob Boss")
+        val arena = game.putPermanentOnBattlefield(caster, "Arena of Glory")
+        game.putPermanentOnBattlefield(caster, "Hanweir Battlements")
+        val treasure = game.putPermanentOnBattlefield(caster, "Treasure")
+        game.giveColorlessMana(caster, 2)
+
+        game.submit(CastSpell(caster, krenko)).isPaused shouldBe true
+        val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        val before = game.state
+        val rejected = game.submitDecision(caster, ManaSourcesSelectedResponse(
+            window.id, selectedSources = listOf(arena)
+        ))
+        rejected.error shouldBe "Selected mana sources cannot pay this spell's cost"
+        rejected.state shouldBe before
+        game.state shouldBe before
+        game.pendingDecision shouldBe window
+        game.state.getEntity(arena)!!.has<TappedComponent>() shouldBe false
+        game.state.getEntity(caster)!!.get<ManaPoolComponent>()!!.colorless shouldBe 2
+
+        game.submit(ActivateAbility(
+            caster, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
+            manaColorChoice = Color.RED
+        )).error shouldBe null
+        val refreshed = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        game.submitDecision(caster, ManaSourcesSelectedResponse(
+            refreshed.id, selectedSources = listOf(arena)
+        )).error shouldBe null
         (krenko in game.state.stack) shouldBe true
     }
 })
