@@ -194,8 +194,17 @@ class CastSpellHandler(
 
     /** The mana window resumes without public action validation, but announced costs still need
      * their own check after a mana ability taps or sacrifices a chosen permanent. */
-    fun validateRemainingNonManaCosts(state: GameState, action: CastSpell): String? =
-        castValidator.validateRemainingNonManaCosts(state, action)
+    fun validateRemainingPayment(
+        state: GameState, action: CastSpell, lockedCost: ManaCost,
+        lockedPayment: com.wingedsheep.engine.core.LockedCastPayment,
+    ): String? = castValidator.validateRemainingPayment(state, action, lockedCost, lockedPayment)
+
+    fun lockedCostCoveredByPool(
+        state: GameState, action: CastSpell, lockedCost: ManaCost,
+        paymentXValue: Int,
+    ): Boolean = castCostPayer.validateManaPayment(
+        state, action.copy(paymentStrategy = PaymentStrategy.FromPool), lockedCost, paymentXValue
+    ) == null
 
     fun executeDuringResolution(state: GameState, action: CastSpell): ExecutionResult {
         if (com.wingedsheep.engine.mechanics.SplitSecond.isLocked(state, cardRegistry)) {
@@ -226,8 +235,11 @@ class CastSpellHandler(
      */
     override fun execute(state: GameState, action: CastSpell): ExecutionResult = executeWithLockedManaCost(state, action, null)
 
-    internal fun executeWithLockedManaCost(state: GameState, action: CastSpell, lockedCost: ManaCost?): ExecutionResult {
-        val result = executeAnnounced(state, action, lockedCost)
+    internal fun executeWithLockedManaCost(
+        state: GameState, action: CastSpell, lockedCost: ManaCost?,
+        lockedPayment: com.wingedsheep.engine.core.LockedCastPayment? = null,
+    ): ExecutionResult {
+        val result = executeAnnounced(state, action, lockedCost, lockedPayment)
         // An unfinished cost/target picker still presents a card in its original zone. Rebuild
         // the announcement when resumed; cancellation must not leave Aura characteristics behind.
         return if (action.cardId !in result.state.stack && action.cardId !in result.state.getBattlefield()) {
@@ -262,7 +274,10 @@ class CastSpellHandler(
         )
     }
 
-    private fun executeAnnounced(inputState: GameState, action: CastSpell, lockedCost: ManaCost? = null): ExecutionResult {
+    private fun executeAnnounced(
+        inputState: GameState, action: CastSpell, lockedCost: ManaCost? = null,
+        lockedPayment: com.wingedsheep.engine.core.LockedCastPayment? = null,
+    ): ExecutionResult {
         val state = com.wingedsheep.engine.mechanics.CastCharacteristics.announce(inputState, action, cardRegistry)
         val cardComponent = state.getEntity(action.cardId)?.get<CardComponent>()
             ?: return ExecutionResult.error(state, "Card not found")
@@ -285,7 +300,7 @@ class CastSpellHandler(
         // recast) before additional costs run — a behold-and-exile cost on this same cast will attach
         // a fresh one afterwards.
         val announcedState = state.updateEntity(action.cardId) { c -> c.without<LinkedExileComponent>() }
-        val rawCosts = castCostPayer.owedAdditionalCosts(announcedState, action, cardDef)
+        val rawCosts = lockedPayment?.additionalCosts ?: castCostPayer.owedAdditionalCosts(announcedState, action, cardDef)
         SpellCosts.validateChoiceDeclarations(rawCosts, action.additionalCostChoices)?.let {
             return ExecutionResult.error(state, it)
         }
@@ -309,8 +324,8 @@ class CastSpellHandler(
             // server-initiated cast that skipped it; pay the printed cost rather than nothing.
             ?: cardComponent.manaCost
 
-        val owedCosts = reduceCostAlternatives(
-            castCostPayer.owedAdditionalCosts(announcedState, action, cardDef), announcedState, action.playerId, action.additionalCostPayment, action.additionalCostChoices
+        val owedCosts = lockedPayment?.additionalCosts ?: reduceCostAlternatives(
+            rawCosts, announcedState, action.playerId, action.additionalCostPayment, action.additionalCostChoices
         )
         // The declared optional cost, put through the *same* reduction as the full list, so payment
         // can recognise it by equality. Reducing both sides is what makes the match survive an
@@ -368,14 +383,35 @@ class CastSpellHandler(
                         .filter { it.requiresSacrifice }.map { it.entityId }.toSet()
                     val cost = (if (castCostPayer.isCastWithAnyManaType(announcedState, action)) computed.cost.relaxColors() else computed.cost)
                         .withXAs(computed.paymentXValue)
+                    val lockedEmerge = if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE))
+                        EmergeCasts.effectiveEmerge(announcedState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator)
+                    else null
+                    val dedicatedAlternative = if (action.useAlternativeCost) when {
+                        lockedEmerge != null -> AlternativeCostType.EMERGE
+                        action.altAllows(AlternativeCostType.SNEAK) && cardDef != null &&
+                            SneakWindow.effectiveSneakCost(announcedState, cardDef, action.cardId, action.playerId, cardRegistry) != null -> AlternativeCostType.SNEAK
+                        action.altAllows(AlternativeCostType.WEB_SLINGING) && cardDef != null &&
+                            WebSlinging.effectiveWebSlinging(announcedState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null -> AlternativeCostType.WEB_SLINGING
+                        else -> null
+                    } else null
+                    val lockedLifeTax = if (action.targets.isEmpty()) 0 else
+                        costCalculator.calculateAdditionalLifeCost(announcedState, action.playerId, action.targets)
+                    val lockedForage = zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
+                        announcedState, action.playerId, action.cardId, cardComponent
+                    ) && action.cardId in announcedState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
                     return announcedState.suspendForDecision(
                         question = { id -> com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow.buildDecision(
                             announcedState, action.playerId, cost, id, "Produce mana for ${cardComponent.name}",
                             DecisionContext(sourceId = action.cardId, sourceName = cardComponent.name, phase = DecisionPhase.CASTING),
                             true, manaSolver, excludeSources = sacrificeSources, spellContext = context,
                         ) },
-                        answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, cost, lockedCastCost = totalCost,
-                            excludedSources = sacrificeSources, paymentContext = context),
+                        answer = { decision -> com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, cost, lockedCastCost = totalCost,
+                            excludedSources = sacrificeSources, paymentContext = context,
+                            castPayment = com.wingedsheep.engine.core.LockedCastPayment(
+                                computed.paymentXValue, owedCosts, lockedForage, lockedLifeTax,
+                                dedicatedAlternative, lockedEmerge, decision.availableSources,
+                            ))
+                        },
                     )
                 }
             }
@@ -402,7 +438,7 @@ class CastSpellHandler(
             costHandler = costHandler,
             declaredSlotCosts = declaredSlotCosts,
         )
-        val paid = when (val outcome = castCostPayer.pay(ledger, cardComponent, cardDef, totalCost, owedCosts, playForFree)) {
+        val paid = when (val outcome = castCostPayer.pay(ledger, cardComponent, cardDef, totalCost, owedCosts, playForFree, lockedPayment)) {
             is CastPaymentOutcome.Failed -> return ExecutionResult.error(ledger.state, outcome.reason)
             is CastPaymentOutcome.Paid -> outcome.payment
         }
@@ -416,7 +452,7 @@ class CastSpellHandler(
             )?.let { return it }
         }
 
-        val returned = castCostPayer.returnForAlternativeCost(ledger, cardDef)
+        val returned = castCostPayer.returnForAlternativeCost(ledger, cardDef, lockedPayment)
 
         // --- 4. Record the cast (CR 601.2i) and put it on the stack ------------------------------
 

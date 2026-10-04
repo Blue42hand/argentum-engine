@@ -238,14 +238,54 @@ internal class CastValidator(
 
     /** Recheck announced cost objects after mana abilities have changed the board. Targets may
      * legally leave during payment, so this deliberately does not revalidate spell targets. */
-    fun validateRemainingNonManaCosts(state: GameState, action: CastSpell): String? {
+    fun validateRemainingPayment(
+        state: GameState, action: CastSpell, lockedCost: ManaCost,
+        locked: com.wingedsheep.engine.core.LockedCastPayment,
+    ): String? {
+        validateAdditionalCosts(state, locked.additionalCosts, action)?.let { return it }
+        if (locked.forageCostRequired && !com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(
+                state, action.playerId, excludeCardId = action.cardId
+            )) return "Cannot forage: need 3 other cards in graveyard or a Food"
+        if (action.splicedCardIds.any { it !in state.getHand(action.playerId) }) {
+            return "Spliced card is not in your hand"
+        }
+        if (!state.canPayLife(action.playerId, locked.additionalLifeCost)) {
+            return "Not enough life to pay additional life cost (${locked.additionalLifeCost} life required)"
+        }
+        when (locked.dedicatedAlternativeCostType) {
+            AlternativeCostType.SNEAK -> {
+                val bounced = action.additionalCostPayment?.bouncedPermanents.orEmpty()
+                if (bounced.size != 1 || bounced.single() !in SneakWindow.unblockedAttackers(state, action.playerId)) {
+                    return "The chosen creature is not an unblocked attacker you control"
+                }
+            }
+            AlternativeCostType.WEB_SLINGING -> {
+                val bounced = action.additionalCostPayment?.bouncedPermanents.orEmpty()
+                if (bounced.size != 1 || bounced.single() !in WebSlinging.tappedCreaturesYouControl(state, action.playerId)) {
+                    return "The chosen creature is not a tapped creature you control"
+                }
+            }
+            AlternativeCostType.EMERGE -> {
+                val sacrificed = action.additionalCostPayment?.sacrificedPermanents.orEmpty()
+                val emerge = locked.emerge ?: return "Missing announced emerge cost"
+                if (sacrificed.size != 1 || sacrificed.single() !in EmergeCasts.sacrificeCandidates(
+                        state, action.playerId, emerge, predicateEvaluator
+                    )) return "The permanent chosen for emerge can't be sacrificed to pay its emerge cost"
+            }
+            else -> Unit
+        }
         val card = state.getEntity(action.cardId)?.get<CardComponent>()
             ?: return "Card not found: ${action.cardId}"
         val definition = com.wingedsheep.engine.mechanics.CastCharacteristics.definitionForCast(
             cardRegistry.getCard(card.cardDefinitionId), action
         )
-        return validateAlternativeCostSelections(state, action, definition)
-            ?: validateOwedCosts(state, action, definition)
+        if (action.conspiredCreatures.isNotEmpty()) {
+            validateConspire(state, action, definition ?: return "Conspire requires a card definition")?.let { return it }
+        }
+        if (action.casualtyCreature != null) {
+            validateCasualty(state, action, definition ?: return "Casualty requires a card definition")?.let { return it }
+        }
+        return castCostPayer.validateManaPayment(state, action, lockedCost, locked.paymentXValue)
     }
 
     /**
