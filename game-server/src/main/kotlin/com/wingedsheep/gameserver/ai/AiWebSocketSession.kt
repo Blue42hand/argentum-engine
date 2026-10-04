@@ -34,6 +34,7 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
 enum class PaymentCorrectionOutcome { ACCEPTED, RETRY_QUEUED, OBSOLETE, FATAL }
+internal enum class PaymentRetryAdmission { SCHEDULED, OBSOLETE, EXHAUSTED }
 
 internal fun paymentCorrectionFatalLine(seatId: String, gameId: String, reason: String): String =
     "External AI action failed for seat $seatId in game $gameId: " +
@@ -132,19 +133,20 @@ class AiWebSocketSession(
         nativePaymentError: String,
         isCurrent: () -> Boolean,
         gameId: String,
-    ): Boolean {
-        if (!open.get() || allowActionsOnlyFallback || !isCurrent()) return false
+    ): PaymentRetryAdmission {
+        if (!open.get() || allowActionsOnlyFallback || !isCurrent()) return PaymentRetryAdmission.OBSOLETE
         val key = snapshot.interactionEpoch to snapshot.pendingDecision.id
         synchronized(paymentRetryLock) {
+            if (!open.get() || !isCurrent()) return PaymentRetryAdmission.OBSOLETE
             if (paymentRetryKey != key) {
                 paymentRetryKey = key
                 paymentRetryCount = 0
                 pendingPaymentRetry = null
             }
-            if (paymentRetryCount >= 2) return false
+            if (paymentRetryCount >= 2) return PaymentRetryAdmission.EXHAUSTED
             if (paymentRetryInFlight) {
                 pendingPaymentRetry = PaymentRetryRequest(snapshot, nativePaymentError, isCurrent, gameId)
-                return true
+                return PaymentRetryAdmission.SCHEDULED
             }
             paymentRetryCount++
             paymentRetryInFlight = true
@@ -154,7 +156,7 @@ class AiWebSocketSession(
             var staleExit = false
             try {
                 delay(thinkingDelayMs)
-                if (!isCurrent()) {
+                if (!open.get() || !isCurrent()) {
                     staleExit = true
                     return@launch
                 }
@@ -165,15 +167,19 @@ class AiWebSocketSession(
                     getRecentGameLog(),
                     nativePaymentError,
                 ) ?: run {
-                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                        "controller declined correction"))
+                    if (open.get() && isCurrent())
+                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                            "controller declined correction"))
+                    else staleExit = true
                     return@launch
                 }
                 if (correction is ActionResponse.SubmitDecision &&
                     (correction.playerId != snapshot.pendingDecision.playerId ||
                         correction.response.decisionId != snapshot.pendingDecision.id)) {
-                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                        "addressed another decision"))
+                    if (open.get() && isCurrent())
+                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                            "addressed another decision"))
+                    else staleExit = true
                     return@launch
                 }
                 val gated = if (correction is ActionResponse.SubmitAction && actionGate != null) {
@@ -184,20 +190,26 @@ class AiWebSocketSession(
                     is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
                 }
                 val deliver = onPaymentCorrectionReady ?: run {
-                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                        "callback is unavailable"))
+                    if (open.get() && isCurrent())
+                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                            "callback is unavailable"))
+                    else staleExit = true
                     return@launch
                 }
-                if (!isCurrent()) {
+                if (!open.get() || !isCurrent()) {
                     staleExit = true
                     return@launch
                 }
                 val outcome = deliver(aiPlayerId, action, snapshot.interactionEpoch,
                     snapshot.pendingDecision.id, snapshot.stateRevision)
                 allowQueuedRetry = outcome != PaymentCorrectionOutcome.FATAL
+            } catch (_: CancellationException) {
+                // Game shutdown cancels outstanding thinking; it is not a rejected action.
             } catch (_: Exception) {
-                logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                    "provider failed"))
+                if (open.get() && isCurrent())
+                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                        "provider failed"))
+                else staleExit = true
             } finally {
                 val pending = synchronized(paymentRetryLock) {
                     paymentRetryInFlight = false
@@ -207,15 +219,18 @@ class AiWebSocketSession(
                     pendingPaymentRetry = null
                     next
                 }
-                if (pending != null && pending.isCurrent() &&
-                    !retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent,
+                if (pending != null && open.get() && pending.isCurrent()) {
+                    when (retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent,
                         pending.gameId)) {
-                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, pending.gameId,
-                        "attempt limit reached"))
+                        PaymentRetryAdmission.EXHAUSTED -> if (open.get() && pending.isCurrent())
+                            logger.error(paymentCorrectionFatalLine(aiPlayerId.value, pending.gameId,
+                                "attempt limit reached"))
+                        PaymentRetryAdmission.SCHEDULED, PaymentRetryAdmission.OBSOLETE -> Unit
+                    }
                 }
             }
         }
-        return true
+        return PaymentRetryAdmission.SCHEDULED
     }
 
     private val json = Json {

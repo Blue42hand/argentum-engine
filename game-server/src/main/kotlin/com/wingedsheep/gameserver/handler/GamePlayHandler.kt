@@ -3,6 +3,7 @@ package com.wingedsheep.gameserver.handler
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.ai.AiWebSocketSession
 import com.wingedsheep.gameserver.ai.PaymentCorrectionOutcome
+import com.wingedsheep.gameserver.ai.PaymentRetryAdmission
 import com.wingedsheep.gameserver.deck.SideboardSanitizer
 import com.wingedsheep.ai.engine.SealedDeckGenerator
 import com.wingedsheep.gameserver.protocol.ClientMessage
@@ -1348,14 +1349,19 @@ class GamePlayHandler(
                                 aiSession.onPaymentCorrectionReady = { id, correction, epoch, questionId, revision ->
                                     handleAiAction(gameSession, id, correction, epoch, questionId, revision)
                                 }
-                                if (aiSession.retryRejectedPayment(snapshot, result.reason,
+                                when (aiSession.retryRejectedPayment(snapshot, result.reason,
                                         { gameSession.isCurrentAiPaymentRetry(snapshot) },
                                         gameSession.sessionId)) {
-                                    logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
-                                        aiPlayerId.value, gameSession.sessionId, result.reason)
-                                    return PaymentCorrectionOutcome.RETRY_QUEUED
+                                    PaymentRetryAdmission.SCHEDULED -> {
+                                        logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
+                                            aiPlayerId.value, gameSession.sessionId, result.reason)
+                                        return PaymentCorrectionOutcome.RETRY_QUEUED
+                                    }
+                                    PaymentRetryAdmission.OBSOLETE -> return PaymentCorrectionOutcome.OBSOLETE
+                                    PaymentRetryAdmission.EXHAUSTED -> if (!gameSession.isCurrentAiPaymentRetry(snapshot))
+                                        return PaymentCorrectionOutcome.OBSOLETE
                                 }
-                            }
+                            } else return PaymentCorrectionOutcome.OBSOLETE
                         }
                         logger.error(
                             "External AI action failed for seat {} in game {}: {} — refusing server-side strategic fallback",

@@ -48,6 +48,48 @@ class ExternalAiPaymentRetryTest : FunSpec({
         }
     }
 
+    test("normal shutdown cancels correction without submitting or admitting another retry") {
+        val controller = mockk<AiPlayerController>(relaxed = true)
+        val socket = AiWebSocketSession(
+            aiPlayerId = seat, controller = controller, thinkingDelayMs = 250,
+            onActionReady = { _, _, _ -> error("Unexpected action") },
+            onMulliganKeep = {}, onMulliganTake = {}, onBottomCards = { _, _ -> },
+            allowActionsOnlyFallback = false,
+        )
+        val snapshot = GameSession.AiPaymentRetrySnapshot(
+            mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
+        socket.retryRejectedPayment(snapshot, reason, { true }, "game-1") shouldBe
+            PaymentRetryAdmission.SCHEDULED
+        socket.close()
+        socket.retryRejectedPayment(snapshot, reason, { true }, "game-1") shouldBe
+            PaymentRetryAdmission.OBSOLETE
+        Thread.sleep(300)
+        verify(exactly = 0) {
+            controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), any())
+        }
+    }
+
+    test("retry admission becoming stale during validation is obsolete rather than exhausted") {
+        val controller = mockk<AiPlayerController>(relaxed = true)
+        val socket = AiWebSocketSession(
+            aiPlayerId = seat, controller = controller, thinkingDelayMs = 0,
+            onActionReady = { _, _, _ -> error("Unexpected action") },
+            onMulliganKeep = {}, onMulliganTake = {}, onBottomCards = { _, _ -> },
+            allowActionsOnlyFallback = false,
+        )
+        val checks = AtomicInteger()
+        val snapshot = GameSession.AiPaymentRetrySnapshot(
+            mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
+        try {
+            socket.retryRejectedPayment(snapshot, reason,
+                { checks.incrementAndGet() == 1 }, "game-1") shouldBe PaymentRetryAdmission.OBSOLETE
+            checks.get() shouldBe 2
+            verify(exactly = 0) {
+                controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), any())
+            }
+        } finally { socket.close() }
+    }
+
     fun handler(sender: MessageSender) = GamePlayHandler(
         sessionRegistry = mockk(relaxed = true),
         gameRepository = mockk(relaxed = true),
