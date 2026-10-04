@@ -23,7 +23,7 @@ val GolgariCharm = card("Golgari Charm") {
             mode("All creatures get -1/-1 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreatures,
-                    ModifyStatsEffect(-1, -1, EffectTarget.IterationEntity),
+                    Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity),
                 )
             }
             mode("Destroy target enchantment") {
@@ -33,7 +33,7 @@ val GolgariCharm = card("Golgari Charm") {
             mode("Regenerate each creature you control") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    RegenerateEffect(EffectTarget.IterationEntity),
+                    Effects.Regenerate(EffectTarget.IterationEntity),
                 )
             }
         }

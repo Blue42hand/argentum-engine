@@ -4,6 +4,8 @@ import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.gym.GameEnvironment
+import com.wingedsheep.gym.GameGymEnv
+import com.wingedsheep.engine.core.ActionParams
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -76,6 +78,7 @@ class TrainingObservationTest : FunSpec({
         val result = ObservationBuilder(env.cardRegistry).build(env.state, player, env.legalActions())
         val observation = result.observation as TrainingObservation
         observation.pendingDecision!!.kind shouldBe PendingDecisionKind.PLAY_CARD
+        observation.pendingDecision!!.requiresStructuredResponse.shouldBeFalse()
         observation.pendingDecision!!.subjectEntityId shouldBe land
         observation.legalActions.shouldNotBeEmpty()
         observation.legalActions.all { it.isDecisionOption }.shouldBeTrue()
@@ -87,7 +90,10 @@ class TrainingObservationTest : FunSpec({
         hidden.registry.size shouldBe 0
         val response = result.registry.decisionResponses.single().second as com.wingedsheep.engine.core.PlayCardResponse
         (response.action as com.wingedsheep.engine.core.PlayLand).cardId shouldBe land
-        env.step(com.wingedsheep.engine.core.SubmitDecision(player, response))
+        val gym = GameGymEnv(env, perspectivePlayerIndex = 0, defaultRevealAll = false)
+        val gymObservation = gym.observe().observation as TrainingObservation
+        gymObservation.pendingDecision!!.requiresStructuredResponse.shouldBeFalse()
+        gym.step(gymObservation.legalActions.single().actionId, ActionParams())
         env.lastRejection shouldBe null
         env.state.getBattlefield(player).contains(land).shouldBeTrue()
     }

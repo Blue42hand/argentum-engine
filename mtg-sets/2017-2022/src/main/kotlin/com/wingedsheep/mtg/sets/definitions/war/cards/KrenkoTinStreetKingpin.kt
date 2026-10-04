@@ -22,16 +22,14 @@ val KrenkoTinStreetKingpin = card("Krenko, Tin Street Kingpin") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            CreateTokenEffect(
+        effect = (Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.CreateToken(
                 count = DynamicAmounts.sourcePower(),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),
                 creatureTypes = setOf("Goblin"),
-            ),
-        ))
+            ))
     }
 
     metadata {

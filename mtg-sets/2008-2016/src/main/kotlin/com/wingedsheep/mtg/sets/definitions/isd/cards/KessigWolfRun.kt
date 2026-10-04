@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.isd.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
@@ -31,10 +32,8 @@ val KessigWolfRun = card("Kessig Wolf Run") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}{R}{G}"), Costs.Tap)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(DynamicAmount.XValue, DynamicAmount.Fixed(0), creature),
-            Effects.GrantKeyword(Keyword.TRAMPLE, creature),
-        ))
+        effect = (Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.fixed(0), creature) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, creature))
     }
 
     metadata {

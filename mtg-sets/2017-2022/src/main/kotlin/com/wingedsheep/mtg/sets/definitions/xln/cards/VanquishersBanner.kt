@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.xln.cards
 
+import com.wingedsheep.sdk.dsl.Triggers
+
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -44,13 +46,7 @@ val VanquishersBanner = card("Vanquisher's Banner") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.SpellCastEvent(
-                spellFilter = GameObjectFilter.Creature.withChosenSubtype(),
-                player = Player.You,
-            ),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Creature.withChosenSubtype())
         effect = Effects.DrawCards(1)
     }
 

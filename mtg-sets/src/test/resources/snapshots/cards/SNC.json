@@ -549,43 +549,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Forest|Plains|Island"
-                                        },
-                                        "storeAs": "searchable",
-                                        "search": true
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Forest|Plains|Island"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -784,43 +779,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Mountain|Forest|Plains"
-                                        },
-                                        "storeAs": "searchable",
-                                        "search": true
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Mountain|Forest|Plains"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -2459,43 +2449,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Island|Swamp|Mountain"
-                                        },
-                                        "storeAs": "searchable",
-                                        "search": true
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Island|Swamp|Mountain"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -2932,43 +2917,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Swamp|Mountain|Forest"
-                                        },
-                                        "storeAs": "searchable",
-                                        "search": true
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Swamp|Mountain|Forest"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {

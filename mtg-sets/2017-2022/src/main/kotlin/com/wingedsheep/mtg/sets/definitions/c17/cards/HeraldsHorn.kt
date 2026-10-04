@@ -48,33 +48,22 @@ val HeraldsHorn = card("Herald's Horn") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "lookedCard",
-                ),
-                FilterCollectionEffect(
-                    from = "lookedCard",
-                    filter = GameObjectFilter.Creature.withChosenSubtype(),
-                    storeMatching = "matchingCreature",
-                    storeNonMatching = "nonmatchingCard",
-                ),
-                SelectFromCollectionEffect(
-                    from = "matchingCreature",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "cardToHand",
+        effect = Effects.Pipeline {
+                val lookedCard = gather(CardSource.TopOfLibrary(1))
+                val matchingCreature = filter(lookedCard, GameObjectFilter.Creature.withChosenSubtype())
+                val cardToHand = chooseUpTo(
+                    count = 1,
+                    from = matchingCreature,
                     selectedLabel = "Reveal and put into your hand",
                     remainderLabel = "Leave on top of your library",
-                ),
-                MoveCollectionEffect(
-                    from = "cardToHand",
+                )
+                move(
+                    from = cardToHand,
                     destination = CardDestination.ToZone(Zone.HAND),
                     revealed = true,
                     revealToSelf = false,
-                ),
-            )
-        )
+                )
+        }
     }
 
     metadata {

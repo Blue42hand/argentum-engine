@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.bng.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -22,7 +23,7 @@ val SatyrWayfinder = card("Satyr Wayfinder") {
         trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val revealed = gather(
-                CardSource.TopOfLibrary(DynamicAmount.Fixed(4)),
+                CardSource.TopOfLibrary(DynamicAmounts.fixed(4)),
                 revealed = true,
                 name = "revealed",
             )

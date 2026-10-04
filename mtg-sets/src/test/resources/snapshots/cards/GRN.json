@@ -1582,8 +1582,8 @@
                                     "amount": 2
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 }
                             },
                             "targetRequirements": [
@@ -1591,7 +1591,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "t0"
                                 }
                             ],
                             "description": "This creature deals 2 damage to target creature"
@@ -1600,8 +1601,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t1"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -1617,7 +1618,8 @@
                                                 "IsColorless"
                                             ]
                                         }
-                                    }
+                                    },
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Destroy target colorless nonland permanent"

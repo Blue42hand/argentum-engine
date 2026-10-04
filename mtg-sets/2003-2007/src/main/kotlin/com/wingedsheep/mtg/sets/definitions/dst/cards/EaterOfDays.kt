@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.dst.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -20,7 +21,7 @@ val EaterOfDays = card("Eater of Days") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.SkipNextTurn(count = DynamicAmount.Fixed(2))
+        effect = Effects.SkipNextTurn(count = DynamicAmounts.fixed(2))
     }
 
     metadata {

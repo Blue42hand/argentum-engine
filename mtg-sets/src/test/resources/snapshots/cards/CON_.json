@@ -2029,11 +2029,11 @@
                                     },
                                     "filter": "basicland"
                                 },
-                                "storeAs": "searchable"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "searchable",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -2042,11 +2042,11 @@
                                     }
                                 },
                                 "chooser": "ControllerOfTarget",
-                                "storeSelected": "found"
+                                "storeSelected": "selected1"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "found",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Battlefield",

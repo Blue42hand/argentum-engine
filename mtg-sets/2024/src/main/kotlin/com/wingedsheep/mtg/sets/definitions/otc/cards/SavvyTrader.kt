@@ -35,9 +35,7 @@ val SavvyTrader = card("Savvy Trader") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val card = target(
-            TargetObject(filter = TargetFilter.PermanentInYourGraveyard),
-        )
+        val card = target(TargetFilter.PermanentInYourGraveyard)
         effect = Effects.ExileAndGrantOwnerPlayPermission(card)
     }
 

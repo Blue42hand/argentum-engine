@@ -20,14 +20,14 @@ val Coretapper = card("Coretapper") {
 
     activatedAbility {
         cost = Costs.Tap
-        val artifact = target(TargetObject(filter = TargetFilter.Artifact))
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.AddCounters(CounterType.CHARGE, 1, artifact)
         description = "{T}: Put a charge counter on target artifact."
     }
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val artifact = target(TargetObject(filter = TargetFilter.Artifact))
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.AddCounters(CounterType.CHARGE, 2, artifact)
         description = "Sacrifice this creature: Put two charge counters on target artifact."
     }

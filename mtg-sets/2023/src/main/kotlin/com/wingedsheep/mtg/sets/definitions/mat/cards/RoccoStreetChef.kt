@@ -47,24 +47,11 @@ val RoccoStreetChef = card("Rocco, Street Chef") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.ForEachPlayer(
-            Player.ActivePlayerFirst,
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You),
-                    storeAs = "roccoExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "roccoExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    storeMovedAs = "roccoExiled",
-                ),
-                GrantMayPlayFromExileEffect(
-                    from = "roccoExiled",
-                    expiry = MayPlayExpiry.UntilNextEndStep,
-                ),
-            ),
-        )
+        effect = Effects.ForEachPlayer(Player.ActivePlayerFirst, Effects.Pipeline {
+            val topCard = gather(CardSource.TopOfLibrary(1, Player.You))
+            val exiled = moveTracked(topCard, CardDestination.ToZone(Zone.EXILE))
+            run(Effects.GrantMayPlayFromExile(exiled, expiry = MayPlayExpiry.UntilNextEndStep))
+        })
         description = "At the beginning of your end step, each player exiles the top card of " +
             "their library. Until your next end step, each player may play the card they exiled " +
             "this way."
@@ -73,23 +60,15 @@ val RoccoStreetChef = card("Rocco, Street Chef") {
     triggeredAbility {
         trigger = Triggers.anyPlayer.playsLand(fromZone = Zone.EXILE)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.CreateFood())
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.CreateFood()
         description = "Whenever a player plays a land from exile, you put a +1/+1 counter on " +
             "target creature and create a Food token."
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.SpellCastEvent(
-                player = Player.Each,
-                requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
-            ),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.anyPlayer.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.CreateFood())
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.CreateFood()
         description = "Whenever a player casts a spell from exile, you put a +1/+1 counter on " +
             "target creature and create a Food token."
     }

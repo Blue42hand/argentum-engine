@@ -38,18 +38,14 @@ val CoalitionRelic = card("Coalition Relic") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
-        effect = Effects.Composite(
-            listOf(
-                Effects.StoreNumber(
+        effect = (Effects.StoreNumber(
                     "removedChargeCounters",
                     DynamicAmounts.countersOnSelf(CounterType.CHARGE),
-                ),
-                Effects.RemoveAllCountersOfType(CounterType.CHARGE, EffectTarget.Self),
-                Effects.AddManaInAnyCombination(
-                    DynamicAmount.VariableReference("removedChargeCounters")
-                ),
-            )
-        )
+                ) then
+            Effects.RemoveAllCountersOfType(CounterType.CHARGE, EffectTarget.Self) then
+            Effects.AddManaInAnyCombination(
+                    DynamicAmounts.storedNumber("removedChargeCounters")
+                ))
     }
 
     metadata {

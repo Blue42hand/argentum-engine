@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -26,7 +27,7 @@ val WittyRoastmaster = card("Witty Roastmaster") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 
     metadata {

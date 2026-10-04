@@ -20,7 +20,7 @@ val AstralCornucopia = card("Astral Cornucopia") {
 
     replacementEffect(EntersWithDynamicCounters(
         counterType = CounterType.CHARGE,
-        count = DynamicAmount.XValue,
+        count = DynamicAmounts.xValue(),
     ))
 
     activatedAbility {

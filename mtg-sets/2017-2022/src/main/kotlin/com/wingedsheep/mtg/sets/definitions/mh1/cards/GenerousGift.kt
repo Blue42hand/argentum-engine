@@ -21,8 +21,7 @@ val GenerousGift = card("Generous Gift") {
 
     spell {
         val permanent = target(TargetFilter.Permanent)
-        effect = Effects.Composite(listOf(
-            Effects.Destroy(permanent),
+        effect = (Effects.Destroy(permanent) then
             Effects.CreateToken(
                 power = 3,
                 toughness = 3,
@@ -30,8 +29,7 @@ val GenerousGift = card("Generous Gift") {
                 creatureTypes = setOf("Elephant"),
                 controller = EffectTarget.TargetController,
                 imageUri = "https://cards.scryfall.io/normal/front/1/a/1ae11d5f-f29d-44f4-8d90-cdada1040435.jpg?1783933227",
-            ),
-        ))
+            ))
     }
 
     metadata {

@@ -28,7 +28,8 @@ val FetidHeath = card("Fetid Heath") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W/B}"), Costs.Tap)
-        effect = Effects.Composite(listOf(Effects.AddMana(Color.WHITE), Effects.AddMana(Color.BLACK)))
+        effect = (Effects.AddMana(Color.WHITE) then
+            Effects.AddMana(Color.BLACK))
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "Add {W}{B}."

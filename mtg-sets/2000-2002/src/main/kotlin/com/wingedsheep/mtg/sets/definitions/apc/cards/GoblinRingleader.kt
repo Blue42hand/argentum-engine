@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -31,7 +32,7 @@ val GoblinRingleader = card("Goblin Ringleader") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = DynamicAmounts.fixed(4),
             filter = GameObjectFilter.Any.withSubtype(Subtype.GOBLIN),
             restOrder = CardOrder.ControllerChooses,
         )

@@ -78,9 +78,10 @@ object ManaPaymentWindow {
         spellContext: SpellPaymentContext? = null,
     ): SelectManaSourcesDecision {
         val solver = manaSolver
-        val options = solver.findAvailableManaSources(state, playerId, spellContext)
+        val paymentContext = spellContext ?: SpellPaymentContext()
+        val options = solver.findAvailableManaSources(state, playerId, paymentContext)
             .filter { it.tapPermanentsSubCost == null && it.entityId !in excludeSources &&
-                (spellContext == null || it.restriction?.isSatisfiedBy(spellContext) != false) }
+                it.restriction?.isSatisfiedBy(paymentContext) != false }
             .map { source ->
                 ManaSourceOption(
                     entityId = source.entityId,
@@ -91,9 +92,9 @@ object ManaPaymentWindow {
                     manaAmount = source.manaAmount
                 )
             }
-        val remaining = remainingAfterFloating(state, playerId, cost, spellContext)
+        val remaining = remainingAfterFloating(state, playerId, cost, paymentContext)
         val suggestion = if (remaining.isEmpty()) emptyList()
-            else solver.solve(state, playerId, remaining, excludeSources = excludeSources, spellContext = spellContext)?.sources?.map { it.entityId }.orEmpty()
+            else solver.solve(state, playerId, remaining, excludeSources = excludeSources, spellContext = paymentContext)?.sources?.map { it.entityId }.orEmpty()
 
         return SelectManaSourcesDecision(
             id = decisionId,
@@ -135,7 +136,8 @@ object ManaPaymentWindow {
         excludeSources: Set<EntityId> = emptySet(),
         spellContext: SpellPaymentContext? = null,
     ): FloatResult {
-        val remaining = remainingAfterFloating(state, playerId, cost, spellContext)
+        val paymentContext = spellContext ?: SpellPaymentContext()
+        val remaining = remainingAfterFloating(state, playerId, cost, paymentContext)
         if (response.isDecline(remaining.isEmpty())) return FloatResult(state, emptyList(), paid = false)
         if (remaining.isEmpty()) return FloatResult(state, emptyList(), paid = true)
 
@@ -144,7 +146,7 @@ object ManaPaymentWindow {
         var produced = ManaPool()
 
         if (response.autoPay) {
-            val solution = services.manaSolver.solve(current, playerId, remaining, excludeSources = excludeSources, spellContext = spellContext)
+            val solution = services.manaSolver.solve(current, playerId, remaining, excludeSources = excludeSources, spellContext = paymentContext)
                 ?: return FloatResult(state, emptyList(), paid = false)
             val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
                 .tapSourcesWithSideEffects(current, solution, playerId)
@@ -166,12 +168,12 @@ object ManaPaymentWindow {
             }
         } else {
             val byId = availableSources.filter { it.entityId !in excludeSources }.associateBy { it.entityId }
-            val actualSources = services.manaSolver.findAvailableManaSources(state, playerId, spellContext).associateBy { it.entityId }
+            val actualSources = services.manaSolver.findAvailableManaSources(state, playerId, paymentContext).associateBy { it.entityId }
             if (response.selectedSources.distinct().size != response.selectedSources.size) return FloatResult(state, emptyList(), paid = false)
             for (sourceId in response.selectedSources) {
                 val source = byId[sourceId] ?: return FloatResult(state, emptyList(), paid = false)
                 val actual = actualSources[sourceId] ?: return FloatResult(state, emptyList(), paid = false)
-                if (spellContext != null && actual.restriction?.isSatisfiedBy(spellContext) == false) return FloatResult(state, emptyList(), paid = false)
+                if (actual.restriction?.isSatisfiedBy(paymentContext) == false) return FloatResult(state, emptyList(), paid = false)
                 val tapped = tapOrSacrifice(zones, current, sourceId, source, playerId)
                 current = tapped.first
                 events.addAll(tapped.second)
@@ -321,7 +323,8 @@ object ManaPaymentWindow {
         spellContext: SpellPaymentContext? = null,
     ): SelectManaSourcesDecision {
         val solver = manaSolver
-        val stillAvailable = solver.findAvailableManaSources(state, decision.playerId, spellContext)
+        val paymentContext = spellContext ?: SpellPaymentContext()
+        val stillAvailable = solver.findAvailableManaSources(state, decision.playerId, paymentContext)
             .map { source ->
                 ManaSourceOption(
                     entityId = source.entityId,
@@ -339,10 +342,10 @@ object ManaPaymentWindow {
         // the board no longer offers.
         val availableSources = decision.availableSources.filter { it.entityId in stillAvailable }
 
-        val remaining = remainingCost(state, decision, spellContext)
+        val remaining = remainingCost(state, decision, paymentContext)
         val autoPaySuggestion = when {
             remaining == null || remaining.isEmpty() -> emptyList()
-            else -> solver.solve(state, decision.playerId, remaining, spellContext = spellContext)?.sources?.map { it.entityId }
+            else -> solver.solve(state, decision.playerId, remaining, spellContext = paymentContext)?.sources?.map { it.entityId }
                 ?: emptyList()
         }
 

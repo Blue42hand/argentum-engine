@@ -34,9 +34,9 @@ val ShurisFabricator = card("Shuri's Fabricator") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        target = TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)
+        val artifact = target(TargetFilter.ArtifactInYourGraveyard)
         effect = Effects.Move(
-            target = EffectTarget.ContextTarget(0),
+            target = artifact,
             destination = Zone.BATTLEFIELD,
             fromZone = Zone.GRAVEYARD,
             addCounterType = CounterType.FINALITY,

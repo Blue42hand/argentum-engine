@@ -26,11 +26,7 @@ val HaywireMite = card("Haywire Mite") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.SacrificeSelf)
-        val target = target(
-            TargetObject(
-                filter = TargetFilter(GameObjectFilter.ArtifactOrEnchantment.notCreature())
-            ),
-        )
+        val target = target(TargetFilter(GameObjectFilter.ArtifactOrEnchantment.notCreature()))
         effect = Effects.Exile(target)
     }
 

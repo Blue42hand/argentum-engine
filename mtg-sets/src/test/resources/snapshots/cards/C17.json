@@ -124,23 +124,22 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "lookedCard"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "lookedCard",
+                            "from": "gathered0",
                             "filter": {
                                 "cardPredicates": [
                                     "IsCreature",
                                     "HasChosenSubtype"
                                 ]
                             },
-                            "storeMatching": "matchingCreature",
-                            "storeNonMatching": "nonmatchingCard"
+                            "storeMatching": "matching1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "matchingCreature",
+                            "from": "matching1",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -148,13 +147,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "cardToHand",
+                            "storeSelected": "selected2",
                             "selectedLabel": "Reveal and put into your hand",
                             "remainderLabel": "Leave on top of your library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "cardToHand",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"

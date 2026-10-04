@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.soc.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
@@ -20,10 +22,10 @@ val EclipsedSteppe = card("Eclipsed Steppe") {
     // Mana abilities are intrinsic from the basic land types in the type line.
     replacementEffect(
         EntersTapped(
-            unlessCondition = Compare(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.BasicLand),
+            unlessCondition = Conditions.CompareAmounts(
+                DynamicAmounts.battlefield(Player.You, GameObjectFilter.BasicLand).count(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(2),
+                2,
             )
         )
     )

@@ -29,10 +29,8 @@ val GoblinBushwhacker = card("Goblin Bushwhacker") {
         interveningIf = WasKicked
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(listOf(
-                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity),
-            )),
+            (Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)),
         )
     }
 

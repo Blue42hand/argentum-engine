@@ -41,31 +41,27 @@ val PathToExile = card("Path to Exile") {
     spell {
         val creature = target(TargetFilter.Creature)
         effect = Effects.Exile(creature) then Effects.May(
-            effect = Effects.Composite(listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
+            effect = Effects.Pipeline {
+                val searchable = gather(CardSource.FromZone(
                         zone = Zone.LIBRARY,
                         player = Player.ControllerOf(creature.name),
                         filter = GameObjectFilter.BasicLand,
-                    ),
-                    storeAs = "searchable",
-                ),
-                SelectFromCollectionEffect(
-                    from = "searchable",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+                    ))
+                val found = chooseUpTo(
+                    count = 1,
+                    from = searchable,
                     chooser = Chooser.ControllerOfTarget,
-                    storeSelected = "found",
-                ),
-                MoveCollectionEffect(
-                    from = "found",
+                )
+                move(
+                    from = found,
                     destination = CardDestination.ToZone(
                         zone = Zone.BATTLEFIELD,
                         player = Player.ControllerOf(creature.name),
                         placement = ZonePlacement.Tapped,
                     ),
-                ),
-                ShuffleLibraryEffect(target = EffectTarget.TargetController),
-            )),
+                )
+                run(Effects.ShuffleLibrary(EffectTarget.TargetController))
+            },
             decisionMaker = EffectTarget.TargetController,
         )
     }

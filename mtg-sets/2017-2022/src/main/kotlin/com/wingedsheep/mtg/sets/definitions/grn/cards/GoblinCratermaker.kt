@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.grn.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -38,16 +39,14 @@ val GoblinCratermaker = card("Goblin Cratermaker") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.DealDamage(2, EffectTarget.ContextTarget(0)),
-                TargetObject(filter = TargetFilter.Creature),
-                "This creature deals 2 damage to target creature",
-            ),
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                colorlessNonlandPermanent,
-                "Destroy target colorless nonland permanent",
-            ),
+            mode("This creature deals 2 damage to target creature") {
+                val creature = target(TargetFilter.Creature)
+                effect = Effects.DealDamage(2, creature)
+            },
+            mode("Destroy target colorless nonland permanent") {
+                val permanent = target(colorlessNonlandPermanent)
+                effect = Effects.Destroy(permanent)
+            },
         )
     }
 

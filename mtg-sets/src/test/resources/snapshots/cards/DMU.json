@@ -2752,8 +2752,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "t0"
             },
             "destination": "Exile"
         },
@@ -2762,7 +2762,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "artifact|enchantment"
-                }
+                },
+                "id": "t0"
             }
         ],
         "kickerTargetRequirements": [
@@ -2770,14 +2771,15 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "nonland permanent"
-                }
+                },
+                "id": "t1"
             }
         ],
         "kickerSpellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "t1"
             },
             "destination": "Exile"
         }

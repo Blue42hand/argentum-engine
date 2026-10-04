@@ -32,11 +32,11 @@ val TearAsunder = card("Tear Asunder") {
     keywordAbility(KeywordAbility.kicker("{1}{B}"))
 
     spell {
-        target = TargetObject(filter = TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
+        val chosen = target(TargetFilter.ArtifactOrEnchantment)
+        effect = Effects.Move(chosen, Zone.EXILE)
 
-        kickerTarget = TargetObject(filter = TargetFilter.NonlandPermanent)
-        kickerEffect = Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
+        val kicked = kickerTarget(TargetFilter.NonlandPermanent)
+        kickerEffect = Effects.Move(kicked, Zone.EXILE)
     }
 
     metadata {

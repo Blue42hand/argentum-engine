@@ -24,15 +24,13 @@ val TalismanOfHierarchy = card("Talisman of Hierarchy") {
     }
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddMana(Color.WHITE)
-            .then(Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)))
+        effect = Effects.AddMana(Color.WHITE) then Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddMana(Color.BLACK)
-            .then(Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)))
+        effect = Effects.AddMana(Color.BLACK) then Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

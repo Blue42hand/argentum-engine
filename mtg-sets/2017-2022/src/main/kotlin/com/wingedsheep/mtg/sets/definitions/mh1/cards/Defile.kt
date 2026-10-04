@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mh1.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
@@ -18,10 +19,7 @@ val Defile = card("Defile") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        val minusSwamps = DynamicAmount.Multiply(
-            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype("Swamp")).count(),
-            -1
-        )
+        val minusSwamps = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype("Swamp")).count() * -1
         effect = Effects.ModifyStats(minusSwamps, minusSwamps, creature)
     }
 

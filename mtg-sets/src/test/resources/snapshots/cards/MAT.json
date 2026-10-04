@@ -128,20 +128,20 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeAs": "roccoExiled"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "roccoExiled",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
                                 },
-                                "storeMovedAs": "roccoExiled"
+                                "storeMovedAs": "moved1"
                             },
                             {
                                 "type": "GrantMayPlayFromExile",
-                                "from": "roccoExiled",
+                                "from": "moved1",
                                 "expiry": {
                                     "type": "UntilControllerStep",
                                     "step": "END"

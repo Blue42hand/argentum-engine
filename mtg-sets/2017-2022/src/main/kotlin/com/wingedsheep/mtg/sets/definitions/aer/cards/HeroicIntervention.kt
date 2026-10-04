@@ -18,10 +18,8 @@ val HeroicIntervention = card("Heroic Intervention") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(baseFilter = GameObjectFilter.Permanent.youControl()),
-            effect = Effects.Composite(listOf(
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn),
-            )),
+            effect = (Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)),
         )
     }
 

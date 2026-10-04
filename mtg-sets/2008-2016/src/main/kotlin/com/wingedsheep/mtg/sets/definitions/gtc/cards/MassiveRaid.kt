@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.gtc.cards
 
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -23,7 +24,7 @@ val MassiveRaid = card("Massive Raid") {
     spell {
         val t = target(Targets.Any)
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).count(),
             t
         )
     }

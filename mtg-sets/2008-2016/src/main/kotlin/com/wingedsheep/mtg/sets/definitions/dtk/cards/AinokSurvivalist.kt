@@ -25,8 +25,8 @@ val AinokSurvivalist = card("Ainok Survivalist") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        target = TargetObject(filter = TargetFilter.ArtifactOrEnchantment.opponentControls())
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        val chosen = target(TargetFilter.ArtifactOrEnchantment.opponentControls())
+        effect = Effects.Destroy(chosen)
         description = "When this creature is turned face up, destroy target artifact or " +
             "enchantment an opponent controls."
     }

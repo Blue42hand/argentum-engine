@@ -35,16 +35,16 @@ val ArcaneDenial = card("Arcane Denial") {
             val spell = gather(CardSource.ChosenTargets, name = "deniedSpell")
             val controllers = captureControllers(spell, name = "deniedControllers")
 
-            run(CounterEffect())
+            run(Effects.CounterSpell())
 
             // "Its controller may draw up to two cards ..." The controller snapshot is
             // intentionally taken before CounterEffect, so this remains well-defined even
             // if the counter instruction does not move the spell.
             forEachCaptured(spell, spell, controllers) {
                 run(
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.UPKEEP,
-                        effect = DrawUpToEffect(2),
+                        effect = Effects.DrawUpTo(2),
                         timing = DelayedTriggerTiming.NEXT_TURN
                     )
                 )
@@ -53,9 +53,9 @@ val ArcaneDenial = card("Arcane Denial") {
             // This trigger remains under Arcane Denial's controller rather than the
             // captured target-spell controller.
             run(
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.UPKEEP,
-                    effect = DrawCardsEffect(1),
+                    effect = Effects.DrawCards(1),
                     timing = DelayedTriggerTiming.NEXT_TURN
                 )
             )

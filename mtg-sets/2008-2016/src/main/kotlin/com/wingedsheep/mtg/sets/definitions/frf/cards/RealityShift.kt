@@ -24,13 +24,11 @@ val RealityShift = card("Reality Shift") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.Exile(creature),
+        effect = (Effects.Exile(creature) then
             Effects.ForEachPlayer(
                 players = Player.ControllerOf(creature.name),
                 effects = Patterns.Library.manifest().effects,
-            ),
-        ))
+            ))
     }
 
     metadata {

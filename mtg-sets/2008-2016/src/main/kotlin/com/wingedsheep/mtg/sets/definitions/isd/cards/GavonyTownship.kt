@@ -34,7 +34,7 @@ val GavonyTownship = card("Gavony Township") {
         cost = Costs.Composite(Costs.Mana("{2}{G}{W}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
     }
 
