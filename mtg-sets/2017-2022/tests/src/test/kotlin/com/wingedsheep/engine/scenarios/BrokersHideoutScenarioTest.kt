@@ -5,6 +5,7 @@ import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.snc.cards.BrokersHideout
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
@@ -49,5 +50,23 @@ class BrokersHideoutScenarioTest : FunSpec({
         game.pendingDecision shouldBe null
         game.findPermanent(you, "Swamp") shouldBe null
         game.getLifeTotal(you) shouldBe 21
+    }
+
+    test("removing the land before its entry trigger resolves prevents the reflexive search and life gain") {
+        val game = driver(Deck.of("Island" to 40))
+        val you = game.player1
+        val card = game.putCardInHand(you, "Brokers Hideout")
+        game.playLand(you, card).error shouldBe null
+        val permanent = game.findPermanent(you, "Brokers Hideout")!!
+        val boomerang = game.putCardInHand(you, "Boomerang")
+        game.giveMana(you, Color.BLUE, 2)
+        game.castSpell(you, boomerang, listOf(permanent)).error shouldBe null
+        game.bothPass() // Boomerang returns the land before its ETB action.
+        game.bothPass() // Failed sacrifice must not create a reflexive trigger.
+
+        game.state.stack.isEmpty() shouldBe true
+        game.pendingDecision shouldBe null
+        game.getLifeTotal(you) shouldBe 20
+        game.findPermanent(you, "Island") shouldBe null
     }
 })

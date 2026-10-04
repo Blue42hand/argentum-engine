@@ -5,6 +5,7 @@ import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.snc.cards.MaestrosTheater
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
@@ -49,5 +50,23 @@ class MaestrosTheaterScenarioTest : FunSpec({
         game.pendingDecision shouldBe null
         game.findPermanent(you, "Forest") shouldBe null
         game.getLifeTotal(you) shouldBe 21
+    }
+
+    test("removing the land before its entry trigger resolves prevents the reflexive search and life gain") {
+        val game = driver(Deck.of("Swamp" to 40))
+        val you = game.player1
+        val card = game.putCardInHand(you, "Maestros Theater")
+        game.playLand(you, card).error shouldBe null
+        val permanent = game.findPermanent(you, "Maestros Theater")!!
+        val boomerang = game.putCardInHand(you, "Boomerang")
+        game.giveMana(you, Color.BLUE, 2)
+        game.castSpell(you, boomerang, listOf(permanent)).error shouldBe null
+        game.bothPass() // Boomerang returns the land before its ETB action.
+        game.bothPass() // Failed sacrifice must not create a reflexive trigger.
+
+        game.state.stack.isEmpty() shouldBe true
+        game.pendingDecision shouldBe null
+        game.getLifeTotal(you) shouldBe 20
+        game.findPermanent(you, "Swamp") shouldBe null
     }
 })

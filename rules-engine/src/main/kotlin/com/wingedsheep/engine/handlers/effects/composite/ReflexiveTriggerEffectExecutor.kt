@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
+import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -407,8 +408,12 @@ class ReflexiveTriggerEffectExecutor(
         // Pop our continuation now that the action has finished (success or failure)
         val (_, stateWithoutCont) = result.state.popContinuation()
 
-        if (!result.isSuccess) {
-            // Action failed — skip the reflexive trigger entirely
+        if (!result.isSuccess || (
+                effect.action is SacrificeTargetEffect &&
+                    result.events.none { it is PermanentsSacrificedEvent }
+            )) {
+            // SacrificeTarget reports success when its permanent has left or cannot be
+            // sacrificed. Only an actual sacrifice can cause its "when you do" trigger.
             return EffectResult.success(stateWithoutCont, result.events.toList())
         }
 
