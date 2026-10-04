@@ -1,3 +1,4 @@
+import { retainLegalBlockAssignments } from '@/utils/combatBlockTargets'
 import { useEffect, useMemo, useRef } from 'react'
 import { GameBoard } from './components/game/GameBoard'
 import { GameUI } from './components/ui/GameUI'
@@ -158,16 +159,9 @@ export default function App() {
         const updatedValidBlockTargets = blockersAction?.validBlockTargets
         if (JSON.stringify(updatedValidCreatures) !== JSON.stringify([...combatState.validCreatures]) ||
             JSON.stringify(updatedValidBlockTargets) !== JSON.stringify(combatState.validBlockTargets)) {
-          // Clean stale blocker assignments for creatures no longer in valid list
-          const validSet = new Set(updatedValidCreatures)
-          const cleanedAssignments: Record<EntityId, EntityId[]> = {}
-          for (const [blockerId, attackerIds] of Object.entries(combatState.blockerAssignments)) {
-            if (validSet.has(blockerId as EntityId)) {
-              cleanedAssignments[blockerId as EntityId] = attackerIds.filter((attackerId) =>
-                !updatedValidBlockTargets || updatedValidBlockTargets[blockerId as EntityId]?.includes(attackerId)
-              )
-            }
-          }
+          const cleanedAssignments = retainLegalBlockAssignments(
+            combatState.blockerAssignments, updatedValidCreatures, updatedValidBlockTargets,
+          )
           startCombat({
             ...combatState,
             validCreatures: [...updatedValidCreatures],

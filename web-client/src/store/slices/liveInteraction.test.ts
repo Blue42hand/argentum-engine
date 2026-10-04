@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ClientGameState, LegalActionInfo, PendingDecision, StateDeltaUpdateMessage, StateUpdateMessage } from '@/types'
 import type { CombatState, GameStore } from './types'
 import type { GameWebSocket } from '@/network/websocket'
+import { retainLegalBlockAssignments } from '@/utils/combatBlockTargets'
 
 vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} })
 vi.stubGlobal('window', { addEventListener: () => {}, removeEventListener: () => {} })
@@ -173,6 +174,31 @@ describe('browser live action origins', () => {
     useGameStore.getState().assignBlocker(MANA, TARGET)
     expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [MANA]: [TARGET] })
     expect(send).toHaveBeenCalledOnce()
+  })
+
+  it('drops a stale blocker pair completely before confirming refreshed blocks', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      blockerAssignments: { [MANA]: [SPELL] }, validCreatures: [MANA], mandatoryAttackers: [],
+      attackingCreatures: [SPELL, TARGET], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [SPELL] }, blockerMaxBlockCounts: {}, bands: [],
+    }
+    useGameStore.getState().startCombat(combat)
+    const refreshedTargets = { [MANA]: [TARGET] }
+    const refreshedAssignments = retainLegalBlockAssignments(
+      combat.blockerAssignments, [MANA], refreshedTargets,
+    )
+    expect(refreshedAssignments).toEqual({})
+    useGameStore.getState().startCombat({
+      ...combat, validBlockTargets: refreshedTargets, blockerAssignments: refreshedAssignments,
+    })
+    send.mockClear()
+    useGameStore.getState().confirmCombat('original')
+    expect(send).toHaveBeenCalledWith({
+      type: 'submitAction', interactionEpoch: 'original',
+      action: { type: 'DeclareBlockers', playerId: ME, blockers: {} },
+    })
   })
 
   it('rejects a held decision callback after undo and after the next question', () => {
