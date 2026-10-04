@@ -1,0 +1,26 @@
+{
+  "player1Name": "Coretapper pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [],
+    "battlefield": [
+      {"name": "Coretapper", "summoningSickness": false},
+      {"name": "Darksteel Ingot"},
+      {"name": "Forest"}
+    ],
+    "graveyard": [],
+    "library": ["Forest", "Forest", "Forest"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [],
+    "battlefield": [{"name": "Darksteel Ingot"}, {"name": "Forest"}],
+    "graveyard": [],
+    "library": ["Forest", "Forest", "Forest"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "mode": "TWO_PLAYER"
+}
