@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m11.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -28,7 +28,7 @@ val SteelOverseer = card("Steel Overseer") {
         cost = Costs.Tap
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.ArtifactCreature.youControl()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 
@@ -37,6 +37,6 @@ val SteelOverseer = card("Steel Overseer") {
         collectorNumber = "214"
         artist = "Chris Rahn"
         flavorText = "\"The world is already run by all manner of machines. One day, they'll remind us of that fact.\"\n—Sargis Haz, artificer"
-        imageUri = "https://cards.scryfall.io/normal/front/b/9/b9da673d-7cc0-4435-b5a5-5098630f7712.jpg?1783941788"
+        imageUri = "https://cards.scryfall.io/normal/front/b/9/b9da673d-7cc0-4435-b5a5-5098630f7712.jpg"
     }
 }

@@ -5,6 +5,9 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Silent Specter
@@ -26,8 +29,8 @@ val SilentSpecter = card("Silent Specter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
-        effect = Patterns.Hand.eachOpponentDiscards(2)
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
+        effect = Patterns.Hand.discardCards(2, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 
     morph = "{3}{B}{B}"

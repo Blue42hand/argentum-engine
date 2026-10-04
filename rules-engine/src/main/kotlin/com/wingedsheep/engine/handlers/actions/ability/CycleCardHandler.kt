@@ -1,22 +1,21 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.CardCycledEvent
 import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.CycleCard
-import com.wingedsheep.engine.core.CycleDrawContinuation
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.ZoneChangeEvent
-import com.wingedsheep.engine.event.TriggerDetector
-import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.actions.ActionHandler
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaPool
@@ -28,12 +27,14 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.player.CardsCycledThisGameComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.PreventCycling
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Handler for the CycleCard action.
@@ -42,14 +43,15 @@ import kotlin.reflect.KClass
  * and draw a new card. It's an activated ability from hand.
  */
 class CycleCardHandler(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val manaSolver: ManaSolver,
-    private val triggerDetector: TriggerDetector,
-    private val triggerProcessor: TriggerProcessor,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
     private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)?,
-    private val replacementProcessor: ReplacementEffectProcessor = ReplacementEffectProcessor()
+    private val replacementProcessor: ReplacementEffectProcessor,
+    private val castPermissionUtils: com.wingedsheep.engine.legalactions.utils.CastPermissionUtils? = null
 ) : ActionHandler<CycleCard> {
+    private val amountEvaluator = zones.predicateEvaluator.amounts
     override val actionType: KClass<CycleCard> = CycleCard::class
 
     override fun validate(state: GameState, action: CycleCard): String? {
@@ -60,6 +62,13 @@ class CycleCardHandler(
         // Check if cycling is prevented by any permanent on the battlefield (e.g., Stabilizer)
         if (isCyclingPrevented(state)) {
             return "Cycling is prevented"
+        }
+
+        // Cycling is an activated ability of the card in hand (CR 702.29a): an any-zone
+        // "players can't activate abilities" (Yuriko, Blade of the Mighty) or a name lock on
+        // "sources" (Pithing Needle) forbids it.
+        if (castPermissionUtils?.isActivationForbidden(state, action.cardId, action.playerId) == true) {
+            return "An effect prevents you from activating that ability right now"
         }
 
         val container = state.getEntity(action.cardId)
@@ -171,8 +180,10 @@ class CycleCardHandler(
             black = poolComponent.black,
             red = poolComponent.red,
             green = poolComponent.green,
-            colorless = poolComponent.colorless
-        )
+            colorless = poolComponent.colorless,
+            snowMana = poolComponent.snowMana,
+            snowColorless = poolComponent.snowColorless
+        ).withSpendingColors(currentState, action.playerId)
 
         val partialResult = pool.payPartial(cyclingCost)
         val poolAfterPayment = partialResult.newPool
@@ -194,7 +205,9 @@ class CycleCardHandler(
                     black = poolAfterPayment.black,
                     red = poolAfterPayment.red,
                     green = poolAfterPayment.green,
-                    colorless = poolAfterPayment.colorless
+                    colorless = poolAfterPayment.colorless,
+                    snowMana = poolAfterPayment.snowMana,
+                    snowColorless = poolAfterPayment.snowColorless
                 )
             )
         }
@@ -204,9 +217,9 @@ class CycleCardHandler(
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
                 // Tap specified sources explicitly
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvent) = tap(currentState, sourceId)
+                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
                     currentState = tappedState
-                    tapEvent?.let(events::add)
+                    events.addAll(tapEvents)
                 }
             } else {
                 val solution = manaSolver.solve(currentState, action.playerId, remainingCost, 0)
@@ -250,44 +263,20 @@ class CycleCardHandler(
         // cast (CR 702.35a), which is the classic Fiery Temper line. The discard event and the
         // zone change land before CardCycledEvent, so a card that triggers on both (CR 702.29d)
         // sees them in the order they happened.
-        val discardResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-            .discardCards(currentState, action.playerId, listOf(action.cardId), asCyclingCost = true)
+        val discardResult = zones.discardCards(currentState, action.playerId, listOf(action.cardId), asCyclingCost = true)
         currentState = discardResult.state
         events.addAll(discardResult.events)
+
+        // "Cycled a card named X N times this game" (Yidaro, Wandering Monster) — counted before
+        // the event so a "when you cycle" trigger already sees this cycle.
+        currentState = currentState.updateEntity(action.playerId) { player ->
+            player.with((player.get<CardsCycledThisGameComponent>() ?: CardsCycledThisGameComponent()).record(cardComponent.name))
+        }
 
         // Emit cycling event (for cycling triggers like Astral Slide)
         events.add(CardCycledEvent(action.playerId, action.cardId, cardComponent.name, announcedX))
 
         currentState = currentState.tick()
-
-        // Detect and process triggers from discard + cycling events before drawing,
-        // since the draw may pause for replacement effects (e.g., Words cycle)
-        val preTriggers = triggerDetector.detectTriggers(currentState, events)
-        if (preTriggers.isNotEmpty()) {
-            // Push draw continuation BEFORE processing triggers, so it ends up below
-            // any trigger continuations on the stack. After all triggers resolve,
-            // checkForMoreContinuations() will find this and execute the draw.
-            val stateWithDrawContinuation = currentState.pushContinuation(
-                CycleDrawContinuation(playerId = action.playerId)
-            )
-            val triggerResult = triggerProcessor.processTriggers(stateWithDrawContinuation, preTriggers)
-
-            if (triggerResult.isPaused) {
-                // triggersAlreadyProcessed: the cycling events above have been through
-                // detectTriggers here. Without the flag, SubmitDecisionHandler re-scans this
-                // result's events when the cycle was resumed from a decision (an {X} cycling
-                // cost's ChooseNumber) and queues the cycling trigger a second time.
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    events + triggerResult.events
-                ).copy(triggersAlreadyProcessed = true)
-            }
-
-            // Triggers resolved synchronously — pop the draw continuation and draw inline
-            val (_, stateAfterPop) = triggerResult.newState.popContinuation()
-            currentState = stateAfterPop
-            events.addAll(triggerResult.events)
-        }
 
         // Draw a card using DrawCardsExecutor (checks replacement shields).
         // Cycling is "Discard this card: Draw a card" (CR 702.29a). The announcement-site
@@ -295,21 +284,21 @@ class CycleCardHandler(
         val drawExecutor = DrawCardsExecutor(
             cardRegistry = cardRegistry,
             effectExecutor = effectExecutor,
-            replacementProcessor = replacementProcessor
+            replacementProcessor = replacementProcessor,
+            amountEvaluator = amountEvaluator
         )
         val drawResult = drawExecutor.executeDraws(currentState, action.playerId, 1)
-        if (drawResult.isPaused) {
+        if (drawResult.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 drawResult.state,
                 events + drawResult.events
-            ).copy(triggersAlreadyProcessed = true)
+            )
         }
         currentState = drawResult.newState
         events.addAll(drawResult.events)
 
         // Cycling doesn't change priority
         return ExecutionResult.success(currentState, events)
-            .copy(triggersAlreadyProcessed = true)
     }
 
     private fun isCyclingPrevented(state: GameState): Boolean {
@@ -326,13 +315,13 @@ class CycleCardHandler(
     companion object {
         fun create(services: EngineServices): CycleCardHandler {
             return CycleCardHandler(
+                services.zones,
                 services.cardRegistry,
                 services.manaSolver,
-                services.triggerDetector,
-                services.triggerProcessor,
                 services.manaAbilitySideEffectExecutor,
                 services.effectExecutorRegistry::execute,
-                services.replacementEffectProcessor
+                services.replacementEffectProcessor,
+                services.castPermissionUtils
             )
         }
     }

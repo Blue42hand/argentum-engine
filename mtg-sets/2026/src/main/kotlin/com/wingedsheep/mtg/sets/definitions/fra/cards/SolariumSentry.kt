@@ -15,7 +15,7 @@ val SolariumSentry = card("Solarium Sentry") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Any.manaValueAtMost(2))
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any.manaValueAtMost(2))
         effect = Effects.GainLife(2)
         description = "Whenever an opponent casts a spell with mana value 2 or less, you gain 2 life."
     }

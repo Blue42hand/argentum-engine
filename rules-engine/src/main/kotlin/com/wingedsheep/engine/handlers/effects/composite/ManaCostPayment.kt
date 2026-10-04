@@ -1,11 +1,16 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
-import com.wingedsheep.engine.core.tap
-import com.wingedsheep.engine.mechanics.mana.ManaPool
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.ManaSource
+import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
+import com.wingedsheep.engine.mechanics.mana.toComponent
+import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
@@ -24,7 +29,8 @@ fun payManaCostFromPool(
     state: GameState,
     player: EntityId,
     cost: ManaCost,
-    cardRegistry: CardRegistry
+    cardRegistry: CardRegistry,
+    predicateEvaluator: PredicateEvaluator
 ): EffectResult {
     val playerEntity = state.getEntity(player)
         ?: return EffectResult.error(state, "Paying player not found")
@@ -32,55 +38,35 @@ fun payManaCostFromPool(
     val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
         ?: return EffectResult.error(state, "Player has no mana pool")
 
-    val manaPool = ManaPool(
-        manaPoolComponent.white,
-        manaPoolComponent.blue,
-        manaPoolComponent.black,
-        manaPoolComponent.red,
-        manaPoolComponent.green,
-        manaPoolComponent.colorless
-    )
+    val manaPool = manaPoolComponent.toManaPool()
 
-    val partialResult = manaPool.payPartial(cost)
+    val partialResult = manaPool.payPartial(cost, SpellPaymentContext())
     val remainingCost = partialResult.remainingCost
     var currentPool = manaPool
     var currentState = state
     val events = mutableListOf<GameEvent>()
 
     if (!remainingCost.isEmpty()) {
-        val manaSolver = ManaSolver(cardRegistry)
-        val solution = manaSolver.solve(currentState, player, remainingCost)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
+        val solution = manaSolver.solve(currentState, player, remainingCost, spellContext = SpellPaymentContext())
             ?: return EffectResult.error(state, "Cannot pay mana cost")
 
         for (source in solution.sources) {
-            val (tappedState, tapEvent) = tap(currentState, source.entityId)
+            val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, player)
             currentState = tappedState
-            tapEvent?.let(events::add)
+            events.addAll(tapEvents)
         }
 
         for ((_, production) in solution.manaProduced) {
-            currentPool = if (production.color != null) {
-                currentPool.add(production.color)
-            } else {
-                currentPool.addColorless(production.colorless)
-            }
+            currentPool = currentPool.addProduction(production, coloredAmount = 1)
         }
     }
 
-    val newPool = currentPool.pay(cost)
+    val newPool = currentPool.payNonSpellCost(cost)
         ?: return EffectResult.error(state, "Cannot pay mana cost after auto-tap")
 
     currentState = currentState.updateEntity(player) { container ->
-        container.with(
-            ManaPoolComponent(
-                white = newPool.white,
-                blue = newPool.blue,
-                black = newPool.black,
-                red = newPool.red,
-                green = newPool.green,
-                colorless = newPool.colorless
-            )
-        )
+        container.with(newPool.toComponent())
     }
 
     return EffectResult.success(currentState, events)
@@ -106,22 +92,16 @@ fun canAutoPayManaCost(
     player: EntityId,
     cost: ManaCost,
     cardRegistry: CardRegistry,
-    precomputedSources: List<ManaSource>? = null
+    precomputedSources: List<ManaSource>? = null,
+    predicateEvaluator: PredicateEvaluator
 ): Boolean {
     val manaPoolComponent = state.getEntity(player)?.get<ManaPoolComponent>() ?: return false
 
-    val manaPool = ManaPool(
-        manaPoolComponent.white,
-        manaPoolComponent.blue,
-        manaPoolComponent.black,
-        manaPoolComponent.red,
-        manaPoolComponent.green,
-        manaPoolComponent.colorless
-    )
+    val manaPool = manaPoolComponent.toManaPool()
 
-    val remainingCost = manaPool.payPartial(cost).remainingCost
+    val remainingCost = manaPool.payPartial(cost, SpellPaymentContext()).remainingCost
     if (remainingCost.isEmpty()) return true
 
-    return ManaSolver(cardRegistry)
-        .solve(state, player, remainingCost, precomputedSources = precomputedSources) != null
+    return ManaSolver(cardRegistry, predicateEvaluator)
+        .solve(state, player, remainingCost, spellContext = SpellPaymentContext(), precomputedSources = precomputedSources) != null
 }

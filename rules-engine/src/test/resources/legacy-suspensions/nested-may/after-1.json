@@ -20,7 +20,8 @@
                 "colorless": 0,
                 "restrictedMana": [],
                 "manaBySubtype": {},
-                "manaBySource": {}
+                "manaBySource": {},
+                "manaByCardType": {}
             },
             "com.wingedsheep.engine.state.components.player.LandDropsComponent": {
                 "type": "com.wingedsheep.engine.state.components.player.LandDropsComponent",
@@ -48,7 +49,8 @@
                 "colorless": 0,
                 "restrictedMana": [],
                 "manaBySubtype": {},
-                "manaBySource": {}
+                "manaBySource": {},
+                "manaByCardType": {}
             },
             "com.wingedsheep.engine.state.components.player.LandDropsComponent": {
                 "type": "com.wingedsheep.engine.state.components.player.LandDropsComponent",
@@ -161,7 +163,7 @@
                     "triggering": null,
                     "resolutionKey": null,
                     "permittedMoves": [],
-                    "selfBinding": null
+                    "iteration": null
                 },
                 "targets": [],
                 "alignedTargets": [],
@@ -230,8 +232,7 @@
                     "chosenValues": {},
                     "storedNumbers": {},
                     "storedStringLists": {},
-                    "storedSubtypeGroups": {},
-                    "iterationTarget": null
+                    "storedSubtypeGroups": {}
                 },
                 "resolutionDepth": 0
             }
@@ -300,7 +301,7 @@
                         "triggering": null,
                         "resolutionKey": null,
                         "permittedMoves": [],
-                        "selfBinding": null
+                        "iteration": null
                     },
                     "targets": [],
                     "alignedTargets": [],
@@ -369,8 +370,7 @@
                         "chosenValues": {},
                         "storedNumbers": {},
                         "storedStringLists": {},
-                        "storedSubtypeGroups": {},
-                        "iterationTarget": null
+                        "storedSubtypeGroups": {}
                     },
                     "resolutionDepth": 1
                 }
@@ -386,6 +386,7 @@
     "pendingSpellCopies": [],
     "pendingUncounterableSpells": [],
     "pendingNextSpellAffinities": [],
+    "pendingNextSpellKeywords": [],
     "pendingFreeCastSpells": [],
     "turnSpellCostReductions": [],
     "spellWarpedThisTurn": false,

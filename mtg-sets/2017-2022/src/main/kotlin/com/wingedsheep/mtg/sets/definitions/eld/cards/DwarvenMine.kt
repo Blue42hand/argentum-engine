@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
@@ -30,20 +31,20 @@ val DwarvenMine = card("Dwarven Mine") {
     // The Mountain subtype supplies the intrinsic red mana ability.
     replacementEffect(
         EntersTapped(
-            unlessCondition = Compare(
-                DynamicAmount.AggregateBattlefield(
+            unlessCondition = Conditions.CompareAmounts(
+                DynamicAmounts.battlefield(
                     Player.You,
                     GameObjectFilter.Land.withSubtype("Mountain"),
                     excludeSelf = true,
-                ),
+                ).count(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(3),
+                3,
             )
         )
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.SourceIsUntapped
         effect = Effects.CreateToken(
             power = 1,

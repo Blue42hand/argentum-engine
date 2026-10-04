@@ -62,8 +62,9 @@ class PlayoutEngine(
     private val settings: RolloutSettings = RolloutSettings.DEFAULT,
     private val winProbabilityScale: Double = WinProbability.SCALE,
 ) : Playouts {
-    private val processor = ActionProcessor(EngineServices(cardRegistry), computeUndo = false)
-    private val enumerator = LegalActionEnumerator.create(cardRegistry)
+    private val services = EngineServices(cardRegistry)
+    private val processor = ActionProcessor(services, computeUndo = false)
+    private val enumerator = services.legalActionEnumerator
 
     /**
      * Play [start] forward and return the win probability it reached, from [playerId]'s side.
@@ -109,7 +110,13 @@ class PlayoutEngine(
 
             val decision = state.pendingDecision
             if (decision != null) {
-                val response = decisions.respond(state, decision, playerId)
+                val response = if (decision is com.wingedsheep.engine.core.PlayCardDecision) {
+                    val (play, nextRng) = policy.decide(state, decision.playerId, rng) {
+                        enumerator.enumerate(state, decision.playerId, EnumerationMode.ACTIONS_ONLY)
+                    }
+                    rng = nextRng
+                    com.wingedsheep.engine.core.PlayCardResponse(decision.id, play)
+                } else decisions.respond(state, decision, playerId)
                 val result = processor.process(state, SubmitDecision(decision.playerId, response)).result
                 if (result.error != null) break
                 state = result.state

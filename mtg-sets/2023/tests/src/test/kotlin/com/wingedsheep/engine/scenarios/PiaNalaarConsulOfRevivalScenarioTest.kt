@@ -1,5 +1,9 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
+
+
 import com.wingedsheep.engine.core.PlayLand
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -23,13 +27,15 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 
+private val ExecutionResult.isSuccess: Boolean get() = outcome == Outcome.Done
+
 class PiaNalaarConsulOfRevivalScenarioTest : FunSpec({
 
     val impulse = card("Pia Test Impulse") {
         manaCost = "{R}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(
+            effect = Effects.Composite(listOf(
                 GatherCardsEffect(
                     source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
                     storeAs = "piaTestExiled",
@@ -42,7 +48,7 @@ class PiaNalaarConsulOfRevivalScenarioTest : FunSpec({
                     from = "piaTestExiled",
                     expiry = MayPlayExpiry.EndOfTurn,
                 ),
-            )
+            ))
         }
     }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.multiplayer
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActionProcessor
 import com.wingedsheep.engine.core.Concede
 import com.wingedsheep.engine.core.GameConfig
@@ -9,6 +10,7 @@ import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.handlers.actions.special.ConcedeHandler
 import com.wingedsheep.engine.handlers.effects.DamageUtils
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.StateBasedActionChecker
 import com.wingedsheep.engine.mechanics.combat.CombatDefenders
 import com.wingedsheep.engine.registry.CardRegistry
@@ -51,8 +53,9 @@ class TeamVsTeamTest : FunSpec({
     val forest = "Forest"
 
     fun registry(): CardRegistry = CardRegistry().also { it.register(TestCards.all) }
+    val zones = ZoneTransitionService(registry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
-    fun checker() = StateBasedActionChecker(cardRegistry = registry())
+    fun checker() = StateBasedActionChecker(zones, cardRegistry = registry())
 
     fun boot(
         format: Format = Format.TeamVsTeam(),
@@ -96,17 +99,20 @@ class TeamVsTeamTest : FunSpec({
     // Life: each player has their own total (CR 808.5) — not a shared pool.
     // ---------------------------------------------------------------------------------------------
 
-    test("a randomly chosen first team starts with the seat left of its midpoint, and turn order wraps the table (CR 808.4)") {
-        val result = GameInitializer(registry()).initializeGame(
-            GameConfig(
-                format = Format.TeamVsTeam(),
-                players = (1..4).map { PlayerConfig("Player $it", Deck.of(forest to 40)) },
-                teams = listOf(listOf(0, 1), listOf(2, 3)),
-                startingPlayerIndex = null,
-                skipMulligans = true,
-                seed = 42L,
-            )
+    fun randomSeating(seed: Long, shuffledTeamSeats: Boolean = true) = GameInitializer(registry()).initializeGame(
+        GameConfig(
+            format = Format.TeamVsTeam(),
+            players = (1..4).map { PlayerConfig("Player $it", Deck.of(forest to 40)) },
+            teams = listOf(listOf(0, 1), listOf(2, 3)),
+            startingPlayerIndex = null,
+            skipMulligans = true,
+            seed = seed,
+            shuffledTeamSeats = shuffledTeamSeats,
         )
+    )
+
+    test("a randomly chosen first team starts with the seat left of its midpoint, and turn order wraps the table (CR 808.4)") {
+        val result = randomSeating(seed = 42L, shuffledTeamSeats = false)
         val p = result.playerIds
         val order = result.state.turnOrder
         val teamA = listOf(p[0], p[1])
@@ -122,12 +128,29 @@ class TeamVsTeamTest : FunSpec({
         result.state.activePlayerId shouldBe startTeam[1]
     }
 
+    test("a random seating also mixes the seats within each team, keeping teammates adjacent") {
+        val seatings = (1L..40L).map { seed ->
+            val result = randomSeating(seed)
+            val p = result.playerIds
+            val order = result.state.turnOrder
+            val teamOf = mapOf(p[0] to 0, p[1] to 0, p[2] to 1, p[3] to 1)
+            // Starting team wraps the table: its two seats are first and last, the other team sits between.
+            teamOf[order.first()] shouldBe teamOf[order.last()]
+            teamOf[order[1]] shouldBe teamOf[order[2]]
+            (teamOf[order.first()] == teamOf[order[1]]) shouldBe false
+            order.map { p.indexOf(it) }
+        }
+        // Both within-team orders turn up for each team across seeds.
+        seatings.map { it.indexOf(0) < it.indexOf(1) }.toSet() shouldBe setOf(true, false)
+        seatings.map { it.indexOf(2) < it.indexOf(3) }.toSet() shouldBe setOf(true, false)
+    }
+
     test("each player has their own life total; damaging one teammate doesn't touch the other (CR 808.5)") {
         val (state, p, _) = boot()
         state.lifeTotal(p[0]) shouldBe 20
         state.lifeTotal(p[1]) shouldBe 20
 
-        val hurt = DamageUtils.loseLife(state, p[0], 5, LifeChangeReason.LIFE_LOSS).first
+        val hurt = DamageUtils.loseLife(state, p[0], 5, LifeChangeReason.LIFE_LOSS, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).first
         hurt.lifeTotal(p[0]) shouldBe 15
         hurt.lifeTotal(p[1]) shouldBe 20  // teammate untouched — no shared pool
     }
@@ -144,7 +167,7 @@ class TeamVsTeamTest : FunSpec({
 
     test("a player at 0 life loses ALONE; the teammate plays on and the game continues (CR 104.3b)") {
         val (state, p, _) = boot()
-        val zeroed = DamageUtils.loseLife(state, p[0], 20, LifeChangeReason.LIFE_LOSS).first
+        val zeroed = DamageUtils.loseLife(state, p[0], 20, LifeChangeReason.LIFE_LOSS, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).first
 
         val s = checker().checkAndApply(zeroed).newState
         lost(s, p[0]) shouldBe true
@@ -158,8 +181,8 @@ class TeamVsTeamTest : FunSpec({
     test("a team loses only once ALL its members are out; the other team wins together (CR 104.2c)") {
         val (state, p, _) = boot()
         // Knock out both members of team 0.
-        var dead = DamageUtils.loseLife(state, p[0], 20, LifeChangeReason.LIFE_LOSS).first
-        dead = DamageUtils.loseLife(dead, p[1], 20, LifeChangeReason.LIFE_LOSS).first
+        var dead = DamageUtils.loseLife(state, p[0], 20, LifeChangeReason.LIFE_LOSS, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).first
+        dead = DamageUtils.loseLife(dead, p[1], 20, LifeChangeReason.LIFE_LOSS, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).first
 
         val s = checker().checkAndApply(dead).newState
         lost(s, p[0]) shouldBe true
@@ -187,7 +210,7 @@ class TeamVsTeamTest : FunSpec({
             .withEntity(permId, ComponentContainer.of(ControllerComponent(p[1]), GrantsCantLoseGameComponent()))
             .addToZone(ZoneKey(p[1], Zone.BATTLEFIELD), permId)
         // Drop p0 (who does NOT control the grant) to 0 life.
-        val zeroed = DamageUtils.loseLife(protectedState, p[0], 20, LifeChangeReason.LIFE_LOSS).first
+        val zeroed = DamageUtils.loseLife(protectedState, p[0], 20, LifeChangeReason.LIFE_LOSS, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).first
 
         val s = checker().checkAndApply(zeroed).newState
         lost(s, p[0]) shouldBe true    // the grant does not reach across to a teammate

@@ -78,14 +78,14 @@ data class ClientGameState(
     val dayNight: com.wingedsheep.sdk.core.DayNight? = null,
 
     /**
-     * If non-null, the affected player whose turn the viewing player is currently
-     * driving (Mindslaver-style hijack). Drives UI cues such as the controller banner
+     * If non-null, the affected player whose choices the viewing player is currently
+     * driving during turn, combat or stack-resolution control. Drives UI cues such as the controller banner
      * and promoting the affected player's hand to face-up.
      */
     val youAreHijacking: EntityId? = null,
 
     /**
-     * If non-null, the controller currently driving the viewing player's turn.
+     * If non-null, the controller currently driving the viewing player's choices.
      * Drives UI cues such as the affected-player banner and disabling click handlers.
      */
     val youAreHijackedBy: EntityId? = null,
@@ -94,7 +94,7 @@ data class ClientGameState(
      * True when the viewing player controls *every* seat for the whole game — the
      * single-client "hotseat" / play-against-yourself mode. Drives the "controlling both
      * players" banner and lets the client act for whichever seat currently has priority.
-     * Distinct from [youAreHijacking], which is the per-turn Mindslaver effect; the two are
+     * Distinct from [youAreHijacking], which is temporary rules control; the two are
      * never set together.
      */
     val hotseat: Boolean = false,
@@ -349,6 +349,10 @@ data class ClientCard(
      * Battlefield only. */
     val isRenowned: Boolean = false,
 
+    /** Whether this permanent has the monstrous designation (CR 701.37b). Sticky until it leaves
+     * the battlefield. Battlefield only. */
+    val isMonstrous: Boolean = false,
+
     /**
      * Saddle N (CR 702.171a) printed on this permanent, or null if it has no saddle ability.
      * Battlefield only. Sent for every player's Mounts, not just the controller's: whether a Mount
@@ -412,7 +416,8 @@ data class ClientCard(
     /**
      * Clockwise rotation in degrees to apply to the card art when rendering (default 0). Non-zero
      * only for flip-layout tokens whose single Scryfall image shows the other face upright — e.g.
-     * the Wilds of Eldraine "Cursed" / "Sorcerer" Roles need 180. Purely cosmetic.
+     * the Wilds of Eldraine "Cursed" / "Sorcerer" Roles need 180 — and for a flipped flip card
+     * (CR 710), whose flip half is printed upside down. Purely cosmetic.
      */
     val imageRotation: Int = 0,
 
@@ -709,7 +714,10 @@ data class ClientCard(
      * A bare cost string rather than a DTO of its own: evoke carries no second value the way
      * [ClientImpending] carries its time-counter count.
      */
-    val evoke: String? = null
+    val evoke: String? = null,
+
+    /** Bestow price, including any nonmana payment, shown alongside the ordinary creature cast. */
+    val bestow: ClientBestow? = null
 )
 
 /**
@@ -793,14 +801,24 @@ data class ClientDeliriumInfo(
 data class ClientZone(
     val zoneId: ZoneKey,
 
-    /** Card IDs in this zone, in order */
+    /**
+     * Card IDs in this zone, in order. A hidden zone lists only the cards whose identity the viewer
+     * knows; the rest are counted by [size] and never named, since an ID is enough to follow a card
+     * (and, with a known decklist, to read it).
+     */
     val cardIds: List<EntityId>,
 
     /** Number of cards in the zone (always available, even for hidden zones) */
     val size: Int,
 
     /** Whether the contents are visible to the viewing player */
-    val isVisible: Boolean
+    val isVisible: Boolean,
+
+    /**
+     * Libraries only: the index from the top (0 = top card) of each entry of [cardIds], in the same
+     * order. `null` for every other zone, whose [cardIds] carry their own order.
+     */
+    val positions: List<Int>? = null
 )
 
 /**
@@ -830,6 +848,9 @@ data class ClientPlayer(
 
     /** Mana in mana pool (only visible for own player) */
     val manaPool: ClientManaPool?,
+
+    /** Server-authoritative accepted actual mana colors, keyed by required pip symbol. */
+    val manaPaymentColors: Map<String, List<String>> = emptyMap(),
 
     /** Active effects on this player (e.g., "Skip Combat" from False Peace) */
     val activeEffects: List<ClientPlayerEffect> = emptyList(),
@@ -934,7 +955,9 @@ data class ClientPlayerEffect(
      * The Ring's four-step temptation (CR 701.54c). The UI can render this as
      * filled/empty pips so the player sees how far the effect has advanced.
      */
-    val progress: ClientEffectProgress? = null
+    val progress: ClientEffectProgress? = null,
+    /** When the effect ends, e.g. "until end of turn"; `null` when no end is stated. */
+    val duration: String? = null
 )
 
 /**
@@ -961,7 +984,9 @@ data class ClientCardEffect(
     /** Optional description/tooltip text */
     val description: String? = null,
     /** Optional icon identifier for UI rendering */
-    val icon: String? = null
+    val icon: String? = null,
+    /** When the effect ends, e.g. "until end of turn"; `null` when no end is stated. */
+    val duration: String? = null
 )
 
 /**
@@ -1058,6 +1083,11 @@ sealed interface ClientCombatTarget {
     @Serializable
     @kotlinx.serialization.SerialName("Planeswalker")
     data class Planeswalker(val permanentId: EntityId) : ClientCombatTarget
+
+    /** A battle being attacked (CR 310.5); its defending player is its protector, not its controller. */
+    @Serializable
+    @kotlinx.serialization.SerialName("Battle")
+    data class Battle(val permanentId: EntityId) : ClientCombatTarget
 }
 
 /**
@@ -1113,3 +1143,10 @@ sealed interface ClientChosenTarget {
     @kotlinx.serialization.SerialName("Card")
     data class Card(val cardId: EntityId) : ClientChosenTarget
 }
+
+/** Printed bestow price; legal actions determine whether it can currently be paid. */
+@Serializable
+data class ClientBestow(
+    val cost: String,
+    val additionalCostDescription: String? = null
+)

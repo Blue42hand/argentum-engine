@@ -8,9 +8,8 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -25,11 +24,8 @@ val GrappleWithDeath = card("Grapple with Death") {
     typeLine = "Sorcery"
     oracleText = "Destroy target artifact or creature. You gain 1 life."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrArtifact))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            GainLifeEffect(1)
-        )
+        val t = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature))
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.COMMON

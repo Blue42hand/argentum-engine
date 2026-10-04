@@ -3,7 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.mh1.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
@@ -41,7 +41,7 @@ val EtchingsOfTheChosen = card("Etchings of the Chosen") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeChosenCreatureType)
-        val creature = target("target", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
     }
 

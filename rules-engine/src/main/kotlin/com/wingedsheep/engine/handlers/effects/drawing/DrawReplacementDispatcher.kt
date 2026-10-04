@@ -13,6 +13,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ModifyDrawAmount
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Runs the draw-replacement checks that fire before each individual card
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
  *
  * Delegates entirely to [ReplacementEffectProcessor], which handles both
  * mandatory replacements (PreventDraw, ModifyDrawAmount, non-optional
- * ReplaceDrawWithEffect) and optional replacements (Parallel Thoughts-style
+ * ReplaceDrawWith) and optional replacements (Parallel Thoughts-style
  * yes/no prompts).
  *
  * The dispatcher is called by [DrawLoop] during each iteration of a multi-draw
@@ -116,7 +117,7 @@ class DrawReplacementDispatcher(
                                 processorResult.state, playerId,
                                 outcome.newEffect, ctx,
                                 remainingDraws, isDrawStep,
-                                processorResult.identity
+                                processorResult.identity, state.activeReplacementChain
                             )
                         }
                         return DispatchResult.Replaced(processorResult.state, emptyList())
@@ -199,7 +200,7 @@ class DrawReplacementDispatcher(
                                 processorResult.state, playerId,
                                 outcome.newEffect, ctx,
                                 totalCount - 1, isDrawStep,
-                                processorResult.identity
+                                processorResult.identity, state.activeReplacementChain
                             )
                         }
                         return DispatchResult.Replaced(processorResult.state, emptyList())
@@ -247,7 +248,8 @@ class DrawReplacementDispatcher(
         context: EffectContext,
         remainingDraws: Int,
         isDrawStep: Boolean,
-        identity: ReplacementEffectIdentity? = null
+        identity: ReplacementEffectIdentity? = null,
+        previousChain: Set<ReplacementEffectIdentity>? = null
     ): DispatchResult {
         val executor = effectExecutor ?: return DispatchResult.Replaced(processorState, emptyList())
 
@@ -267,12 +269,12 @@ class DrawReplacementDispatcher(
             )
         }
 
-        // Execute the stored replacement effect.
-        // The processor has already stamped the activeReplacementChain onto state
-        // (containing all effects applied in this chain), so nested effect execution
-        // won't re-trigger them. Clear the chain after execution.
+        // A nested life replacement may suspend and later restore this draw's chain.
+        // Keep the draw's boundary on the stack so that restoration cannot leak into
+        // the independent instruction that follows the completed replacement.
+        state = state.pushContinuation(com.wingedsheep.engine.core.RestoreReplacementChainContinuation(previousChain))
         val pipelineResult = executor(state, replacementEffect, context)
-        if (pipelineResult.isPaused) {
+        if (pipelineResult.outcome is Outcome.Paused) {
             // Clear chain on pause so subsequent draw iterations are unaffected.
             val clearedState = pipelineResult.state.copy(activeReplacementChain = null)
             return DispatchResult.Paused(
@@ -282,6 +284,8 @@ class DrawReplacementDispatcher(
 
         // Pipeline completed synchronously — pop remaining-draws continuation
         var resultState = pipelineResult.state
+        check(resultState.peekContinuation() is com.wingedsheep.engine.core.RestoreReplacementChainContinuation)
+        resultState = resultState.popContinuation().second
         if (remainingDraws > 0) {
             val (popped, stateAfterPop) = resultState.popContinuation()
             if (popped is DrawReplacementRemainingDrawsContinuation) {
@@ -291,7 +295,7 @@ class DrawReplacementDispatcher(
 
         // Clear the active replacement chain so subsequent draw iterations
         // (and any continuations) start with a clean slate.
-        resultState = resultState.copy(activeReplacementChain = null)
+        resultState = resultState.copy(activeReplacementChain = previousChain)
 
         return DispatchResult.Replaced(resultState, pipelineResult.events)
     }

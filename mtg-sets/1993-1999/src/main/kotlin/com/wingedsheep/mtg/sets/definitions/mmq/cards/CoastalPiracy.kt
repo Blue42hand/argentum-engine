@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -29,9 +29,8 @@ val CoastalPiracy = card("Coastal Piracy") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = MayEffect(Effects.DrawCards(1)),
+                trigger = Triggers.self.dealsCombatDamage(Recipient.Opponent),
+                effect = Effects.May(Effects.DrawCards(1)),
             ),
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
         )

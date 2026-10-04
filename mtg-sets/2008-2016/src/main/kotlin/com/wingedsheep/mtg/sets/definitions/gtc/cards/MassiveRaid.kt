@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.gtc.cards
 
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -21,9 +22,9 @@ val MassiveRaid = card("Massive Raid") {
     oracleText = "Massive Raid deals damage to any target equal to the number of creatures you control."
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).count(),
             t
         )
     }

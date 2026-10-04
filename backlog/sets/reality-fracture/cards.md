@@ -2,10 +2,10 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 100 / 285
+**Implemented:** 285 / 285
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 78   |
+| Extras     | 285   | 285  |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -15,288 +15,288 @@
 
 > Current Scryfall data marks every FRA printing `booster: false`, so the import places all cards here. This is a metadata classification, not a claim that FRA lacks boosters. Refresh the import when those flags change; counted separately by `scripts/card-status`.
 
-- [ ] Academic Ascent
-- [ ] Aerid Konstrari
+- [x] Academic Ascent
+- [x] Aerid Konstrari
 - [x] Afterthought Sentry
-- [ ] Ajani Resolute
-- [ ] Ajani Unrelenting
-- [ ] Ajani's Anguish
+- [x] Ajani Resolute
+- [x] Ajani Unrelenting
+- [x] Ajani's Anguish
 - [x] Apex Witchstalker
-- [ ] Arcane Amphisbaena
+- [x] Arcane Amphisbaena
 - [x] Archive Arbiter
 - [x] Arni, Humble Scribe
-- [ ] Arni, Renowned Champion
+- [x] Arni, Renowned Champion
 - [x] Artifist Acumen
-- [ ] Avatar of Burgeoning Echoes
-- [ ] Awaken the Inferno
+- [x] Avatar of Burgeoning Echoes
+- [x] Awaken the Inferno
 - [x] Bestial Incursion
 - [x] Blazing Crescendo
 - [x] Blessed Ghoul
-- [ ] Bloodline Recollector
-- [ ] Bloombrute
-- [ ] Blossom-Blessed Angel
-- [ ] Break Under Pressure
-- [ ] Budding Insurgent
-- [ ] Campus Crier
-- [ ] Carnivorous Cultivator
+- [x] Bloodline Recollector
+- [x] Bloombrute
+- [x] Blossom-Blessed Angel
+- [x] Break Under Pressure
+- [x] Budding Insurgent
+- [x] Campus Crier
+- [x] Carnivorous Cultivator
 - [x] Cast Away Doubt
 - [x] Chandra's Emberling
-- [ ] Chandra, Chill of Compliance
-- [ ] Chandra, Torch of Defiance
+- [x] Chandra, Chill of Compliance
+- [x] Chandra, Torch of Defiance
 - [x] Charge the Sanctum
-- [ ] Clash of Elements
-- [ ] Codie, Ravenous Codex
-- [ ] Command the Stage
-- [ ] Compel Brutality
-- [ ] Countersculpt
-- [ ] Craftwork Crusher
-- [ ] Craterclaw Colossus
-- [ ] Cruel Calculations
+- [x] Clash of Elements
+- [x] Codie, Ravenous Codex
+- [x] Command the Stage
+- [x] Compel Brutality
+- [x] Countersculpt
+- [x] Craftwork Crusher
+- [x] Craterclaw Colossus
+- [x] Cruel Calculations
 - [x] Cryotheory Adept
-- [ ] Curse-Marred Demon
-- [ ] Danitha, Spear of Agony
-- [ ] Danitha, Sword of Hope
-- [ ] Dark Matter Manipulator
-- [ ] Darklight Phoenix
+- [x] Curse-Marred Demon
+- [x] Danitha, Spear of Agony
+- [x] Danitha, Sword of Hope
+- [x] Dark Matter Manipulator
+- [x] Darklight Phoenix
 - [x] Dedicated Commons
 - [x] Denzilore Fatehold
 - [x] Deserted Beach
-- [ ] Desperate Futurescribe
-- [ ] Diviner of Victory
+- [x] Desperate Futurescribe
+- [x] Diviner of Victory
 - [x] Divining Duelist
-- [ ] Draconic Visitor
+- [x] Draconic Visitor
 - [x] Eardrum Rattler
 - [x] Edgar, Ancient Bloodlord
-- [ ] Edgar, Moonlit Sovereign
-- [ ] Emergency Phytomedic
-- [ ] Emrakul, the Exigent Doom
-- [ ] Enlightened Confidant
-- [ ] Entrust the Spark
-- [ ] Essence Burn
+- [x] Edgar, Moonlit Sovereign
+- [x] Emergency Phytomedic
+- [x] Emrakul, the Exigent Doom
+- [x] Enlightened Confidant
+- [x] Entrust the Spark
+- [x] Essence Burn
 - [x] Extended Absence
-- [ ] Extrapolate the Impossible
-- [ ] Eye of Jace
-- [ ] Face Yourself
+- [x] Extrapolate the Impossible
+- [x] Eye of Jace
+- [x] Face Yourself
 - [x] Fatehold Annex
-- [ ] Fatehold Charm
-- [ ] Fatehold Chronologist
-- [ ] Fateshaper Aspirant
-- [ ] Fblthp, Impossibly Lost
-- [ ] Fblthp, Knows the Way
-- [ ] Ferocity of the Hunt
-- [ ] Flickering Hound
-- [ ] Flourishing Grapple
+- [x] Fatehold Charm
+- [x] Fatehold Chronologist
+- [x] Fateshaper Aspirant
+- [x] Fblthp, Impossibly Lost
+- [x] Fblthp, Knows the Way
+- [x] Ferocity of the Hunt
+- [x] Flickering Hound
+- [x] Flourishing Grapple
 - [x] Forest
 - [x] Formidable Commons
 - [x] Frostbite Pyromental
 - [x] Fulminous Forte
-- [ ] Gallia, Tragic Host
-- [ ] Gallia, the Merrymaker
-- [ ] Gardenize
-- [ ] Garruk, Curse Breaker
-- [ ] Garruk, Veiled Butcher
+- [x] Gallia, Tragic Host
+- [x] Gallia, the Merrymaker
+- [x] Gardenize
+- [x] Garruk, Curse Breaker
+- [x] Garruk, Veiled Butcher
 - [x] Geist of Saint Thalia
-- [ ] Generous Revival
-- [ ] Germinate Recruits
-- [ ] Ghalta the Immovable
-- [ ] Ghalta the Unstoppable
-- [ ] Gideon the Oathless
-- [ ] Gideon's Memorial
-- [ ] Graft Surgeon
+- [x] Generous Revival
+- [x] Germinate Recruits
+- [x] Ghalta the Immovable
+- [x] Ghalta the Unstoppable
+- [x] Gideon the Oathless
+- [x] Gideon's Memorial
+- [x] Graft Surgeon
 - [x] Greenhouse Propagator
-- [ ] Grim Repriser
-- [ ] Guiding Hydra
-- [ ] Hall of Echoes
-- [ ] Hallway Heckler
-- [ ] Hapatra, the Desert Fang
-- [ ] Hapatra, the Desert Frost
+- [x] Grim Repriser
+- [x] Guiding Hydra
+- [x] Hall of Echoes
+- [x] Hallway Heckler
+- [x] Hapatra, the Desert Fang
+- [x] Hapatra, the Desert Frost
 - [x] Haunted Ridge
 - [x] Heartstring Puller
-- [ ] Heartwood Crafter
-- [ ] Hexhaven Battalion
-- [ ] Hexhaven Dueling Arena
-- [ ] Hexhaven Invigorator
-- [ ] Hungering Puppetbeast
-- [ ] Hunter's Axe
-- [ ] Icy Reception
-- [ ] Identity Echo
-- [ ] Infinite Coursework
-- [ ] Ingris Stingerquill
+- [x] Heartwood Crafter
+- [x] Hexhaven Battalion
+- [x] Hexhaven Dueling Arena
+- [x] Hexhaven Invigorator
+- [x] Hungering Puppetbeast
+- [x] Hunter's Axe
+- [x] Icy Reception
+- [x] Identity Echo
+- [x] Infinite Coursework
+- [x] Ingris Stingerquill
 - [x] Innovative Commons
-- [ ] Inspired Tethermage
+- [x] Inspired Tethermage
 - [x] Island
-- [ ] Jace's Machinations
-- [ ] Jace, Reality Sculptor
-- [ ] Jiang Yanggu, Alone
+- [x] Jace's Machinations
+- [x] Jace, Reality Sculptor
+- [x] Jiang Yanggu, Alone
 - [x] Jiang Yanggu, Never Alone
-- [ ] Karn, Argent Defender
-- [ ] Karn, Gilded Guardian
-- [ ] Keeper of the Quiet Hour
-- [ ] Kindred Judgment
+- [x] Karn, Argent Defender
+- [x] Karn, Gilded Guardian
+- [x] Keeper of the Quiet Hour
+- [x] Kindred Judgment
 - [x] Kiora of Fire and Ashes
-- [ ] Kiora of Salt and Sand
+- [x] Kiora of Salt and Sand
 - [x] Konstrari Annex
 - [x] Konstrari Charm
-- [ ] Konstrari Improviser
+- [x] Konstrari Improviser
 - [x] Koth of the Homestead
 - [x] Koth, the Geomancer
-- [ ] Kwia Vigorbloom
+- [x] Kwia Vigorbloom
 - [x] Last Gasp
-- [ ] Lich's Relic
+- [x] Lich's Relic
 - [x] Liliana the Faultless
-- [ ] Liliana the Repentant
+- [x] Liliana the Repentant
 - [x] Living Library
-- [ ] Loot, the Anomaly
-- [ ] Loot, the Nexus
+- [x] Loot, the Anomaly
+- [x] Loot, the Nexus
 - [x] Loyal Tutor
 - [x] Lyra, Archangel of Dawn
-- [ ] Lyra, Tolarian Archangel
-- [ ] Mabel, Bitter Recluse
-- [ ] Mabel, Valley Hero
+- [x] Lyra, Tolarian Archangel
+- [x] Mabel, Bitter Recluse
+- [x] Mabel, Valley Hero
 - [x] Marwyn, the Clearcutter
 - [x] Marwyn, the Preserver
-- [ ] Massacre Girl, Most Wanted
-- [ ] Master of Barbs
+- [x] Massacre Girl, Most Wanted
+- [x] Master of Barbs
 - [x] Medic's Kitesail
 - [x] Memory Trap
 - [x] Meticulous Commons
-- [ ] Mind Meanderer
-- [ ] Mindseeker Oculus
+- [x] Mind Meanderer
+- [x] Mindseeker Oculus
 - [x] Mountain
 - [x] Multiply by Zero
 - [x] Murmuring Volume
-- [ ] No Admittance
-- [ ] Null Summoner
-- [ ] Omnipresence
+- [x] No Admittance
+- [x] Null Summoner
+- [x] Omnipresence
 - [x] Overgrown Farmland
-- [ ] Overwrite the Multiverse
-- [ ] Paradox Shaper
+- [x] Overwrite the Multiverse
+- [x] Paradox Shaper
 - [x] Perfected Theory
-- [ ] Pia, Aether Ascetic
+- [x] Pia, Aether Ascetic
 - [x] Pia, Determined Rebuilder
 - [x] Plains
-- [ ] Plan for All Outcomes
-- [ ] Pompous Battlemage
+- [x] Plan for All Outcomes
+- [x] Pompous Battlemage
 - [x] Precise Redaction
 - [x] Predictive Preparations
-- [ ] Primal Witchstalker
-- [ ] Proctor of Potential
-- [ ] Proft, Consulting Detective
-- [ ] Proft, Sinister Mastermind
+- [x] Primal Witchstalker
+- [x] Proctor of Potential
+- [x] Proft, Consulting Detective
+- [x] Proft, Sinister Mastermind
 - [x] Prophesied End
-- [ ] Protege's Awakening
-- [ ] Prudent Fateseer
-- [ ] Puppet Crafting
-- [ ] Pyre Rhymer
+- [x] Protege's Awakening
+- [x] Prudent Fateseer
+- [x] Puppet Crafting
+- [x] Pyre Rhymer
 - [x] Rampart Hunter
 - [x] Rank Rat
-- [ ] Recursive Recruitment
+- [x] Recursive Recruitment
 - [x] Refute Destiny
-- [ ] Repurposed Enforcer
+- [x] Repurposed Enforcer
 - [x] Rescue Girl, First Responder
 - [x] Restore with Empathy
 - [x] Return to the Light Realms
-- [ ] Rewrite Regrets
-- [ ] Rise of the Deathbringer
+- [x] Rewrite Regrets
+- [x] Rise of the Deathbringer
 - [x] Rockfall Vale
-- [ ] Roiling Canopy
-- [ ] Room of Refuge
-- [ ] Ruric Thar, Biomagus
-- [ ] Ruric Thar, Magecrusher
-- [ ] Saheeli, Consul of Oversight
+- [x] Roiling Canopy
+- [x] Room of Refuge
+- [x] Ruric Thar, Biomagus
+- [x] Ruric Thar, Magecrusher
+- [x] Saheeli, Consul of Oversight
 - [x] Saheeli, Jewel of Avishkar
 - [x] Samut, Hazoret's Champion
-- [ ] Samut, Tyrant of Naktamun
-- [ ] Sanctum Lurker
+- [x] Samut, Tyrant of Naktamun
+- [x] Sanctum Lurker
 - [x] Screeching Soulbreaker
-- [ ] Seasoned Cryomancer
-- [ ] Semester Foreseer
+- [x] Seasoned Cryomancer
+- [x] Semester Foreseer
 - [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
-- [ ] Silence the Echo
+- [x] Silence the Echo
 - [x] Simulacrum Shaper
 - [x] Skilled Battlecarver
 - [x] Solarium Sentry
-- [ ] Solitary Cell
-- [ ] Solve for Disappointment
-- [ ] Something Worth Saving
-- [ ] Sphinx of False Conclusions
-- [ ] Sphinx's Approach
+- [x] Solitary Cell
+- [x] Solve for Disappointment
+- [x] Something Worth Saving
+- [x] Sphinx of False Conclusions
+- [x] Sphinx's Approach
 - [x] Stingcaster Mage
 - [x] Stingerquill Annex
 - [x] Stingerquill Charm
-- [ ] Stingerquill Voxmancer
-- [ ] Stinging Vitriol
+- [x] Stingerquill Voxmancer
+- [x] Stinging Vitriol
 - [x] Sureshot Sower
 - [x] Surgical Precision
-- [ ] Surveillance Phantasm
+- [x] Surveillance Phantasm
 - [x] Swamp
-- [ ] Tam's Resistance
-- [ ] Tam, the Possibility
-- [ ] Tarmogoyf
-- [ ] Tenured Tethermage
+- [x] Tam's Resistance
+- [x] Tam, the Possibility
+- [x] Tarmogoyf
+- [x] Tenured Tethermage
 - [x] Terminal Criticism
-- [ ] Tether Technician
+- [x] Tether Technician
 - [x] Tethermage's Advantage
 - [x] Tetsuko Umezawa, Fugitive
-- [ ] Tetsuko Umezawa, Pursuer
-- [ ] Teyo, Diamondblade Mage
-- [ ] Teyo, Lightshield Expert
-- [ ] Thalia, the Survivor
+- [x] Tetsuko Umezawa, Pursuer
+- [x] Teyo, Diamondblade Mage
+- [x] Teyo, Lightshield Expert
+- [x] Thalia, the Survivor
 - [x] The Echoverse Fulcrum
-- [ ] The Theorist, Jace Beleren
+- [x] The Theorist, Jace Beleren
 - [x] Theoretical Necromancer
-- [ ] Theorist's Proxy
-- [ ] Theorist's Sanctum
+- [x] Theorist's Proxy
+- [x] Theorist's Sanctum
 - [x] Theorix Annex
 - [x] Theorix Charm
-- [ ] Theorix Metamage
+- [x] Theorix Metamage
 - [x] Tinybones, Pocket Nuisance
 - [x] Titanbones, Towering Heart
-- [ ] Tomik, Izzet Sparkmage
-- [ ] Tomik, Orzhov Lawmage
+- [x] Tomik, Izzet Sparkmage
+- [x] Tomik, Orzhov Lawmage
 - [x] Transformative Commons
-- [ ] Traxos, Academy Guardian
-- [ ] Traxos, Scourge Eternal
-- [ ] Twinned Vision
+- [x] Traxos, Academy Guardian
+- [x] Traxos, Scourge Eternal
+- [x] Twinned Vision
 - [x] Twisted Fates
-- [ ] Uldaros Theorix
+- [x] Uldaros Theorix
 - [x] Undulating Witness
 - [x] Unflinching Hortimancer
 - [x] Unsummon
-- [ ] Variable Chaser
-- [ ] Verdant Kraken
+- [x] Variable Chaser
+- [x] Verdant Kraken
 - [x] Vigorbloom Annex
 - [x] Vigorbloom Charm
-- [ ] Vigorbloom Vanguard
-- [ ] Vindictive Triumph
+- [x] Vigorbloom Vanguard
+- [x] Vindictive Triumph
 - [x] Vinelasher Adept
-- [ ] Violent Echoes
-- [ ] Void Extrapolator
-- [ ] Vraska's Final Mercy
-- [ ] Vraska, Soul of Stone
-- [ ] Vraska, the Cutting Glare
-- [ ] Warrior's Blades
-- [ ] Way of the Cryomancer
-- [ ] Way of the Deathbringer
-- [ ] Way of the Healer
-- [ ] Way of the Mentor
-- [ ] Way of the Mind Sculptor
-- [ ] Way of the Necromancer
-- [ ] Way of the Paradox
-- [ ] Way of the Pyromancer
-- [ ] Way of the Warlord
-- [ ] Way of the Wildspeaker
-- [ ] Whiplash Wordsmith
+- [x] Violent Echoes
+- [x] Void Extrapolator
+- [x] Vraska's Final Mercy
+- [x] Vraska, Soul of Stone
+- [x] Vraska, the Cutting Glare
+- [x] Warrior's Blades
+- [x] Way of the Cryomancer
+- [x] Way of the Deathbringer
+- [x] Way of the Healer
+- [x] Way of the Mentor
+- [x] Way of the Mind Sculptor
+- [x] Way of the Necromancer
+- [x] Way of the Paradox
+- [x] Way of the Pyromancer
+- [x] Way of the Warlord
+- [x] Way of the Wildspeaker
+- [x] Whiplash Wordsmith
 - [x] Winter, Team Player
-- [ ] Winter, Tormented Loner
-- [ ] Woodwork Prodigy
+- [x] Winter, Tormented Loner
+- [x] Woodwork Prodigy
 - [x] Wrath of the Bloodmane
 - [x] Wrecking Gecko
 - [x] Yargle, Glutton of Urborg
 - [x] Yargle, Goliath of Otaria
-- [ ] Yoshimaru, Beloved Companion
-- [ ] Yoshimaru, Scrappy Stray
+- [x] Yoshimaru, Beloved Companion
+- [x] Yoshimaru, Scrappy Stray
 - [x] Your Fate Ends Here
-- [ ] Yuriko, Blade of the Mighty
-- [ ] Yuriko, Hope from the Shadows
+- [x] Yuriko, Blade of the Mighty
+- [x] Yuriko, Hope from the Shadows

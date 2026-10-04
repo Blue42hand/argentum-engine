@@ -1,3 +1,115 @@
+// Angel of the Ruins
+{
+    "name": "Angel of the Ruins",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Artifact Creature — Angel",
+    "oracleText": "Flying\nWhen this creature enters, exile up to two target artifacts and/or enchantments.\nPlainscycling {2} ({2}, Discard this card: Search your library for a Plains card, reveal it, put it into your hand, then shuffle.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}",
+            "searchFilter": {
+                "cardPredicates": [
+                    {
+                        "type": "HasSubtype",
+                        "subtype": "Plains"
+                    }
+                ]
+            },
+            "displayPrefix": "Plainscycling"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Angel of the Ruins:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Exile"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 2,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "artifact|enchantment"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, exile up to two target artifacts and/or enchantments."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "rarity": "RARE",
+        "artist": "Viko Menezes",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/ea96229a-5c33-4f79-97d4-059947dd7617.jpg?1783927610"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Cursed Mirror
+{
+    "name": "Cursed Mirror",
+    "manaCost": "{2}{R}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {R}.\nAs this artifact enters, you may have it become a copy of any creature on the battlefield until end of turn, except it has haste.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Cursed Mirror:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "additionalKeywords": [
+                    "HASTE"
+                ],
+                "duration": "EndOfTurn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "David Gaillet",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/458a01ea-f161-43a4-a6db-88f6418b9c6d.jpg?1783927594"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Laelia, the Blade Reforged
 {
     "name": "Laelia, the Blade Reforged",
@@ -14,7 +126,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Laelia, the Blade Reforged:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -28,11 +140,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "impulseExiled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "impulseExiled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -40,14 +152,13 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "impulseExiled"
+                            "from": "gathered0"
                         }
                     ]
-                },
-                "descriptionOverride": "Whenever Laelia attacks, exile the top card of your library. You may play that card this turn."
+                }
             },
             {
-                "id": "ability_2",
+                "id": "Laelia, the Blade Reforged:2",
                 "trigger": {
                     "type": "CardsPutIntoExileEvent",
                     "fromZones": [
@@ -59,11 +170,10 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
-                },
-                "descriptionOverride": "Whenever one or more cards are put into exile from your library and/or your graveyard, put a +1/+1 counter on Laelia."
+                }
             }
         ]
     },
@@ -75,31 +185,15 @@
         "rulings": [
             {
                 "date": "2024-06-07",
-                "text": "You must follow the normal timing permissions and restrictions while playing the exiled card. If it's a land, you can't play it unless you have land plays available."
-            },
-            {
-                "date": "2024-06-07",
-                "text": "Cards exiled by Laelia, the Blade Reforged are exiled face up."
-            },
-            {
-                "date": "2024-06-07",
-                "text": "You'll still pay all costs for a spell cast this way, including additional costs. You may also pay alternative costs if any are available."
-            },
-            {
-                "date": "2024-06-07",
-                "text": "If a player is instructed to exile cards from their library \"until\" a certain event occurs (for example, because of the triggered ability of a spell with cascade or discover), that player exiles those cards one at a time. Laelia's last ability will trigger that many times."
-            },
-            {
-                "date": "2024-06-07",
-                "text": "If you play a card this way, it leaves exile and becomes a new object. If it returns to exile later in the turn, you can't play it again."
-            },
-            {
-                "date": "2024-06-07",
                 "text": "The last ability triggers only once for each time cards are put into exile from your library and/or graveyard, no matter how many cards were exiled at the same time."
             },
             {
                 "date": "2024-06-07",
                 "text": "Laelia's last triggered ability doesn't care which player is exiling cards from the library or graveyard. Cards put into exile from your library or graveyard for any reason, such as the delve ability, cause the ability to trigger."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If you play a card this way, it leaves exile and becomes a new object. If it returns to exile later in the turn, you can't play it again."
             }
         ]
     },
@@ -117,7 +211,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Monologue Tax:1",
                 "trigger": {
                     "type": "NthSpellCastEvent",
                     "nthSpell": 2,

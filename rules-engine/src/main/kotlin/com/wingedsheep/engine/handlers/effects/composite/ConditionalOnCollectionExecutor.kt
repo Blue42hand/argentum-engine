@@ -19,12 +19,11 @@ import kotlin.reflect.KClass
  * against the configured minimum and delegates to the appropriate sub-effect.
  */
 class ConditionalOnCollectionExecutor(
-    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<ConditionalOnCollectionEffect> {
 
     override val effectType: KClass<ConditionalOnCollectionEffect> = ConditionalOnCollectionEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     override fun execute(
         state: GameState,
@@ -33,15 +32,22 @@ class ConditionalOnCollectionExecutor(
     ): EffectResult {
         val collection = context.pipeline.storedCollections[effect.collection] ?: emptyList()
 
+        val knownCards = collection.filter { it !in context.pipeline.storedCollections[com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.UNDEFINED + ":" + effect.collection].orEmpty() }
         val measuredSize = when {
-            effect.countDistinctCardTypes -> collection.flatMap { entityId ->
+            effect.countDistinctCardTypes -> knownCards.flatMap { entityId ->
                 state.getEntity(entityId)?.get<CardComponent>()?.typeLine?.cardTypes ?: emptySet()
             }.toSet().size
 
             effect.filter != GameObjectFilter.Any -> {
                 val predicateContext = PredicateContext.fromEffectContext(context)
+                val unknown = context.pipeline.storedCollections[
+                    com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.UNDEFINED + ":" + effect.collection
+                ].orEmpty().toSet()
+                val undefinedFilter = com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations
+                    .filterForUndefinedCharacteristics(effect.filter)
                 collection.count { entityId ->
-                    predicateEvaluator.matches(state, state.projectedState, entityId, effect.filter, predicateContext)
+                    val filter = if (entityId in unknown) undefinedFilter else effect.filter
+                    filter != null && predicateEvaluator.matches(state, state.projectedState, entityId, filter, predicateContext)
                 }
             }
 

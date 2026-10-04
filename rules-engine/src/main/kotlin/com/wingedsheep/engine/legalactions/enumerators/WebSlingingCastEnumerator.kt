@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.legalactions.surfacedRequirements
+import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.legalactions.ActionEnumerator
@@ -60,7 +62,7 @@ class WebSlingingCastEnumerator : ActionEnumerator {
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             // Honor cast restrictions exactly like the normal cast path (CR 601.3).
-            if (!context.castPermissionUtils.checkCastRestrictions(
+            if (!context.legality.castRestrictionsMet(
                     state, playerId, cardDef.script.castRestrictions
                 )
             ) continue
@@ -76,12 +78,12 @@ class WebSlingingCastEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
             val targetReqInfos = if (targetReqs.isEmpty()) {
                 emptyList()
             } else {
-                context.targetUtils.buildTargetInfos(state, playerId, targetReqs, cardId)
+                context.targetUtils.buildTargetInfos(state, playerId, targetReqs, cardId, TargetingSourceType.SPELL)
             }
             // A targeted web-slinging spell (e.g. Spider-Sense) is only castable if every
             // requirement has a legal target right now (CR 601.2c).
@@ -119,7 +121,7 @@ class WebSlingingCastEnumerator : ActionEnumerator {
                     targetCount = firstReqInfo?.maxTargets ?: 1,
                     minTargets = firstReq?.effectiveMinCount ?: (firstReq?.count ?: 1),
                     targetDescription = firstReq?.description,
-                    targetRequirements = if (targetReqInfos.size > 1) targetReqInfos else null,
+                    targetRequirements = targetReqInfos.surfacedRequirements(),
                     manaCostString = webSlingMana.toString(),
                     additionalCostInfo = bounceCostInfo,
                     autoTapPreview = autoTapPreview
