@@ -3,6 +3,7 @@ package com.wingedsheep.engine.view
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.core.GameAction
+import com.wingedsheep.engine.core.ActionParameterSpec
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -197,7 +198,9 @@ data class LegalActionInfo(
     val tapForPowerRequired: Int? = null,
     val tapForPowerCreatures: List<TapForPowerCreatureInfo>? = null,
     val modalEnumeration: ModalLegalEnumerationInfo? = null,
-    val holdPriority: Boolean = false
+    val holdPriority: Boolean = false,
+    /** Engine-authored step parameter contract for this offered action. */
+    val parameterSpec: ActionParameterSpec = ActionParameterSpec.EMPTY
 )
 
 /**

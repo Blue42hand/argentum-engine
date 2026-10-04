@@ -22,12 +22,30 @@ class ActionParameterSpecTest : FunSpec({
         )
     }
 
-    test("cast templates expose target and X fields") {
+    test("cast templates expose target, X, and common nonmana payment fields") {
         ActionParameterizer.spec(
             CastSpell(playerId = player, cardId = EntityId("card"))
         ).allowedFields shouldContainExactly mapOf(
             "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "xValue" to ActionParameterFieldKind.INTEGER,
+            "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+        )
+    }
+
+    test("ability templates expose the four common nonmana payment choices") {
+        ActionParameterizer.spec(
+            ActivateAbility(playerId = player, sourceId = EntityId("source"),
+                abilityId = com.wingedsheep.sdk.scripting.AbilityId("ability"))
+        ).allowedFields shouldContainExactly mapOf(
+            "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "xValue" to ActionParameterFieldKind.INTEGER,
+            "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
         )
     }
 

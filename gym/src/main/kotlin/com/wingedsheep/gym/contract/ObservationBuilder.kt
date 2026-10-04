@@ -30,6 +30,7 @@ import com.wingedsheep.engine.core.SplitPilesDecision
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.core.responseSpec
+import com.wingedsheep.engine.core.ActionParameterizer
 import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
@@ -432,6 +433,26 @@ class ObservationBuilder(
             maxTargets = la.targetCount,
             requiresDamageDistribution = la.requiresDamageDistribution,
             isManaAbility = la.isManaAbility,
+            parameterSpec = ActionParameterizer.spec(la),
+            costChoices = la.additionalCostInfo?.let { cost ->
+                NativeCostChoiceView(
+                    costType = cost.costType,
+                    validTapTargets = cost.validTapTargets,
+                    tapCount = cost.tapCount,
+                    validSacrificeTargets = cost.validSacrificeTargets,
+                    sacrificeCount = cost.sacrificeCount,
+                    validDiscardTargets = cost.validDiscardTargets,
+                    discardCount = cost.discardCount,
+                    validExileTargets = cost.validExileTargets,
+                    exileMinCount = cost.exileMinCount,
+                    exileMaxCount = cost.exileMaxCount,
+                    exileMinTotalWeight = cost.exileMinTotalWeight,
+                    exileCardWeights = cost.exileCardWeights,
+                    exileWeightUnit = cost.exileWeightUnit,
+                    exileCardTypes = cost.exileCardTypes,
+                    exileWeightPerTarget = cost.exileWeightPerTarget,
+                )
+            },
             // Combat candidates. The enumerator offers one DeclareAttackers / DeclareBlockers action
             // carrying an empty map, so without these the caller has the action but no way to know
             // what it could declare — and `ActionParams` has nothing to be built from. The two

@@ -88,10 +88,9 @@ internal class CardProjector(
         val frame = frame(state, entityId, zoneKey, projectedState, viewingPlayerId, isSpectator) ?: return null
         val characteristics = characteristics(frame)
 
-        // Handle face-down card masking
-        // Opponents and spectators see modified stats but no card information
-        // Controller sees real card info + morph cost (but not spectators)
-        if (frame.isFaceDown && (isSpectator || frame.controllerId != viewingPlayerId)) {
+        // Handle face-down card masking. A battlefield controller may know their own morph,
+        // but controlling a face-down exiled card does not by itself grant permission to look.
+        if (frame.isFaceDown) {
             // Check if the face-down card has been revealed to the viewing player (e.g., via Spy Network)
             // Also check LookAtFaceDownCreatures (e.g., Lens of Clarity) — only for battlefield creatures,
             // not face-down spells on the stack (per ruling).
@@ -102,11 +101,14 @@ internal class CardProjector(
                 viewingPlayerId,
                 isSpectator,
             )
-            // Face-down exiled cards show minimal info (not creatures, no P/T)
-            return if (zoneKey.zoneType == Zone.EXILE) {
-                hiddenExiledCard(frame, isRevealedToViewer)
-            } else {
-                hiddenFaceDownPermanent(frame, characteristics, isRevealedToViewer)
+            if (isSpectator || frame.controllerId != viewingPlayerId ||
+                (zoneKey.zoneType == Zone.EXILE && !isRevealedToViewer)) {
+                // Face-down exiled cards show minimal info (not creatures, no P/T).
+                return if (zoneKey.zoneType == Zone.EXILE) {
+                    hiddenExiledCard(frame, isRevealedToViewer)
+                } else {
+                    hiddenFaceDownPermanent(frame, characteristics, isRevealedToViewer)
+                }
             }
         }
         return visibleCard(frame, characteristics)

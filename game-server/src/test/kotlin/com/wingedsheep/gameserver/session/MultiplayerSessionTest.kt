@@ -22,8 +22,8 @@ class MultiplayerSessionTest : ScenarioTestBase() {
         mockk(relaxed = true) { every { this@mockk.id } returns id }
 
     /** Build and start a session with [count] seats, each with a 40-Forest deck. */
-    private fun startedSession(count: Int): Pair<GameSession, List<EntityId>> {
-        val session = GameSession(cardRegistry = cardRegistry, maxPlayers = count)
+    private fun startedSession(count: Int, debugMode: Boolean = false): Pair<GameSession, List<EntityId>> {
+        val session = GameSession(cardRegistry = cardRegistry, maxPlayers = count, debugMode = debugMode)
         val ids = (1..count).map { EntityId.of("player-$it") }
         ids.forEachIndexed { i, id ->
             session.addPlayer(PlayerSession(mockWs("ws$i"), id, "Player${i + 1}"), mapOf("Forest" to 40))
@@ -76,6 +76,36 @@ class MultiplayerSessionTest : ScenarioTestBase() {
             }
         }
 
+        test("a two-seat AI update masks a nonempty opponent hand even in local debug mode") {
+            val (session, ids) = startedSession(2, debugMode = true)
+            val ai = ids[0]
+            val opponent = ids[1]
+
+            // Prove this is the local debug configuration that exposed the recorded hand.
+            val debugState = (session.createStateUpdate(ai, emptyList()) as ServerMessage.StateUpdate).state
+            val debugHand = debugState.zones.single {
+                it.zoneId.zoneType == Zone.HAND && it.zoneId.ownerId == opponent
+            }
+            debugHand.cardIds shouldHaveSize 7
+
+            session.clearLastSentState(ai)
+            // GamePlayHandler derives this flag from AiWebSocketSession for broadcasts and resync.
+            val aiState = (session.createStateUpdate(
+                ai, emptyList(), useEngineDecisionIds = true
+            ) as ServerMessage.StateUpdate).state
+            val ownHand = aiState.zones.single {
+                it.zoneId.zoneType == Zone.HAND && it.zoneId.ownerId == ai
+            }
+            val opponentHand = aiState.zones.single {
+                it.zoneId.zoneType == Zone.HAND && it.zoneId.ownerId == opponent
+            }
+            ownHand.cardIds shouldHaveSize 7
+            opponentHand.size shouldBe 7
+            opponentHand.cardIds shouldHaveSize 0
+            opponentHand.isVisible shouldBe false
+            aiState.cards.keys.none { it in debugHand.cardIds } shouldBe true
+        }
+
         test("spectator state carries the full seat roster and masks all hands") {
             val (session, ids) = startedSession(4)
 
@@ -88,6 +118,28 @@ class MultiplayerSessionTest : ScenarioTestBase() {
             handZones.forEach {
                 it.isVisible shouldBe false
                 it.cardIds shouldHaveSize 0
+            }
+        }
+
+        test("a debug session never exposes sideboards to a spectator") {
+            val session = GameSession(cardRegistry = cardRegistry, maxPlayers = 2, debugMode = true)
+            val ids = listOf(EntityId.of("player-1"), EntityId.of("player-2"))
+            ids.forEachIndexed { i, id ->
+                session.addPlayer(
+                    PlayerSession(mockWs("ws$i"), id, "Player${i + 1}"),
+                    mapOf("Forest" to 40),
+                    sideboard = mapOf("Mountain" to 2),
+                )
+            }
+            session.startGame()
+
+            val spectator = session.buildSpectatorState()!!.gameState!!
+            val sideboards = spectator.zones.filter { it.zoneId.zoneType == Zone.SIDEBOARD }
+            sideboards shouldHaveSize 2
+            sideboards.forEach {
+                it.size shouldBe 2
+                it.cardIds shouldHaveSize 0
+                it.isVisible shouldBe false
             }
         }
 

@@ -75,6 +75,9 @@ class GameSession(
     ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true, predicateEvaluator = PredicateEvaluator(cardRegistry = null)) else stateTransformer, useHandSmoother, maxPlayers)
 
     private val cardRegistry: CardRegistry get() = services.cardRegistry
+    // Debug mode is for a local browser view, never for an AI policy's observation. The latter
+    // receives engine decision IDs and must still see only what its seat may legally know.
+    private val aiStateTransformer = ClientStateTransformer(services.cardRegistry, predicateEvaluator = services.predicateEvaluator)
     // Lock for synchronizing state modifications to prevent lost updates
     private val stateLock = Any()
 
@@ -261,7 +264,7 @@ class GameSession(
     private val actionProcessor = ActionProcessor(services)
     private val gameInitializer = GameInitializer(cardRegistry, services.printingRegistry)
     private val autoPassManager = AutoPassManager(cardRegistry)
-    private val spectatorStateBuilder = SpectatorStateBuilder(cardRegistry, stateTransformer)
+    private val spectatorStateBuilder = SpectatorStateBuilder(cardRegistry, aiStateTransformer)
     private val decisionEnricher = DecisionEnricher(cardRegistry)
     private val legalActionEnumerator = LegalActionEnumerator(
         cardRegistry, services.manaSolver, services.costCalculator,
@@ -1051,7 +1054,11 @@ class GameSession(
         val state = gameState ?: return null
         val names = if (useEngineDecisionIds) null else seatIdentities.getOrPut(playerId) { SeatIdentities() }
         names?.forgetUntrackable(state, playerId, visibility)
-        val engineClientState = getClientState(playerId) ?: return null
+        val engineClientState = if (useEngineDecisionIds) {
+            aiStateTransformer.transform(state, playerId)
+        } else {
+            getClientState(playerId) ?: return null
+        }
         val engineLegalActions = getLegalActions(playerId)
 
         // Transform raw engine events to client events

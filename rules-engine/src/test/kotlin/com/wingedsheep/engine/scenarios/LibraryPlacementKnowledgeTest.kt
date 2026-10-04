@@ -6,6 +6,8 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.engine.view.ClientStateTransformer
+import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -219,6 +221,12 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 game.selectCards(listOf(bears))
                 game.resolveStack()
                 game.state.revealedTo(bears) shouldBe setOf(game.player1Id)
+                val beforeShuffle = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
+                val beforeLibrary = beforeShuffle.zones.single {
+                    it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
+                }
+                beforeLibrary.cardIds.first() shouldBe bears
+                beforeShuffle.cards[bears]?.name shouldBe "Grizzly Bears"
 
                 game.castSpell(1, "Shuffle Up Test")
                 game.resolveStack()
@@ -226,6 +234,23 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 withClue("a shuffle wipes what anyone knew about this library's contents") {
                     game.state.revealedTo(bears) shouldBe emptySet()
                 }
+                val afterShuffle = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
+                val afterLibrary = afterShuffle.zones.single {
+                    it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
+                }
+                afterLibrary.size shouldBe 3
+                afterLibrary.cardIds shouldBe emptyList()
+                afterLibrary.positions shouldBe emptyList()
+                afterShuffle.cards.containsKey(bears) shouldBe false
+                // GameSession retains named, ID-bearing public history in the same update.
+                // That history must not identify a position in the freshly shuffled library.
+                val updateWithHistory = afterShuffle.copy(gameLog = listOf(
+                    ClientEvent.CardDrawn(game.player1Id, bears, "Grizzly Bears")
+                ))
+                val historicalId = (updateWithHistory.gameLog.single() as ClientEvent.CardDrawn).cardId
+                updateWithHistory.zones.single {
+                    it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
+                }.cardIds.contains(historicalId) shouldBe false
             }
         }
     }

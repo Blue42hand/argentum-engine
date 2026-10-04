@@ -1,6 +1,9 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.AlternativeCostType
+import com.wingedsheep.engine.core.ActionParameterizer
+import com.wingedsheep.engine.core.ActionParams
+import com.wingedsheep.engine.core.ActionParameterFieldKind
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -15,6 +18,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.assertions.throwables.shouldThrow
 
 /**
  * Force of Negation {1}{U}{U} — Instant.
@@ -44,6 +48,46 @@ class ForceOfNegationScenarioTest : FunSpec({
                 action.useAlternativeCost &&
                 action.alternativeCostType == AlternativeCostType.SELF_ALTERNATIVE
         }
+
+    test("native alternative cast accepts the chosen blue card and rejects a nonblue one") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Island" to 40), startingLife = 20, startingPlayer = 1)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val opponent = driver.activePlayer!!
+        val you = driver.getOpponent(opponent)
+        val bolt = driver.putCardInHand(opponent, "Lightning Bolt")
+        driver.giveMana(opponent, Color.RED)
+        driver.castSpell(opponent, bolt, targets = listOf(you)).error shouldBe null
+        driver.passPriority(opponent)
+
+        val blueFodder = driver.putCardInHand(you, "Counterspell")
+        val nonblue = driver.putCardInHand(you, "Grizzly Bears")
+        val force = driver.putCardInHand(you, "Force of Negation")
+        val offeredLegal = driver.legalActions(you).first { legal ->
+            val action = legal.action as? CastSpell
+            action?.cardId == force && action.useAlternativeCost &&
+                action.alternativeCostType == AlternativeCostType.SELF_ALTERNATIVE
+        }
+        val offered = offeredLegal.action
+        ActionParameterizer.spec(offered).allowedFields["exiledCards"] shouldBe
+            ActionParameterFieldKind.ENTITY_ID_ARRAY
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(
+                offeredLegal, ActionParams(targets = listOf(bolt), exiledCards = listOf(nonblue)), driver.state
+            )
+        }
+
+        val invalid = ActionParameterizer.apply(
+            offered, ActionParams(targets = listOf(bolt), exiledCards = listOf(nonblue)), driver.state
+        )
+        (driver.submit(invalid).error != null) shouldBe true
+        val completed = ActionParameterizer.apply(
+            offered, ActionParams(targets = listOf(bolt), exiledCards = listOf(blueFodder)), driver.state
+        )
+        driver.submit(completed).error shouldBe null
+        driver.getExileCardNames(you) shouldBe listOf("Counterspell")
+        (force in driver.state.stack) shouldBe true
+    }
 
     test("off your turn: pitching a blue card counters the spell and exiles it instead of milling it") {
         val driver = createDriver()

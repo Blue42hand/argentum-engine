@@ -170,7 +170,7 @@ class GameGymEnv(
             is ResolvedAction.Legal -> {
                 // The enumerated action is a template for the action types that need a choice the
                 // ID can't carry (attackers, blockers, targets, X); params complete it.
-                val action = ActionParameterizer.apply(resolved.action, params, environment.state)
+                val action = ActionParameterizer.apply(resolved.legalAction, params, environment.state)
                 environment.step(action)
                 failOnRejection(actionId)
             }

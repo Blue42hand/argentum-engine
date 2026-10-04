@@ -508,17 +508,20 @@ class CostHandler(private val zones: ZoneTransitionService) {
             }
             is AbilityCost.TapXPermanents -> {
                 val xCount = choices.xValue
+                val toTap = choices.tapChoices
+                if (xCount < 0 || toTap.size != xCount || toTap.distinct().size != xCount) {
+                    return CostPaymentResult.failure("Must choose exactly $xCount distinct permanents to tap")
+                }
+                val candidates = findUntappedMatchingPermanentsUnified(state, controllerId, cost.filter)
+                if (toTap.any { it !in candidates }) {
+                    return CostPaymentResult.failure("Chosen permanent is not eligible to tap for this cost")
+                }
                 if (xCount == 0) {
                     CostPaymentResult.success(state, manaPool)
                 } else {
-                    val toTap = choices.tapChoices
-                    if (toTap.size < xCount) {
-                        return CostPaymentResult.failure("Not enough permanents chosen to tap (need $xCount, got ${toTap.size})")
-                    }
-
                     var newState = state
                     val events = mutableListOf<GameEvent>()
-                    for (permanentId in toTap.take(xCount)) {
+                    for (permanentId in toTap) {
                         val (tappedState, event) = tap(newState, permanentId)
                         newState = tappedState
                         event?.let(events::add)
@@ -827,10 +830,16 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 workState = advanced
                 shuffled.take(atom.count)
             } else {
-                if (choices.discardChoices.size < atom.count) {
+                if (choices.discardChoices.size != atom.count || choices.discardChoices.distinct().size != atom.count) {
                     return CostPaymentResult.failure("Must choose ${atom.count} card(s) to discard")
                 }
-                choices.discardChoices.take(atom.count)
+                val eligible = findMatchingCardsUnified(
+                    state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
+                )
+                if (choices.discardChoices.any { it !in eligible }) {
+                    return CostPaymentResult.failure("Chosen card is not a legal discard from your hand")
+                }
+                choices.discardChoices
             }
             val result = zones.discardCards(workState, controllerId, toDiscard)
             CostPaymentResult.success(result.state, manaPool, result.events)
@@ -1102,9 +1111,9 @@ class CostHandler(private val zones: ZoneTransitionService) {
             }
             candidates.take(requiredCount)
         } else {
-            sacrificeChoices.take(requiredCount)
+            sacrificeChoices
         }
-        if (toSacrificeList.size < requiredCount) {
+        if (toSacrificeList.size != requiredCount || toSacrificeList.distinct().size != requiredCount) {
             return CostPaymentResult.failure("Not enough sacrifice targets chosen (need $requiredCount, got ${toSacrificeList.size})")
         }
         // "Sacrifice N ... with different names" — the chosen permanents must be pairwise distinct.
@@ -1123,9 +1132,12 @@ class CostHandler(private val zones: ZoneTransitionService) {
         for (toSacrifice in toSacrificeList) {
             val sacrificeContainer = newState.getEntity(toSacrifice)
                 ?: return CostPaymentResult.failure("Sacrifice target not found")
+            if (toSacrifice !in newState.getBattlefield()) {
+                return CostPaymentResult.failure("Sacrifice target is not on the battlefield")
+            }
             val sacrificeController = projected.getController(toSacrifice)
                 ?: return CostPaymentResult.failure("Sacrifice target has no controller")
-            if (sacrificeController != controllerId || toSacrifice !in state.getBattlefield()) {
+            if (sacrificeController != controllerId) {
                 return CostPaymentResult.failure("Can only sacrifice permanents you control")
             }
             val sacrificeName = sacrificeContainer.get<CardComponent>()?.name ?: "Unknown"
@@ -1308,7 +1320,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
         choices: CostPaymentChoices,
     ): CostPaymentResult {
         val toTap = choices.tapChoices
-        if (toTap.size < atom.count) {
+        if (toTap.size != atom.count || toTap.distinct().size != atom.count) {
             return CostPaymentResult.failure("Not enough permanents chosen to tap (need ${atom.count}, got ${toTap.size})")
         }
         if (atom.excludeSelf && sourceId in toTap) {
@@ -1464,8 +1476,12 @@ class CostHandler(private val zones: ZoneTransitionService) {
 
         val byOwner = exileCandidatesByOwner(state, atom, controllerId, sourceId)
 
+        if (exileChoices.isNotEmpty() &&
+            (exileChoices.size != count || exileChoices.distinct().size != count)) {
+            return CostPaymentResult.failure("Must choose exactly $count distinct card(s) to exile")
+        }
         val toExile = if (exileChoices.isNotEmpty()) {
-            exileChoices.take(count)
+            exileChoices
         } else {
             // Auto-selection has to respect the same-zone constraint, or an engine-direct payment
             // could pick a combination the player could not have chosen.

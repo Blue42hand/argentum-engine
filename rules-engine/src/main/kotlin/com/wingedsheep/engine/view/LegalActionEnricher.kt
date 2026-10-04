@@ -2,6 +2,7 @@ package com.wingedsheep.engine.view
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.ActionParameterizer
 import com.wingedsheep.engine.legalactions.*
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -20,8 +21,8 @@ import com.wingedsheep.sdk.scripting.ChoiceSlot
 /**
  * Thin mapping layer from engine [LegalAction] to server [LegalActionInfo] DTO.
  *
- * Adds presentation-only data: mana source info for the pre-cast UI.
- * The client protocol (LegalActionInfo) remains unchanged.
+ * Adds presentation data, including mana source info for the pre-cast UI and the
+ * engine's offered-action parameter contract for native controllers.
  */
 class LegalActionEnricher(
     private val manaSolver: ManaSolver,
@@ -94,6 +95,7 @@ class LegalActionEnricher(
             actionType = action.actionType,
             description = action.description,
             action = action.action,
+            parameterSpec = ActionParameterizer.spec(action),
             isAffordable = action.affordable,
             validTargets = action.validTargets,
             requiresTargets = action.requiresTargets,

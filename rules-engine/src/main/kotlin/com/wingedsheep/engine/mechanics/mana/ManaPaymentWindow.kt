@@ -137,6 +137,16 @@ object ManaPaymentWindow {
         spellContext: SpellPaymentContext? = null,
     ): FloatResult {
         val paymentContext = spellContext ?: SpellPaymentContext()
+        // A floating pool may already cover the bill, but a submitted source selection is still
+        // an instruction. Reject stale or duplicate IDs before the paid-from-pool fast path.
+        val byId = availableSources.filter { it.entityId !in excludeSources }.associateBy { it.entityId }
+        val actualSources = if (response.selectedSources.isEmpty()) emptyMap()
+            else services.manaSolver.findAvailableManaSources(state, playerId, paymentContext).associateBy { it.entityId }
+        if (response.selectedSources.distinct().size != response.selectedSources.size ||
+            response.selectedSources.any { sourceId ->
+                val actual = actualSources[sourceId]
+                sourceId !in byId || actual == null || actual.restriction?.isSatisfiedBy(paymentContext) == false
+            }) return FloatResult(state, emptyList(), paid = false)
         val remaining = remainingAfterFloating(state, playerId, cost, paymentContext)
         if (response.isDecline(remaining.isEmpty())) return FloatResult(state, emptyList(), paid = false)
         if (remaining.isEmpty()) return FloatResult(state, emptyList(), paid = true)
@@ -167,13 +177,9 @@ object ManaPaymentWindow {
                 }
             }
         } else {
-            val byId = availableSources.filter { it.entityId !in excludeSources }.associateBy { it.entityId }
-            val actualSources = services.manaSolver.findAvailableManaSources(state, playerId, paymentContext).associateBy { it.entityId }
-            if (response.selectedSources.distinct().size != response.selectedSources.size) return FloatResult(state, emptyList(), paid = false)
             for (sourceId in response.selectedSources) {
                 val source = byId[sourceId] ?: return FloatResult(state, emptyList(), paid = false)
                 val actual = actualSources[sourceId] ?: return FloatResult(state, emptyList(), paid = false)
-                if (actual.restriction?.isSatisfiedBy(paymentContext) == false) return FloatResult(state, emptyList(), paid = false)
                 val tapped = tapOrSacrifice(zones, current, sourceId, source, playerId)
                 current = tapped.first
                 events.addAll(tapped.second)
