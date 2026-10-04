@@ -2384,6 +2384,11 @@ data object BlockerDeclarationPolicyChangedEvent : GameEvent
 @SerialName("StaticAbilityGrantedEvent")
 data class StaticAbilityGrantedEvent(val entityId: EntityId) : GameEvent
 
+/** A copy exception added intrinsic triggered rules text to an existing permanent. */
+@Serializable
+@SerialName("CopiableTriggeredAbilityAddedEvent")
+data class CopiableTriggeredAbilityAddedEvent(val entityId: EntityId) : GameEvent
+
 /** New pairings, with the two creature-level transitions kept distinct from new edges. */
 interface BlockingRelationshipsEvent {
     val blockers: Map<EntityId, List<EntityId>>
