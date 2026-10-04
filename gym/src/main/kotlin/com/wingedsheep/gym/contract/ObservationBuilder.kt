@@ -122,9 +122,7 @@ class ObservationBuilder(
             val play = state.pendingDecision as com.wingedsheep.engine.core.PlayCardDecision
             val visiblePlays = if (canSeePlay) legalActions else emptyList()
             legalActionViews = visiblePlays.mapIndexed { idx, la -> legalActionToView(idx, la).copy(isDecisionOption = true) }
-            actionRegistry = ActionRegistry.ofDecisionResponses(visiblePlays.map {
-                com.wingedsheep.engine.core.PlayCardResponse(play.id, it.action)
-            })
+            actionRegistry = ActionRegistry.ofPlayCardResponses(play.id, visiblePlays)
             if (visiblePlays.isNotEmpty()) {
                 pendingDecisionView = pendingDecisionView?.copy(
                     requiresStructuredResponse = false,
