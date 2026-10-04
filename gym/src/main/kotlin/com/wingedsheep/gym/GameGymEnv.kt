@@ -3,8 +3,8 @@ package com.wingedsheep.gym
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.SubmitDecision
-import com.wingedsheep.gym.contract.ActionParameterizer
-import com.wingedsheep.gym.contract.ActionParams
+import com.wingedsheep.engine.core.ActionParameterizer
+import com.wingedsheep.engine.core.ActionParams
 import com.wingedsheep.gym.contract.ActionRegistry
 import com.wingedsheep.gym.contract.ObservationBuilder
 import com.wingedsheep.gym.contract.ObservationResult
@@ -175,12 +175,15 @@ class GameGymEnv(
                 failOnRejection(actionId)
             }
             is ResolvedAction.Decision -> {
-                require(params.isEmpty) {
-                    "Action ID $actionId is a folded decision response and takes no step params"
+                val response = if (resolved.response is com.wingedsheep.engine.core.PlayCardResponse) {
+                    resolved.response.copy(action = ActionParameterizer.apply(resolved.response.action, params, environment.state))
+                } else {
+                    require(params.isEmpty) { "Action ID $actionId is a folded decision response and takes no step params" }
+                    resolved.response
                 }
                 val pending = environment.state.pendingDecision
                     ?: throw IllegalStateException("Registry has a decision response but env is not paused")
-                environment.step(SubmitDecision(pending.playerId, resolved.response))
+                environment.step(SubmitDecision(pending.playerId, response))
                 failOnRejection(actionId)
             }
             ResolvedAction.Unknown ->

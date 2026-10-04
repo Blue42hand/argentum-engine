@@ -3,7 +3,6 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.player.AdditionalPhasesComponent
 import com.wingedsheep.engine.state.components.player.ExtraPhaseKind
-import com.wingedsheep.engine.state.components.player.QueuedPhase
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.AllOutAssault
@@ -14,6 +13,7 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Tests for All-Out Assault (Tarkir: Dragonstorm) and, through it, the one-shot
@@ -24,7 +24,7 @@ import io.kotest.matchers.shouldBe
  * your main phase, there is an additional combat phase after this phase followed by an
  * additional main phase. When you next attack this turn, untap each creature you control."
  *
- * The delayed trigger is modeled with `CreateDelayedTriggerEffect(trigger = Triggers.YouAttack,
+ * The delayed trigger is modeled with `CreateDelayedTriggerEffect(trigger = Triggers.you.attacks(),
  * fireOnce = true)`: it fires the first time you declare attackers this turn, then removes
  * itself — so a later attack the same turn (here, the bonus combat) won't untap again.
  */
@@ -73,13 +73,13 @@ class AllOutAssaultTest : FunSpec({
         driver.resolveAllOutAssault(attacker)
 
         // The extra combat phase followed by an extra main phase is queued on the controller.
-        driver.state.getEntity(attacker)?.get<AdditionalPhasesComponent>() shouldBe
-            AdditionalPhasesComponent(listOf(QueuedPhase(ExtraPhaseKind.COMBAT), QueuedPhase(ExtraPhaseKind.MAIN)))
+        driver.state.getEntity(attacker)?.get<AdditionalPhasesComponent>()?.phases.orEmpty().map { it.kind } shouldBe
+            listOf(ExtraPhaseKind.COMBAT, ExtraPhaseKind.MAIN)
 
         // Exactly one event-based, one-shot delayed trigger ("when you next attack this turn").
         val delayed = driver.state.delayedTriggers
         delayed.size shouldBe 1
-        delayed.first().trigger shouldBe com.wingedsheep.sdk.dsl.Triggers.YouAttack
+        delayed.first().trigger shouldBe Triggers.you.attacks()
         delayed.first().fireOnce shouldBe true
     }
 

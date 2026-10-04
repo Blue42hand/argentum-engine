@@ -12,10 +12,11 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Guide of Souls (MH3) — proves the two new pieces the card needed: the player-scoped Energy
- * "get 1 on another creature ETB" trigger, and [com.wingedsheep.sdk.scripting.effects.PayFixedCountersEffect]
+ * "get 1 on another creature ETB" trigger, and [com.wingedsheep.sdk.scripting.effects.PayExactCountersEffect]
  * as the all-or-nothing action half of a reflexive "may pay {E}{E}{E}. When you do, ..." ability.
  */
 class GuideOfSoulsScenarioTest : FunSpec({
@@ -201,7 +202,7 @@ class GuideOfSoulsScenarioTest : FunSpec({
         // Active player passes priority on the newly-stacked ability; the opponent responds
         // instead of passing, Bolting the now-locked-in target before it resolves.
         d.passPriority(active)
-        d.castSpell(opp, boltId, listOf(bears)).isSuccess shouldBe true
+        d.castSpell(opp, boltId, listOf(bears)).outcome shouldBe Outcome.Done
         d.bothPass() // resolve Lightning Bolt: 3 damage kills the 2/2 Grizzly Bears
         d.bothPass() // the reflexive ability tries to resolve; its only target is now illegal
 

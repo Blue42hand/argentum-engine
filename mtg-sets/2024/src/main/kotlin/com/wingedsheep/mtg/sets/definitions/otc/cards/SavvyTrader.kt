@@ -34,9 +34,8 @@ val SavvyTrader = card("Savvy Trader") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
-            "target permanent card from your graveyard",
             TargetObject(filter = TargetFilter.PermanentInYourGraveyard),
         )
         effect = Effects.ExileAndGrantOwnerPlayPermission(card)

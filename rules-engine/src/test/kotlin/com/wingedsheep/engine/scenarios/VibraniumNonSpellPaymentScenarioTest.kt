@@ -1,5 +1,9 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
+
+
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
@@ -20,19 +24,22 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.AttackTax
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.core.ManaCost
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+
+private val ExecutionResult.isSuccess: Boolean get() = outcome == Outcome.Done
+private val ExecutionResult.isPaused: Boolean get() = outcome is Outcome.Paused
 
 class VibraniumNonSpellPaymentScenarioTest : FunSpec({
     val maker = card("Test Create Vibranium For Payment") {
@@ -45,20 +52,20 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         typeLine = "Creature — Bear"
         power = 2
         toughness = 2
-        keywordAbility(KeywordAbility.ward("{1}"))
+        keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
     }
     val wardTwoBear = card("Test Vibranium Ward Two Bear") {
         manaCost = "{1}{G}"
         typeLine = "Creature — Bear"
         power = 2
         toughness = 2
-        keywordAbility(KeywordAbility.ward("{2}"))
+        keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     }
     val smash = card("Test Vibranium Smash") {
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            val target = target("target creature", Targets.Creature)
+            val target = target(TargetFilter.Creature)
             effect = Effects.Destroy(target)
         }
     }
@@ -73,15 +80,15 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
-            effect = MayPayManaEffect(ManaCost.parse("{1}"), Effects.GainLife(1))
+            trigger = Triggers.self.enters()
+            effect = Effects.MayPay(ManaCost.parse("{1}"), Effects.GainLife(1))
         }
     }
     val counterUnlessPay = card("Test Vibranium Counter Unless Pay") {
         manaCost = "{0}"
         typeLine = "Instant"
         spell {
-            target = Targets.Spell
+            target(TargetFilter.SpellOnStack)
             effect = Effects.CounterUnlessPays("{1}")
         }
     }

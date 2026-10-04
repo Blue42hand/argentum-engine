@@ -19,7 +19,7 @@ val EaterOfDays = card("Eater of Days") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SkipNextTurn(count = DynamicAmount.Fixed(2))
     }
 

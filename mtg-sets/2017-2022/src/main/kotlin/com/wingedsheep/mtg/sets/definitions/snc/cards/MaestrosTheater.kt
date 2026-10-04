@@ -24,18 +24,18 @@ val MaestrosTheater = card("Maestros Theater") {
     oracleText = MAESTROS_THEATER_ORACLE
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ReflexiveTriggerEffect(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.Composite(
+            reflexiveEffect = Effects.Composite(listOf(
                 Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand.withAnySubtype("Island", "Swamp", "Mountain"),
                     destination = SearchDestination.BATTLEFIELD,
                     entersTapped = true,
                 ),
                 Effects.GainLife(1),
-            ),
+            )),
             descriptionOverride = "Sacrifice this land. When you do, search your library for a basic Island, Swamp, or Mountain card, put it onto the battlefield tapped, then shuffle and you gain 1 life.",
         )
         description = MAESTROS_THEATER_ORACLE

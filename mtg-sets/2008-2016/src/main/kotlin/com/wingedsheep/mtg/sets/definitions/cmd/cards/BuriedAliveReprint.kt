@@ -3,7 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.cmd.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Buried Alive reprint; the canonical definition lives in its earliest expansion. */
+/**
+ * Buried Alive reprint in Commander. Canonical [com.wingedsheep.sdk.model.CardDefinition]
+ * lives in Weatherlight's `cards/` package; this file contributes only presentation data.
+ */
 val BuriedAliveReprint = Printing(
     oracleId = "8203c621-a1a0-4865-8c9a-0d4064c86107",
     name = "Buried Alive",

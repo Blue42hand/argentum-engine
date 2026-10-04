@@ -2,7 +2,8 @@ package com.wingedsheep.mtg.sets.definitions.sth.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
@@ -24,7 +25,7 @@ val Conviction = card("Conviction") {
         "Enchanted creature gets +1/+3.\n" +
         "{W}: Return this Aura to its owner's hand."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     staticAbility {
         ability = ModifyStats(1, 3)

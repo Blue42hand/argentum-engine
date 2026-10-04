@@ -43,7 +43,7 @@ val DwarvenMine = card("Dwarven Mine") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.SourceIsUntapped
         effect = Effects.CreateToken(
             power = 1,

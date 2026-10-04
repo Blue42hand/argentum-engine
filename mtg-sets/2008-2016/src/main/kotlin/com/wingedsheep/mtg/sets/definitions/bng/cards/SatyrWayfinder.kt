@@ -19,7 +19,7 @@ val SatyrWayfinder = card("Satyr Wayfinder") {
         "put a land card from among them into your hand. Put the rest into your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val revealed = gather(
                 CardSource.TopOfLibrary(DynamicAmount.Fixed(4)),

@@ -13,11 +13,11 @@ val SignInBlood = card("Sign in Blood") {
     oracleText = "Target player draws two cards and loses 2 life."
 
     spell {
-        val player = target("target player", TargetPlayer())
-        effect = Effects.Composite(
+        val player = target(TargetPlayer())
+        effect = Effects.Composite(listOf(
             Effects.DrawCards(2, player),
             Effects.LoseLife(2, player),
-        )
+        ))
     }
 
     metadata {

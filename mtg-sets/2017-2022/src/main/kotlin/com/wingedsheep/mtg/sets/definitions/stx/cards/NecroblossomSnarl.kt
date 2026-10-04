@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.OnEnterRunEffect
+import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -25,7 +25,7 @@ val NecroblossomSnarl = card("Necroblossom Snarl") {
         "If you don't, this land enters tapped.\n{T}: Add {B} or {G}."
 
     replacementEffect(
-        OnEnterRunEffect(
+        OnEnterRun(
             Effects.MayRevealCardFromHand(
                 filter = GameObjectFilter.Land.withAnySubtype("Swamp", "Forest"),
                 otherwise = Effects.Tap(EffectTarget.Self),

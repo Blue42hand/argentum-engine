@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.room
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.DoorUnlockedEvent
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
@@ -7,10 +8,8 @@ import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.RoomFullyUnlockedEvent
-import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.UnlockRoomDoor
-import com.wingedsheep.engine.event.TriggerDetector
-import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.actions.ActionHandler
 import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
@@ -42,8 +41,6 @@ import kotlin.reflect.KClass
 class UnlockRoomDoorHandler(
     private val manaSolver: ManaSolver,
     private val costHandler: CostHandler,
-    private val triggerDetector: TriggerDetector,
-    private val triggerProcessor: TriggerProcessor,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
     cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
 ) : ActionHandler<UnlockRoomDoor> {
@@ -113,8 +110,10 @@ class UnlockRoomDoorHandler(
                     red = poolComponent.red,
                     green = poolComponent.green,
                     colorless = poolComponent.colorless,
-                    restrictedMana = poolComponent.restrictedMana
-                )
+                    restrictedMana = poolComponent.restrictedMana,
+                    snowMana = poolComponent.snowMana,
+                    snowColorless = poolComponent.snowColorless
+                ).withSpendingColors(state, action.playerId)
                 if (!costHandler.canPayManaCost(pool, cost, unlockContext)) {
                     return "Insufficient mana in pool to unlock ${face.name}"
                 }
@@ -166,8 +165,10 @@ class UnlockRoomDoorHandler(
                     red = poolComponent.red,
                     green = poolComponent.green,
                     colorless = poolComponent.colorless,
-                    restrictedMana = poolComponent.restrictedMana
-                )
+                    restrictedMana = poolComponent.restrictedMana,
+                    snowMana = poolComponent.snowMana,
+                    snowColorless = poolComponent.snowColorless
+                ).withSpendingColors(currentState, action.playerId)
                 val newPool = costHandler.payManaCost(pool, cost, unlockContext)
                     ?: return ExecutionResult.error(currentState, "Insufficient mana in pool")
                 currentState = currentState.updateEntity(action.playerId) { c ->
@@ -179,7 +180,9 @@ class UnlockRoomDoorHandler(
                             red = newPool.red,
                             green = newPool.green,
                             colorless = newPool.colorless,
-                            restrictedMana = newPool.restrictedMana
+                            restrictedMana = newPool.restrictedMana,
+                            snowMana = newPool.snowMana,
+                            snowColorless = newPool.snowColorless
                         )
                     )
                 }
@@ -206,8 +209,10 @@ class UnlockRoomDoorHandler(
                     red = poolComponent.red,
                     green = poolComponent.green,
                     colorless = poolComponent.colorless,
-                    restrictedMana = poolComponent.restrictedMana
-                )
+                    restrictedMana = poolComponent.restrictedMana,
+                    snowMana = poolComponent.snowMana,
+                    snowColorless = poolComponent.snowColorless
+                ).withSpendingColors(currentState, action.playerId)
                 val partialResult = pool.payPartial(cost, unlockContext)
                 val poolAfterPayment = partialResult.newPool
                 val remainingCost = partialResult.remainingCost
@@ -229,7 +234,9 @@ class UnlockRoomDoorHandler(
                             red = poolAfterPayment.red,
                             green = poolAfterPayment.green,
                             colorless = poolAfterPayment.colorless,
-                            restrictedMana = poolAfterPayment.restrictedMana
+                            restrictedMana = poolAfterPayment.restrictedMana,
+                            snowMana = poolAfterPayment.snowMana,
+                            snowColorless = poolAfterPayment.snowColorless
                         )
                     )
                 }
@@ -270,9 +277,9 @@ class UnlockRoomDoorHandler(
             }
             is PaymentStrategy.Explicit -> {
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvent) = tap(currentState, sourceId)
+                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
                     currentState = tappedState
-                    tapEvent?.let(events::add)
+                    events.addAll(tapEvents)
                 }
             }
         }
@@ -285,22 +292,6 @@ class UnlockRoomDoorHandler(
         currentState = stateAfterUnlock
         events.addAll(unlockEvents)
 
-        // Detect and process triggers from the door-unlock events.
-        val triggers = triggerDetector.detectTriggers(currentState, events)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = triggerProcessor.processTriggers(currentState, triggers)
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state.withPriority(action.playerId),
-                    events + triggerResult.events
-                )
-            }
-            return ExecutionResult.success(
-                triggerResult.newState.withPriority(action.playerId),
-                events + triggerResult.events
-            )
-        }
-
         // Player retains priority after the special action; clear priorityPassedBy so
         // the opponent's prior pass doesn't carry over.
         return ExecutionResult.success(currentState.withPriority(action.playerId), events)
@@ -311,8 +302,6 @@ class UnlockRoomDoorHandler(
             UnlockRoomDoorHandler(
                 manaSolver = services.manaSolver,
                 costHandler = services.costHandler,
-                triggerDetector = services.triggerDetector,
-                triggerProcessor = services.triggerProcessor,
                 manaAbilitySideEffectExecutor = services.manaAbilitySideEffectExecutor,
                 cardRegistry = services.cardRegistry,
             )

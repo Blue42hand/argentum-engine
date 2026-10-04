@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.all.cards
 
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -30,7 +30,7 @@ val ArcaneDenial = card("Arcane Denial") {
         "You draw a card at the beginning of the next turn's upkeep."
 
     spell {
-        target("target spell", Targets.Spell)
+        target(TargetFilter.SpellOnStack)
         effect = Effects.Pipeline {
             val spell = gather(CardSource.ChosenTargets, name = "deniedSpell")
             val controllers = captureControllers(spell, name = "deniedControllers")

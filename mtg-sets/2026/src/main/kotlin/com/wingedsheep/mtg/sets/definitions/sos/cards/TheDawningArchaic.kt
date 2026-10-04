@@ -11,9 +11,8 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
+import com.wingedsheep.sdk.scripting.effects.AfterResolveDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Dawning Archaic — Secrets of Strixhaven #1
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *
  * Cost reduction reuses [ModifySpellCost] + [CostReductionSource.CardsInGraveyardMatchingFilter]
  * (Eddymurk Crab). The attack trigger mirrors Daring Waverider: move the targeted card to exile,
- * then [Effects.GrantFreeCastTargetFromExile] with `exileAfterResolve = true` so the cast spell
+ * then [Effects.GrantFreeCastTargetFromExile] with `insteadOfGraveyard = AfterResolveDestination.EXILE` so the cast spell
  * is exiled rather than returning to the graveyard.
  */
 val TheDawningArchaic = card("The Dawning Archaic") {
@@ -56,15 +55,13 @@ val TheDawningArchaic = card("The Dawning Archaic") {
 
     // On attack: cast a target instant/sorcery from your graveyard for free, exiling it after.
     triggeredAbility {
-        trigger = Triggers.Attacks
-        target = TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
-        effect = Effects.Composite(
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+        val target = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
+        trigger = Triggers.self.attacks()
+        effect = Effects.Move(target, Zone.EXILE) then
             Effects.GrantFreeCastTargetFromExile(
-                target = EffectTarget.ContextTarget(0),
-                exileAfterResolve = true,
-            ),
-        )
+                target = target,
+                insteadOfGraveyard = AfterResolveDestination.EXILE,
+            )
     }
 
     metadata {

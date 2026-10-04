@@ -19,6 +19,7 @@ class CreatureTypeChoiceContinuationResumer(
         resumer(NoteCreatureTypePipelineContinuation::class, ::resumeNoteCreatureType),
         resumer(BecomeCreatureTypeContinuation::class, ::resumeBecomeCreatureType),
         resumer(ChooseCardTypeForProtectionContinuation::class, ::resumeChooseCardTypeForProtection),
+        resumer(ChooseColorOrColorlessForProtectionContinuation::class, ::resumeChooseColorOrColorlessForProtection),
         resumer(EachPlayerChoosesCreatureTypeContinuation::class, ::resumeEachPlayerChoosesCreatureType)
     )
 
@@ -76,12 +77,61 @@ class CreatureTypeChoiceContinuationResumer(
     }
 
     /**
+     * Resume after the controller chose colorless or a color for
+     * [com.wingedsheep.sdk.scripting.effects.GrantProtectionFromColorlessOrChosenColorEffect]
+     * (Angelic Intervention). Grants the target a floating `PROTECTION_FROM_<QUALITY>` keyword.
+     */
+    fun resumeChooseColorOrColorlessForProtection(
+        state: GameState,
+        continuation: ChooseColorOrColorlessForProtectionContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is OptionChosenResponse) {
+            return ExecutionResult.error(state, "Expected option choice response for protection quality selection")
+        }
+
+        val quality = continuation.qualities.getOrNull(response.optionIndex)
+            ?: return ExecutionResult.error(state, "Invalid protection quality index: ${response.optionIndex}")
+
+        val targetId = continuation.targetId
+        if (targetId !in state.getBattlefield()) {
+            return checkForMore(state, emptyList())
+        }
+
+        val targetName = state.getEntity(targetId)?.get<CardComponent>()?.name ?: "permanent"
+        val context = EffectContext(
+            sourceId = continuation.sourceId,
+            objectReferences = continuation.objectReferences,
+            controllerId = continuation.controllerId
+        )
+        val newState = state.addFloatingEffect(
+            layer = Layer.ABILITY,
+            modification = SerializableModification.GrantProtectionFromColor(quality),
+            affectedEntities = setOf(targetId),
+            duration = continuation.duration,
+            context = context
+        )
+
+        val events = listOf(
+            KeywordGrantedEvent(
+                targetId = targetId,
+                targetName = targetName,
+                keyword = "Protection from ${quality.lowercase()}",
+                sourceName = continuation.sourceName ?: "Unknown"
+            )
+        )
+
+        return checkForMore(newState, events)
+    }
+
+    /**
      * Resume after player chose a generic option in a pipeline context.
      *
      * Injects the chosen value into every EffectContinuation on the stack
      * (via chosenValues map) so any downstream pipeline effect — including
      * ones in outer composites that wrap the choice (e.g., a ChooseOption
-     * nested inside a MayEffect inside an outer CompositeEffect) — can
+     * nested inside a Effects.May inside an outer CompositeEffect) — can
      * read it via EffectContext.chosenValues[storeAs].
      *
      * Special case: when storeAs == "chosenCreatureType", additionally
@@ -293,7 +343,7 @@ class CreatureTypeChoiceContinuationResumer(
     /**
      * Copy [chosenValue] into `chosenValues[storeAs]` on every [EffectContinuation] frame, so a
      * downstream pipeline step inside the same composite — or in an outer composite that wraps
-     * the choice (a `ChooseOption` nested inside a `MayEffect` inside a `CompositeEffect`) —
+     * the choice (a `ChooseOption` nested inside a `Effects.May` inside a `CompositeEffect`) —
      * reads the same value the original chooser saw. Non-effect frames pass through unchanged.
      *
      * Pass [mirrorChosenCreatureType] = true to also write the value into the legacy

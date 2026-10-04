@@ -35,7 +35,6 @@ val HallOfHeliodsGenerosity = card("Hall of Heliod's Generosity") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap)
         val target = target(
-            "target enchantment card in your graveyard",
             TargetObject(
                 filter = TargetFilter(
                     GameObjectFilter.Enchantment.ownedByYou(),

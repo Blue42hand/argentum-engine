@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -30,15 +30,15 @@ val MerEkNightblade = card("Mer-Ek Nightblade") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // Each creature you control with a +1/+1 counter on it has deathtouch.
-    staticAbility { ability = GrantKeywordByCounter(Keyword.DEATHTOUCH, Counters.PLUS_ONE_PLUS_ONE, controllerOnly = true) }
+    staticAbility { ability = GrantKeywordByCounter(Keyword.DEATHTOUCH, CounterType.PLUS_ONE_PLUS_ONE, controllerOnly = true) }
 
     metadata {
         rarity = Rarity.UNCOMMON
-        collectorNumber = "81"
+        collectorNumber = "79"
         artist = "Lucas Graciano"
         flavorText = "The blades of the Mer-Ek are as poisonous as their intentions."
         imageUri = "https://cards.scryfall.io/normal/front/f/e/fe8589b2-9527-46ba-bf9e-0dec7d84d5d2.jpg?1562796624"

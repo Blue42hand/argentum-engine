@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mh2.cards
 
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -29,7 +30,7 @@ val TirelessProvisioner = card("Tireless Provisioner") {
         "artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")"
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(Effects.CreateFood(), "Create a Food token"),
             Mode.noTarget(Effects.CreateTreasure(), "Create a Treasure token"),

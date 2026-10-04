@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.c17.cards
 
+import com.wingedsheep.sdk.core.Step
+
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -45,7 +47,7 @@ val HeraldsHorn = card("Herald's Horn") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(
@@ -54,9 +56,7 @@ val HeraldsHorn = card("Herald's Horn") {
                 ),
                 FilterCollectionEffect(
                     from = "lookedCard",
-                    filter = CollectionFilter.MatchesFilter(
-                        GameObjectFilter.Creature.withChosenSubtype()
-                    ),
+                    filter = GameObjectFilter.Creature.withChosenSubtype(),
                     storeMatching = "matchingCreature",
                     storeNonMatching = "nonmatchingCard",
                 ),

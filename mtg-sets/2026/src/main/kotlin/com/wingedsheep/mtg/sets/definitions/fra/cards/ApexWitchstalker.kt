@@ -20,11 +20,11 @@ val ApexWitchstalker = card("Apex Witchstalker") {
     keywordAbility(KeywordAbility.basicLandcycling(ManaCost.parse("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(2)
     }
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.GainLife(2)
     }
 

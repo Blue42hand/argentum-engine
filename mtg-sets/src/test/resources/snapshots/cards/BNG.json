@@ -7,19 +7,16 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Astral Cornucopia:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     }
                 },
@@ -31,10 +28,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithDynamicCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": "XValue"
             }
         ]
@@ -111,7 +105,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Satyr Wayfinder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -190,7 +184,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stratus Walk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -272,7 +266,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Temple of Enlightenment:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -285,7 +279,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Temple of Enlightenment:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -295,7 +289,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Temple of Enlightenment:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -330,7 +324,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Temple of Malice:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -343,7 +337,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Temple of Malice:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -353,7 +347,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Temple of Malice:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -388,7 +382,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Temple of Plenty:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -401,7 +395,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Temple of Plenty:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -411,7 +405,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Temple of Plenty:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",

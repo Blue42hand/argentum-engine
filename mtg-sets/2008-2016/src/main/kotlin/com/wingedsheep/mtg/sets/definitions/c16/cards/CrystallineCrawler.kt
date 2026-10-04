@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.c16.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -23,7 +23,7 @@ val CrystallineCrawler = card("Crystalline Crawler") {
     convergeEntersWithCounters()
 
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.PLUS_ONE_PLUS_ONE)
+        cost = Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.AddAnyColorMana()
         manaAbility = true
         timing = TimingRule.ManaAbility
@@ -31,7 +31,7 @@ val CrystallineCrawler = card("Crystalline Crawler") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

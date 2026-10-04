@@ -9,7 +9,7 @@ import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -29,7 +29,7 @@ class VibraniumTokenScenarioTest : ScenarioTestBase() {
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            val artifact = target("target artifact", Targets.Artifact)
+            val artifact = target(TargetFilter.Artifact)
             effect = Effects.Destroy(artifact)
         }
     }

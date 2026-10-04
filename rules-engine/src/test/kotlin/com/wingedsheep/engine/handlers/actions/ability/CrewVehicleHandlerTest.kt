@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
 import com.wingedsheep.engine.core.CrewVehicle
+import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -11,6 +12,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import com.wingedsheep.engine.core.Outcome
+import io.kotest.matchers.shouldNotBe
 
 /**
  * Handler-level tests for [CrewVehicleHandler] covering the validation branches
@@ -49,7 +52,7 @@ class CrewVehicleHandlerTest : FunSpec({
         // opponent doesn't have priority here — active player does
         val result = driver.submit(CrewVehicle(opponent, vehicle, listOf(bears)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("priority")
     }
 
@@ -62,7 +65,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(bears)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("not on the battlefield")
     }
 
@@ -75,7 +78,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(bears)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("don't control this vehicle")
     }
 
@@ -88,7 +91,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, notAVehicle, listOf(bears)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("doesn't have crew")
     }
 
@@ -99,7 +102,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, emptyList()))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("at least one creature")
     }
 
@@ -110,7 +113,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(vehicle)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("cannot crew itself")
     }
 
@@ -122,7 +125,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(forest)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("Not a creature")
     }
 
@@ -135,7 +138,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(force)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("already tapped")
     }
 
@@ -148,7 +151,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(theirCreature)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         result.error.shouldNotBeNull().shouldContain("don't control creature")
     }
 
@@ -161,7 +164,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(bears)))
 
-        result.isSuccess shouldBe false
+        result.outcome shouldNotBe Outcome.Done
         val err = result.error.shouldNotBeNull()
         err.shouldContain("Total power")
         err.shouldContain("less than crew requirement")
@@ -178,7 +181,7 @@ class CrewVehicleHandlerTest : FunSpec({
         val before = driver.stackSize
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(bearsA, bearsB)))
 
-        result.isSuccess shouldBe true
+        result.outcome shouldBe Outcome.Done
         driver.isTapped(bearsA) shouldBe true
         driver.isTapped(bearsB) shouldBe true
         // The Vehicle itself is NOT tapped by crewing — only the crew creatures.
@@ -203,7 +206,7 @@ class CrewVehicleHandlerTest : FunSpec({
 
         val result = driver.submit(CrewVehicle(player, vehicle, listOf(force)))
 
-        result.isSuccess shouldBe true
+        result.outcome shouldBe Outcome.Done
         driver.isTapped(force) shouldBe true
     }
 
@@ -216,7 +219,7 @@ class CrewVehicleHandlerTest : FunSpec({
         // Sanity check: Weatherlight is an artifact, not a creature, before crewing.
         driver.state.projectedState.isCreature(vehicle) shouldBe false
 
-        driver.submit(CrewVehicle(player, vehicle, listOf(force))).isSuccess shouldBe true
+        driver.submit(CrewVehicle(player, vehicle, listOf(force))).outcome shouldBe Outcome.Done
         // Resolve the crew activation currently on the stack.
         var guard = 0
         while (driver.stackSize > 0 && guard < 10) {
@@ -230,5 +233,10 @@ class CrewVehicleHandlerTest : FunSpec({
         projected.isCreature(vehicle) shouldBe true
         projected.getPower(vehicle) shouldBe 4
         projected.getToughness(vehicle) shouldBe 5
+        // Crew only adds the creature type (CR 702.122a); it never sets P/T, so an earlier base-P/T
+        // effect (Kudo, King Among Bears) is not overwritten by a later crew.
+        driver.state.floatingEffects.none {
+            it.effect.layer == Layer.POWER_TOUGHNESS && vehicle in it.effect.affectedEntities
+        } shouldBe true
     }
 })

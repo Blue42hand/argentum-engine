@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.conflux.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -40,13 +39,13 @@ val PathToExile = card("Path to Exile") {
         "put that card onto the battlefield tapped, then shuffle."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.Exile(creature) then MayEffect(
-            effect = Effects.Composite(
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.Exile(creature) then Effects.May(
+            effect = Effects.Composite(listOf(
                 GatherCardsEffect(
                     source = CardSource.FromZone(
                         zone = Zone.LIBRARY,
-                        player = Player.ControllerOf("target"),
+                        player = Player.ControllerOf(creature.name),
                         filter = GameObjectFilter.BasicLand,
                     ),
                     storeAs = "searchable",
@@ -61,12 +60,12 @@ val PathToExile = card("Path to Exile") {
                     from = "found",
                     destination = CardDestination.ToZone(
                         zone = Zone.BATTLEFIELD,
-                        player = Player.ControllerOf("target"),
+                        player = Player.ControllerOf(creature.name),
                         placement = ZonePlacement.Tapped,
                     ),
                 ),
                 ShuffleLibraryEffect(target = EffectTarget.TargetController),
-            ),
+            )),
             decisionMaker = EffectTarget.TargetController,
         )
     }

@@ -1,8 +1,10 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
-import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.ManaSource
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -27,7 +29,8 @@ fun payManaCostFromPool(
     state: GameState,
     player: EntityId,
     cost: ManaCost,
-    cardRegistry: CardRegistry
+    cardRegistry: CardRegistry,
+    predicateEvaluator: PredicateEvaluator
 ): EffectResult {
     val playerEntity = state.getEntity(player)
         ?: return EffectResult.error(state, "Paying player not found")
@@ -44,22 +47,18 @@ fun payManaCostFromPool(
     val events = mutableListOf<GameEvent>()
 
     if (!remainingCost.isEmpty()) {
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         val solution = manaSolver.solve(currentState, player, remainingCost, spellContext = SpellPaymentContext())
             ?: return EffectResult.error(state, "Cannot pay mana cost")
 
         for (source in solution.sources) {
-            val (tappedState, tapEvent) = tap(currentState, source.entityId)
+            val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, player)
             currentState = tappedState
-            tapEvent?.let(events::add)
+            events.addAll(tapEvents)
         }
 
         for ((_, production) in solution.manaProduced) {
-            currentPool = if (production.color != null) {
-                currentPool.add(production.color)
-            } else {
-                currentPool.addColorless(production.colorless)
-            }
+            currentPool = currentPool.addProduction(production, coloredAmount = 1)
         }
     }
 
@@ -93,7 +92,8 @@ fun canAutoPayManaCost(
     player: EntityId,
     cost: ManaCost,
     cardRegistry: CardRegistry,
-    precomputedSources: List<ManaSource>? = null
+    precomputedSources: List<ManaSource>? = null,
+    predicateEvaluator: PredicateEvaluator
 ): Boolean {
     val manaPoolComponent = state.getEntity(player)?.get<ManaPoolComponent>() ?: return false
 
@@ -102,6 +102,6 @@ fun canAutoPayManaCost(
     val remainingCost = manaPool.payPartial(cost, SpellPaymentContext()).remainingCost
     if (remainingCost.isEmpty()) return true
 
-    return ManaSolver(cardRegistry)
+    return ManaSolver(cardRegistry, predicateEvaluator)
         .solve(state, player, remainingCost, spellContext = SpellPaymentContext(), precomputedSources = precomputedSources) != null
 }

@@ -4,13 +4,12 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val PiaDeterminedRebuilder = card("Pia, Determined Rebuilder") {
     manaCost = "{2}{R}"
@@ -21,15 +20,15 @@ val PiaDeterminedRebuilder = card("Pia, Determined Rebuilder") {
     oracleText = "When Pia enters, create a 1/1 colorless Thopter artifact creature token with flying.\n{5}{R}: Target creature gets +X/+0 until end of turn, where X is the number of artifacts you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Thopter"), artifactToken = true, keywords = setOf(Keyword.FLYING), imageUri = "https://cards.scryfall.io/normal/front/b/f/bfd6132f-c96b-4ce0-ac4d-c46356afc767.jpg?1789735223")
     }
     activatedAbility {
         cost = Costs.Mana("{5}{R}")
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
-            DynamicAmount.Fixed(0), creature
+            DynamicAmounts.fixed(0), creature
         )
     }
 

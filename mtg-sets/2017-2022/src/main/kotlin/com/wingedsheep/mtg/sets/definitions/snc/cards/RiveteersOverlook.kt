@@ -31,18 +31,18 @@ val RiveteersOverlook = card("Riveteers Overlook") {
     oracleText = RIVETEERS_OVERLOOK_ORACLE
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ReflexiveTriggerEffect(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.Composite(
+            reflexiveEffect = Effects.Composite(listOf(
                 Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand.withAnySubtype("Swamp", "Mountain", "Forest"),
                     destination = SearchDestination.BATTLEFIELD,
                     entersTapped = true,
                 ),
                 Effects.GainLife(1),
-            ),
+            )),
             descriptionOverride = "Sacrifice this land. When you do, search your library for a " +
                 "basic Swamp, Mountain, or Forest card, put it onto the battlefield tapped, then " +
                 "shuffle and you gain 1 life.",

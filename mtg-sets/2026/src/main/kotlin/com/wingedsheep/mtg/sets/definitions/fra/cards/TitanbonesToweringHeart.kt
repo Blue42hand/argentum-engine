@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -21,13 +21,13 @@ val TitanbonesToweringHeart = card("Titanbones, Towering Heart") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+        trigger = Triggers.you.gainsLife()
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Whenever you gain life, put two +1/+1 counters on Titanbones."
     }
 
     triggeredAbility {
-        trigger = Triggers.YouDiscardThis
+        trigger = Triggers.self.isDiscarded()
         effect = Effects.GainLife(3)
         description = "When you discard this card, you gain 3 life."
     }

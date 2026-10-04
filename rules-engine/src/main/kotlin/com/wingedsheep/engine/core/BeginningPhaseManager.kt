@@ -2,6 +2,7 @@ package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.predicates.receivedCounterThisTurn
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -14,8 +15,10 @@ import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageCompone
 import com.wingedsheep.engine.state.components.battlefield.PhasedOutComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.CardsInHandAtTurnStartComponent
+import com.wingedsheep.engine.state.components.player.SkipNextUntapStepComponent
 import com.wingedsheep.engine.state.components.player.SkipUntapComponent
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.sdk.core.AbilityFlag
@@ -26,7 +29,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.UntapDuringOtherUntapSteps
 import com.wingedsheep.sdk.scripting.UntapFilteredDuringOtherUntapSteps
-import com.wingedsheep.sdk.scripting.UntapLimitPerStep
 import com.wingedsheep.sdk.scripting.UntapSelfDuringOtherUntapSteps
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -38,8 +40,26 @@ import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 class BeginningPhaseManager(
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
     private val decisionHandler: DecisionHandler,
-    private val cleanupPhaseManager: CleanupPhaseManager
+    private val cleanupPhaseManager: CleanupPhaseManager,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
+
+    fun resumeUntapStepSkipChoice(state: GameState, frame: UntapStepSkipChoiceContinuation,
+        response: DecisionResponse): ExecutionResult {
+        if (response !is OptionChosenResponse || response.optionIndex !in 0..frame.pendingPlayers.size)
+            return ExecutionResult.error(state, "Expected a valid untap-step skip choice")
+        var current = state
+        if (response.optionIndex < frame.pendingPlayers.size) {
+            val player = frame.pendingPlayers[response.optionIndex]
+            val pending = state.getEntity(player)?.get<SkipNextUntapStepComponent>()
+                ?: return ExecutionResult.error(state, "The pending untap-step skip is no longer available")
+            current = current.updateEntity(player) {
+                if (pending.steps > 1) it.with(pending.copy(steps = pending.steps - 1))
+                else it.without<SkipNextUntapStepComponent>()
+            }
+        }
+        return performUntapStep(current, skipChoiceMade = true)
+    }
 
     /**
      * Perform the untap step.
@@ -47,13 +67,41 @@ class BeginningPhaseManager(
      * - Respects SkipUntapComponent which prevents certain permanents from untapping
      * - No priority is given during untap step
      */
-    fun performUntapStep(state: GameState): ExecutionResult {
+    fun performUntapStep(state: GameState, skipChoiceMade: Boolean = false): ExecutionResult {
         val activePlayer = state.activePlayerId
             ?: return ExecutionResult.error(state, "No active player")
         // CR 805.4 — in a shared team turn both teammates untap (and phase in / lose summoning
         // sickness) together. Without shared team turns (Team vs. Team — CR 808.4, non-team games)
         // only the active player untaps on their own turn.
         val activeTeam = state.sharedTurnTeam(activePlayer).toHashSet()
+        // CR 500.11 / 614.10a — a member with a pending "skip your next untap step" has no untap
+        // step this turn: nothing of theirs phases or untaps, and their own next-untap-step markers
+        // (SkipUntapComponent, exert) wait for the next step that isn't skipped. The skip itself is
+        // consumed by TurnManager once the step is over (finishUntapStep, or the
+        // Step.UNTAP branch of advanceStep). When the whole active team skips, the step never
+        // happens at all, so its game-wide actions (day/night, Seedborn untaps) don't either.
+        val standingSkip = activeTeam.any { skipsUntapStep(state, cardRegistry, predicateEvaluator, it) }
+        if (standingSkip && !skipChoiceMade) {
+            val pendingPlayers = state.sharedTurnTeam(activePlayer).filter {
+                state.getEntity(it)?.has<SkipNextUntapStepComponent>() == true
+            }
+            if (pendingPlayers.isNotEmpty()) {
+                val options = pendingPlayers.map { player ->
+                    if (player == activePlayer) "Use your pending untap-step skip"
+                    else "Use ${state.getEntity(player)?.get<PlayerComponent>()?.name ?: "your teammate"}'s pending untap-step skip"
+                } + "Use the standing untap-step skip and keep pending skips"
+                return state.suspendForDecision(
+                    question = { id -> ChooseOptionDecision(id, activePlayer,
+                        "Your untap step will be skipped. Choose which effect to use.",
+                        DecisionContext(phase = DecisionPhase.STATE_BASED), options, defaultSearch = options.first()) },
+                    answer = UntapStepSkipChoiceContinuation(pendingPlayers))
+            }
+        }
+        val untappingTeam = activeTeam.filterTo(HashSet()) {
+            state.getEntity(it)?.has<SkipNextUntapStepComponent>() != true &&
+                !standingSkip
+        }
+        val stepHappens = untappingTeam.isNotEmpty()
 
         val events = mutableListOf<GameEvent>()
         var newState = state
@@ -74,7 +122,7 @@ class BeginningPhaseManager(
         // team turn both teammates phase in together (CR 805.4); for a non-team game the active
         // team is just the active player. This happens during the untap step, before untapping
         // (Rule 702.26a).
-        for (member in activeTeam) {
+        for (member in untappingTeam) {
             newState = phaseInPermanents(newState, member, events)
         }
 
@@ -86,7 +134,7 @@ class BeginningPhaseManager(
         // daybound/nightbound transforms this designation change entails are
         // cascaded by DayNightService in the same event batch, and those events flow up through advanceStep
         // to PassPriorityHandler's detectTriggers so "whenever this transforms" abilities fire (CR 702.145b/e).
-        run {
+        if (stepHappens) {
             val (afterDayNight, dayNightEvents) = com.wingedsheep.engine.mechanics.daynight.DayNightService
                 .checkUntapStepDesignation(newState, cardRegistry)
             newState = afterDayNight
@@ -95,7 +143,7 @@ class BeginningPhaseManager(
 
         // Each active-team member's own "doesn't untap" marker applies to the permanents *they*
         // control — in a shared team turn (CR 805.4) both heads untap, each under their own marker.
-        val skipUntapByPlayer = activeTeam.associateWith { newState.getEntity(it)?.get<SkipUntapComponent>() }
+        val skipUntapByPlayer = untappingTeam.associateWith { newState.getEntity(it)?.get<SkipUntapComponent>() }
 
         // Use projected state for controller checks (control-changing effects like Annex).
         // Recomputed from newState so just-phased-in permanents are visible.
@@ -103,7 +151,7 @@ class BeginningPhaseManager(
 
         // Find all tapped permanents controlled by the active team (CR 805.4)
         val permanentsToUntap = newState.entities.filter { (entityId, container) ->
-            projected.getController(entityId) in activeTeam &&
+            projected.getController(entityId) in untappingTeam &&
                 container.has<TappedComponent>()
         }.keys.filter { entityId ->
             // If the controller has a skip untap component, check if this permanent should be skipped
@@ -152,18 +200,14 @@ class BeginningPhaseManager(
             projected.hasKeyword(entityId, AbilityFlag.MAY_NOT_UNTAP)
         }
 
-        // Untap-count restrictions (Damping Field — "can't untap more than one artifact"). A
-        // global restriction: gather every active UntapLimitPerStep regardless of controller, and
-        // for each work out which would-untap permanents match its filter. When more match than the
-        // cap allows, the active player must keep the excess tapped (their choice which).
-        val untapLimits = activeUntapLimits(newState).mapNotNull { (filter, max) ->
-            val matching = permanentsAfterCantUntap.filter { entityId ->
-                val container = newState.getEntity(entityId) ?: return@filter false
-                matchesFilterForUntap(newState, projected, entityId, container, filter)
-            }
-            if (matching.size > max) UntapLimitChoice(matching, max) else null
-        }
-        val forcedKeepCount = untapLimits.sumOf { it.matchingPermanents.size - it.max }
+        // Freeze restrictions before the simultaneous untap: a tapped conditional source may
+        // untap alongside everything else without retroactively restricting that same action.
+        val untapLimits = untapLimitChoices(
+            newState, cardRegistry, predicateEvaluator, permanentsAfterCantUntap
+        )
+        // Overlapping caps share kept permanents. A sum can exceed the whole option pool;
+        // this lower bound stays reachable, and the resumer validates every cap separately.
+        val forcedKeepCount = untapLimits.maxOfOrNull { it.matchingPermanents.size - it.max } ?: 0
 
         // Raise a single "keep tapped" decision when the player has any choice to make: optional
         // MAY_NOT_UNTAP permanents and/or a forced keep from an untap-count cap. The option pool is
@@ -210,7 +254,7 @@ class BeginningPhaseManager(
         // Untap permanents for non-active players with UntapDuringOtherUntapSteps (e.g., Seedborn Muse)
         // or UntapFilteredDuringOtherUntapSteps (e.g., Ivorytusk Fortress)
         val projectedForSeedborn = newState.projectedState
-        for (playerId in newState.turnOrder) {
+        for (playerId in if (stepHappens) newState.turnOrder else emptyList()) {
             if (playerId in activeTeam) continue // active team already untapped above (CR 805.4)
 
             var untapAll = false
@@ -304,9 +348,10 @@ class BeginningPhaseManager(
         // active team controls, unconditionally: an exerted permanent that was already untapped
         // (or already had its untap replaced/skipped above) still has the marker expire here per
         // the 2024-06-07 ruling, having prevented nothing. Scoped to the active team, not every
-        // permanent, since exert only ever refers to its controller's own next untap step.
+        // permanent, since exert only ever refers to its controller's own next untap step — and
+        // only members whose untap step actually happened: a skipped step leaves it waiting.
         val exertedForActiveTeam = newState.entities.filter { (entityId, container) ->
-            container.has<ExertedComponent>() && projectedAfterUntap.getController(entityId) in activeTeam
+            container.has<ExertedComponent>() && projectedAfterUntap.getController(entityId) in untappingTeam
         }.keys
         for (entityId in exertedForActiveTeam) {
             newState = newState.updateEntity(entityId) { it.without<ExertedComponent>() }
@@ -413,38 +458,14 @@ class BeginningPhaseManager(
                 c.with(counters.withAdded(CounterType.LORE, 1))
                     .with(updatedSaga)
             }
-            events.add(CountersAddedEvent(entityId, "LORE", 1, cardComponent.name))
+            newState = com.wingedsheep.engine.handlers.effects.DamageUtils.markCounterOnControlledPermanent(newState, entityId, CounterType.LORE)
+            events.add(CountersAddedEvent(entityId, CounterType.LORE, 1, cardComponent.name))
         }
 
         return ExecutionResult.success(newState, events)
     }
 
-    /**
-     * Check if an entity matches a GameObjectFilter for untap-during-other-untap-step abilities.
-     * Uses projected state for type checks and base state for counters.
-     */
-    /**
-     * Collect the active untap-count caps (`UntapLimitPerStep`, e.g. Damping Field) as
-     * `(filter, max)` pairs. The restriction is global, so every battlefield permanent's static
-     * abilities are scanned regardless of controller. When two restrictions share a filter the
-     * most restrictive (smallest [UntapLimitPerStep.max]) wins; distinct filters are kept separate.
-     */
-    private fun activeUntapLimits(
-        state: GameState
-    ): List<Pair<GameObjectFilter, Int>> {
-        val byFilter = LinkedHashMap<GameObjectFilter, Int>()
-        for (permanentId in state.getBattlefield()) {
-            val card = state.getEntity(permanentId)?.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-            for (ability in cardDef.script.staticAbilities) {
-                if (ability is UntapLimitPerStep) {
-                    byFilter.merge(ability.filter, ability.max, ::minOf)
-                }
-            }
-        }
-        return byFilter.map { (filter, max) -> filter to max }
-    }
-
+    /** Match a filter for untap-during-other-untap-step abilities. */
     private fun matchesFilterForUntap(
         state: GameState,
         projected: ProjectedState,
@@ -469,20 +490,30 @@ class BeginningPhaseManager(
         }
         // Check state predicates (e.g., HasCounter)
         for (predicate in filter.statePredicates) {
-            if (!matchesStatePredicateForUntap(predicate, container)) return false
+            if (!matchesStatePredicateForUntap(state, projected, entityId, predicate, container)) return false
         }
         return true
     }
 
     private fun matchesStatePredicateForUntap(
+        state: GameState,
+        projected: ProjectedState,
+        entityId: EntityId,
         predicate: StatePredicate,
         container: ComponentContainer
     ): Boolean = when (predicate) {
         // Graveyard-only predicates; untap filters never see a card with the marker.
         // Cast history is cleared before the turn's untap step.
+        StatePredicate.HasManaAbility -> predicateEvaluator.matchesStatePredicate(state, entityId, predicate, projected = projected)
         StatePredicate.SharesNameWithSpellCastThisTurn -> false
         StatePredicate.PutIntoGraveyardThisTurn -> false
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
+        // Combat-partner history is cleared at cleanup, so nothing has blocked anything yet this turn.
+        is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> false
+        is StatePredicate.IsBlockingEntity -> false
+        // Untap candidates are battlefield permanents, so back face up is the whole CR 701.27g test.
+        StatePredicate.IsTransformed ->
+            container.get<com.wingedsheep.engine.state.components.identity.DoubleFacedComponent>()?.isBack == true
         // No granter context in untap filtering — granter-relative exclusion is resolution-time only.
         StatePredicate.IsGrantingPermanent -> false
         // Counter history is plain per-entity state, so answer it exactly rather than falling open.
@@ -497,9 +528,16 @@ class BeginningPhaseManager(
         // can have dealt damage *this* turn yet: the per-turn window is exactly `false` for every
         // permanent. Falling into the "no constraint" group below would answer `true` instead, which
         // for an "each creature that dealt damage this turn" untap filter is the maximally wrong
-        // answer (match everything rather than nothing). The lifetime window is just the marker.
-        is StatePredicate.HasDealtDamage ->
-            if (predicate.thisTurnOnly) false else container.has<HasDealtDamageComponent>()
+        // answer (match everything rather than nothing). The lifetime window is just the marker (its
+        // combat stamp, for `combatOnly`).
+        is StatePredicate.HasDealtDamage -> {
+            val marker = container.get<HasDealtDamageComponent>()
+            when {
+                predicate.thisTurnOnly || marker == null -> false
+                predicate.combatOnly -> marker.lastDealtCombatDamageTurn != null
+                else -> true
+            }
+        }
         // Tap history, by the same argument as the per-turn damage window above: the untap step is
         // the first step of the turn, so no permanent has become tapped this turn yet and nothing can
         // have become tapped exactly once. Answered exactly rather than falling open, because an
@@ -508,16 +546,7 @@ class BeginningPhaseManager(
         StatePredicate.BecameTappedOnlyOnceThisTurn -> false
         is StatePredicate.HasCounter -> {
             val countersComponent = container.get<CountersComponent>()
-            if (countersComponent == null) {
-                false
-            } else {
-                val counterType = when (predicate.counterType) {
-                    "+1/+1" -> CounterType.PLUS_ONE_PLUS_ONE
-                    "-1/-1" -> CounterType.MINUS_ONE_MINUS_ONE
-                    else -> null
-                }
-                counterType != null && countersComponent.getCount(counterType) > 0
-            }
+            countersComponent != null && countersComponent.getCount(predicate.counterType) > 0
         }
         // Soulbond pairing (CR 702.95b) is plain per-entity state, so unlike the fail-open group
         // below it can be answered exactly here — an "untap each paired creature" filter must not
@@ -532,13 +561,18 @@ class BeginningPhaseManager(
         // survives the turn boundary — so "untap each renowned creature" is answered exactly.
         StatePredicate.IsRenowned ->
             container.has<com.wingedsheep.engine.state.components.battlefield.RenownedComponent>()
-        is StatePredicate.Or -> predicate.predicates.any { matchesStatePredicateForUntap(it, container) }
-        is StatePredicate.And -> predicate.predicates.all { matchesStatePredicateForUntap(it, container) }
-        is StatePredicate.Not -> !matchesStatePredicateForUntap(predicate.predicate, container)
-        // Relational battlefield predicates need the whole projected battlefield, which this
-        // narrow untap helper deliberately does not receive. Fail closed rather than untapping an
-        // unrelated permanent.
+        // Monstrous (CR 701.37b) — sticky per-entity state like renowned.
+        StatePredicate.IsMonstrous ->
+            container.has<com.wingedsheep.engine.state.components.battlefield.MonstrousComponent>()
+        is StatePredicate.Or -> predicate.predicates.any { matchesStatePredicateForUntap(state, projected, entityId, it, container) }
+        is StatePredicate.And -> predicate.predicates.all { matchesStatePredicateForUntap(state, projected, entityId, it, container) }
+        is StatePredicate.Not -> !matchesStatePredicateForUntap(state, projected, entityId, predicate.predicate, container)
+        StatePredicate.ControlledSinceTurnBegan -> ControlHistory.matches(state, projected, entityId)
+        // Least-mana-value comparison remains unsupported by this narrow untap evaluator.
         is StatePredicate.HasLeastManaValueAmong -> false
+        is StatePredicate.IsAttackingDefenderOf -> false
+        // Protector scoping needs a "you" this helper has no context for; fail closed.
+        is StatePredicate.IsProtectedBy -> false
         // Untap-during-other-untap-step filters only meaningfully restrict by counter type
         // and structural combinators. Tap / combat / face-down / damage-history / equipment
         // predicates would either be redundant at this point in the turn (e.g. IsTapped is
@@ -546,11 +580,14 @@ class BeginningPhaseManager(
         // true preserves the historical "no constraint" behavior, but the case is now
         // explicit so adding a new StatePredicate variant becomes a compile-time decision.
         StatePredicate.IsOnBattlefield,
+        is StatePredicate.InZone,
         StatePredicate.IsTapped,
         StatePredicate.IsUntapped,
+        StatePredicate.IsPrepared,
         StatePredicate.IsAttacking,
         StatePredicate.IsAttackingAlone,
         StatePredicate.IsAttackingAnOpponent,
+        StatePredicate.IsAttackingABattle,
         StatePredicate.IsAttackingYouOrYourPlaneswalkers,
         StatePredicate.IsAttackingEnchantedPlayer,
         StatePredicate.IsBlocking,
@@ -562,11 +599,15 @@ class BeginningPhaseManager(
         StatePredicate.IsBlockingIterationEntity,
         StatePredicate.CreatedBySource,
         StatePredicate.EnteredThisTurn,
+        StatePredicate.ActivatedThisTurn,
         StatePredicate.WasDealtDamageThisTurn,
         StatePredicate.HasDealtCombatDamageToPlayer,
         StatePredicate.DealtCombatDamageToSourceControllerThisTurn,
         StatePredicate.ControllerDealtCombatDamageBySourceThisTurn,
+        StatePredicate.WasDealtDamageBySourceThisTurn,
+        StatePredicate.DealtDamageToSourceControllerThisTurn,
         StatePredicate.AttackedThisTurn,
+        StatePredicate.AttackedABattleThisTurn,
         StatePredicate.CouldNotHaveAttackedThisTurn,
         StatePredicate.AttackedLastTurn,
         StatePredicate.AttackedThisCombat,
@@ -599,6 +640,7 @@ class BeginningPhaseManager(
         StatePredicate.ExiledWithSource,
         StatePredicate.WasCastForWarp -> true
         is StatePredicate.WasCastFromZone -> true
+        StatePredicate.HasSingleTarget -> true
         is StatePredicate.AttachedToCardType -> true
         is StatePredicate.AttachedTo -> true
         is StatePredicate.ControllerControls -> true

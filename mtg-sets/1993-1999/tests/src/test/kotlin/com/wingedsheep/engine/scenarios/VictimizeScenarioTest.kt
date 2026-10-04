@@ -1,141 +1,123 @@
 package com.wingedsheep.engine.scenarios
 
-import com.wingedsheep.engine.core.CastSpell
-import com.wingedsheep.engine.handlers.continuations.entityIdToChosenTarget
-import com.wingedsheep.engine.state.components.battlefield.TappedComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Phase
+import com.wingedsheep.engine.core.SelectCardsDecision
+import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.engine.support.GameTestDriver
+import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.mtg.sets.definitions.usg.cards.Victimize
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.EntityId
 import io.kotest.assertions.withClue
-import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 /**
- * Victimize (Urza's Saga #166) — {2}{B} Sorcery.
+ * Victimize (USG #166) — {2}{B} Sorcery.
  *
- * Pins the mandatory two-target cast shape and the resolution-time sacrifice / if-you-do gate.
+ * "Choose two target creature cards in your graveyard. Sacrifice a creature. If you do, return the
+ *  chosen cards to the battlefield tapped."
  */
-class VictimizeScenarioTest : ScenarioTestBase() {
+class VictimizeScenarioTest : FunSpec({
 
-    init {
-        context("Victimize") {
+    fun createDriver(): GameTestDriver {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + listOf(Victimize))
+        driver.initMirrorMatch(deck = Deck.of("Swamp" to 40), startingLife = 20)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        return driver
+    }
 
-            test("sacrifices a creature during resolution and returns both targets tapped") {
-                val game = scenario()
-                    .withPlayers("Caster", "Opponent")
-                    .withCardInHand(1, "Victimize")
-                    .withLandsOnBattlefield(1, "Swamp", 3)
-                    .withCardOnBattlefield(1, "Grizzly Bears")
-                    .withCardInGraveyard(1, "Hill Giant")
-                    .withCardInGraveyard(1, "Centaur Courser")
-                    .withActivePlayer(1)
-                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
-                    .build()
+    fun GameTestDriver.cast(you: EntityId, a: EntityId, b: EntityId) {
+        val spell = putCardInHand(you, "Victimize")
+        giveMana(you, Color.BLACK, 1)
+        giveColorlessMana(you, 2)
+        castSpellWithTargets(
+            you, spell,
+            listOf(
+                ChosenTarget.Card(a, you, Zone.GRAVEYARD),
+                ChosenTarget.Card(b, you, Zone.GRAVEYARD),
+            )
+        )
+    }
 
-                val spellId = game.state.getHand(game.player1Id).first { id ->
-                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Victimize"
-                }
-                val hillGiant = game.state.getGraveyard(game.player1Id).first { id ->
-                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Hill Giant"
-                }
-                val courser = game.state.getGraveyard(game.player1Id).first { id ->
-                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Centaur Courser"
-                }
+    test("sacrifice a chosen creature, then both targeted cards return tapped") {
+        val d = createDriver()
+        val you = d.activePlayer!!
+        val bears = d.putCardInGraveyard(you, "Grizzly Bears")
+        val courser = d.putCardInGraveyard(you, "Centaur Courser")
+        val lions = d.putCreatureOnBattlefield(you, "Savannah Lions")
+        val other = d.putCreatureOnBattlefield(you, "Grizzly Bears")
 
-                val cast = game.execute(
-                    CastSpell(
-                        game.player1Id,
-                        spellId,
-                        listOf(
-                            entityIdToChosenTarget(game.state, hillGiant),
-                            entityIdToChosenTarget(game.state, courser),
-                        ),
-                    )
-                )
-                withClue("Victimize should cast with exactly two creature-card targets") {
-                    cast.error shouldBe null
-                }
+        d.cast(you, bears, courser)
+        d.bothPass()
 
-                // With exactly one creature available to sacrifice, SacrificeOwn has only one
-                // legal choice and resolves it directly; no selection decision is required.
-                game.resolveStack()
+        withClue("the sacrifice is chosen at resolution") {
+            (d.pendingDecision is SelectCardsDecision) shouldBe true
+        }
+        d.submitCardSelection(you, listOf(lions))
 
-                withClue("the chosen battlefield creature should be sacrificed") {
-                    game.isInGraveyard(1, "Grizzly Bears") shouldBe true
-                }
-
-                val giantPermanent = game.findPermanent("Hill Giant")
-                val courserPermanent = game.findPermanent("Centaur Courser")
-                withClue("both targeted creature cards should return") {
-                    giantPermanent.shouldNotBeNull()
-                    courserPermanent.shouldNotBeNull()
-                }
-                withClue("both returned creatures should enter tapped") {
-                    game.state.getEntity(giantPermanent!!)?.get<TappedComponent>() shouldBe TappedComponent
-                    game.state.getEntity(courserPermanent!!)?.get<TappedComponent>() shouldBe TappedComponent
-                }
-            }
-
-            test("returns nothing when no creature can be sacrificed") {
-                val game = scenario()
-                    .withPlayers("Caster", "Opponent")
-                    .withCardInHand(1, "Victimize")
-                    .withLandsOnBattlefield(1, "Swamp", 3)
-                    .withCardInGraveyard(1, "Hill Giant")
-                    .withCardInGraveyard(1, "Centaur Courser")
-                    .withActivePlayer(1)
-                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
-                    .build()
-
-                val spellId = game.state.getHand(game.player1Id).first { id ->
-                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Victimize"
-                }
-                val targets = game.state.getGraveyard(game.player1Id).map { id ->
-                    entityIdToChosenTarget(game.state, id)
-                }
-
-                game.execute(CastSpell(game.player1Id, spellId, targets)).error shouldBe null
-                game.resolveStack()
-
-                withClue("without a successful sacrifice, the if-you-do rider must not return either target") {
-                    game.isInGraveyard(1, "Hill Giant") shouldBe true
-                    game.isInGraveyard(1, "Centaur Courser") shouldBe true
-                    game.findPermanent("Hill Giant") shouldBe null
-                    game.findPermanent("Centaur Courser") shouldBe null
-                }
-            }
-
-            test("cannot be cast with only one target") {
-                val game = scenario()
-                    .withPlayers("Caster", "Opponent")
-                    .withCardInHand(1, "Victimize")
-                    .withLandsOnBattlefield(1, "Swamp", 3)
-                    .withCardOnBattlefield(1, "Grizzly Bears")
-                    .withCardInGraveyard(1, "Hill Giant")
-                    .withActivePlayer(1)
-                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
-                    .build()
-
-                val spellId = game.state.getHand(game.player1Id).first { id ->
-                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Victimize"
-                }
-                val hillGiant = game.state.getGraveyard(game.player1Id).first { id ->
-                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Hill Giant"
-                }
-
-                val cast = game.execute(
-                    CastSpell(
-                        game.player1Id,
-                        spellId,
-                        listOf(entityIdToChosenTarget(game.state, hillGiant)),
-                    )
-                )
-
-                withClue("Victimize requires exactly two creature-card targets") {
-                    (cast.error != null) shouldBe true
-                }
-            }
+        withClue("the sacrificed creature is in the graveyard, the other one stays") {
+            d.getGraveyard(you).contains(lions) shouldBe true
+            d.getCreatures(you).contains(other) shouldBe true
+        }
+        withClue("both targeted cards are on the battlefield, tapped") {
+            d.getCreatures(you).contains(bears) shouldBe true
+            d.getCreatures(you).contains(courser) shouldBe true
+            d.isTapped(bears) shouldBe true
+            d.isTapped(courser) shouldBe true
         }
     }
-}
+
+    test("no creature to sacrifice: nothing returns") {
+        val d = createDriver()
+        val you = d.activePlayer!!
+        val bears = d.putCardInGraveyard(you, "Grizzly Bears")
+        val courser = d.putCardInGraveyard(you, "Centaur Courser")
+
+        d.cast(you, bears, courser)
+        d.bothPass()
+
+        d.getCreatures(you).size shouldBe 0
+        d.getGraveyard(you).contains(bears) shouldBe true
+        d.getGraveyard(you).contains(courser) shouldBe true
+    }
+
+    test("one target left the graveyard: still sacrifice, the other card returns") {
+        val d = createDriver()
+        val you = d.activePlayer!!
+        val bears = d.putCardInGraveyard(you, "Grizzly Bears")
+        val courser = d.putCardInGraveyard(you, "Centaur Courser")
+        val lions = d.putCreatureOnBattlefield(you, "Savannah Lions")
+
+        d.cast(you, bears, courser)
+        d.replaceState(d.state.moveToZone(bears, ZoneKey(you, Zone.GRAVEYARD), ZoneKey(you, Zone.EXILE)))
+        d.bothPass()
+
+        withClue("the single creature is sacrificed") {
+            d.getGraveyard(you).contains(lions) shouldBe true
+        }
+        withClue("the still-legal target returns tapped; the exiled one stays in exile") {
+            d.getCreatures(you) shouldBe listOf(courser)
+            d.isTapped(courser) shouldBe true
+            d.getExile(you).contains(bears) shouldBe true
+        }
+    }
+
+    test("cannot be cast with only one creature-card target") {
+        val d = createDriver()
+        val you = d.activePlayer!!
+        val bears = d.putCardInGraveyard(you, "Grizzly Bears")
+        val spell = d.putCardInHand(you, "Victimize")
+        d.giveMana(you, Color.BLACK, 1)
+        d.giveColorlessMana(you, 2)
+
+        val result = d.castSpellWithTargets(
+            you, spell, listOf(ChosenTarget.Card(bears, you, Zone.GRAVEYARD))
+        )
+        (result.error != null) shouldBe true
+    }
+})

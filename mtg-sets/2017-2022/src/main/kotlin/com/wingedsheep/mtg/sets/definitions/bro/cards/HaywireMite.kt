@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /** Haywire Mite — The Brothers' War #199. */
 val HaywireMite = card("Haywire Mite") {
@@ -20,15 +20,14 @@ val HaywireMite = card("Haywire Mite") {
         "{G}, Sacrifice this creature: Exile target noncreature artifact or noncreature enchantment."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.GainLife(2)
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.SacrificeSelf)
         val target = target(
-            "target noncreature artifact or noncreature enchantment",
-            TargetPermanent(
+            TargetObject(
                 filter = TargetFilter(GameObjectFilter.ArtifactOrEnchantment.notCreature())
             ),
         )

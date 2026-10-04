@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.mechanics.mana.withSpendingColors
+import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 import com.wingedsheep.engine.core.AttackTaxManaSelectionContinuation
 import com.wingedsheep.engine.core.BlockTaxManaSelectionContinuation
 import com.wingedsheep.engine.core.DecisionResponse
@@ -7,7 +9,7 @@ import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSourceOption
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
-import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
@@ -17,6 +19,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Resumes attack / block declarations that paused for the player to pick mana sources
@@ -50,6 +53,9 @@ class CombatTaxContinuationResumer(
         resumer(com.wingedsheep.engine.core.AttackSacrificeSelectionContinuation::class) { state, continuation, response, _ ->
             resumeAttackSacrificeSelection(state, continuation, response)
         },
+        resumer(com.wingedsheep.engine.core.AttackExertSelectionContinuation::class) { state, continuation, response, _ ->
+            resumeAttackExertSelection(state, continuation, response)
+        },
     )
 
     /**
@@ -75,10 +81,10 @@ class CombatTaxContinuationResumer(
             )
         }
 
-        val sacrificeResult = com.wingedsheep.engine.handlers.effects.zones.ForceSacrificeExecutor()
+        val sacrificeResult = com.wingedsheep.engine.handlers.effects.zones.ForceSacrificeExecutor(services.zones, dynamicAmountEvaluator = services.dynamicAmountEvaluator)
             .sacrificePermanents(state, continuation.attackingPlayer, response.selectedCards)
             .toExecutionResult()
-        if (!sacrificeResult.isSuccess) return sacrificeResult
+        if (sacrificeResult.outcome !is Outcome.Done) return sacrificeResult
 
         val next = continuation.remaining.firstOrNull()
         if (next != null) {
@@ -101,6 +107,28 @@ class CombatTaxContinuationResumer(
             projected = sacrificeResult.state.projectedState,
             taxEvents = sacrificeResult.events.toList(),
             bands = continuation.bands,
+        )
+    }
+
+    /** Commit the declaration with the attackers the player chose to exert (CR 701.43d). */
+    private fun resumeAttackExertSelection(
+        state: GameState,
+        continuation: com.wingedsheep.engine.core.AttackExertSelectionContinuation,
+        response: DecisionResponse,
+    ): ExecutionResult {
+        if (response !is com.wingedsheep.engine.core.CardsSelectedResponse) {
+            return ExecutionResult.error(state, "Expected card selection response for exert")
+        }
+        // The decision's own validation already rejects anything outside the offered attackers.
+        val chosen = response.selectedCards.toSet()
+        return services.combatManager.attackPhase.finishAttackDeclaration(
+            state = state,
+            attackingPlayer = continuation.attackingPlayer,
+            attackers = continuation.attackers,
+            projected = state.projectedState,
+            taxEvents = emptyList(),
+            bands = continuation.bands,
+            exerted = chosen,
         )
     }
 
@@ -174,19 +202,15 @@ class CombatTaxContinuationResumer(
 
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
-                val solver = ManaSolver(services.cardRegistry)
+                val solver = ManaSolver(services.cardRegistry, services.predicateEvaluator)
                 val solution = solver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext()) ?: return null
                 for (source in solution.sources) {
-                    val (tappedState, tapEvent) = tap(currentState, source.entityId)
+                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
                     currentState = tappedState
-                    tapEvent?.let(events::add)
+                    events.addAll(tapEvents)
                 }
                 for ((_, production) in solution.manaProduced) {
-                    pool = if (production.color != null) {
-                        pool.add(production.color, production.amount)
-                    } else {
-                        pool.addColorless(production.colorless)
-                    }
+                    pool = pool.addProduction(production)
                 }
             } else {
                 val sourceMap = availableSources.associateBy { it.entityId }
@@ -197,12 +221,15 @@ class CombatTaxContinuationResumer(
                         // to returning null so the caller errors with a clear message.
                         return null
                     }
-                    val (tappedState, tapEvent) = tap(currentState, sourceId)
+                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, playerId)
                     currentState = tappedState
-                    tapEvent?.let(events::add)
+                    events.addAll(tapEvents)
                     pool = when {
-                        source.producesColors.isNotEmpty() -> pool.add(source.producesColors.first())
-                        source.producesColorless -> pool.addColorless(1)
+                        source.producesColors.isNotEmpty() -> source.producesColors.first().let { color ->
+                            pool.add(color).let { if (ManaProvenanceTracker.isSnowSource(currentState, sourceId)) it.markSnow(color, 1) else it }
+                        }
+                        source.producesColorless ->
+                            pool.addColorless(1).let { if (ManaProvenanceTracker.isSnowSource(currentState, sourceId)) it.markSnow(null, 1) else it }
                         else -> pool
                     }
                 }

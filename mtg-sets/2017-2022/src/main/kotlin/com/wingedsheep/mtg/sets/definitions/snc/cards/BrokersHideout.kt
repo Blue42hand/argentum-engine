@@ -24,18 +24,18 @@ val BrokersHideout = card("Brokers Hideout") {
     oracleText = BROKERS_HIDEOUT_ORACLE
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ReflexiveTriggerEffect(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.Composite(
+            reflexiveEffect = Effects.Composite(listOf(
                 Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand.withAnySubtype("Forest", "Plains", "Island"),
                     destination = SearchDestination.BATTLEFIELD,
                     entersTapped = true,
                 ),
                 Effects.GainLife(1),
-            ),
+            )),
             descriptionOverride = "Sacrifice this land. When you do, search your library for a basic Forest, Plains, or Island card, put it onto the battlefield tapped, then shuffle and you gain 1 life.",
         )
         description = BROKERS_HIDEOUT_ORACLE

@@ -2,13 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /** Reanimate — Tempest #151. The target's graveyard mana value determines the life loss. */
 val Reanimate = card("Reanimate") {
@@ -19,21 +17,10 @@ val Reanimate = card("Reanimate") {
         "control. You lose life equal to that card's mana value."
 
     spell {
-        target = Targets.CreatureCardInGraveyard
-        effect = Effects.Composite(
-            Effects.Move(
-                EffectTarget.ContextTarget(0),
-                Zone.BATTLEFIELD,
-                controllerOverride = EffectTarget.Controller,
-            ),
-            Effects.LoseLife(
-                DynamicAmount.EntityProperty(
-                    EntityReference.Target(0),
-                    EntityNumericProperty.ManaValue,
-                ),
-                EffectTarget.Controller,
-            ),
-        )
+        val creature = target(TargetFilter.CreatureInGraveyard)
+        effect = Effects.Move(
+            creature, Zone.BATTLEFIELD, controllerOverride = EffectTarget.Controller
+        ) then Effects.LoseLife(DynamicAmounts.manaValueOf(creature), EffectTarget.Controller)
     }
 
     metadata {

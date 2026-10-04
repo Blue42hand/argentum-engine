@@ -1,10 +1,10 @@
 package com.wingedsheep.engine.mechanics.mana
 
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.player.LifeLostAmountThisTurnComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -24,7 +24,7 @@ import io.kotest.matchers.shouldBe
 /**
  * Engine tests for [CostReductionSource.Dynamic] — "spells you cast cost {X} less to cast, where X
  * is `<DynamicAmount>`", evaluated with the permanent that carries the modifier as the amount's
- * `EntityReference.Source`.
+ * `EffectTarget.Self`.
  *
  * Named for the primitive rather than a card because the point of the shape is that the amount is
  * read from the permanent carrying the modifier, not aggregated over a board. The cases below are
@@ -106,7 +106,7 @@ class DynamicCostReductionTest : ScenarioTestBase() {
                 target = SpellCostTarget.YouCast(GameObjectFilter.Any),
                 modification = CostModification.ReduceGenericBy(
                     CostReductionSource.Dynamic(
-                        DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
+                        DynamicAmounts.countersOnSelf(CounterType.CHARGE)
                     )
                 ),
             )
@@ -153,6 +153,28 @@ class DynamicCostReductionTest : ScenarioTestBase() {
         }
     }
 
+    /**
+     * A self-cast reduction over a *player-scoped* amount — Bloodsoaked Insight's shape. "You" is
+     * the caster, so "your opponents" are the caster's opponents.
+     */
+    private val selfCastPlayerDiscounter = card("Test Self Insight") {
+        manaCost = "{6}{B}"
+        colorIdentity = "B"
+        typeLine = "Sorcery"
+        oracleText = "This spell costs {1} less to cast for each 1 life your opponents have lost this turn.\nDraw a card."
+        staticAbility {
+            ability = ModifySpellCost(
+                target = SpellCostTarget.SelfCast,
+                modification = CostModification.ReduceGenericBy(
+                    CostReductionSource.Dynamic(DynamicAmounts.lifeLostThisTurn(Player.EachOpponent))
+                ),
+            )
+        }
+        spell {
+            effect = Effects.DrawCards(1)
+        }
+    }
+
     /** Shrinks every creature you control by 4 power, so a 2/3 source goes to −2 power. */
     private val witheringField = card("Test Withering Field") {
         manaCost = "{2}{B}"
@@ -180,7 +202,7 @@ class DynamicCostReductionTest : ScenarioTestBase() {
     }
 
     private fun costOfPricedSpell(game: TestGame, playerNumber: Int) =
-        CostCalculator(cardRegistry).calculateEffectiveCost(
+        CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator).calculateEffectiveCost(
             game.state,
             cardRegistry.requireCard("Test Priced Spell"),
             if (playerNumber == 1) game.player1Id else game.player2Id,
@@ -198,6 +220,7 @@ class DynamicCostReductionTest : ScenarioTestBase() {
                 counterDiscounter,
                 anyCasterDiscounter,
                 selfCastDiscounter,
+                selfCastPlayerDiscounter,
                 witheringField,
                 pricedSpell,
             )
@@ -377,7 +400,7 @@ class DynamicCostReductionTest : ScenarioTestBase() {
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                val cost = CostCalculator(cardRegistry).calculateEffectiveCost(
+                val cost = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator).calculateEffectiveCost(
                     game.state,
                     cardRegistry.requireCard("Test Self Discounter"),
                     game.player1Id,
@@ -386,6 +409,29 @@ class DynamicCostReductionTest : ScenarioTestBase() {
                 withClue("the card is the spell being cast — there is no permanent to read a power from") {
                     cost.genericAmount shouldBe 6
                     cost.colorCount[Color.RED] shouldBe 1
+                }
+            }
+
+            test("a SelfCast modifier reads a player-scoped amount relative to the caster") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Test Self Insight")
+                    .withCardInHand(2, "Test Self Insight")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+                game.state = game.state
+                    .updateEntity(game.player2Id) { it.with(LifeLostAmountThisTurnComponent(4)) }
+                    .updateEntity(game.player1Id) { it.with(LifeLostAmountThisTurnComponent(1)) }
+
+                val calculator = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator)
+                val insight = cardRegistry.requireCard("Test Self Insight")
+
+                withClue("Player1's opponent lost 4, so {6} generic drops to {2}") {
+                    calculator.calculateEffectiveCost(game.state, insight, game.player1Id).genericAmount shouldBe 2
+                }
+                withClue("for Player2 the opponent is Player1, who lost 1") {
+                    calculator.calculateEffectiveCost(game.state, insight, game.player2Id).genericAmount shouldBe 5
                 }
             }
 

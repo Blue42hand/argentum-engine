@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /** Goblin Cratermaker — Guilds of Ravnica #103. */
 val GoblinCratermaker = card("Goblin Cratermaker") {
@@ -23,7 +23,7 @@ val GoblinCratermaker = card("Goblin Cratermaker") {
         "• This creature deals 2 damage to target creature.\n" +
         "• Destroy target colorless nonland permanent."
 
-    val colorlessNonlandPermanent = TargetPermanent(
+    val colorlessNonlandPermanent = TargetObject(
         filter = TargetFilter(
             GameObjectFilter(
                 cardPredicates = listOf(
@@ -40,7 +40,7 @@ val GoblinCratermaker = card("Goblin Cratermaker") {
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
                 Effects.DealDamage(2, EffectTarget.ContextTarget(0)),
-                com.wingedsheep.sdk.dsl.Targets.Creature,
+                TargetObject(filter = TargetFilter.Creature),
                 "This creature deals 2 damage to target creature",
             ),
             Mode.withTarget(

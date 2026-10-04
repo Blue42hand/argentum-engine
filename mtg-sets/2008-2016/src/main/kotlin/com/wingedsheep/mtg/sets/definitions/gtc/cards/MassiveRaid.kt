@@ -21,7 +21,7 @@ val MassiveRaid = card("Massive Raid") {
     oracleText = "Massive Raid deals damage to any target equal to the number of creatures you control."
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
             t

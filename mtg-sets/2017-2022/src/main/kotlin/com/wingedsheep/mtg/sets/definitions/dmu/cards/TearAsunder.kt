@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.Rarity
@@ -31,10 +32,10 @@ val TearAsunder = card("Tear Asunder") {
     keywordAbility(KeywordAbility.kicker("{1}{B}"))
 
     spell {
-        target = Targets.ArtifactOrEnchantment
+        target = TargetObject(filter = TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
 
-        kickerTarget = Targets.NonlandPermanent
+        kickerTarget = TargetObject(filter = TargetFilter.NonlandPermanent)
         kickerEffect = Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
     }
 

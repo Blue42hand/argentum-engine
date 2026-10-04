@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dtk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -21,10 +21,10 @@ val AinokSurvivalist = card("Ainok Survivalist") {
     toughness = 1
 
     morph = "{1}{G}"
-    morphFaceUpEffect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+    morphFaceUpEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         target = TargetObject(filter = TargetFilter.ArtifactOrEnchantment.opponentControls())
         effect = Effects.Destroy(EffectTarget.ContextTarget(0))
         description = "When this creature is turned face up, destroy target artifact or " +

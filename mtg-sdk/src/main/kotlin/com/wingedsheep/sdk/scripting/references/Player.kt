@@ -60,6 +60,18 @@ sealed interface Player {
         override val description: String = "defending player"
     }
 
+    /**
+     * All defending players in the current combat, in APNAP order, including those with
+     * no attackers assigned and before attackers are declared. Includes all opponents
+     * regardless of attack-left/right limits, respecting shared team turns. Outside combat resolves to nobody. This is a list-only reference;
+     * a single-player slot must not collapse it to one defender.
+     */
+    @SerialName("EachDefendingPlayer")
+    @Serializable
+    data object EachDefendingPlayer : Player {
+        override val description: String = "each defending player"
+    }
+
     /** All opponents */
     @SerialName("EachOpponent")
     @Serializable
@@ -128,6 +140,35 @@ sealed interface Player {
     @Serializable
     data class ContextPlayer(val index: Int) : Player {
         override val description: String = "that player"
+    }
+
+    /**
+     * The player chosen for the target declared as [name] — the player-typed reading of a named
+     * target handle ([com.wingedsheep.sdk.scripting.targets.EffectTarget.BoundVariable]). Card
+     * code reaches it as `handle.asPlayer` rather than constructing it, so a "cards in that
+     * player's hand" slot names the target it reads instead of counting positions:
+     * `CardSource.FromZone(Zone.HAND, opponent.asPlayer)`.
+     *
+     * Shares `BoundVariable`'s serial name on purpose: the JSON says "the target named *name*"
+     * the same way whether the slot is typed as an entity or as a player.
+     */
+    @SerialName("BoundVariable")
+    @Serializable
+    data class BoundVariable(val name: String) : Player {
+        override val description: String = "that player"
+    }
+
+    /**
+     * "Those players" — every player recorded in the pipeline collection [collection] (written by
+     * [com.wingedsheep.sdk.scripting.effects.StorePlayerEffect]), iterated in APNAP order (CR 101.4)
+     * and skipping anyone who has left the game. A plural reference: it is read by
+     * `ForEachPlayer(Player.InCollection(...), …)`, not by single-player slots. An empty or missing
+     * collection means nobody — never every player.
+     */
+    @SerialName("InCollection")
+    @Serializable
+    data class InCollection(val collection: String) : Player {
+        override val description: String = "those players"
     }
 
     /**
@@ -205,6 +246,23 @@ sealed interface Player {
     @SerialName("ControllerOfIterationEntity")
     @Serializable
     data object ControllerOfIterationEntity : Player {
+        override val description: String = "its controller"
+    }
+
+    /**
+     * Controller of the permanent a continuous effect is currently modifying — "enchanted creature
+     * gets -X/-0, where X is the number of cards in **its controller's** graveyard" (Disturbing
+     * Conversion). Pairs with [com.wingedsheep.sdk.scripting.targets.EffectTarget.AffectedEntity]:
+     * the layer projector re-evaluates the amount per affected permanent, and this reads that
+     * permanent's (projected) controller rather than the effect source's.
+     *
+     * Distinct from [You] / [ControllerOfSource], which stay the Aura's controller, and from
+     * [ControllerOf], which reads a chosen target the projector has no copy of. Null outside a
+     * per-affected-entity evaluation.
+     */
+    @SerialName("ControllerOfAffectedEntity")
+    @Serializable
+    data object ControllerOfAffectedEntity : Player {
         override val description: String = "its controller"
     }
 
@@ -333,15 +391,19 @@ sealed interface Player {
             You -> "your"
             AnOpponent -> "an opponent's"
             DefendingPlayer -> "defending player's"
+            EachDefendingPlayer -> "each defending player's"
             TargetOpponent -> "target opponent's"
             TargetPlayer -> "target player's"
             ControllerOfIterationEntity -> "its controller's"
+            ControllerOfAffectedEntity -> "its controller's"
             EachTargetedPlayer -> "those players'"
+            is InCollection -> "those players'"
             Each -> "each player's"
             ActivePlayerFirst -> "each player's"
             EachOpponent -> "each opponent's"
             Any -> "a player's"
             is ContextPlayer -> "that player's"
+            is BoundVariable -> "that player's"
             Candidate -> "that player's"
             TriggeringPlayer -> "that player's"
             ChosenOpponent -> "the chosen player's"

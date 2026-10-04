@@ -1,8 +1,16 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.mechanics.stack.colorChoicePrompt
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.AnswerContinuation
 import com.wingedsheep.engine.core.ChooseColorDecision
+import com.wingedsheep.engine.core.CardsSelectedResponse
+import com.wingedsheep.engine.core.ColorChosenResponse
+import com.wingedsheep.engine.core.DecisionResponse
+import com.wingedsheep.engine.core.NumberChosenResponse
+import com.wingedsheep.engine.core.OptionChosenResponse
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.engine.core.ChooseNumberDecision
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.DecisionContext
@@ -24,6 +32,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Zone
@@ -34,31 +43,33 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.EntersWithDevour
-import com.wingedsheep.sdk.scripting.OnEnterRunEffect
+import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Applies a permanent's own "as-enters" replacements — [EntersWithChoice] (CR 614.12 — choose a
  * color / creature type / mode / … as the permanent enters), [EntersAsCopy], and the generic
- * [OnEnterRunEffect] — to an entity that has *already* been placed on the battlefield
+ * [OnEnterRun] — to an entity that has *already* been placed on the battlefield
  * **directly**, i.e. not cast as a spell that resolves off the stack.
  *
  * **Each caller uses a different subset — this is a toolbox, not one entry point.** Which of the
  * two helper families is wired where today:
  *
  *  - [com.wingedsheep.engine.handlers.actions.land.PlayLandHandler] — a land played directly.
- *    Both: [pauseForEntersWithChoice] / [entersAsCopyCandidates], and [OnEnterRunEffect] inline
+ *    Both: [pauseForEntersWithChoice] / [entersAsCopyCandidates], and [OnEnterRun] inline
  *    (sharing this object's [onEnterRunEffectFor] lookup).
  *  - [com.wingedsheep.engine.handlers.effects.token.TokenFromDefinition] — a token minted from a
  *    card definition (e.g. the Momir Basic avatar's random-creature token).
  *    [pauseForEntersWithChoice] and [devourSacrificeCandidates].
  *  - [com.wingedsheep.engine.handlers.effects.zones.MoveToZoneEffectExecutor] — a card put onto
  *    the battlefield by an effect (reanimation, a blink or earthbend return from exile).
- *    [runOnEnterRunEffect] only.
+ *    [runOnEnterRunEffect], and [EntersWithChoice] through [EffectEntryChoices], which asks
+ *    *before* the move (so it shares only [entersChoicePrompt] / [decodeEntersChoice]).
+ *    [com.wingedsheep.engine.handlers.effects.library.MoveCollectionExecutor] asks the same way.
  *  - [com.wingedsheep.engine.mechanics.stack.StackResolver] — a permanent *cast as a spell*, run
  *    just after `enterPermanentOnBattlefield`. [runOnEnterRunEffect] only. Added for Nameless
- *    Race; until then [OnEnterRunEffect] was silently inert on every cast permanent, which went
+ *    Race; until then [OnEnterRun] was silently inert on every cast permanent, which went
  *    unnoticed because its only two users were lands (played, not cast).
  *  - [com.wingedsheep.engine.handlers.continuations.ModalAndCloneContinuationResumer]'s
  *    `resumeEntersWithChoiceSpell` — the same cast-as-a-spell entry, finished on the *other* side
@@ -68,10 +79,8 @@ import com.wingedsheep.sdk.scripting.references.Player
  *    it. `enterPermanentOnBattlefield` can't own the call — it returns a `(GameState, events)`
  *    pair, and this replacement may pause.
  *
- * Those omissions are real gaps, not deliberate exclusions. The next one worth closing is
- * [EntersWithChoice] on the move path: a reanimated Shapeshifter or Sorcerous Spyglass currently
- * enters with its as-enters choice never made — the same shape of bug [runOnEnterRunEffect] was
- * added to fix, one replacement over.
+ * Those omissions are real gaps, not deliberate exclusions — e.g. `MoveCollectionExecutor` still
+ * doesn't run [OnEnterRun].
  *
  * The spell-resolution path keeps its own pre-battlefield variant
  * ([com.wingedsheep.engine.mechanics.stack.StackResolver.pauseForEntersWithChoice]) because there
@@ -79,15 +88,13 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * The choice pauses for a player decision. [EntersWithChoiceOnBattlefieldContinuation]'s resumer
  * records the chosen value into the entity's `CastChoicesComponent`, chains to any remaining
- * choice, and then fires the entry's ETB triggers off a synthesized [ZoneChangeEvent] (using the
- * continuation's `fromZone`). **ETB triggers are therefore fired by the resumer, never by the
- * caller** — a caller whose paused result is run through trigger detection (e.g. an effect
- * resolving via `StackResolver`) must NOT also include the entry battlefield [ZoneChangeEvent] in
- * [carryEvents], or the triggers fire twice.
+ * choice, and then emits the entry's [ZoneChangeEvent] (using the continuation's `fromZone`).
+ * **The entry event is therefore emitted by the resumer, never by the caller.** The settle
+ * boundary detects triggers over every event a paused result carries, so a caller must NOT
+ * include the entry battlefield [ZoneChangeEvent] in [carryEvents], or the ETB triggers fire
+ * twice.
  */
 object PermanentEntryReplacements {
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     /**
      * Models the "look at an opponent's hand" clause of an [EntersWithChoice] with
@@ -109,19 +116,14 @@ object PermanentEntryReplacements {
     ): Pair<GameState, List<GameEvent>> {
         val opponentId = state.getOpponents(viewerId).firstOrNull() ?: return state to emptyList()
         val handCards = state.getHand(opponentId)
-        var newState = state
-        for (cardId in handCards) {
-            newState = newState.updateEntity(cardId) { container ->
-                val existing = container.get<RevealedToComponent>()
-                if (existing != null) container.with(existing.withPlayer(viewerId))
-                else container.with(RevealedToComponent.to(viewerId))
-            }
-        }
-        return newState to listOf(HandLookedAtEvent(viewerId, opponentId, handCards))
+        val observers = setOf(state.actorFor(viewerId)) - viewerId
+        val newState = com.wingedsheep.engine.handlers.effects.library.LibraryRevealUtils.markRevealed(
+            state, handCards, observers + viewerId)
+        return newState to listOf(HandLookedAtEvent(viewerId, opponentId, handCards, observers))
     }
 
     /**
-     * The single [OnEnterRunEffect] a card definition contributes, or `null` if it has none.
+     * The single [OnEnterRun] a card definition contributes, or `null` if it has none.
      *
      * **First one wins.** Both entry paths consult only the first, so a card that needs two
      * "as ~ enters" clauses must fold them into one composite inside a single replacement — see
@@ -150,6 +152,7 @@ object PermanentEntryReplacements {
         controllerId: EntityId,
         devour: EntersWithDevour,
         enteringId: EntityId?,
+        predicateEvaluator: PredicateEvaluator
     ): List<EntityId> {
         val predicateContext = PredicateContext(controllerId = controllerId, sourceId = enteringId)
         return state.getBattlefield().filter { entityId ->
@@ -161,13 +164,13 @@ object PermanentEntryReplacements {
         }
     }
 
-    fun onEnterRunEffectFor(cardDef: CardDefinition?): OnEnterRunEffect? =
+    fun onEnterRunEffectFor(cardDef: CardDefinition?): OnEnterRun? =
         cardDef?.script?.replacementEffects
-            ?.filterIsInstance<OnEnterRunEffect>()
+            ?.filterIsInstance<OnEnterRun>()
             ?.firstOrNull()
 
     /**
-     * Run a permanent's own [OnEnterRunEffect] — the generic "as ~ enters, run [effect]"
+     * Run a permanent's own [OnEnterRun] — the generic "as ~ enters, run [effect]"
      * self-replacement — on an entity that has *already* been placed on the battlefield.
      *
      * [com.wingedsheep.engine.handlers.actions.land.PlayLandHandler] runs this inline for a land
@@ -188,7 +191,7 @@ object PermanentEntryReplacements {
      * @param resolutionDepth the calling effect's depth, carried into the fresh context so the
      *   registry's runaway-recursion backstop still counts a self-perpetuating entry loop.
      * @return the [EffectResult] of running the replacement, or `null` if the card has no
-     *   [OnEnterRunEffect] — the caller then completes entry normally.
+     *   [OnEnterRun] — the caller then completes entry normally.
      */
     fun runOnEnterRunEffect(
         state: GameState,
@@ -236,6 +239,7 @@ object PermanentEntryReplacements {
         entityId: EntityId,
         controllerId: EntityId,
         effect: EntersAsCopy,
+        predicateEvaluator: PredicateEvaluator
     ): List<EntityId> {
         val pool = if (effect.copyFromZone == Zone.GRAVEYARD) {
             state.turnOrder.flatMap { state.getGraveyard(it) }
@@ -278,9 +282,10 @@ object PermanentEntryReplacements {
         carryEvents: List<GameEvent> = emptyList(),
         entryOldObject: com.wingedsheep.engine.state.ObjectRef? = null,
         entryNewObject: com.wingedsheep.engine.state.ObjectRef? = state.objectRef(entityId),
+        predicateEvaluator: PredicateEvaluator
     ): ExecutionResult? {
         val copyFromGraveyard = effect.copyFromZone == Zone.GRAVEYARD
-        val candidates = entersAsCopyCandidates(state, entityId, controllerId, effect)
+        val candidates = entersAsCopyCandidates(state, entityId, controllerId, effect, predicateEvaluator = predicateEvaluator)
         if (candidates.isEmpty()) return null
 
         val filterDesc = effect.copyFilter.description
@@ -306,13 +311,16 @@ object PermanentEntryReplacements {
             controllerId = controllerId,
             fromZone = fromZone,
             additionalSubtypes = effect.additionalSubtypes,
+            additionalColors = effect.additionalColors,
             additionalKeywords = effect.additionalKeywords,
+            exceptions = effect.exceptions,
             nameOverride = effect.nameOverride,
             powerOverride = effect.powerOverride,
             toughnessOverride = effect.toughnessOverride,
             exileCopiedCard = effect.exileCopiedCard,
             tappedIfCopied = effect.tappedIfCopied,
             additionalCounters = effect.additionalCounters,
+            duration = effect.duration,
             entryOldObject = entryOldObject,
             entryNewObject = entryNewObject,
         )
@@ -329,8 +337,7 @@ object PermanentEntryReplacements {
      * @param fromZone the zone the permanent came from, used to synthesize the entry
      *   [ZoneChangeEvent] in the resumer; `null` for a freshly-minted token (no prior zone).
      * @param carryEvents events already produced by the caller to forward with the pause (e.g.
-     *   counters added). Must NOT include the entry battlefield [ZoneChangeEvent] when the caller's
-     *   result is trigger-detected (see class docs).
+     *   counters added). Must NOT include the entry battlefield [ZoneChangeEvent] (see class docs).
      * @return a paused [ExecutionResult], or `null` if the choice cannot be presented (e.g.
      *   `CREATURE_ON_BATTLEFIELD` with no other creatures, an empty `MODE`/`OPPONENT` set) — the
      *   caller then completes entry normally.
@@ -348,7 +355,85 @@ object PermanentEntryReplacements {
         syntheticRiotRemaining: Int = 0,
         entryOldObject: com.wingedsheep.engine.state.ObjectRef? = null,
         entryNewObject: com.wingedsheep.engine.state.ObjectRef? = state.objectRef(entityId),
+        copyOfOriginalName: String? = null,
     ): ExecutionResult? {
+        val prompt = entersChoicePrompt(
+            state, entityId, controllerId, cardComponent, choice, fromZone,
+            cardNameOptions, syntheticRiot, syntheticRiotRemaining
+        ) ?: return null
+        // The entry's object identities are captured on the answer, not read when it resumes:
+        // by then the permanent has finished entering and the old object is gone.
+        return prompt.state.suspendForDecision(
+            prompt.question,
+            prompt.answer.copy(
+                entryOldObject = entryOldObject, entryNewObject = entryNewObject,
+                copyOfOriginalName = copyOfOriginalName,
+            ),
+            carryEvents + prompt.events,
+        )
+    }
+
+    /**
+     * Read the player's answer to an [entersChoicePrompt] question into the [ChoiceSlot] it fills
+     * and the value to record there, or `null` when the response doesn't fit the question.
+     */
+    fun decodeEntersChoice(
+        question: EntersWithChoiceOnBattlefieldContinuation,
+        response: DecisionResponse,
+    ): Pair<ChoiceSlot, ChoiceValue>? {
+        fun <T> option(options: List<T>): T? = (response as? OptionChosenResponse)?.let { options.getOrNull(it.optionIndex) }
+        return when (question.choiceType) {
+            ChoiceType.COLOR -> (response as? ColorChosenResponse)
+                ?.let { ChoiceSlot.COLOR to ChoiceValue.ColorChoice(it.color) }
+            ChoiceType.CREATURE_TYPE -> option(question.creatureTypes)
+                ?.let { ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice(it) }
+            ChoiceType.CARD_TYPE -> option(question.cardTypes)
+                ?.let { ChoiceSlot.CARD_TYPE to ChoiceValue.TextChoice(it.displayName) }
+            ChoiceType.CREATURE_ON_BATTLEFIELD -> (response as? CardsSelectedResponse)?.selectedCards?.firstOrNull()
+                ?.let { ChoiceSlot.CREATURE to ChoiceValue.EntityChoice(it) }
+            ChoiceType.MODE -> option(question.modeOptionIds)
+                ?.let { ChoiceSlot.MODE to ChoiceValue.TextChoice(it) }
+            ChoiceType.BASIC_LAND_TYPE -> option(question.landTypes)
+                ?.let { ChoiceSlot.LAND_TYPE to ChoiceValue.TextChoice(it) }
+            ChoiceType.OPPONENT -> option(question.opponentIds)
+                ?.let { ChoiceSlot.OPPONENT to ChoiceValue.EntityChoice(it) }
+            ChoiceType.CARD_NAME -> option(question.cardNames)
+                ?.let { ChoiceSlot.CARD_NAME to ChoiceValue.TextChoice(it) }
+            ChoiceType.NUMBER -> (response as? NumberChosenResponse)
+                ?.let { ChoiceSlot.CHOSEN_NUMBER to ChoiceValue.NumberChoice(it.number) }
+        }
+    }
+
+    /**
+     * An [EntersWithChoice] question, not yet asked: the decision to present, and the answer frame
+     * that knows how to read the response ([decodeEntersChoice]). [state] and [events] carry the
+     * reveal a [EntersWithChoice.lookAtOpponentHand] choice makes before it is asked.
+     */
+    class EntersChoicePrompt(
+        val question: (String) -> PendingDecision,
+        val answer: EntersWithChoiceOnBattlefieldContinuation,
+        val state: GameState,
+        val events: List<GameEvent> = emptyList(),
+    )
+
+    /**
+     * Build the question for one [EntersWithChoice] of [entityId] — shared by the post-entry pause
+     * above and the pre-entry preparation of an effect-driven entry
+     * ([com.wingedsheep.engine.handlers.effects.EffectEntryChoices]).
+     *
+     * @return `null` if the choice cannot be presented (see [pauseForEntersWithChoice]).
+     */
+    fun entersChoicePrompt(
+        state: GameState,
+        entityId: EntityId,
+        controllerId: EntityId,
+        cardComponent: CardComponent,
+        choice: EntersWithChoice,
+        fromZone: Zone?,
+        cardNameOptions: List<String> = emptyList(),
+        syntheticRiot: Boolean = false,
+        syntheticRiotRemaining: Int = 0,
+    ): EntersChoicePrompt? {
         val chooserId = when (choice.chooser) {
             Player.AnOpponent -> state.getOpponents(controllerId).firstOrNull() ?: controllerId
             else -> controllerId
@@ -361,21 +446,18 @@ object PermanentEntryReplacements {
             phase = DecisionPhase.RESOLUTION
         )
 
-        // The entry's object identities are captured on the answer, not read when it resumes:
-        // by then the permanent has finished entering and the old object is gone.
         fun pause(
             question: (String) -> PendingDecision,
             continuation: EntersWithChoiceOnBattlefieldContinuation,
-        ): ExecutionResult = state.suspendForDecision(
-            question,
-            continuation.copy(entryOldObject = entryOldObject, entryNewObject = entryNewObject),
-            carryEvents,
-        )
+        ) = EntersChoicePrompt(question, continuation, state)
 
         return when (choice.choiceType) {
             ChoiceType.COLOR -> {
                 pause(
-                    { id -> ChooseColorDecision(id, chooserId, "Choose a color", context()) },
+                    { id -> ChooseColorDecision(
+                        id, chooserId, colorChoicePrompt(choice), context(),
+                        availableColors = Color.entries.toSet() - choice.excludedColors
+                    ) },
                     EntersWithChoiceOnBattlefieldContinuation(
                         entityId = entityId,
                         controllerId = controllerId,
@@ -557,11 +639,7 @@ object PermanentEntryReplacements {
                     cardNames = options,
                     fromZone = fromZone
                 )
-                baseState.suspendForDecision(
-                    question,
-                    continuation.copy(entryOldObject = entryOldObject, entryNewObject = entryNewObject),
-                    carryEvents + lookEvents,
-                )
+                EntersChoicePrompt(question, continuation, baseState, lookEvents)
             }
 
             ChoiceType.NUMBER -> {

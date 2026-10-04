@@ -78,7 +78,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shuri's Fabricator:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -94,7 +94,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Shuri's Fabricator:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -149,7 +149,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Great Mound:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -162,7 +162,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "The Great Mound:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -185,7 +185,7 @@
                 "descriptionOverride": "Create a tapped Vibranium token"
             },
             {
-                "id": "ability_3",
+                "id": "The Great Mound:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -243,7 +243,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vibranium Mining Mech:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -257,7 +257,7 @@
                 "descriptionOverride": "When this Vehicle enters, create a tapped Vibranium token"
             },
             {
-                "id": "ability_2",
+                "id": "Vibranium Mining Mech:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -270,7 +270,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Vibranium Mining Mech:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

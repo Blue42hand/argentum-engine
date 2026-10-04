@@ -29,7 +29,7 @@ val GoblinRingleader = card("Goblin Ringleader") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
             count = DynamicAmount.Fixed(4),
             filter = GameObjectFilter.Any.withSubtype(Subtype.GOBLIN),

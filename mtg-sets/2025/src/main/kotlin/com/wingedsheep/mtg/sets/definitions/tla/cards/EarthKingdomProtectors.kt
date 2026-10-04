@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Earth Kingdom Protectors
@@ -33,10 +33,7 @@ val EarthKingdomProtectors = card("Earth Kingdom Protectors") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val ally = target(
-            "another target Ally you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl.withSubtype(Subtype.ALLY))
-        )
+        val ally = target(TargetFilter(GameObjectFilter.Permanent.youControl().withSubtype(Subtype.ALLY)).other())
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, ally)
     }
 

@@ -9,6 +9,11 @@ import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
+
+private val ExecutionResult.isSuccess: Boolean get() = outcome == Outcome.Done
+private val ExecutionResult.isPaused: Boolean get() = outcome is Outcome.Paused
 
 class NecroblossomSnarlTest : FunSpec({
     fun createDriver(): GameTestDriver = GameTestDriver().also {

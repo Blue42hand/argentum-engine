@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Swan Song — Theros #65
@@ -26,8 +26,7 @@ val SwanSong = card("Swan Song") {
 
     spell {
         target(
-            "target enchantment, instant, or sorcery spell",
-            TargetSpell(
+            TargetObject(
                 filter = TargetFilter(
                     GameObjectFilter.Enchantment or GameObjectFilter.InstantOrSorcery,
                     zone = Zone.STACK,

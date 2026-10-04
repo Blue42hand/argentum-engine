@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -31,11 +30,11 @@ val KessigWolfRun = card("Kessig Wolf Run") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}{R}{G}"), Costs.Tap)
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Composite(
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.Composite(listOf(
             Effects.ModifyStats(DynamicAmount.XValue, DynamicAmount.Fixed(0), creature),
             Effects.GrantKeyword(Keyword.TRAMPLE, creature),
-        )
+        ))
     }
 
     metadata {

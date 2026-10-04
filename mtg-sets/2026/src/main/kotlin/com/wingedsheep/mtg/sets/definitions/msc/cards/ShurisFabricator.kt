@@ -23,7 +23,7 @@ val ShurisFabricator = card("Shuri's Fabricator") {
         "counter on it would be put into a graveyard, exile it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateVibranium(
             count = 2,
             tapped = true,

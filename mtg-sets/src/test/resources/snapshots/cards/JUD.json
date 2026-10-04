@@ -14,7 +14,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ancestor's Chosen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -58,7 +58,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aven Fogbringer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -67,7 +67,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -76,7 +76,7 @@
                     "filter": {
                         "baseFilter": "land"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -185,7 +185,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cabal Trainee:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "ModifyStats",
@@ -199,7 +199,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -208,7 +208,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -238,7 +238,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cephalid Inkshrouder:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -337,7 +337,7 @@
             "keyword": "FLYING",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -346,7 +346,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -379,7 +379,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -394,7 +394,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -403,6 +403,105 @@
         "artist": "Alan Pollack",
         "flavorText": "Dwarves bring poor coal to market, use good coal in their homes, and throw their best coal away.",
         "imageUri": "https://cards.scryfall.io/normal/front/6/a/6a9eb72b-9ae2-4b64-bbb9-187446b5fd2f.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fledgling Dragon
+{
+    "name": "Fledgling Dragon",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nThreshold — As long as there are seven or more cards in your graveyard, this creature gets +3/+3 and has \"{R}: This creature gets +1/+0 until end of turn.\"",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 3,
+                    "toughnessBonus": 3,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantActivatedAbility",
+                    "ability": {
+                        "id": "Fledgling Dragon:1",
+                        "cost": {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R}"
+                            }
+                        },
+                        "effect": {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": "Self"
+                        },
+                        "descriptionOverride": "{R}: This creature gets +1/+0 until end of turn."
+                    },
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "90",
+        "rarity": "RARE",
+        "artist": "Greg Staples",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/315e5b4e-ae58-412a-be27-c4ef4899fbbd.jpg?1783945118"
     },
     "colorIdentityOverride": [
         "RED"
@@ -459,7 +558,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Genesis:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -478,7 +577,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         },
                         "destination": "Hand"
                     }
@@ -489,7 +588,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "activeZones": [
                     "Graveyard"
@@ -547,7 +646,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goretusk Firebeast:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -560,12 +659,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetPlayerOrPlaneswalker",
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -594,7 +693,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hapless Researcher:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Composite",
@@ -670,18 +769,18 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ironshell Beetle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -689,7 +788,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -722,7 +821,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jeska, Warrior Adept:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -732,13 +831,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -792,7 +891,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krosan Verge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -805,7 +904,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Krosan Verge:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -829,7 +928,8 @@
                                 "type": "FromZone",
                                 "zone": "Library"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -884,7 +984,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krosan Wayfarer:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Gated",
@@ -965,7 +1065,7 @@
                     "baseFilter": {},
                     "zone": "Stack"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1011,12 +1111,15 @@
                 "amount": 1
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "t0"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
         ]
     },
     "metadata": {
@@ -1055,7 +1158,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1083,7 +1186,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Liberated Dwarf:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1112,7 +1215,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1120,7 +1223,7 @@
                             "keyword": "FIRST_STRIKE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -1131,7 +1234,7 @@
                         "filter": {
                             "baseFilter": "creature green"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1159,29 +1262,24 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 2
-                                },
-                                "isMill": true
-                            },
-                            "storeAs": "milled"
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
                         },
-                        {
-                            "type": "MoveCollection",
-                            "from": "milled",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard"
-                            }
-                        }
-                    ]
+                        "isMill": true
+                    },
+                    "storeAs": "milled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "milled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
                 },
                 {
                     "type": "DrawCards",
@@ -1217,7 +1315,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nomad Mythmaker:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1235,7 +1333,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Battlefield",
                     "controllerOverride": "Controller"
@@ -1247,7 +1345,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1285,7 +1383,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -1296,7 +1394,7 @@
                 "filter": {
                     "baseFilter": "enchantment"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1329,7 +1427,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1354,7 +1452,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soulcatchers' Aerie:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Bird own:you",
@@ -1364,7 +1462,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "feather",
+                    "counterType": "FEATHER",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1378,24 +1476,18 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "feather"
-                        }
+                        "counterType": "FEATHER"
                     }
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "feather"
-                        }
+                        "counterType": "FEATHER"
                     }
                 }
             }
@@ -1434,7 +1526,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1452,7 +1544,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1512,7 +1604,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -1522,7 +1614,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1551,7 +1643,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sylvan Safekeeper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1564,7 +1656,7 @@
                     "keyword": "SHROUD",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1573,7 +1665,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1604,7 +1696,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thriss, Nantuko Primus:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1630,7 +1722,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1639,7 +1731,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1670,7 +1762,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tunneler Wurm:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -1705,7 +1797,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -1716,7 +1808,7 @@
                 "filter": {
                     "baseFilter": "permanent"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },

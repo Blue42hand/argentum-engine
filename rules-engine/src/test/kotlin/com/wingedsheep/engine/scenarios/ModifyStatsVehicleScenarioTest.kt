@@ -35,7 +35,7 @@ class ModifyStatsVehicleScenarioTest : FunSpec({
         val d = driver()
         val mech = d.putPermanentOnBattlefield(d.player1, vehicle.name)
         val pilot = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
-        val result = ModifyStatsExecutor().execute(
+        val result = ModifyStatsExecutor(d.services.predicateEvaluator.amounts).execute(
             d.state,
             ModifyStatsEffect(1, 0, EffectTarget.Self),
             EffectContext(sourceId = mech, controllerId = d.player1),
@@ -54,7 +54,7 @@ class ModifyStatsVehicleScenarioTest : FunSpec({
         val d = driver()
         val mech = d.putPermanentOnBattlefield(d.player1, vehicle.name)
         val caster = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
-        val result = ModifyStatsExecutor().execute(
+        val result = ModifyStatsExecutor(d.services.predicateEvaluator.amounts).execute(
             d.state,
             ModifyStatsEffect(1, 0, EffectTarget.ContextTarget(0)),
             EffectContext(

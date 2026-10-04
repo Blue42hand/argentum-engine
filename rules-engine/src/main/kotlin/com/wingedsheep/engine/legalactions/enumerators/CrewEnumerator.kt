@@ -11,6 +11,7 @@ import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.CrewSaddleCost
 import com.wingedsheep.sdk.scripting.KeywordAbility
 
 /**
@@ -42,6 +43,10 @@ class CrewEnumerator : ActionEnumerator {
             val crewAbility = cardDef.keywordAbilities
                 .filterIsInstance<KeywordAbility.Numeric>()
                 .firstOrNull { it.keyword == Keyword.CREW } ?: continue
+
+            // Crew is an activated ability (CR 702.122a) — mirror `CrewVehicleHandler`'s
+            // activation-prohibition check so it's never offered and then refused.
+            if (context.castPermissionUtils.isActivationForbidden(state, entityId, playerId)) continue
 
             // "Crew N. Activate only once each turn." — once it's already been crewed this turn,
             // the crew action is no longer available (Luxurious Locomotive).
@@ -75,11 +80,11 @@ class CrewEnumerator : ActionEnumerator {
                 // power were 2 greater" must read that way here or the client's progress bar would
                 // refuse a crew the engine accepts.
                 val power = CrewSaddleContributionEvaluator.evaluate(
-                    state, projected, context.cardRegistry, creatureId
+                    state, projected, context.cardRegistry, creatureId, CrewSaddleCost.CREW
                 )
                 val creatureName = creatureContainer.get<CardComponent>()?.name ?: "Unknown"
                 val canAttack = canAttackCache.getOrPut(creatureId) {
-                    AttackAvailability.canAttack(state, projected, creatureId, playerId, context.cardRegistry)
+                    AttackAvailability.canAttack(state, projected, creatureId, playerId, context.cardRegistry, context.predicateEvaluator)
                 }
                 validCrewCreatures.add(
                     TapForPowerCreatureData(creatureId, creatureName, power, canAttack)

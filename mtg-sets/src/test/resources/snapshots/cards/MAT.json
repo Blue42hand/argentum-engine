@@ -11,7 +11,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pia Nalaar, Consul of Revival:1",
                 "trigger": {
                     "type": "LandPlayedEvent",
                     "fromZone": "Exile"
@@ -34,7 +34,7 @@
                 "descriptionOverride": "Whenever you play a land from exile, create a 1/1 colorless Thopter artifact creature token with flying."
             },
             {
-                "id": "ability_2",
+                "id": "Pia Nalaar, Consul of Revival:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -104,7 +104,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rocco, Street Chef:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -153,7 +153,7 @@
                 "descriptionOverride": "At the beginning of your end step, each player exiles the top card of their library. Until your next end step, each player may play the card they exiled this way."
             },
             {
-                "id": "ability_2",
+                "id": "Rocco, Street Chef:2",
                 "trigger": {
                     "type": "LandPlayedEvent",
                     "fromZone": "Exile",
@@ -165,11 +165,11 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature"
+                                "name": "t0"
                             }
                         },
                         {
@@ -183,12 +183,12 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever a player plays a land from exile, you put a +1/+1 counter on target creature and create a Food token."
             },
             {
-                "id": "ability_3",
+                "id": "Rocco, Street Chef:3",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "Each",
@@ -205,11 +205,11 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature"
+                                "name": "t1"
                             }
                         },
                         {
@@ -223,7 +223,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever a player casts a spell from exile, you put a +1/+1 counter on target creature and create a Food token."
             }

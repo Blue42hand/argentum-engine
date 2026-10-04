@@ -27,7 +27,7 @@ val OverwhelmingStampede = card("Overwhelming Stampede") {
 
     spell {
         val greatestPower = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()
-        effect = Effects.Composite(
+        effect = Effects.Composite(listOf(
             Effects.StoreNumber("stampede_x", greatestPower),
             Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, GroupFilter.AllCreaturesYouControl),
             Patterns.Group.modifyStatsForAll(
@@ -35,7 +35,7 @@ val OverwhelmingStampede = card("Overwhelming Stampede") {
                 toughness = DynamicAmount.VariableReference("stampede_x"),
                 filter = GroupFilter.AllCreaturesYouControl,
             ),
-        )
+        ))
     }
 
     metadata {

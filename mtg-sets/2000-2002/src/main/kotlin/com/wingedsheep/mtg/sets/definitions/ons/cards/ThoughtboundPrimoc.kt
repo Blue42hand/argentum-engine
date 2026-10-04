@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Thoughtbound Primoc
@@ -29,17 +29,17 @@ val ThoughtboundPrimoc = card("Thoughtbound Primoc") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
-        effect = ConditionalEffect(
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
+        effect = Effects.If(
             condition = Conditions.APlayerControlsMostOfSubtype(Subtype("Wizard")),
-            effect = Effects.GainControlByMostOfSubtype(Subtype("Wizard"))
+            then = Effects.GainControlByMostOfSubtype(Subtype("Wizard"))
         )
     }
 
     metadata {
         rarity = Rarity.UNCOMMON
-        collectorNumber = "116"
-        artist = "Mark Tedin"
+        collectorNumber = "240"
+        artist = "Jeff Miracola"
         flavorText = "It has learned to anticipate its master's wishes."
         imageUri = "https://cards.scryfall.io/normal/front/e/8/e89156b5-8bdb-41d1-a7aa-63f770a9b070.jpg?1562950377"
     }
