@@ -15,6 +15,7 @@ import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.permissions.MayPlayPermission
 import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.engine.support.exportPrivacyFixture
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.EntityId
@@ -278,6 +279,8 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player1Id) shouldBe false
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player2Id) shouldBe false
             val ownerCard = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id).cards[exiled]
+            exportPrivacyFixture("own-face-down-exile", ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id), listOf(exiled))
+            exportPrivacyFixture("opponent-face-down-exile", ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player2Id), listOf(exiled))
             ownerCard?.isFaceDown shouldBe true
             ownerCard?.name shouldBe "Face-down card"
             ownerCard?.revealedName shouldBe null
@@ -299,6 +302,7 @@ class CardIdentityVisibilityTest : ScenarioTestBase() {
             }
 
             visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player1Id) shouldBe true
+            exportPrivacyFixture("own-foretold-exile", ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id), listOf(exiled))
             ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator).transform(state, game.player1Id).cards[exiled]?.name shouldBe "Craw Wurm"
             withClue("the opponent never gets to look") {
                 visibility.isCardIdentityVisibleTo(state, exileKey, exiled, game.player2Id) shouldBe false

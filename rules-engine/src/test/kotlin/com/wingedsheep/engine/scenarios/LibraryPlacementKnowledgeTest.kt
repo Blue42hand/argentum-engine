@@ -9,6 +9,7 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.engine.support.exportPrivacyFixture
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
@@ -200,6 +201,7 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 withClue("both players know what is on top") {
                     game.state.revealedTo(bears) shouldBe setOf(game.player1Id, game.player2Id)
                 }
+                exportPrivacyFixture("opponent-legitimate-top-reveal", game.getClientState(1), listOf(bears))
             }
 
             test("shuffling the library forgets the card that was put on top") {
@@ -227,6 +229,7 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 }
                 beforeLibrary.cardIds.first() shouldBe bears
                 beforeShuffle.cards[bears]?.name shouldBe "Grizzly Bears"
+                exportPrivacyFixture("legitimate-top-reveal", beforeShuffle, listOf(bears))
 
                 game.castSpell(1, "Shuffle Up Test")
                 game.resolveStack()
@@ -247,6 +250,7 @@ class LibraryPlacementKnowledgeTest : ScenarioTestBase() {
                 val updateWithHistory = afterShuffle.copy(gameLog = listOf(
                     ClientEvent.CardDrawn(game.player1Id, bears, "Grizzly Bears")
                 ))
+                exportPrivacyFixture("shuffle-with-public-history", updateWithHistory, listOf(bears))
                 val historicalId = (updateWithHistory.gameLog.single() as ClientEvent.CardDrawn).cardId
                 updateWithHistory.zones.single {
                     it.zoneId == ZoneKey(game.player1Id, Zone.LIBRARY)
