@@ -14,6 +14,9 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL,
+    launchOptions: process.env.E2E_CHROMIUM_EXECUTABLE
+      ? { executablePath: process.env.E2E_CHROMIUM_EXECUTABLE }
+      : undefined,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

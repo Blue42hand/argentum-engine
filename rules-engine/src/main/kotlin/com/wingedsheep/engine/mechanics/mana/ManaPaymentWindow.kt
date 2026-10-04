@@ -76,10 +76,12 @@ object ManaPaymentWindow {
         manaSolver: ManaSolver,
         excludeSources: Set<EntityId> = emptySet(),
         spellContext: SpellPaymentContext? = null,
+        unknownAutoPayFeasibility: Boolean = false,
     ): SelectManaSourcesDecision {
         val solver = manaSolver
         val paymentContext = spellContext ?: SpellPaymentContext()
-        val options = solver.findAvailableManaSources(state, playerId, paymentContext)
+        val sources = solver.findAvailableManaSources(state, playerId, paymentContext)
+        val options = sources
             .filter { it.tapPermanentsSubCost == null && it.entityId !in excludeSources &&
                 it.restriction?.isSatisfiedBy(paymentContext) != false }
             .map { source ->
@@ -93,8 +95,9 @@ object ManaPaymentWindow {
                 )
             }
         val remaining = remainingAfterFloating(state, playerId, cost, paymentContext)
-        val suggestion = if (remaining.isEmpty()) emptyList()
-            else solver.solve(state, playerId, remaining, excludeSources = excludeSources, spellContext = paymentContext)?.sources?.map { it.entityId }.orEmpty()
+        val solution = if (remaining.isEmpty()) null
+            else solver.solve(state, playerId, remaining, excludeSources = excludeSources, spellContext = paymentContext)
+        val suggestion = solution?.sources?.map { it.entityId }.orEmpty()
 
         return SelectManaSourcesDecision(
             id = decisionId,
@@ -104,6 +107,12 @@ object ManaPaymentWindow {
             availableSources = options,
             requiredCost = cost.toString(),
             autoPaySuggestion = suggestion.filter { id -> options.any { it.entityId == id } },
+            canAutoPayNow = when {
+                unknownAutoPayFeasibility -> null
+                remaining.isEmpty() -> true
+                hasContextSensitiveMana(state, playerId, sources) -> null
+                else -> solution != null
+            },
             canDecline = canDecline
         )
     }
@@ -306,8 +315,8 @@ object ManaPaymentWindow {
         manaSolver: ManaSolver
     ): ExecutionResult {
         val decision = suspension.question as SelectManaSourcesDecision
-        val spellContext = (suspension.answer as? ManaActionPaymentContinuation)?.paymentContext
-        val refreshed = refresh(state, decision, manaSolver, spellContext)
+        val payment = suspension.answer as? ManaActionPaymentContinuation
+        val refreshed = refresh(state, decision, manaSolver, payment?.paymentContext, payment?.excludedSources.orEmpty())
         return ExecutionResult.propagatePause(
             state.restoreSuspension(suspension.copy(question = refreshed)), events
         )
@@ -327,10 +336,12 @@ object ManaPaymentWindow {
         decision: SelectManaSourcesDecision,
         manaSolver: ManaSolver,
         spellContext: SpellPaymentContext? = null,
+        excludeSources: Set<EntityId> = emptySet(),
     ): SelectManaSourcesDecision {
         val solver = manaSolver
         val paymentContext = spellContext ?: SpellPaymentContext()
-        val stillAvailable = solver.findAvailableManaSources(state, decision.playerId, paymentContext)
+        val sources = solver.findAvailableManaSources(state, decision.playerId, paymentContext)
+        val stillAvailable = sources
             .map { source ->
                 ManaSourceOption(
                     entityId = source.entityId,
@@ -349,17 +360,33 @@ object ManaPaymentWindow {
         val availableSources = decision.availableSources.filter { it.entityId in stillAvailable }
 
         val remaining = remainingCost(state, decision, paymentContext)
-        val autoPaySuggestion = when {
-            remaining == null || remaining.isEmpty() -> emptyList()
-            else -> solver.solve(state, decision.playerId, remaining, spellContext = paymentContext)?.sources?.map { it.entityId }
-                ?: emptyList()
-        }
+        val solution = if (remaining == null || remaining.isEmpty()) null
+            else solver.solve(state, decision.playerId, remaining, excludeSources = excludeSources, spellContext = paymentContext)
+        val autoPaySuggestion = solution?.sources?.map { it.entityId }.orEmpty()
 
         return decision.copy(
             availableSources = availableSources,
-            autoPaySuggestion = autoPaySuggestion.filter { id -> availableSources.any { it.entityId == id } }
+            autoPaySuggestion = autoPaySuggestion.filter { id -> availableSources.any { it.entityId == id } },
+            canAutoPayNow = when {
+                decision.canAutoPayNow == null -> null
+                remaining?.isEmpty() == true -> true
+                hasContextSensitiveMana(state, decision.playerId, sources) -> null
+                else -> solution != null
+            },
         )
     }
+
+    /** A generic window cannot prove the spendability of context-sensitive mana. */
+    private fun hasContextSensitiveMana(
+        state: GameState,
+        playerId: EntityId,
+        sources: List<ManaSource>,
+    ): Boolean =
+        state.getEntity(playerId)
+            ?.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
+            ?.restrictedMana?.isNotEmpty() == true || sources.any {
+            it.restriction != null || it.colorRestrictions.isNotEmpty() || it.hasContextSensitiveAbilities
+        }
 
     /**
      * Whether [playerId]'s floating mana already covers [cost] in full.

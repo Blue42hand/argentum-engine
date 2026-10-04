@@ -647,6 +647,11 @@ data class SelectManaSourcesDecision(
     val availableSources: List<ManaSourceOption>,
     val requiredCost: String,
     val autoPaySuggestion: List<EntityId>,
+    /** True only when the automatic payment path can finish from the current pool and sources.
+     * Null for payment windows that have not computed this feasibility contract or whose
+     * restricted mana needs a payment context unavailable to the generic window. */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val canAutoPayNow: Boolean? = null,
     val canDecline: Boolean = false,
     /** Floating restricted mana the server permits for this nonspell payment. */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)

@@ -143,6 +143,9 @@ export function ManaSourceSelectionUI({
           <AbilityText text={decision.prompt} size={13} />
         </div>
       )}
+      {decision.canAutoPayNow === false && (
+        <div className={styles.hint}>Activate a mana ability or select enough sources to pay.</div>
+      )}
 
       {/* Live readout: solid = already floating, outlined = will be tapped on Pay, dim = missing. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '6px 0' }}>
@@ -189,9 +192,10 @@ export function ManaSourceSelectionUI({
       )}
 
       <div className={styles.buttonContainerSmall}>
-        {!decision.canDecline && (
+        {(!decision.canDecline || decision.canAutoPayNow != null) && (
           <button
             onClick={handleAutoPay}
+            disabled={decision.canAutoPayNow === false}
             className={`${styles.confirmButton} ${styles.confirmButtonSmall}`}
           >
             Auto Pay

@@ -1,8 +1,12 @@
 package com.wingedsheep.gym.contract
 
 import com.wingedsheep.engine.core.GameConfig
+import com.wingedsheep.engine.core.ChooseDoorContinuation
+import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.core.PlayerConfig
+import com.wingedsheep.engine.core.SelectManaSourcesDecision
+import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.gym.GameEnvironment
 import com.wingedsheep.gym.GameGymEnv
 import com.wingedsheep.engine.core.ActionParams
@@ -118,6 +122,30 @@ class TrainingObservationTest : FunSpec({
         val encoded = json.encodeToString(TrainingObservation.serializer(), obs)
         val decoded = json.decodeFromString(TrainingObservation.serializer(), encoded)
         decoded shouldBe obs
+    }
+
+    test("structured mana decision publishes native AutoPay feasibility") {
+        val env = newEnv()
+        val player = env.playerIds[0]
+        val paused = env.state.suspendForDecision(
+            question = { id -> SelectManaSourcesDecision(
+                id = id,
+                playerId = player,
+                prompt = "Produce mana for a spell",
+                context = DecisionContext(),
+                availableSources = emptyList(),
+                requiredCost = "{2}{R}{R}",
+                autoPaySuggestion = emptyList(),
+                canAutoPayNow = false,
+            ) },
+            answer = ChooseDoorContinuation(player, com.wingedsheep.sdk.model.EntityId("unused"), emptyList(), true)
+        )
+
+        val observation = ObservationBuilder(env.cardRegistry)
+            .build(paused.state, player, emptyList()).observation as TrainingObservation
+        observation.pendingDecision?.canAutoPayNow shouldBe false
+        json.encodeToString(TrainingObservation.serializer(), observation) shouldContain
+            "\"canAutoPayNow\":false"
     }
 
     test("per-player zones have an explicit complete schema order") {

@@ -631,6 +631,7 @@ export interface SelectManaSourcesDecision extends PendingDecisionBase {
   readonly availableSources: readonly ManaSourceOption[]
   readonly requiredCost: string
   readonly autoPaySuggestion: readonly EntityId[]
+  readonly canAutoPayNow?: boolean | null
   readonly canDecline?: boolean
   /** Restricted floating mana the server found eligible for this payment. */
   readonly eligibleRestrictedMana?: readonly ClientRestrictedManaEntry[]

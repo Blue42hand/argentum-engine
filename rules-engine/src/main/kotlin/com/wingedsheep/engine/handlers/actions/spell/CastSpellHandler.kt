@@ -404,6 +404,9 @@ class CastSpellHandler(
                             announcedState, action.playerId, cost, id, "Produce mana for ${cardComponent.name}",
                             DecisionContext(sourceId = action.cardId, sourceName = cardComponent.name, phase = DecisionPhase.CASTING),
                             true, manaSolver, excludeSources = sacrificeSources, spellContext = context,
+                            // The displayed cost has X folded into generic mana, while actual
+                            // payment can still enforce X-specific rules such as Soul Burn.
+                            unknownAutoPayFeasibility = payableCost.xCount > 0 && computed.paymentXValue > 0,
                         ) },
                         answer = { decision -> com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, cost, lockedCastCost = totalCost,
                             excludedSources = sacrificeSources, paymentContext = context,
