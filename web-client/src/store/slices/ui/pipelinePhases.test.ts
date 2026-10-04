@@ -67,6 +67,32 @@ describe('computePhases — choose-N modal', () => {
   })
 })
 
+describe('Treasure Cruise delve selection', () => {
+  it('collects graveyard cards before mana and carries the chosen IDs into the cast', () => {
+    const cards = ['gy1', 'gy2', 'gy3', 'gy4', 'gy5', 'gy6', 'gy7']
+    const info = castAction({
+      actionType: 'CastSpell',
+      description: 'Cast Treasure Cruise',
+      manaCostString: '{6}{U}',
+      hasDelve: true,
+      validDelveCards: cards.map((entityId) => ({ entityId, name: 'Card' })),
+      minDelveNeeded: 5,
+      availableManaSources: [{ entityId: 'island', producesColors: ['U'] }],
+    })
+    const phases = computePhases(info, { autoTapEnabled: true })
+    expect(phases[0]).toEqual({ type: 'delve' })
+
+    let captured: Record<string, unknown> | null = null
+    const store = {
+      startDelveSelection: (arg: Record<string, unknown>) => { captured = arg },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'delve' }, info, info.action, store)
+    expect(captured).toMatchObject({ minDelveNeeded: 5, maxDelve: 6 })
+    const action = mergeResult(info.action, info, { type: 'delve', delvedCards: cards.slice(0, 5) as never, modifiedManaCost: '{1}{U}' }, {} as never)
+    expect(action).toMatchObject({ alternativePayment: { delvedCards: cards.slice(0, 5) } })
+  })
+})
+
 describe('computePhases — emerge sacrifice', () => {
   function emergeAction(): LegalActionInfo {
     return castAction({

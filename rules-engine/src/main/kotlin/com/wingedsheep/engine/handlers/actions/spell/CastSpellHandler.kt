@@ -750,6 +750,12 @@ class CastSpellHandler(
         }
         val computedCost = computeTotalCastCost(state, action, cardDef, cardComponent, playForFree, hasCommanderCast)
             ?: return "No alternative casting cost available"
+        // A delve card must pay an actual generic mana in the total cost. Check before
+        // execute moves any cards to exile; X casts retain their existing payment path.
+        val genericCap = computedCost.delveGenericCap
+        if (genericCap != null && (alternativePayment?.delvedCards?.size ?: 0) > genericCap) {
+            return "Too many cards selected for delve; only $genericCap generic mana can be paid this way"
+        }
         val paymentError = validatePayment(state, action, computedCost.cost, computedCost.paymentXValue)
         if (paymentError != null) {
             return paymentError
@@ -992,7 +998,8 @@ class CastSpellHandler(
     /** The [cost] and adjusted X actually charged as mana at payment time for a cast. */
     private data class ComputedCastCost(
         val cost: ManaCost, val paymentXValue: Int,
-        val dedicatedAlternativeCostType: AlternativeCostType? = null
+        val dedicatedAlternativeCostType: AlternativeCostType? = null,
+        val delveGenericCap: Int? = null,
     )
 
     /**
@@ -1269,6 +1276,8 @@ class CastSpellHandler(
             }
         }
 
+        val delveGenericCap = if (effectiveCost.hasX) null else effectiveCost.genericAmount
+
         // Account for Delve/Convoke reduction before validating payment
         val costAfterAltPayment = if (action.alternativePayment != null && !action.alternativePayment.isEmpty && cardDef != null) {
             alternativePaymentHandler.calculateReducedCost(
@@ -1319,7 +1328,7 @@ class CastSpellHandler(
         // (and reduced by the waterbend taps), so it must NOT also be charged as {X} mana.
         val paymentXValue = if (cardDef?.script?.spellWaterbend?.isX == true) 0
             else harmonizePaymentXValue(state, action, cardDef, effectiveCost)
-        return ComputedCastCost(costAfterImprovise, paymentXValue, dedicatedAlternativeCostType)
+        return ComputedCastCost(costAfterImprovise, paymentXValue, dedicatedAlternativeCostType, delveGenericCap)
     }
 
     private fun validatePayment(state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int = action.xValue ?: 0): String? {

@@ -32,6 +32,7 @@ class ActionParameterSpecTest : FunSpec({
             "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "delvedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
         )
     }
 

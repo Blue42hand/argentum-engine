@@ -9,6 +9,8 @@ import com.wingedsheep.gym.contract.ObservationBuilder
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.mtg.sets.definitions.lrw.cards.SpringleafDrum
 import com.wingedsheep.mtg.sets.definitions.mh1.cards.ForceOfNegation
+import com.wingedsheep.mtg.sets.definitions.ktk.cards.TreasureCruise
+import com.wingedsheep.mtg.sets.definitions.ktk.cards.EmptyThePits
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
@@ -62,5 +64,44 @@ class NativeCostObservationTest : FunSpec({
         (blue in cost.validExileTargets) shouldBe true
         (nonblue in cost.validExileTargets) shouldBe false
         cost.exileMinCount shouldBe 1
+    }
+
+    test("Treasure Cruise native view offers delve selections and their minimum") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + TreasureCruise)
+        driver.initMirrorMatch(Deck.of("Island" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val cruise = driver.putCardInHand(player, "Treasure Cruise")
+        repeat(3) { driver.putLandOnBattlefield(player, "Island") }
+        val graveyard = (1..7).map { driver.putCardInGraveyard(player, "Grizzly Bears") }
+        val offered = driver.legalActions(player)
+        val view = (ObservationBuilder(driver.cardRegistry).build(driver.state, player, offered)
+            .observation as TrainingObservation).legalActions.first { action ->
+            (offered[action.actionId].action as? CastSpell)?.cardId == cruise
+        }
+
+        ("delvedCards" in view.parameterSpec.allowedFields) shouldBe true
+        view.validDelveCards.toSet() shouldBe graveyard.toSet()
+        view.minDelveNeeded shouldBe 5
+    }
+    test("X delve view does not advertise an allocation choice it cannot express") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + EmptyThePits)
+        driver.initMirrorMatch(Deck.of("Swamp" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val pits = driver.putCardInHand(player, "Empty the Pits")
+        repeat(5) { driver.putLandOnBattlefield(player, "Swamp") }
+        driver.putCardInGraveyard(player, "Grizzly Bears")
+        val offered = driver.legalActions(player)
+        val view = (ObservationBuilder(driver.cardRegistry).build(driver.state, player, offered)
+            .observation as TrainingObservation).legalActions.first { action ->
+            (offered[action.actionId].action as? CastSpell)?.cardId == pits
+        }
+        view.hasXCost shouldBe true
+        ("delvedCards" in view.parameterSpec.allowedFields) shouldBe false
+        view.validDelveCards shouldBe emptyList()
+        view.minDelveNeeded shouldBe null
     }
 })
