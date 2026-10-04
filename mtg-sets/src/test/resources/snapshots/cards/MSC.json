@@ -37,3 +37,268 @@
         "RED"
     ]
 }
+
+// Panther Robot
+{
+    "name": "Panther Robot",
+    "manaCost": "{10}",
+    "typeLine": "Artifact Creature — Cat Robot",
+    "oracleText": "Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)\nReach, trample",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "REACH",
+        "TRAMPLE",
+        "AFFINITY"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Affinity",
+            "forType": "ARTIFACT"
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "113",
+        "rarity": "RARE",
+        "artist": "Andreia Ugrai",
+        "flavorText": "Immensely powerful, the Prowlers may be released only by Wakanda's royal family.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/b/8bb7185d-fc07-4f2f-9762-aa7e7c287cba.jpg?1783903257"
+    },
+    "colorIdentityOverride": []
+}
+
+// Shuri's Fabricator
+{
+    "name": "Shuri's Fabricator",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, create two tapped Vibranium tokens. (They're artifacts with indestructible and \"{T}: Add {C}. This mana can't be spent to cast a nonartifact spell.\")\n{6}, {T}: Return target artifact card from your graveyard to the battlefield with a finality counter on it. Activate only as a sorcery. (If a permanent with a finality counter on it would be put into a graveyard, exile it instead.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Shuri's Fabricator:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "count": 2,
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Shuri's Fabricator:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{6}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard",
+                    "addCounterType": "FINALITY"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Return target artifact card from your graveyard with a finality counter"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "114",
+        "rarity": "RARE",
+        "artist": "L.A. Draws",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/ace834f0-7f64-4716-8599-f96f674e61a1.jpg?1783903257"
+    }
+}
+
+// The Great Mound
+{
+    "name": "The Great Mound",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{3}, {T}: Create a tapped Vibranium token. (It's an artifact with indestructible and \"{T}: Add {C}. This mana can't be spent to cast a nonartifact spell.\")\n{6}, {T}: Draw a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "The Great Mound:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "The Great Mound:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                },
+                "descriptionOverride": "Create a tapped Vibranium token"
+            },
+            {
+                "id": "The Great Mound:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{6}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Draw a card"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "rarity": "RARE",
+        "artist": "Pablo Mendoza",
+        "flavorText": "Mena Ngai, where the heaven-sent metal dwells.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/11b3f96c-138e-431e-a1d6-5ebae4cb6b2f.jpg?1783903254"
+    }
+}
+
+// Vibranium Mining Mech
+{
+    "name": "Vibranium Mining Mech",
+    "manaCost": "{4}",
+    "typeLine": "Artifact — Vehicle",
+    "oracleText": "Trample\nWhenever this Vehicle enters or attacks, create a tapped Vibranium token. (It's an artifact with indestructible and \"{T}: Add {C}. This mana can't be spent to cast a nonartifact spell.\")\n{2}: This Vehicle gets +1/+0 until end of turn.\nCrew 2",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "TRAMPLE",
+        "CREW"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "CREW",
+            "n": 2
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Vibranium Mining Mech:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                },
+                "descriptionOverride": "When this Vehicle enters, create a tapped Vibranium token"
+            },
+            {
+                "id": "Vibranium Mining Mech:2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                },
+                "descriptionOverride": "When this Vehicle attacks, create a tapped Vibranium token"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Vibranium Mining Mech:3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "This Vehicle gets +1/+0 until end of turn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "117",
+        "rarity": "RARE",
+        "artist": "Ivan Dedov",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/2212e15b-5deb-4ab8-9f6f-7991e750e21a.jpg?1783903254"
+    }
+}

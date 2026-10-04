@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
@@ -31,7 +31,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
@@ -73,10 +72,10 @@ object Amounts {
     // ---------------------------------------------------------------------------------------
 
     /**
-     * **Where a battlefield tally counts**, as the three clauses English ends the noun phrase on.
+     * **Where a battlefield tally counts**, as the clauses English ends the noun phrase on.
      *
      * One layer, and the reason it is published rather than spelled per rule is that it is the same
-     * three rows every time: "the number of Elves **on the battlefield**", "~ gets +1/+1 for each
+     * rows every time: "the number of Elves **on the battlefield**", "~ gets +1/+1 for each
      * artifact **you control**", "you gain 1 life for each attacking creature" — same clause, three
      * heads in front of it. Before this table each family wrote the row it happened to be born for
      * and froze the rest as literal text, and every one of them froze a *different* row: [count]
@@ -108,15 +107,25 @@ object Amounts {
         /** The filter this clause may be printed in front of, or null when the two would say it twice. */
         fun narrowing(filter: GameObjectFilter): GameObjectFilter? = when {
             surface.isNotEmpty() -> filter.takeIf { it.controllerPredicate == null }
-            else -> filter.takeIf { it.controllerPredicate != ControllerPredicate.ControlledByYou }
+            else -> filter.takeIf { it.controllerPredicate !in ROWED_CONTROLLERS }
         }
     }
+
+    /**
+     * The controller clauses a [scopes] row prints, which the empty row must therefore refuse:
+     * "the number of artifacts **your opponents control**" would otherwise read twice — once as
+     * this layer's opponents row and once as the plural noun phrase's own opponent clause over the
+     * whole battlefield — and the hand-written corpus spells it the first way
+     * (`battlefield(Player.EachOpponent, …)`, Gaea's Avenger, Angry Mob, Pygmy Kavu).
+     */
+    private val ROWED_CONTROLLERS = setOf(ControllerPredicate.ControlledByYou, ControllerPredicate.ControlledByOpponent)
 
     /** The layer itself. Adding a row here reaches every family that counts. */
     val scopes: List<Scope> = listOf(
         Scope(" on the battlefield", Player.Each, "the whole battlefield"),
         Scope("", Player.Each, "the whole battlefield, unqualified", canonical = false),
         Scope(" you control", Player.You, "your battlefield"),
+        Scope(" your opponents control", Player.EachOpponent, "your opponents' battlefields"),
     )
 
     /**
@@ -334,12 +343,12 @@ object Amounts {
         phrase("the number of {kind} counters on {self}", name = "a count of the source's counters") {
             slot("kind", Primitives.counterKind)
             slot("self", Primitives.self)
-            build { DynamicAmounts.countersOnSelf(Primitives.counterFilter(it.value("kind"))) }
+            build { DynamicAmounts.countersOnSelf(it.value("kind")) }
             match { amount ->
                 val property = (amount as? DynamicAmount.EntityProperty) ?: return@match null
                 val counter = (property.numericProperty as? EntityNumericProperty.CounterCount)
                     ?: return@match null
-                val kind = Primitives.counterKindOf(counter.counterType) ?: return@match null
+                val kind = counter.counterType ?: return@match null
                 if (amount != DynamicAmounts.countersOnSelf(counter.counterType)) return@match null
                 bind("kind" to kind, "self" to Unit)
             }
@@ -479,9 +488,8 @@ object Amounts {
                 DynamicAmount.AggregateZone(Player.You, Zone.GRAVEYARD, aggregation = Aggregation.DISTINCT_TYPES),
             ),
             // "the number of +1/+1 counters on ~" — a tally of the source's own counters, which the SDK
-            // reads as a property of an entity rather than as a count of a zone. The kind is a slot for
-            // [Primitives.counterFilter]'s reason: `CounterTypeFilter` has dedicated cases for the
-            // stat-changing kinds and a `Named` fallback for the rest, and one leaf spells both.
+            // reads as a property of an entity rather than as a count of a zone. The kind is a slot:
+            // one leaf spells every kind the SDK names.
             counterCount,
         ) + turnTallyCounts,
     )
@@ -515,7 +523,7 @@ object Amounts {
      * **What a possessive noun phrase can read**, as the [EntityNumericProperty] half of
      * `DynamicAmount.EntityProperty`.
      *
-     * The SDK types this amount as a product — an [EntityReference] and a property of it — and
+     * The SDK types this amount as a product — an [EffectTarget.SingleEntity] and a property of it — and
      * English spells it as exactly that product: a possessive naming the object, then the noun
      * naming the characteristic. So the grammar is the product too, one table per axis, which is
      * why this is three rows rather than the twenty-one printed phrases they cross into.
@@ -560,7 +568,7 @@ object Amounts {
      */
     fun propertyOf(
         possessive: Phrase<Unit>,
-        reference: EntityReference,
+        reference: EffectTarget.SingleEntity,
         tag: String,
     ): Phrase<DynamicAmount> = oneOf(
         "a characteristic of $tag",
@@ -658,7 +666,7 @@ object Amounts {
      *
      * ### The source's own counter tally, which is last-known information half the time it is printed
      *
-     * [counterCount] reads `EntityProperty(Source, CounterCount)`, and `DynamicAmountEvaluator`
+     * [counterCount] reads `EntityProperty(Self, CounterCount)`, and `DynamicAmountEvaluator`
      * resolves that from **live** state: `counterCountOf` looks the entity up and answers 0 when it
      * is not there. So in the position Oracle most often prints this clause — "When ~ dies, put X
      * +1/+1 counters on target creature you control, where X is the number of +1/+1 counters on ~"
@@ -688,7 +696,7 @@ object Amounts {
     }
 
     /** "+1/+1 counters on it" / "+1/+1 counter on ~" — a tally of the source's own counters. */
-    private val plusOneCounters: DynamicAmount = DynamicAmounts.countersOnSelf(CounterTypeFilter.PlusOnePlusOne)
+    private val plusOneCounters: DynamicAmount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE)
 
     // ---------------------------------------------------------------------------------------
     // The clauses
@@ -757,7 +765,7 @@ object Amounts {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter),
-                Effects.ModifyStats(amount, amount, EffectTarget.Self),
+                Effects.ModifyStats(amount, amount, EffectTarget.IterationEntity),
             )
         )
         return phrase("$prefix{filter} get -X/-X until end of turn", name = name) {
@@ -782,17 +790,21 @@ object Amounts {
      */
     private val drawAndLoseByCount: Phrase<CardScript> = run {
         fun scriptFor(amount: DynamicAmount) = CardScript(
-            spellEffect = Effects.Composite(
-                listOf(
-                    Effects.DrawCards(amount, EffectTarget.Controller),
-                    Effects.LoseLife(amount, EffectTarget.Controller),
-                )
-            )
+            spellEffect = Effects.DrawCards(amount, EffectTarget.Controller) then
+                Effects.LoseLife(amount, EffectTarget.Controller)
         )
         phrase(
             "you draw X cards and you lose X life, where X is {amount}",
             name = "draw and lose a count",
         ) {
+            // The newer Oracle wording elides the second subject (Painful Truths, Savanti Romero,
+            // The Speed Demon): 13 printed lines keep it to 6 that drop it. Same rule, same
+            // closures — the elision is licensed by the "you" this template already spells, which
+            // is [Steps.drawAndLoseLife]'s reason for not making it a bare tail.
+            alsoSpelled(
+                "you draw X cards and lose X life, where X is {amount}",
+                "draw and lose a count (elided subject)",
+            )
             slot("amount", count)
             build { scriptFor(it.value("amount")) }
             match { script ->
@@ -957,7 +969,7 @@ object Amounts {
     ): Phrase<CardScript> {
         fun scriptFor(amount: DynamicAmount, target: com.wingedsheep.sdk.scripting.targets.TargetRequirement) =
             CardScript(
-                spellEffect = com.wingedsheep.sdk.scripting.effects.MayEffect(effect(amount)),
+                spellEffect = com.wingedsheep.sdk.dsl.Effects.May(effect(amount)),
                 targetRequirements = listOf(target),
             )
         return phrase(template, name = name) {

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostModification
@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spectral Denial
@@ -19,9 +19,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Counter target spell unless its controller pays {X}.
  *
  * The cost reduction counts only creatures the caster controls with power 4 or greater
- * (PermanentsOnBattlefieldMatching honors the controller/power predicates in the filter),
- * and the counter resolves against the spell's chosen X via the same XValue pump used by
- * Mindswipe.
+ * (PermanentsYouControlMatching, the "you control" source), and the counter resolves against
+ * the spell's chosen X via the same XValue pump used by Mindswipe.
  */
 val SpectralDenial = card("Spectral Denial") {
     manaCost = "{X}{U}"
@@ -31,16 +30,16 @@ val SpectralDenial = card("Spectral Denial") {
         "4 or greater.\nCounter target spell unless its controller pays {X}."
 
     spell {
-        target = Targets.Spell
-        effect = Effects.CounterUnlessDynamicPays(DynamicAmount.XValue)
+        val spell = target(TargetFilter.SpellOnStack)
+        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue())
     }
 
     staticAbility {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
             modification = CostModification.ReduceGenericBy(
-                CostReductionSource.PermanentsOnBattlefieldMatching(
-                    GameObjectFilter.Creature.youControl().powerAtLeast(4)
+                CostReductionSource.PermanentsYouControlMatching(
+                    GameObjectFilter.Creature.powerAtLeast(4)
                 )
             ),
         )

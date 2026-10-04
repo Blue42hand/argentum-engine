@@ -1,0 +1,26 @@
+{
+  "player1Name": "Caster",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Organic Extinction"],
+    "battlefield": [
+      {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"},
+      {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"},
+      {"name": "Grizzly Bears"}, {"name": "Memnite"}
+    ],
+    "graveyard": [],
+    "library": ["Forest"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": ["Forest"],
+    "battlefield": [{"name": "Hill Giant"}, {"name": "Ornithopter"}],
+    "graveyard": [],
+    "library": ["Island"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "mode": "TWO_PLAYER"
+}

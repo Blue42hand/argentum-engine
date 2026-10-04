@@ -1,132 +1,140 @@
 package com.wingedsheep.engine.scenarios
 
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.mtg.sets.definitions.c21.cards.LaeliaTheBladeReforged
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
-import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
-class LaeliaTheBladeReforgedScenarioTest : FunSpec({
+/**
+ * Laelia, the Blade Reforged (C21 #53) — {2}{R} 2/2 haste.
+ *
+ *   Whenever Laelia attacks, exile the top card of your library. You may play that card this turn.
+ *   Whenever one or more cards are put into exile from your library and/or your graveyard, put a
+ *   +1/+1 counter on Laelia.
+ *
+ * Proves the impulse grant, that her own impulse exile feeds the counter trigger, that the counter
+ * trigger is a once-per-batch trigger (ruling 2024-06-07), and that it ignores the opponent's zones.
+ */
+class LaeliaTheBladeReforgedScenarioTest : ScenarioTestBase() {
 
-    val exileTwo = card("Laelia Test Exile Two") {
-        manaCost = "{0}"
-        typeLine = "Sorcery"
-        spell { effect = Patterns.Exile.impulse(count = 2) }
+    private fun laeliaCounters(game: TestGame): Int {
+        val id = game.findPermanent("Laelia, the Blade Reforged")!!
+        return game.state.getEntity(id)?.get<CountersComponent>()?.getCount(CounterType.PLUS_ONE_PLUS_ONE) ?: 0
     }
 
-    val exileGraveyard = card("Laelia Test Exile Graveyard") {
-        manaCost = "{0}"
-        typeLine = "Instant"
-        spell {
-            effect = Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        zone = Zone.GRAVEYARD,
-                        filter = GameObjectFilter.Any,
-                    ),
-                    storeAs = "graveyardCards",
-                ),
-                MoveCollectionEffect(
-                    from = "graveyardCards",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                ),
-            )
-        }
-    }
+    init {
+        context("Laelia, the Blade Reforged") {
+            test("attacking exiles your top card, lets you play it, and grows Laelia") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Laelia, the Blade Reforged", summoningSickness = false)
+                    .withCardInLibrary(1, "Grizzly Bears")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                    .build()
 
-    fun newDriver() = GameTestDriver().apply {
-        registerCards(TestCards.all + listOf(LaeliaTheBladeReforged, exileTwo, exileGraveyard))
-        initMirrorMatch(deck = Deck.of("Mountain" to 40), startingLife = 20)
-        passPriorityUntil(Step.PRECOMBAT_MAIN)
-    }
+                game.declareAttackers(mapOf("Laelia, the Blade Reforged" to 2)).error shouldBe null
+                game.resolveStack()
 
-    fun resolveStack(driver: GameTestDriver) {
-        repeat(40) {
-            when {
-                driver.state.pendingDecision != null -> driver.autoResolveDecision()
-                driver.state.stack.isNotEmpty() -> driver.bothPass()
-                else -> return
+                val exiled = game.state.getExile(game.player1Id)
+                withClue("the top card of Player1's library is exiled") {
+                    exiled.mapNotNull { game.state.getEntity(it)?.get<CardComponent>()?.name } shouldBe listOf("Grizzly Bears")
+                }
+                withClue("Player1 may play the exiled card this turn") {
+                    game.state.mayPlayPermissions.any {
+                        it.controllerId == game.player1Id && exiled.first() in it.cardIds
+                    } shouldBe true
+                }
+                withClue("library→exile triggers Laelia's counter ability") {
+                    laeliaCounters(game) shouldBe 1
+                }
+            }
+
+            test("exiling several graveyard cards at once adds exactly one counter") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Laelia, the Blade Reforged", summoningSickness = false)
+                    .withLandsOnBattlefield(1, "Plains", 2)
+                    .withCardInHand(1, "Rest in Peace")
+                    .withCardInGraveyard(1, "Grizzly Bears")
+                    .withCardInGraveyard(1, "Hill Giant")
+                    .withCardInGraveyard(2, "Grizzly Bears")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpell(1, "Rest in Peace").error shouldBe null
+                if (game.hasPendingDecision()) game.submitManaSourcesAutoPay()
+                game.resolveStack()
+
+                withClue("one batch of exiles is one trigger (CR 603.2c)") {
+                    laeliaCounters(game) shouldBe 1
+                }
+            }
+
+            test("exiling several library cards in one batch adds exactly one counter") {
+                val exileTwo = card("Laelia Test Exile Two") {
+                    manaCost = "{0}"
+                    typeLine = "Sorcery"
+                    spell { effect = Patterns.Exile.impulse(count = 2) }
+                }
+                val driver = GameTestDriver().apply {
+                    registerCards(TestCards.all + listOf(LaeliaTheBladeReforged, exileTwo))
+                    initMirrorMatch(deck = Deck.of("Mountain" to 40), startingLife = 20)
+                    passPriorityUntil(Step.PRECOMBAT_MAIN)
+                }
+                val player = driver.activePlayer!!
+                val laelia = driver.putCreatureOnBattlefield(player, "Laelia, the Blade Reforged")
+                val first = driver.putCardOnTopOfLibrary(player, "Grizzly Bears")
+                val second = driver.putCardOnTopOfLibrary(player, "Hill Giant")
+                val spell = driver.putCardInHand(player, "Laelia Test Exile Two")
+
+                driver.castSpell(player, spell).error shouldBe null
+                repeat(40) {
+                    when {
+                        driver.state.pendingDecision != null -> driver.autoResolveDecision()
+                        driver.state.stack.isNotEmpty() -> driver.bothPass()
+                        else -> return@repeat
+                    }
+                }
+                driver.state.getZone(ZoneKey(player, Zone.EXILE)) shouldContain first
+                driver.state.getZone(ZoneKey(player, Zone.EXILE)) shouldContain second
+                driver.state.getEntity(laelia)?.get<CountersComponent>()
+                    ?.getCount(CounterType.PLUS_ONE_PLUS_ONE) shouldBe 1
+            }
+
+            test("exiling a card from the opponent's graveyard does not trigger") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Laelia, the Blade Reforged", summoningSickness = false)
+                    .withLandsOnBattlefield(1, "Swamp", 1)
+                    .withCardInHand(1, "Coffin Purge")
+                    .withCardInGraveyard(2, "Grizzly Bears")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpellTargetingGraveyardCard(1, "Coffin Purge", 2, "Grizzly Bears").error shouldBe null
+                if (game.hasPendingDecision()) game.submitManaSourcesAutoPay()
+                game.resolveStack()
+
+                withClue("only your own library and graveyard count") {
+                    laeliaCounters(game) shouldBe 0
+                }
             }
         }
-        error("Stack did not settle")
     }
-
-    fun plusOneCounters(driver: GameTestDriver, laelia: EntityId): Int =
-        driver.state.getEntity(laelia)
-            ?.get<CountersComponent>()
-            ?.counters
-            ?.get(CounterType.PLUS_ONE_PLUS_ONE)
-            ?: 0
-
-    test("attacking exiles the top card and gives Laelia one counter") {
-        val driver = newDriver()
-        val player = driver.activePlayer!!
-        val opponent = driver.getOpponent(player)
-        val laelia = driver.putCreatureOnBattlefield(player, "Laelia, the Blade Reforged")
-        val topCard = driver.putCardOnTopOfLibrary(player, "Grizzly Bears")
-
-        withClue("haste allows Laelia to attack immediately") {
-            driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
-            driver.declareAttackers(player, listOf(laelia), opponent).error shouldBe null
-        }
-        resolveStack(driver)
-
-        driver.state.getZone(ZoneKey(player, Zone.EXILE)) shouldContain topCard
-        plusOneCounters(driver, laelia) shouldBe 1
-    }
-
-    test("several cards exiled from the library in one batch give only one counter") {
-        val driver = newDriver()
-        val player = driver.activePlayer!!
-        val laelia = driver.putCreatureOnBattlefield(player, "Laelia, the Blade Reforged")
-        val first = driver.putCardOnTopOfLibrary(player, "Grizzly Bears")
-        val second = driver.putCardOnTopOfLibrary(player, "Hill Giant")
-        val spell = driver.putCardInHand(player, "Laelia Test Exile Two")
-
-        driver.castSpell(player, spell).error shouldBe null
-        resolveStack(driver)
-
-        driver.state.getZone(ZoneKey(player, Zone.EXILE)) shouldContain first
-        driver.state.getZone(ZoneKey(player, Zone.EXILE)) shouldContain second
-        plusOneCounters(driver, laelia) shouldBe 1
-    }
-
-    test("cards exiled from your graveyard count, but an opponent's cards do not") {
-        val driver = newDriver()
-        val player = driver.activePlayer!!
-        val opponent = driver.getOpponent(player)
-        val laelia = driver.putCreatureOnBattlefield(player, "Laelia, the Blade Reforged")
-        val mine = driver.putCardInGraveyard(player, "Grizzly Bears")
-        val theirs = driver.putCardInGraveyard(opponent, "Hill Giant")
-        val mySpell = driver.putCardInHand(player, "Laelia Test Exile Graveyard")
-        val theirSpell = driver.putCardInHand(opponent, "Laelia Test Exile Graveyard")
-
-        driver.castSpell(player, mySpell).error shouldBe null
-        resolveStack(driver)
-        driver.state.getZone(ZoneKey(player, Zone.EXILE)) shouldContain mine
-        plusOneCounters(driver, laelia) shouldBe 1
-
-        driver.passPriority(player).error shouldBe null
-        driver.castSpell(opponent, theirSpell).error shouldBe null
-        resolveStack(driver)
-        driver.state.getZone(ZoneKey(opponent, Zone.EXILE)) shouldContain theirs
-        plusOneCounters(driver, laelia) shouldBe 1
-    }
-})
+}

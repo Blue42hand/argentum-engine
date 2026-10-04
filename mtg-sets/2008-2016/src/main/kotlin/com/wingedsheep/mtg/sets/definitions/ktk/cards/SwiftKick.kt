@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 
 /**
  * Swift Kick
@@ -20,14 +20,15 @@ val SwiftKick = card("Swift Kick") {
     oracleText = "Target creature you control gets +1/+0 until end of turn. It fights target creature you don't control."
 
     spell {
-        val yourCreature = target("creature you control", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.youControl())
-        ))
-        val theirCreature = target("creature you don't control", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.opponentControls())
-        ))
-        effect = Effects.ModifyStats(1, 0, yourCreature)
-            .then(Effects.Fight(yourCreature, theirCreature))
+        val yourCreature = target(TargetFilter(GameObjectFilter.Creature.youControl()))
+        val theirCreature = target(
+            TargetFilter(
+                GameObjectFilter.Creature.copy(
+                    controllerPredicate = ControllerPredicate.Not(ControllerPredicate.ControlledByYou)
+                )
+            )
+        )
+        effect = Effects.ModifyStats(1, 0, yourCreature) then Effects.Fight(yourCreature, theirCreature)
     }
 
     metadata {

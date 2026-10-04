@@ -4,13 +4,20 @@ import com.wingedsheep.engine.core.DeclareBlockers
 import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.gym.contract.ActionParameterizer
-import com.wingedsheep.gym.contract.ActionParams
+import com.wingedsheep.engine.core.ActionParameterizer
+import com.wingedsheep.engine.core.ActionParams
+import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.EngineServices
+import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.PipelineState
+import com.wingedsheep.gym.contract.PendingDecisionKind
+import com.wingedsheep.gym.contract.ResolvedAction
 import com.wingedsheep.gym.contract.LegalActionView
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.assertions.throwables.shouldThrow
@@ -209,6 +216,55 @@ class GameGymEnvCombatTest : FunSpec({
     }
 
     context("targets and X — the CastSpell / ActivateAbility branch") {
+
+        test("a forced Blaze uses a folded action ID with target and X params") {
+            val (env, environment) = newEnv(blazeDeck())
+            val start = env.observe().observation as TrainingObservation
+            val found = env.driveUntil(start) { obs ->
+                obs.legalActions.firstOrNull { la ->
+                    la.kind == "CastSpell" && la.affordable && la.hasXCost &&
+                        (la.maxAffordableX ?: 0) >= 2
+                }
+            }
+            withClue("never reached an affordable Blaze with X >= 2") { (found != null).shouldBeTrue() }
+            val (before, cast) = found!!
+            val caster = before.agentToAct!!
+            val victim = before.players.first { it.id != caster }.id
+            val lifeBefore = before.players.first { it.id == victim }.lifeTotal
+            val cardId = (env.observe().registry.resolve(cast.actionId) as ResolvedAction.Legal)
+                .action.let { it as CastSpell }.cardId
+
+            val services = EngineServices(environment.cardRegistry)
+            val forced = services.effectExecutorRegistry.execute(
+                environment.state,
+                Effects.ForcePlay("chosen"),
+                EffectContext(
+                    sourceId = null,
+                    controllerId = caster,
+                    pipeline = PipelineState(storedCollections = mapOf("chosen" to listOf(cardId))),
+                ),
+            )
+            environment.restore(forced.state, environment.playerIds)
+            val offer = env.observe().observation as TrainingObservation
+            val pending = offer.pendingDecision!!
+            pending.kind shouldBe PendingDecisionKind.PLAY_CARD
+            pending.requiresStructuredResponse shouldBe false
+            val forcedCast = offer.legalActions.single { it.kind == "CastSpell" }
+
+            val otherIndex = environment.playerIds.indexOf(victim)
+            val other = GameGymEnv(environment, otherIndex, defaultRevealAll = false)
+            val hidden = other.observe().observation as TrainingObservation
+            hidden.legalActions.isEmpty() shouldBe true
+            shouldThrow<IllegalArgumentException> { other.step(forcedCast.actionId, ActionParams()) }
+
+            val after = env.step(forcedCast.actionId, ActionParams(targets = listOf(victim), xValue = 2))
+                .observation as TrainingObservation
+            val settled = env.driveUntil(after) { obs ->
+                obs.legalActions.firstOrNull()
+                    ?.takeIf { obs.players.first { p -> p.id == victim }.lifeTotal != lifeBefore }
+            }?.first ?: after
+            settled.players.first { it.id == victim }.lifeTotal shouldBe lifeBefore - 2
+        }
 
         test("a targeted X spell resolves for the X and at the target the params name") {
             val (env, _) = newEnv(blazeDeck())

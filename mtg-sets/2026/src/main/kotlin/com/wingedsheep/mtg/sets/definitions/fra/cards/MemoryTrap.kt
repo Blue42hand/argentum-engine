@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val MemoryTrap = card("Memory Trap") {
     manaCost = "{2}{W}"
@@ -15,9 +14,8 @@ val MemoryTrap = card("Memory Trap") {
     oracleText = "When this enchantment enters, exile target nonland permanent an opponent controls until this enchantment leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        val permanent = target("nonland permanent an opponent controls",
-            TargetObject(filter = TargetFilter.NonlandPermanentOpponentControls))
+        trigger = Triggers.self.enters()
+        val permanent = target(TargetFilter.NonlandPermanentOpponentControls)
         effect = Effects.MoveUntilSourceLeaves(permanent, Zone.EXILE)
     }
 

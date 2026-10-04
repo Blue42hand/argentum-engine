@@ -17,7 +17,6 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
@@ -36,11 +35,16 @@ import kotlin.reflect.KClass
 class CreatePredefinedTokenExecutor(
     private val cardRegistry: CardRegistry,
     private val staticAbilityHandler: StaticAbilityHandler? = null,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val tokenArtRegistry: TokenArtRegistry? = null
 ) : EffectExecutor<CreatePredefinedTokenEffect> {
 
     override val effectType: KClass<CreatePredefinedTokenEffect> = CreatePredefinedTokenEffect::class
+
+    /** Builds the substitute tokens of a `ReplaceTokenCreationWithToken` (Draconic Visitor). */
+    private val substituteExecutor by lazy {
+        CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, tokenArtRegistry)
+    }
 
     override fun execute(
         state: GameState,
@@ -61,15 +65,49 @@ class CreatePredefinedTokenExecutor(
         // Evaluate dynamic count if set (e.g. Lobelia's "X = the exiled card's power"),
         // otherwise use the fixed count. Coerced to >= 0 — a negative count would be a
         // bug elsewhere, but clamping defends against odd dynamic-amount edge cases.
-        val tokenCount = effect.dynamicCount?.let { dyn ->
+        val baseTokenCount = effect.dynamicCount?.let { dyn ->
             amountEvaluator.evaluate(state, dyn, context).coerceAtLeast(0)
         } ?: effect.count
 
+        // Token-count replacements (Doubling Season, Mondrak, Glory Dominus) apply to predefined
+        // tokens exactly as to CreateTokenEffect tokens — before any substitution gets a look,
+        // the same order CreateTokenExecutor uses.
+        val tokenCount = com.wingedsheep.engine.core.GameLimits.cappedTokenCount(
+            TokenCreationReplacementHelper.applyCountReplacements(
+                state, tokenControllerId, baseTokenCount,
+                predicateEvaluator = amountEvaluator.predicates
+            ),
+            "predefined tokens"
+        )
+
         // Check for token creation replacement effects (e.g., Mirrormind Crown)
         val replacementResult = TokenCreationReplacementHelper.checkReplacement(
-            state, effect, context, tokenCount, tokenControllerId, cardRegistry, staticAbilityHandler
+            state, effect, context, tokenCount, tokenControllerId, cardRegistry, staticAbilityHandler,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (replacementResult != null) return replacementResult
+
+        // "If one or more artifact tokens would be created under your control, that many 5/5 red
+        // Dragon creature tokens with flying are created instead" (Draconic Visitor). Treasure,
+        // Clue, Food, Map and the rest are artifact tokens, so this is the path it bites hardest.
+        val prospective = CardComponent(
+            cardDefinitionId = effect.tokenType,
+            name = effect.tokenType,
+            manaCost = cardDef.manaCost,
+            typeLine = cardDef.typeLine,
+            baseStats = cardDef.creatureStats,
+            baseKeywords = cardDef.keywords,
+            colors = cardDef.colorIdentityOverride ?: cardDef.colors,
+            ownerId = tokenControllerId
+        )
+        TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
+            ?.let { substitute ->
+                return substituteExecutor.createSubstituteTokens(
+                    state, substitute, context,
+                    tokenCount,
+                    tokenControllerId
+                )
+            }
 
         // Art: an explicit per-card override wins, then the art printed by the set the creating
         // card came from (so a reprint mints its own set's Treasure), then the one canonical
@@ -92,7 +130,7 @@ class CreatePredefinedTokenExecutor(
         var newState = state
         val createdTokenIds = mutableListOf<EntityId>()
 
-        repeat(com.wingedsheep.engine.core.GameLimits.cappedTokenCount(tokenCount, "predefined tokens")) { indexInBatch ->
+        repeat(tokenCount) { indexInBatch ->
             val resolvedImageUri = resolvedImageUris[indexInBatch % resolvedImageUris.size]
             val (tokenId, stateWithId) = newState.newEntity()
             newState = stateWithId
@@ -101,13 +139,15 @@ class CreatePredefinedTokenExecutor(
             val tokenComponent = CardComponent(
                 cardDefinitionId = effect.tokenType,
                 name = effect.tokenType,
-                manaCost = ManaCost.ZERO,
+                manaCost = cardDef.manaCost,
                 typeLine = cardDef.typeLine,
                 baseStats = cardDef.creatureStats,
                 baseKeywords = cardDef.keywords,
-                // Tokens have no mana cost, so a colored token's printed color lives in its
-                // color indicator (CR 204), stored on the definition as colorIdentityOverride.
-                // Fall back to the mana-cost-derived colors for tokens without an override.
+                // A token has no mana cost unless its creator defines one (CR 202.1b) — the
+                // Spellgorger Weird is a {2}{R} token — so the definition's cost is carried as
+                // printed (ManaCost.ZERO when it has none). A colored token without a cost has
+                // its color in its color indicator (CR 204), stored as colorIdentityOverride;
+                // otherwise its colors derive from that mana cost.
                 colors = cardDef.colorIdentityOverride ?: cardDef.colors,
                 ownerId = tokenControllerId,
                 imageUri = resolvedImageUri
@@ -124,6 +164,12 @@ class CreatePredefinedTokenExecutor(
             if (effect.tapped) {
                 container = container.with(TappedComponent)
             }
+
+            // Printed keyword abilities that live on their own component rather than in
+            // `baseKeywords` — toxic N above all (the Phyrexian Mite's toxic 1) — are attached the
+            // same way a card's are, so a predefined token never silently loses one.
+            container = com.wingedsheep.engine.core.CardEntityFactory
+                .applyDefinitionDecorations(container, cardDef)
 
             // Transforming double-faced tokens (CR 701.51b — Incubator). The token
             // enters with its front face up; the back face's CardDefinition is
@@ -156,6 +202,7 @@ class CreatePredefinedTokenExecutor(
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                 .applyCreatedTokenEntryTap(
                     newState, tokenId, tokenControllerId, definedTapped = effect.tapped,
+                    predicateEvaluator = amountEvaluator.predicates
                 )
         }
 
@@ -177,7 +224,7 @@ class CreatePredefinedTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokenIds, effect.tapped,
-                cardRegistry, staticAbilityHandler, tokenCreatorId = context.controllerId
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId
             )
         newState = afterAdditional
         events.addAll(additionalEvents)

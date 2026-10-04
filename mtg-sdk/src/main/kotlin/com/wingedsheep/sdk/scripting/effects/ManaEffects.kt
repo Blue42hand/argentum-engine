@@ -154,7 +154,8 @@ data class AddManaEffect(
     /**
      * When this mana leaves the pool. [ManaExpiry.END_OF_TURN] (the default) is ordinary
      * mana; [ManaExpiry.END_OF_COMBAT] is firebending-style mana that the pool keeps through
-     * combat and discards when combat ends.
+     * combat and discards when combat ends; [ManaExpiry.KEPT_UNTIL_END_OF_TURN] survives every
+     * step/phase boundary this turn (Brazen Collector).
      */
     val expiry: ManaExpiry = ManaExpiry.END_OF_TURN,
     /**
@@ -176,8 +177,10 @@ data class AddManaEffect(
             else -> "Add {${color.symbol}} for each ${a.description}"
         })
         if (restriction != null) append(". ${restriction.description}")
-        if (expiry == ManaExpiry.END_OF_COMBAT) {
-            append(". Until end of combat, you don't lose this mana as steps and phases end")
+        when (expiry) {
+            ManaExpiry.END_OF_COMBAT -> append(". Until end of combat, you don't lose this mana as steps and phases end")
+            ManaExpiry.KEPT_UNTIL_END_OF_TURN -> append(". Until end of turn, you don't lose this mana as steps and phases end")
+            ManaExpiry.END_OF_TURN -> Unit
         }
         for (rider in riders) append(". ${rider.description}")
     }
@@ -193,7 +196,15 @@ data class AddManaEffect(
 @Serializable
 data class AddColorlessManaEffect(
     val amount: DynamicAmount,
-    val restriction: ManaRestriction? = null
+    val restriction: ManaRestriction? = null,
+    /**
+     * Side-effects attached to the produced mana — what happens to the *spell* this mana is
+     * eventually spent on (Boseiju, Who Shelters All: "If that mana is spent on an instant or
+     * sorcery spell, that spell can't be countered"). Mirrors [AddManaEffect.riders]: when
+     * non-empty the mana is stored as colorless restricted-mana entries so the riders survive in
+     * the pool, under [ManaRestriction.AnySpend] when [restriction] is null.
+     */
+    val riders: Set<ManaSpellRider> = emptySet()
 ) : Effect {
     constructor(amount: Int, restriction: ManaRestriction? = null) : this(DynamicAmount.Fixed(amount), restriction)
 
@@ -203,6 +214,7 @@ data class AddColorlessManaEffect(
             else -> "Add an amount of {C} equal to ${a.description}"
         })
         if (restriction != null) append(". ${restriction.description}")
+        for (rider in riders) append(". ${rider.description}")
     }
 }
 
@@ -253,9 +265,22 @@ data class AddManaOfChoiceEffect(
      *
      * The *color* is still chosen by the ability's controller, not by the recipient: "Choose a
      * color. Target player adds three mana of the chosen color …" names no other chooser, so the
-     * choice falls to the controller (CR 608.2). Only the pool the mana is added to moves.
+     * choice falls to the controller (CR 608.2). Only the pool the mana is added to moves —
+     * unless [colorChosenByRecipient] hands the choice over too.
+     *
+     * A non-targeting recipient keeps a mana ability a mana ability: Spectral Searchlight's
+     * "Choose a player. That player adds one mana of any color they choose" points this at a
+     * player picked mid-resolution (`EffectTarget.PipelineTarget`).
      */
     val recipient: EffectTarget = EffectTarget.Controller,
+    /**
+     * When `true`, the [recipient] — not the ability's controller — chooses the color: "that player
+     * adds one mana of any color **they choose**" (Spectral Searchlight). The choice is then made
+     * at resolution by the recipient, never pre-supplied at activation, so an activation-time
+     * `manaColorChoice` is ignored for such an ability. Irrelevant while [recipient] is the
+     * controller (the same player chooses either way).
+     */
+    val colorChosenByRecipient: Boolean = false,
 ) : Effect {
     constructor(colorSet: ManaColorSet, amount: Int, restriction: ManaRestriction? = null) :
         this(colorSet, DynamicAmount.Fixed(amount), restriction)
@@ -267,6 +292,7 @@ data class AddManaOfChoiceEffect(
         }
         if (recipient == EffectTarget.Controller) append("Add $amountText ${colorSet.description}")
         else append("${recipient.description} adds $amountText ${colorSet.description}")
+        if (colorChosenByRecipient && recipient != EffectTarget.Controller) append(" they choose")
         if (restriction != null && restriction.description.isNotEmpty()) append(". ${restriction.description}")
         for (rider in riders) append(". ${rider.description}")
     }
@@ -419,4 +445,11 @@ enum class ManaColorSource {
 
     /** The exiled cards used to craft the source (`CraftedFromExiledComponent`, printed colors). */
     CraftedMaterials,
+}
+
+/** Lose every unit of unspent mana, including restricted and combat-duration mana. */
+@SerialName("LoseUnspentMana")
+@Serializable
+data class LoseUnspentManaEffect(val target: EffectTarget = EffectTarget.Controller) : Effect {
+    override val description: String = "${target.description} loses all unspent mana"
 }

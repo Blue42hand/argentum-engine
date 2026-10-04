@@ -1,3 +1,79 @@
+// Blood Price
+{
+    "name": "Blood Price",
+    "manaCost": "{3}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top four cards of your library. Put two of them into your hand and the rest on the bottom of your library in any order. You lose 2 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put on bottom"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "Controller"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "93",
+        "artist": "Antonio José Manzanedo",
+        "flavorText": "Blood is the oldest currency.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/df14d32d-fe53-4370-8298-fab528ff12db.jpg?1783929381"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Branchloft Pathway
 {
     "name": "Branchloft Pathway",
@@ -7,7 +83,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Branchloft Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -26,7 +102,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Boulderloft Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -68,7 +144,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brightclimb Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -87,7 +163,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Grimclimb Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -131,7 +207,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target artifact, enchantment, or creature with flying"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -167,7 +243,7 @@
                         ]
                     }
                 },
-                "id": "target artifact, enchantment, or creature with flying"
+                "id": "t0"
             }
         ]
     },
@@ -195,7 +271,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Canopy Baloth:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -265,7 +341,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -295,7 +371,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ]
     },
@@ -325,7 +401,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Clearwater Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -344,7 +420,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Murkwater Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -406,7 +482,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cragcrown Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -425,7 +501,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Timbercrown Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -467,7 +543,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Crawling Barrens:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -480,7 +556,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Crawling Barrens:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -493,7 +569,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         },
@@ -544,6 +620,47 @@
     }
 }
 
+// Demon's Disciple
+{
+    "name": "Demon's Disciple",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "When this creature enters, each player sacrifices a creature or planeswalker of their choice.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Demon's Disciple:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "creature|planeswalker",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "flavorText": "Taborax's cultists are the latest in a long history of beings who have desired to see Zendikar torn to pieces.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/836f5197-e42b-45e0-8170-1b0a8a5beebd.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Felidar Retreat
 {
     "name": "Felidar Retreat",
@@ -553,7 +670,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Felidar Retreat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -592,14 +709,14 @@
                                     "effects": [
                                         {
                                             "type": "AddCounters",
-                                            "counterType": "+1/+1",
+                                            "counterType": "PLUS_ONE_PLUS_ONE",
                                             "count": 1,
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         },
                                         {
                                             "type": "GrantKeyword",
                                             "keyword": "VIGILANCE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     ]
                                 }
@@ -662,7 +779,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -690,6 +807,71 @@
     ]
 }
 
+// Grotag Night-Runner
+{
+    "name": "Grotag Night-Runner",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Goblin Rogue",
+    "oracleText": "Whenever this creature deals combat damage to a player, exile the top card of your library. You may play that card this turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Grotag Night-Runner:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "gathered0"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "UNCOMMON",
+        "artist": "Caroline Gariba",
+        "flavorText": "Naturally inquisitive and adaptable, goblins can turn their small stature to their advantage as rogues.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/0568341b-f972-407f-92ce-1b7c9ef742f6.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Highborn Vampire
 {
     "name": "Highborn Vampire",
@@ -710,6 +892,57 @@
     ]
 }
 
+// Iridescent Hornbeetle
+{
+    "name": "Iridescent Hornbeetle",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Insect",
+    "oracleText": "At the beginning of your end step, create a 1/1 green Insect creature token for each +1/+1 counter you've put on creatures under your control this turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Iridescent Hornbeetle:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLUS_ONE_COUNTERS_PUT_ON_YOUR_CREATURES"
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Insect"
+                    ]
+                },
+                "descriptionOverride": "At the beginning of your end step, create a 1/1 green Insect creature token for each +1/+1 counter you've put on creatures under your control this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "UNCOMMON",
+        "artist": "Simon Dominic",
+        "flavorText": "The hatchlings will fill the jungles of Murasa in a glittering tide.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/1/214ef641-b08c-42d0-94a5-3054fa7fcebc.jpg?1783929341"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Luminarch Aspirant
 {
     "name": "Luminarch Aspirant",
@@ -723,7 +956,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Luminarch Aspirant:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -731,18 +964,19 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "t0"
                 }
             }
         ]
@@ -772,7 +1006,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Marauding Blight-Priest:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -829,7 +1063,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Needleverge Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -848,7 +1082,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Pillarverge Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -904,7 +1138,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nullpriest of Oblivion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -913,9 +1147,10 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature card from your graveyard"
+                        "name": "t0"
                     },
-                    "destination": "Battlefield"
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
@@ -923,7 +1158,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target creature card from your graveyard"
+                    "id": "t0"
                 },
                 "interveningIf": "WasKicked",
                 "descriptionOverride": "When this creature enters, if it was kicked, return target creature card from your graveyard to the battlefield."
@@ -957,7 +1192,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prowling Felidar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -966,7 +1201,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1008,7 +1243,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Riverglide Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1027,7 +1262,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Lavaglide Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -1073,7 +1308,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spitfire Lagac:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",

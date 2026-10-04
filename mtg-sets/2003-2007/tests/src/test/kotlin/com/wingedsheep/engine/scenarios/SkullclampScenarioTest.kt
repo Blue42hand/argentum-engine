@@ -68,7 +68,7 @@ class SkullclampScenarioTest : FunSpec({
 
         d.giveMana(me, Color.BLACK, 2)
         val doomBlade = d.putCardInHand(me, "Doom Blade")
-        d.castSpellWithTargets(me, doomBlade, listOf(ChosenTarget.Permanent(host))).isSuccess shouldBe true
+        d.castSpellWithTargets(me, doomBlade, listOf(ChosenTarget.Permanent(host))).outcome shouldBe com.wingedsheep.engine.core.Outcome.Done
         d.bothPass() // resolve Doom Blade; Skullclamp trigger is queued
         d.bothPass() // resolve Skullclamp draw trigger
 

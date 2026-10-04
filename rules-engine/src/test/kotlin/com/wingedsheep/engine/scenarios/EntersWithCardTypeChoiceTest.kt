@@ -1,5 +1,9 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
+
+
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
@@ -17,6 +21,9 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+
+private val ExecutionResult.isSuccess: Boolean get() = outcome == Outcome.Done
+private val ExecutionResult.isPaused: Boolean get() = outcome is Outcome.Paused
 
 /** Pins the generic CARD_TYPE as-enters contract independently of Cloud Key. */
 class EntersWithCardTypeChoiceTest : FunSpec({
@@ -97,8 +104,8 @@ class EntersWithCardTypeChoiceTest : FunSpec({
         val decision = driver.pendingDecision as ChooseOptionDecision
         decision.prompt shouldBe "Choose a card type"
         decision.options shouldContainExactly CardType.DEFAULT_CHOOSABLE_TYPES.map { it.displayName }
-        driver.submitDecision(player, OptionChosenResponse(decision.id, decision.options.indexOf("Instant")))
+        driver.submitDecision(player, OptionChosenResponse(decision.id, decision.options.indexOf("Kindred")))
 
-        chosenType(driver, land) shouldBe "Instant"
+        chosenType(driver, land) shouldBe "Kindred"
     }
 })

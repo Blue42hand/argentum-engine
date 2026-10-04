@@ -15,8 +15,8 @@
                         "amount": 3
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "t0"
                     }
                 },
                 {
@@ -29,7 +29,10 @@
             ]
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
         ]
     },
     "metadata": {
@@ -102,6 +105,46 @@
     ]
 }
 
+// Bloodthirsty Aerialist
+{
+    "name": "Bloodthirsty Aerialist",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Vampire Rogue",
+    "oracleText": "Flying\nWhenever you gain life, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bloodthirsty Aerialist:1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "91",
+        "rarity": "UNCOMMON",
+        "artist": "Igor Kieryluk",
+        "flavorText": "A circus acrobat in life, she kills with such fluid grace that even her victims are awed by her performance.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29156f28-38d8-4f65-b416-089f3fd97109.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Brineborn Cutthroat
 {
     "name": "Brineborn Cutthroat",
@@ -118,16 +161,16 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brineborn Cutthroat:1",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
-                "triggerRestriction": "IsNotYourTurn",
+                "triggerRestriction": "IsOpponentsTurn",
                 "descriptionOverride": "Whenever you cast a spell during an opponent's turn, put a +1/+1 counter on this creature."
             }
         ]
@@ -153,7 +196,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cryptic Caves:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -166,7 +209,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Cryptic Caves:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -236,7 +279,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dawning Angel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -276,7 +319,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature or planeswalker that's black or red"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -292,7 +335,7 @@
                 "filter": {
                     "baseFilter": "creature|planeswalker black|red"
                 },
-                "id": "target creature or planeswalker that's black or red"
+                "id": "t0"
             }
         ]
     },
@@ -324,7 +367,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drakuseth, Maw of Flames:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -336,8 +379,8 @@
                                 "amount": 4
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "t0"
                             }
                         },
                         {
@@ -347,8 +390,8 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "t1[0]"
                             }
                         },
                         {
@@ -358,15 +401,15 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 2
+                                "type": "BoundVariable",
+                                "name": "t1[1]"
                             }
                         }
                     ]
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "any target"
+                    "id": "t0"
                 },
                 "additionalTargetRequirements": [
                     {
@@ -376,7 +419,7 @@
                             "count": 2,
                             "minCount": 0
                         },
-                        "id": "up to two other targets"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "Whenever Drakuseth attacks, it deals 4 damage to any target and 3 damage to each of up to two other targets."
@@ -414,11 +457,11 @@
                             "amount": 7
                         }
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -426,14 +469,14 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "kept",
-                    "storeRemainder": "rest",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "selectedLabel": "Put in hand",
                     "remainderLabel": "Put on bottom"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "kept",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -441,7 +484,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "rest",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -461,6 +504,102 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Dread Presence
+{
+    "name": "Dread Presence",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Nightmare",
+    "oracleText": "Whenever a Swamp you control enters, choose one —\n• You draw a card and you lose 1 life.\n• This creature deals 2 damage to any target and you gain 2 life.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Dread Presence:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land Swamp ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "DrawCards",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    {
+                                        "type": "LoseLife",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "target": "Controller"
+                                    }
+                                ]
+                            },
+                            "description": "You draw a card and you lose 1 life"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "DealDamage",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        },
+                                        "target": {
+                                            "type": "BoundVariable",
+                                            "name": "t0"
+                                        }
+                                    },
+                                    {
+                                        "type": "GainLife",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        }
+                                    }
+                                ]
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "AnyTarget",
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "This creature deals 2 damage to any target and you gain 2 life"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever a Swamp you control enters, choose one — You draw a card and you lose 1 life; or this creature deals 2 damage to any target and you gain 2 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "rarity": "RARE",
+        "artist": "Anthony Palumbo",
+        "flavorText": "It beckons silently, waiting in the darkness.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/4/0430db1a-5cad-4444-ba93-57fb32e65606.jpg?1783932995"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -516,7 +655,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ferocious Pup:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -564,7 +703,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gnarlback Rhino:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -609,14 +748,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Smuggler:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -626,7 +765,7 @@
                             "baseFilter": "creature pow<=2",
                             "excludeSelf": true
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Another target creature with power 2 or less can't be blocked this turn."
@@ -660,7 +799,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hanged Executioner:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -683,7 +822,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Hanged Executioner:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -701,7 +840,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -711,7 +850,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -767,7 +906,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -776,7 +915,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -811,7 +950,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ironroot Warlord:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -863,7 +1002,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kykar, Wind's Fury:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -891,7 +1030,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Kykar, Wind's Fury:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -931,7 +1070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Moldervine Reclamation:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -997,7 +1136,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Octoprophet:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1033,7 +1172,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pyroclastic Elemental:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1048,12 +1187,15 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
-                    "TargetPlayer"
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t0"
+                    }
                 ],
                 "descriptionOverride": "{1}{R}{R}: This creature deals 1 damage to target player."
             }
@@ -1087,7 +1229,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rapacious Dragon:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1125,7 +1267,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savannah Sage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1168,7 +1310,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silverback Shaman:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1204,7 +1346,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sorin, Imperious Bloodlord:1",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 1
@@ -1217,7 +1359,7 @@
                             "keyword": "DEATHTOUCH",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1225,7 +1367,7 @@
                             "keyword": "LIFELINK",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1235,19 +1377,19 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "t0"
                                     },
                                     "filter": "creature Vampire"
                                 }
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "creature you control"
+                                    "name": "t0"
                                 }
                             }
                         }
@@ -1259,14 +1401,14 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "creature you control"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed",
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sorin, Imperious Bloodlord:2",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 1
@@ -1284,13 +1426,13 @@
                                         "baseFilter": "creature Vampire ctrl:you"
                                     }
                                 },
-                                "storeAs": "vampireToSacrifice"
+                                "storeAs": "target0"
                             },
                             {
                                 "type": "SacrificeTarget",
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "vampireToSacrifice"
+                                    "collectionName": "target0"
                                 }
                             }
                         ]
@@ -1305,8 +1447,8 @@
                                     "amount": 3
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -1319,7 +1461,10 @@
                         ]
                     },
                     "reflexiveTargetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "t1"
+                        }
                     ],
                     "descriptionOverride": "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to any target and you gain 3 life."
                 },
@@ -1327,7 +1472,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Sorin, Imperious Bloodlord:3",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -3
@@ -1400,7 +1545,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spectral Sailor:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1480,7 +1625,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Starfield Mystic:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -1490,7 +1635,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1541,12 +1686,12 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Twinblade Paladin:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },

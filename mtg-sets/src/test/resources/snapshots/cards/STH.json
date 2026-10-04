@@ -12,7 +12,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -31,7 +31,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -55,7 +55,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bottomless Pit:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -127,7 +127,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Conviction:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -190,7 +190,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hermit Druid:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -220,10 +220,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "revealed",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "basicland"
-                            },
+                            "filter": "basicland",
                             "storeMatching": "matchedToHand",
                             "storeNonMatching": "rest"
                         },
@@ -274,7 +271,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Honor Guard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -336,10 +333,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "looked",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
+                    "filter": "land",
                     "storeMatching": "kept",
                     "storeNonMatching": "rest"
                 },
@@ -402,6 +396,94 @@
     ]
 }
 
+// Ransack
+{
+    "name": "Ransack",
+    "manaCost": "{3}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top five cards of target player's library. Put any number of them on the bottom of that library in any order and the rest on top of the library in any order.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
+                    "selectedLabel": "Put on the bottom of that library",
+                    "remainderLabel": "Put back on top of that library"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "remainder1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "placement": "Top"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "UNCOMMON",
+        "artist": "Ron Spencer",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/4/b438802b-629a-42c8-824d-f081a1619f68.jpg?1783946567"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Revenant
 {
     "name": "Revenant",
@@ -458,13 +540,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -556,7 +638,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -574,7 +656,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -608,7 +690,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stronghold Assassin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -626,7 +708,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -645,7 +727,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -679,7 +761,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Blossoms:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

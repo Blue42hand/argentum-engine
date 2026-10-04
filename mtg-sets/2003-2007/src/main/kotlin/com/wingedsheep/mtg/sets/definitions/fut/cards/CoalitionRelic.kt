@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fut.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -33,23 +33,19 @@ val CoalitionRelic = card("Coalition Relic") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
-        effect = Effects.Composite(
-            listOf(
-                Effects.StoreNumber(
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
+        effect = (Effects.StoreNumber(
                     "removedChargeCounters",
-                    DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE)),
-                ),
-                Effects.RemoveAllCountersOfType(Counters.CHARGE, EffectTarget.Self),
-                Effects.AddManaInAnyCombination(
-                    DynamicAmount.VariableReference("removedChargeCounters")
-                ),
-            )
-        )
+                    DynamicAmounts.countersOnSelf(CounterType.CHARGE),
+                ) then
+            Effects.RemoveAllCountersOfType(CounterType.CHARGE, EffectTarget.Self) then
+            Effects.AddManaInAnyCombination(
+                    DynamicAmounts.storedNumber("removedChargeCounters")
+                ))
     }
 
     metadata {

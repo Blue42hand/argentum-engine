@@ -63,6 +63,75 @@
     ]
 }
 
+// Coercion
+{
+    "name": "Coercion",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target opponent reveals their hand. You choose a card from it. That player discards that card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "storeAs": "gathered0",
+                    "revealed": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected1",
+                    "prompt": "Choose a card for that player to discard"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "moveType": "Discard"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "artist": "DiTerlizzi",
+        "flavorText": "A rhino's bargain\n—Femeref expression meaning \"a situation with no choices\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/3/f3b07d33-f5f5-45cc-b2ac-360eaf2d4146.jpg?1783946995"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Creeping Mold
 {
     "name": "Creeping Mold",
@@ -74,7 +143,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -85,7 +154,7 @@
                 "filter": {
                     "baseFilter": "artifact|enchantment|land"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -111,7 +180,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Hand"
         },
@@ -122,7 +191,7 @@
                     "baseFilter": "own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -151,12 +220,15 @@
                 "amount": 4
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "t0"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
         ],
         "selfAlternativeCost": {
             "manaCost": "{0}",
@@ -222,7 +294,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Infantry Veteran:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -236,7 +308,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target attacking creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -245,7 +317,7 @@
                         "filter": {
                             "baseFilter": "creature attacking"
                         },
-                        "id": "target attacking creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -283,13 +355,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -316,7 +388,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Man-o'-War:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -325,7 +397,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -334,7 +406,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -364,18 +436,18 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature card from your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Battlefield",
                     "fromZone": "Graveyard"
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature card from your graveyard"
+                        "name": "t0"
                     }
                 }
             ]
@@ -387,7 +459,7 @@
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target creature card from your graveyard"
+                "id": "t0"
             }
         ]
     },
@@ -429,7 +501,8 @@
                         "zone": "Library",
                         "filter": "creature green"
                     },
-                    "storeAs": "searchable"
+                    "storeAs": "searchable",
+                    "search": true
                 },
                 {
                     "type": "SelectFromCollection",
@@ -493,7 +566,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nekrataal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -505,14 +578,14 @@
                             "type": "CantBeRegenerated",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             },
                             "destination": "Graveyard",
                             "byDestruction": true
@@ -533,7 +606,7 @@
                             ]
                         }
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -647,7 +720,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quicksand:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -660,7 +733,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Quicksand:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -680,7 +753,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -700,7 +773,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -728,7 +801,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quirion Ranger:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -740,7 +813,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -750,7 +823,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "creature"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -770,6 +843,54 @@
     ]
 }
 
+// Relentless Assault
+{
+    "name": "Relentless Assault",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "statePredicates": [
+                                    "AttackedThisTurn"
+                                ]
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "TapUntap",
+                        "target": "IterationEntity",
+                        "tap": false
+                    }
+                },
+                "AddCombatPhase",
+                "AddMainPhase"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "91",
+        "rarity": "RARE",
+        "artist": "Geofrey Darrow & I. Rabarot",
+        "flavorText": "Flog and Squee / Up the tree / See the army / Flee, flee, flee.\n—Goblin nursery rhyme/war cry",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/4/747161ea-cb65-4960-84dd-a05bfe5f3ba0.jpg?1783946986"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // River Boa
 {
     "name": "River Boa",
@@ -786,7 +907,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "River Boa:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -812,6 +933,88 @@
     ]
 }
 
+// Shrieking Drake
+{
+    "name": "Shrieking Drake",
+    "manaCost": "{U}",
+    "typeLine": "Creature — Drake",
+    "oracleText": "Flying\nWhen this creature enters, return a creature you control to its owner's hand.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Shrieking Drake:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature",
+                                "player": "You"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Return a creature you control to its owner's hand",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, return a creature you control to its owner's hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "artist": "Ian Miller",
+        "flavorText": "\"Kaervek believes the drakes' cries herald his victory; in truth, they mourn aloud for his impending demise.\"\n—Teferi",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/63971a64-c5f3-4d1f-ae0d-489d7d5b18f0.jpg?1783946997",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "You may return Shrieking Drake itself to its owner's hand as its triggered ability resolves. If you don't control any other creature, you must return it."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "Shrieking Drake's ability doesn't target any creature. Therefore, no player may take actions between the time you choose the creature to return and the time you return it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Simoon
 {
     "name": "Simoon",
@@ -833,11 +1036,14 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
-            "TargetOpponent"
+            {
+                "type": "TargetOpponent",
+                "id": "t0"
+            }
         ]
     },
     "metadata": {
@@ -861,7 +1067,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sisay's Ring:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -936,7 +1142,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -964,7 +1170,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Uktabi Orangutan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -973,7 +1179,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -983,7 +1189,7 @@
                     "filter": {
                         "baseFilter": "artifact"
                     },
-                    "id": "target artifact"
+                    "id": "t0"
                 }
             }
         ]
@@ -1026,7 +1232,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1052,41 +1258,37 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Library"
-                            },
-                            "storeAs": "searchable"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "searchable",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "found"
-                        },
-                        "ShuffleLibrary",
-                        {
-                            "type": "MoveCollection",
-                            "from": "found",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Library",
-                                "placement": "Top"
-                            }
-                        },
-                        "EmitLibrarySearchedEvent"
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library"
+                    },
+                    "storeAs": "searchable",
+                    "search": true
                 },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                "ShuffleLibrary",
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Top"
+                    }
+                },
+                "EmitLibrarySearchedEvent",
                 {
                     "type": "LoseLife",
                     "amount": {
@@ -1135,7 +1337,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

@@ -25,14 +25,12 @@ val GoblinBushwhacker = card("Goblin Bushwhacker") {
     keywordAbility(KeywordAbility.kicker("{R}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self),
-            ),
+            (Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)),
         )
     }
 

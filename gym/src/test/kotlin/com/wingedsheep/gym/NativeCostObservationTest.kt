@@ -11,6 +11,8 @@ import com.wingedsheep.mtg.sets.definitions.lrw.cards.SpringleafDrum
 import com.wingedsheep.mtg.sets.definitions.mh1.cards.ForceOfNegation
 import com.wingedsheep.mtg.sets.definitions.ktk.cards.TreasureCruise
 import com.wingedsheep.mtg.sets.definitions.ktk.cards.EmptyThePits
+import com.wingedsheep.mtg.sets.definitions.mh3.cards.Nethergoyf
+import com.wingedsheep.mtg.sets.definitions.mkm.cards.UrgentNecropsy
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
@@ -18,6 +20,48 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class NativeCostObservationTest : FunSpec({
+    test("Nethergoyf native view carries each exile candidate's card types") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + listOf(Nethergoyf))
+        driver.initMirrorMatch(Deck.of("Swamp" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val goyf = driver.putCardInGraveyard(player, "Nethergoyf")
+        val artifactCreature = driver.putCardInGraveyard(player, "Ornithopter")
+        driver.putCardInGraveyard(player, "Lightning Bolt")
+        driver.putCardInGraveyard(player, "Swamp")
+        val offered = driver.legalActions(player)
+        val view = (ObservationBuilder(driver.cardRegistry).build(driver.state, player, offered)
+            .observation as TrainingObservation).legalActions.first { action ->
+            val cast = offered[action.actionId].action as? CastSpell
+            cast?.cardId == goyf && cast.alternativeCostType == AlternativeCostType.ESCAPE
+        }
+        val cost = view.costChoices!!
+        (artifactCreature in cost.validExileTargets) shouldBe true
+        cost.exileCardTypes[artifactCreature]?.size shouldBe 2
+        cost.exileMinTotalWeight shouldBe 4
+    }
+
+    test("Urgent Necropsy native view carries evidence weight per possible target") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + listOf(UrgentNecropsy))
+        driver.initMirrorMatch(Deck.of("Swamp" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val opponent = driver.getOpponent(player)
+        val necropsy = driver.putCardInHand(player, "Urgent Necropsy")
+        val creature = driver.putCreatureOnBattlefield(opponent, "Grizzly Bears")
+        driver.putCardInGraveyard(player, "Air Elemental")
+        driver.giveMana(player, Color.BLACK, 2)
+        driver.giveMana(player, Color.GREEN, 2)
+        val offered = driver.legalActions(player)
+        val view = (ObservationBuilder(driver.cardRegistry).build(driver.state, player, offered)
+            .observation as TrainingObservation).legalActions.first { action ->
+            (offered[action.actionId].action as? CastSpell)?.cardId == necropsy
+        }
+        view.costChoices!!.exileWeightPerTarget[creature] shouldBe 2
+    }
+
     test("Drum native view identifies tap cost field and eligible creature") {
         val driver = GameTestDriver()
         driver.registerCards(TestCards.all + listOf(SpringleafDrum))
