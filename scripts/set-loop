@@ -178,7 +178,13 @@ worktree (recreate it with \`git worktree add\` if missing). Never work in the m
      signpost as \`keyCard\`, a 1–2 sentence description of the deck's plan, and \`creatureTypes\` only when the
      archetype is tribal. No signposts (e.g. a supplemental set) -> model the colour pairs the set's mechanics
      actually support. Add a \`SetArchetypesTest\` case pinning the names and colour pairs.
-   Gate (\`just test-ai\`, \`npm run typecheck\` in web-client, and the set-module tests the baseline re-bless touches), commit, push, open a PR titled
+   - Announce the set in the landing page's What's new feed, unless it is already there: add a \`kind: 'set'\` entry
+     to \`web-client/src/components/whatsNew/announcements.ts\` (newest first; \`id: 'set-<code>'\`, \`setCode\`, today's
+     date, title '<set name> is complete'). \`body\` is the pitch, 1-2 sentences on what the set is like to play: its
+     world, its headline mechanics, how its decks feel, so a player can tell from the feed alone whether to try it.
+     The archetypes above (or the set's mechanics.md) are the source; don't describe mechanics the set lacks.
+     \`tryIf\` completes 'Try it if you like ...' (e.g. 'tribal synergies and creature-type deckbuilding').
+   Gate (\`just test-ai\`, \`npm run typecheck\` and \`npx vitest run src/components/whatsNew\` in web-client, and the set-module tests the baseline re-bless touches), commit, push, open a PR titled
    '[agent-loop: $MODEL] Finish <set name>: archetypes + draftable' and record the unit in the ledger.
 
 PR open, CI still pending or running -> do nothing; don't poll or wait on it — the loop waits for CI
@@ -197,7 +203,7 @@ as their own PR first ('[agent-loop: $MODEL] Scaffold <set name> for <card>'), a
 If a step fails twice for the same PR, comment on it, mark it needs-human in the ledger (and the gap \`[!]\` if it
 was one), and move on. A sweep that fails twice marks the sweep line \`[!]\`, and its cards go through steps 6-7. Cards blocked on a \`[!]\` gap are skipped. When the only cards left are blocked on \`[!]\`
 gaps, answer STUCK naming those gaps; when \`card-status\` shows the set complete AND the step-8
-finishing PR (archetypes + no \`incomplete\`) is merged, answer SET_COMPLETE.
+finishing PR (archetypes + no \`incomplete\` + What's new entry) is merged, answer SET_COMPLETE.
 Follow AGENTS.md. Never revert or stash work that isn't yours.
 An unrelated failure on origin/main (a test in a module your change doesn't touch) is NOT a reason to answer
 STUCK: run the gates for the modules you changed, note the unrelated failure in the ledger and the PR body,
