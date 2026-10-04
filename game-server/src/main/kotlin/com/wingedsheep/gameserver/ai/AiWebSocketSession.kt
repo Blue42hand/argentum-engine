@@ -15,6 +15,7 @@ import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.view.StateDelta
 import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.gameserver.protocol.ServerMessage
+import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
@@ -86,6 +87,9 @@ class AiWebSocketSession(
     /** Called when AI makes a grid draft pick. Args: (playerId, selection) */
     @Volatile var onGridDraftPick: ((EntityId, String) -> Unit)? = null
 
+    /** Bound by GamePlayHandler only for its own live game; corrections carry the question ID. */
+    @Volatile internal var onPaymentCorrectionReady: ((EntityId, GameAction, String?, String) -> Unit)? = null
+
     private val sessionId = "ai-${UUID.randomUUID()}"
     private val open = AtomicBoolean(true)
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -97,6 +101,70 @@ class AiWebSocketSession(
     /** Rolling game log of recent event descriptions for AI context. */
     private val gameLog = mutableListOf<String>()
     private val maxGameLogSize = 30
+    private val paymentRetryLock = Any()
+    private var paymentRetryKey: Pair<String, String>? = null
+    private var paymentRetryCount = 0
+
+    /**
+     * Ask the same external pilot to correct an engine-rejected payment, at most twice for one
+     * live question. No ordinary AI fallback is involved. The callback retains the snapshot's
+     * epoch, so a later undo or accepted action makes an in-flight answer harmlessly obsolete.
+     */
+    internal fun retryRejectedPayment(
+        snapshot: GameSession.AiPaymentRetrySnapshot,
+        nativePaymentError: String,
+    ): Boolean {
+        if (!open.get() || allowActionsOnlyFallback) return false
+        val key = snapshot.interactionEpoch to snapshot.pendingDecision.id
+        synchronized(paymentRetryLock) {
+            if (paymentRetryKey != key) {
+                paymentRetryKey = key
+                paymentRetryCount = 0
+            }
+            if (paymentRetryCount >= 2) return false
+            paymentRetryCount++
+        }
+        scope.launch {
+            try {
+                delay(thinkingDelayMs)
+                val correction = controller.chooseActionAfterRejectedPayment(
+                    snapshot.state,
+                    snapshot.legalActions,
+                    snapshot.pendingDecision,
+                    getRecentGameLog(),
+                    nativePaymentError,
+                ) ?: run {
+                    logger.error("External AI action failed for seat {}: payment controller declined correction",
+                        aiPlayerId.value)
+                    return@launch
+                }
+                if (correction is ActionResponse.SubmitDecision &&
+                    (correction.playerId != snapshot.pendingDecision.playerId ||
+                        correction.response.decisionId != snapshot.pendingDecision.id)) {
+                    logger.error("External AI action failed for seat {}: payment correction addressed another decision",
+                        aiPlayerId.value)
+                    return@launch
+                }
+                val gated = if (correction is ActionResponse.SubmitAction && actionGate != null) {
+                    ActionResponse.SubmitAction(actionGate.approve(aiPlayerId, correction.action))
+                } else correction
+                val action = when (gated) {
+                    is ActionResponse.SubmitAction -> gated.action
+                    is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
+                }
+                val deliver = onPaymentCorrectionReady ?: run {
+                    logger.error("External AI action failed for seat {}: payment correction callback is unavailable",
+                        aiPlayerId.value)
+                    return@launch
+                }
+                deliver(aiPlayerId, action, snapshot.interactionEpoch, snapshot.pendingDecision.id)
+            } catch (e: Exception) {
+                logger.error("External AI action failed for seat {} during payment correction: {}",
+                    aiPlayerId.value, e.message, e)
+            }
+        }
+        return true
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true

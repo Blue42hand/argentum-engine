@@ -47,6 +47,7 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
                 .shouldBeInstanceOf<GameSession.ActionResult.Failure>()
             session.executeAiAction(player, nextAction, oldEpoch) shouldBe null
             session.executeAiAction(player, nextAction, null) shouldBe null
+            session.executeAiPaymentCorrection(player, nextAction, oldEpoch, "old-payment") shouldBe null
             session.getStateForTesting() shouldBe beforeState
             session.getRecordedActions() shouldBe beforeActions
             session.getLastMessageIdsForPersistence() shouldBe beforeIds
@@ -120,6 +121,17 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             session.isUndoAvailable(owner) shouldBe true
             val before = session.getStateForTesting()
             val beforeIds = session.getLastMessageIdsForPersistence()
+            // This reaches ActionProcessor (unlike obsolete routing) and is rejected because
+            // the other seat cannot answer the owner's decision. Rejection must not clear undo.
+            val liveQuestion = before!!.pendingDecision.shouldBeInstanceOf<ChooseOptionDecision>()
+            session.executeAiPaymentCorrection(other,
+                PlayLand(other, game.findCardsInHand(1, "Multiversal Passage").single()),
+                origin, "obsolete-payment") shouldBe null
+            session.executeAiAction(other,
+                SubmitDecision(other, OptionChosenResponse(liveQuestion.id, 0)), origin
+            ).shouldBeInstanceOf<GameSession.ActionResult.Failure>()
+            session.getStateForTesting() shouldBe before
+            session.isUndoAvailable(owner) shouldBe true
             val stale = SubmitDecision(other, OptionChosenResponse("obsolete-routing", 0))
             session.executeAiAction(other, stale, origin) shouldBe null
             session.executeClientAction(

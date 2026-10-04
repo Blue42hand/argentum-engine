@@ -7,4 +7,6 @@ data class LiveActionSubmission(
     val action: GameAction,
     val interactionEpoch: String,
     val messageId: String? = null,
+    /** Guard an AI correction that may be a mana ability action rather than a decision reply. */
+    val expectedDecisionId: String? = null,
 )
