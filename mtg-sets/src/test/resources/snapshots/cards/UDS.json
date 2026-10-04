@@ -409,6 +409,44 @@
     "colorIdentityOverride": []
 }
 
+// Bubbling Muck
+{
+    "name": "Bubbling Muck",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Until end of turn, whenever a player taps a Swamp for mana, that player adds an additional {B}.",
+    "script": {
+        "spellEffect": {
+            "type": "GrantStaticAbility",
+            "ability": {
+                "type": "AdditionalManaOnSourceTap",
+                "sourceFilter": "land Swamp",
+                "color": "BLACK"
+            },
+            "target": "Controller"
+        }
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "artist": "Greg Hildebrandt & Tim Hildebrandt",
+        "flavorText": "The muck claims a hundred living things for each meager treasure it spews forth.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/c/6ca76614-78a1-4535-9162-70469d1e8a13.jpg?1783946074",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "Affects lands with type Swamp, not lands that are named “Swamp.”"
+            },
+            {
+                "date": "2004-10-04",
+                "text": "Affects lands tapped for rest of turn, not just swamps on the battlefield at the time it resolves. This is because it affects players and not the lands themselves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Caltrops
 {
     "name": "Caltrops",
