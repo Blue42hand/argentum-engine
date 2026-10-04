@@ -858,7 +858,7 @@ class GameSession(
         interactionEpoch: String?,
     ): ActionResult? {
         val origin = interactionEpoch ?: return null
-        return executeLiveAction(playerId, LiveActionSubmission(action, origin))
+        return executeLiveAction(playerId, LiveActionSubmission(action, origin, previewManaPayment = true))
     }
 
     /** A correction may activate mana rather than answer the question; guard both paths. */
@@ -872,7 +872,7 @@ class GameSession(
         val origin = interactionEpoch ?: return null
         return executeLiveAction(playerId,
             LiveActionSubmission(action, origin, expectedDecisionId = expectedDecisionId,
-                expectedStateRevision = expectedStateRevision))
+                expectedStateRevision = expectedStateRevision, previewManaPayment = true))
     }
 
     /**
@@ -889,7 +889,7 @@ class GameSession(
         if (submission.expectedDecisionId != null &&
             submission.expectedDecisionId != gameState?.pendingDecision?.id) return null
         if (action is SubmitDecision && action.response.decisionId != gameState?.pendingDecision?.id) return null
-        executeAction(playerId, action, submission.messageId)
+        executeAction(playerId, action, submission.messageId, submission.previewManaPayment)
     }
 
     /** Must be checked under [stateLock], alongside the mutation it authorizes. */
@@ -945,7 +945,12 @@ class GameSession(
      * Undo checkpoint management follows the engine's [UndoCheckpointAction] policy —
      * the engine decides what to do with checkpoints, the server just executes it.
      */
-    fun executeAction(playerId: EntityId, action: GameAction, messageId: String? = null): ActionResult = synchronized(stateLock) {
+    fun executeAction(
+        playerId: EntityId,
+        action: GameAction,
+        messageId: String? = null,
+        previewManaPayment: Boolean = false,
+    ): ActionResult = synchronized(stateLock) {
         val state = gameState ?: return ActionResult.Failure("Game not started")
 
         // Seat authorization: a seat may submit actions tagged with its own playerId, or
@@ -965,6 +970,16 @@ class GameSession(
             if (lastId == messageId) {
                 return ActionResult.Failure("Duplicate message")
             }
+        }
+
+        if (previewManaPayment && action is SubmitDecision &&
+            action.response is ManaSourcesSelectedResponse &&
+            state.pendingDecision is SelectManaSourcesDecision) {
+            // Preview and live execution share the trusted processor and immutable state under
+            // the session lock. No preview result, events or private state leave this boundary;
+            // only the native error is returned for a same-pilot correction.
+            val previewError = actionProcessor.process(state, action).result.error
+            if (previewError != null) return ActionResult.Failure(previewError, paymentPreflight = true)
         }
 
         val (result, undoPolicy) = actionProcessor.process(state, action)
@@ -1530,7 +1545,7 @@ class GameSession(
             val events: List<GameEvent>
         ) : ActionResult
 
-        data class Failure(val reason: String) : ActionResult
+        data class Failure(val reason: String, val paymentPreflight: Boolean = false) : ActionResult
 
         data class PausedForDecision(
             val state: GameState,

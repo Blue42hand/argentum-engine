@@ -6,6 +6,7 @@ import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.PlayLand
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
+import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
 import com.wingedsheep.engine.core.SubmitDecision
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -84,6 +85,7 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             val caster = game.activePlayer!!
             game.passPriorityUntil(Step.PRECOMBAT_MAIN)
             val krenko = game.putCardInHand(caster, "Krenko, Mob Boss")
+            val mountain = game.putPermanentOnBattlefield(caster, "Mountain")
             val firstTreasure = game.putPermanentOnBattlefield(caster, "Treasure")
             val secondTreasure = game.putPermanentOnBattlefield(caster, "Treasure")
             game.giveColorlessMana(caster, 2)
@@ -95,6 +97,20 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
                 mapOf(caster to PlayerSession(socket, caster, "Caster")))
             val origin = epoch(session, caster)
             val decision = game.state.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+            val beforeState = session.getStateForTesting()
+            val beforeActions = session.getRecordedActions()
+            val beforeLogs = session.getLogsForPersistence()
+            val beforeIds = session.getLastMessageIdsForPersistence()
+            val insufficient = SubmitDecision(caster,
+                ManaSourcesSelectedResponse(decision.id, selectedSources = listOf(mountain)))
+            val rejected = session.executeAiAction(caster, insufficient, origin)
+                .shouldBeInstanceOf<GameSession.ActionResult.Failure>()
+            rejected.paymentPreflight shouldBe true
+            rejected.reason shouldBe "Selected mana sources cannot pay this spell's cost"
+            session.getStateForTesting() shouldBe beforeState
+            session.getRecordedActions() shouldBe beforeActions
+            session.getLogsForPersistence() shouldBe beforeLogs
+            session.getLastMessageIdsForPersistence() shouldBe beforeIds
             val snapshot = session.aiPaymentRetrySnapshot(caster, origin, decision.id).shouldNotBeNull()
             val first = ActivateAbility(caster, firstTreasure,
                 PredefinedTokens.Treasure.activatedAbilities.single().id, manaColorChoice = Color.RED)
@@ -110,6 +126,17 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
                 snapshot.stateRevision) shouldBe null
             session.getStateForTesting() shouldBe afterFirst
             session.getRecordedActions() shouldBe listOf(first)
+
+            val fresh = session.aiPaymentRetrySnapshot(caster, origin, decision.id).shouldNotBeNull()
+            session.executeAiPaymentCorrection(caster, delayed, origin, decision.id,
+                fresh.stateRevision).shouldBeInstanceOf<GameSession.ActionResult.PausedForDecision>()
+            val afterSecond = session.getStateForTesting().shouldNotBeNull()
+            afterSecond.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().id shouldBe decision.id
+            val final = SubmitDecision(caster,
+                ManaSourcesSelectedResponse(decision.id, selectedSources = emptyList()))
+            session.executeAiAction(caster, final, origin)
+                .shouldBeInstanceOf<GameSession.ActionResult.Success>()
+            session.getRecordedActions() shouldBe listOf(first, delayed, final)
         }
 
         test("browser and AI adapters record the same canonical actions from equivalent snapshots") {

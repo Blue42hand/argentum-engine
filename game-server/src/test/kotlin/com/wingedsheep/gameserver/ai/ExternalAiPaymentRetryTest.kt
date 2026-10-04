@@ -180,7 +180,8 @@ class ExternalAiPaymentRetryTest : FunSpec({
             every { isCurrentAiPaymentRetry(any()) } returns true
             every { sessionId } returns "payment-retry"
             every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
-            every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
+            every { executeAiAction(seat, invalid, epoch) } returns
+                GameSession.ActionResult.Failure(reason, paymentPreflight = true)
             every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } returns
                 GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
             every { executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 7L) } returns null
