@@ -38,6 +38,37 @@
     ]
 }
 
+// Panther Robot
+{
+    "name": "Panther Robot",
+    "manaCost": "{10}",
+    "typeLine": "Artifact Creature — Cat Robot",
+    "oracleText": "Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)\nReach, trample",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "REACH",
+        "TRAMPLE",
+        "AFFINITY"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Affinity",
+            "forType": "ARTIFACT"
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "113",
+        "rarity": "RARE",
+        "artist": "Andreia Ugrai",
+        "flavorText": "Immensely powerful, the Prowlers may be released only by Wakanda's royal family.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/b/8bb7185d-fc07-4f2f-9762-aa7e7c287cba.jpg?1783903257"
+    },
+    "colorIdentityOverride": []
+}
+
 // Shuri's Fabricator
 {
     "name": "Shuri's Fabricator",
