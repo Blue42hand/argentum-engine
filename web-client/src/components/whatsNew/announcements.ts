@@ -461,6 +461,13 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body: 'Three or four players at one table, with spectators welcome.',
   },
   {
+    id: 'feature-set-completion',
+    date: '2026-06-13',
+    kind: 'feature',
+    title: 'Set Completion',
+    body: 'See exactly which cards of every set are playable, set by set, before you pick one to draft.',
+  },
+  {
     id: 'feature-draft-assist',
     date: '2026-06-09',
     kind: 'feature',
@@ -486,6 +493,13 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'Dragons return to Tarkir, and the five three-colour clans — Abzan, Jeskai, Sultai, Mardu and Temur — each fight their own way. Mana fixing is generous, so go big on colours.',
     tryIf: 'three-colour decks and dragons',
+  },
+  {
+    id: 'feature-deck-share-links',
+    date: '2026-06-05',
+    kind: 'feature',
+    title: 'Shareable deck links',
+    body: 'Send a deck to a friend as a single link that opens straight in the deckbuilder.',
   },
   {
     id: 'set-inv',
@@ -525,6 +539,27 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     tryIf: 'tribal synergies and flash-speed tricks',
   },
   {
+    id: 'mode-commander',
+    date: '2026-05-08',
+    kind: 'mode',
+    title: 'Commander',
+    body: 'Build a 100-card singleton deck around your commander and play it, with deck-list import and export.',
+  },
+  {
+    id: 'mode-premade-tournaments',
+    date: '2026-05-08',
+    kind: 'mode',
+    title: 'Premade Decks tournaments',
+    body: 'Run a tournament where everyone brings their own constructed deck instead of opening boosters.',
+  },
+  {
+    id: 'feature-deckbuilder',
+    date: '2026-05-01',
+    kind: 'feature',
+    title: 'Deckbuilder',
+    body: 'Build and save constructed decks from every playable card, with filters for keywords, power and toughness, and sets.',
+  },
+  {
     id: 'set-blb',
     date: '2026-04-04',
     kind: 'set',
@@ -533,6 +568,20 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'A woodland of animal folk. Every two-colour pair is a creature type — Bats, Otters, Frogs, Lizards, Squirrels, Rabbits, Birds, Mice and Raccoons — with forage, offspring and gift.',
     tryIf: 'cute creatures and clear, synergy-driven archetypes',
+  },
+  {
+    id: 'feature-ai-drafters',
+    date: '2026-04-02',
+    kind: 'feature',
+    title: 'AI drafters',
+    body: 'Fill empty seats at a draft with AI players, in Booster, Winston and Grid Draft.',
+  },
+  {
+    id: 'mode-vs-ai',
+    date: '2026-03-20',
+    kind: 'mode',
+    title: 'Play against the AI',
+    body: 'Nobody online? A built-in AI opponent plays full games against you, any time.',
   },
   {
     id: 'set-ktk',
@@ -594,6 +643,13 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'mode',
     title: 'Booster Draft',
     body: 'Draft with friends, build from your picks, and play it out as a tournament.',
+  },
+  {
+    id: 'feature-spectating',
+    date: '2026-01-30',
+    kind: 'feature',
+    title: 'Spectate live games',
+    body: 'Watch any game in progress, targeting arrows and all.',
   },
   {
     id: 'mode-sealed',
