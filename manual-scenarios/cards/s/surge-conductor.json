@@ -1,0 +1,29 @@
+{
+  "player1Name": "Surge Conductor pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Mind Stone"],
+    "battlefield": [
+      {"name": "Surge Conductor"},
+      {"name": "Grizzly Bears", "counters": {"PLUS_ONE_PLUS_ONE": 1}},
+      {"name": "Forest"},
+      {"name": "Forest"}
+    ],
+    "graveyard": [],
+    "library": ["Forest", "Forest"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [],
+    "battlefield": [
+      {"name": "Grizzly Bears", "counters": {"PLUS_ONE_PLUS_ONE": 1}}
+    ],
+    "graveyard": [],
+    "library": ["Forest", "Forest"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "mode": "TWO_PLAYER"
+}
