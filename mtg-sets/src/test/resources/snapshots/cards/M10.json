@@ -37,7 +37,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ant Queen:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -127,7 +127,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blinding Mage:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -145,7 +145,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -154,7 +154,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -184,7 +184,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Borderland Ranger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -202,7 +202,8 @@
                                     "zone": "Library",
                                     "filter": "basicland"
                                 },
-                                "storeAs": "searchable"
+                                "storeAs": "searchable",
+                                "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -301,7 +302,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cudgel Troll:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -363,7 +364,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Hand"
         },
@@ -374,7 +375,7 @@
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -400,7 +401,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "creature"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -424,7 +425,7 @@
                         ]
                     }
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ]
     },
@@ -464,7 +465,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -483,7 +484,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -507,7 +508,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragonskull Summit:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -517,7 +518,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Dragonskull Summit:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -571,7 +572,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drowned Catacomb:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -581,7 +582,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Drowned Catacomb:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -660,7 +661,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Archdruid:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -714,7 +715,7 @@
                     "baseFilter": "creature",
                     "zone": "Stack"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -742,7 +743,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fiery Hellhound:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -785,7 +786,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glacial Fortress:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -795,7 +796,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Glacial Fortress:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -957,7 +958,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Magma Phoenix:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -980,7 +981,7 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -1005,7 +1006,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Magma Phoenix:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1034,6 +1035,119 @@
     ]
 }
 
+// Master of the Wild Hunt
+{
+    "name": "Master of the Wild Hunt",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Human Shaman",
+    "oracleText": "At the beginning of your upkeep, create a 2/2 green Wolf creature token.\n{T}: Tap all untapped Wolf creatures you control. Each Wolf tapped this way deals damage equal to its power to target creature. That creature deals damage equal to its power divided as its controller chooses among any number of those Wolves.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Master of the Wild Hunt:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Wolf"
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Master of the Wild Hunt:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "ControlledPermanents",
+                                "filter": "creature Wolf untapped"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "gathered0"
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Collection",
+                                "collection": "gathered0"
+                            },
+                            "body": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "EntityProperty",
+                                    "entity": "IterationEntity",
+                                    "numericProperty": "Power"
+                                },
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "damageSource": "IterationEntity"
+                            }
+                        },
+                        {
+                            "type": "DistributeDamageAmongCollection",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "numericProperty": "Power"
+                            },
+                            "collectionName": "gathered0",
+                            "damageSource": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "chooser": "ControllerOfTarget"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "191",
+        "rarity": "MYTHIC",
+        "artist": "Kev Walker",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/c/2cf3169c-f01c-47f4-ba4b-e199b7ade5fc.jpg?1783942361"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Merfolk Sovereign
 {
     "name": "Merfolk Sovereign",
@@ -1047,14 +1161,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merfolk Sovereign:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1063,7 +1177,7 @@
                         "filter": {
                             "baseFilter": "creature Merfolk"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Target Merfolk creature can't be blocked this turn."
@@ -1112,7 +1226,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mold Adder:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1140,7 +1254,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -1242,7 +1356,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rootbound Crag:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1252,7 +1366,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Rootbound Crag:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1327,7 +1441,10 @@
         "spellEffect": {
             "type": "PreventDamageShield",
             "recipientGroup": {
-                "baseFilter": "creature ctrl:you"
+                "cardPredicates": [
+                    "IsCreature"
+                ],
+                "controllerPredicate": "ControlledByYou"
             },
             "recipientGroupIncludesController": true
         }
@@ -1359,7 +1476,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -1368,7 +1485,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -1421,7 +1538,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target player"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1432,7 +1549,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target player"
+                        "name": "t0"
                     }
                 }
             ]
@@ -1440,7 +1557,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ]
     },
@@ -1489,7 +1606,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact or enchantment"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1509,7 +1626,7 @@
                 "filter": {
                     "baseFilter": "artifact|enchantment"
                 },
-                "id": "target artifact or enchantment"
+                "id": "t0"
             }
         ]
     },
@@ -1557,7 +1674,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunpetal Grove:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1567,7 +1684,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sunpetal Grove:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1631,8 +1748,8 @@
                             "amount": 5
                         },
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t0"
                         },
                         "isMill": true
                     },
@@ -1645,8 +1762,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t0"
                         }
                     }
                 }
@@ -1655,7 +1772,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ]
     },

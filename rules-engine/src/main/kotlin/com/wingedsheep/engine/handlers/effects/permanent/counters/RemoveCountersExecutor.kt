@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers.effects.permanent.counters
 
 import com.wingedsheep.engine.core.CountersRemovedEvent
 import com.wingedsheep.engine.core.EffectResult
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.state.GameState
@@ -14,7 +15,9 @@ import kotlin.reflect.KClass
  * Executor for RemoveCountersEffect.
  * "Remove X -1/-1 counters from target creature"
  */
-class RemoveCountersExecutor : EffectExecutor<RemoveCountersEffect> {
+class RemoveCountersExecutor(
+    private val amountEvaluator: DynamicAmountEvaluator
+) : EffectExecutor<RemoveCountersEffect> {
 
     override val effectType: KClass<RemoveCountersEffect> = RemoveCountersEffect::class
 
@@ -26,7 +29,7 @@ class RemoveCountersExecutor : EffectExecutor<RemoveCountersEffect> {
         val targetId = context.resolveTarget(effect.target)
             ?: return EffectResult.error(state, "No valid target for counter removal")
 
-        val counterType = resolveCounterType(effect.counterType)
+        val counterType = effect.counterType
 
         val current = state.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
 
@@ -35,7 +38,8 @@ class RemoveCountersExecutor : EffectExecutor<RemoveCountersEffect> {
         // its counters stripped) has that many removed and no more. Emitting the requested amount
         // regardless would tell "whenever a counter is removed" observers, and the
         // SuccessCriterion.CountersRemoved "if you do" gate, that something happened when nothing did.
-        val removed = minOf(current.getCount(counterType), effect.count)
+        val requested = amountEvaluator.evaluate(state, effect.count, context)
+        val removed = minOf(current.getCount(counterType), requested)
         if (removed <= 0) return EffectResult.success(state, emptyList())
 
         val newState = state.updateEntity(targetId) { container ->

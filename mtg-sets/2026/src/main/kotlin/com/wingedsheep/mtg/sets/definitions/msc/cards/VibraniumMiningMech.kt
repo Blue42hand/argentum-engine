@@ -31,13 +31,13 @@ val VibraniumMiningMech = card("Vibranium Mining Mech") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = createVibranium
         description = "When this Vehicle enters, create a tapped Vibranium token"
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = createVibranium
         description = "When this Vehicle attacks, create a tapped Vibranium token"
     }

@@ -10,7 +10,7 @@ import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.gym.contract.ActionParams
+import com.wingedsheep.engine.core.ActionParams
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.model.Deck

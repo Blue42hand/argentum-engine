@@ -11,7 +11,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savvy Trader:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20,7 +20,7 @@
                     "type": "ExileAndGrantOwnerPlayPermission",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target permanent card from your graveyard"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -29,7 +29,7 @@
                         "baseFilter": "permanent own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target permanent card from your graveyard"
+                    "id": "t0"
                 }
             }
         ],

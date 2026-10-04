@@ -34,7 +34,9 @@ export function ManaSourceSelectionUI({
   const decisionSelectionState = useGameStore((s) => s.decisionSelectionState)
   const cancelDecisionSelection = useGameStore((s) => s.cancelDecisionSelection)
   const submitManaSourcesDecision = useGameStore((s) => s.submitManaSourcesDecision)
-  const manaPool = usePlayer(decision.playerId)?.manaPool ?? null
+  const player = usePlayer(decision.playerId)
+  const manaPool = player?.manaPool ?? null
+  const acceptedColors = player?.manaPaymentColors
 
   const waterbendPermanents = decision.waterbendPermanents ?? []
   const waterbendIds = useMemo(
@@ -104,8 +106,9 @@ export function ManaSourceSelectionUI({
         decision.availableSources,
         selectedWaterbend.length,
         decision.eligibleRestrictedMana,
+        acceptedColors,
       ),
-    [costSymbols, manaPool, selectedManaSources, selectedWaterbend, decision.availableSources, decision.eligibleRestrictedMana],
+    [costSymbols, manaPool, selectedManaSources, selectedWaterbend, decision.availableSources, decision.eligibleRestrictedMana, acceptedColors],
   )
   const isCostCovered = coverage.every(isCovered)
   const floatingCoversAll = coverage.every((pip) => pip.floating || pip.symbol === 'X')

@@ -5,6 +5,7 @@ import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -49,6 +50,7 @@ object SbaZoneMovementHelper {
      *        Defaults to [state] for callers outside a batch.
      */
     fun putCreatureInGraveyard(
+        zones: ZoneTransitionService,
         state: GameState,
         entityId: EntityId,
         cardComponent: CardComponent,
@@ -71,7 +73,8 @@ object SbaZoneMovementHelper {
         // off the pass-start snapshot so a shield dying in the same SBA batch still applies.
         val redirectResult = ZoneMovementUtils.checkZoneChangeRedirect(
             state, entityId, Zone.BATTLEFIELD, Zone.GRAVEYARD,
-            battlefieldSourceState = passStartState
+            battlefieldSourceState = passStartState,
+            predicateEvaluator = zones.predicateEvaluator
         )
         val destinationZone = if (exileInstead) Zone.EXILE else redirectResult.destinationZone
 
@@ -113,11 +116,16 @@ object SbaZoneMovementHelper {
             } else {
                 com.wingedsheep.engine.handlers.effects.LibraryPlacement.Top
             }
-        val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+        val transitionResult = zones.moveToZone(
             newState, entityId, destinationZone,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
                 skipZoneChangeRedirect = true,
-                libraryPlacement = deathLibraryPlacement
+                libraryPlacement = deathLibraryPlacement,
+                // The whole SBA pass is one simultaneous event (CR 704.3), so its dies triggers
+                // look back to the pass start, not to the partly-moved state (CR 603.10a).
+                lookBackGrants = com.wingedsheep.engine.event.LookBackGrants.of(
+                    passStartState, entityId, zones.cardRegistry, zones.predicateEvaluator.conditions
+                )
             )
         )
         newState = transitionResult.state
@@ -182,6 +190,7 @@ object SbaZoneMovementHelper {
         // counters, The Darkness Crystal's "you gain 2 life").
         if (redirectResult.additionalEffect != null) {
             val (updatedState, extraEvents) = ZoneMovementUtils.applyReplacementAdditionalEffect(
+                zones,
                 newState, redirectResult.additionalEffect, redirectResult.effectControllerId, entityId,
                 sourceId = redirectResult.effectSourceId
             )
@@ -195,17 +204,23 @@ object SbaZoneMovementHelper {
     /**
      * Move a permanent to graveyard via SBA (planeswalker loyalty, saga sacrifice,
      * unattached aura, legend rule). Emits ZoneChangeEvent only (no CreatureDestroyedEvent).
-     * Respects zone change redirects.
+     * Respects zone change redirects and an ExileOnDeath mark — "dies" covers any permanent, so a
+     * planeswalker hit by Fanged Flames that falls to 0 loyalty is exiled instead.
      */
     fun putPermanentInGraveyard(
+        zones: ZoneTransitionService,
         state: GameState,
         entityId: EntityId,
         cardComponent: CardComponent,
         lastKnownAttachedTo: EntityId? = null
     ): ExecutionResult {
+        val exiledState = ZoneMovementUtils.consumeExileOnDeath(state, entityId)
+        val newState = exiledState ?: state
+        val destinationZone = if (exiledState != null) Zone.EXILE else Zone.GRAVEYARD
+
         // Delegate zone movement to ZoneTransitionService for full cleanup
-        val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
-            state, entityId, Zone.GRAVEYARD,
+        val transitionResult = zones.moveToZone(
+            newState, entityId, destinationZone,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(lastKnownAttachedTo = lastKnownAttachedTo)
         )
 

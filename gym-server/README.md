@@ -24,7 +24,9 @@ the transport in its own module means:
 
 ## Endpoints
 
-Default port **8081** so it coexists with the game server on 8080.
+Default port **8081** so it coexists with the game server on 8080. The server binds to
+**127.0.0.1** by default because it is unauthenticated; set `GYM_SERVER_BIND_ADDRESS=0.0.0.0`
+(e.g. in a container) to listen on every interface.
 
 | Method & path | Wraps | Body / query |
 |---|---|---|
@@ -41,6 +43,8 @@ Default port **8081** so it coexists with the game server on 8080.
 | `POST /envs/{id}/restore` | `restore` | `SnapshotHandle` JSON |
 | `GET /schema-hash` | constant | returns `{ schemaHash }` for drift-check |
 | `GET /health` | constant | returns `{ status: "ok" }` |
+| `GET /status` | constant | returns `{ status, service, schemaHash, buildRevision }` — see below |
+| `GET /actuator/metrics/http.server.requests` | Spring Actuator | request count / timing — see below |
 
 ### `params`: the choices an action ID can't carry
 
@@ -97,7 +101,7 @@ operator mistakes from server faults:
 | Exception | HTTP | When |
 |---|---|---|
 | `NoSuchElementException` | 404 | Unknown envId, missing snapshot |
-| `IllegalArgumentException` | 400 | Bad deck, stale action ID, unknown set code |
+| `IllegalArgumentException` | 400 | Bad deck, stale action ID, unknown set code, action or decision rejected by the engine |
 | `IllegalStateException` | 409 | `submitDecision` when no decision is pending |
 
 Anything else propagates as 500.
@@ -126,15 +130,15 @@ When omitted, the engine continues to select fresh entropy.
 Deliberately out of scope for the current scaffold, flagged in
 `GymServerApplication.kt`:
 
-- **Auth.** Bind to localhost until you add a bearer-token filter or
-  network ACL.
+- **Auth.** Keep the default loopback bind until you add a bearer-token
+  filter or network ACL.
 - **Env lifetime / TTLs.** A crashed trainer leaks envs forever — the
   natural next step is a reaper thread + heartbeat header.
 - **Byte-based snapshots.** `SnapshotHandle.Slot` is in-process only;
   the sealed interface has room for a `Bytes` variant once cross-process
   MCTS workers become a thing.
-- **Metrics / structured logs.** Add Prometheus or similar at the Spring
-  level when you need them.
+- **Structured logs / Prometheus.** Request metrics are available through
+  Actuator (above); a Prometheus registry is a dependency away when needed.
 
 ### Set catalogue is configurable
 

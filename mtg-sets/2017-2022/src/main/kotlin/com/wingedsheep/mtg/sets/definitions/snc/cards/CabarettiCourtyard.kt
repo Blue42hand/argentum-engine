@@ -24,18 +24,16 @@ val CabarettiCourtyard = card("Cabaretti Courtyard") {
     oracleText = CABARETTI_COURTYARD_ORACLE
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        trigger = Triggers.self.enters()
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.Composite(
-                Patterns.Library.searchLibrary(
+            reflexiveEffect = (Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand.withAnySubtype("Mountain", "Forest", "Plains"),
                     destination = SearchDestination.BATTLEFIELD,
                     entersTapped = true,
-                ),
-                Effects.GainLife(1),
-            ),
+                ) then
+                Effects.GainLife(1)),
             descriptionOverride = "Sacrifice this land. When you do, search your library for a basic Mountain, Forest, or Plains card, put it onto the battlefield tapped, then shuffle and you gain 1 life.",
         )
         description = CABARETTI_COURTYARD_ORACLE

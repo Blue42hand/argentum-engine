@@ -100,7 +100,7 @@
                     "baseFilter": "noncreature",
                     "zone": "Stack"
                 },
-                "id": "target noncreature spell"
+                "id": "t0"
             }
         ]
     },
@@ -167,7 +167,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature to get +4/+3"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -176,7 +176,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature to get +4/+3"
+                "id": "t0"
             }
         ]
     },
@@ -204,7 +204,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Attended Socialite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -251,18 +251,18 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Backup Agent:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -270,7 +270,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature enters, put a +1/+1 counter on target creature."
             }
@@ -340,7 +340,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Bootleggers' Stash:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "CreatePredefinedToken",
@@ -374,7 +374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Botanical Plaza:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -384,7 +384,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Botanical Plaza:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -394,7 +394,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Botanical Plaza:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -450,7 +450,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brazen Upstart:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -533,7 +533,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brokers Hideout:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -549,42 +549,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Forest|Plains|Island"
-                                        },
-                                        "storeAs": "searchable"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Forest|Plains|Island"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -622,7 +618,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brokers Veteran:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -630,11 +626,11 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "shield",
+                    "counterType": "SHIELD",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -642,7 +638,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -678,13 +674,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Cabaretti Charm deals damage equal to the number of creatures you control to target creature or planeswalker"
@@ -711,12 +707,12 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -767,7 +763,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cabaretti Courtyard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -783,42 +779,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Mountain|Forest|Plains"
-                                        },
-                                        "storeAs": "searchable"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Mountain|Forest|Plains"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -856,7 +848,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cabaretti Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -898,7 +890,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Celebrity Fencer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -907,7 +899,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -939,7 +931,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chrome Cat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -972,13 +964,13 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Civic Gardener:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -987,7 +979,7 @@
                     "filter": {
                         "baseFilter": "creature|land"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -1016,7 +1008,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cleanup Crew:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1028,8 +1020,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -1039,7 +1031,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact"
-                                    }
+                                    },
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Destroy target artifact"
@@ -1048,8 +1041,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t1"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -1059,7 +1052,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "enchantment"
-                                    }
+                                    },
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Destroy target enchantment"
@@ -1068,8 +1062,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t2"
                                 },
                                 "destination": "Exile"
                             },
@@ -1079,7 +1073,8 @@
                                     "filter": {
                                         "baseFilter": {},
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "t2"
                                 }
                             ],
                             "description": "Exile target card from a graveyard"
@@ -1119,7 +1114,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Courier's Briefcase:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1141,7 +1136,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Courier's Briefcase:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1154,7 +1149,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Courier's Briefcase:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1233,7 +1228,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cutthroat Contender:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1292,7 +1287,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature to get +1/+0 and first strike"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1300,7 +1295,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature to get +1/+0 and first strike"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1315,7 +1310,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature to get +1/+0 and first strike"
+                "id": "t0"
             }
         ]
     },
@@ -1343,7 +1338,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darling of the Masses:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -1445,10 +1440,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }
@@ -1481,7 +1473,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Exhibition Magician:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1549,13 +1541,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_1",
+                        "id": "Fake Your Own Death:1",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "from": "Battlefield",
@@ -1580,7 +1572,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 }
             ]
@@ -1591,7 +1583,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -1624,7 +1616,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fight Rigging:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1641,11 +1633,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "fightRiggingTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "fightRiggingTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1653,15 +1645,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "fightRiggingPicked",
-                            "storeRemainder": "fightRiggingRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fightRiggingPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1671,7 +1663,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fightRiggingRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1683,7 +1675,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Fight Rigging:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1694,11 +1686,11 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -1728,11 +1720,11 @@
                                         {
                                             "type": "GatherCards",
                                             "source": "FromLinkedExile",
-                                            "storeAs": "fightRiggingLinked"
+                                            "storeAs": "gathered0"
                                         },
                                         {
                                             "type": "PlayFromCollectionWithoutPayingCost",
-                                            "from": "fightRiggingLinked"
+                                            "from": "gathered0"
                                         }
                                     ]
                                 },
@@ -1746,7 +1738,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "At the beginning of combat on your turn, put a +1/+1 counter on target creature you control. Then if you control a creature with power 7 or greater, you may play the exiled card without paying its mana cost."
             }
@@ -1823,7 +1815,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Giada, Font of Hope:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1884,7 +1876,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gilded Pinions:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1898,7 +1890,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Gilded Pinions:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1954,7 +1946,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glittermonger:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -1991,7 +1983,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goldhound:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2047,7 +2039,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2081,7 +2073,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Inspiring Overseer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2133,7 +2125,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "duration": "EndOfTurn"
                 },
@@ -2141,7 +2133,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -2150,7 +2142,7 @@
                     "keyword": "HASTE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -2165,7 +2157,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2189,7 +2181,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jackhammer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2285,7 +2277,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jewel Thief:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2327,7 +2319,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -2358,7 +2350,7 @@
                         ]
                     }
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "staticAbilities": [
@@ -2412,13 +2404,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2441,7 +2433,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Maestros Theater:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2457,42 +2449,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Island|Swamp|Mountain"
-                                        },
-                                        "storeAs": "searchable"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Island|Swamp|Mountain"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -2558,7 +2546,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Obscura Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2596,7 +2584,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ominous Parcel:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2621,7 +2609,8 @@
                                 "zone": "Library",
                                 "filter": "basicland"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -2650,7 +2639,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Ominous Parcel:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2673,7 +2662,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2682,7 +2671,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2705,7 +2694,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Racers' Ring:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2715,7 +2704,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Racers' Ring:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2725,7 +2714,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Racers' Ring:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2815,13 +2804,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "target"
+                            "id": "t0"
                         }
                     ],
                     "description": "Ready to Rumble deals 5 damage to target creature or planeswalker"
@@ -2831,7 +2820,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -2842,7 +2831,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "target"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -2874,7 +2863,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Riveteers Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2912,7 +2901,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Riveteers Overlook:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2928,42 +2917,38 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland Swamp|Mountain|Forest"
-                                        },
-                                        "storeAs": "searchable"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "ShuffleLibrary",
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Swamp|Mountain|Forest"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -3054,7 +3039,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skybridge Towers:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3064,7 +3049,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Skybridge Towers:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3074,7 +3059,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Skybridge Towers:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3127,7 +3112,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Social Climber:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -3202,13 +3187,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature or planeswalker"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "target creature or planeswalker"
+                "id": "t0"
             }
         ]
     },
@@ -3241,10 +3226,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }
@@ -3270,7 +3252,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tramway Station:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3280,7 +3262,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Tramway Station:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3290,7 +3272,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Tramway Station:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3343,7 +3325,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venom Connoisseur:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -3379,7 +3361,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DEATHTOUCH",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -3411,7 +3393,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -3422,7 +3404,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "cantBeCountered": true
@@ -3452,55 +3434,50 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 5
-                                }
-                            },
-                            "storeAs": "looked"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "looked",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "filter": "creature",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
-                            "prompt": "You may reveal a creature card from among them and put it into your hand",
-                            "showAllCards": true
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "kept",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Hand"
-                            },
-                            "revealed": true
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "rest",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Library",
-                                "placement": "Bottom"
-                            },
-                            "order": "Random"
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
                         }
-                    ]
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "creature",
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "prompt": "You may reveal a creature card from among them and put it into your hand",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "Random"
                 },
                 {
                     "type": "CreateToken",
@@ -3537,7 +3514,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Waterfront District:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3547,7 +3524,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Waterfront District:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3557,7 +3534,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Waterfront District:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3616,7 +3593,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -3625,7 +3602,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "staticAbilities": [
@@ -3714,7 +3691,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witty Roastmaster:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",

@@ -10,11 +10,12 @@ import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.dsl.Triggers as SdkTriggers
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The trigger prefix: the first rules that reach a `CardScript` slot other than the spell effect,
@@ -37,8 +38,8 @@ class TriggersTest : StringSpec({
     "an ETB trigger is the ability a card author writes from the same sentence" {
         ability("When ~ enters, draw a card.") shouldBe TriggeredAbility(
             id = AbilityId("trigger"),
-            trigger = SdkTriggers.EntersBattlefield.event,
-            binding = SdkTriggers.EntersBattlefield.binding,
+            trigger = SdkTriggers.self.enters().event,
+            binding = SdkTriggers.self.enters().binding,
             effect = Effects.DrawCards(1),
         )
         roundTrips("When ~ enters, draw a card.")
@@ -73,12 +74,12 @@ class TriggersTest : StringSpec({
         val whole = first.merge(second)
 
         whole?.script?.triggeredAbilities?.map { it.trigger } shouldBe listOf(
-            SdkTriggers.EntersBattlefield.event,
-            SdkTriggers.Attacks.event,
+            SdkTriggers.self.enters().event,
+            SdkTriggers.self.attacks().event,
         )
     }
 
-    // The prefix itself is one slot over `Triggers.phase(step, player, binding)` and lives in
+    // The prefix itself is one slot over `Triggers.<player>.beginningOf(step)` and lives in
     // [Phases], whose own test covers every spelling it can take. What belongs *here* is the lift: a
     // step trigger's effect clause is the same English a spell prints, so it inherits the whole step
     // vocabulary exactly as an event trigger's does.
@@ -93,19 +94,19 @@ class TriggersTest : StringSpec({
         ).forEach { roundTrips(it) }
 
         ability("At the beginning of your upkeep, draw a card.").trigger shouldBe
-            SdkTriggers.YourUpkeep.event
+            SdkTriggers.you.beginningOf(Step.UPKEEP).event
     }
 
     // "You may …" is one sentence with one model. A triggered ability used to spell it with an
-    // `optional` flag where a spell used a `MayEffect`, and `Triggers.abilityFor` had to lower
+    // `optional` flag where a spell used a `Effects.May`, and `Triggers.abilityFor` had to lower
     // between the two; the flag is gone from the SDK and a trigger's consent is the same gate a
     // spell's is, so this now asserts that nothing special happens at all.
     "a trigger's \"you may\" is the same consent gate a spell's is" {
         val optional = TriggeredAbility(
             id = AbilityId("trigger"),
-            trigger = SdkTriggers.EntersBattlefield.event,
-            binding = SdkTriggers.EntersBattlefield.binding,
-            effect = MayEffect(Effects.DrawCards(1)),
+            trigger = SdkTriggers.self.enters().event,
+            binding = SdkTriggers.self.enters().binding,
+            effect = Effects.May(Effects.DrawCards(1)),
         )
 
         Grammar.abilityLine.printLine(
@@ -122,8 +123,8 @@ class TriggersTest : StringSpec({
     "an intervening-if is the trigger's own condition, not a second gate in the effect" {
         val conditioned = TriggeredAbility(
             id = AbilityId("trigger"),
-            trigger = SdkTriggers.EntersBattlefield.event,
-            binding = SdkTriggers.EntersBattlefield.binding,
+            trigger = SdkTriggers.self.enters().event,
+            binding = SdkTriggers.self.enters().binding,
             effect = Effects.DrawCards(1),
             interveningIf = Conditions.OpponentControlsMoreLands,
         )
@@ -135,6 +136,31 @@ class TriggersTest : StringSpec({
         ) shouldBe "When ~ enters, if an opponent controls more lands than you, draw a card."
     }
 
+    // The kicker permanents' intervening-if — past tense is the only spelling Oracle prints.
+    "if it was kicked is the WasKicked intervening-if" {
+        ability("When ~ enters, if it was kicked, draw a card.").interveningIf shouldBe Conditions.WasKicked
+        roundTrips("When ~ enters, if it was kicked, draw a card.")
+        Grammar.abilityLine.parseLine("When ~ enters, if it's kicked, draw a card.")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
+    }
+
+    // Morbid — the global clause and its "under your control" sibling are two facades, two constants.
+    "a creature died this turn is the morbid intervening-if" {
+        ability("When ~ enters, if a creature died this turn, draw a card.").interveningIf shouldBe
+            Conditions.CreatureDiedThisTurn
+        roundTrips("When ~ enters, if a creature died this turn, draw a card.")
+        ability("At the beginning of your end step, if a creature died under your control this turn, draw a card.")
+            .interveningIf shouldBe Conditions.ControlledCreatureDiedThisTurn
+        roundTrips("At the beginning of your end step, if a creature died under your control this turn, draw a card.")
+    }
+
+    // Raid — one clause, one facade.
+    "you attacked this turn is the raid intervening-if" {
+        ability("At the beginning of your end step, if you attacked this turn, draw a card.").interveningIf shouldBe
+            Conditions.YouAttackedThisTurn
+        roundTrips("At the beginning of your end step, if you attacked this turn, draw a card.")
+    }
+
     // The other half of the split (CR 603.2 vs CR 603.4). A `triggerRestriction` is a different
     // printed shape — "Whenever this creature attacks *while* you control a Dinosaur" — that the
     // engine reads only when the trigger fires. No trigger rule spells it, so an ability carrying
@@ -142,8 +168,8 @@ class TriggersTest : StringSpec({
     "a trigger restriction is not printable as an intervening-if" {
         val restricted = TriggeredAbility(
             id = AbilityId("trigger"),
-            trigger = SdkTriggers.EntersBattlefield.event,
-            binding = SdkTriggers.EntersBattlefield.binding,
+            trigger = SdkTriggers.self.enters().event,
+            binding = SdkTriggers.self.enters().binding,
             effect = Effects.DrawCards(1),
             triggerRestriction = Conditions.OpponentControlsMoreLands,
         )
@@ -163,8 +189,8 @@ class TriggersTest : StringSpec({
     "an ability with content the prefix does not spell refuses to print" {
         val capped = TriggeredAbility(
             id = AbilityId("trigger"),
-            trigger = SdkTriggers.EntersBattlefield.event,
-            binding = SdkTriggers.EntersBattlefield.binding,
+            trigger = SdkTriggers.self.enters().event,
+            binding = SdkTriggers.self.enters().binding,
             effect = Effects.DrawCards(1),
             triggersOnce = true,
         )
@@ -182,7 +208,7 @@ class TriggersTest : StringSpec({
         fragment(
             "Whenever ~ becomes the target of a spell or ability you control for the first time " +
                 "each turn, draw a card."
-        ).script.triggeredAbilities.single().trigger shouldBe SdkTriggers.Valiant.event
+        ).script.triggeredAbilities.single().trigger shouldBe SdkTriggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true).event
 
         roundTrips(
             "Whenever ~ becomes the target of a spell or ability you control for the first time " +
@@ -198,7 +224,7 @@ class TriggersTest : StringSpec({
     // rather than the same one with two optional phrases the model could not choose between.
     "the targeted-by-your-spell trigger is its own row beside valiant" {
         fragment("Whenever ~ becomes the target of a spell you control, draw a card.")
-            .script.triggeredAbilities.single().trigger shouldBe SdkTriggers.BecomesTargetOfYourSpell.event
+            .script.triggeredAbilities.single().trigger shouldBe SdkTriggers.self.becomesTarget(byYou = true, spellsOnly = true).event
 
         roundTrips("Whenever ~ becomes the target of a spell you control, draw a card.")
     }
@@ -208,8 +234,8 @@ class TriggersTest : StringSpec({
     "an ability's arbitrary id does not stop it printing" {
         val theirs = TriggeredAbility(
             id = AbilityId("ability_1"),
-            trigger = SdkTriggers.EntersBattlefield.event,
-            binding = SdkTriggers.EntersBattlefield.binding,
+            trigger = SdkTriggers.self.enters().event,
+            binding = SdkTriggers.self.enters().binding,
             effect = Effects.DrawCards(1),
         )
 
@@ -231,11 +257,11 @@ class TriggersTest : StringSpec({
     // same fact. "You control" is the *absent* predicate — see [Filters.pluralSubject].
     "a batch subject's controller clause names the facade the SDK publishes" {
         ability("Whenever one or more creatures you control die, draw a card.").trigger shouldBe
-            SdkTriggers.OneOrMoreCreaturesYouControlDie().event
+            SdkTriggers.oneOrMore(GameObjectFilter.Creature).die().event
         ability("Whenever one or more creatures die, draw a card.").trigger shouldBe
-            SdkTriggers.OneOrMoreCreaturesDie().event
+            SdkTriggers.oneOrMore(GameObjectFilter.Creature.anyController()).die().event
         ability("Whenever one or more creatures your opponents control die, draw a card.").trigger shouldBe
-            SdkTriggers.OneOrMoreCreaturesAnOpponentControlsDie().event
+            SdkTriggers.oneOrMore(GameObjectFilter.Creature.opponentControls()).die().event
     }
 
     // The cap is a rider on the *ability*, so one rule reaches every trigger family rather than
@@ -270,7 +296,7 @@ class TriggersTest : StringSpec({
         fragment("Whenever one or more cards leave your graveyard during your turn, draw a card.")
             .script.triggeredAbilities.single().triggerRestriction shouldBe Conditions.IsYourTurn
         fragment("Whenever you gain life during an opponent's turn, draw a card.")
-            .script.triggeredAbilities.single().triggerRestriction shouldBe Conditions.IsNotYourTurn
+            .script.triggeredAbilities.single().triggerRestriction shouldBe Conditions.IsOpponentsTurn
 
         roundTrips("Whenever one or more cards leave your graveyard during your turn, draw a card.")
         roundTrips("Whenever you gain life during an opponent's turn, draw a card.")
@@ -290,7 +316,7 @@ class TriggersTest : StringSpec({
     "a sacrifice trigger is per-permanent and reads the predefined token nouns" {
         fragment("Whenever you sacrifice a Blood token, draw a card.")
             .script.triggeredAbilities.single().trigger shouldBe
-            SdkTriggers.YouSacrificeA(GameObjectFilter.Artifact.withSubtype("Blood")).event
+            SdkTriggers.you.sacrifices(GameObjectFilter.Artifact.withSubtype("Blood")).event
 
         roundTrips("Whenever you sacrifice a Blood token, draw a card.")
         roundTrips("Whenever you sacrifice a creature, draw a card.")
@@ -323,6 +349,41 @@ class TriggersTest : StringSpec({
     }
 
     // ---------------------------------------------------------------------------------------
+    // Filtered dies triggers, and the long form CR 700.4 defines "dies" by
+    // ---------------------------------------------------------------------------------------
+
+    // Ashiok's Reaper, Krenko, Ygra: every hand-written card in the family writes `.dies()` on a
+    // filtered subject, and "another" is the `another` subject rather than a filter layer.
+    "a filtered dies trigger is the a/another subject the goldens write" {
+        ability("Whenever a creature you control dies, draw a card.").trigger shouldBe
+            SdkTriggers.a(GameObjectFilter.Creature.youControl()).dies().event
+        val other = ability("Whenever another creature you control dies, draw a card.")
+        other.trigger shouldBe SdkTriggers.another(GameObjectFilter.Creature.youControl()).dies().event
+        other.binding shouldBe SdkTriggers.another(GameObjectFilter.Creature.youControl()).dies().binding
+        listOf(
+            "Whenever a creature you control dies, draw a card.",
+            "Whenever another creature you control dies, draw a card.",
+            "Whenever a nontoken creature you control dies, draw a card.",
+            "Whenever a creature an opponent controls dies, you gain 1 life.",
+        ).forEach { roundTrips(it) }
+    }
+
+    // One event, two wordings (`Triggers.self.dies()` documents both), so the long form parses to
+    // the same model and "dies" is what prints — Nutrient Block, Ashiok's Reaper.
+    "the long form of dies is a second spelling of the same event" {
+        fragment("When ~ is put into a graveyard from the battlefield, draw a card.") shouldBe
+            fragment("When ~ dies, draw a card.")
+        fragment("Whenever an enchantment you control is put into a graveyard from the battlefield, draw a card.") shouldBe
+            fragment("Whenever an enchantment you control dies, draw a card.")
+        fragment("Whenever another artifact you control is put into a graveyard from the battlefield, draw a card.") shouldBe
+            fragment("Whenever another artifact you control dies, draw a card.")
+
+        Grammar.abilityLine.printLine(
+            fragment("When ~ is put into a graveyard from the battlefield, draw a card.")
+        ) shouldBe "When ~ dies, draw a card."
+    }
+
+    // ---------------------------------------------------------------------------------------
     // Compound self-triggers — the pairs Oracle joins with "or"
     // ---------------------------------------------------------------------------------------
 
@@ -331,7 +392,7 @@ class TriggersTest : StringSpec({
     "an enters-or-dies sentence is the two abilities the goldens carry" {
         val abilities = fragment("When ~ enters or dies, draw a card.").script.triggeredAbilities
         abilities.map { it.trigger } shouldBe
-            listOf(SdkTriggers.EntersBattlefield.event, SdkTriggers.Dies.event)
+            listOf(SdkTriggers.self.enters().event, SdkTriggers.self.dies().event)
         abilities.map { it.effect } shouldBe List(2) { Effects.DrawCards(1) }
         roundTrips("When ~ enters or dies, draw a card.")
     }
@@ -362,10 +423,10 @@ class TriggersTest : StringSpec({
                     TriggeredAbility(
                         id = AbilityId("trigger"),
                         trigger = SdkTriggers.or(
-                            SdkTriggers.EntersBattlefield,
-                            SdkTriggers.TurnedFaceUp,
+                            SdkTriggers.self.enters(),
+                            SdkTriggers.self.turnedFaceUp(),
                         ).event,
-                        binding = SdkTriggers.EntersBattlefield.binding,
+                        binding = SdkTriggers.self.enters().binding,
                         effect = Effects.DrawCards(1),
                     )
                 )
@@ -402,7 +463,7 @@ class TriggersTest : StringSpec({
             "When ~ enters and whenever you cast a spell with mana value 5 or greater, draw a card."
         ).script.triggeredAbilities
 
-        abilities.map { it.trigger }.first() shouldBe SdkTriggers.EntersBattlefield.event
+        abilities.map { it.trigger }.first() shouldBe SdkTriggers.self.enters().event
         abilities.map { it.trigger }.last().shouldBeInstanceOf<EventPattern.SpellCastEvent>()
         abilities.map { it.effect } shouldBe listOf(Effects.DrawCards(1), Effects.DrawCards(1))
         roundTrips(
@@ -451,5 +512,29 @@ class TriggersTest : StringSpec({
     // Two identical abilities is not a sentence: it is one trigger line written twice.
     "a join of an event with itself declines" {
         declines("When ~ enters and when ~ enters, draw a card.")
+    }
+
+    // Zephyr Boots, Armadillo Cloak, Kusari-Gama: the source's damage rows said of the attached
+    // creature, landing on `Triggers.attached` — the binding, not a filter.
+    "a damage trigger on enchanted creature is the attached binding" {
+        ability("Whenever enchanted creature deals combat damage to a player, draw a card.") shouldBe
+            TriggeredAbility(
+                id = AbilityId("trigger"),
+                trigger = SdkTriggers.attached.dealsCombatDamage(Recipient.AnyPlayer).event,
+                binding = SdkTriggers.attached.dealsCombatDamage(Recipient.AnyPlayer).binding,
+                effect = Effects.DrawCards(1),
+            )
+        listOf(
+            "Whenever enchanted creature deals combat damage to a player, draw a card.",
+            "Whenever enchanted creature deals combat damage, put a +1/+1 counter on ~.",
+            "Whenever enchanted creature deals damage, you gain that much life.",
+            "Whenever enchanted creature is dealt damage, draw a card.",
+        ).forEach { roundTrips(it) }
+    }
+
+    // "It" names the enchanted creature here, not the source; until a card's golden says how that
+    // is spelled, the pronoun declines rather than reading as `~`.
+    "the source pronoun does not read inside an attached damage trigger" {
+        declines("Whenever enchanted creature is dealt damage, it deals that much damage to each opponent.")
     }
 })

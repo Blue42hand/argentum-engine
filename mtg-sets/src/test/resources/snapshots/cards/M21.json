@@ -1,3 +1,103 @@
+// Barrin, Tolarian Archmage
+{
+    "name": "Barrin, Tolarian Archmage",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Legendary Creature — Human Wizard",
+    "oracleText": "When Barrin enters, return up to one other target creature or planeswalker to its owner's hand.\nAt the beginning of your end step, if a permanent was put into your hand from the battlefield this turn, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Barrin, Tolarian Archmage:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature|planeswalker",
+                        "excludeSelf": true
+                    },
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Barrin, Tolarian Archmage:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PERMANENTS_PUT_INTO_HAND_FROM_BATTLEFIELD"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "flavorText": "\"There is no age at which you stop learning.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cb078fbb-beb9-4c0b-be93-ed1e73e6f8d8.jpg?1783930730",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "You draw only one card, no matter how many permanents were put into your hand from the battlefield during that turn."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "The permanent that was returned to your hand doesn't have to still be there."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "If a token is returned to your hand, it's put there before it ceases to exist."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "Barrin's last ability checks the entire turn, even before Barrin was on the battlefield."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "If a permanent wasn't put into your hand from the battlefield before your end step begins, Barrin's ability doesn't trigger at all."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Chandra's Magmutt
 {
     "name": "Chandra's Magmutt",
@@ -11,7 +111,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chandra's Magmutt:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -21,13 +121,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "player or planeswalker"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetPlayerOrPlaneswalker",
-                        "id": "player or planeswalker"
+                        "id": "t0"
                     }
                 ]
             }
@@ -57,7 +157,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Conclave Mentor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -67,7 +167,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 }
@@ -125,7 +225,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Daybreak Charger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -142,7 +242,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -150,7 +250,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t0"
                 }
             }
         ]
@@ -184,7 +284,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elder Gargaroth:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Modal",
@@ -225,7 +325,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Elder Gargaroth:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "Modal",
@@ -307,7 +407,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Garruk's Uprising:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -327,7 +427,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Garruk's Uprising:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature pow>=4 ctrl:you",
@@ -398,7 +498,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Heartfire Immolator:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -424,7 +524,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Heartfire Immolator:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -442,18 +542,18 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetCreatureOrPlaneswalker",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -484,7 +584,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Library Larcenist:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "DrawCards",
@@ -523,18 +623,15 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mazemind Tome:3",
                 "condition": {
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "page"
-                            }
+                            "counterType": "PAGE"
                         }
                     },
                     "operator": "GTE",
@@ -567,7 +664,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Mazemind Tome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -576,7 +673,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPutCountersOnSelf",
-                                "counterType": "page"
+                                "counterType": "PAGE"
                             }
                         }
                     ]
@@ -587,7 +684,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Mazemind Tome:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -603,7 +700,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPutCountersOnSelf",
-                                "counterType": "page"
+                                "counterType": "PAGE"
                             }
                         }
                     ]
@@ -649,7 +746,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ornery Dilophosaur:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -716,18 +813,18 @@
                     "toughnessModifier": "XValue",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t0"
                     }
                 },
                 {
                     "type": "Fight",
                     "target1": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t0"
                     },
                     "target2": {
                         "type": "BoundVariable",
-                        "name": "up to one target creature you don't control"
+                        "name": "t1"
                     }
                 }
             ]
@@ -738,7 +835,7 @@
                 "filter": {
                     "baseFilter": "creature ctrl:you"
                 },
-                "id": "target creature you control"
+                "id": "t0"
             },
             {
                 "type": "TargetObject",
@@ -746,7 +843,7 @@
                 "filter": {
                     "baseFilter": "creature ctrl:opponent"
                 },
-                "id": "up to one target creature you don't control"
+                "id": "t1"
             }
         ]
     },
@@ -775,7 +872,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rambunctious Mutt:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -784,7 +881,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -794,7 +891,7 @@
                     "filter": {
                         "baseFilter": "artifact|enchantment ctrl:opponent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature enters, destroy target artifact or enchantment an opponent controls."
             }
@@ -895,7 +992,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shipwreck Dowser:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -919,7 +1016,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Shipwreck Dowser:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -928,7 +1025,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -938,7 +1035,7 @@
                         "baseFilter": "instant|sorcery own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ]
@@ -988,7 +1085,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Teferi's Protege:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1069,6 +1166,112 @@
     ]
 }
 
+// Tempered Veteran
+{
+    "name": "Tempered Veteran",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "{W}, {T}: Put a +1/+1 counter on target creature with a +1/+1 counter on it.\n{4}{W}{W}, {T}: Put a +1/+1 counter on target creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Tempered Veteran:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "statePredicates": [
+                                    {
+                                        "type": "HasCounter",
+                                        "counterType": "PLUS_ONE_PLUS_ONE"
+                                    }
+                                ]
+                            }
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{W}, {T}: Put a +1/+1 counter on target creature with a +1/+1 counter on it."
+            },
+            {
+                "id": "Tempered Veteran:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{W}{W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "descriptionOverride": "{4}{W}{W}, {T}: Put a +1/+1 counter on target creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "flavorText": "\"I've been carrying a sword since before you were born. I wouldn't give up my oath for all the peace and comfort in the world.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3b43d7bc-173c-41eb-bba9-a9d94dcfc5fa.jpg?1783930732"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Valorous Steed
 {
     "name": "Valorous Steed",
@@ -1085,7 +1288,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Valorous Steed:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1166,10 +1369,10 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wildwood Scourge:1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": {
                         "cardPredicates": [
                             "IsCreature",
@@ -1184,7 +1387,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1227,7 +1430,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witch's Cauldron:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

@@ -1,5 +1,9 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
+
+
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.ManaSourcesSelectedResponse
@@ -9,6 +13,7 @@ import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.mechanics.cost.CostPaymentService
 import com.wingedsheep.engine.mechanics.cost.PaymentResult
@@ -20,19 +25,24 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.effects.WardCost
+import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.AttackTax
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
+import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.core.ManaCost
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+
+private val ExecutionResult.isSuccess: Boolean get() = outcome == Outcome.Done
+private val ExecutionResult.isPaused: Boolean get() = outcome is Outcome.Paused
 
 class VibraniumNonSpellPaymentScenarioTest : FunSpec({
     val maker = card("Test Create Vibranium For Payment") {
@@ -45,20 +55,20 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         typeLine = "Creature — Bear"
         power = 2
         toughness = 2
-        keywordAbility(KeywordAbility.ward("{1}"))
+        keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
     }
     val wardTwoBear = card("Test Vibranium Ward Two Bear") {
         manaCost = "{1}{G}"
         typeLine = "Creature — Bear"
         power = 2
         toughness = 2
-        keywordAbility(KeywordAbility.ward("{2}"))
+        keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     }
     val smash = card("Test Vibranium Smash") {
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            val target = target("target creature", Targets.Creature)
+            val target = target(TargetFilter.Creature)
             effect = Effects.Destroy(target)
         }
     }
@@ -73,21 +83,31 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
-            effect = MayPayManaEffect(ManaCost.parse("{1}"), Effects.GainLife(1))
+            trigger = Triggers.self.enters()
+            effect = Effects.MayPay(ManaCost.parse("{1}"), Effects.GainLife(1))
         }
     }
     val counterUnlessPay = card("Test Vibranium Counter Unless Pay") {
         manaCost = "{0}"
         typeLine = "Instant"
         spell {
-            target = Targets.Spell
+            target(TargetFilter.SpellOnStack)
             effect = Effects.CounterUnlessPays("{1}")
+        }
+    }
+    val creatureSpellMana = card("Test Creature Spell Mana Source") {
+        manaCost = "{0}"
+        typeLine = "Artifact"
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.AddColorlessMana(1, restriction = ManaRestriction.CreatureSpellsOnly)
+            manaAbility = true
+            timing = TimingRule.ManaAbility
         }
     }
 
     fun driver(): GameTestDriver = GameTestDriver().also {
-        it.registerCards(TestCards.all + listOf(PredefinedTokens.Vibranium, maker, wardedBear, wardTwoBear, smash, prison, optionalPayment, counterUnlessPay))
+        it.registerCards(TestCards.all + listOf(PredefinedTokens.Vibranium, PredefinedTokens.Treasure, maker, wardedBear, wardTwoBear, smash, prison, optionalPayment, counterUnlessPay, creatureSpellMana))
         it.initMirrorMatch(Deck.of("Forest" to 40), startingLife = 20)
     }
 
@@ -230,6 +250,29 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         val paid = game.submitDecision(player, ManaSourcesSelectedResponse(sources.id, emptyList(), autoPay = false))
         paid.error shouldBe null
         paid.events.filterIsInstance<ManaSpentEvent>().single().colorless shouldBe 1
+        game.state.getEntity(player)?.get<ManaPoolComponent>()?.restrictedMana?.size shouldBe 0
+    }
+
+    test("generic PayCost window cannot auto-tap a creature-spell-only mana source") {
+        val game = driver()
+        val player = game.activePlayer!!
+        game.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val source = game.putPermanentOnBattlefield(player, creatureSpellMana.name)
+        val treasure = game.putPermanentOnBattlefield(player, "Treasure")
+        val service = CostPaymentService(EngineServices(game.cardRegistry))
+        val pending = service.pay(game.state, player, Costs.pay.Mana(ManaCost.parse("{1}")), source)
+            .shouldBeInstanceOf<PaymentResult.Pending>()
+        game.replaceState(pending.state)
+        game.submitDecision(player, YesNoResponse(pending.pendingDecision.id, true)).error shouldBe null
+
+        val decision = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
+        decision.availableSources.any { it.entityId == source } shouldBe false
+        decision.availableSources.any { it.entityId == treasure } shouldBe true
+        decision.autoPaySuggestion shouldBe emptyList()
+        val attempted = game.submitDecision(player, ManaSourcesSelectedResponse(decision.id, emptyList(), autoPay = true))
+        attempted.events.filterIsInstance<ManaSpentEvent>().isEmpty() shouldBe true
+        game.state.getEntity(source)?.get<TappedComponent>() shouldBe null
+        game.findPermanent(player, "Treasure") shouldBe treasure
         game.state.getEntity(player)?.get<ManaPoolComponent>()?.restrictedMana?.size shouldBe 0
     }
 

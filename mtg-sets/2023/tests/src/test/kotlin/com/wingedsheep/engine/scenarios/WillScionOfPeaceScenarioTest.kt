@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.support.GameTestDriver
@@ -21,7 +22,7 @@ import io.kotest.matchers.shouldBe
  *   {T}: Spells you cast this turn that are white and/or blue cost {X} less to cast, where X is
  *   the amount of life you gained this turn. Activate only as a sorcery.
  *
- * Covers the new [com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsThisTurnEffect]:
+ * Covers the new [com.wingedsheep.sdk.scripting.effects.ReduceSpellCostsEffect]:
  * the discount lands on matching spells only, is fixed at resolution (life gained afterwards
  * doesn't raise it), survives Will leaving the battlefield, and expires with the turn.
  */
@@ -47,7 +48,7 @@ class WillScionOfPeaceScenarioTest : FunSpec({
 
     /** Effective cost of [cardName] for [driver]'s player 1, in total mana. */
     fun costOf(driver: GameTestDriver, cardName: String): Int {
-        val calculator = CostCalculator(driver.cardRegistry)
+        val calculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val cardDef = driver.cardRegistry.requireCard(cardName)
         return calculator.calculateEffectiveCost(driver.state, cardDef, driver.player1).cmc
     }
@@ -124,7 +125,7 @@ class WillScionOfPeaceScenarioTest : FunSpec({
         driver.submitSuccess(ActivateAbility(driver.player1, will, abilityId))
         driver.bothPass()
 
-        driver.state.turnSpellCostReductions.isEmpty() shouldBe true
+        driver.state.spellCostReductions.isEmpty() shouldBe true
         costOf(driver, "Serra Angel") shouldBe 5
     }
 
@@ -155,7 +156,7 @@ class WillScionOfPeaceScenarioTest : FunSpec({
 
         endTurn(driver)
 
-        driver.state.turnSpellCostReductions.isEmpty() shouldBe true
+        driver.state.spellCostReductions.isEmpty() shouldBe true
         costOf(driver, "Serra Angel") shouldBe 5
     }
 
@@ -168,7 +169,7 @@ class WillScionOfPeaceScenarioTest : FunSpec({
         driver.submitSuccess(ActivateAbility(driver.player1, will, abilityId))
         driver.bothPass()
 
-        val calculator = CostCalculator(driver.cardRegistry)
+        val calculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val serra = driver.cardRegistry.requireCard("Serra Angel")
         calculator.calculateEffectiveCost(driver.state, serra, driver.player2).cmc shouldBe 5
     }

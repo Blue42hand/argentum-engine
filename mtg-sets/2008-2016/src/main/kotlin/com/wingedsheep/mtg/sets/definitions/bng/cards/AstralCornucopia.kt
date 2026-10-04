@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.bng.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Astral Cornucopia — Born of the Gods #157. */
@@ -20,13 +19,13 @@ val AstralCornucopia = card("Astral Cornucopia") {
             "{T}: Choose a color. Add one mana of that color for each charge counter on this artifact."
 
     replacementEffect(EntersWithDynamicCounters(
-        counterType = CounterTypeFilter.Named(Counters.CHARGE),
-        count = DynamicAmount.XValue,
+        counterType = CounterType.CHARGE,
+        count = DynamicAmounts.xValue(),
     ))
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddAnyColorMana(DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE)))
+        effect = Effects.AddAnyColorMana(DynamicAmounts.countersOnSelf(CounterType.CHARGE))
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "{T}: Choose a color. Add one mana of that color for each charge counter on this artifact."

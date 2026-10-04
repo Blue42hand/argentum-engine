@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.effects.mana
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.LandTappedForManaEvent
+import com.wingedsheep.engine.core.landTappedForManaEvent
 import com.wingedsheep.engine.core.ManaAddedEvent
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
@@ -14,6 +15,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
+import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -45,8 +47,8 @@ class ManaAbilityResolutionPipeline(
     private val cardRegistry: CardRegistry,
     private val conditionEvaluator: ConditionEvaluator,
     private val effectExecutorRegistry: EffectExecutorRegistry,
-    private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator(),
-    private val dynamicAmountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val predicateEvaluator: PredicateEvaluator,
+    private val dynamicAmountEvaluator: DynamicAmountEvaluator
 ) {
 
     private val tappedForManaBonusResolver =
@@ -74,8 +76,9 @@ class ManaAbilityResolutionPipeline(
         state: GameState,
         sourceCard: CardComponent?,
         tapperId: EntityId,
+        sourceIsLand: Boolean = sourceCard?.typeLine?.isLand == true,
     ): Dampening {
-        if (sourceCard?.typeLine?.isLand != true) return Dampening(state, false)
+        if (!sourceIsLand) return Dampening(state, false)
         if (!hasDampLandManaProduction(state)) return Dampening(state, false)
 
         val oldPool = stateBeforeEffect.getEntity(tapperId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
@@ -85,7 +88,8 @@ class ManaAbilityResolutionPipeline(
             (newPool.black - oldPool.black) +
             (newPool.red - oldPool.red) +
             (newPool.green - oldPool.green) +
-            (newPool.colorless - oldPool.colorless)
+            (newPool.colorless - oldPool.colorless) +
+            (newPool.restrictedMana.size - oldPool.restrictedMana.size)
         if (totalManaProduced < 2) return Dampening(state, false)
 
         // Replace with 1 colorless mana: revert to old pool + 1 colorless.
@@ -93,17 +97,7 @@ class ManaAbilityResolutionPipeline(
         // activation are preserved — Damping Sphere only replaces what the land just
         // produced, not what was already in the pool. The replacement colorless carries no
         // provenance (it comes from the replacement effect, not the land).
-        val dampenedPool = ManaPoolComponent(
-            white = oldPool.white,
-            blue = oldPool.blue,
-            black = oldPool.black,
-            red = oldPool.red,
-            green = oldPool.green,
-            colorless = oldPool.colorless + 1,
-            restrictedMana = oldPool.restrictedMana,
-            manaBySubtype = oldPool.manaBySubtype,
-            manaBySource = oldPool.manaBySource
-        )
+        val dampenedPool = oldPool.copy(colorless = oldPool.colorless + 1)
         return Dampening(state.updateEntity(tapperId) { it.with(dampenedPool) }, true)
     }
 
@@ -111,8 +105,9 @@ class ManaAbilityResolutionPipeline(
      * The tap payoffs, in resolution order: aura bonuses attached to the source
      * ([AdditionalManaOnTap] — Elvish Guidance), global "whenever a matching source is tapped for
      * mana" statics ([AdditionalManaOnSourceTap] — Lavaleaper, Badgermole Cub, Overabundance), the
-     * [LandTappedForManaEvent] that Mana Flare-style triggers watch, and finally the any-color tap
-     * bonuses (Fertile Ground), which may pause for a color decision.
+     * [LandTappedForManaEvent] that non-mana "whenever you tap a land for mana" triggers watch
+     * (Forbidden Orchard), and finally the any-color tap bonuses (Fertile Ground), which may pause
+     * for a color decision.
      *
      * [manaEvent] describes what the ability itself produced; it gates the `whenProducing` clause
      * and supplies the color a mirror bonus copies. [carriedEvents] is the event list to append to
@@ -132,15 +127,12 @@ class ManaAbilityResolutionPipeline(
         )
         var allManaEvents = onSourceTap.events
 
-        // Emit a "land tapped for mana" event so triggers like Overabundance / Mana Flare
-        // ("whenever a player taps a land for mana") can fire. Manual-tap path only —
-        // automatic cost payment adds mana via the solver without re-entering this pipeline.
-        if (sourceCard?.typeLine?.isLand == true) {
-            allManaEvents = allManaEvents + LandTappedForManaEvent(
-                tapperId = tapperId,
-                landId = sourceId,
-                landName = sourceCard.name
-            )
+        // "Whenever you tap a land for mana" triggers (Forbidden Orchard) watch this event; the
+        // auto-pay paths emit the same one through `tapForMana`. Only a mana ability with {T} in
+        // its cost taps the land for mana — a tapped source is how that shows here, since the
+        // color-choice resume path no longer holds the activation's TappedEvent.
+        if (onSourceTap.state.getEntity(sourceId)?.has<TappedComponent>() == true) {
+            landTappedForManaEvent(onSourceTap.state, sourceId, tapperId)?.let { allManaEvents = allManaEvents + it }
         }
 
         val anyColorBonuses = tappedForManaBonusResolver.collect(onSourceTap.state, sourceId, tapperId)

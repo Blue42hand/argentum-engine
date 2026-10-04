@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Run Away Together
@@ -13,8 +13,9 @@ import com.wingedsheep.sdk.model.Rarity
  * Choose two target creatures controlled by different players.
  * Return those creatures to their owners' hands.
  *
- * In a 2-player game, this is equivalent to targeting one creature
- * you control and one creature an opponent controls.
+ * One requirement with `differentControllers`: any two creatures with different controllers —
+ * yours and an opponent's, or (multiplayer) two different opponents'. If both end up under one
+ * controller before it resolves, both targets are illegal (the ruling below).
  *
  * Throne of Eldraine (ELD) is Run Away Together's earliest printing, so the canonical
  * CardDefinition lives here; later sets (CMR, CLB, BLB, FDN, ECL, …) carry `Printing` rows.
@@ -26,10 +27,8 @@ val RunAwayTogether = card("Run Away Together") {
     oracleText = "Choose two target creatures controlled by different players. Return those creatures to their owners' hands."
 
     spell {
-        val t1 = target("creature you control", Targets.CreatureYouControl)
-        val t2 = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = Effects.ReturnToHand(t1)
-            .then(Effects.ReturnToHand(t2))
+        val (first, second) = targets(TargetFilter.Creature, count = 2, differentControllers = true)
+        effect = Effects.ReturnToHand(first) then Effects.ReturnToHand(second)
     }
 
     metadata {

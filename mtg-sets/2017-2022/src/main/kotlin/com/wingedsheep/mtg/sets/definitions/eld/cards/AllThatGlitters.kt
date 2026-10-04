@@ -1,11 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -16,7 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Enchant creature
  * Enchanted creature gets +1/+1 for each artifact and/or enchantment you control.
  *
- * The bonus is a live layer-7c [GrantDynamicStatsEffect]. The union filter's single `Or`
+ * The bonus is a live layer-7c [GrantDynamicStats]. The union filter's single `Or`
  * predicate means a permanent that is both an artifact and an enchantment contributes once.
  */
 val AllThatGlitters = card("All That Glitters") {
@@ -26,14 +27,14 @@ val AllThatGlitters = card("All That Glitters") {
     oracleText = "Enchant creature\n" +
         "Enchanted creature gets +1/+1 for each artifact and/or enchantment you control."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     staticAbility {
         val artifactOrEnchantmentCount = DynamicAmounts.battlefield(
             Player.You,
             GameObjectFilter.ArtifactOrEnchantment,
         ).count()
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = artifactOrEnchantmentCount,
             toughnessBonus = artifactOrEnchantmentCount,

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Phase 1's whole grammar: keyword abilities, and nothing else.
@@ -34,8 +35,10 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  *   a [KeywordAbility]. There is nothing here to parse *into*.
  * - `Equip {N}` (621 cards) — equip is a field on `CardDefinition` (`equipCost`), likewise not a
  *   [KeywordAbility]. Two keyword abilities of the same shape, modelled two different ways.
- * - `Partner`, `Infect`, `Fuse`, `Exalted`, `Myriad`, `Melee`, `Skulk` — no [Keyword]
+ * - `Partner`, `Infect`, `Fuse`, `Myriad`, `Melee`, `Skulk` — no [Keyword]
  *   enum constant exists, so the capability genuinely is not in the SDK yet.
+ * - `Exalted` — the SDK has it (engine-live `Keyword.EXALTED`), but it isn't in this grammar's
+ *   allowlist yet.
  *
  * That list is the fineness report's top declines, and it is exactly the backlog signal the design
  * promises: "can Argentum express this?" collapses into "did it parse?".
@@ -300,7 +303,7 @@ object Keywords {
 
     private val wardMana: Phrase<KeywordAbility> = phrase("ward {cost}", name = "ward <cost>") {
         slot("cost", Primitives.manaCost)
-        build { KeywordAbility.ward(it.value<ManaCost>("cost").toString()) }
+        build { KeywordAbility.Ward(WardCost.Mana(it.value<ManaCost>("cost").toString())) }
         match { ability ->
             wardManaCost(ability)?.let { bind("cost" to it) }
         }
@@ -309,7 +312,7 @@ object Keywords {
     /** "Ward—Pay 2 life." — the em-dash forms are full sentences and carry a terminal period. */
     private val wardLife: Phrase<KeywordAbility> = phrase("ward—Pay {n} life.", name = "ward—pay life") {
         slot("n", Primitives.cardinal)
-        build { KeywordAbility.wardLife(it.int("n")) }
+        build { KeywordAbility.Ward(WardCost.Life(it.int("n"))) }
         match { ability ->
             (ability as? KeywordAbility.Ward)?.cost
                 ?.let { it as? com.wingedsheep.sdk.scripting.effects.WardCost.Life }

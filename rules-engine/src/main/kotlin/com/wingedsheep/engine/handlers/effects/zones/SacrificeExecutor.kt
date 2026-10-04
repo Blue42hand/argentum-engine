@@ -30,6 +30,7 @@ import kotlin.reflect.KClass
  * have valid permanents. If they don't have enough, nothing happens.
  */
 class SacrificeExecutor(
+    private val zones: ZoneTransitionService,
     private val decisionHandler: DecisionHandler = DecisionHandler()
 ) : EffectExecutor<SacrificeEffect> {
 
@@ -47,7 +48,7 @@ class SacrificeExecutor(
         // this never fires — but a per-player iteration ("each player sacrifices a permanent")
         // rebinds controllerId to each iterated player while effectControllerId stays the caster,
         // and that is exactly the case Sigarda stops.
-        if (SacrificeImmunity.appliesTo(state, controllerId, context.effectControllerId ?: controllerId)) {
+        if (SacrificeImmunity.appliesTo(state, controllerId, context.effectControllerId ?: controllerId, predicateEvaluator = zones.predicateEvaluator)) {
             return EffectResult.success(state)
         }
 
@@ -93,7 +94,8 @@ class SacrificeExecutor(
         sourceId: EntityId? = null
     ): List<EntityId> {
         val matches = BattlefieldFilterUtils.findMatchingOnBattlefield(
-            state, effect.filter.youControl(), PredicateContext(controllerId = controllerId)
+            state, effect.filter.youControl(), PredicateContext(controllerId = controllerId),
+            predicateEvaluator = zones.predicateEvaluator
         )
         return if (effect.excludeSource && sourceId != null) {
             matches.filter { it != sourceId }
@@ -160,7 +162,7 @@ class SacrificeExecutor(
         // last known information) so a follow-up sibling effect can read the sacrificed
         // permanent's characteristics: e.g. Serendib Djinn's "if you sacrifice an Island this way,
         // ~ deals 3 damage to you" (subtypes via [Conditions.SacrificedHadSubtype] /
-        // [DynamicAmount.EntityProperty(Sacrificed, ...)]), or Exploit's `EmitExploitedEventEffect`
+        // [DynamicAmount.EntityProperty(SacrificedAsCost, ...)]), or Exploit's `EmitExploitedEventEffect`
         // reading `wasToken` for Skull Skaab's "exploits a nontoken creature". The GameState overload
         // is used so token-ness (a [TokenComponent] fact, not a projected value) is recorded too.
         val snapshots = if (permanentIds.isNotEmpty()) {
@@ -177,13 +179,10 @@ class SacrificeExecutor(
             newState = ZoneTransitionService.trackPermanentSacrifice(newState, permanentIds, controllerId)
         }
 
-        for (permanentId in permanentIds) {
-            val transitionResult = ZoneTransitionService.moveToZone(
-                newState, permanentId, Zone.GRAVEYARD
-            )
-            newState = transitionResult.state
-            events.addAll(transitionResult.events)
-        }
+        // One simultaneous event: a batch move freezes every look-back grant before the first goes.
+        val transitionResult = zones.moveToZoneBatch(newState, permanentIds, Zone.GRAVEYARD)
+        newState = transitionResult.state
+        events.addAll(transitionResult.events)
 
         return EffectResult.success(newState, events)
             .copy(updatedSacrificedPermanents = snapshots)

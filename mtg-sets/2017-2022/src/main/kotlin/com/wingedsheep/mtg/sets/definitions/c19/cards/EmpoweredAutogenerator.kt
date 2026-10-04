@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.c19.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /** Empowered Autogenerator — Commander 2019 #54. */
@@ -23,10 +22,8 @@ val EmpoweredAutogenerator = card("Empowered Autogenerator") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self),
-            Effects.AddAnyColorMana(DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))),
-        )
+        effect = (Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self) then
+            Effects.AddAnyColorMana(DynamicAmounts.countersOnSelf(CounterType.CHARGE)))
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "{T}: Put a charge counter on this artifact. Add X mana of any one color, where X is the number of charge counters on this artifact."

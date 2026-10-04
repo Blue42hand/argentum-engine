@@ -23,7 +23,7 @@ val ShurisFabricator = card("Shuri's Fabricator") {
         "counter on it would be put into a graveyard, exile it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateVibranium(
             count = 2,
             tapped = true,
@@ -34,9 +34,9 @@ val ShurisFabricator = card("Shuri's Fabricator") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        target = TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)
+        val artifact = target(TargetFilter.ArtifactInYourGraveyard)
         effect = Effects.Move(
-            target = EffectTarget.ContextTarget(0),
+            target = artifact,
             destination = Zone.BATTLEFIELD,
             fromZone = Zone.GRAVEYARD,
             addCounterType = CounterType.FINALITY,

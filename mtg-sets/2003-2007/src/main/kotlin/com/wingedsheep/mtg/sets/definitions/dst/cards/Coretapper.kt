@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dst.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /** Coretapper — Darksteel #107. */
 val Coretapper = card("Coretapper") {
@@ -21,15 +20,15 @@ val Coretapper = card("Coretapper") {
 
     activatedAbility {
         cost = Costs.Tap
-        val artifact = target("target artifact", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact)))
-        effect = Effects.AddCounters(Counters.CHARGE, 1, artifact)
+        val artifact = target(TargetFilter.Artifact)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, artifact)
         description = "{T}: Put a charge counter on target artifact."
     }
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val artifact = target("target artifact", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact)))
-        effect = Effects.AddCounters(Counters.CHARGE, 2, artifact)
+        val artifact = target(TargetFilter.Artifact)
+        effect = Effects.AddCounters(CounterType.CHARGE, 2, artifact)
         description = "Sacrifice this creature: Put two charge counters on target artifact."
     }
 

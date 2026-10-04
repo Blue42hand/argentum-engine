@@ -3,6 +3,7 @@ package com.wingedsheep.assay.grammar
 import com.wingedsheep.assay.syntax.parseText
 import com.wingedsheep.assay.syntax.ParseOutcome
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -35,6 +36,17 @@ class FiltersTest : StringSpec({
         roundTrips(Filters.filter, "artifact or enchantment")
     }
 
+    // Oracle prints the artifact/creature pair in both orders and the cards follow the print, so
+    // each order is its own row and prints itself back rather than normalizing to the other.
+    "the artifact and creature pair keeps its printed order" {
+        read(Filters.filter, "artifact or creature") shouldBe
+            (GameObjectFilter.Artifact or GameObjectFilter.Creature)
+        read(Filters.filter, "creature or artifact") shouldBe GameObjectFilter.CreatureOrArtifact
+        roundTrips(Filters.filter, "artifact or creature")
+        roundTrips(Filters.filter, "creature or artifact")
+        roundTrips(Filters.filter, "artifact or creature you control")
+    }
+
     // The colour layer owns the top of the predicate stack and delegates the rest inward, which is
     // what lets it sit in front of a type phrase that already carries a state predicate.
     "the colour layer wraps any type noun" {
@@ -60,6 +72,29 @@ class FiltersTest : StringSpec({
         roundTrips(Filters.plural, "creatures with flying")
         roundTrips(Filters.plural, "creatures without flying")
         roundTrips(Filters.plural, "creatures with power 2 or greater")
+    }
+
+    "the toughness qualities are the power ones' siblings" {
+        read(Filters.filter, "creature with toughness 4 or greater") shouldBe
+            GameObjectFilter.Creature.toughnessAtLeast(4)
+        read(Filters.plural, "creatures you control with toughness 2 or less") shouldBe
+            GameObjectFilter.Creature.youControl().toughnessAtMost(2)
+
+        roundTrips(Filters.filter, "creature with toughness 4 or greater")
+        roundTrips(Filters.plural, "creatures with toughness 3 or greater")
+        roundTrips(Filters.plural, "creatures you control with toughness 2 or less")
+    }
+
+    "the damage-history quality trails the controller clause, in the singular only" {
+        read(Filters.filter, "creature that was dealt damage this turn") shouldBe
+            GameObjectFilter.Creature.wasDealtDamageThisTurn()
+        read(Filters.filter, "creature an opponent controls that was dealt damage this turn") shouldBe
+            GameObjectFilter.Creature.opponentControls().wasDealtDamageThisTurn()
+
+        roundTrips(Filters.filter, "creature that was dealt damage this turn")
+        roundTrips(Filters.filter, "creature or planeswalker an opponent controls that was dealt damage this turn")
+        Filters.plural.parseText("creatures that was dealt damage this turn")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
     }
 
     // Colour then controller then quality, which is both the printed order and — for the colour
@@ -98,11 +133,20 @@ class FiltersTest : StringSpec({
             GameObjectFilter.Creature.opponentControls().withKeyword(Keyword.FLYING)
     }
 
-    // "your opponents control" is a third `ControllerPredicate` this cascade has never spelled, in
-    // either word order — a row nobody has written, not a casualty of the order above.
-    "the plural-opponents controller clause is still unspelled" {
-        Filters.plural.parseText("creatures your opponents control")
-            .shouldBeInstanceOf<ParseOutcome.Declined>()
+    // The opponent clause agrees in number: "your opponents control" is the plural spelling of the
+    // same `ControlledByOpponent`, and the plural prints it. The singular form still reads in the
+    // plural — the 26 "creatures an opponent controls" prints — and comes back as a VARIANT.
+    "the plural opponent clause is 'your opponents control'" {
+        read(Filters.plural, "creatures your opponents control") shouldBe
+            GameObjectFilter.Creature.opponentControls()
+        roundTrips(Filters.plural, "creatures your opponents control")
+        roundTrips(Filters.plural, "creatures your opponents control with flying")
+        read(Filters.plural, "creatures an opponent controls") shouldBe GameObjectFilter.Creature.opponentControls()
+        Filters.plural.unparse(read(Filters.plural, "creatures an opponent controls")) shouldBe
+            "creatures your opponents control"
+        // The singular never takes the plural verb.
+        roundTrips(Filters.filter, "creature an opponent controls")
+        Filters.filter.parseText("creature your opponents control").shouldBeInstanceOf<ParseOutcome.Declined>()
     }
 
     // Number is an axis rather than a second vocabulary, so every layer exists in both.
@@ -152,6 +196,15 @@ class FiltersTest : StringSpec({
         roundTrips(Filters.cardNoun, "creature card with power 2 or greater")
     }
 
+    // The two-type row sits before its one-type prefix, so "instant or sorcery card" is the one
+    // `Or` the cards spell rather than "instant" with an unread tail.
+    "instant or sorcery is one type phrase" {
+        read(Filters.cardNoun, "instant or sorcery card") shouldBe GameObjectFilter.InstantOrSorcery
+        roundTrips(Filters.cardNoun, "instant or sorcery card")
+        roundTrips(Filters.cardNoun, "instant card")
+        Filters.plural.parseText("instants or sorceries").shouldBeInstanceOf<ParseOutcome.Declined>()
+    }
+
     // Oracle inflects only the head noun, so the type phrase in front of it stays singular in the
     // plural. "creatures cards" is what the noun-in-the-template shape used to be able to print.
     "only the head noun inflects in card position" {
@@ -185,9 +238,9 @@ class FiltersTest : StringSpec({
     // grammatical number of the noun it modifies rather than registered as two readings.
     "the counter quality agrees with its noun" {
         read(Filters.filter, "creature with a +1/+1 counter on it") shouldBe
-            GameObjectFilter.Creature.withCounter("+1/+1")
+            GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE)
         read(Filters.plural, "creatures with +1/+1 counters on them") shouldBe
-            GameObjectFilter.Creature.withCounter("+1/+1")
+            GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE)
         roundTrips(Filters.filter, "creature with a +1/+1 counter on it")
         roundTrips(Filters.filter, "artifact with a charge counter on it")
         roundTrips(Filters.plural, "creatures with +1/+1 counters on them")
@@ -196,7 +249,7 @@ class FiltersTest : StringSpec({
     // …and it sits outside the controller clause, which is where Oracle writes it.
     "the counter quality composes with the controller clause" {
         read(Filters.plural, "creatures you control with +1/+1 counters on them") shouldBe
-            GameObjectFilter.Creature.youControl().withCounter("+1/+1")
+            GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)
         roundTrips(Filters.plural, "creatures you control with +1/+1 counters on them")
     }
 

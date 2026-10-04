@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val KothOfTheHomestead = card("Koth of the Homestead") {
     manaCost = "{2}{W}"
@@ -19,18 +19,15 @@ val KothOfTheHomestead = card("Koth of the Homestead") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.GainLife(1)
         description = "Landfall — Whenever a land you control enters, you gain 1 life."
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = Filters.PlainsCard.youControl(),
-            binding = TriggerBinding.ANY
-        )
-        val creature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        trigger = Triggers.a(Filters.PlainsCard.youControl()).enters()
+        val creature = target(TargetFilter.Creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "Whenever a Plains you control enters, put a +1/+1 counter on target creature."
     }
 

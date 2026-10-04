@@ -7,7 +7,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aeolipile:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -30,13 +30,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -65,7 +65,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Armor Thrull:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -75,11 +75,11 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+2",
+                    "counterType": "PLUS_ONE_PLUS_TWO",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -88,7 +88,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -114,7 +114,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Balm of Restoration:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -145,8 +145,8 @@
                             "effect": {
                                 "type": "PreventDamageShield",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 },
                                 "amount": {
                                     "type": "Fixed",
@@ -154,7 +154,10 @@
                                 }
                             },
                             "targetRequirements": [
-                                "AnyTarget"
+                                {
+                                    "type": "AnyTarget",
+                                    "id": "t0"
+                                }
                             ],
                             "description": "Prevent the next 2 damage that would be dealt to any target this turn"
                         }
@@ -188,7 +191,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Basal Thrull:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -232,7 +235,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bottomless Vault:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -240,7 +243,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -254,7 +257,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Bottomless Vault:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -263,7 +266,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -341,7 +344,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Breeding Pit:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -361,7 +364,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay {B}{B}."
             },
             {
-                "id": "ability_2",
+                "id": "Breeding Pit:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -407,7 +410,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Combat Medic:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -419,7 +422,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -429,7 +432,7 @@
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -455,7 +458,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Conch Horn:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -486,11 +489,11 @@
                                 "type": "FromZone",
                                 "zone": "Hand"
                             },
-                            "storeAs": "hand"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -498,12 +501,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "toTop",
+                            "storeSelected": "selected2",
                             "selectedLabel": "Put on top of your library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toTop",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -542,7 +545,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deep Spawn:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -564,7 +567,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Deep Spawn:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -616,7 +619,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Delif's Cone:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -636,7 +639,7 @@
                                     "type": "GainLife",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "Power"
                                     }
                                 },
@@ -655,7 +658,7 @@
                     },
                     "watchedTarget": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t0"
                     },
                     "fireOnce": true
                 },
@@ -665,7 +668,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target creature you control"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Sacrifice this artifact: This turn, when target creature you control attacks and isn't blocked, you may gain life equal to its power. If you do, it assigns no combat damage this turn."
@@ -690,7 +693,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Delif's Cube:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -716,7 +719,7 @@
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "cube",
+                                "counterType": "CUBE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -728,7 +731,7 @@
                     },
                     "watchedTarget": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t0"
                     },
                     "fireOnce": true
                 },
@@ -738,13 +741,13 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target creature you control"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact."
             },
             {
-                "id": "ability_2",
+                "id": "Delif's Cube:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -759,7 +762,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "cube",
+                                "counterType": "CUBE",
                                 "self": true
                             }
                         }
@@ -769,7 +772,7 @@
                     "type": "Regenerate",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -778,7 +781,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{2}, Remove a cube counter from this artifact: Regenerate target creature."
@@ -840,7 +843,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Draconian Cylix:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -865,7 +868,7 @@
                     "type": "Regenerate",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -874,7 +877,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -903,7 +906,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Armorer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -927,11 +930,11 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+0/+1",
+                                "counterType": "PLUS_ZERO_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 }
                             },
                             "description": "Put a +0/+1 counter on it"
@@ -939,11 +942,11 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+0",
+                                "counterType": "PLUS_ONE_PLUS_ZERO",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 }
                             },
                             "description": "Put a +1/+0 counter on it"
@@ -956,7 +959,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature."
@@ -1002,7 +1006,7 @@
                     },
                     "roundUp": false
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -1033,7 +1037,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Hold:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1041,7 +1045,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1055,7 +1059,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Dwarven Hold:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1064,7 +1068,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -1109,7 +1113,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Lieutenant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1129,7 +1133,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Dwarf creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1138,7 +1142,7 @@
                         "filter": {
                             "baseFilter": "creature Dwarf"
                         },
-                        "id": "target Dwarf creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1165,7 +1169,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Ruins:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1175,7 +1179,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Dwarven Ruins:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1223,7 +1227,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Soldier:1",
                 "trigger": {
                     "type": "BlocksOrBecomesBlockedByEvent",
                     "partnerFilter": {
@@ -1281,7 +1285,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ebon Praetor:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1289,7 +1293,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-2/-2",
+                    "counterType": "MINUS_TWO_MINUS_TWO",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1298,7 +1302,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ebon Praetor:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1311,8 +1315,11 @@
                     "effects": [
                         {
                             "type": "RemoveCounters",
-                            "counterType": "-2/-2",
-                            "count": 1,
+                            "counterType": "MINUS_TWO_MINUS_TWO",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
                             "target": "Self"
                         },
                         {
@@ -1326,7 +1333,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+0",
+                                "counterType": "PLUS_ONE_PLUS_ZERO",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -1370,7 +1377,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ebon Stronghold:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1380,7 +1387,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ebon Stronghold:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1424,7 +1431,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elven Fortress:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1444,7 +1451,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target blocking creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1453,7 +1460,7 @@
                         "filter": {
                             "baseFilter": "creature blocking"
                         },
-                        "id": "target blocking creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1479,7 +1486,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elven Lyre:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1506,7 +1513,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1515,7 +1522,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1544,7 +1551,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Farmer:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1552,7 +1559,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1561,12 +1568,12 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Elvish Farmer:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -1588,7 +1595,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Elvish Farmer:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1631,7 +1638,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Hunter:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1649,8 +1656,8 @@
                     "type": "GrantKeyword",
                     "keyword": "DOESNT_UNTAP",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "t0"
                     },
                     "duration": "UntilAfterAffectedControllersNextUntap"
                 },
@@ -1659,7 +1666,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{1}{G}, {T}: Target creature doesn't untap during its controller's next untap step."
@@ -1690,7 +1698,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1711,7 +1719,7 @@
                             "type": "TapUntap",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target attacking creature you control"
+                                "name": "t0"
                             },
                             "tap": false
                         },
@@ -1719,7 +1727,7 @@
                             "type": "PreventDamageShield",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target attacking creature you control"
+                                "name": "t0"
                             },
                             "scope": "CombatOnly",
                             "direction": "Both"
@@ -1732,7 +1740,7 @@
                         "filter": {
                             "baseFilter": "creature attacking ctrl:you"
                         },
-                        "id": "target attacking creature you control"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1758,7 +1766,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farrel's Mantle:1",
                 "trigger": "BecomesUnblockedEvent",
                 "binding": "ATTACHED",
                 "effect": {
@@ -1783,7 +1791,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature"
+                                    "name": "t0"
                                 },
                                 "damageSource": "EnchantedPermanent"
                             },
@@ -1812,7 +1820,7 @@
                             ]
                         }
                     },
-                    "id": "another target creature"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to its power plus 2 to another target creature. If that player does, the attacking creature assigns no combat damage this turn."
             }
@@ -1848,7 +1856,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farrel's Zealot:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "Gated",
@@ -1864,7 +1872,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target creature"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -1881,7 +1889,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever this creature attacks and isn't blocked, you may have it deal 3 damage to target creature. If you do, this creature assigns no combat damage this turn."
             }
@@ -1911,7 +1919,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farrelite Priest:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1975,7 +1983,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Feral Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1983,7 +1991,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1992,12 +2000,12 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Feral Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -2034,7 +2042,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fungal Bloom:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2044,11 +2052,11 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Fungus"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2057,7 +2065,7 @@
                         "filter": {
                             "baseFilter": "permanent Fungus"
                         },
-                        "id": "target Fungus"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2088,7 +2096,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Chirurgeon:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2100,7 +2108,7 @@
                     "type": "Regenerate",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2109,7 +2117,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2142,7 +2150,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Flotilla:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT",
@@ -2211,13 +2219,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "any target"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ],
         "additionalCosts": [
@@ -2264,7 +2272,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Kites:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2280,7 +2288,7 @@
                             "keyword": "FLYING",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control with toughness 2 or less"
+                                "name": "t0"
                             }
                         },
                         {
@@ -2288,7 +2296,13 @@
                             "step": "END",
                             "effect": {
                                 "type": "FlipCoin",
-                                "lostEffect": "SacrificeTarget"
+                                "lostEffect": {
+                                    "type": "SacrificeTarget",
+                                    "target": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    }
+                                }
                             }
                         }
                     ]
@@ -2299,7 +2313,7 @@
                         "filter": {
                             "baseFilter": "creature tou<=2 ctrl:you"
                         },
-                        "id": "target creature you control with toughness 2 or less"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{R}: Target creature you control with toughness 2 or less gains flying until end of turn. Flip a coin at the beginning of the next end step. If you lose the flip, sacrifice that creature."
@@ -2354,7 +2368,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Warrens:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2418,7 +2432,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hand of Justice:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2438,7 +2452,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2449,7 +2463,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Tap three untapped white creatures you control: Destroy target creature."
@@ -2477,7 +2491,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Havenwood Battleground:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2487,7 +2501,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Havenwood Battleground:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2531,7 +2545,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Heroism:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2558,7 +2572,7 @@
                         },
                         "suffer": {
                             "type": "PreventDamageShield",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "scope": "CombatOnly",
                             "direction": "FromTarget"
                         },
@@ -2625,7 +2639,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hollow Trees:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2633,7 +2647,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2647,7 +2661,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Hollow Trees:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2656,7 +2670,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -2701,7 +2715,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2709,7 +2723,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2718,18 +2732,15 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Homarid:2",
                 "condition": {
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "GTE",
@@ -2740,7 +2751,7 @@
                 },
                 "effect": {
                     "type": "RemoveAllCountersOfType",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "target": "Self"
                 },
                 "descriptionOverride": "Whenever there are four or more tide counters on this creature, remove all tide counters from it."
@@ -2762,13 +2773,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -2793,13 +2801,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -2813,10 +2818,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "tide"
-                },
+                "counterType": "TIDE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -2845,7 +2847,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid Shaman:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2857,7 +2859,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target green creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2866,7 +2868,7 @@
                         "filter": {
                             "baseFilter": "creature green"
                         },
-                        "id": "target green creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2893,7 +2895,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid Spawning Bed:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2917,7 +2919,7 @@
                     "type": "CreateToken",
                     "count": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "ManaValue"
                     },
                     "power": 1,
@@ -2957,7 +2959,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid Warrior:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3015,8 +3017,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t0"
                         }
                     },
                     "storeAs": "hand"
@@ -3040,8 +3042,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t0"
                         }
                     },
                     "moveType": "Discard"
@@ -3051,7 +3053,7 @@
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ]
     },
@@ -3079,7 +3081,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Infantry:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3094,7 +3096,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Icatian Infantry:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3134,7 +3136,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Javelineers:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3143,7 +3145,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "javelin",
+                                "counterType": "JAVELIN",
                                 "self": true
                             }
                         }
@@ -3157,13 +3159,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Remove a javelin counter from this creature: It deals 1 damage to any target."
@@ -3172,10 +3174,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "javelin"
-                },
+                "counterType": "JAVELIN",
                 "count": 1,
                 "selfOnly": true
             }
@@ -3204,7 +3203,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Lieutenant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3224,7 +3223,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Soldier creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3233,7 +3232,7 @@
                         "filter": {
                             "baseFilter": "creature Soldier"
                         },
-                        "id": "target Soldier creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3264,7 +3263,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Moneychanger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3280,7 +3279,7 @@
                 "descriptionOverride": "When this creature enters, it deals 3 damage to you."
             },
             {
-                "id": "ability_2",
+                "id": "Icatian Moneychanger:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3288,7 +3287,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "credit",
+                    "counterType": "CREDIT",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3297,16 +3296,13 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Icatian Moneychanger:3",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "GainLife",
                     "amount": {
                         "type": "LastKnownSourceCounters",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "credit"
-                        }
+                        "counterType": "CREDIT"
                     }
                 },
                 "restrictions": [
@@ -3327,10 +3323,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "credit"
-                },
+                "counterType": "CREDIT",
                 "count": 3,
                 "selfOnly": true
             }
@@ -3384,7 +3377,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Priest:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3404,7 +3397,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3413,7 +3406,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3444,7 +3437,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3463,7 +3456,7 @@
                     "keyword": "FIRST_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -3472,7 +3465,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3506,7 +3499,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Skirmishers:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -3527,7 +3520,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever this creature attacks, all creatures banded with it gain first strike until end of turn."
@@ -3558,7 +3551,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Store:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3566,7 +3559,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3580,7 +3573,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Icatian Store:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3589,7 +3582,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -3665,7 +3658,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Implements of Sacrifice:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3715,7 +3708,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Initiates of the Ebon Hand:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3774,12 +3767,15 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merseine:1",
                 "cost": "AttachedPermanentManaCost",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "net",
-                    "count": 1,
+                    "counterType": "NET",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
                     "target": "Self"
                 },
                 "restrictions": [
@@ -3819,13 +3815,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "net"
-                            }
+                            "counterType": "NET"
                         }
                     },
                     "operator": "GTE",
@@ -3839,10 +3832,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "net"
-                },
+                "counterType": "NET",
                 "count": 3,
                 "selfOnly": true
             }
@@ -3877,7 +3867,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mindstab Thrull:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "Gated",
@@ -3955,7 +3945,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Necrite:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "Gated",
@@ -3971,14 +3961,14 @@
                                         "type": "CantBeRegenerated",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "target creature defending player controls"
+                                            "name": "t0"
                                         }
                                     },
                                     {
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "target creature defending player controls"
+                                            "name": "t0"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -4005,7 +3995,7 @@
                             }
                         }
                     },
-                    "id": "target creature defending player controls"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever this creature attacks and isn't blocked, you may sacrifice it. If you do, destroy target creature defending player controls. It can't be regenerated."
             }
@@ -4031,7 +4021,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Night Soil:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4093,7 +4083,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Captain:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4115,7 +4105,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target Orc creature"
+                            "name": "t0"
                         }
                     },
                     "lostEffect": {
@@ -4130,7 +4120,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target Orc creature"
+                            "name": "t0"
                         }
                     }
                 },
@@ -4140,7 +4130,7 @@
                         "filter": {
                             "baseFilter": "creature Orc"
                         },
-                        "id": "target Orc creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4171,24 +4161,29 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Spy:1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "TopOfLibrary",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 3
-                        },
-                        "player": "TargetPlayer"
-                    },
-                    "storeAs": "spied"
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "player": "TargetPlayer"
+                            },
+                            "storeAs": "gathered0"
+                        }
+                    ]
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "target player"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4218,7 +4213,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Veteran:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4301,7 +4296,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Order of Leitbur:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4316,7 +4311,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Order of Leitbur:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4372,7 +4367,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Order of the Ebon Hand:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4387,7 +4382,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Order of the Ebon Hand:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4490,7 +4485,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raiding Party:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4516,13 +4511,13 @@
                                             "type": "ControlledPermanents",
                                             "filter": "creature white untapped"
                                         },
-                                        "storeAs": "tappable"
+                                        "storeAs": "gathered1"
                                     },
                                     {
                                         "type": "SelectFromCollection",
-                                        "from": "tappable",
+                                        "from": "gathered1",
                                         "selection": "ChooseAnyNumber",
-                                        "storeSelected": "tapped",
+                                        "storeSelected": "selected2",
                                         "prompt": "Tap any number of untapped white creatures you control (each spares two Plains)",
                                         "useTargetingUI": true
                                     },
@@ -4530,11 +4525,11 @@
                                         "type": "ForEach",
                                         "space": {
                                             "type": "IterationSpace.Collection",
-                                            "collection": "tapped"
+                                            "collection": "selected2"
                                         },
                                         "body": {
                                             "type": "TapUntap",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -4543,30 +4538,30 @@
                                             "type": "BattlefieldMatching",
                                             "filter": "land Plains"
                                         },
-                                        "storeAs": "plains"
+                                        "storeAs": "gathered4"
                                     },
                                     {
                                         "type": "SelectFromCollection",
-                                        "from": "plains",
+                                        "from": "gathered4",
                                         "selection": {
                                             "type": "ChooseUpTo",
                                             "count": {
                                                 "type": "Multiply",
                                                 "amount": {
                                                     "type": "VariableReference",
-                                                    "variableName": "tapped_count"
+                                                    "variableName": "selected2_count"
                                                 },
                                                 "multiplier": 2
                                             }
                                         },
-                                        "storeSelected": "spared",
+                                        "storeSelected": "selected5",
                                         "prompt": "Choose up to two Plains for each creature you tapped",
                                         "useTargetingUI": true
                                     }
                                 ]
                             },
                             "collectCollections": {
-                                "spared": "allSpared"
+                                "selected5": "collected6"
                             }
                         },
                         {
@@ -4575,20 +4570,20 @@
                                 "type": "BattlefieldMatching",
                                 "filter": "land Plains"
                             },
-                            "storeAs": "allPlains"
+                            "storeAs": "gathered7"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "allPlains",
-                            "filter": {
+                            "from": "gathered7",
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
-                                "otherCollectionName": "allSpared"
+                                "otherCollectionName": "collected6"
                             },
-                            "storeMatching": "doomed"
+                            "storeMatching": "matching8"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "doomed",
+                            "from": "matching8",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -4621,7 +4616,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rainbow Vale:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4665,7 +4660,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ring of Renewal:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4683,38 +4678,33 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "hand"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "hand",
-                                    "selection": {
-                                        "type": "Random",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "discarded"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discarded",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "Random",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 }
-                            ]
+                            },
+                            "storeSelected": "discarded"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "DrawCards",
@@ -4751,7 +4741,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "River Merfolk:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4788,7 +4778,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ruins of Trokair:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4798,7 +4788,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ruins of Trokair:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4845,7 +4835,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sand Silos:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4853,7 +4843,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4867,7 +4857,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sand Silos:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4876,7 +4866,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -4924,7 +4914,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seasinger:1",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -4941,13 +4931,13 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Seasinger:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature whose controller controls an Island"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileYouControlSourceAndSourceTapped",
@@ -4970,7 +4960,7 @@
                                 ]
                             }
                         },
-                        "id": "target creature whose controller controls an Island"
+                        "id": "t0"
                     }
                 ]
             }
@@ -5001,7 +4991,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature card from your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Battlefield",
                     "fromZone": "Graveyard"
@@ -5017,11 +5007,11 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+2/+2",
+                        "counterType": "PLUS_TWO_PLUS_TWO",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target creature card from your graveyard"
+                            "name": "t0"
                         }
                     }
                 }
@@ -5034,7 +5024,7 @@
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
                 },
-                "id": "target creature card from your graveyard"
+                "id": "t0"
             }
         ],
         "additionalCosts": [
@@ -5071,7 +5061,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spirit Shield:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5097,7 +5087,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileSourceTapped",
@@ -5110,7 +5100,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -5146,7 +5136,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -5183,7 +5173,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "DOESNT_UNTAP",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilAfterAffectedControllersNextUntap"
                     }
                 }
@@ -5213,7 +5203,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spore Flower:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5221,7 +5211,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5230,12 +5220,12 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spore Flower:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5275,7 +5265,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Svyelunite Priest:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5294,7 +5284,7 @@
                     "keyword": "SHROUD",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -5303,7 +5293,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -5342,7 +5332,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Svyelunite Temple:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5352,7 +5342,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Svyelunite Temple:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5400,7 +5390,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5408,7 +5398,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5417,12 +5407,12 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5468,7 +5458,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thallid Devourer:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5476,7 +5466,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5485,12 +5475,12 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thallid Devourer:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5512,7 +5502,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Thallid Devourer:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5556,7 +5546,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelon's Chant:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5576,7 +5566,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay {G}."
             },
             {
-                "id": "ability_2",
+                "id": "Thelon's Chant:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land Swamp",
@@ -5589,7 +5579,7 @@
                         "type": "PayAtom",
                         "atom": {
                             "type": "AtomPutCountersOnPermanent",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "filter": "creature"
                         }
                     },
@@ -5634,7 +5624,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelon's Curse:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -5651,14 +5641,14 @@
                                 "player": "TriggeringPlayer",
                                 "filter": "creature blue tapped"
                             },
-                            "storeAs": "eligible"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "eligible",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
                             "chooser": "TriggeringPlayer",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected1",
                             "prompt": "Choose any number of tapped blue creatures to untap (pay {U} for each)",
                             "useTargetingUI": true,
                             "restrictions": [
@@ -5671,7 +5661,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "chosen",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "Gated",
                                 "gate": {
@@ -5680,7 +5670,7 @@
                                         "type": "PayDynamicManaCost",
                                         "amount": {
                                             "type": "VariableReference",
-                                            "variableName": "chosen_count"
+                                            "variableName": "selected1_count"
                                         },
                                         "payer": "TriggeringPlayer",
                                         "color": "BLUE"
@@ -5690,11 +5680,11 @@
                                     "type": "ForEach",
                                     "space": {
                                         "type": "IterationSpace.Collection",
-                                        "collection": "chosen"
+                                        "collection": "selected1"
                                     },
                                     "body": {
                                         "type": "TapUntap",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "tap": false
                                     }
                                 },
@@ -5744,7 +5734,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelonite Druid:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5775,6 +5765,7 @@
                     },
                     "body": {
                         "type": "BecomeCreature",
+                        "target": "IterationEntity",
                         "power": {
                             "type": "Fixed",
                             "amount": 2
@@ -5814,7 +5805,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelonite Monk:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5831,6 +5822,10 @@
                 "effect": {
                     "type": "SetLandType",
                     "landType": "Forest",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
                     "duration": "Permanent"
                 },
                 "targetRequirements": [
@@ -5838,7 +5833,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "land"
-                        }
+                        },
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}, Sacrifice a green creature: Target land becomes a Forest."
@@ -5870,7 +5866,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thorn Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5878,7 +5874,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5887,12 +5883,12 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thorn Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5908,13 +5904,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Remove three spore counters from this creature: It deals 1 damage to any target."
@@ -5945,13 +5941,13 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrull Champion:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Thrull"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileYouControlSource",
@@ -5964,7 +5960,7 @@
                         "filter": {
                             "baseFilter": "permanent Thrull"
                         },
-                        "id": "target Thrull"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{T}: Gain control of target Thrull for as long as you control this creature."
@@ -6002,11 +5998,11 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrull Retainer:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Regenerate",
-                    "target": "EnchantedPermanent"
+                    "target": "EnchantedCreature"
                 },
                 "descriptionOverride": "Sacrifice this Aura: Regenerate enchanted creature."
             }
@@ -6050,7 +6046,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrull Wizard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6089,7 +6085,8 @@
                         "filter": {
                             "baseFilter": "black",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{1}{B}: Counter target black spell unless that spell's controller pays {B} or {3}."
@@ -6117,7 +6114,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tidal Flats:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6172,7 +6169,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         "player": {
@@ -6205,7 +6202,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tidal Influence:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6213,7 +6210,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -6222,18 +6219,15 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Tidal Influence:2",
                 "condition": {
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "GTE",
@@ -6244,7 +6238,7 @@
                 },
                 "effect": {
                     "type": "RemoveAllCountersOfType",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "target": "Self"
                 },
                 "descriptionOverride": "Whenever there are four or more tide counters on this enchantment, remove all tide counters from it."
@@ -6265,13 +6259,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -6295,13 +6286,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -6315,10 +6303,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "tide"
-                },
+                "counterType": "TIDE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -6356,7 +6341,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tourach's Chant:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6376,7 +6361,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay {B}."
             },
             {
-                "id": "ability_2",
+                "id": "Tourach's Chant:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land Forest",
@@ -6389,7 +6374,7 @@
                         "type": "PayAtom",
                         "atom": {
                             "type": "AtomPutCountersOnPermanent",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "filter": "creature"
                         }
                     },
@@ -6434,7 +6419,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tourach's Gate:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6445,8 +6430,11 @@
                     "effects": [
                         {
                             "type": "RemoveCounters",
-                            "counterType": "time",
-                            "count": 1,
+                            "counterType": "TIME",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
                             "target": "Self"
                         },
                         {
@@ -6459,13 +6447,10 @@
                                         "type": "Compare",
                                         "left": {
                                             "type": "EntityProperty",
-                                            "entity": "Source",
+                                            "entity": "Self",
                                             "numericProperty": {
                                                 "type": "CounterCount",
-                                                "counterType": {
-                                                    "type": "Named",
-                                                    "name": "time"
-                                                }
+                                                "counterType": "TIME"
                                             }
                                         },
                                         "operator": "GTE",
@@ -6485,7 +6470,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Tourach's Gate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6495,14 +6480,14 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "time",
+                    "counterType": "TIME",
                     "count": 3,
                     "target": "Self"
                 },
                 "descriptionOverride": "Sacrifice a Thrull: Put three time counters on this Aura."
             },
             {
-                "id": "ability_3",
+                "id": "Tourach's Gate:3",
                 "cost": "CostTapAttachedCreature",
                 "effect": {
                     "type": "ForEach",
@@ -6522,7 +6507,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped."
@@ -6562,7 +6547,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vodalian Knights:1",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -6579,7 +6564,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Vodalian Knights:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6631,7 +6616,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vodalian Mage:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6658,7 +6643,8 @@
                         "filter": {
                             "baseFilter": {},
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "t0"
                     }
                 ]
             }
@@ -6711,7 +6697,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vodalian War Machine:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6747,7 +6733,7 @@
                 "descriptionOverride": "Tap an untapped Merfolk you control: This creature can attack this turn as though it didn't have defender."
             },
             {
-                "id": "ability_2",
+                "id": "Vodalian War Machine:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6818,7 +6804,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zelyon Sword:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6844,7 +6830,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileSourceTapped",
@@ -6857,7 +6843,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }

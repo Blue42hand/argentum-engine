@@ -42,6 +42,10 @@ docs it points at; load those when the work needs them.
   - Working autonomously through a whole set, one PR at a time, until it's done → **`set-loop`** (launches
     the harness's own loop — Claude Code `/loop`, Codex `/goal`; every PR it opens is titled
     `[agent-loop: <model-id>]`).
+  - Widening Assay's grammar autonomously, one band per PR, over Oracle text the engine already
+    expresses (declines on hand-written cards; never new SDK vocabulary) → **`just assay-loop [model]
+    [focus]`** (fresh headless session per step, like `just set-loop`), or the **`assay-loop`** skill for an
+    in-session `/loop`.
   - Proving a set is *actually* finished once its backlog reads N/N, and archiving it → **`verify-set`**
     (Scryfall field verification of every compiled card, reprint and basic-land coverage, self-play pass).
     A green backlog is a claim; that skill is the proof.
@@ -66,6 +70,7 @@ docs it points at; load those when the work needs them.
 | Module | Purpose | Deps |
 |--------|---------|------|
 | `mtg-sdk` | DSLs, data models, primitives — pure data, no logic | — |
+| `mtg-sdk-tooling` | Tooling over SDK data: card-JSON load/export + compact form, filter query language, `CardValidator`, `CardLinter` | sdk |
 | `mtg-sets` | Aggregator — re-exports the whole card corpus; catalog, Scryfall sync, corpus-wide tests | sdk, sets/* |
 | `mtg-sets/core` | `CardDiscovery`, token art, the setless `custom/` cards | sdk |
 | `mtg-sets/<era>` | Card definitions, one module per fixed release-year range, chained oldest→newest | sdk, sets/core |
@@ -119,7 +124,7 @@ These are the ones that have actually caused bugs here.
 - **Events, not silent mutations** — every state change emits a `GameEvent` so triggers and animations
   can react.
 - **Server is authoritative** — never compute legal actions in the client; the server sends them.
-- **Last-known information** — dies/leaves triggers read `triggerLastKnownPower`,
+- **Last-known information** — dies/leaves triggers read `triggerContext.lastKnownPower`,
   `lastKnownCardDefinitionId`, and `lastKnownCounters` off the `ZoneChangeEvent`; the entity is already
   gone when the trigger resolves.
 

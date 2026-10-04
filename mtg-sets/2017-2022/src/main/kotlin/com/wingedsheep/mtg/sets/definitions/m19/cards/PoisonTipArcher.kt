@@ -25,11 +25,7 @@ val PoisonTipArcher = card("Poison-Tip Archer") {
     keywords(Keyword.REACH, Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature,
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature).dies()
         effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 

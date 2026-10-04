@@ -12,6 +12,12 @@ interface StepStripProps {
   priorityMode: PriorityMode
   activePlayerName?: string | undefined
   /**
+   * Multiplayer: the active player has left the game mid-turn. CR 800.4j — the turn runs to
+   * completion with no active player, so it is still theirs (not the next seat's, even though
+   * that seat now gets the active player's priority windows).
+   */
+  activePlayerLeft?: boolean | undefined
+  /**
    * Multiplayer: where the viewer sits in the turn order relative to the active player —
    * "You're next" / "You in 2". Rendered after the status text; absent on your own turn.
    */
@@ -69,14 +75,14 @@ type ColorSet = { border: string; glow: string; highlight: string; text: string 
 
 const modeColors: Record<PriorityMode, ColorSet> = {
   ownTurn: {
-    border: '#4fc3f7',
-    glow: '0 0 8px rgba(79, 195, 247, 0.4)',
+    border: 'rgba(79, 195, 247, 0.75)',
+    glow: '0 0 16px rgba(79, 195, 247, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
     highlight: '#4fc3f7',
     text: '#4fc3f7',
   },
   responding: {
-    border: '#ffc107',
-    glow: '0 0 8px rgba(255, 193, 7, 0.4)',
+    border: 'rgba(255, 193, 7, 0.8)',
+    glow: '0 0 16px rgba(255, 193, 7, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
     highlight: '#ffc107',
     text: '#ffc107',
   },
@@ -103,6 +109,7 @@ export function StepStrip({
   hasPriority,
   priorityMode,
   activePlayerName,
+  activePlayerLeft = false,
   turnQueueHint,
   activeSide,
   stopOverrides,
@@ -120,7 +127,9 @@ export function StepStrip({
   const currentStepIndex = STEP_ORDER.indexOf(step)
 
   const statusText = activePlayerName
-    ? `${activePlayerName}'s Turn`
+    ? activePlayerLeft
+      ? `Ending ${activePlayerName}'s Turn`
+      : `${activePlayerName}'s Turn`
     : priorityMode === 'ownTurn'
     ? 'Your Turn'
     : priorityMode === 'responding'
@@ -189,8 +198,8 @@ export function StepStrip({
       <div
         data-learn="phase-strip"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          borderRadius: isMobile ? 6 : 8,
+          background: 'linear-gradient(180deg, rgba(26, 30, 46, 0.92) 0%, rgba(10, 12, 20, 0.92) 100%)',
+          borderRadius: isMobile ? 6 : 10,
           padding: isMobile ? '5px 8px' : '6px 12px',
           display: 'flex',
           flexDirection: 'column',

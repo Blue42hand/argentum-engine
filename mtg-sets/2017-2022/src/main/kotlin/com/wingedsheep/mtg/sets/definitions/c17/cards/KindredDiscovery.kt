@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.c17.cards
 
+import com.wingedsheep.sdk.dsl.Triggers
+
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -26,19 +28,9 @@ val KindredDiscovery = card("Kindred Discovery") {
     replacementEffect(EntersWithChoice(ChoiceType.CREATURE_TYPE))
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.AnyOf(
-                listOf(
-                    EventPattern.ZoneChangeEvent(
-                        filter = GameObjectFilter.Creature.youControl().withChosenSubtype(),
-                        to = Zone.BATTLEFIELD,
-                    ),
-                    EventPattern.AttackEvent(
-                        filter = GameObjectFilter.Creature.youControl().withChosenSubtype()
-                    ),
-                )
-            ),
-            binding = TriggerBinding.ANY,
+        trigger = Triggers.or(
+            Triggers.a(GameObjectFilter.Creature.youControl().withChosenSubtype()).enters(),
+            Triggers.a(GameObjectFilter.Creature.youControl().withChosenSubtype()).attacks(),
         )
         effect = Effects.DrawCards(1)
     }
