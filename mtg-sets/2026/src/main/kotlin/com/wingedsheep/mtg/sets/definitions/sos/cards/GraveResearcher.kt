@@ -66,7 +66,11 @@ val GraveResearcher = card("Grave Researcher") {
         spell {
             target = Targets.CreatureCardInGraveyard
             effect = Effects.Composite(
-                Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD),
+                Effects.Move(
+                    EffectTarget.ContextTarget(0),
+                    Zone.BATTLEFIELD,
+                    controllerOverride = EffectTarget.Controller,
+                ),
                 Effects.LoseLife(
                     DynamicAmount.EntityProperty(
                         EntityReference.Target(0),

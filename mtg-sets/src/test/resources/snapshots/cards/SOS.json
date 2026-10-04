@@ -6678,7 +6678,8 @@
                                 "type": "ContextTarget",
                                 "index": 0
                             },
-                            "destination": "Battlefield"
+                            "destination": "Battlefield",
+                            "controllerOverride": "Controller"
                         },
                         {
                             "type": "LoseLife",
