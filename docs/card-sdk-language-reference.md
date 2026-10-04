@@ -5688,6 +5688,11 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 - `.prepared()` — `StatePredicate.IsPrepared`: the permanent is prepared (Secrets of Strixhaven
   prepare — its `PreparedComponent` names a castable exile copy of its prepare spell). Only a card
   with a prepare spell can be prepared, so it matches nothing else.
+- `.withCounter(type, atLeast = 1)` — a counter of a specific kind; `atLeast` is the threshold form, "creatures you
+  control with three or more +1/+1 counters on them have haste" (**Runadi, Behemoth Caller**:
+  `GrantKeyword(HASTE, GroupFilter(Creature.youControl().withCounter(PLUS_ONE_PLUS_ONE, atLeast = 3)))`) — the
+  filter-level twin of `Conditions.SourceCounterCountAtLeast`. Read live, on every `HasCounter` reader (filters,
+  group statics, zone-change triggers against last-known counters).
 - `.withCounter(type)` / `.withoutCounter(type)` / `.withAnyCounter()` / `.withoutCounters()` — counter presence: a specific kind,
   absence of one specific kind while permitting others, any kind, or no counters at all. The named
   negative form models clauses such as Oblivion Stone's “without a fate counter on it.”
@@ -6202,7 +6207,8 @@ work for abilities-on-stack (which carry no `CardComponent`).
   transformed (a Siege's back face on the stack) isn't a permanent yet; modal double-faced and
   melded permanents never match (MOM release notes). Read live — a zone-change trigger off the
   battlefield has no last-known "was transformed" field yet, so it answers false there.
-- `HasCounter(type)` — has at least one counter of `type`.
+- `HasCounter(type, minCount = 1)` — has at least `minCount` counters of `type`; the default is "with a [kind] counter
+  on it", a larger `minCount` the threshold form (builder `withCounter(type, atLeast = n)`).
 - `IsEquipped` (filter builder `equipped()`) — has at least one Equipment attached.
 - `IsEnchanted` (filter builder `enchanted()`) — has at least one **Aura** attached, i.e. the MTG
   adjective "enchanted" (CR 303.4). The Aura mirror of `IsEquipped`, and strictly narrower than
@@ -16449,13 +16455,24 @@ contribution identity. Phyrexian pips paid with life reserve their life budget d
 and production planning, so activation costs cannot consume the life committed to the spell.
 Self-sacrifice output retains last-known source/snow provenance; excess remains
 available after its identity is discharged. It supports direct fixed/dynamic-amount colored, colorless,
-chosen-color or composite mana effects. It declines X activation choices, zero/free costs,
-object-selection or unnamed-counter costs and non-mana effect leaves. Finite mana-production pauses
-are now explored through the normal continuation dispatch: single-color choices, two-color split
+chosen-color or composite mana effects. Public cost choices include fixed or variable-count
+battlefield sacrifices, fixed other-permanent taps, tap-X number/object choices, named self-counter X,
+and mana-X. The planner branches through the handler's existing sacrifice, variable-permanent and
+number/tap-selection questions; self-counter X and fixed taps ride the ordinary activation action.
+It uses projected cost filters and control, distinct subsets and each cost's own exclusions.
+Fixed tap selection applies the source’s current text changes to its filter.
+Source-relative fixed tap costs retain their source through selection, affordability and payment;
+real action validation takes precedence over a choice preview that lacks that context. X and the selected
+set are then paid and measured by the real handler. Mana resolution uses the announced/measured
+X rather than only the submitted action's value, and mana-X pickers count restricted floating mana
+eligible for that ability's payment context. A sacrificed or tapped payment object cannot be reused; cost objects are independent of any scoped mana-source eligibility filter. Hidden-zone,
+unnamed/distributed-counter costs, free costs and non-mana effect leaves remain outside this proof.
+Finite mana-production pauses are explored through the normal continuation dispatch: single-color choices, two-color split
 numbers, pip-by-pip dynamic output, and any-color triggered tap bonuses. Composite choice leaves
 choose independently within their own color sets; a single activation color does not bind all leaves.
-Each answer is validated and charged to the same search budget. The planner finishes an activated ability and its bonuses
-before considering another activation; it never treats a partially produced pool as payable.
+Every attempted activation or answer consumes the same search budget, including invalid selections;
+subsets are generated lazily so a large invalid choice space cannot evade the budget. The planner
+finishes an activated ability and its bonuses before considering another activation; it never treats a partially produced pool as payable.
 A continuation floor keeps enclosing effects, forced-play completion, source filters and spending
 scopes intact while automatic production frames resume above them. Successful production restores
 the caller's original suspension and priority; speculative choices and events from failed branches
@@ -16477,6 +16494,7 @@ boundary remains uniform, while complete existing floating payments still work. 
 affordability keeps the independent proof and actual intermediate payment uses the floating pool.
 The standalone solver's independent proof remains available when no engine execution provider exists.
 
-G48 must supply activation-cost choices and atomic recovery from
-zero-output or excess manual activations before a printed card uses this wrapper. Word of Command remains blocked; no incomplete
+G48 supplies finite public activation-cost choices. G49 must supply atomic recovery from
+zero-output or excess manual activations and close the remaining mana-ability proof boundaries
+before a printed card uses this wrapper. Word of Command remains blocked; no incomplete
 canonical is registered. The new planner adds no SDK type, decision, client field or serialization shape.
