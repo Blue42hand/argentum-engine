@@ -28,6 +28,66 @@
     ]
 }
 
+// Patrolling Peacemaker
+{
+    "name": "Patrolling Peacemaker",
+    "manaCost": "{2}{W}",
+    "typeLine": "Artifact Creature — Robot Soldier",
+    "oracleText": "This creature enters with two +1/+1 counters on it.\nWhenever an opponent commits a crime, proliferate. (They commit a crime if they target an opponent, anything an opponent controls, and/or cards in an opponent's graveyard. To proliferate, you choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Patrolling Peacemaker:1",
+                "trigger": {
+                    "type": "CommitCrimeEvent",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": "Proliferate",
+                "descriptionOverride": "Whenever an opponent commits a crime, proliferate."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 2,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "5",
+        "rarity": "RARE",
+        "artist": "Michal Ivan",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1e06d6be-c2a3-4c73-a916-89674c0ddfed.jpg?1783906067",
+        "rulings": [
+            {
+                "date": "2025-07-25",
+                "text": "A player commits a crime as they cast a spell, activate an ability, or put a triggered ability on the stack that targets at least one opponent, at least one permanent, spell, or ability an opponent controls, and/or at least one card in an opponent’s graveyard."
+            },
+            {
+                "date": "2025-07-25",
+                "text": "The spell or ability that constituted a crime doesn’t have to have resolved yet or at all. As soon as you’re finished casting the spell, activating the ability, or putting the triggered ability on the stack, you’ve committed a crime."
+            },
+            {
+                "date": "2025-07-25",
+                "text": "Changing the target or targets of a spell or ability won’t affect whether the controller of that spell or ability has committed a crime. Only the initial targets chosen for that spell or ability are used to determine whether its controller committed a crime."
+            },
+            {
+                "date": "2025-07-25",
+                "text": "A player can commit only one crime per spell or ability they control. Targeting multiple opponents, permanents, spells, abilities, and/or cards with the same spell or ability doesn’t constitute committing multiple crimes."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Surge Conductor
 {
     "name": "Surge Conductor",

@@ -1,0 +1,24 @@
+{
+  "player1Name": "Peacemaker pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [],
+    "battlefield": [
+      {"name": "Patrolling Peacemaker", "counters": {"PLUS_ONE_PLUS_ONE": 2}}
+    ],
+    "graveyard": [],
+    "library": ["Plains", "Plains"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": ["Lightning Bolt"],
+    "battlefield": [{"name": "Mountain"}],
+    "graveyard": [],
+    "library": ["Mountain", "Mountain"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 2,
+  "priorityPlayer": 2,
+  "mode": "TWO_PLAYER"
+}
