@@ -1966,6 +1966,56 @@
     ]
 }
 
+// Karn's Bastion
+{
+    "name": "Karn's Bastion",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{4}, {T}: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": "Proliferate",
+                "descriptionOverride": "{4}, {T}: Proliferate."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "rarity": "RARE",
+        "artist": "Adam Paquette",
+        "flavorText": "\"I can't protect everyone here. But those I can, I will.\"\n—Karn",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b9d895af-7e8c-419f-bc5d-5596083fbfb6.jpg?1783933368"
+    }
+}
+
 // Kraul Stinger
 {
     "name": "Kraul Stinger",
