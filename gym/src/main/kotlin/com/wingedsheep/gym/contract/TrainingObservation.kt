@@ -315,6 +315,10 @@ data class LegalActionView(
         com.wingedsheep.engine.core.ActionParameterSpec.EMPTY,
     /** Engine-authored candidates and counts for explicit nonmana payment choices. */
     val costChoices: NativeCostChoiceView? = null,
+    /** Graveyard candidates for `ActionParams.delvedCards`; no card is selected implicitly. */
+    val validDelveCards: List<EntityId> = emptyList(),
+    /** Minimum delve count needed with the currently available mana sources. */
+    val minDelveNeeded: Int? = null,
     /**
      * Creatures that may be declared as attackers (`kind == "DeclareAttackers"`), empty otherwise.
      * Pair each with one of [validAttackTargets] in `ActionParams.attackers` when stepping; step it

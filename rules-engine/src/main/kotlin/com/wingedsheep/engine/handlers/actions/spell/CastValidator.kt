@@ -788,6 +788,10 @@ internal class CastValidator(
             state, action, cardDef, cardComponent, playForFree,
             castingFromCommandZone = source.route == CastSourceRoute.COMMANDER,
         ) ?: return "No alternative casting cost available"
+        val genericCap = computedCost.delveGenericCap
+        if (genericCap != null && (alternativePayment?.delvedCards?.size ?: 0) > genericCap) {
+            return "Too many cards selected for delve; only $genericCap generic mana can be paid this way"
+        }
         return castCostPayer.validateManaPayment(state, action, computedCost.cost, computedCost.paymentXValue)
     }
 

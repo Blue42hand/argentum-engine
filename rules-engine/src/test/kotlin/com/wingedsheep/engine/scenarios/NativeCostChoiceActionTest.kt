@@ -15,6 +15,9 @@ import com.wingedsheep.mtg.sets.definitions.big.cards.FomoriVault
 import com.wingedsheep.mtg.sets.definitions.eld.cards.ThrillOfPossibility
 import com.wingedsheep.mtg.sets.definitions.m21.cards.VillageRites
 import com.wingedsheep.mtg.sets.definitions.eoe.cards.SecludedStarforge
+import com.wingedsheep.mtg.sets.definitions.ktk.cards.TreasureCruise
+import com.wingedsheep.mtg.sets.definitions.ktk.cards.EmptyThePits
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
@@ -212,6 +215,140 @@ class NativeCostChoiceActionTest : FunSpec({
         )
         driver.submit(valid).error shouldBe null
         (own in driver.state.getBattlefield()) shouldBe false
+    }
+
+    test("Treasure Cruise native offer carries chosen delve cards into payment") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + TreasureCruise)
+        driver.initMirrorMatch(Deck.of("Island" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val cruise = driver.putCardInHand(player, "Treasure Cruise")
+        repeat(3) { driver.putLandOnBattlefield(player, "Island") }
+        val graveyard = (1..7).map { driver.putCardInGraveyard(player, "Grizzly Bears") }
+        val offered = driver.legalActions(player).first {
+            (it.action as? CastSpell)?.cardId == cruise
+        }
+        val info = LegalActionEnricher(
+            ManaSolver(driver.cardRegistry, com.wingedsheep.engine.handlers.PredicateEvaluator(driver.cardRegistry)),
+            driver.cardRegistry
+        )
+            .enrich(listOf(offered), driver.state, player).single()
+
+        offered.affordable shouldBe true
+        info.minDelveNeeded shouldBe 5
+        info.validDelveCards!!.map { it.entityId }.toSet() shouldBe graveyard.toSet()
+        info.parameterSpec.allowedFields["delvedCards"] shouldBe
+            com.wingedsheep.engine.core.ActionParameterFieldKind.ENTITY_ID_ARRAY
+        val withoutChoice = ActionParameterizer.apply(info, ActionParams.EMPTY, driver.state)
+        (driver.submit(withoutChoice).error != null) shouldBe true
+        driver.state.getGraveyard(player).containsAll(graveyard) shouldBe true
+
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(info, ActionParams(delvedCards = listOf(cruise)), driver.state)
+        }
+        val selected = graveyard.take(5)
+        val gymAction = ActionParameterizer.apply(offered, ActionParams(delvedCards = selected), driver.state)
+        (gymAction as CastSpell).alternativePayment?.delvedCards shouldBe selected
+        val repeated = ActionParameterizer.apply(
+            info, ActionParams(delvedCards = List(5) { graveyard.first() }), driver.state
+        )
+        (driver.submit(repeated).error != null) shouldBe true
+        driver.state.getExile(player).none { it in graveyard } shouldBe true
+        val completed = ActionParameterizer.apply(info, ActionParams(delvedCards = selected), driver.state)
+        (completed as CastSpell).alternativePayment?.delvedCards shouldBe selected
+        driver.submit(completed).error shouldBe null
+        driver.state.getGraveyard(player).none { it in selected } shouldBe true
+        driver.state.getExile(player).containsAll(selected) shouldBe true
+        driver.state.getGraveyard(player).containsAll(graveyard.drop(5)) shouldBe true
+    }
+
+    test("delve rejects an offered card after it leaves the graveyard") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + TreasureCruise)
+        driver.initMirrorMatch(Deck.of("Island" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val cruise = driver.putCardInHand(player, "Treasure Cruise")
+        repeat(3) { driver.putLandOnBattlefield(player, "Island") }
+        val graveyard = (1..7).map { driver.putCardInGraveyard(player, "Grizzly Bears") }
+        val offered = driver.legalActions(player).first {
+            (it.action as? CastSpell)?.cardId == cruise
+        }
+        val chosen = ActionParameterizer.apply(
+            offered, ActionParams(delvedCards = graveyard), driver.state
+        )
+        driver.replaceState(driver.zones.moveToZone(
+            driver.state, graveyard.first(), Zone.EXILE
+        ).state)
+
+        (driver.submit(chosen).error != null) shouldBe true
+        driver.state.getGraveyard(player).containsAll(graveyard.drop(1)) shouldBe true
+        driver.state.getExile(player).count { it in graveyard } shouldBe 1
+    }
+
+    test("delve never pays the remaining blue mana with graveyard cards") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + TreasureCruise)
+        driver.initMirrorMatch(Deck.of("Forest" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val cruise = driver.putCardInHand(player, "Treasure Cruise")
+        driver.putLandOnBattlefield(player, "Forest")
+        val island = driver.putLandOnBattlefield(player, "Island")
+        val graveyard = (1..6).map { driver.putCardInGraveyard(player, "Grizzly Bears") }
+        val offered = driver.legalActions(player).first {
+            (it.action as? CastSpell)?.cardId == cruise
+        }
+        val action = ActionParameterizer.apply(
+            offered, ActionParams(delvedCards = graveyard), driver.state
+        )
+        driver.replaceState(driver.zones.moveToZone(driver.state, island, Zone.HAND).state)
+
+        (driver.submit(action).error != null) shouldBe true
+        driver.state.getGraveyard(player).containsAll(graveyard) shouldBe true
+    }
+
+    test("native action schema leaves X delve to the existing payment path") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + EmptyThePits)
+        driver.initMirrorMatch(Deck.of("Swamp" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val pits = driver.putCardInHand(player, "Empty the Pits")
+        repeat(5) { driver.putLandOnBattlefield(player, "Swamp") }
+        driver.putCardInGraveyard(player, "Grizzly Bears")
+        val offered = driver.legalActions(player).first {
+            (it.action as? CastSpell)?.cardId == pits
+        }
+        offered.hasXCost shouldBe true
+        ("delvedCards" in ActionParameterizer.spec(offered).allowedFields) shouldBe false
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(
+                offered, ActionParams(delvedCards = offered.delveCards!!.map { it.entityId }), driver.state
+            )
+        }
+    }
+
+    test("delve rejects more exiles than the spell has generic mana to pay") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + TreasureCruise)
+        driver.initMirrorMatch(Deck.of("Island" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val player = driver.activePlayer!!
+        val cruise = driver.putCardInHand(player, "Treasure Cruise")
+        repeat(8) { driver.putLandOnBattlefield(player, "Island") }
+        val graveyard = (1..8).map { driver.putCardInGraveyard(player, "Grizzly Bears") }
+        val offered = driver.legalActions(player).first {
+            (it.action as? CastSpell)?.cardId == cruise
+        }
+        val completed = ActionParameterizer.apply(
+            offered, ActionParams(delvedCards = graveyard), driver.state
+        )
+
+        (driver.submit(completed).error?.contains("Too many cards selected for delve")) shouldBe true
+        driver.state.getGraveyard(player).containsAll(graveyard) shouldBe true
+        driver.state.getExile(player).none { it in graveyard } shouldBe true
     }
 
     test("discard rejects a card from another player's hand") {

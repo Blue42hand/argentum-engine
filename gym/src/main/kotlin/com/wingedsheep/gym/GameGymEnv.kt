@@ -176,7 +176,10 @@ class GameGymEnv(
             }
             is ResolvedAction.Decision -> {
                 val response = if (resolved.response is com.wingedsheep.engine.core.PlayCardResponse) {
-                    resolved.response.copy(action = ActionParameterizer.apply(resolved.response.action, params, environment.state))
+                    val offer = checkNotNull(resolved.playCardOffer) {
+                        "Folded play-card response has no legal offer"
+                    }
+                    resolved.response.copy(action = ActionParameterizer.apply(offer, params, environment.state))
                 } else {
                     require(params.isEmpty) { "Action ID $actionId is a folded decision response and takes no step params" }
                     resolved.response

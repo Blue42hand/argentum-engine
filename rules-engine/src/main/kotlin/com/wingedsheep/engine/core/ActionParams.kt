@@ -6,6 +6,7 @@ import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
+import com.wingedsheep.sdk.scripting.AlternativePaymentChoice
 import kotlinx.serialization.Serializable
 
 /**
@@ -28,7 +29,7 @@ import kotlinx.serialization.Serializable
  * - Complex decisions (target-selection pauses, damage assignment, ordering, …) → `POST
  *   /envs/{id}/decision` with a typed `DecisionResponse`.
  * - Attacking bands (CR 702.22), other alternative/additional cost payments, and
- *   convoke/delve/improvise selections. A step carrying params for an action that can't use them
+ *   convoke/improvise selections. A step carrying params for an action that can't use them
  *   is rejected with a message naming the action, never ignored.
  *
  * @property attackers attacker entity id → the player, planeswalker or battle it attacks.
@@ -41,6 +42,7 @@ import kotlinx.serialization.Serializable
  * @property sacrificedPermanents Permanents chosen to sacrifice as a cost.
  * @property discardedCards Cards chosen to discard as a cost.
  * @property exiledCards Cards chosen to exile as a cost.
+ * @property delvedCards Graveyard cards chosen to exile to pay generic mana with delve.
  */
 @Serializable
 data class ActionParams(
@@ -52,6 +54,7 @@ data class ActionParams(
     val sacrificedPermanents: List<EntityId> = emptyList(),
     val discardedCards: List<EntityId> = emptyList(),
     val exiledCards: List<EntityId> = emptyList(),
+    val delvedCards: List<EntityId> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = populatedFields.isEmpty()
@@ -67,6 +70,7 @@ data class ActionParams(
             if (sacrificedPermanents.isNotEmpty()) add("sacrificedPermanents")
             if (discardedCards.isNotEmpty()) add("discardedCards")
             if (exiledCards.isNotEmpty()) add("exiledCards")
+            if (delvedCards.isNotEmpty()) add("delvedCards")
         }
 
     companion object {
@@ -124,6 +128,9 @@ object ActionParameterizer {
             if (cost?.validDiscardTargets.isNullOrEmpty()) fields.remove("discardedCards")
             if (cost?.validExileTargets.isNullOrEmpty()) fields.remove("exiledCards")
         }
+        if (legalAction.action is CastSpell &&
+            (!legalAction.hasDelve || legalAction.hasXCost || legalAction.delveCards.isNullOrEmpty())
+        ) fields.remove("delvedCards")
         return ActionParameterSpec(fields)
     }
 
@@ -133,6 +140,7 @@ object ActionParameterizer {
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
                 cost.validDiscardTargets, cost.validExileTargets)
         }
+        params.requireDelveCandidates(legalAction.delveCards?.map { it.entityId }.orEmpty())
         return apply(legalAction.action, params, state)
     }
 
@@ -143,6 +151,7 @@ object ActionParameterizer {
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
                 cost.validDiscardTargets, cost.validExileTargets)
         }
+        params.requireDelveCandidates(info.validDelveCards?.map { it.entityId }.orEmpty())
         return apply(info.action, params, state)
     }
 
@@ -156,6 +165,12 @@ object ActionParameterizer {
         check("sacrificedPermanents", sacrificedPermanents, sacrifice)
         check("discardedCards", discardedCards, discard)
         check("exiledCards", exiledCards, exile)
+    }
+
+    private fun ActionParams.requireDelveCandidates(candidates: List<EntityId>) {
+        require(delvedCards.all { it in candidates }) {
+            "delvedCards contains a card not offered for this action"
+        }
     }
 
     /**
@@ -180,6 +195,7 @@ object ActionParameterizer {
                 "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "delvedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
         is ActivateAbility -> ActionParameterSpec(
@@ -215,7 +231,8 @@ object ActionParameterizer {
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
                     xValue = params.xValue ?: action.xValue,
-                    additionalCostPayment = params.withCostChoices(action.additionalCostPayment)
+                    additionalCostPayment = params.withCostChoices(action.additionalCostPayment),
+                    alternativePayment = params.withDelveChoice(action.alternativePayment),
                 )
             }
 
@@ -247,6 +264,12 @@ object ActionParameterizer {
             discardedCards = discardedCards.ifEmpty { base.discardedCards },
             exiledCards = exiledCards.ifEmpty { base.exiledCards },
         )
+    }
+
+    /** Keep any other alternative-payment choices already present on the action template. */
+    private fun ActionParams.withDelveChoice(existing: AlternativePaymentChoice?): AlternativePaymentChoice? {
+        if (delvedCards.isEmpty()) return existing
+        return (existing ?: AlternativePaymentChoice.NONE).copy(delvedCards = delvedCards)
     }
 
     /**

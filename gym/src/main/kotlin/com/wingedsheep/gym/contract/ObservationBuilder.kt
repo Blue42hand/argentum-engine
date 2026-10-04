@@ -122,9 +122,7 @@ class ObservationBuilder(
             val play = state.pendingDecision as com.wingedsheep.engine.core.PlayCardDecision
             val visiblePlays = if (canSeePlay) legalActions else emptyList()
             legalActionViews = visiblePlays.mapIndexed { idx, la -> legalActionToView(idx, la).copy(isDecisionOption = true) }
-            actionRegistry = ActionRegistry.ofDecisionResponses(visiblePlays.map {
-                com.wingedsheep.engine.core.PlayCardResponse(play.id, it.action)
-            })
+            actionRegistry = ActionRegistry.ofPlayCardResponses(play.id, visiblePlays)
             if (visiblePlays.isNotEmpty()) {
                 pendingDecisionView = pendingDecisionView?.copy(
                     requiresStructuredResponse = false,
@@ -434,6 +432,8 @@ class ObservationBuilder(
             requiresDamageDistribution = la.requiresDamageDistribution,
             isManaAbility = la.isManaAbility,
             parameterSpec = ActionParameterizer.spec(la),
+            validDelveCards = if (la.hasXCost) emptyList() else la.delveCards?.map { it.entityId }.orEmpty(),
+            minDelveNeeded = if (la.hasXCost) null else la.minDelveNeeded,
             costChoices = la.additionalCostInfo?.let { cost ->
                 NativeCostChoiceView(
                     costType = cost.costType,

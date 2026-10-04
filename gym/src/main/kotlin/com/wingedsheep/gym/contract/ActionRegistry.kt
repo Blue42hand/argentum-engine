@@ -21,12 +21,13 @@ import com.wingedsheep.engine.legalactions.LegalAction
  */
 class ActionRegistry private constructor(
     private val legalActionsById: Map<Int, LegalAction>,
-    private val decisionResponsesById: Map<Int, DecisionResponse>
+    private val decisionResponsesById: Map<Int, DecisionResponse>,
+    private val playCardOffersById: Map<Int, LegalAction>,
 ) {
     /** Resolves [actionId] to its engine-level representation. */
     fun resolve(actionId: Int): ResolvedAction {
         legalActionsById[actionId]?.let { return ResolvedAction.Legal(it) }
-        decisionResponsesById[actionId]?.let { return ResolvedAction.Decision(it) }
+        decisionResponsesById[actionId]?.let { return ResolvedAction.Decision(it, playCardOffersById[actionId]) }
         return ResolvedAction.Unknown
     }
 
@@ -41,7 +42,7 @@ class ActionRegistry private constructor(
     val size: Int get() = legalActionsById.size + decisionResponsesById.size
 
     companion object {
-        val EMPTY = ActionRegistry(emptyMap(), emptyMap())
+        val EMPTY = ActionRegistry(emptyMap(), emptyMap(), emptyMap())
 
         /**
          * Build a registry for the legal-action case (no pending decision).
@@ -50,7 +51,7 @@ class ActionRegistry private constructor(
         fun ofLegalActions(actions: List<LegalAction>): ActionRegistry {
             val byId = HashMap<Int, LegalAction>(actions.size)
             actions.forEachIndexed { idx, action -> byId[idx] = action }
-            return ActionRegistry(byId, emptyMap())
+            return ActionRegistry(byId, emptyMap(), emptyMap())
         }
 
         /**
@@ -62,7 +63,17 @@ class ActionRegistry private constructor(
         fun ofDecisionResponses(responses: List<DecisionResponse>): ActionRegistry {
             val byId = HashMap<Int, DecisionResponse>(responses.size)
             responses.forEachIndexed { idx, response -> byId[idx] = response }
-            return ActionRegistry(emptyMap(), byId)
+            return ActionRegistry(emptyMap(), byId, emptyMap())
+        }
+
+        /** Preserve each forced play's authoritative offer beside its folded decision response. */
+        fun ofPlayCardResponses(decisionId: String, actions: List<LegalAction>): ActionRegistry {
+            val responses = actions.map { com.wingedsheep.engine.core.PlayCardResponse(decisionId, it.action) }
+            return ActionRegistry(
+                emptyMap(),
+                responses.withIndex().associate { it.index to it.value },
+                actions.withIndex().associate { it.index to it.value },
+            )
         }
     }
 }
@@ -75,7 +86,7 @@ sealed interface ResolvedAction {
     }
 
     /** The ID maps to a folded [DecisionResponse] — submit via SubmitDecision. */
-    data class Decision(val response: DecisionResponse) : ResolvedAction
+    data class Decision(val response: DecisionResponse, val playCardOffer: LegalAction? = null) : ResolvedAction
 
     /** The ID is not present in the current registry. */
     data object Unknown : ResolvedAction
