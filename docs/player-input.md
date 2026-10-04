@@ -16,6 +16,14 @@ It does not allocate another ID or emit another request. Automatic work beneath 
 A mana ability inside a payment window sets aside the whole suspension, then restores it with the
 same ID and refreshed source menu after the nested execution finishes.
 
+`ManaPaymentWindow` publishes `canAutoPayNow` on its mana decision and the Gym decision view.
+It is true when floating mana already pays the cost or the automatic solver can pay the rest;
+false means the player must activate a mana ability or choose another payment before using
+AutoPay. It is null when restrictions need a spell context the generic window cannot prove.
+An empty `autoPaySuggestion` alone cannot distinguish those cases. The field refreshes
+after each mana ability. An AutoPay response uses the solver and must leave `selectedSources`
+empty; manually selected sources use `autoPay = false`.
+
 `SubmitDecisionHandler` validates the acting player and choice payload against the pending
 question. `ContinuationHandler` verifies the response ID, pops the suspension, and dispatches its
 answer data. The paired question is available to resumers that need its original shape, including

@@ -78,7 +78,7 @@ object DecisionValidators {
             is CombatResolutionDecision -> validateCombatResolution(decision, response)
             is SearchLibraryDecision -> validateLibrarySearch(decision, response)
             is ReorderLibraryDecision -> validateLibraryReorder(decision, response)
-            is SelectManaSourcesDecision -> validateManaSourcesSelection(response)
+            is SelectManaSourcesDecision -> validateManaSourcesSelection(decision, response)
             is BatchYesNoDecision -> validateBatchYesNo(response)
         }
     }
@@ -572,9 +572,15 @@ object DecisionValidators {
         return null
     }
 
-    private fun validateManaSourcesSelection(response: DecisionResponse): String? {
+    private fun validateManaSourcesSelection(decision: SelectManaSourcesDecision, response: DecisionResponse): String? {
         if (response !is ManaSourcesSelectedResponse) {
             return "Expected mana sources selected response"
+        }
+        if (response.autoPay && decision.canAutoPayNow == false) {
+            return "Auto-pay is not available yet; activate a mana ability or select payment sources"
+        }
+        if (response.autoPay && response.selectedSources.isNotEmpty()) {
+            return "Auto-pay cannot be combined with selected mana sources"
         }
         return null
     }

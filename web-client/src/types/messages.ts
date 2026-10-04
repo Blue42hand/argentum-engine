@@ -608,6 +608,7 @@ export interface SelectManaSourcesDecision extends PendingDecisionBase {
   readonly availableSources: readonly ManaSourceOption[]
   readonly requiredCost: string
   readonly autoPaySuggestion: readonly EntityId[]
+  readonly canAutoPayNow?: boolean | null
   readonly canDecline?: boolean
   /**
    * Untapped artifacts/creatures that may be tapped to pay {1} each toward the cost via

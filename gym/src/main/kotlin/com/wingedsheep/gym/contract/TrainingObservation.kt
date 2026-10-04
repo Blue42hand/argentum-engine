@@ -397,6 +397,8 @@ data class PendingDecisionView(
     val requiresStructuredResponse: Boolean = false,
     /** Engine-owned JSON response contract for a structured decision. */
     val responseSpec: DecisionResponseSpec? = null,
+    /** Native payment feasibility; null for decisions without an AutoPay check. */
+    val canAutoPayNow: Boolean? = null,
     /** Extra hints about the decision shape (min/max selections, numeric range, etc.). */
     val shape: DecisionShape = DecisionShape()
 )

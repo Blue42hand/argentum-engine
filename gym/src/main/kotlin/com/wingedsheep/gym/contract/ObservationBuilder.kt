@@ -621,6 +621,7 @@ class ObservationBuilder(
             effectHint = ctx.effectHint,
             requiresStructuredResponse = structured,
             responseSpec = if (structured) decision.responseSpec() else null,
+            canAutoPayNow = (decision as? SelectManaSourcesDecision)?.canAutoPayNow,
             shape = shape
         )
     }
