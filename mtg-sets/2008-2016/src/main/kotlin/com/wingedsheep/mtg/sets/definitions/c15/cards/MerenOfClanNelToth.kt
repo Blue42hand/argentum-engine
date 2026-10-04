@@ -1,18 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.c15.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,29 +35,22 @@ val MerenOfClanNelToth = card("Meren of Clan Nel Toth") {
         "you have, return it to the battlefield. Otherwise, put it into your hand."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
-        effect = Effects.AddCounters(Counters.EXPERIENCE, 1, EffectTarget.Controller)
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).dies()
+        effect = Effects.AddCounters(CounterType.EXPERIENCE, 1, EffectTarget.Controller)
         description = "Whenever another creature you control dies, you get an experience counter."
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
-        val creatureCard = target(
-            "target creature card in your graveyard",
-            Targets.CreatureCardInYourGraveyard,
-        )
-        effect = ConditionalEffect(
+        trigger = Triggers.you.beginningOf(Step.END)
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.targetManaValue(),
                 ComparisonOperator.LTE,
-                DynamicAmounts.playerCounterCount(Counters.EXPERIENCE),
+                DynamicAmounts.playerCounterCount(CounterType.EXPERIENCE),
             ),
-            effect = Effects.PutOntoBattlefield(creatureCard),
-            elseEffect = Effects.ReturnToHand(creatureCard),
+            then = Effects.PutOntoBattlefield(creatureCard),
+            otherwise = Effects.ReturnToHand(creatureCard),
         )
         description = "At the beginning of your end step, choose target creature card in your " +
             "graveyard. If that card's mana value is less than or equal to the number of " +

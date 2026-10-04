@@ -23,10 +23,7 @@ val TocasiasWelcome = card("Tocasia's Welcome") {
         "a card. This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.manaValueAtMost(3).youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.manaValueAtMost(3).youControl()).enters()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

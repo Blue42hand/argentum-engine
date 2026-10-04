@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.permanent.types
 
+import com.wingedsheep.engine.state.components.identity.copiableCardComponent
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.event.GrantedActivatedAbility
 import com.wingedsheep.engine.handlers.EffectContext
@@ -7,8 +9,10 @@ import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CopyOfComponent
+import com.wingedsheep.engine.state.components.identity.CopyWhileAttachedComponent
 import com.wingedsheep.engine.state.components.identity.RevertCopyAtEndOfTurnComponent
 import com.wingedsheep.engine.state.components.identity.RevertCopyAtNextEndStepComponent
 import com.wingedsheep.engine.state.components.identity.RevertCopyAtYourNextTurnComponent
@@ -43,7 +47,9 @@ import kotlin.reflect.KClass
  * copies. Likeness Looter's "{X}: … becomes a copy of target creature card in your graveyard with
  * mana value X, except it has flying and this ability" is both riders at once.
  */
-class EachPermanentBecomesCopyOfTargetExecutor : EffectExecutor<EachPermanentBecomesCopyOfTargetEffect> {
+class EachPermanentBecomesCopyOfTargetExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<EachPermanentBecomesCopyOfTargetEffect> {
 
     override val effectType: KClass<EachPermanentBecomesCopyOfTargetEffect> =
         EachPermanentBecomesCopyOfTargetEffect::class
@@ -56,7 +62,7 @@ class EachPermanentBecomesCopyOfTargetExecutor : EffectExecutor<EachPermanentBec
         val targetId = context.resolveTarget(effect.target, state)
             ?: return EffectResult.success(state)
 
-        val targetCard = state.getEntity(targetId)?.get<CardComponent>()
+        val targetCard = state.getEntity(targetId)?.copiableCardComponent()
             ?: return EffectResult.success(state)
 
         // Target must still be on the battlefield to serve as a copy source — unless the effect
@@ -67,7 +73,7 @@ class EachPermanentBecomesCopyOfTargetExecutor : EffectExecutor<EachPermanentBec
         }
 
         val affectedTarget = effect.affected
-        val affected = if (affectedTarget != null) {
+        var affected = if (affectedTarget != null) {
             // "target permanent A becomes a copy of target permanent B" — the affected set is the
             // single resolved [affected] target (Fleeting Reflection). Resolving to nothing is a
             // no-op. Must still be on the battlefield to become a copy.
@@ -82,11 +88,24 @@ class EachPermanentBecomesCopyOfTargetExecutor : EffectExecutor<EachPermanentBec
                 state,
                 effect.filter.baseFilter,
                 context,
-                excludeSelfId = if (effect.filter.excludeSelf) context.sourceId else null
+                excludeSelfId = if (effect.filter.excludeSelf) context.sourceId else null,
+                predicateEvaluator = predicateEvaluator
             )
                 // "each OTHER … becomes a copy of that …" — the copy source keeps its own identity
                 // (and any counter just placed on it), so exclude the target from the affected set.
                 .filterNot { effect.excludeTarget && it == targetId }
+        }
+
+        // "For as long as this Equipment remains attached to it" (Blade of Shared Souls): the copy
+        // is keyed to the source's attachment. A permanent the source is no longer attached to by
+        // resolution gets nothing — the duration has already ended (CR 611.2b).
+        val attachedSourceId = if (effect.duration == Duration.WhileSourceAttachedToAffected) {
+            context.sourceId?.takeIf { it in state.getBattlefield() }
+                ?: return EffectResult.success(state)
+        } else null
+        if (attachedSourceId != null) {
+            val hostId = state.getEntity(attachedSourceId)?.get<AttachedToComponent>()?.targetId
+            affected = affected.filter { it == hostId }
         }
 
         if (affected.isEmpty()) {
@@ -97,7 +116,9 @@ class EachPermanentBecomesCopyOfTargetExecutor : EffectExecutor<EachPermanentBec
         // (reverted at cleanup), `UntilNextEndStep` (reverted on entry to the next end step,
         // coincident with a paired "return it at the beginning of the next end step" trigger —
         // Niko, Light of Hope), and `UntilYourNextTurn` (reverted after the controller's next
-        // untap step — Absorbing Man, Taskmaster). Anything else degrades to permanent.
+        // untap step — Absorbing Man, Taskmaster), and `WhileSourceAttachedToAffected` (reverted by
+        // `AttachedCopyExpiryCheck` once the source stops being attached — Blade of Shared Souls).
+        // Anything else degrades to permanent.
         var newState = state
         for (entityId in affected) {
             val container = newState.getEntity(entityId) ?: continue
@@ -137,6 +158,9 @@ class EachPermanentBecomesCopyOfTargetExecutor : EffectExecutor<EachPermanentBec
                     Duration.UntilYourNextTurn -> updated = updated.with(
                         RevertCopyAtYourNextTurnComponent(context.controllerId)
                     )
+                    Duration.WhileSourceAttachedToAffected -> if (attachedSourceId != null) {
+                        updated = updated.with(CopyWhileAttachedComponent(attachedSourceId))
+                    }
                     else -> {}
                 }
                 updated

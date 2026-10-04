@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Mercurial Kite
@@ -30,15 +30,15 @@ val MercurialKite = card("Mercurial Kite") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToCreature
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyCreature)
         effect = Effects.Tap(EffectTarget.TriggeringEntity) then
-            GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, EffectTarget.TriggeringEntity, Duration.UntilAfterAffectedControllersNextUntap)
+            Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP, EffectTarget.TriggeringEntity, Duration.UntilAfterAffectedControllersNextUntap)
     }
 
     metadata {
         rarity = Rarity.COMMON
-        collectorNumber = "40"
-        artist = "Wayne England"
+        collectorNumber = "39"
+        artist = "Richard Sardinha"
         flavorText = "Aven scouts admired the kites' ability to identify and|track their prey. Commanders admired their ability to|knock that prey out of the sky."
         imageUri = "https://cards.scryfall.io/normal/front/a/6/a6bc8655-ae27-40be-8d61-e80a5924e955.jpg?1562533105"
     }

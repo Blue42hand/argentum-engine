@@ -23,15 +23,10 @@ val FanaticalOffering = card("Fanatical Offering") {
         "Draw two cards and create a Map token. (It's an artifact with \"{1}, {T}, Sacrifice this token: " +
         "Target creature you control explores. Activate only as a sorcery.\")"
 
-    additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.CreatureOrArtifact))
+    additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Artifact or GameObjectFilter.Creature))
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(2),
-                Effects.CreateMapToken()
-            )
-        )
+        effect = Effects.DrawCards(2) then Effects.CreateMapToken()
     }
 
     metadata {

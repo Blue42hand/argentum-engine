@@ -28,7 +28,8 @@ val RuggedPrairie = card("Rugged Prairie") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R/W}"), Costs.Tap)
-        effect = Effects.Composite(Effects.AddMana(Color.RED), Effects.AddMana(Color.WHITE))
+        effect = (Effects.AddMana(Color.RED) then
+            Effects.AddMana(Color.WHITE))
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "Add {R}{W}."

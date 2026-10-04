@@ -1,10 +1,13 @@
-import { useState, useEffect, type ReactNode } from 'react'
+import { useState, useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { getCardImageUrl } from '@/utils/cardImages.ts'
 
 const PREVIEW_WIDTH = 280
 const MARGIN = 40
+/** Height of the `hint` row below the image, for vertical positioning. */
+const HINT_HEIGHT = 30
 const VIEWPORT_PADDING = 10
+const RULINGS_MAX_HEIGHT = 300
 
 export interface HoverCardPreviewProps {
   name: string
@@ -17,6 +20,8 @@ export interface HoverCardPreviewProps {
   children?: ReactNode
   /** Content rendered as an overlay on top of the card image */
   overlay?: ReactNode
+  /** A short hint rendered directly below the card image (the DFC "F to flip" pill) */
+  hint?: ReactNode
   /** Estimated extra height from children, used for vertical positioning (default 0) */
   extraHeight?: number
   /**
@@ -40,7 +45,7 @@ export interface HoverCardPreviewProps {
  * also live inside `overflow: hidden` / transformed ancestors (a tapped permanent rotates),
  * which would clip a preview rendered in place.
  */
-export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rulings, children, overlay, extraHeight = 0, imageRotateDeg = 0 }: HoverCardPreviewProps) {
+export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rulings, children, overlay, hint, extraHeight = 0, imageRotateDeg = 0 }: HoverCardPreviewProps) {
   const [showRulings, setShowRulings] = useState(false)
   const [lastCardName, setLastCardName] = useState<string | null>(null)
 
@@ -58,6 +63,29 @@ export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rul
     return () => clearTimeout(timer)
   }, [name, lastCardName])
 
+  // The preview is `pointer-events: none` and the cursor stays on the hovered card, so the
+  // rulings panel can never receive a wheel event of its own. Route wheel input to it while
+  // it is open, and only swallow the event while the panel can still scroll that way — at
+  // either end the wheel falls through to whatever is underneath (a deck list, a zone browser).
+  const rulingsRef = useRef<HTMLDivElement>(null)
+  const hasRulings = !!rulings && rulings.length > 0
+  const rulingsOpen = showRulings && hasRulings
+  useEffect(() => {
+    if (!rulingsOpen) return
+    const onWheel = (e: WheelEvent) => {
+      const el = rulingsRef.current
+      if (!el || el.scrollHeight <= el.clientHeight) return
+      const delta = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * 16 : e.deltaY
+      const atTop = el.scrollTop <= 0
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+      if ((delta < 0 && atTop) || (delta > 0 && atBottom) || delta === 0) return
+      e.preventDefault()
+      el.scrollTop += delta
+    }
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true })
+    return () => window.removeEventListener('wheel', onWheel, { capture: true })
+  }, [rulingsOpen])
+
   const imageUrl = getCardImageUrl(name, imageUri, imageSize)
   const portraitWidth = PREVIEW_WIDTH
   const portraitHeight = Math.round(portraitWidth * 1.4)
@@ -66,12 +94,11 @@ export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rul
   const isLandscape = imageRotateDeg === 90 || imageRotateDeg === 270
   const previewWidth = isLandscape ? portraitHeight : portraitWidth
   const previewHeight = isLandscape ? portraitWidth : portraitHeight
-  const hasRulings = rulings && rulings.length > 0
 
   // Estimate total height for positioning
-  let panelHeight = extraHeight
   const GAP = 8
-  if (showRulings && hasRulings) panelHeight += 120 + GAP
+  let panelHeight = extraHeight + (hint ? HINT_HEIGHT + GAP : 0)
+  if (rulingsOpen) panelHeight += 120 + GAP
   else if (hasRulings) panelHeight += 20 + GAP
   const estimatedHeight = previewHeight + panelHeight
 
@@ -98,6 +125,12 @@ export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rul
       top = VIEWPORT_PADDING
     }
   }
+
+  // Keep the rulings panel inside the viewport; anything beyond it scrolls (see the wheel hook).
+  const rulingsMaxHeight = Math.max(
+    120,
+    Math.min(RULINGS_MAX_HEIGHT, window.innerHeight - top - previewHeight - extraHeight - (hint ? HINT_HEIGHT + GAP : 0) - GAP * 2 - VIEWPORT_PADDING),
+  )
 
   return createPortal(
     <div
@@ -141,11 +174,13 @@ export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rul
         {overlay}
       </div>
 
+      {hint}
+
       {children}
 
       {/* Rulings panel - appears after 1 second of hovering */}
-      {showRulings && hasRulings && (
-        <div style={rulingsStyles.container}>
+      {rulingsOpen && (
+        <div ref={rulingsRef} style={{ ...rulingsStyles.container, maxHeight: rulingsMaxHeight }}>
           <div style={rulingsStyles.header}>Rulings</div>
           {rulings!.map((ruling, index) => (
             <div key={index} style={rulingsStyles.ruling}>
@@ -177,7 +212,6 @@ const rulingsStyles = {
     borderRadius: 8,
     border: '1px solid rgba(100, 150, 255, 0.3)',
     maxWidth: 320,
-    maxHeight: 300,
     overflowY: 'auto' as const,
   },
   header: {

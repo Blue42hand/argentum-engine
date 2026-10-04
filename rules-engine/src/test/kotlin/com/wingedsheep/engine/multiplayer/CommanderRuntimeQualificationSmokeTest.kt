@@ -1,5 +1,9 @@
 package com.wingedsheep.engine.multiplayer
 
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
+
+
 import com.wingedsheep.engine.core.TakeMulligan
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.state.ZoneKey
@@ -23,6 +27,9 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+
+private val ExecutionResult.isSuccess: Boolean get() = outcome == Outcome.Done
+private val ExecutionResult.isPaused: Boolean get() = outcome is Outcome.Paused
 
 /**
  * Commander Gym migration qualification smoke for Blue42hand/commander-gym#170.

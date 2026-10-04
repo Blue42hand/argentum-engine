@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -41,6 +42,7 @@ data class ModifySpellCost(
             SpellCostTarget.SelfCast -> "This spell"
             is SpellCostTarget.YouCast -> "${filterAdjective(target.filter)}$noun you cast"
             is SpellCostTarget.AnyCaster -> "${filterAdjective(target.filter)}$noun"
+            is SpellCostTarget.OpponentsCast -> "${filterAdjective(target.filter)}$noun your opponents cast"
             is SpellCostTarget.OpponentsCastTargeting ->
                 "Spells your opponents cast that target ${target.targetFilter.description}"
             is SpellCostTarget.OpponentsCastFromZones ->
@@ -95,6 +97,7 @@ data class ModifySpellCost(
     private fun fromCasterPerspective(sourceDescription: String): String =
         when (target) {
             is SpellCostTarget.AnyCaster,
+            is SpellCostTarget.OpponentsCast,
             is SpellCostTarget.OpponentsCastTargeting,
             is SpellCostTarget.OpponentsCastFromZones ->
                 sourceDescription
@@ -183,6 +186,25 @@ sealed interface SpellCostTarget {
     @SerialName("AnyCaster")
     @Serializable
     data class AnyCaster(val filter: GameObjectFilter) : SpellCostTarget {
+        override fun applyTextReplacement(replacer: TextReplacer): SpellCostTarget {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
+
+    /**
+     * Spells matching [filter] cast by an **opponent** of the source's controller, from any zone —
+     * "Noncreature spells your opponents cast cost {1} more to cast" (Thalia, the Survivor).
+     *
+     * The opponent-only half of [AnyCaster]: the source's own controller is never taxed. Narrower
+     * siblings add a second axis on top of "an opponent cast it" — [OpponentsCastFromZones] (where
+     * the spell was cast from) and [OpponentsCastTargeting] (what it targets). Being a tax, it also
+     * applies to alternative costs (CR 118.9d), so the cost calculator's alternative-base path reads
+     * it alongside [AnyCaster].
+     */
+    @SerialName("OpponentsCast")
+    @Serializable
+    data class OpponentsCast(val filter: GameObjectFilter = GameObjectFilter.Any) : SpellCostTarget {
         override fun applyTextReplacement(replacer: TextReplacer): SpellCostTarget {
             val newFilter = filter.applyTextReplacement(replacer)
             return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -583,9 +605,9 @@ sealed interface CostReductionSource {
     @Serializable
     data class PermanentsWithCounterYouControl(
         val filter: GameObjectFilter,
-        val counterType: String
+        val counterType: CounterType
     ) : CostReductionSource {
-        override val description: String = "${filter.description} you control with a $counterType counter on it"
+        override val description: String = "${filter.description} you control with a ${counterType.printed} counter on it"
     }
 
     /**
@@ -714,7 +736,7 @@ sealed interface CostReductionSource {
      * The general variable-amount shape, and deliberately the same vocabulary
      * [ReduceActivatedAbilityCost.amount] already takes on the activated-ability rail, so both cost
      * rails read a number out of game state exactly one way:
-     *  - `Dynamic(DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power))`
+     *  - `Dynamic(DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power))`
      *    — The Scarlet Witch ("Instant and sorcery spells you cast with mana value 4 or greater cost
      *    {X} less to cast, where X is The Scarlet Witch's power"). This *self-referential* read is
      *    what the group aggregates above cannot express: two sources each discount by **their own**
@@ -725,7 +747,7 @@ sealed interface CostReductionSource {
      *    `Dynamic(DynamicAmount.LifeTotal(Player.You))` — "your life total". Under a property-only
      *    shape each of those would need its own member here.
      *
-     * `EntityReference.Source` resolves to the permanent the static lives on. The amount goes
+     * `EffectTarget.Self` resolves to the permanent the static lives on. The amount goes
      * through the engine's ordinary `DynamicAmountEvaluator`, so the whole vocabulary behaves as it
      * does everywhere else: `Power` / `Toughness` from projected state (CR 613 — counters, Auras,
      * and anthems on the source count), `BasePower` / `BaseToughness` / `ManaValue` from the printed
@@ -739,12 +761,15 @@ sealed interface CostReductionSource {
      * the spell. Prefer [Fixed] for a literal amount — `Dynamic(DynamicAmount.Fixed(n))` is the same
      * reduction spelled the long way.
      *
-     * Only meaningful for a battlefield-sourced target ([SpellCostTarget.YouCast],
-     * [SpellCostTarget.AnyCaster], the from-zone variants). Under [SpellCostTarget.SelfCast] there
-     * is no source permanent — the card is the spell being cast — so a source-relative amount
-     * contributes 0.
+     * Under [SpellCostTarget.SelfCast] there is no source permanent — the card is the spell being
+     * cast — so "you" is the caster and a source-relative amount (`EffectTarget.Self`'s power)
+     * contributes 0. Player-scoped amounts work: Deem Inferior's "costs {1} less for each card
+     * you've drawn this turn" is `Dynamic(DynamicAmounts.cardsDrawnThisTurn())`, Bloodsoaked
+     * Insight's "for each 1 life your opponents have lost this turn" is
+     * `Dynamic(DynamicAmounts.lifeLostThisTurn(Player.EachOpponent))`.
      *
-     * @property amount The reduction, evaluated at cast time against the source permanent
+     * @property amount The reduction, evaluated at cast time against the source permanent (or,
+     *   for a self-cast reduction, the caster)
      */
     @SerialName("Dynamic")
     @Serializable
@@ -925,7 +950,7 @@ sealed interface CostReductionSource {
      *
      * The one [CostReductionSource] whose amount is a function of the spell rather than of the
      * board: it intersects the spell's card types (CR 205.2a) with the union of the card types in
-     * the source's linked-exile pile ([com.wingedsheep.sdk.scripting.values.EntityReference.LinkedExiledCard]'s
+     * the source's linked-exile pile ([com.wingedsheep.sdk.scripting.targets.EffectTarget.LinkedExiledCard]'s
      * pile, written by a `linkToSource = true` exile) and counts the intersection.
      *
      * Distinct types, both sides. Per the Cemetery Prowler ruling, two exiled *creature* cards
@@ -1068,7 +1093,7 @@ sealed interface UnlockCostTarget {
  *    artifact this Aura is attached to.
  *  - A "your creatures' activated abilities cost {X} less, where X is this creature's power" lord →
  *    `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Creature.youControl()),
- *    amount = DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power))`.
+ *    amount = DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power))`.
  *
  * Only the **generic** portion of the ability's mana cost is reduced; colored/hybrid/Phyrexian pips
  * are untouched (CR 118.7). [manaFloor] is the minimum *total* mana the cost may be reduced to: with
@@ -1084,6 +1109,16 @@ sealed interface UnlockCostTarget {
  * (CR 702.193) — Hulk, Gamma Goliath's "Power-up abilities of other creatures you control cost {3}
  * less to activate."
  *
+ * [onlyIfTargetIsSource] narrows it to activations that **target the static's own source** —
+ * Bladegraft Aspirant's "Activated abilities of Equipment you control that target this creature
+ * cost {1} less to activate." →
+ * `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()), DynamicAmounts.fixed(1), onlyIfTargetIsSource = true)`.
+ * Targets are chosen before the total cost is determined (CR 601.2c before 601.2f, via CR 602.2b),
+ * so at payment the reduction is exact; at enumeration (targets not yet chosen) it is offered
+ * optimistically for any targeted ability while the source is a creature. The activated-ability
+ * sibling of [ReduceEquipCost.onlyIfTargetIsSource], which covers *equip* abilities whatever their
+ * source.
+ *
  * @property filter Which permanents' activated abilities are cheaper (matched via projected state;
  *   use [GroupFilter.attachedCreature] for an Aura's enchanted permanent, [GroupFilter.source] for
  *   "this permanent's abilities", or a battlefield filter for a group).
@@ -1091,6 +1126,7 @@ sealed interface UnlockCostTarget {
  * @property manaFloor Minimum total mana the cost may be reduced to (default 0).
  * @property exhaustOnly When true, only exhaust abilities (`ActivatedAbility.isExhaust`) are reduced.
  * @property powerUpOnly When true, only power-up abilities (`ActivatedAbility.isPowerUp`) are reduced.
+ * @property onlyIfTargetIsSource When true, only activations that target this static's source are reduced.
  */
 @SerialName("ReduceActivatedAbilityCost")
 @Serializable
@@ -1099,7 +1135,8 @@ data class ReduceActivatedAbilityCost(
     val amount: DynamicAmount,
     val manaFloor: Int = 0,
     val exhaustOnly: Boolean = false,
-    val powerUpOnly: Boolean = false
+    val powerUpOnly: Boolean = false,
+    val onlyIfTargetIsSource: Boolean = false
 ) : StaticAbility {
     override val description: String = buildString {
         val abilities = when {
@@ -1107,10 +1144,16 @@ data class ReduceActivatedAbilityCost(
             powerUpOnly -> "power-up abilities"
             else -> "activated abilities"
         }
-        append(filter.description.replaceFirstChar { it.uppercase() })
+        if (onlyIfTargetIsSource) {
+            append(abilities.replaceFirstChar { it.uppercase() })
+            append(" of ${filter.description} that target this permanent")
+        } else {
+            append(filter.description.replaceFirstChar { it.uppercase() })
+            append("'s $abilities")
+        }
         when (amount) {
-            is DynamicAmount.Fixed -> append("'s $abilities cost {${amount.amount}} less to activate")
-            else -> append("'s $abilities cost {X} less to activate, where X is ${amount.description}")
+            is DynamicAmount.Fixed -> append(" cost {${amount.amount}} less to activate")
+            else -> append(" cost {X} less to activate, where X is ${amount.description}")
         }
         if (manaFloor > 0) {
             append(". This effect can't reduce the mana in that cost to less than ")

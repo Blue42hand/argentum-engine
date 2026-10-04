@@ -31,14 +31,14 @@ import kotlin.reflect.KClass
  * 4. Present a selection decision to the controller
  * 5. Push ChangeSpellTargetContinuation (reused)
  */
-class ChangeTargetExecutor : EffectExecutor<ChangeTargetEffect> {
+class ChangeTargetExecutor(
+    private val predicateEvaluator: PredicateEvaluator,
+    private val targetFinder: TargetFinder
+) : EffectExecutor<ChangeTargetEffect> {
 
     override val effectType: KClass<ChangeTargetEffect> = ChangeTargetEffect::class
 
     private val decisionHandler = DecisionHandler()
-    private val predicateEvaluator = PredicateEvaluator()
-    private val targetFinder = TargetFinder()
-
     override fun execute(
         state: GameState,
         effect: ChangeTargetEffect,
@@ -73,8 +73,19 @@ class ChangeTargetExecutor : EffectExecutor<ChangeTargetEffect> {
             return EffectResult.success(state)
         }
 
-        // 3. Find all legal new targets based on target requirements
         val spellController = stackEntity.get<ControllerComponent>()?.playerId ?: context.controllerId
+
+        // "…to this creature" (Hydroelectric Specimen): no choice. CR 115.7a — the target changes
+        // only to another legal target, judged by the spell's own requirement from its controller's
+        // side; otherwise it stays as it was.
+        effect.newTarget?.let { fixed ->
+            return redirectToFixedTarget(
+                state, context, fixed, currentTarget, targetRequirements, spellController,
+                targetSpell.spellEntityId, effect.newTargetMustBePlayer
+            )
+        }
+
+        // 3. Find all legal new targets based on target requirements
         var legalNewTargets = findLegalNewTargets(
             state, currentTarget, targetRequirements, spellController, targetSpell.spellEntityId
         )
@@ -117,6 +128,34 @@ class ChangeTargetExecutor : EffectExecutor<ChangeTargetEffect> {
         )
     }
 
+    private fun redirectToFixedTarget(
+        state: GameState,
+        context: EffectContext,
+        fixed: EffectTarget,
+        currentTarget: ChosenTarget,
+        targetRequirements: List<TargetRequirement>,
+        spellController: EntityId,
+        spellEntityId: EntityId,
+        mustBePlayer: Boolean
+    ): EffectResult {
+        val newTargetId = context.resolveTarget(fixed, state) ?: return EffectResult.success(state)
+        if (newTargetId == getTargetEntityId(currentTarget)) return EffectResult.success(state)
+        if (mustBePlayer && newTargetId !in state.turnOrder) return EffectResult.success(state)
+        val requirement = targetRequirements.firstOrNull() ?: return EffectResult.success(state)
+        val legal = targetFinder.findLegalTargets(state, requirement, spellController, spellEntityId)
+        if (newTargetId !in legal) return EffectResult.success(state)
+
+        val newTarget = if (newTargetId in state.turnOrder) {
+            ChosenTarget.Player(newTargetId)
+        } else {
+            ChosenTarget.Permanent(newTargetId)
+        }
+        val updated = state.updateEntity(spellEntityId) { container ->
+            container.with(TargetsComponent.capture(state, listOf(newTarget), targetRequirements))
+        }
+        return EffectResult.success(updated)
+    }
+
     /**
      * Find all legal new targets for the spell/ability, excluding the current target.
      * Uses the spell's target requirements to determine what types of entities are valid.
@@ -157,7 +196,9 @@ class ChangeTargetExecutor : EffectExecutor<ChangeTargetEffect> {
                         state, projected, entityId, requirement.permanentFilter.baseFilter, predContext
                     )
                 }
-                val players = state.turnOrder.filter { state.hasEntity(it) }
+                val players = state.turnOrder.filter {
+                    state.hasEntity(it) && (!requirement.opponentsOnly || state.isOpponentOf(it, controllerId))
+                }
                 (permanents + players).filter { it != currentTargetId }
             }
 

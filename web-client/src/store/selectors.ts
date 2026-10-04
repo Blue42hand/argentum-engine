@@ -20,6 +20,7 @@ import {
 } from './cardGrouping'
 import { teamLabel } from './teamLabel'
 import { castOfferFace } from '@/utils/castFace'
+import { isBattle, tableSideOf } from '@/utils/combatTargets'
 
 /**
  * Select the game state (works for both normal play and spectating).
@@ -170,6 +171,19 @@ export function useCard(cardId: EntityId | null): ClientCard | null {
     if (!gameState || !cardId) return null
     return gameState.cards[cardId] ?? null
   }, [gameState, cardId])
+}
+
+/**
+ * A library top to bottom: the card at each position the viewer knows, `null` for a card back.
+ * The server names only the cards the viewer may identify and says where each one sits.
+ */
+export function librarySlots(zone: ClientZone | null | undefined): readonly (EntityId | null)[] {
+  if (!zone) return []
+  const slots: (EntityId | null)[] = new Array<EntityId | null>(zone.size).fill(null)
+  zone.cardIds.forEach((id, index) => {
+    slots[zone.positions?.[index] ?? index] = id
+  })
+  return slots
 }
 
 /**
@@ -372,7 +386,8 @@ export function useIsSharedLifeTeamGame(): boolean {
 /**
  * Multiplayer: how far off the viewer's next turn is, counted in living seats around the turn
  * order (`players` is the server's turn order) — "You're next" / "You in 2". Undefined on the
- * viewer's own turn and when either seat is unknown or out. Callers skip it for shared-turn team
+ * viewer's own turn and when either seat is unknown or the viewer is out. The active seat may be
+ * out (CR 800.4j). Callers skip it for shared-turn team
  * games (CR 805.4), where a per-seat count would mislead.
  */
 export function turnQueueHintFor(
@@ -381,12 +396,20 @@ export function turnQueueHintFor(
   viewerId: EntityId | null | undefined,
 ): string | undefined {
   if (!activePlayerId || !viewerId) return undefined
-  const living = players.filter((p) => !p.hasLost)
-  const from = living.findIndex((p) => p.playerId === activePlayerId)
-  const to = living.findIndex((p) => p.playerId === viewerId)
-  if (from < 0 || to < 0) return undefined
-  const distance = (to - from + living.length) % living.length
-  if (distance === 0) return undefined
+  const seat = players.findIndex((p) => p.playerId === activePlayerId)
+  const to = players.findIndex((p) => p.playerId === viewerId)
+  if (seat < 0 || to < 0 || players[to]!.hasLost) return undefined
+  // Walk the turn order from the active seat, counting living seats. The active seat itself may
+  // already be out — CR 800.4j: a player who leaves mid-turn leaves the turn running — and the
+  // walk still counts from it, so the seat after them reads "You're next".
+  let distance = 0
+  for (let i = 1; i <= players.length; i++) {
+    const p = players[(seat + i) % players.length]!
+    if (p.hasLost) continue
+    distance++
+    if (p.playerId === viewerId) break
+  }
+  if (players[seat]!.playerId === viewerId) return undefined
   return distance === 1 ? "You're next" : `You in ${distance}`
 }
 
@@ -779,14 +802,18 @@ export function useBattlefieldCards(
     // dropping it (it is only ever rendered nested under a host card otherwise).
     const cardIdSet = new Set(cards.map((c) => c.id))
     const isNotAttached = (c: ClientCard) => !c.attachedTo || !cardIdSet.has(c.attachedTo)
-    const playerCards = cards.filter((c) => c.controllerId === playerId)
+    // Sides go by `tableSideOf`, not raw controller: a battle sits in front of its protector, so
+    // a Siege you cast lands across the table where your attacks go and your opponent blocks.
+    const playerCards = cards.filter((c) => tableSideOf(c) === playerId)
     const opponentCards = opponentId
-      ? cards.filter((c) => c.controllerId === opponentId)
-      : cards.filter((c) => c.controllerId !== playerId)
+      ? cards.filter((c) => tableSideOf(c) === opponentId)
+      : cards.filter((c) => tableSideOf(c) !== playerId)
 
     const isLand = (c: ClientCard) => c.cardTypes.includes('LAND')
     const isCreature = (c: ClientCard) => c.cardTypes.includes('CREATURE')
-    const isPlaneswalker = (c: ClientCard) => c.cardTypes.includes('PLANESWALKER')
+    // Planeswalkers and battles share the front-row slot beside the creatures: both are the
+    // permanents creatures attack, so they read as one group during combat.
+    const isPlaneswalker = (c: ClientCard) => c.cardTypes.includes('PLANESWALKER') || isBattle(c)
 
     // Animated lands (both creature + land) should appear in the creatures row
     const isNonCreatureLand = (c: ClientCard) => isLand(c) && !isCreature(c)
@@ -831,18 +858,28 @@ export function useBattlefieldCards(
   }, [gameState, playerId, opponentId])
 }
 
+const EMPTY_CARDS: readonly ClientCard[] = Object.freeze([]) as readonly ClientCard[]
+
 /**
  * Hook to get stack items in order.
  */
 export function useStackCards(): readonly ClientCard[] {
   const gameState = useGameStore(selectGameState)
+  const previousRef = useRef<readonly ClientCard[]>(EMPTY_CARDS)
   return useMemo(() => {
-    if (!gameState) return []
-    const stack = gameState.zones.find((z) => z.zoneId.zoneType === ZoneType.STACK)
-    if (!stack || !stack.cardIds) return []
-    return stack.cardIds
-      .map((id) => gameState.cards[id])
-      .filter((card): card is ClientCard => card !== null && card !== undefined)
+    const stack = gameState?.zones.find((z) => z.zoneId.zoneType === ZoneType.STACK)
+    const next = !gameState || !stack?.cardIds
+      ? EMPTY_CARDS
+      : stack.cardIds
+          .map((id) => gameState.cards[id])
+          .filter((card): card is ClientCard => card !== null && card !== undefined)
+    // Card objects survive a delta untouched, so an element-wise identity check is enough to keep
+    // the array stable while the stack itself didn't change — downstream (split-out target ids,
+    // every battlefield grouping) is keyed on this array's identity.
+    const prev = previousRef.current
+    if (prev.length === next.length && prev.every((card, i) => card === next[i])) return prev
+    previousRef.current = next
+    return next
   }, [gameState])
 }
 
@@ -973,15 +1010,29 @@ export function useGhostCards(playerId: EntityId | null): readonly ClientCard[] 
       }
     }
 
+    // 1b. Spells castable out of *another* player's graveyard (The Great Work's "cast instant and
+    // sorcery spells from any graveyard", Jetsam) — the server only offers these when a permission
+    // reaches that graveyard, so any such CastSpell action marks a ghost card.
+    for (const zone of gameState.zones) {
+      if (zone.zoneId.zoneType !== ZoneType.GRAVEYARD || zoneIdEquals(zone.zoneId, gyZoneId)) continue
+      if (!zone.cardIds || zone.cardIds.length === 0) continue
+      const otherGyCardIds = new Set(zone.cardIds)
+      for (const actionInfo of legalActions) {
+        const action = actionInfo.action
+        if (action.type !== 'CastSpell' || actionInfo.sourceZone !== 'GRAVEYARD') continue
+        if (!otherGyCardIds.has(action.cardId)) continue
+        if (actionInfo.isAffordable === false) continue
+        ghostCardIds.add(action.cardId)
+      }
+    }
+
     // 2. Top-of-library card revealed via Future Sight-like effects
     // Always show the revealed top card as a ghost card, even when it's not playable
     const libZoneId = library(playerId)
     const libZone = gameState.zones.find((z) => zoneIdEquals(z.zoneId, libZoneId))
-    if (libZone && libZone.cardIds && libZone.cardIds.length > 0) {
-      const topCardId = libZone.cardIds[0]!
-      if (gameState.cards[topCardId]) {
-        ghostCardIds.add(topCardId)
-      }
+    const topCardId = librarySlots(libZone)[0]
+    if (topCardId && gameState.cards[topCardId]) {
+      ghostCardIds.add(topCardId)
     }
 
     // 3. Exile cards playable via Mind's Desire-like effects
@@ -1019,10 +1070,7 @@ export function useRevealedLibraryTopCard(playerId: EntityId | null): ClientCard
 
     const libZoneId = library(playerId)
     const libZone = gameState.zones.find((z) => zoneIdEquals(z.zoneId, libZoneId))
-    if (!libZone || !libZone.cardIds || libZone.cardIds.length === 0) return null
-
-    // The first visible card in the library zone is the revealed top card
-    const topCardId = libZone.cardIds[0]!
-    return gameState.cards[topCardId] ?? null
+    const topCardId = librarySlots(libZone)[0]
+    return topCardId ? (gameState.cards[topCardId] ?? null) : null
   }, [gameState, playerId])
 }

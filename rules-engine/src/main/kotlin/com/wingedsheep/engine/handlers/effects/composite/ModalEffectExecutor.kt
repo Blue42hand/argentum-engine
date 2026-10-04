@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
@@ -48,12 +49,12 @@ import kotlin.reflect.KClass
  * @param effectExecutor Function to execute a sub-effect (provided by registry)
  */
 class ModalEffectExecutor(
-    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    private val amountEvaluator: DynamicAmountEvaluator,
+    private val targetValidator: TargetValidator
 ) : EffectExecutor<ModalEffect> {
 
     override val effectType: KClass<ModalEffect> = ModalEffect::class
-
-    private val targetValidator = TargetValidator()
 
     override fun execute(
         state: GameState,
@@ -92,7 +93,7 @@ class ModalEffectExecutor(
         // three modes can absorb any number of picks and capping at `modes.size` would silently
         // shrink X. `forCast` makes the same distinction, so the two paths now agree on both bounds.
         val (effectiveChooseCount, effectiveMinChooseCount) = if (effect.dynamicChooseCount != null) {
-            val evaluator = com.wingedsheep.engine.handlers.DynamicAmountEvaluator()
+            val evaluator = amountEvaluator
             val raw = evaluator.evaluate(state, effect.dynamicChooseCount!!, context)
             val capped = if (effect.allowRepeat) {
                 raw.coerceAtLeast(0)
@@ -189,6 +190,7 @@ class ModalEffectExecutor(
             sourceName = sourceName,
             xValue = context.xValue,
             triggeringEntityId = context.triggeringEntityId,
+            triggerContext = context.triggerContext,
             // The resolution so far, carried into each mode. A mode's effect can read what an
             // earlier step of the same resolution stored — Cemetery Desecrator's two modes both
             // spell X as `StoredCardManaValue("exiledCard")`, the collection its reflexive
@@ -213,7 +215,8 @@ class ModalEffectExecutor(
             modeTargetsOrdered: List<List<com.wingedsheep.engine.state.components.stack.ChosenTarget>>,
             modeTargetRequirements: Map<Int, List<com.wingedsheep.sdk.scripting.targets.TargetRequirement>>
         ): List<PreTargetedEffectEntry> {
-            return chosenModes.mapIndexed { ordinal, modeIndex ->
+            // Execute in printed mode order while retaining each pick's own target slice.
+            return chosenModes.withIndex().sortedBy { it.value }.map { (ordinal, modeIndex) ->
                 val mode = effect.modes.getOrNull(modeIndex)
                 val targets = modeTargetsOrdered.getOrNull(ordinal) ?: emptyList()
                 val reqs = modeTargetRequirements[modeIndex]
@@ -245,6 +248,7 @@ internal data class PreTargetedEffectContext(
     val sourceName: String?,
     val xValue: Int?,
     val triggeringEntityId: com.wingedsheep.sdk.model.EntityId?,
+    val triggerContext: com.wingedsheep.engine.event.TriggerContext? = null,
     /**
      * Pipeline state the enclosing resolution had already built — stored collections, numbers,
      * chosen values — which each mode's own [EffectContext] inherits. Only the per-mode
@@ -330,7 +334,9 @@ internal fun processPreTargetedEffectQueue(
             namedTargets = ctx.pipeline.namedTargets +
                 EffectContext.buildNamedTargets(head.targetRequirements, head.targets)
         ),
-        triggeringEntityId = ctx.triggeringEntityId
+        triggeringEntityId = ctx.triggeringEntityId,
+        triggeringPlayerId = ctx.triggerContext?.triggeringPlayerId,
+        triggerContext = ctx.triggerContext
     )
 
     // Pre-push the tail continuation so that if the effect pauses, our frame sits
@@ -345,6 +351,7 @@ internal fun processPreTargetedEffectQueue(
                 sourceName = ctx.sourceName,
                 xValue = ctx.xValue,
                 triggeringEntityId = ctx.triggeringEntityId,
+                triggerContext = ctx.triggerContext,
                 pipeline = ctx.pipeline,
                 remainingEntries = tail
             )
@@ -354,11 +361,11 @@ internal fun processPreTargetedEffectQueue(
     val result = effectExecutor(stateForExecution, head.effect, effectContext)
     val nextEvents = accumulatedEvents + result.events
 
-    if (result.isPaused) {
+    if (result.outcome is Outcome.Paused) {
         return EffectResult.propagatePause(result.state, nextEvents)
     }
-    if (result.error != null) {
-        return EffectResult(state = result.state, events = nextEvents, error = result.error)
+    if (result.outcome is Outcome.Rejected) {
+        return EffectResult(state = result.state, events = nextEvents, outcome = result.outcome)
     }
 
     // Success — pop the pre-pushed tail continuation and drain the rest synchronously.
