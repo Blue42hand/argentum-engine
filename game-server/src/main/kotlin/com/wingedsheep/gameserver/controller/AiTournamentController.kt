@@ -1,7 +1,9 @@
 package com.wingedsheep.gameserver.controller
 
 import com.wingedsheep.gameserver.handler.LobbyHandler
+import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.gameserver.lobby.LobbyState
+import com.wingedsheep.sdk.core.GameRules
 import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
 import com.wingedsheep.engine.limited.BoosterGenerator
@@ -49,7 +51,11 @@ class AiTournamentController(
          * When provided, the lobby is created in PREMADE_DECKS format and AI deckbuilding is
          * skipped entirely — boosters are not generated and `setCodes` is ignored.
          */
-        val decks: List<Map<String, Int>>? = null
+        val decks: List<Map<String, Int>>? = null,
+        /** Existing native per-seat controller selection for fixed-deck games. */
+        val controllerSpecs: List<AiControllerSpec>? = null,
+        /** Rules for the fixed-deck game; defaults to the historical Standard path. */
+        val rules: GameRules? = null,
     )
 
     data class AiTournamentResponse(
@@ -66,6 +72,13 @@ class AiTournamentController(
         val playerCount = decks?.size
             ?: request?.playerCount?.coerceIn(2, 8) ?: 2
 
+        if (decks == null && (request?.controllerSpecs != null || request?.rules != null)) {
+            return ResponseEntity.badRequest().body(AiTournamentResponse(
+                lobbyId = "", spectateUrl = "",
+                message = "Native controller specs and rules require fixed decks"
+            ))
+        }
+
         return try {
             val lobbyId = if (decks != null) {
                 if (decks.size < 2) {
@@ -78,6 +91,8 @@ class AiTournamentController(
                     decks,
                     request.models,
                     request.gamesPerMatch?.coerceIn(1, 9),
+                    request.controllerSpecs,
+                    request.rules ?: GameRules.STANDARD,
                 )
             } else {
                 // Auto-pick a random *fully implemented* set (partial sets aren't reliable enough
@@ -137,7 +152,18 @@ class AiTournamentController(
         val round: Int,
         val totalRounds: Int,
         val complete: Boolean,
-        val liveGames: List<AiLiveGame>
+        val liveGames: List<AiLiveGame>,
+        /** Played terminal matches, separate from byes and synthetic AI simulations. */
+        val completedGames: List<AiCompletedGame>,
+    )
+
+    data class AiCompletedGame(
+        val gameSessionId: String,
+        val winnerId: String?,
+        val isDraw: Boolean,
+        val isSimulated: Boolean,
+        val nativeGameOver: Boolean,
+        val finalTurnNumber: Int?,
     )
 
     /**
@@ -168,6 +194,22 @@ class AiTournamentController(
             )
         }.sortedBy { it.gameSessionId }
 
+        val completedGames = tournament?.getRoundsForPersistence().orEmpty()
+            .flatMap { it.matches }
+            .filter { it.isComplete && it.gameSessionId != null }
+            .map { match ->
+                val gameId = checkNotNull(match.gameSessionId)
+                val session = gameRepository.findById(gameId)
+                AiCompletedGame(
+                    gameSessionId = gameId,
+                    winnerId = match.winnerId?.value,
+                    isDraw = match.isDraw,
+                    isSimulated = match.isSimulated,
+                    nativeGameOver = session?.isGameOver() == true,
+                    finalTurnNumber = session?.getStateSnapshot()?.turnNumber,
+                )
+            }.sortedBy { it.gameSessionId }
+
         return ResponseEntity.ok(AiTournamentStatus(
             lobbyId = lobby.lobbyId,
             state = lobby.state.name,
@@ -176,7 +218,8 @@ class AiTournamentController(
             round = tournament?.currentRound?.roundNumber ?: 0,
             totalRounds = tournament?.totalRounds ?: 0,
             complete = lobby.state == LobbyState.TOURNAMENT_COMPLETE,
-            liveGames = liveGames
+            liveGames = liveGames,
+            completedGames = completedGames,
         ))
     }
 
