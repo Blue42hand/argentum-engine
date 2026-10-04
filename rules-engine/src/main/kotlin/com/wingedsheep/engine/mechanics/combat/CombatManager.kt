@@ -69,6 +69,9 @@ class CombatManager(
         blockers: Map<EntityId, List<EntityId>>
     ): ExecutionResult = blockPhase.declareBlockers(state, blockingPlayer, blockers)
 
+    fun getValidBlockTargets(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): List<EntityId> =
+        blockPhase.getValidBlockTargets(state, blockerId, blockingPlayer)
+
     fun canCreatureBlockAnyAttacker(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): Boolean =
         blockPhase.canCreatureBlockAnyAttacker(state, blockerId, blockingPlayer)
 

@@ -91,7 +91,11 @@ class CombatEnumerator : ActionEnumerator {
             val blockersAlreadyDeclared = state.getEntity(playerId)
                 ?.get<BlockersDeclaredThisCombatComponent>() != null
             if (!blockersAlreadyDeclared) {
-                val validBlockers = context.turnManager.getValidBlockers(state, playerId)
+                val validBlockTargets = context.turnManager.getValidBlockers(state, playerId)
+                    .associateWith { blockerId ->
+                        context.turnManager.getValidBlockTargets(state, blockerId, playerId)
+                    }.filterValues { it.isNotEmpty() }
+                val validBlockers = validBlockTargets.keys.toList()
                 val projected = context.projected
                 val blockerMaxBlockCounts = mutableMapOf<com.wingedsheep.sdk.model.EntityId, Int>()
                 for (blockerId in validBlockers) {
@@ -121,6 +125,7 @@ class CombatEnumerator : ActionEnumerator {
                     description = "Declare blockers",
                     action = DeclareBlockers(playerId, emptyMap()),
                     validBlockers = validBlockers,
+                    validBlockTargets = validBlockTargets,
                     blockerMaxBlockCounts = blockerMaxBlockCounts.ifEmpty { null },
                     mandatoryBlockerAssignments = mandatoryAssignments.ifEmpty { null }
                 ))

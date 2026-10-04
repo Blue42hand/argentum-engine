@@ -157,6 +157,24 @@ describe('browser live action origins', () => {
     })
   })
 
+  it('ignores a blocker target absent from the engine-offered pair map', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      blockerAssignments: {}, validCreatures: [MANA], mandatoryAttackers: [],
+      attackingCreatures: [SPELL, TARGET], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET] }, blockerMaxBlockCounts: {}, bands: [],
+    }
+    useGameStore.getState().startCombat(combat)
+    send.mockClear()
+    useGameStore.getState().assignBlocker(MANA, SPELL)
+    expect(send).not.toHaveBeenCalled()
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({})
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [MANA]: [TARGET] })
+    expect(send).toHaveBeenCalledOnce()
+  })
+
   it('rejects a held decision callback after undo and after the next question', () => {
     const decision: PendingDecision = {
       type: 'YesNoDecision', id: 'original:question-7', playerId: entityId('controlled-player'),

@@ -155,18 +155,23 @@ export default function App() {
           (a) => a.actionType === 'DeclareBlockers' || a.action.type === 'DeclareBlockers'
         )
         const updatedValidCreatures = blockersAction?.validBlockers ?? []
-        if (JSON.stringify(updatedValidCreatures) !== JSON.stringify([...combatState.validCreatures])) {
+        const updatedValidBlockTargets = blockersAction?.validBlockTargets
+        if (JSON.stringify(updatedValidCreatures) !== JSON.stringify([...combatState.validCreatures]) ||
+            JSON.stringify(updatedValidBlockTargets) !== JSON.stringify(combatState.validBlockTargets)) {
           // Clean stale blocker assignments for creatures no longer in valid list
           const validSet = new Set(updatedValidCreatures)
           const cleanedAssignments: Record<EntityId, EntityId[]> = {}
           for (const [blockerId, attackerIds] of Object.entries(combatState.blockerAssignments)) {
             if (validSet.has(blockerId as EntityId)) {
-              cleanedAssignments[blockerId as EntityId] = attackerIds
+              cleanedAssignments[blockerId as EntityId] = attackerIds.filter((attackerId) =>
+                !updatedValidBlockTargets || updatedValidBlockTargets[blockerId as EntityId]?.includes(attackerId)
+              )
             }
           }
           startCombat({
             ...combatState,
             validCreatures: [...updatedValidCreatures],
+            validBlockTargets: updatedValidBlockTargets,
             blockerAssignments: cleanedAssignments,
           })
         }
@@ -292,6 +297,7 @@ export default function App() {
         attackingCreatures,
         mustBeBlockedAttackers,
         blockerMaxBlockCounts,
+        validBlockTargets: blockersAction?.validBlockTargets,
         bands: [],
       })
     }

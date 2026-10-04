@@ -246,6 +246,14 @@ internal class BlockPhaseManager(
     /**
      * Check if a creature can legally block at least one of the current attackers.
      */
+    /** Pairwise legal block targets, using the same validation as a declared single block.
+     * Group restrictions such as menace still apply to the complete declaration. */
+    fun getValidBlockTargets(
+        state: GameState, blockerId: EntityId, blockingPlayer: EntityId
+    ): List<EntityId> = state.findEntitiesWith<AttackingComponent>()
+        .map { it.first }
+        .filter { validateBlocker(state, blockingPlayer, blockerId, listOf(it)) == null }
+
     fun canCreatureBlockAnyAttacker(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): Boolean {
         val blockerContainer = state.getEntity(blockerId) ?: return false
         val blockerCard = blockerContainer.get<CardComponent>() ?: return false

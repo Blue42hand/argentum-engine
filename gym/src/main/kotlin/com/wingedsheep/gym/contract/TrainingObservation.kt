@@ -334,6 +334,8 @@ data class LegalActionView(
      * Map each to the attackers it blocks in `ActionParams.blockers`.
      */
     val validBlockers: List<EntityId> = emptyList(),
+    /** Pairwise legal attacker IDs by blocker; complete declarations still need engine validation. */
+    val validBlockTargets: Map<EntityId, List<EntityId>> = emptyMap(),
     /**
      * How many attackers each blocker may block at once — absent means the default one (CR 509.1a).
      * A declaration exceeding a blocker's limit is rejected, so a caller building
