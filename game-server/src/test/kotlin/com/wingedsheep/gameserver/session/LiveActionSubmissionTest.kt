@@ -101,6 +101,7 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             val beforeActions = session.getRecordedActions()
             val beforeLogs = session.getLogsForPersistence()
             val beforeIds = session.getLastMessageIdsForPersistence()
+            val beforeCheckpoints = session.getReplayCheckpoints()
             val insufficient = SubmitDecision(caster,
                 ManaSourcesSelectedResponse(decision.id, selectedSources = listOf(mountain)))
             val rejected = session.executeAiAction(caster, insufficient, origin)
@@ -111,6 +112,7 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             session.getRecordedActions() shouldBe beforeActions
             session.getLogsForPersistence() shouldBe beforeLogs
             session.getLastMessageIdsForPersistence() shouldBe beforeIds
+            session.getReplayCheckpoints() shouldBe beforeCheckpoints
             val snapshot = session.aiPaymentRetrySnapshot(caster, origin, decision.id).shouldNotBeNull()
             val first = ActivateAbility(caster, firstTreasure,
                 PredefinedTokens.Treasure.activatedAbilities.single().id, manaColorChoice = Color.RED)
