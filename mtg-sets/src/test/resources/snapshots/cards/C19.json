@@ -1,3 +1,64 @@
+// Empowered Autogenerator
+{
+    "name": "Empowered Autogenerator",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters tapped.\n{T}: Put a charge counter on this artifact. Add X mana of any one color, where X is the number of charge counters on this artifact.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "charge",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "AddManaOfChoice",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": "Source",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": {
+                                        "type": "Named",
+                                        "name": "charge"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Put a charge counter on this artifact. Add X mana of any one color, where X is the number of charge counters on this artifact."
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "RARE",
+        "artist": "Piotr Dura",
+        "flavorText": "Magic, unlike physics, has no unbreakable laws.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/c/2c9b8d53-97c9-4e3d-a8c6-6abd78db6390.jpg?1783932793",
+        "rulings": [
+            {
+                "date": "2019-08-23",
+                "text": "Empowered Autogenerator's activated ability is a mana ability. It doesn't use the stack and can't be responded to."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Idol of Oblivion
 {
     "name": "Idol of Oblivion",
