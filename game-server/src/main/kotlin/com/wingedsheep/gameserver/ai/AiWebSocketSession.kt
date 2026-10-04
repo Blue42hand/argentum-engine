@@ -35,6 +35,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 enum class PaymentCorrectionOutcome { ACCEPTED, RETRY_QUEUED, OBSOLETE, FATAL }
 
+internal fun paymentCorrectionFatalLine(seatId: String, gameId: String, reason: String): String =
+    "External AI action failed for seat $seatId in game $gameId: " +
+        "payment correction $reason — refusing server-side strategic fallback"
+
 private val logger = LoggerFactory.getLogger(AiWebSocketSession::class.java)
 
 /**
@@ -113,6 +117,7 @@ class AiWebSocketSession(
         val snapshot: GameSession.AiPaymentRetrySnapshot,
         val error: String,
         val isCurrent: () -> Boolean,
+        val gameId: String,
     )
     private var pendingPaymentRetry: PaymentRetryRequest? = null
 
@@ -126,6 +131,7 @@ class AiWebSocketSession(
         snapshot: GameSession.AiPaymentRetrySnapshot,
         nativePaymentError: String,
         isCurrent: () -> Boolean,
+        gameId: String,
     ): Boolean {
         if (!open.get() || allowActionsOnlyFallback || !isCurrent()) return false
         val key = snapshot.interactionEpoch to snapshot.pendingDecision.id
@@ -137,7 +143,7 @@ class AiWebSocketSession(
             }
             if (paymentRetryCount >= 2) return false
             if (paymentRetryInFlight) {
-                pendingPaymentRetry = PaymentRetryRequest(snapshot, nativePaymentError, isCurrent)
+                pendingPaymentRetry = PaymentRetryRequest(snapshot, nativePaymentError, isCurrent, gameId)
                 return true
             }
             paymentRetryCount++
@@ -159,15 +165,15 @@ class AiWebSocketSession(
                     getRecentGameLog(),
                     nativePaymentError,
                 ) ?: run {
-                    logger.error("External AI action failed for seat {}: payment controller declined correction",
-                        aiPlayerId.value)
+                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                        "controller declined correction"))
                     return@launch
                 }
                 if (correction is ActionResponse.SubmitDecision &&
                     (correction.playerId != snapshot.pendingDecision.playerId ||
                         correction.response.decisionId != snapshot.pendingDecision.id)) {
-                    logger.error("External AI action failed for seat {}: payment correction addressed another decision",
-                        aiPlayerId.value)
+                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                        "addressed another decision"))
                     return@launch
                 }
                 val gated = if (correction is ActionResponse.SubmitAction && actionGate != null) {
@@ -178,8 +184,8 @@ class AiWebSocketSession(
                     is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
                 }
                 val deliver = onPaymentCorrectionReady ?: run {
-                    logger.error("External AI action failed for seat {}: payment correction callback is unavailable",
-                        aiPlayerId.value)
+                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                        "callback is unavailable"))
                     return@launch
                 }
                 if (!isCurrent()) {
@@ -189,9 +195,9 @@ class AiWebSocketSession(
                 val outcome = deliver(aiPlayerId, action, snapshot.interactionEpoch,
                     snapshot.pendingDecision.id, snapshot.stateRevision)
                 allowQueuedRetry = outcome != PaymentCorrectionOutcome.FATAL
-            } catch (e: Exception) {
-                logger.error("External AI action failed for seat {} during payment correction: {}",
-                    aiPlayerId.value, e.message, e)
+            } catch (_: Exception) {
+                logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
+                    "provider failed"))
             } finally {
                 val pending = synchronized(paymentRetryLock) {
                     paymentRetryInFlight = false
@@ -202,9 +208,10 @@ class AiWebSocketSession(
                     next
                 }
                 if (pending != null && pending.isCurrent() &&
-                    !retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent)) {
-                    logger.error("External AI action failed for seat {}: payment correction limit reached",
-                        aiPlayerId.value)
+                    !retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent,
+                        pending.gameId)) {
+                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, pending.gameId,
+                        "attempt limit reached"))
                 }
             }
         }

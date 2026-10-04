@@ -1349,7 +1349,8 @@ class GamePlayHandler(
                                     handleAiAction(gameSession, id, correction, epoch, questionId, revision)
                                 }
                                 if (aiSession.retryRejectedPayment(snapshot, result.reason,
-                                        { gameSession.isCurrentAiPaymentRetry(snapshot) })) {
+                                        { gameSession.isCurrentAiPaymentRetry(snapshot) },
+                                        gameSession.sessionId)) {
                                     logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
                                         aiPlayerId.value, gameSession.sessionId, result.reason)
                                     return PaymentCorrectionOutcome.RETRY_QUEUED

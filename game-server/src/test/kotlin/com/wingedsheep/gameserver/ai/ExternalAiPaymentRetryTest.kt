@@ -14,6 +14,7 @@ import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.gameserver.session.PlayerSession
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -34,6 +35,18 @@ class ExternalAiPaymentRetryTest : FunSpec({
     val invalid = SubmitDecision(seat,
         ManaSourcesSelectedResponse(decision.id, selectedSources = listOf(arena)))
     val reason = "Selected mana sources cannot pay this spell's cost"
+
+    test("payment correction fatal lines match the Gym runner game-scoped marker") {
+        val runnerMarker = Regex("""External AI action failed for seat \S+ in game (\S+): """ +
+            """(.+?) — refusing server-side strategic fallback""")
+        listOf("controller declined correction", "provider failed", "attempt limit reached",
+            "addressed another decision", "callback is unavailable").forEach { failure ->
+            val line = paymentCorrectionFatalLine("pilot", "game-1", failure)
+            val match = runnerMarker.matchEntire(line).shouldNotBeNull()
+            match.groupValues[1] shouldBe "game-1"
+            match.groupValues[2] shouldBe "payment correction $failure"
+        }
+    }
 
     fun handler(sender: MessageSender) = GamePlayHandler(
         sessionRegistry = mockk(relaxed = true),
