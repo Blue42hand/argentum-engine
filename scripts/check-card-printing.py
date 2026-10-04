@@ -88,6 +88,7 @@ class Printing:
     scryfall_id: str | None
     layout: str = ""
     face_oracle_ids: tuple[str, ...] = ()
+    matched_oracle_id: str | None = None
 
 
 def slugify(name: str) -> str:
@@ -176,6 +177,7 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
                         face["oracle_id"] for face in card.get("card_faces", [])
                         if face.get("oracle_id")
                     ) if card.get("layout") == "reversible_card" else (),
+                    matched_oracle_id=oracle_id,
                 )
             )
         url = data.get("next_page") if data.get("has_more") else None

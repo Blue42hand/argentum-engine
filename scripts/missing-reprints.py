@@ -81,6 +81,15 @@ class Printing:
     rarity: str
     oracle_id: str | None
     scryfall_id: str | None
+    layout: str = ""
+    face_oracle_ids: tuple[str, ...] = ()
+    matched_oracle_id: str | None = None
+
+
+def matches_oracle(p: Printing, oracle_id: str) -> bool:
+    return p.oracle_id == oracle_id or (
+        p.layout == "reversible_card" and oracle_id in p.face_oracle_ids
+    )
 
 
 def slugify(name: str) -> str:
@@ -114,13 +123,30 @@ def load_cached_printings(card_name: str) -> list[Printing] | None:
         return None
     try:
         raw = json.loads(cache_path.read_text(encoding="utf-8"))
-        return [Printing(**p) for p in raw]
+        printings = [Printing(**p) for p in raw]
+        # New cache rows record the exact-name identity. Older rows can be
+        # trusted offline only if every top-level ID points to one Oracle card.
+        tagged = {p.matched_oracle_id for p in printings if p.matched_oracle_id}
+        if tagged:
+            if len(tagged) != 1 or any(not p.matched_oracle_id for p in printings):
+                return None
+            oracle_id = tagged.pop()
+        else:
+            ids = {p.oracle_id for p in printings if p.oracle_id}
+            if len(ids) != 1:
+                return None
+            oracle_id = ids.pop()
+        return printings if all(matches_oracle(p, oracle_id) for p in printings) else None
     except (json.JSONDecodeError, TypeError):
         return None
 
 
 def fetch_printings(card_name: str) -> list[Printing]:
     CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+    named_url = f"{SCRYFALL_BASE}/cards/named?exact={urllib.parse.quote(card_name)}"
+    oracle_id = scryfall_get(named_url).get("oracle_id")
+    if not oracle_id:
+        raise ValueError(f"Scryfall exact-name lookup for '{card_name}' has no Oracle ID")
     q = f'!"{card_name}"'
     url = (
         f"{SCRYFALL_BASE}/cards/search"
@@ -140,9 +166,18 @@ def fetch_printings(card_name: str) -> list[Printing]:
                     rarity=card.get("rarity", ""),
                     oracle_id=card.get("oracle_id"),
                     scryfall_id=card.get("id"),
+                    layout=card.get("layout", ""),
+                    face_oracle_ids=tuple(
+                        face["oracle_id"] for face in card.get("card_faces", [])
+                        if face.get("oracle_id")
+                    ) if card.get("layout") == "reversible_card" else (),
+                    matched_oracle_id=oracle_id,
                 )
             )
         url = data.get("next_page") if data.get("has_more") else None
+    printings = [p for p in printings if matches_oracle(p, oracle_id)]
+    if not printings:
+        raise ValueError(f"Scryfall returned no printings for Oracle ID {oracle_id} ('{card_name}')")
     (CACHE_ROOT / f"{slugify(card_name)}.json").write_text(
         json.dumps([p.__dict__ for p in printings], indent=2), encoding="utf-8"
     )
@@ -207,7 +242,7 @@ def main() -> int:
             try:
                 printings = fetch_printings(name)
                 fetched += 1
-            except urllib.error.HTTPError:
+            except (urllib.error.HTTPError, ValueError):
                 uncovered += 1
                 continue
             if fetched % 25 == 0:
