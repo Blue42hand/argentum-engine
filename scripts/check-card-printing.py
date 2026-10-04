@@ -113,7 +113,24 @@ def scryfall_get(url: str, *, max_retries: int = 5) -> dict:
 
 
 def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
-    """Return all printings of a card from Scryfall, sorted oldest -> newest."""
+    """Return printings of the exact Oracle card, sorted oldest -> newest.
+
+    Scryfall's exact-name search also matches a face on a *different* card. For
+    example, `!"Reanimate"` includes Grave Researcher // Reanimate printings.
+    Resolve the requested name first so neither fresh results nor an older mixed
+    cache can turn those into required reprint rows for the wrong Oracle card.
+    """
+    named_url = f"{SCRYFALL_BASE}/cards/named?exact={urllib.parse.quote(card_name)}"
+    oracle_id = scryfall_get(named_url).get("oracle_id")
+    if not oracle_id:
+        raise ValueError(f"Scryfall exact-name lookup for '{card_name}' has no Oracle ID")
+
+    def same_oracle_card(rows: list[Printing]) -> list[Printing]:
+        matching = [p for p in rows if p.oracle_id == oracle_id]
+        if not matching:
+            raise ValueError(f"Scryfall returned no printings for Oracle ID {oracle_id} ('{card_name}')")
+        return matching
+
     CACHE_ROOT.mkdir(parents=True, exist_ok=True)
     cache_path = CACHE_ROOT / f"{slugify(card_name)}.json"
     if not refresh and cache_path.is_file():
@@ -121,7 +138,7 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
         if age_days < CACHE_TTL_DAYS:
             try:
                 raw = json.loads(cache_path.read_text(encoding="utf-8"))
-                return [Printing(**p) for p in raw]
+                return same_oracle_card([Printing(**p) for p in raw])
             except (json.JSONDecodeError, TypeError):
                 pass  # fall through and re-fetch
 
@@ -148,6 +165,7 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
             )
         url = data.get("next_page") if data.get("has_more") else None
 
+    printings = same_oracle_card(printings)
     cache_path.write_text(
         json.dumps([p.__dict__ for p in printings], indent=2),
         encoding="utf-8",
@@ -227,7 +245,7 @@ def main() -> int:
 
     try:
         printings = fetch_printings(name, refresh=args.refresh)
-    except urllib.error.HTTPError as e:
+    except (urllib.error.HTTPError, ValueError) as e:
         print(f"error: Scryfall lookup failed: {e}", file=sys.stderr)
         return 2
     if not printings:
