@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.handler
 
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.ai.AiWebSocketSession
+import com.wingedsheep.gameserver.ai.PaymentCorrectionOutcome
 import com.wingedsheep.gameserver.deck.SideboardSanitizer
 import com.wingedsheep.ai.engine.SealedDeckGenerator
 import com.wingedsheep.gameserver.protocol.ClientMessage
@@ -1314,7 +1315,7 @@ class GamePlayHandler(
         interactionEpoch: String?,
         expectedPaymentDecisionId: String? = null,
         expectedPaymentStateRevision: Long? = null,
-    ) {
+    ): PaymentCorrectionOutcome {
         try {
             val result = if (expectedPaymentDecisionId == null) {
                 gameSession.executeAiAction(aiPlayerId, action, interactionEpoch)
@@ -1322,16 +1323,18 @@ class GamePlayHandler(
                 gameSession.executeAiPaymentCorrection(
                     aiPlayerId, action, interactionEpoch, expectedPaymentDecisionId,
                     requireNotNull(expectedPaymentStateRevision))
-            } ?: return
+            } ?: return PaymentCorrectionOutcome.OBSOLETE
             when (result) {
                 is GameSession.ActionResult.Success -> {
                     logger.debug("AI action executed successfully")
                     broadcastStateUpdate(gameSession, result.events)
                     if (gameSession.isGameOver()) handleGameOver(gameSession, events = result.events)
+                    return PaymentCorrectionOutcome.ACCEPTED
                 }
                 is GameSession.ActionResult.PausedForDecision -> {
                     logger.debug("AI action paused for decision: ${result.decision}")
                     broadcastStateUpdate(gameSession, result.events)
+                    return PaymentCorrectionOutcome.ACCEPTED
                 }
                 is GameSession.ActionResult.Failure -> {
                     val aiSession = gameSession.getPlayerSession(aiPlayerId)?.webSocketSession as? AiWebSocketSession
@@ -1349,7 +1352,7 @@ class GamePlayHandler(
                                         { gameSession.isCurrentAiPaymentRetry(snapshot) })) {
                                     logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
                                         aiPlayerId.value, gameSession.sessionId, result.reason)
-                                    return
+                                    return PaymentCorrectionOutcome.RETRY_QUEUED
                                 }
                             }
                         }
@@ -1359,7 +1362,7 @@ class GamePlayHandler(
                             gameSession.sessionId,
                             result.reason,
                         )
-                        return
+                        return PaymentCorrectionOutcome.FATAL
                     }
 
                     // The chosen action was rejected (e.g. an illegal block the AI's combat model
@@ -1373,7 +1376,8 @@ class GamePlayHandler(
                     var recovered = false
                     for (fallback in safeFallbackActions(gameSession, aiPlayerId)) {
                         // Undo can occur after the original rejection or between fallback attempts.
-                        val fb = gameSession.executeAiAction(aiPlayerId, fallback, interactionEpoch) ?: return
+                        val fb = gameSession.executeAiAction(aiPlayerId, fallback, interactionEpoch)
+                            ?: return PaymentCorrectionOutcome.OBSOLETE
                         when (fb) {
                             is GameSession.ActionResult.Success -> {
                                 broadcastStateUpdate(gameSession, fb.events)
@@ -1396,7 +1400,8 @@ class GamePlayHandler(
                         // it re-chooses the same rejected action, and nothing was applied for the
                         // stall guard to notice — so the seat gets a bounded number of chances and
                         // is then conceded. See [GameStallGuard.onActionRejected].
-                        val conceded = gameSession.noteAiActionRejected(aiPlayerId, interactionEpoch) ?: return
+                        val conceded = gameSession.noteAiActionRejected(aiPlayerId, interactionEpoch)
+                            ?: return PaymentCorrectionOutcome.OBSOLETE
                         if (conceded) {
                             logger.error(
                                 "AI seat {} has had {} actions in a row rejected with no legal " +
@@ -1414,10 +1419,12 @@ class GamePlayHandler(
                             broadcastStateUpdate(gameSession, emptyList())
                         }
                     }
+                    return PaymentCorrectionOutcome.ACCEPTED
                 }
             }
         } catch (e: Exception) {
             logger.error("Error handling AI action", e)
+            return PaymentCorrectionOutcome.FATAL
         }
     }
 

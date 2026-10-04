@@ -169,6 +169,106 @@ class ExternalAiPaymentRetryTest : FunSpec({
         }
     }
 
+    test("a stale older correction drains a fresh rejection queued for the same question") {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val revision = AtomicInteger(7)
+        val calls = AtomicInteger()
+        val corrected = PassPriority(seat)
+        val controller = mockk<AiPlayerController>()
+        every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } answers {
+            if (calls.incrementAndGet() == 1) {
+                entered.countDown()
+                check(release.await(3, TimeUnit.SECONDS))
+            }
+            ActionResponse.SubmitAction(corrected)
+        }
+        val socket = AiWebSocketSession(
+            aiPlayerId = seat, controller = controller, thinkingDelayMs = 0,
+            onActionReady = { _, _, _ -> error("Unexpected action") },
+            onMulliganKeep = {}, onMulliganTake = {}, onBottomCards = { _, _ -> },
+            allowActionsOnlyFallback = false,
+        )
+        val session = mockk<GameSession>(relaxed = true) {
+            every { isCurrentAiPaymentRetry(any()) } answers {
+                firstArg<GameSession.AiPaymentRetrySnapshot>().stateRevision == revision.get().toLong()
+            }
+            every { sessionId } returns "payment-newer-revision"
+            every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
+            every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
+            every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } answers {
+                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(),
+                    decision, epoch, revision.get().toLong())
+            }
+            every { executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 8L) } returns null
+        }
+        try {
+            val play = handler(mockk(relaxed = true))
+            play.handleAiAction(session, seat, invalid, epoch)
+            check(entered.await(3, TimeUnit.SECONDS))
+            // An accepted mana activation can refresh the same engine question in revision 8.
+            revision.set(8)
+            play.handleAiAction(session, seat, invalid, epoch)
+            release.countDown()
+            verify(timeout = 3_000, exactly = 1) {
+                session.executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 8L)
+            }
+            calls.get() shouldBe 2
+            verify(exactly = 0) {
+                session.executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 7L)
+            }
+        } finally {
+            release.countDown()
+            socket.close()
+        }
+    }
+
+    test("a fatal corrected action discards a queued duplicate rejection") {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val fatalProcessed = CountDownLatch(1)
+        val corrected = PassPriority(seat)
+        val controller = mockk<AiPlayerController>()
+        every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } answers {
+            entered.countDown()
+            check(release.await(3, TimeUnit.SECONDS))
+            ActionResponse.SubmitAction(corrected)
+        }
+        val socket = AiWebSocketSession(
+            aiPlayerId = seat, controller = controller, thinkingDelayMs = 0,
+            onActionReady = { _, _, _ -> error("Unexpected action") },
+            onMulliganKeep = {}, onMulliganTake = {}, onBottomCards = { _, _ -> },
+            allowActionsOnlyFallback = false,
+        )
+        val session = mockk<GameSession>(relaxed = true) {
+            every { isCurrentAiPaymentRetry(any()) } returns true
+            every { sessionId } returns "payment-fatal"
+            every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
+            every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
+            every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } returns
+                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
+            every { executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 7L) } answers {
+                fatalProcessed.countDown()
+                GameSession.ActionResult.Failure("Unrelated action failure")
+            }
+        }
+        try {
+            val play = handler(mockk(relaxed = true))
+            play.handleAiAction(session, seat, invalid, epoch)
+            check(entered.await(3, TimeUnit.SECONDS))
+            play.handleAiAction(session, seat, invalid, epoch)
+            release.countDown()
+            check(fatalProcessed.await(3, TimeUnit.SECONDS))
+            Thread.sleep(100)
+            verify(exactly = 1) {
+                controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason)
+            }
+        } finally {
+            release.countDown()
+            socket.close()
+        }
+    }
+
     test("provider exception never starts a strategic fallback or submits a correction") {
         val controller = mockk<AiPlayerController>()
         every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } throws

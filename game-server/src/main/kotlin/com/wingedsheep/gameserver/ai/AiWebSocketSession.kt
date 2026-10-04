@@ -19,6 +19,7 @@ import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
+
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.web.socket.CloseStatus
@@ -31,6 +32,8 @@ import java.net.URI
 import java.security.Principal
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
+
+enum class PaymentCorrectionOutcome { ACCEPTED, RETRY_QUEUED, OBSOLETE, FATAL }
 
 private val logger = LoggerFactory.getLogger(AiWebSocketSession::class.java)
 
@@ -88,7 +91,8 @@ class AiWebSocketSession(
     @Volatile var onGridDraftPick: ((EntityId, String) -> Unit)? = null
 
     /** Bound by GamePlayHandler only for its own live game; corrections carry the question ID. */
-    @Volatile internal var onPaymentCorrectionReady: ((EntityId, GameAction, String?, String, Long) -> Unit)? = null
+    @Volatile internal var onPaymentCorrectionReady:
+        ((EntityId, GameAction, String?, String, Long) -> PaymentCorrectionOutcome)? = null
 
     private val sessionId = "ai-${UUID.randomUUID()}"
     private val open = AtomicBoolean(true)
@@ -140,10 +144,14 @@ class AiWebSocketSession(
             paymentRetryInFlight = true
         }
         scope.launch {
-            var delivered = false
+            var allowQueuedRetry = false
+            var staleExit = false
             try {
                 delay(thinkingDelayMs)
-                if (!isCurrent()) return@launch
+                if (!isCurrent()) {
+                    staleExit = true
+                    return@launch
+                }
                 val correction = controller.chooseActionAfterRejectedPayment(
                     snapshot.state,
                     snapshot.legalActions,
@@ -174,17 +182,22 @@ class AiWebSocketSession(
                         aiPlayerId.value)
                     return@launch
                 }
-                if (!isCurrent()) return@launch
-                deliver(aiPlayerId, action, snapshot.interactionEpoch,
+                if (!isCurrent()) {
+                    staleExit = true
+                    return@launch
+                }
+                val outcome = deliver(aiPlayerId, action, snapshot.interactionEpoch,
                     snapshot.pendingDecision.id, snapshot.stateRevision)
-                delivered = true
+                allowQueuedRetry = outcome != PaymentCorrectionOutcome.FATAL
             } catch (e: Exception) {
                 logger.error("External AI action failed for seat {} during payment correction: {}",
                     aiPlayerId.value, e.message, e)
             } finally {
                 val pending = synchronized(paymentRetryLock) {
                     paymentRetryInFlight = false
-                    val next = if (delivered) pendingPaymentRetry else null
+                    // A stale older observation may be followed by a valid newer one for the
+                    // same engine decision ID. Provider failure still ends correction.
+                    val next = if (allowQueuedRetry || staleExit) pendingPaymentRetry else null
                     pendingPaymentRetry = null
                     next
                 }
