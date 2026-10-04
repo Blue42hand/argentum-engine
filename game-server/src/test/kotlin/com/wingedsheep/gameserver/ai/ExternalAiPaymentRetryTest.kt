@@ -14,9 +14,13 @@ import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.gameserver.session.PlayerSession
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class ExternalAiPaymentRetryTest : FunSpec({
     val seat = EntityId.of("payment-pilot")
@@ -62,18 +66,19 @@ class ExternalAiPaymentRetryTest : FunSpec({
             allowActionsOnlyFallback = false,
         )
         val session = mockk<GameSession>(relaxed = true) {
+            every { isCurrentAiPaymentRetry(any()) } returns true
             every { sessionId } returns "payment-retry"
             every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
             every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
             every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } returns
-                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch)
-            every { executeAiPaymentCorrection(seat, corrected, epoch, decision.id) } returns null
+                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
+            every { executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 7L) } returns null
         }
         val sender = mockk<MessageSender>(relaxed = true)
         try {
             handler(sender).handleAiAction(session, seat, invalid, epoch)
             verify(timeout = 3_000, exactly = 1) {
-                session.executeAiPaymentCorrection(seat, corrected, epoch, decision.id)
+                session.executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 7L)
             }
             verify(exactly = 0) { session.getLegalActions(any()) }
             verify(exactly = 0) { session.noteAiActionRejected(any(), any()) }
@@ -83,7 +88,8 @@ class ExternalAiPaymentRetryTest : FunSpec({
 
     test("payment correction stops after two rejections without server fallback") {
         val controller = mockk<AiPlayerController>()
-        every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } returns null
+        every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } returns
+            ActionResponse.SubmitDecision(seat, invalid.response)
         val socket = AiWebSocketSession(
             aiPlayerId = seat, controller = controller, thinkingDelayMs = 0,
             onActionReady = { _, _, _ -> error("Unexpected action") },
@@ -91,11 +97,14 @@ class ExternalAiPaymentRetryTest : FunSpec({
             allowActionsOnlyFallback = false,
         )
         val session = mockk<GameSession>(relaxed = true) {
+            every { isCurrentAiPaymentRetry(any()) } returns true
             every { sessionId } returns "payment-limit"
             every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
             every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
+            every { executeAiPaymentCorrection(seat, invalid, epoch, decision.id, 7L) } returns
+                GameSession.ActionResult.Failure(reason)
             every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } returns
-                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch)
+                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
         }
         val sender = mockk<MessageSender>(relaxed = true)
         try {
@@ -110,6 +119,56 @@ class ExternalAiPaymentRetryTest : FunSpec({
         } finally { socket.close() }
     }
 
+    test("concurrent payment rejections do not start overlapping pilot corrections") {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val active = AtomicInteger()
+        val maximum = AtomicInteger()
+        val corrected = PassPriority(seat)
+        val controller = mockk<AiPlayerController>()
+        every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } answers {
+            val now = active.incrementAndGet()
+            maximum.updateAndGet { maxOf(it, now) }
+            try {
+                if (now == 1) {
+                    entered.countDown()
+                    check(release.await(3, TimeUnit.SECONDS))
+                }
+                ActionResponse.SubmitAction(corrected)
+            } finally { active.decrementAndGet() }
+        }
+        val socket = AiWebSocketSession(
+            aiPlayerId = seat, controller = controller, thinkingDelayMs = 0,
+            onActionReady = { _, _, _ -> error("Unexpected action") },
+            onMulliganKeep = {}, onMulliganTake = {}, onBottomCards = { _, _ -> },
+            allowActionsOnlyFallback = false,
+        )
+        val session = mockk<GameSession>(relaxed = true) {
+            every { isCurrentAiPaymentRetry(any()) } returns true
+            every { sessionId } returns "payment-single-flight"
+            every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
+            every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
+            every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } returns
+                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
+            every { executeAiPaymentCorrection(seat, corrected, epoch, decision.id, 7L) } returns null
+        }
+        try {
+            val play = handler(mockk(relaxed = true))
+            play.handleAiAction(session, seat, invalid, epoch)
+            check(entered.await(3, TimeUnit.SECONDS))
+            play.handleAiAction(session, seat, invalid, epoch)
+            maximum.get() shouldBe 1
+            release.countDown()
+            verify(timeout = 3_000, exactly = 2) {
+                controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason)
+            }
+            maximum.get() shouldBe 1
+        } finally {
+            release.countDown()
+            socket.close()
+        }
+    }
+
     test("provider exception never starts a strategic fallback or submits a correction") {
         val controller = mockk<AiPlayerController>()
         every { controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason) } throws
@@ -121,11 +180,12 @@ class ExternalAiPaymentRetryTest : FunSpec({
             allowActionsOnlyFallback = false,
         )
         val session = mockk<GameSession>(relaxed = true) {
+            every { isCurrentAiPaymentRetry(any()) } returns true
             every { sessionId } returns "payment-provider-failure"
             every { getPlayerSession(seat) } returns PlayerSession(socket, seat, "Pilot")
             every { executeAiAction(seat, invalid, epoch) } returns GameSession.ActionResult.Failure(reason)
             every { aiPaymentRetrySnapshot(seat, epoch, decision.id) } returns
-                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch)
+                GameSession.AiPaymentRetrySnapshot(mockk<ClientGameState>(), emptyList(), decision, epoch, 7L)
         }
         val sender = mockk<MessageSender>(relaxed = true)
         try {
@@ -133,7 +193,7 @@ class ExternalAiPaymentRetryTest : FunSpec({
             verify(timeout = 3_000, exactly = 1) {
                 controller.chooseActionAfterRejectedPayment(any(), any(), any(), any(), reason)
             }
-            verify(exactly = 0) { session.executeAiPaymentCorrection(any(), any(), any(), any()) }
+            verify(exactly = 0) { session.executeAiPaymentCorrection(any(), any(), any(), any(), any()) }
             verify(exactly = 0) { session.getLegalActions(any()) }
             verify(exactly = 0) { sender.send(any(), any()) }
         } finally { socket.close() }

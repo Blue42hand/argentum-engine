@@ -88,7 +88,7 @@ class AiWebSocketSession(
     @Volatile var onGridDraftPick: ((EntityId, String) -> Unit)? = null
 
     /** Bound by GamePlayHandler only for its own live game; corrections carry the question ID. */
-    @Volatile internal var onPaymentCorrectionReady: ((EntityId, GameAction, String?, String) -> Unit)? = null
+    @Volatile internal var onPaymentCorrectionReady: ((EntityId, GameAction, String?, String, Long) -> Unit)? = null
 
     private val sessionId = "ai-${UUID.randomUUID()}"
     private val open = AtomicBoolean(true)
@@ -104,29 +104,46 @@ class AiWebSocketSession(
     private val paymentRetryLock = Any()
     private var paymentRetryKey: Pair<String, String>? = null
     private var paymentRetryCount = 0
+    private var paymentRetryInFlight = false
+    private data class PaymentRetryRequest(
+        val snapshot: GameSession.AiPaymentRetrySnapshot,
+        val error: String,
+        val isCurrent: () -> Boolean,
+    )
+    private var pendingPaymentRetry: PaymentRetryRequest? = null
 
     /**
      * Ask the same external pilot to correct an engine-rejected payment, at most twice for one
      * live question. No ordinary AI fallback is involved. The callback retains the snapshot's
-     * epoch, so a later undo or accepted action makes an in-flight answer harmlessly obsolete.
+     * epoch and state revision, so a later undo or accepted action makes an in-flight answer
+     * harmlessly obsolete. Only one controller call runs at a time for this live question.
      */
     internal fun retryRejectedPayment(
         snapshot: GameSession.AiPaymentRetrySnapshot,
         nativePaymentError: String,
+        isCurrent: () -> Boolean,
     ): Boolean {
-        if (!open.get() || allowActionsOnlyFallback) return false
+        if (!open.get() || allowActionsOnlyFallback || !isCurrent()) return false
         val key = snapshot.interactionEpoch to snapshot.pendingDecision.id
         synchronized(paymentRetryLock) {
             if (paymentRetryKey != key) {
                 paymentRetryKey = key
                 paymentRetryCount = 0
+                pendingPaymentRetry = null
             }
             if (paymentRetryCount >= 2) return false
+            if (paymentRetryInFlight) {
+                pendingPaymentRetry = PaymentRetryRequest(snapshot, nativePaymentError, isCurrent)
+                return true
+            }
             paymentRetryCount++
+            paymentRetryInFlight = true
         }
         scope.launch {
+            var delivered = false
             try {
                 delay(thinkingDelayMs)
+                if (!isCurrent()) return@launch
                 val correction = controller.chooseActionAfterRejectedPayment(
                     snapshot.state,
                     snapshot.legalActions,
@@ -157,10 +174,25 @@ class AiWebSocketSession(
                         aiPlayerId.value)
                     return@launch
                 }
-                deliver(aiPlayerId, action, snapshot.interactionEpoch, snapshot.pendingDecision.id)
+                if (!isCurrent()) return@launch
+                deliver(aiPlayerId, action, snapshot.interactionEpoch,
+                    snapshot.pendingDecision.id, snapshot.stateRevision)
+                delivered = true
             } catch (e: Exception) {
                 logger.error("External AI action failed for seat {} during payment correction: {}",
                     aiPlayerId.value, e.message, e)
+            } finally {
+                val pending = synchronized(paymentRetryLock) {
+                    paymentRetryInFlight = false
+                    val next = if (delivered) pendingPaymentRetry else null
+                    pendingPaymentRetry = null
+                    next
+                }
+                if (pending != null && pending.isCurrent() &&
+                    !retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent)) {
+                    logger.error("External AI action failed for seat {}: payment correction limit reached",
+                        aiPlayerId.value)
+                }
             }
         }
         return true

@@ -1313,13 +1313,15 @@ class GamePlayHandler(
         action: com.wingedsheep.engine.core.GameAction,
         interactionEpoch: String?,
         expectedPaymentDecisionId: String? = null,
+        expectedPaymentStateRevision: Long? = null,
     ) {
         try {
             val result = if (expectedPaymentDecisionId == null) {
                 gameSession.executeAiAction(aiPlayerId, action, interactionEpoch)
             } else {
                 gameSession.executeAiPaymentCorrection(
-                    aiPlayerId, action, interactionEpoch, expectedPaymentDecisionId)
+                    aiPlayerId, action, interactionEpoch, expectedPaymentDecisionId,
+                    requireNotNull(expectedPaymentStateRevision))
             } ?: return
             when (result) {
                 is GameSession.ActionResult.Success -> {
@@ -1340,10 +1342,11 @@ class GamePlayHandler(
                             val snapshot = gameSession.aiPaymentRetrySnapshot(
                                 aiPlayerId, interactionEpoch, paymentResponse.decisionId)
                             if (snapshot != null) {
-                                aiSession.onPaymentCorrectionReady = { id, correction, epoch, questionId ->
-                                    handleAiAction(gameSession, id, correction, epoch, questionId)
+                                aiSession.onPaymentCorrectionReady = { id, correction, epoch, questionId, revision ->
+                                    handleAiAction(gameSession, id, correction, epoch, questionId, revision)
                                 }
-                                if (aiSession.retryRejectedPayment(snapshot, result.reason)) {
+                                if (aiSession.retryRejectedPayment(snapshot, result.reason,
+                                        { gameSession.isCurrentAiPaymentRetry(snapshot) })) {
                                     logger.warn("External AI payment rejected for seat {} in game {}; same pilot is correcting: {}",
                                         aiPlayerId.value, gameSession.sessionId, result.reason)
                                     return
@@ -1418,7 +1421,7 @@ class GamePlayHandler(
         }
     }
 
-    /** Only native mana-payment errors may request a correction; other failures stay fatal. */
+    /** Cast-spell mana-selection errors only; ward/trigger payment paths are outside this retry contract. */
     private fun isRecoverableManaPaymentError(reason: String): Boolean =
         reason in setOf(
             "Auto-pay is not available yet; activate a mana ability or select payment sources",

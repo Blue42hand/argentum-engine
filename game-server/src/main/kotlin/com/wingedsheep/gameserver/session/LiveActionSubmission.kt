@@ -9,4 +9,6 @@ data class LiveActionSubmission(
     val messageId: String? = null,
     /** Guard an AI correction that may be a mana ability action rather than a decision reply. */
     val expectedDecisionId: String? = null,
+    /** A payment correction must use the exact state from which its observation was made. */
+    val expectedStateRevision: Long? = null,
 )

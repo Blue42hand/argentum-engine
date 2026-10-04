@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.model.EntityId
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -82,6 +83,7 @@ class GameSession(
      * Read and changed only under [stateLock]. Never stored in engine state or replay inputs.
      */
     private var liveInteractionEpoch = UUID.randomUUID().toString()
+    private val liveStateRevision = AtomicLong()
 
     private fun liveDecisionId(engineId: String): String = "$liveInteractionEpoch:$engineId"
 
@@ -89,6 +91,7 @@ class GameSession(
     private var gameState: GameState? = null
         set(value) {
             field = value
+            liveStateRevision.incrementAndGet()
             if (value != null) recordEliminations(value)
         }
 
@@ -864,10 +867,12 @@ class GameSession(
         action: GameAction,
         interactionEpoch: String?,
         expectedDecisionId: String,
+        expectedStateRevision: Long,
     ): ActionResult? {
         val origin = interactionEpoch ?: return null
         return executeLiveAction(playerId,
-            LiveActionSubmission(action, origin, expectedDecisionId = expectedDecisionId))
+            LiveActionSubmission(action, origin, expectedDecisionId = expectedDecisionId,
+                expectedStateRevision = expectedStateRevision))
     }
 
     /**
@@ -878,6 +883,8 @@ class GameSession(
      */
     fun executeLiveAction(playerId: EntityId, submission: LiveActionSubmission): ActionResult? = synchronized(stateLock) {
         if (!isCurrentInteraction(submission.interactionEpoch)) return null
+        if (submission.expectedStateRevision != null &&
+            submission.expectedStateRevision != liveStateRevision.get()) return null
         val action = submission.action
         if (submission.expectedDecisionId != null &&
             submission.expectedDecisionId != gameState?.pendingDecision?.id) return null
@@ -895,6 +902,7 @@ class GameSession(
         val legalActions: List<LegalActionInfo>,
         val pendingDecision: SelectManaSourcesDecision,
         val interactionEpoch: String,
+        val stateRevision: Long,
     )
 
     /**
@@ -917,7 +925,14 @@ class GameSession(
             legalActions = getLegalActions(playerId),
             pendingDecision = decisionEnricher.enrich(decision, state, playerId) as SelectManaSourcesDecision,
             interactionEpoch = liveInteractionEpoch,
+            stateRevision = liveStateRevision.get(),
         )
+    }
+
+    fun isCurrentAiPaymentRetry(snapshot: AiPaymentRetrySnapshot): Boolean = synchronized(stateLock) {
+        isCurrentInteraction(snapshot.interactionEpoch) &&
+            liveStateRevision.get() == snapshot.stateRevision &&
+            gameState?.pendingDecision?.id == snapshot.pendingDecision.id
     }
 
     /**
