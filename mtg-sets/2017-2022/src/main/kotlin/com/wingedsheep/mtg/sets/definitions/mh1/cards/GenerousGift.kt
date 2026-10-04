@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.mh1.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -20,9 +20,8 @@ val GenerousGift = card("Generous Gift") {
     oracleText = "Destroy target permanent. Its controller creates a 3/3 green Elephant creature token."
 
     spell {
-        val permanent = target("permanent", Targets.Permanent)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
+        val permanent = target(TargetFilter.Permanent)
+        effect = (Effects.Destroy(permanent) then
             Effects.CreateToken(
                 power = 3,
                 toughness = 3,
@@ -30,8 +29,7 @@ val GenerousGift = card("Generous Gift") {
                 creatureTypes = setOf("Elephant"),
                 controller = EffectTarget.TargetController,
                 imageUri = "https://cards.scryfall.io/normal/front/1/a/1ae11d5f-f29d-44f4-8d90-cdada1040435.jpg?1783933227",
-            ),
-        )
+            ))
     }
 
     metadata {

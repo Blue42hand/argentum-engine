@@ -7,7 +7,6 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.AdditionalPhasesComponent
 import com.wingedsheep.engine.state.components.player.ExtraPhaseKind
-import com.wingedsheep.engine.state.components.player.QueuedPhase
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.otj.cards.GreatTrainHeist
@@ -21,6 +20,7 @@ import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.booleans.shouldBeTrue
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Great Train Heist — Spree instant ({R} + per-mode costs):
@@ -68,7 +68,7 @@ class GreatTrainHeistTest : FunSpec({
                 targets = listOf(ChosenTarget.Player(opp)),
                 paymentStrategy = PaymentStrategy.FromPool
             )
-        ).isSuccess shouldBe true
+        ).outcome shouldBe Outcome.Done
         driver.bothPass() // resolve the spell -> registers the delayed trigger
 
         driver.state.delayedTriggers.size shouldBe 1
@@ -107,7 +107,7 @@ class GreatTrainHeistTest : FunSpec({
                 chosenModes = listOf(1),
                 paymentStrategy = PaymentStrategy.FromPool
             )
-        ).isSuccess shouldBe true
+        ).outcome shouldBe Outcome.Done
         driver.bothPass()
 
         val projected = driver.state.projectedState
@@ -140,14 +140,14 @@ class GreatTrainHeistTest : FunSpec({
                 chosenModes = listOf(0),
                 paymentStrategy = PaymentStrategy.FromPool
             )
-        ).isSuccess shouldBe true
+        ).outcome shouldBe Outcome.Done
         driver.bothPass()
 
         // Creatures you control untapped.
         driver.isTapped(attacker) shouldBe false
         // A single additional combat phase is queued (combat only — no trailing main phase),
         // because the spell was cast during the caster's combat.
-        driver.state.getEntity(me)?.get<AdditionalPhasesComponent>() shouldBe
-            AdditionalPhasesComponent(listOf(QueuedPhase(ExtraPhaseKind.COMBAT)))
+        driver.state.getEntity(me)?.get<AdditionalPhasesComponent>()?.phases.orEmpty().map { it.kind } shouldBe
+            listOf(ExtraPhaseKind.COMBAT)
     }
 })

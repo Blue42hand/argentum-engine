@@ -16,7 +16,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Annoyed Altisaur:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": "Cascade",
                 "descriptionOverride": "Cascade"
@@ -95,7 +95,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Doomsayer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -169,7 +169,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghen, Arcanum Weaver:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -194,7 +194,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Battlefield",
                     "fromZone": "Graveyard"
@@ -206,7 +206,7 @@
                             "baseFilter": "enchantment own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -238,7 +238,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ingenuity Engine:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -263,7 +263,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -273,7 +273,7 @@
                         "filter": {
                             "baseFilter": "artifact ctrl:you"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -305,7 +305,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kangee, Sky Warden:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -325,12 +325,12 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Kangee, Sky Warden:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ForEach",
@@ -350,7 +350,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -404,7 +404,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Magus of the Order:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -441,7 +441,8 @@
                                 "zone": "Library",
                                 "filter": "creature green"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -494,7 +495,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meteoric Mace:2",
                 "trigger": "CastThisSpellEvent",
                 "effect": "Cascade",
                 "descriptionOverride": "Cascade"
@@ -502,7 +503,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Meteoric Mace:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -580,6 +581,65 @@
     ]
 }
 
+// Nadier's Nightblade
+{
+    "name": "Nadier's Nightblade",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Elf Warrior",
+    "oracleText": "Whenever a token you control leaves the battlefield, each opponent loses 1 life and you gain 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nadier's Nightblade:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "token ctrl:you",
+                    "from": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever a token you control leaves the battlefield, each opponent loses 1 life and you gain 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "flavorText": "Checking around every corner doesn't help if you forget to look up.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/11fbba08-0d93-4750-9dd6-d6a2779c6cf3.jpg?1783928832"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Natural Reclamation
 {
     "name": "Natural Reclamation",
@@ -594,7 +654,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -605,12 +665,12 @@
                 "filter": {
                     "baseFilter": "artifact|enchantment"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ],
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Natural Reclamation:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": "Cascade",
                 "descriptionOverride": "Cascade"
@@ -674,7 +734,8 @@
                         "zone": "Library",
                         "filter": "land"
                     },
-                    "storeAs": "searchable"
+                    "storeAs": "searchable",
+                    "search": true
                 },
                 {
                     "type": "SelectFromCollection",
@@ -731,7 +792,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }
@@ -765,7 +826,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wyleth, Soul of Steel:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "DrawCards",

@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.values
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -76,7 +77,8 @@ sealed interface ManaColorSet {
      * The union of colors that any land in the given [scope] could produce
      * (CR 106.7 / Fellwar Stone rulings). Tapped state and unpayable activation
      * costs are ignored; colorless production is ignored. Used by Fellwar Stone
-     * (OPPONENTS), Exotic Orchard (OPPONENTS), Reflecting Pool (YOU).
+     * (OPPONENTS), Exotic Orchard (OPPONENTS), Reflecting Pool (YOU). "Any *type*" adds a
+     * second `{C}` ability gated on `CardPredicate.CouldProduceColorlessMana` (Naga Vitalist).
      */
     @SerialName("ManaColorSet.LandsCouldProduce")
     @Serializable
@@ -103,6 +105,22 @@ sealed interface ManaColorSet {
     }
 
     /**
+     * The colors of one object — [entity] resolved against the running effect: a pipeline-gathered
+     * card (`EffectTarget.PipelineTarget`), a target, the source (`EffectTarget.Self`). A battlefield
+     * permanent's colors are read from projected state; any other zone uses the card's own colors.
+     * A colorless object, or one that can't be resolved, produces no mana. Outside an effect (the mana
+     * solver asking what a mana ability could make) only `Self` resolves.
+     *
+     * "Add three mana in any combination of its colors" (Omnath, Locus of All) is
+     * `Effects.Repeat(3, AddManaOfChoice(ColorsOf(card)))` — each unit picks its own colour.
+     */
+    @SerialName("ManaColorSet.ColorsOf")
+    @Serializable
+    data class ColorsOf(val entity: EffectTarget) : ManaColorSet {
+        override val description: String = "any of ${entity.description}'s colors"
+    }
+
+    /**
      * The single color recorded on the source permanent's `CastChoicesComponent`
      * (set when it entered the battlefield, e.g., via `EntersWithChoice(COLOR)`).
      * If no color was chosen, no mana is produced. Used by Unchartered Haven and
@@ -112,6 +130,22 @@ sealed interface ManaColorSet {
     @Serializable
     data object SourceChosenColor : ManaColorSet {
         override val description: String = "the chosen color"
+    }
+
+    /**
+     * The union of several pools — the player picks one color from any of them. Models a mana
+     * ability that names a fixed color *or* a looked-up one: the Thriving lands' "Add {R} or one
+     * mana of the chosen color" is `Union(listOf(Specific(setOf(RED)), SourceChosenColor))`, which
+     * produces only {R} until a color has been chosen. Duplicates across members collapse (a set).
+     */
+    @SerialName("ManaColorSet.Union")
+    @Serializable
+    data class Union(val members: List<ManaColorSet>) : ManaColorSet {
+        init {
+            require(members.size >= 2) { "ManaColorSet.Union needs at least two members" }
+        }
+
+        override val description: String = members.joinToString(" or ") { it.description }
     }
 }
 

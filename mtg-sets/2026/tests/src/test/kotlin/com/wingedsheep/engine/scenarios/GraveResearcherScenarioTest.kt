@@ -8,6 +8,7 @@ import com.wingedsheep.engine.state.components.battlefield.PreparedComponent
 import com.wingedsheep.engine.state.components.battlefield.PreparedSpellCopyComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
@@ -168,6 +169,8 @@ class GraveResearcherScenarioTest : ScenarioTestBase() {
 
                 withClue("Centaur Courser enters the battlefield under player 1's control") {
                     game.isOnBattlefield("Centaur Courser") shouldBe true
+                    game.state.getEntity(game.findPermanent("Centaur Courser")!!)
+                        ?.get<ControllerComponent>()?.playerId shouldBe game.player1Id
                 }
                 withClue("You lose life equal to Centaur Courser's mana value (3)") {
                     game.getLifeTotal(1) shouldBe lifeBefore - 3

@@ -8,9 +8,10 @@ import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreature
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -88,8 +89,8 @@ class DeathAndLeaveTriggerDetector(
 
         // For "When this creature dies" - the creature might be in graveyard now
         // Look up abilities by card definition
-        val abilities = abilityResolver.getTriggeredAbilities(entityId, info.cardDefinitionId, state, statics)
-        val controllerId = event.ownerId
+        val abilities = abilityResolver.getDepartedTriggeredAbilities(event, info.cardDefinitionId, state, statics)
+        val controllerId = event.lastKnown?.controllerId ?: event.ownerId
 
         for (ability in abilities) {
             if (!matcher.isDeathTrigger(ability.trigger)) continue
@@ -168,8 +169,8 @@ class DeathAndLeaveTriggerDetector(
 
             val info = resolveDyingEntity(state, deadEvent) ?: continue
 
-            val abilities = abilityResolver.getTriggeredAbilities(deadEntityId, info.cardDefinitionId, state, statics)
-            val controllerId = deadEvent.ownerId
+            val abilities = abilityResolver.getDepartedTriggeredAbilities(deadEvent, info.cardDefinitionId, state, statics)
+            val controllerId = deadEvent.lastKnown?.controllerId ?: deadEvent.ownerId
 
             for (ability in abilities) {
                 for (otherDeathEvent in deathEvents) {
@@ -213,11 +214,9 @@ class DeathAndLeaveTriggerDetector(
         val attachedEntityId = event.lastKnown?.attachedTo ?: return
 
         val auraEntityId = event.entityId
-        val container = state.getEntity(auraEntityId) ?: return
-        val cardComponent = container.get<CardComponent>() ?: return
-
-        val abilities = abilityResolver.getTriggeredAbilities(auraEntityId, cardComponent.cardDefinitionId, state, statics)
-        val controllerId = event.ownerId
+        val info = resolveDyingEntity(state, event) ?: return
+        val abilities = abilityResolver.getDepartedTriggeredAbilities(event, info.cardDefinitionId, state, statics)
+        val controllerId = event.lastKnown?.controllerId ?: event.ownerId
 
         for (ability in abilities) {
             if (ability.binding != TriggerBinding.ATTACHED) continue
@@ -233,7 +232,7 @@ class DeathAndLeaveTriggerDetector(
                 PendingTrigger(
                     ability = ability,
                     sourceId = auraEntityId,
-                    sourceName = cardComponent.name,
+                    sourceName = info.name,
                     controllerId = controllerId,
                     triggerContext = TriggerContext(triggeringEntityId = attachedEntityId)
                 )
@@ -387,6 +386,7 @@ class DeathAndLeaveTriggerDetector(
         val info = resolveDyingEntity(state, event) ?: return
 
         val persistAbility = TriggeredAbility.create(
+            id = AbilityId("persist"),
             trigger = EventPattern.ZoneChangeEvent(
                 from = Zone.BATTLEFIELD,
                 to = Zone.GRAVEYARD
@@ -399,7 +399,7 @@ class DeathAndLeaveTriggerDetector(
                         destination = Zone.BATTLEFIELD
                     ),
                     AddCountersEffect(
-                        counterType = Counters.MINUS_ONE_MINUS_ONE,
+                        counterType = CounterType.MINUS_ONE_MINUS_ONE,
                         count = 1,
                         target = EffectTarget.Self
                     )
@@ -439,6 +439,7 @@ class DeathAndLeaveTriggerDetector(
         val info = resolveDyingEntity(state, event) ?: return
 
         val undyingAbility = TriggeredAbility.create(
+            id = AbilityId("undying"),
             trigger = EventPattern.ZoneChangeEvent(
                 from = Zone.BATTLEFIELD,
                 to = Zone.GRAVEYARD
@@ -451,7 +452,7 @@ class DeathAndLeaveTriggerDetector(
                         destination = Zone.BATTLEFIELD
                     ),
                     AddCountersEffect(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         count = 1,
                         target = EffectTarget.Self
                     )
@@ -506,6 +507,7 @@ class DeathAndLeaveTriggerDetector(
         val info = resolveDyingEntity(state, event) ?: return
 
         val enduringAbility = TriggeredAbility.create(
+            id = AbilityId("enduring"),
             trigger = EventPattern.ZoneChangeEvent(
                 from = Zone.BATTLEFIELD,
                 to = Zone.GRAVEYARD
@@ -563,8 +565,8 @@ class DeathAndLeaveTriggerDetector(
         val entityId = event.entityId
         val info = resolveDyingEntity(state, event) ?: return
 
-        val abilities = abilityResolver.getTriggeredAbilities(entityId, info.cardDefinitionId, state, statics)
-        val controllerId = event.ownerId
+        val abilities = abilityResolver.getDepartedTriggeredAbilities(event, info.cardDefinitionId, state, statics)
+        val controllerId = event.lastKnown?.controllerId ?: event.ownerId
 
         for (ability in abilities) {
             val isGenericLeave = matcher.isLeavesBattlefieldTrigger(ability.trigger)

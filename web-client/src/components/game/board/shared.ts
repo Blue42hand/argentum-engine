@@ -54,7 +54,31 @@ export function layoutEnvFor(base: ResponsiveSizes): LayoutEnv {
  * `base` itself when nothing would change, so downstream useMemos keyed on the
  * sizes identity don't invalidate for no visual change.
  */
+/**
+ * Per-base cache of derived sizes, so the same width always yields the same object. The sizes are
+ * a context value every battlefield card reads: without the cache, anything that re-runs the slot
+ * solve — tapping a land changes the row stats — hands every card a fresh-but-equal context
+ * value and re-renders the whole board even though no card changed size.
+ */
+const sizesCache = new WeakMap<ResponsiveSizes, Map<number, ResponsiveSizes>>()
+const SIZES_CACHE_LIMIT = 64
+
 export function sizesForCardWidth(base: ResponsiveSizes, cardWidth: number): ResponsiveSizes {
+  let byWidth = sizesCache.get(base)
+  const cached = byWidth?.get(cardWidth)
+  if (cached) return cached
+  const sizes = computeSizesForCardWidth(base, cardWidth)
+  if (!byWidth) {
+    byWidth = new Map()
+    sizesCache.set(base, byWidth)
+  }
+  // Widths come from a continuous solve; a live resize drag can mint many. Keep the cache bounded.
+  if (byWidth.size >= SIZES_CACHE_LIMIT) byWidth.clear()
+  byWidth.set(cardWidth, sizes)
+  return sizes
+}
+
+function computeSizesForCardWidth(base: ResponsiveSizes, cardWidth: number): ResponsiveSizes {
   const cardHeight = cardHeightFor(cardWidth)
   if (cardWidth === base.battlefieldCardWidth && cardHeight === base.battlefieldCardHeight) return base
 
@@ -109,6 +133,8 @@ export interface SlotSizedLayout {
   backSizes: ResponsiveSizes
   frontRowLines: number
   backRowLines: number
+  /** The solve traded the roomy row spacing for card size (see `SlotLayout.compact`). */
+  compact: boolean
 }
 
 /**
@@ -170,11 +196,23 @@ export function useSlotSizedResponsive(
     // in a consistent frame the two agree and the pooled width wins as-is.
     const layout = pooled !== null && own !== null && own.cardWidth < pooled.cardWidth ? own : (pooled ?? own)
     if (layout === null) {
-      return { sizes: base, backSizes: base, frontRowLines: front.count > 0 ? 1 : 0, backRowLines: back.count > 0 ? 1 : 0 }
+      return {
+        sizes: base,
+        backSizes: base,
+        frontRowLines: front.count > 0 ? 1 : 0,
+        backRowLines: back.count > 0 ? 1 : 0,
+        compact: false,
+      }
     }
     const sizes = sizesForCardWidth(base, layout.cardWidth)
     const backSizes = layout.backCardWidth === layout.cardWidth ? sizes : sizesForCardWidth(base, layout.backCardWidth)
-    return { sizes, backSizes, frontRowLines: layout.frontLines, backRowLines: layout.backLines }
+    return {
+      sizes,
+      backSizes,
+      frontRowLines: layout.frontLines,
+      backRowLines: layout.backLines,
+      compact: layout.compact,
+    }
     // Keyed on the stats' numbers, not the objects, so an unrelated store
     // update that rebuilds equal stats doesn't produce a fresh sizes identity.
   }, [base, slotSize, pooled, front.count, front.tapped, front.stackedExtra, back.count, back.tapped, back.stackedExtra])
@@ -195,7 +233,7 @@ export interface AttachmentStackLayout {
   /** Peeking attachments in render order; index 0 peeks furthest out from behind the host. */
   attachments: AttachmentStackBox[]
   host: AttachmentStackBox
-  /** Left edge of the upright card column — the folder tab and click-catcher align to it. */
+  /** Left edge of the upright card column — the count pill and click-catcher align to it. */
   columnLeft: number
 }
 
@@ -274,11 +312,12 @@ export function attachmentStackLayout(input: {
 export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): boolean {
   // Count distinct casting method types
   const hasNormalCast = cardLegalActions.some(
-    (a) => a.action.type === 'CastSpell' && a.actionType !== 'CastFaceDown' && a.actionType !== 'CastWithKicker' && a.actionType !== 'CastWithFlashback' && a.actionType !== 'CastWithWarp' && a.actionType !== 'CastWithDash' && a.actionType !== 'CastWithDisturb'
+    (a) => a.action.type === 'CastSpell' && a.actionType !== 'CastFaceDown' && a.actionType !== 'CastWithKicker' && a.actionType !== 'CastWithFlashback' && a.actionType !== 'CastWithEscape' && a.actionType !== 'CastWithWarp' && a.actionType !== 'CastWithDash' && a.actionType !== 'CastWithDisturb'
   )
   const hasMorphCast = cardLegalActions.some((a) => a.actionType === 'CastFaceDown')
   const hasKickerCast = cardLegalActions.some((a) => a.actionType === 'CastWithKicker')
   const hasFlashbackCast = cardLegalActions.some((a) => a.actionType === 'CastWithFlashback')
+  const hasEscapeCast = cardLegalActions.some((a) => a.actionType === 'CastWithEscape')
   const hasWarpCast = cardLegalActions.some((a) => a.actionType === 'CastWithWarp')
   const hasDashCast = cardLegalActions.some((a) => a.actionType === 'CastWithDash')
   // Disturb (CR 702.146) casts the card's back face from the graveyard, so it is a distinct
@@ -296,6 +335,7 @@ export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): 
   if (hasMorphCast) options++
   if (hasKickerCast) options++
   if (hasFlashbackCast) options++
+  if (hasEscapeCast) options++
   if (hasWarpCast) options++
   if (hasDashCast) options++
   if (hasDisturbCast) options++
@@ -764,11 +804,12 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   // spore (the Fungus/Thallid mechanic).
   //
   // CounterType.DEFENSE is deliberately absent. It is the battle analogue of loyalty (CR 310.4c) —
-  // a number the permanent is defined by, not a marker sitting on it — so it belongs with the
-  // loyalty-style display battles will need, not in this marker-badge allowlist. Until that exists
-  // it still shows in the card preview's counter panel, which lists whatever the server sent.
+  // a number the permanent is defined by, not a marker sitting on it — so GameCard draws it as the
+  // battle's own defense badge over the printed shield, not in this marker-badge allowlist.
   CounterType.STORAGE,
   CounterType.HUNGER,
+  // Phyrexia: All Will Be One's oil — spent, counted and proliferated by the cards that care.
+  CounterType.OIL,
   CounterType.DOOM,
   CounterType.FIRE,
   CounterType.CONQUEROR,
@@ -794,6 +835,18 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   // faces, and on the Aura face the third counter *ends the game* — a tally a player has to be
   // able to read off the board.
   CounterType.JUDGMENT,
+  // Innistrad: Crimson Vow tallies that transform their permanent at three (Edgar Markov's Coffin,
+  // Wedding Announcement), and Illicit Masquerade's impostor marker, which decides what it exiles.
+  CounterType.BLOODLINE,
+  CounterType.INVITATION,
+  CounterType.IMPOSTOR,
+  // Champions of Kamigawa. Bloodthirsty Ogre's devotion tally is the size of its -X/-X.
+  CounterType.DEVOTION,
+  // Night Dealings' theft tally is spent as X to tutor a card.
+  CounterType.THEFT,
+  // Sensei Golden-Tail's training marker records which creatures it trained.
+  CounterType.TRAINING,
+  CounterType.MIRE,
   CounterType.PLUS_ONE_PLUS_TWO,
   CounterType.PLUS_TWO_PLUS_TWO,
   CounterType.MINUS_TWO_MINUS_TWO,

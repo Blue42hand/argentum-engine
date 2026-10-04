@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.m10.cards
 
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -13,11 +14,9 @@ val SignInBlood = card("Sign in Blood") {
     oracleText = "Target player draws two cards and loses 2 life."
 
     spell {
-        val player = target("target player", TargetPlayer())
-        effect = Effects.Composite(
-            Effects.DrawCards(2, player),
-            Effects.LoseLife(2, player),
-        )
+        val player = target(Targets.Player)
+        effect = (Effects.DrawCards(2, player) then
+            Effects.LoseLife(2, player))
     }
 
     metadata {

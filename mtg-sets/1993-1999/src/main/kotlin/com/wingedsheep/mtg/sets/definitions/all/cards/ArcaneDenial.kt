@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.all.cards
 
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -30,21 +30,21 @@ val ArcaneDenial = card("Arcane Denial") {
         "You draw a card at the beginning of the next turn's upkeep."
 
     spell {
-        target("target spell", Targets.Spell)
+        target(TargetFilter.SpellOnStack)
         effect = Effects.Pipeline {
             val spell = gather(CardSource.ChosenTargets, name = "deniedSpell")
             val controllers = captureControllers(spell, name = "deniedControllers")
 
-            run(CounterEffect())
+            run(Effects.CounterSpell())
 
             // "Its controller may draw up to two cards ..." The controller snapshot is
             // intentionally taken before CounterEffect, so this remains well-defined even
             // if the counter instruction does not move the spell.
             forEachCaptured(spell, spell, controllers) {
                 run(
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.UPKEEP,
-                        effect = DrawUpToEffect(2),
+                        effect = Effects.DrawUpTo(2),
                         timing = DelayedTriggerTiming.NEXT_TURN
                     )
                 )
@@ -53,9 +53,9 @@ val ArcaneDenial = card("Arcane Denial") {
             // This trigger remains under Arcane Denial's controller rather than the
             // captured target-spell controller.
             run(
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.UPKEEP,
-                    effect = DrawCardsEffect(1),
+                    effect = Effects.DrawCards(1),
                     timing = DelayedTriggerTiming.NEXT_TURN
                 )
             )

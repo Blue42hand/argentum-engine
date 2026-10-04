@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
@@ -364,3 +366,6 @@ class AbradePaymentAgreementTest : FunSpec({
         game.state.getEntity(drum)!!.has<TappedComponent>() shouldBe false
     }
 })
+
+private val ExecutionResult.isPaused: Boolean
+    get() = outcome is Outcome.Paused

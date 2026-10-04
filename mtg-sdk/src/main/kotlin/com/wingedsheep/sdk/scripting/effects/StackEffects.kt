@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.effects
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
@@ -94,6 +95,25 @@ sealed interface CounterDestination {
     @SerialName("CounterDestination.Hand")
     @Serializable
     data object Hand : CounterDestination
+
+    /**
+     * Spell is put into its owner's **library** instead of their graveyard. One position is a
+     * fixed placement (Memory Lapse's "on top"); several are a choice made by the *counter's*
+     * controller, not the countered spell's (Hinder's 2020-08-07 ruling — "your choice of the
+     * top or bottom").
+     *
+     * Still a genuine counter, like [Hand]: an uncounterable spell is untouched and no choice is
+     * asked, a `SpellCounteredEvent` fires, and a counter replacement or a flashback card's own
+     * exile rider wins over the library. That is why this is a [CounterDestination] rather than
+     * `PutOnLibraryPositionOfChoiceEffect` on a spell, which moves it without countering it.
+     */
+    @SerialName("CounterDestination.Library")
+    @Serializable
+    data class Library(val positions: List<LibraryChoicePosition>) : CounterDestination {
+        init {
+            require(positions.isNotEmpty()) { "CounterDestination.Library needs at least one position" }
+        }
+    }
 }
 
 /**
@@ -208,6 +228,18 @@ data class CounterEffect(
                             append(". If that spell is countered this way, put it into its owner's hand instead of into that player's graveyard")
                         }
                     }
+                    is CounterDestination.Library -> {
+                        val where = if (dest.positions.size == 1) {
+                            "on the ${dest.positions.single().phrase} of its owner's library"
+                        } else {
+                            "on your choice of the ${dest.positions.joinToString(" or ") { it.phrase }} of its owner's library"
+                        }
+                        if (condition is CounterCondition.UnlessPaysMana || condition is CounterCondition.UnlessPaysDynamic) {
+                            append(". If countered, put it $where")
+                        } else {
+                            append(". If that spell is countered this way, put that card $where instead of into that player's graveyard")
+                        }
+                    }
                 }
             }
         }
@@ -240,7 +272,7 @@ data class CounterEffect(
  * It exiles the spell regardless of can't-be-countered (Aven Interrupter's ruling: "Spells that
  * can't be countered can still be exiled. They won't resolve."), and it fires no
  * "whenever a spell is countered" trigger. The spell still fails to resolve because it leaves
- * the stack. The target is the chosen spell ([com.wingedsheep.sdk.dsl.Targets.Spell] supplies
+ * the stack. The target is the chosen spell (`target(TargetFilter.SpellOnStack)` supplies
  * the requirement).
  *
  * @property makePlotted When true, the exiled card becomes *plotted* for its **owner** (CR 718.2):
@@ -256,7 +288,7 @@ data class CounterEffect(
  *   countered (see [exileSpell]'s non-counter semantics).
  * @property emitAirbend When true, exiling the spell counts as an **airbend** (CR 701.65b): the
  *   executor records a [com.wingedsheep.sdk.core.BendType.AIR] bend for the controller and fires
- *   [com.wingedsheep.sdk.dsl.Triggers.YouBend], but only if the spell was actually exiled (a target
+ *   `Triggers.you.bends(types)`, but only if the spell was actually exiled (a target
  *   that already left the stack exiles nothing → no bend). Set via [com.wingedsheep.sdk.dsl.Effects.AirbendSpell];
  *   left false for a plain non-airbend exile-spell (Aven Interrupter).
  * @property linkToSource When true, the exiled card is appended to the effect source's
@@ -273,10 +305,17 @@ data class ExileTargetSpellEffect(
     val makePlotted: Boolean = false,
     val fixedAlternativeManaCost: ManaCost? = null,
     val emitAirbend: Boolean = false,
-    val linkToSource: Boolean = false
+    val linkToSource: Boolean = false,
+    /**
+     * Which spell is exiled: the chosen spell target ([CounterTargetSource.Chosen], the default),
+     * or the spell that fired the trigger ([CounterTargetSource.TriggeringEntity]) — "whenever a
+     * player casts an instant or sorcery card, exile it" (Eye of the Storm), which targets
+     * nothing. The same axis [CounterEffect.targetSource] carries for Decree of Silence.
+     */
+    val spell: CounterTargetSource = CounterTargetSource.Chosen
 ) : Effect {
     override val description: String = buildString {
-        append("Exile target spell")
+        append(if (spell == CounterTargetSource.TriggeringEntity) "Exile that spell" else "Exile target spell")
         if (makePlotted) append(". It becomes plotted")
         if (fixedAlternativeManaCost != null) {
             append(". Its owner may cast it for $fixedAlternativeManaCost rather than its mana cost")
@@ -482,7 +521,7 @@ sealed interface WardCost {
      * ([com.wingedsheep.sdk.dsl.DynamicAmounts.sourcePower]). The amount is evaluated when the
      * ward triggered ability *resolves* (CR 702.21b), reading the source's power at that time,
      * or its last-known value if the source has left the battlefield (CR 113.7a) — both handled
-     * by [com.wingedsheep.sdk.scripting.values.EntityReference.Source]'s last-known-information
+     * by [com.wingedsheep.sdk.scripting.targets.EffectTarget.Self]'s last-known-information
      * fallback. The fixed-Int [Life] stays the common case; this variant covers only costs that
      * read live game state.
      */
@@ -535,8 +574,7 @@ sealed interface WardCost {
     /**
      * Ward with a cost paid in **counters placed on the paying player** (CR 122.1 — a counter is a
      * marker placed on an object *or player*) — "Ward—Get five poison counters." (The Serpent
-     * Society). [counterType] is a `Counters.*` symbol (`Counters.POISON`, `Counters.ENERGY`, …),
-     * matching every other player-scoped counter surface in the SDK.
+     * Society). [counterType] is the kind placed (`CounterType.POISON`, `CounterType.ENERGY`, …).
      *
      * Unlike every other ward cost this one has no affordability precondition: a player can always
      * get counters, so the payment is a plain yes/no and can never be "unpayable" the way an empty
@@ -551,9 +589,9 @@ sealed interface WardCost {
      */
     @SerialName("WardCost.PlayerCounters")
     @Serializable
-    data class PlayerCounters(val counterType: String, val amount: Int) : WardCost {
+    data class PlayerCounters(val counterType: CounterType, val amount: Int) : WardCost {
         override val description: String =
-            if (amount == 1) "a $counterType counter" else "${numberToWord(amount)} $counterType counters"
+            if (amount == 1) "a ${counterType.printed} counter" else "${numberToWord(amount)} ${counterType.printed} counters"
         override val clause: String = "get $description"
     }
 
@@ -717,10 +755,19 @@ data class ChangeTargetEffect(
      * Mirror's "if that target is you". Default false: Willbender redirects whatever it targets.
      */
     val onlyIfCurrentTargetIsController: Boolean = false,
+    /**
+     * The object the target is changed *to* — "change the target of target spell … to this
+     * creature" (Hydroelectric Specimen, Spellskite). Null (the default) lets the controller choose
+     * among the spell's legal new targets. When set there is no choice: the target changes only if
+     * [newTarget] is a legal target for the spell, judged from the spell's controller (CR 115.7a —
+     * a target can be changed only to another legal target; otherwise it is unchanged).
+     */
+    val newTarget: EffectTarget? = null,
 ) : Effect {
     override val description: String = buildString {
         append("Change the target of target spell or ability with a single target")
         if (onlyIfCurrentTargetIsController) append(" if that target is you")
+        if (newTarget != null) append(" to ${newTarget.description}")
         if (newTargetMustBePlayer) append(". The new target must be a player")
     }
 }
@@ -802,7 +849,9 @@ data class ChangeTriggeringObjectTargetsEffect(
  * each copy.
  *
  * @property copyCount Number of copies to create
- * @property spellEffect The effect of the original spell to copy
+ * @property spellEffect The effect of the original spell to copy; null for a permanent spell, whose
+ *   copies resolve into token permanents (CR 707.10f) rather than through an effect. An Aura spell's
+ *   enchant target is one of its [spellTargetRequirements], so each copy may choose a new host.
  * @property spellTargetRequirements Target requirements from the original spell (empty if untargeted)
  * @property spellName Name of the original spell for display
  */
@@ -810,7 +859,7 @@ data class ChangeTriggeringObjectTargetsEffect(
 @Serializable
 data class StormCopyEffect(
     val copyCount: Int,
-    val spellEffect: Effect,
+    val spellEffect: Effect?,
     val spellTargetRequirements: List<TargetRequirement> = emptyList(),
     val spellName: String
 ) : Effect {
@@ -821,7 +870,7 @@ data class StormCopyEffect(
         val newReqs = spellTargetRequirements.map {
             val n = it.applyTextReplacement(replacer); if (n !== it) changed = true; n
         }
-        val newSpellEffect = spellEffect.applyTextReplacement(replacer)
+        val newSpellEffect = spellEffect?.applyTextReplacement(replacer)
         if (newSpellEffect !== spellEffect) changed = true
         return if (changed) copy(spellEffect = newSpellEffect, spellTargetRequirements = newReqs) else this
     }
@@ -840,8 +889,7 @@ data class StormCopyEffect(
 /**
  * Grant a keyword to a spell or ability on the stack until it leaves the stack.
  * Used for cards like Spinerock Tyrant: "those spells gain wither" — the granted
- * keyword applies for damage/source checks while the spell resolves, then
- * disappears with the spell.
+ * keyword applies for damage/source checks while the spell resolves, then * disappears with the spell.
  *
  * @property keyword The keyword to grant (enum name)
  * @property target The effect target referencing the spell on the stack
@@ -1169,38 +1217,105 @@ data class GrantNextSpellAffinityEffect(
 }
 
 /**
- * "Spells you cast this turn that match [spellFilter] cost {X} less to cast" — a turn-scoped,
+ * Grant the next [spellFilter] spell the controller casts this turn [keyword] — the same one-shot
+ * pending-rider shape as [GrantNextSpellAffinityEffect], for a keyword that changes how the spell's
+ * cost is paid. The matched spell has [keyword] while it is being cast (so the cast offers the
+ * keyword's payment), and the cast consumes the rider whether or not the keyword was used.
+ *
+ * Only the cost-payment keywords the engine reads through its granted-keyword resolver are
+ * accepted — [com.wingedsheep.sdk.core.Keyword.IMPROVISE], [com.wingedsheep.sdk.core.Keyword.CONVOKE]
+ * and [com.wingedsheep.sdk.core.Keyword.DELVE]; anything else is rejected at construction rather
+ * than silently granting a keyword nothing reads.
+ *
+ * Archway of Innovation: "The next spell you cast this turn has improvise."
+ *
+ * @property keyword The cost-payment keyword the next matching spell gains.
+ * @property spellFilter Which spell the rider waits for (defaults to any spell). Type, colour and
+ *   subtype predicates only — the granted-keyword resolver reads the printed definition and grants
+ *   nothing for any other predicate, while the cast still spends the rider.
+ */
+@SerialName("GrantNextSpellKeyword")
+@Serializable
+data class GrantNextSpellKeywordEffect(
+    val keyword: com.wingedsheep.sdk.core.Keyword,
+    val spellFilter: GameObjectFilter = GameObjectFilter.Any
+) : Effect {
+    init {
+        require(keyword in SUPPORTED_KEYWORDS) {
+            "GrantNextSpellKeywordEffect supports $SUPPORTED_KEYWORDS, not $keyword"
+        }
+    }
+
+    override val description: String = buildString {
+        append("The next ")
+        if (spellFilter != GameObjectFilter.Any) append("${spellFilter.description} ")
+        append("spell you cast this turn has ${keyword.displayName.lowercase()}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect =
+        copy(spellFilter = spellFilter.applyTextReplacement(replacer))
+
+    companion object {
+        /** The cost-payment keywords a spell can be granted while it is being cast. */
+        val SUPPORTED_KEYWORDS: Set<com.wingedsheep.sdk.core.Keyword> = setOf(
+            com.wingedsheep.sdk.core.Keyword.IMPROVISE,
+            com.wingedsheep.sdk.core.Keyword.CONVOKE,
+            com.wingedsheep.sdk.core.Keyword.DELVE,
+        )
+    }
+}
+
+/**
+ * "Spells you cast [duration] that match [spellFilter] cost {X} less to cast" — a duration-bounded,
  * controller-scoped generic cost reduction installed when this effect resolves.
  *
  * The *repeating* counterpart of [GrantNextSpellAffinityEffect]: that rider is consumed by the
- * first matching spell, this one applies to every matching spell for the rest of the turn.
+ * first matching spell, this one applies to every matching spell until [duration] ends.
  *
  * [amount] is evaluated **once, when this effect resolves**, and the resolved number is what the
- * cost calculator uses for the rest of the turn. That is what the Scion cycle's rulings require —
+ * cost calculator uses for the whole duration. That is what the Scion cycle's rulings require —
  * "the value of X is determined only once, at the time the ability resolves" — so life gained or
  * lost after activation does not change the discount. Use a static
  * [com.wingedsheep.sdk.scripting.ModifySpellCost] instead when the reduction should track board
  * state continuously.
  *
  * The reduction lives on the game state rather than on the source permanent, so it survives the
- * source leaving the battlefield (the ability has already resolved; its effect lasts the turn),
+ * source leaving the battlefield (the ability has already resolved; its effect lasts on its own),
  * and it only reduces the generic portion of a cost (CR 601.2f) — never colored mana.
  *
- * Will, Scion of Peace: `ReduceSpellCostsThisTurnEffect(Filters.whiteOrBlue,
+ * [duration] is [Duration.EndOfTurn] ("this turn") or [Duration.UntilYourNextTurn] (Ral, Leyline
+ * Prodigy's +1 — the discount keeps applying to instants cast on opponents' turns and ends when
+ * the controller's next turn begins). Any other duration is rejected at construction rather than
+ * silently treated as one of these.
+ *
+ * Will, Scion of Peace: `ReduceSpellCostsEffect(Filters.whiteOrBlue,
  * DynamicAmount.TurnTracking(Player.You, TurnTracker.LIFE_GAINED))`.
  *
  * @property spellFilter Which of the controller's spells are discounted.
  * @property amount How much generic mana to take off, resolved at execution time.
+ * @property duration How long the discount lasts.
  */
-@SerialName("ReduceSpellCostsThisTurn")
+@SerialName("ReduceSpellCosts")
 @Serializable
-data class ReduceSpellCostsThisTurnEffect(
+data class ReduceSpellCostsEffect(
     val spellFilter: GameObjectFilter,
     val amount: com.wingedsheep.sdk.scripting.values.DynamicAmount,
+    val duration: Duration = Duration.EndOfTurn,
 ) : Effect {
-    override val description: String =
-        "Spells you cast this turn that are ${spellFilter.description} cost {X} less to cast, " +
-            "where X is ${amount.description}"
+    init {
+        require(duration == Duration.EndOfTurn || duration == Duration.UntilYourNextTurn) {
+            "ReduceSpellCostsEffect supports EndOfTurn or UntilYourNextTurn, not $duration"
+        }
+    }
+
+    override val description: String = buildString {
+        append("Spells you cast ")
+        append(if (duration == Duration.EndOfTurn) "this turn" else duration.description)
+        append(" that are ${spellFilter.description} cost ")
+        val fixed = (amount as? DynamicAmount.Fixed)?.amount
+        if (fixed != null) append("{$fixed} less to cast")
+        else append("{X} less to cast, where X is ${amount.description}")
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect =
         copy(spellFilter = spellFilter.applyTextReplacement(replacer))
@@ -1225,19 +1340,19 @@ data class ReduceSpellCostsThisTurnEffect(
  * `onlyIfResolved` flag on the underlying AfterResolveDestinationComponent.
  *
  * @property target The spell on the stack to mark (typically the triggering entity).
- * @property counterType Counter type string (see [com.wingedsheep.sdk.core.Counters]).
+ * @property counterType The kind of counter.
  * @property count How many counters of [counterType] to add when the spell exiles.
  */
 @SerialName("MarkSpellExileWithCounters")
 @Serializable
 data class MarkSpellExileWithCountersEffect(
     val target: com.wingedsheep.sdk.scripting.targets.EffectTarget = com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity,
-    val counterType: String = com.wingedsheep.sdk.core.Counters.PLUS_ONE_PLUS_ONE,
+    val counterType: CounterType = com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
     val count: Int = 1
 ) : Effect {
     override val description: String = buildString {
         append("Exile that card with ")
-        if (count == 1) append("a $counterType counter") else append("$count $counterType counters")
+        if (count == 1) append("a ${counterType.printed} counter") else append("$count ${counterType.printed} counters")
         append(" on it instead of putting it into your graveyard as it resolves")
     }
 }

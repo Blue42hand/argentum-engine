@@ -20,7 +20,7 @@ val ConclaveMentor = card("Conclave Mentor") {
     replacementEffect(ModifyCounterPlacement(modifier = 1))
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.GainLife(DynamicAmounts.sourcePower())
     }
 

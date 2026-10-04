@@ -17,7 +17,7 @@ val KioraOfFireAndAshes = card("Kiora of Fire and Ashes") {
     oracleText = "When Kiora enters, create a 5/5 red Dragon creature token with flying.\n{8}: Create a 5/5 red Dragon creature token with flying."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(power = 5, toughness = 5, colors = setOf(Color.RED), creatureTypes = setOf("Dragon"), keywords = setOf(Keyword.FLYING), imageUri = "https://cards.scryfall.io/normal/front/9/9/991a5840-adc7-45b5-8d5f-b24dae384bab.jpg?1789734473")
     }
     activatedAbility {

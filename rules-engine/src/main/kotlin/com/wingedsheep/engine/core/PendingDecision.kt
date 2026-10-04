@@ -59,9 +59,9 @@ data class DecisionContext(
      * "pay X life or sacrifice it" once per creature, and without this the player sees N identical
      * prompts with no way to tell which creature each one covers.
      *
-     * Set from the enclosing per-entity iteration (`pipeline.iterationTarget` — the same binding
-     * `EffectTarget.Self` reads inside a `ForEachInGroup` body), so any gate raised inside such a
-     * loop names its subject for free.
+     * Set from the enclosing per-entity iteration (`EffectContext.iterationEntityId` — the object
+     * `EffectTarget.IterationEntity` names inside a `ForEachInGroup` body), so any gate raised
+     * inside such a loop names its subject for free.
      *
      * Only the id travels: the client resolves the card through its already-masked state map, so a
      * face-down subject can never leak its name through the prompt.
@@ -158,7 +158,20 @@ data class TargetRequirementInfo(
      * Justice). Enforced against each selected permanent's projected controller in
      * [DecisionValidators.validateTargets].
      */
-    val differentControllers: Boolean = false
+    val differentControllers: Boolean = false,
+    /**
+     * When true, the chosen targets must be at most one of each card type — each paired with a
+     * different card type it has ("up to one target nonland card of each card type", Uldaros
+     * Theorix). Enforced in [DecisionValidators.validateTargets].
+     */
+    val onePerCardType: Boolean = false,
+    /**
+     * When true, a target for this requirement must differ from every target chosen for an
+     * earlier requirement of the same decision — "another target" wording (`TargetOther`).
+     * False by default: separate instances of the word "target" may pick the same object
+     * (Seeds of Strength), so the client must not strip earlier picks from this pool unless set.
+     */
+    val mustDifferFromEarlier: Boolean = false
 )
 
 /**
@@ -346,7 +359,13 @@ data class ChooseColorDecision(
     override val playerId: EntityId,
     override val prompt: String,
     override val context: DecisionContext,
-    val availableColors: Set<Color> = Color.entries.toSet()
+    val availableColors: Set<Color> = Color.entries.toSet(),
+    /**
+     * How many distinct colors the answer may name. `1` is the ordinary single-color choice; a
+     * larger value is "the color or colors of your choice" (Quickchange) — the player picks any
+     * nonempty set of up to this many colors and answers with [ColorChosenResponse.colors].
+     */
+    val maxColors: Int = 1
 ) : PendingDecision
 
 /**
@@ -398,7 +417,13 @@ data class OrderObjectsDecision(
     override val prompt: String,
     override val context: DecisionContext,
     val objects: List<EntityId>,
-    val cardInfo: Map<EntityId, SearchCardInfo>? = null
+    val cardInfo: Map<EntityId, SearchCardInfo>? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val orderingTitle: String? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val firstLabel: String? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val lastLabel: String? = null
 ) : PendingDecision
 
 /**
@@ -413,6 +438,13 @@ data class SplitPilesDecision(
     override val context: DecisionContext,
     val cards: List<EntityId>,
     val numberOfPiles: Int = 2,
+    val allowUnassigned: Boolean = false,
+    val pileOptions: Map<Int, List<EntityId>> = emptyMap(),
+    val requiredAssignments: Int? = null,
+    val suggestedPiles: List<List<EntityId>>? = null,
+    /** Maximum distinct piles per card; absent entries are limited to one. */
+    val maxPileMemberships: Map<EntityId, Int> = emptyMap(),
+    val useTargetingUI: Boolean = false,
     /** Labels for the piles (e.g., ["Keep", "Discard"]) */
     val pileLabels: List<String> = emptyList(),
     /** Card info for displaying hidden cards (e.g., top of library during surveil) */
@@ -616,6 +648,9 @@ data class SelectManaSourcesDecision(
     val requiredCost: String,
     val autoPaySuggestion: List<EntityId>,
     val canDecline: Boolean = false,
+    /** Floating restricted mana the server permits for this nonspell payment. */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val eligibleRestrictedMana: List<EligibleRestrictedManaEntry> = emptyList(),
     /**
      * For a Ward—Waterbend cost (Avatar: The Last Airbender), the untapped artifacts and
      * creatures the paying player may tap to help pay the generic portion of [requiredCost] —
@@ -625,6 +660,12 @@ data class SelectManaSourcesDecision(
      */
     val waterbendPermanents: List<WaterbendPermanentChoice> = emptyList()
 ) : PendingDecision
+
+@Serializable
+data class EligibleRestrictedManaEntry(
+    val color: String?,
+    val restrictionDescription: String,
+)
 
 /**
  * An untapped artifact/creature offered as a Waterbend tap-to-help for a Ward—Waterbend payment.
@@ -667,6 +708,7 @@ sealed interface DecisionResponse {
         is DistributionResponse -> copy(decisionId = newId)
         is OrderedResponse -> copy(decisionId = newId)
         is PilesSplitResponse -> copy(decisionId = newId)
+        is PlayCardResponse -> copy(decisionId = newId)
         is OptionChosenResponse -> copy(decisionId = newId)
         is ReplacementChosenResponse -> copy(decisionId = newId)
         is BudgetModalResponse -> copy(decisionId = newId)
@@ -740,8 +782,16 @@ data class ModesChosenResponse(
 @SerialName("ColorChosenResponse")
 data class ColorChosenResponse(
     override val decisionId: String,
-    val color: Color
-) : DecisionResponse
+    val color: Color,
+    /**
+     * The full selection for a multi-color [ChooseColorDecision] (`maxColors > 1`); must contain
+     * [color]. Empty for an ordinary single-color answer, where [color] is the whole choice.
+     */
+    val colors: List<Color> = emptyList()
+) : DecisionResponse {
+    /** Every chosen color: [colors] when a multi-color answer was given, otherwise just [color]. */
+    val allColors: Set<Color> get() = if (colors.isEmpty()) setOf(color) else colors.toSet()
+}
 
 /**
  * Response to ChooseNumberDecision.

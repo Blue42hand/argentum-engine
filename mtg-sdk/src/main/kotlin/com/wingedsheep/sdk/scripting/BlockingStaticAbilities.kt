@@ -247,6 +247,19 @@ data class CanBlockAnyNumber(
     val filter: GroupFilter = GroupFilter.source()
 ) : StaticAbility {
     override val description: String = "can block any number of creatures"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility =
+        copy(filter = filter.applyTextReplacement(replacer))
+}
+
+/** Each attacking creature creates a separate blocking requirement for matching blockers. */
+@SerialName("MustBlockEachAttacker")
+@Serializable
+data class MustBlockEachAttacker(
+    val filter: GroupFilter = GroupFilter.source()
+) : StaticAbility {
+    override val description: String = "blocks each attacking creature if able"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility =
+        copy(filter = filter.applyTextReplacement(replacer))
 }
 
 /**
@@ -314,6 +327,42 @@ data class CantBeBlockedIfDefenderControls(
     } else {
         "can't be blocked as long as defending player controls $minCount or more ${permanentFilter.description}"
     }
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * Creatures matching [filter] can block as though they were untapped — lifting the "untapped
+ * creature" requirement of CR 509.1a for them and nothing else.
+ *
+ *  - Battlefield scope — "Tapped creatures you control can block as though they were untapped."
+ *    (Masako the Humorless): `CanBlockAsThoughUntapped(GroupFilter.AllCreaturesYouControl)`. The
+ *    group filter is matched against the would-be blocker with the permanent carrying this ability
+ *    as predicate source, so `youControl()` means that permanent's controller.
+ *  - Self scope (the default) — "This creature can block as though it were untapped."
+ *
+ * Per Masako's ruling it lets a tapped creature block only if it could otherwise block: every other
+ * restriction (can't block, flying/reach evasion, menace…) still applies. Blocking doesn't untap the
+ * creature, and a tapped blocker deals and receives combat damage normally.
+ *
+ * Read at block declaration by `TappedBlockBypass`, never through projection — it's a rule
+ * modification, not a characteristic. Because it makes a tapped creature *able* to block, a block
+ * requirement (Lure, provoke) applies to it too (CR 509.1c).
+ */
+@SerialName("CanBlockAsThoughUntapped")
+@Serializable
+data class CanBlockAsThoughUntapped(
+    val filter: GroupFilter = GroupFilter.source()
+) : StaticAbility {
+    override val description: String =
+        if (filter.scope is Scope.Self) {
+            "can block as though it were untapped"
+        } else {
+            "Tapped ${filter.description} can block as though they were untapped"
+        }
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)

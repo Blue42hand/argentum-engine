@@ -7,15 +7,18 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.CardScript
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
@@ -53,6 +56,7 @@ class ManaSpendingTest : StringSpec({
             CardScript(
                 activatedAbilities = listOf(
                     ActivatedAbility(
+                        id = AbilityId("ManaSpendingTest_1"),
                         cost = com.wingedsheep.sdk.scripting.AbilityCost.Tap,
                         effect = effect,
                         timing = com.wingedsheep.sdk.scripting.TimingRule.ManaAbility,
@@ -72,6 +76,7 @@ class ManaSpendingTest : StringSpec({
             "{T}: Add {U}. Spend this mana only to cast instant or sorcery spells.",
             "{T}: Add {C}{C}. Spend this mana only to cast legendary spells.",
             "{T}: Add {G}{G}. Spend this mana only to cast kicked spells.",
+            "{T}: Add {R}{G}. Spend this mana only to cast creature spells.",
             "{T}: Add {C}{C}. Spend this mana only to activate abilities.",
             "{T}: Add {R}. Spend this mana only to activate equip abilities.",
             "{T}: Add {C}. Spend this mana only to turn permanents face up.",
@@ -143,6 +148,18 @@ class ManaSpendingTest : StringSpec({
             CardType.CREATURE, allowSpells = true, allowAbilities = false,
         )
         Grammar.abilityLine.printLine(manaAbility(Effects.AddMana(Color.GREEN, 1, creatureSpells))) shouldBe null
+    }
+
+    // A symbol string is only the runs chained plainly: a chain it would print the same as is left
+    // to the rest of the grammar (two sentences) or refused, never folded into one symbol string.
+    "a mana chain that no symbol string spells never prints as one" {
+        val green = Effects.AddMana(Color.GREEN, 1)
+        val red = Effects.AddMana(Color.RED, 1)
+        Grammar.abilityLine.printLine(manaAbility(green then green)) shouldNotBe "{T}: Add {G}{G}."
+        Grammar.abilityLine.printLine(manaAbility(CompositeEffect(listOf(red, green), stopOnError = true))) shouldBe null
+        Grammar.abilityLine.printLine(
+            manaAbility(red then Effects.AddMana(Color.GREEN, 1, ManaRestriction.CreatureSpellsOnly))
+        ) shouldNotBe "{T}: Add {R}{G}. Spend this mana only to cast creature spells."
     }
 
     // ---------------------------------------------------------------------------------------
@@ -337,7 +354,7 @@ class ManaSpendingTest : StringSpec({
             color = Color.GREEN,
             amount = DynamicAmount.Fixed(1),
             restriction = ManaRestriction.CreatureSpellsOnly,
-            riders = setOf(com.wingedsheep.sdk.scripting.effects.ManaSpellRider.MakesSpellUncounterable),
+            riders = setOf(com.wingedsheep.sdk.scripting.effects.ManaSpellRider.MakesSpellUncounterable()),
         )
         Grammar.abilityLine.printLine(manaAbility(withRider)) shouldBe null
     }

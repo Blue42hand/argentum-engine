@@ -55,7 +55,7 @@ class LegendRuleTest : FunSpec({
         // There should be a pending SelectCardsDecision for the legend rule
         val decision = driver.pendingDecision
         decision.shouldBeInstanceOf<SelectCardsDecision>()
-        exportPrivacyFixture("structured-legend-decision", ClientStateTransformer(driver.cardRegistry).transform(driver.state, p1), pending = decision)
+        exportPrivacyFixture("structured-legend-decision", ClientStateTransformer(driver.cardRegistry, predicateEvaluator = driver.services.predicateEvaluator).transform(driver.state, p1), pending = decision)
         decision.prompt.contains("legend rule") shouldBe true
         decision.options.size shouldBe 2
         decision.options.toSet() shouldBe setOf(firstRagavan, secondRagavan)

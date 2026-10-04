@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.war.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -21,17 +21,15 @@ val KrenkoTinStreetKingpin = card("Krenko, Tin Street Kingpin") {
         "1/1 red Goblin creature tokens equal to Krenko's power."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            CreateTokenEffect(
+        trigger = Triggers.self.attacks()
+        effect = (Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.CreateToken(
                 count = DynamicAmounts.sourcePower(),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),
                 creatureTypes = setOf("Goblin"),
-            ),
-        )
+            ))
     }
 
     metadata {

@@ -10,11 +10,7 @@ import io.kotest.matchers.shouldBe
 class TriggersTest : FunSpec({
 
     test("entersBattlefield can restrict the source zone") {
-        Triggers.entersBattlefield(
-            filter = GameObjectFilter.Land.youControl(),
-            from = Zone.EXILE,
-            binding = TriggerBinding.ANY,
-        ) shouldBe com.wingedsheep.sdk.scripting.TriggerSpec(
+        Triggers.a(GameObjectFilter.Land.youControl()).enters(from = Zone.EXILE) shouldBe com.wingedsheep.sdk.scripting.TriggerSpec(
             event = EventPattern.ZoneChangeEvent(
                 filter = GameObjectFilter.Land.youControl(),
                 from = Zone.EXILE,

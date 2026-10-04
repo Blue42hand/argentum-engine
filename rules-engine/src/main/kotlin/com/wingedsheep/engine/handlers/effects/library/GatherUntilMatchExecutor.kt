@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
 import com.wingedsheep.engine.core.EffectResult
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -20,7 +19,8 @@ import kotlin.reflect.KClass
 /**
  * Executor for [GatherUntilMatchEffect].
  *
- * Walks a player's library top-down, collecting cards until [GatherUntilMatchEffect.count]
+ * Walks a player's library top-down (each player's, for [Player.Each] / [Player.EachOpponent] /
+ * [Player.ActivePlayerFirst], accumulating into one collection), collecting cards until [GatherUntilMatchEffect.count]
  * matching cards have been revealed (or the library runs out). Stores the matches and
  * all revealed cards as named collections.
  *
@@ -31,35 +31,25 @@ import kotlin.reflect.KClass
  * - Count evaluates to ≤ 0: both collections are empty (no cards walked)
  * - Fewer matches than count: storeMatch has what was found; storeRevealed is the whole library
  */
-class GatherUntilMatchExecutor : EffectExecutor<GatherUntilMatchEffect> {
+class GatherUntilMatchExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<GatherUntilMatchEffect> {
+    private val amountEvaluator = predicateEvaluator.amounts
 
     override val effectType: KClass<GatherUntilMatchEffect> = GatherUntilMatchEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
-    private val amountEvaluator = DynamicAmountEvaluator()
 
     override fun execute(
         state: GameState,
         effect: GatherUntilMatchEffect,
         context: EffectContext
     ): EffectResult {
-        val playerId = resolvePlayer(effect.player, context, state)
-            ?: return EffectResult.error(state, "Could not resolve player for GatherUntilMatch")
+        val playerIds = resolvePlayers(effect.player, context, state)
+        if (playerIds.isEmpty()) {
+            return EffectResult.error(state, "Could not resolve player for GatherUntilMatch")
+        }
 
         val targetCount = amountEvaluator.evaluate(state, effect.count, context)
         if (targetCount <= 0) {
-            return EffectResult.success(state).copy(
-                updatedCollections = mapOf(
-                    effect.storeMatch to emptyList(),
-                    effect.storeRevealed to emptyList()
-                )
-            )
-        }
-
-        val libraryZone = ZoneKey(playerId, Zone.LIBRARY)
-        val library = state.getZone(libraryZone)
-
-        if (library.isEmpty()) {
             return EffectResult.success(state).copy(
                 updatedCollections = mapOf(
                     effect.storeMatch to emptyList(),
@@ -72,12 +62,16 @@ class GatherUntilMatchExecutor : EffectExecutor<GatherUntilMatchEffect> {
         val allRevealed = mutableListOf<EntityId>()
         val matches = mutableListOf<EntityId>()
 
-        for (cardId in library) {
-            allRevealed.add(cardId)
-
-            if (predicateEvaluator.matches(state, state.projectedState, cardId, effect.filter, predicateContext)) {
-                matches.add(cardId)
-                if (matches.size >= targetCount) break
+        // Each player's library is walked independently (count matches per library) and the
+        // results accumulate into the same two collections, in player order.
+        for (playerId in playerIds) {
+            var found = 0
+            for (cardId in state.getZone(ZoneKey(playerId, Zone.LIBRARY))) {
+                allRevealed.add(cardId)
+                if (predicateEvaluator.matches(state, state.projectedState, cardId, effect.filter, predicateContext)) {
+                    matches.add(cardId)
+                    if (++found >= targetCount) break
+                }
             }
         }
 
@@ -89,6 +83,12 @@ class GatherUntilMatchExecutor : EffectExecutor<GatherUntilMatchEffect> {
         )
     }
 
-    private fun resolvePlayer(player: Player, context: EffectContext, state: GameState): EntityId? =
-        TargetResolutionUtils.resolvePlayerRef(player, context, state) ?: context.controllerId
+    private fun resolvePlayers(player: Player, context: EffectContext, state: GameState): List<EntityId> =
+        when (player) {
+            Player.EachDefendingPlayer -> com.wingedsheep.engine.mechanics.combat.CombatDefenders.allDefendingPlayersInApnapOrder(state)
+            Player.Each -> state.activePlayers
+            Player.ActivePlayerFirst -> state.apnapOrder
+            Player.EachOpponent -> state.getOpponents(context.controllerId)
+            else -> listOf(TargetResolutionUtils.resolvePlayerRef(player, context, state) ?: context.controllerId)
+        }
 }
