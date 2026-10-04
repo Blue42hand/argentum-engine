@@ -463,6 +463,7 @@ class ObservationBuilder(
             mandatoryAttackers = la.mandatoryAttackers.orEmpty(),
             validAttackTargets = la.validAttackTargets.orEmpty(),
             validBlockers = la.validBlockers.orEmpty(),
+            validBlockTargets = la.validBlockTargets.orEmpty(),
             blockerMaxBlockCounts = la.blockerMaxBlockCounts.orEmpty(),
             mandatoryBlockerAssignments = la.mandatoryBlockerAssignments.orEmpty(),
             isDecisionOption = false

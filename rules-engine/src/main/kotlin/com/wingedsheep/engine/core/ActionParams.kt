@@ -136,6 +136,7 @@ object ActionParameterizer {
 
     fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(legalAction.action, spec(legalAction))
+        params.requireBlockTargets(legalAction.validBlockTargets)
         legalAction.additionalCostInfo?.let { cost ->
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
                 cost.validDiscardTargets, cost.validExileTargets)
@@ -147,6 +148,7 @@ object ActionParameterizer {
     /** Complete a server controller's enriched offered action with the same cost checks as Gym. */
     fun apply(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(info.action, info.parameterSpec)
+        params.requireBlockTargets(info.validBlockTargets)
         info.additionalCostInfo?.let { cost ->
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
                 cost.validDiscardTargets, cost.validExileTargets)
@@ -165,6 +167,13 @@ object ActionParameterizer {
         check("sacrificedPermanents", sacrificedPermanents, sacrifice)
         check("discardedCards", discardedCards, discard)
         check("exiledCards", exiledCards, exile)
+    }
+
+    private fun ActionParams.requireBlockTargets(targets: Map<EntityId, List<EntityId>>?) {
+        if (blockers.isEmpty() || targets == null) return
+        require(blockers.all { (blocker, attackers) ->
+            blocker in targets && attackers.all { it in targets.getValue(blocker) }
+        }) { "blockers contains a blocker-attacker pair not offered for this action" }
     }
 
     private fun ActionParams.requireDelveCandidates(candidates: List<EntityId>) {

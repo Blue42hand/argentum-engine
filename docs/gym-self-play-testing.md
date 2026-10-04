@@ -128,7 +128,7 @@ curl -s -X POST localhost:8081/envs/$ENV/step -H 'Content-Type: application/json
 | `params` field | Shape | Comes from |
 |---|---|---|
 | `attackers` | attacker id → defender id | `validAttackers`, `validAttackTargets` on the action |
-| `blockers` | blocker id → `[attacker id, …]` | `validBlockers`, `blockerMaxBlockCounts`, `mandatoryBlockerAssignments` on the action; attackers from the board |
+| `blockers` | blocker id → `[attacker id, …]` | `validBlockers`, `validBlockTargets`, `blockerMaxBlockCounts`, `mandatoryBlockerAssignments` on the action |
 | `targets` | `[entity id, …]`, in requirement order | `targetEntityIds`, `minTargets`, `maxTargets` |
 | `xValue` | int | `hasXCost`, `maxAffordableX` |
 | `tappedPermanents`, `sacrificedPermanents`, `discardedCards`, `exiledCards` | `[entity id, …]` | `parameterSpec`, `costChoices` |
@@ -137,7 +137,9 @@ curl -s -X POST localhost:8081/envs/$ENV/step -H 'Content-Type: application/json
 The declaration constraints are not advisory — a declaration that disobeys one is illegal, and the
 step is rejected. `mandatoryAttackers` lists creatures that must attack if able (CR 508.1d);
 `mandatoryBlockerAssignments` lists blocks that must be made if able (CR 509.1c); and
-`blockerMaxBlockCounts` caps how many attackers a blocker may block at once, where absent means the
+`validBlockTargets` lists attacker IDs each blocker can legally block as a single pair; full
+blocker groups must still satisfy menace and other group restrictions. `blockerMaxBlockCounts`
+caps how many attackers a blocker may block at once, where absent means the
 default one (CR 509.1a). Params a given action can't use, and a declaration the engine rejects, both
 return `400` with the reason — neither is silently dropped, on `/step` or on `/step-batch`. Anything
 richer (bands and convoke/improvise selections) is not expressible over `step`;
@@ -154,7 +156,7 @@ The fields that matter most for spotting bugs:
   `PlayLand`, `ActivateAbility`, `DeclareAttackers`, `DeclareBlockers`, `PassPriority`, `DECISION`,
   …), `description`, `affordable`, `manaCost`, target counts, and the combat candidates
   (`validAttackers`, `mandatoryAttackers`, `validAttackTargets`, `validBlockers`,
-  `blockerMaxBlockCounts`, `mandatoryBlockerAssignments`).
+  `validBlockTargets`, `blockerMaxBlockCounts`, `mandatoryBlockerAssignments`).
 - `zones[]` → `cards[]` → `EntityFeatures` — the projected (post-layers) truth about each visible
   object. A zone can remain `hidden: true` while `cards` contains its individually known subset:
   `oracleText`, `power`/`toughness`, `types`/`subtypes`/`keywords`/`colors`, `tapped`, `counters`,

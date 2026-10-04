@@ -103,6 +103,8 @@ data class LegalActionInfo(
     val mandatoryAttackers: List<EntityId>? = null,
     val validAttackTargets: List<EntityId>? = null,
     val validBlockers: List<EntityId>? = null,
+    /** Pairwise legal attacker ids for each blocker; full group restrictions still apply. */
+    val validBlockTargets: Map<EntityId, List<EntityId>>? = null,
     val hasXCost: Boolean = false,
     val maxAffordableX: Int? = null,
     /**

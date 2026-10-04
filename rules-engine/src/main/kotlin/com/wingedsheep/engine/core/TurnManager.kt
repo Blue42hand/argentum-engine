@@ -1389,6 +1389,9 @@ class TurnManager(
         }
     }
 
+    fun getValidBlockTargets(state: GameState, blockerId: EntityId, playerId: EntityId): List<EntityId> =
+        combatManager.getValidBlockTargets(state, blockerId, playerId)
+
     fun getValidBlockers(state: GameState, playerId: EntityId): List<EntityId> {
         val battlefield = state.getBattlefield()
         val projected = state.projectedState

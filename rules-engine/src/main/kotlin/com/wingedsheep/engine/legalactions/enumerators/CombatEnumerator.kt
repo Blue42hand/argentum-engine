@@ -96,7 +96,11 @@ class CombatEnumerator : ActionEnumerator {
                         validBlockers = emptyList(),
                     ))
                 }
-                val validBlockers = context.turnManager.getValidBlockers(state, playerId)
+                val validBlockTargets = context.turnManager.getValidBlockers(state, playerId)
+                    .associateWith { blockerId ->
+                        context.turnManager.getValidBlockTargets(state, blockerId, playerId)
+                    }.filterValues { it.isNotEmpty() }
+                val validBlockers = validBlockTargets.keys.toList()
                 val blockRules = com.wingedsheep.engine.mechanics.combat.BlockStaticRules(
                     state, context.cardRegistry, context.predicateEvaluator)
                 val blockerMaxBlockCounts = validBlockers.mapNotNull { blocker ->
@@ -108,6 +112,7 @@ class CombatEnumerator : ActionEnumerator {
                     description = "Declare blockers",
                     action = DeclareBlockers(playerId, emptyMap()),
                     validBlockers = validBlockers,
+                    validBlockTargets = validBlockTargets,
                     blockerMaxBlockCounts = blockerMaxBlockCounts.ifEmpty { null },
                     mandatoryBlockerAssignments = mandatoryAssignments.ifEmpty { null }
                 ))

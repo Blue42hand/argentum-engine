@@ -922,6 +922,8 @@ export interface LegalActionInfo {
   readonly validAttackTargets?: readonly EntityId[]
   /** Valid blocker IDs for DeclareBlockers action */
   readonly validBlockers?: readonly EntityId[]
+  /** Pairwise legal attacker IDs for each blocker; full declarations are checked by the server. */
+  readonly validBlockTargets?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Whether this spell has X in its mana cost */
   readonly hasXCost?: boolean
   /** Maximum X value the player can afford (null if not X cost spell) */

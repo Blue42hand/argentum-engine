@@ -71,6 +71,9 @@ class CombatManager(
         blockers: Map<EntityId, List<EntityId>>
     ): ExecutionResult = blockPhase.declareBlockers(state, blockingPlayer, blockers)
 
+    fun getValidBlockTargets(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): List<EntityId> =
+        blockPhase.getValidBlockTargets(state, blockerId, blockingPlayer)
+
     fun beginBlockerPiles(state: GameState, blockingPlayer: EntityId): ExecutionResult =
         blockPhase.beginBlockerPiles(state, blockingPlayer)
 

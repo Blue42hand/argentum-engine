@@ -221,6 +221,8 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
         return state
       }
 
+      const validTargets = state.combatState.validBlockTargets?.[blockerId]
+      if (state.combatState.validBlockTargets && !validTargets?.includes(attackerId)) return state
       const existing = state.combatState.blockerAssignments[blockerId] ?? []
       // If already blocking this attacker, don't add duplicate
       if (existing.includes(attackerId)) return state
