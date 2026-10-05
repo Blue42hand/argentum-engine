@@ -782,6 +782,12 @@ class StaticAbilityHandler(
                     affectsFilter = convertGroupFilter(ability.filter)
                 )
             }
+            is com.wingedsheep.sdk.scripting.ManaAbilitiesCostAdditionalLife -> {
+                ContinuousEffectData(
+                    modification = Modification.ManaAbilitiesCostLife(ability.amount),
+                    affectsFilter = convertGroupFilter(ability.filter)
+                )
+            }
             is MustAttack -> {
                 ContinuousEffectData(
                     modification = if (ability.playersOnly) Modification.SetMustAttackPlayer else Modification.SetMustAttack,

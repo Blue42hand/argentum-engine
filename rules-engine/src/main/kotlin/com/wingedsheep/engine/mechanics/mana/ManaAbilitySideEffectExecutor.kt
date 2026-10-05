@@ -95,9 +95,25 @@ class ManaAbilitySideEffectExecutor(
             )
             currentState = after
             events.addAll(sideEvents)
+
+            // Thran Portal's "mana abilities cost an additional 1 life" — charged whichever of the
+            // source's mana abilities (printed, intrinsic or granted) produced the mana.
+            val (taxed, taxEvents) = ManaAbilityLifeTax.pay(zones, currentState, source.entityId, controllerId)
+            currentState = taxed
+            events.addAll(taxEvents)
         }
         return currentState to events
     }
+
+    /**
+     * Tap [sourceId] for mana and charge any [ManaAbilityLifeTax] its mana abilities carry — for
+     * the auto-pay paths that tap a solver-chosen source directly.
+     */
+    fun tapForManaPayingTax(
+        state: GameState,
+        sourceId: EntityId,
+        tapperId: EntityId,
+    ): Pair<GameState, List<GameEvent>> = ManaAbilityLifeTax.tapForManaPayingTax(zones, state, sourceId, tapperId)
 
     /**
      * The [AbilityActivatedEvent] for an auto-tapped mana source, or null if [sourceId] isn't a

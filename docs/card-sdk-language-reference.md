@@ -8407,7 +8407,9 @@ staticAbility {
   type-changing static that adds the creature type **chosen as the source entered** (read from the source's
   `CastChoicesComponent`) to the group, in addition to their other types. Chosen-value counterpart to `GrantSubtype`,
   mirroring `GrantChosenColor`/`GrantColor`; pair with `EntersWithChoice(ChoiceType.CREATURE_TYPE)`. This is the
-  Conspiracy / Xenograft mechanic. The `filter` half is normal Layer 4 battlefield projection ("Creatures you control
+  Conspiracy / Xenograft mechanic. With no chosen creature type it falls back to a chosen **basic land type**, so
+  `EntersWithChoice(ChoiceType.BASIC_LAND_TYPE)` + `GrantChosenSubtype()` is Thran Portal's "this land is the chosen
+  type in addition to its other types" (and the land gains that type's intrinsic mana ability). The `filter` half is normal Layer 4 battlefield projection ("Creatures you control
   are the chosen type"). The two cross-zone flags extend the grant beyond the battlefield (the Conspiracy / Leyline-of-
   Transformation clause "the same is true for creature spells you control and creature cards you own that aren't on the
   battlefield"): `includeControlledSpells` reaches creature spells the controller controls on the stack, and
@@ -9791,6 +9793,13 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   more to activate unless they're mana abilities" →
   `IncreaseActivatedAbilityCost(GroupFilter(GameObjectFilter.Any), DynamicAmount.Fixed(2), excludeManaAbilities = true)`.
   Without it, every land's `{T}: Add …` would be taxed too.
+- `ManaAbilitiesCostAdditionalLife(amount = 1, filter = GroupFilter.source())` — **mana** abilities of
+  permanents matching `filter` cost `amount` additional life to activate. Thran Portal: "Mana abilities of this
+  land cost an additional 1 life to activate" → `ManaAbilitiesCostAdditionalLife(1)`. Lowered to a Layer 6
+  projected value (`ProjectedState.getManaAbilityLifeTax`), so it covers the land's printed, intrinsic
+  (basic-land-type) and granted mana abilities alike and stops when the land loses its abilities. The manual
+  activation sees it as a `PayLife` cost atom (unpayable below `amount` life, CR 119.4); auto-pay prices the source
+  as a pain source (preferring untaxed sources) and charges the life when it taps it.
 - `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false, entersWithCounter = null, addedSubtypeOnEntry = null, oncePerTurn = false, exileInsteadOfGraveyard = false, fromAnyGraveyard = false, additionalCost = null)`
   — cast spells matching `filter` from your graveyard following normal timing, optionally paying
   `lifeCost` life. Free for Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1,

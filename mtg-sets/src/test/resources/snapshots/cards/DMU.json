@@ -3014,6 +3014,68 @@
     ]
 }
 
+// Thran Portal
+{
+    "name": "Thran Portal",
+    "manaCost": "",
+    "typeLine": "Land — Gate",
+    "oracleText": "This land enters tapped unless you control two or fewer other lands.\nAs this land enters, choose a basic land type.\nThis land is the chosen type in addition to its other types.\nMana abilities of this land cost an additional 1 life to activate.",
+    "script": {
+        "staticAbilities": [
+            "GrantChosenSubtype",
+            "ManaAbilitiesCostAdditionalLife"
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "land",
+                        "excludeSelf": true
+                    },
+                    "operator": "LTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            },
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "BASIC_LAND_TYPE"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "259",
+        "rarity": "RARE",
+        "artist": "Sarah Finnigan",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/f/ef074a2e-a387-4af8-a180-74b145d93992.jpg?1783921255",
+        "rulings": [
+            {
+                "date": "2022-09-09",
+                "text": "Thran Portal will have the appropriate intrinsic mana ability for the basic land type chosen as it enters the battlefield. It is still a Gate and still has its other abilities, including the last ability, which makes the mana ability associated with its basic land type cost 1 life to activate."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "If Thran Portal somehow gains another mana ability, that ability also costs an additional 1 life to activate."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "If you control more than one Thran Portal, the last ability of each of them applies only to itself."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "If a Thran Portal somehow enters the battlefield without a basic land type having been chosen for it, it does not have any mana abilities."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Tidepool Turtle
 {
     "name": "Tidepool Turtle",

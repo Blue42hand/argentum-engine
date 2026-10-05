@@ -1939,7 +1939,7 @@ class ManaSolver(
                 painAmount = 0,
                 canAttack = false
             )
-        }.map { source -> augmentWithAuraBonusMana(state, source, playerId, manaStatics) }
+        }.mapNotNull { withLifeTax(state, playerId, it) }.map { source -> augmentWithAuraBonusMana(state, source, playerId, manaStatics) }
             .map { source -> augmentWithSourceTapBonusMana(state, source, playerId, manaStatics) }
             // After the bonus augmentations, and touching only `manaAmount`: a multiplier scales the
             // source's *own* mana ability, never the separate triggered mana abilities that supply
@@ -2509,6 +2509,23 @@ class ManaSolver(
                 source
             }
         }
+    }
+
+    /**
+     * Fold Thran Portal's "mana abilities of this land cost an additional N life" into [source]:
+     * every kind it produces now costs that much more life, and a source whose controller can't
+     * pay the life (CR 119.4) can't be activated at all, so it is dropped.
+     */
+    private fun withLifeTax(state: GameState, playerId: EntityId, source: ManaSource): ManaSource? {
+        val tax = ManaAbilityLifeTax.amount(state, source.entityId)
+        if (tax <= 0) return source
+        if (!state.canPayLife(playerId, tax)) return null
+        return source.copy(
+            hasPainCost = true,
+            painAmount = source.painAmount + tax,
+            colorPainCost = source.producesColors.associateWith { (source.colorPainCost[it] ?: 0) + tax },
+            colorlessPainCost = if (source.producesColorless) source.colorlessPainCost + tax else source.colorlessPainCost,
+        )
     }
 
     /**

@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.continuations
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 
@@ -741,7 +742,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1148,7 +1149,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1322,7 +1323,7 @@ class ManaPaymentContinuationResumer(
                 ?: return ExecutionResult.error(state, "Cannot pay mana cost")
 
             for (source in solution.sources) {
-                val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
                 currentState = tappedState
                 events.addAll(tapEvents)
             }
@@ -1414,7 +1415,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1541,7 +1542,7 @@ class ManaPaymentContinuationResumer(
                 events.add(PermanentsSacrificedEvent(sourceController, listOf(sourceId)))
                 events.addAll(transition.events)
             } else {
-                val (tappedState, tapEvents) = tapForMana(currentState, sourceId, fallbackControllerId)
+                val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, sourceId, fallbackControllerId)
                 currentState = tappedState
                 events.addAll(tapEvents)
             }
@@ -1702,7 +1703,7 @@ class ManaPaymentContinuationResumer(
         // Tap the source and each chosen permanent, then credit the source's mana to the pool.
         var currentState = state
         val events = mutableListOf<GameEvent>()
-        val (headTappedState, headTapEvents) = tapForMana(currentState, headSourceId, continuation.payingPlayerId)
+        val (headTappedState, headTapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, headSourceId, continuation.payingPlayerId)
         currentState = headTappedState
         events.addAll(headTapEvents)
         for (chosen in response.selectedCards) {

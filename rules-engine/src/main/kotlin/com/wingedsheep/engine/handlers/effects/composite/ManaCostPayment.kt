@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
@@ -59,6 +61,13 @@ fun payManaCostFromPool(
 
         for (source in solution.sources) {
             val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, player)
+                .let { (tapped, tapEvents) ->
+                    // Thran Portal's mana-ability life tax. Only a taxed source needs the zone
+                    // service (for a life-payment replacement), so it is built only then.
+                    if (tapEvents.isEmpty() || ManaAbilityLifeTax.amount(tapped, source.entityId) <= 0) tapped to tapEvents
+                    else ManaAbilityLifeTax.pay(ZoneTransitionService(cardRegistry, predicateEvaluator), tapped, source.entityId, player)
+                        .let { (paid, lifeEvents) -> paid to (tapEvents + lifeEvents) }
+                }
             currentState = tappedState
             events.addAll(tapEvents)
         }

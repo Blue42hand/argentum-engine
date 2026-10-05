@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
 import com.wingedsheep.engine.core.GameEvent
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -43,6 +42,10 @@ internal class ActivationAutoTapper(
         val newPool: ManaPool,
         val events: List<GameEvent>
     )
+
+    /** Tap an explicitly chosen mana source, charging any [com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax]. */
+    fun tapChosenSource(state: GameState, sourceId: EntityId, playerId: EntityId): Pair<GameState, List<GameEvent>> =
+        manaAbilitySideEffectExecutor.tapForManaPayingTax(state, sourceId, playerId)
 
     /**
      * Auto-tap mana sources to cover a mana cost that can't be fully paid from the floating pool.
@@ -94,7 +97,7 @@ internal class ActivationAutoTapper(
         val events = mutableListOf<GameEvent>()
 
         for (source in solution.sources) {
-            val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+            val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingTax(currentState, source.entityId, playerId)
             currentState = tappedState
             events.addAll(tapEvents)
             // Auto-tapping a source to pay an ability's mana cost activates that source's mana

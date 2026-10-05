@@ -201,7 +201,7 @@ object ManaPaymentWindow {
         fallbackControllerId: EntityId
     ): Pair<GameState, List<GameEvent>> {
         if (!source.requiresSacrifice) {
-            return com.wingedsheep.engine.core.tapForMana(state, sourceId, fallbackControllerId)
+            return ManaAbilityLifeTax.tapForManaPayingTax(zones, state, sourceId, fallbackControllerId)
         }
         val controller = state.getEntity(sourceId)
             ?.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
