@@ -554,6 +554,7 @@ val engineSerializersModule = SerializersModule {
         subclass(SummoningSicknessComponent::class)
         subclass(PhasedOutComponent::class)
         subclass(CastFromHandComponent::class)
+        subclass(WasCastComponent::class)
         subclass(CastFromGraveyardComponent::class)
         subclass(CastFromLibraryComponent::class)
         subclass(EnteredFromGraveyardComponent::class)
