@@ -35,6 +35,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       # The `server` group compiles the full module graph that bootJar needs (see ci.yml).
       - name: Restore Gradle build outputs

@@ -69,6 +69,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          # Lets setup-gradle save and restore the configuration cache (which can
+          # hold secrets, so it is only persisted encrypted). Saves ~20 s of
+          # configuration + buildSrc per job. Without the secret it is simply skipped.
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       # Persist the Gradle build cache (compiled classes + test results) across runs. Unlike
       # setup-gradle's exact-key build cache, actions/cache restore-keys do prefix matching and pick
@@ -183,6 +188,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          # Lets setup-gradle save and restore the configuration cache (which can
+          # hold secrets, so it is only persisted encrypted). Saves ~20 s of
+          # configuration + buildSrc per job. Without the secret it is simply skipped.
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Cache Gradle build outputs
         uses: actions/cache@v4
