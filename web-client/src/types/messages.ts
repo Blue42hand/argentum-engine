@@ -437,6 +437,7 @@ export interface ChooseTargetsDecision extends PendingDecisionBase {
 }
 
 export interface TargetRequirementInfo {
+  readonly emptyChoiceLabel?: string | null
   readonly index: number
   readonly minTargets: number
   readonly maxTargets: number

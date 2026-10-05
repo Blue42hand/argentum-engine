@@ -192,14 +192,15 @@ class CopyTargetSpellExecutor(
         exceptions: CopyExceptions = CopyExceptions.None,
     ): EffectResult {
 
-        val legalTargetsMap = SpellCopyTargets.legalTargets(
+        val prompt = SpellCopyTargets.prompt(
             state, targetFinder, spellEntityId, context.controllerId, targetRequirements, exceptions
         )
+        val legalTargetsMap = prompt.legal
 
-        // CR 707.10c: no legal replacement for some requirement, so nothing can be re-chosen —
+        // CR 707.10c: no legal replacement in any slot, so nothing can be re-chosen —
         // the copies still go on the stack inheriting the source's (now-illegal) targets and
         // fizzle on resolution per 608.2b / 112.3b, exactly as the Storm path does.
-        val hasNoLegalTargets = legalTargetsMap.any { (_, targets) -> targets.isEmpty() }
+        val hasNoLegalTargets = legalTargetsMap.values.all { it.isEmpty() }
         if (hasNoLegalTargets) {
             return EffectResult.from(
                 putInheritedCopies(
@@ -228,13 +229,7 @@ class CopyTargetSpellExecutor(
             tokenRiders = tokenRiders,
             exceptions = exceptions
         )
-        val targetReqInfos = targetRequirements.mapIndexed { index, req ->
-            TargetRequirementInfo(
-                index = index,
-                description = req.description,
-                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
-            )
-        }
+        val targetReqInfos = prompt.requirements
 
         // Matches the Storm path's labelling so a multi-copy prompt says which copy it is for.
         val copyLabel = if (copyCount > 1) "copy 1 of $copyCount of $spellName" else "copy of $spellName"

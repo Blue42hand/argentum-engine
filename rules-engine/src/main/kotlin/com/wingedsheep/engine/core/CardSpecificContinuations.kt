@@ -520,6 +520,10 @@ data class StormCopyModalTargetContinuation(
     val chosenModes: List<Int>,
     val modeTargetRequirements: Map<Int, List<TargetRequirement>>,
     val accumulatedOrdinalTargets: List<List<ChosenTarget>>,
+    /** Flat target positions kept across earlier mode questions, including their old object identity. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val retainedTargetIndices: Set<Int> = emptySet(),
     val currentOrdinal: Int,
     /** Keyword enum names (e.g., "WITHER") to grant to each copy while it's on the stack. */
     val keywordsForCopy: Set<String> = emptySet(),
