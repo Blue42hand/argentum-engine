@@ -57,6 +57,24 @@ class AiTournamentControllerProfileTest : FunSpec({
         response.statusCode.value() shouldBe 400
     }
 
+    test("fixed Commander decks can designate commanders for the server-wide AI mode") {
+        val decks = listOf(mapOf("Mountain" to 99), mapOf("Island" to 99))
+        val commanders = listOf("Krenko, Mob Boss", "Talrand, Sky Summoner")
+        every {
+            handler.createAiTournamentWithFixedDecks(decks, null, 1, null, GameRules.COMMANDER, commanders)
+        } returns "jev-lobby"
+
+        val response = controller.createAiTournament(AiTournamentController.AiTournamentRequest(
+            decks = decks, rules = GameRules.COMMANDER, gamesPerMatch = 1, commanders = commanders,
+        ))
+
+        response.statusCode.value() shouldBe 200
+        response.body!!.lobbyId shouldBe "jev-lobby"
+        verify(exactly = 1) {
+            handler.createAiTournamentWithFixedDecks(decks, null, 1, null, GameRules.COMMANDER, commanders)
+        }
+    }
+
     test("status retains native terminal evidence after the game session is removed") {
         val lobbyId = "terminal-lobby"
         val gameId = "played-game"

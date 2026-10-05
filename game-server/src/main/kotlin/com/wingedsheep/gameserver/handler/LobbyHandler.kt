@@ -316,6 +316,7 @@ class LobbyHandler(
         gamesPerMatch: Int? = null,
         controllerSpecs: List<com.wingedsheep.gameserver.ai.AiControllerSpec>? = null,
         rules: com.wingedsheep.sdk.core.GameRules = com.wingedsheep.sdk.core.GameRules.STANDARD,
+        commanders: List<String>? = null,
     ): String {
         require(aiGameManager.isEnabled) { "AI opponent is not enabled on this server" }
         require(decks.size in 2..8) { "Player count must be between 2 and 8 (got ${decks.size} decks)" }
@@ -325,6 +326,12 @@ class LobbyHandler(
         }
         require(controllerSpecs == null || controllerSpecs.size == decks.size) {
             "One native controller spec is required for each fixed deck"
+        }
+        require(commanders == null || (rules.usesCommanders && commanders.size == decks.size && controllerSpecs == null)) {
+            "Explicit commanders require Commander rules, one per deck, and no controller specs"
+        }
+        require(commanders == null || commanders.all { it.isNotBlank() }) {
+            "Every designated commander must be named"
         }
 
         // Resolve selected profiles before creating identities or a lobby. A profile owns its
@@ -346,8 +353,10 @@ class LobbyHandler(
             }
             fixed
         }
-        require(!rules.usesCommanders || profileDecks != null) {
-            "Commander debug games require exact native controller profiles"
+        val designatedCommanders = if (rules.usesCommanders)
+            profileDecks?.map { requireNotNull(it.commander) } ?: commanders else null
+        require(!rules.usesCommanders || designatedCommanders != null) {
+            "Commander debug games require controller profiles or explicit commanders"
         }
 
         // Validate all decks against the registry up front so we surface bad card names before
@@ -357,7 +366,7 @@ class LobbyHandler(
                 deckValidator.validate(
                     com.wingedsheep.sdk.model.Deck(
                         cards = deck.flatMap { (name, count) -> List(count) { name } },
-                        commander = profileDecks!![index].commander,
+                        commander = designatedCommanders!![index],
                     ),
                     com.wingedsheep.sdk.core.DeckFormat.COMMANDER,
                 )
@@ -400,7 +409,7 @@ class LobbyHandler(
         // Submit each AI's pre-built deck while still in WAITING_FOR_PLAYERS — that's the
         // PREMADE_DECKS-permitted state. Pool-free validation runs inside submitDeck.
         playerIds.forEachIndexed { index, playerId ->
-            val commander = profileDecks?.get(index)?.commander?.takeIf { rules.usesCommanders }
+            val commander = designatedCommanders?.get(index)?.takeIf { rules.usesCommanders }
             val submitted = commander?.let { decks[index] + (it to (decks[index][it] ?: 0) + 1) }
                 ?: decks[index]
             val result = lobby.submitDeck(playerId, submitted, commander = commander)

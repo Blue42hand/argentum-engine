@@ -54,6 +54,8 @@ class AiTournamentController(
         val decks: List<Map<String, Int>>? = null,
         /** Existing native per-seat controller selection for fixed-deck games. */
         val controllerSpecs: List<AiControllerSpec>? = null,
+        /** Designated commanders when using the server-wide AI mode without controller profiles. */
+        val commanders: List<String>? = null,
         /** Rules for the fixed-deck game; defaults to the historical Standard path. */
         val rules: GameRules? = null,
     )
@@ -72,7 +74,7 @@ class AiTournamentController(
         val playerCount = decks?.size
             ?: request?.playerCount?.coerceIn(2, 8) ?: 2
 
-        if (decks == null && (request?.controllerSpecs != null || request?.rules != null)) {
+        if (decks == null && (request?.controllerSpecs != null || request?.rules != null || request?.commanders != null)) {
             return ResponseEntity.badRequest().body(AiTournamentResponse(
                 lobbyId = "", spectateUrl = "",
                 message = "Native controller specs and rules require fixed decks"
@@ -93,6 +95,7 @@ class AiTournamentController(
                     request.gamesPerMatch?.coerceIn(1, 9),
                     request.controllerSpecs,
                     request.rules ?: GameRules.STANDARD,
+                    request.commanders,
                 )
             } else {
                 // Auto-pick a random *fully implemented* set (partial sets aren't reliable enough
