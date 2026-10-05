@@ -131,6 +131,7 @@ class LegalActionEnricher(
             hasDelve = action.hasDelve,
             validDelveCards = action.delveCards?.map { it.toDto() },
             minDelveNeeded = action.minDelveNeeded,
+            maxDelveCards = fixedDelveCap(action),
             hasHarmonize = action.hasHarmonize,
             validHarmonizeCreatures = action.harmonizeCreatures?.map { it.toDto() },
             manaCostString = action.manaCostString,
@@ -151,6 +152,17 @@ class LegalActionEnricher(
             modalEnumeration = action.modalEnumeration?.toDto(),
             holdPriority = action.holdPriority
         )
+    }
+
+    private fun fixedDelveCap(action: LegalAction): Int? {
+        if (!action.hasDelve || action.hasXCost || action.manaCostPerExtraTarget != null
+            || action.maxAdditionalManaForCounters != null || action.additionalCostInfo != null
+            || action.modalEnumeration != null
+        ) return null
+        val cost = action.manaCostString ?: return null
+        val candidates = action.delveCards ?: return null
+        val parsed = ManaCost.parse(cost)
+        return if (parsed.hasX) null else minOf(parsed.genericAmount, candidates.size)
     }
 
     /**

@@ -131,6 +131,27 @@ class LegalActionMinimumCostTest : FunSpec({
         val graveyard = (1..6).map { DelveCardData(EntityId.generate(), "Card $it") }
         val action = castAction(driver, "{2}{U}{U}").copy(hasDelve = true, delveCards = graveyard)
         floorOf(driver, action) shouldBe "{U}{U}"
+        enricher(driver).enrich(listOf(action), driver.state, driver.player1)
+            .single().maxDelveCards shouldBe 2
+    }
+
+    test("fixed delve cap is bounded by candidates and omitted for dynamic costs") {
+        val driver = createDriver()
+        val graveyard = (1..14).map { DelveCardData(EntityId.generate(), "Card $it") }
+        val fixed = castAction(driver, "{6}{U}").copy(hasDelve = true, delveCards = graveyard)
+        enricher(driver).enrich(listOf(fixed), driver.state, driver.player1)
+            .single().maxDelveCards shouldBe 6
+        val few = fixed.copy(delveCards = graveyard.take(3))
+        enricher(driver).enrich(listOf(few), driver.state, driver.player1)
+            .single().maxDelveCards shouldBe 3
+        for (dynamic in listOf(
+            fixed.copy(hasXCost = true),
+            fixed.copy(manaCostPerExtraTarget = "{1}"),
+            fixed.copy(manaCostString = "{X}{U}"),
+        )) {
+            enricher(driver).enrich(listOf(dynamic), driver.state, driver.player1)
+                .single().maxDelveCards.shouldBeNull()
+        }
     }
 
     test("an X cost's floor ignores delve, since X is unannounced at enumeration time") {
