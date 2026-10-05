@@ -110,7 +110,8 @@ internal object StackPlacement {
         copyIndex: Int? = null,
         copyTotal: Int? = null,
         controllerId: EntityId? = null,
-        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None
+        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+        retainedTargetIndices: Set<Int>? = null
     ): ExecutionResult {
         val sourceContainer = state.getEntity(sourceSpellId)
             ?: return ExecutionResult.error(state, "Source spell not found: $sourceSpellId")
@@ -177,14 +178,38 @@ internal object StackPlacement {
             manaSpentOnXByColor = emptyMap(),
             chosenModes = effectiveModes,
             modeTargetsOrdered = effectiveModeTargets,
-            modeTargetRequirements = effectiveModeRequirements
+            modeTargetRequirements = effectiveModeRequirements,
+            damageDistribution = if (sourceSpell.damageDistribution.isNullOrEmpty() || (targets.isEmpty() && modeTargetsOrdered == null)) sourceSpell.damageDistribution else buildMap {
+                sourceTargets?.targets.orEmpty().zip(effectiveTargets).forEach { (old, new) ->
+                    fun id(t: ChosenTarget): EntityId = when (t) {
+                        is ChosenTarget.Player -> t.playerId
+                        is ChosenTarget.Permanent -> t.entityId
+                        is ChosenTarget.Spell -> t.spellEntityId
+                        is ChosenTarget.Card -> t.cardId
+                    }
+                    sourceSpell.damageDistribution?.get(id(old))?.let { amount -> put(id(new), (get(id(new)) ?: 0) + amount) }
+                }
+            }
         )
 
         var container = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier.withNumericKeywords(
             ComponentContainer.of(copiedCardComp, copiedSpellComp), sourceContainer, exceptions
         )
         if (effectiveTargets.isNotEmpty()) {
-            container = container.with(TargetsComponent.capture(state, effectiveTargets, effectiveRequirements))
+            val captured = TargetsComponent.capture(state, effectiveTargets, effectiveRequirements)
+            val inherited = sourceTargets?.targets.orEmpty().mapIndexedNotNull { i, old ->
+                if (old == effectiveTargets.getOrNull(i) && (retainedTargetIndices == null || i in retainedTargetIndices)) old else null
+            }.toSet()
+            val ids = inherited.mapTo(mutableSetOf()) { target -> when (target) {
+                is ChosenTarget.Player -> target.playerId
+                is ChosenTarget.Permanent -> target.entityId
+                is ChosenTarget.Spell -> target.spellEntityId
+                is ChosenTarget.Card -> target.cardId
+            } }
+            container = container.with(captured.copy(
+                targetEntryStamps = captured.targetEntryStamps.filterKeys { it !in ids } + sourceTargets?.targetEntryStamps.orEmpty().filterKeys { it in ids },
+                targetObjectRefs = captured.targetObjectRefs.filterKeys { it !in ids } + sourceTargets?.targetObjectRefs.orEmpty().filterKeys { it in ids }
+            ))
         }
         container = container.with(
             CopyOfComponent(

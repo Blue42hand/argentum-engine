@@ -69,7 +69,8 @@ class TargetValidator(
          * restriction (Lurker), and a strict one would wrongly block abilities, so every call site
          * is made to say which it is.
          */
-        targetingSourceType: TargetingSourceType
+        targetingSourceType: TargetingSourceType,
+        retainedTargetIndices: Set<Int>? = null
     ): String? {
         // Use the game state for validation
         // StateProjector is used for P/T checks to account for continuous effects
@@ -88,6 +89,7 @@ class TargetValidator(
         // with X counters to hand out, where CR 601.2d still forbids declaring more targets
         // than there are counters. Checking `unlimited` first would drop that cap on the floor.
         fun effectiveMaxCount(req: TargetRequirement): Int {
+            if (retainedTargetIndices != null) return req.count
             val unboundedFallback = if (req.unlimited) Int.MAX_VALUE else req.count
             if (req is TargetObject) {
                 val dyn = req.dynamicMaxCount
@@ -140,7 +142,8 @@ class TargetValidator(
             }
 
             // Validate each target against the requirement
-            for (target in targetsForReq) {
+            for ((offset, target) in targetsForReq.withIndex()) {
+                if (retainedTargetIndices?.contains(startIdx + offset) == true) continue
                 val error = validateSingleTarget(state, target, requirement, casterId, sourceColors, sourceSubtypes, sourceId, xValue, targets, targetingSourceType)
                 if (error != null) return error
             }
@@ -162,6 +165,9 @@ class TargetValidator(
                     }
                 }
             }
+
+            // Unchanged groups may already be illegal; choosing new targets does not repair them.
+            if (retainedTargetIndices != null && (startIdx until endIdx).all { it in retainedTargetIndices }) continue
 
             // "... controlled by the same player" — every chosen target for this requirement
             // must share a controller (Rule uses current control; projected state respects

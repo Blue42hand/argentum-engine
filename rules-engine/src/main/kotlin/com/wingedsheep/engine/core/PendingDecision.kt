@@ -175,7 +175,11 @@ data class TargetRequirementInfo(
      * False by default: separate instances of the word "target" may pick the same object
      * (Seeds of Strength), so the client must not strip earlier picks from this pool unless set.
      */
-    val mustDifferFromEarlier: Boolean = false
+    val mustDifferFromEarlier: Boolean = false,
+    /** Player-facing meaning of leaving this optional slot empty. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val emptyChoiceLabel: String? = null
 )
 
 /**

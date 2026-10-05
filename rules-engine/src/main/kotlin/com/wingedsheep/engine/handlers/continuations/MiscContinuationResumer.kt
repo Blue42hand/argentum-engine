@@ -658,9 +658,9 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected target selection response for Storm copy")
         }
 
-        val selectedTargets = response.selectedTargets.flatMap { (_, targetIds) ->
-            targetIds.map { entityId -> entityIdToChosenTarget(state, entityId) }
-        }
+        val selection = com.wingedsheep.engine.handlers.effects.stack.SpellCopyTargets.selection(
+            state, continuation.sourceId, response)
+        val selectedTargets = selection.targets
 
         val allEvents = mutableListOf<GameEvent>()
         var currentState = state
@@ -671,6 +671,7 @@ class MiscContinuationResumer(
             state = currentState,
             sourceSpellId = continuation.sourceId,
             targets = selectedTargets,
+            retainedTargetIndices = selection.retained,
             targetRequirements = continuation.spellTargetRequirements,
             copyIndex = copyIndex,
             copyTotal = continuation.totalCopies,
@@ -691,16 +692,17 @@ class MiscContinuationResumer(
         }
 
         // Prompt for next copy's targets
-        val legalTargetsMap = com.wingedsheep.engine.handlers.effects.stack.SpellCopyTargets.legalTargets(
+        val prompt = com.wingedsheep.engine.handlers.effects.stack.SpellCopyTargets.prompt(
             currentState, services.targetFinder, continuation.sourceId, continuation.controllerId,
             continuation.spellTargetRequirements, continuation.exceptions
         )
+        val legalTargetsMap = prompt.legal
 
         // 707.10c: if no legal replacement exists for any remaining copy, still put
         // each copy on the stack inheriting the source's (illegal) targets so it
         // fizzles on resolution per 608.2b / 112.3b. The battlefield doesn't change
         // between copy creations, so legality is the same for all remaining copies.
-        val hasNoLegalTargets = legalTargetsMap.any { (_, targets) -> targets.isEmpty() }
+        val hasNoLegalTargets = legalTargetsMap.values.all { it.isEmpty() }
         if (hasNoLegalTargets) {
             var loopState = currentState
             val loopEvents = allEvents
@@ -741,13 +743,7 @@ class MiscContinuationResumer(
             tokenRiders = continuation.tokenRiders,
             exceptions = continuation.exceptions
         )
-        val targetReqInfos = continuation.spellTargetRequirements.mapIndexed { index, req ->
-            TargetRequirementInfo(
-                index = index,
-                description = req.description,
-                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
-            )
-        }
+        val targetReqInfos = prompt.requirements
 
         val totalCopies = continuation.totalCopies
         val copyNumber = totalCopies - remainingAfterThis + 1
@@ -780,9 +776,9 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected target selection response for Storm modal copy")
         }
 
-        val selectedTargets = response.selectedTargets.entries
-            .sortedBy { it.key }
-            .flatMap { (_, ids) -> ids.map { entityId -> entityIdToChosenTarget(state, entityId) } }
+        val selection = com.wingedsheep.engine.handlers.effects.stack.SpellCopyTargets.selection(
+            state, continuation.sourceId, response, continuation.currentOrdinal)
+        val selectedTargets = selection.targets
 
         val updatedAccumulated = continuation.accumulatedOrdinalTargets + listOf(selectedTargets)
         val nextOrdinal = continuation.currentOrdinal + 1
@@ -796,6 +792,8 @@ class MiscContinuationResumer(
             chosenModes = continuation.chosenModes,
             modeTargetRequirements = continuation.modeTargetRequirements,
             accumulatedOrdinalTargets = updatedAccumulated,
+            retainedTargetIndices = continuation.retainedTargetIndices +
+                selection.retained.map { it + continuation.accumulatedOrdinalTargets.sumOf { targets -> targets.size } },
             currentOrdinal = nextOrdinal,
             remainingCopies = continuation.remainingCopies,
             totalCopies = continuation.totalCopies,
