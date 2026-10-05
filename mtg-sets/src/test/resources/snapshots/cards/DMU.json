@@ -645,6 +645,72 @@
     ]
 }
 
+// Destroy Evil
+{
+    "name": "Destroy Evil",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Destroy target creature with toughness 4 or greater.\n• Destroy target enchantment.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature tou>=4"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Destroy target creature with toughness 4 or greater"
+                },
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "enchantment"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Destroy target enchantment"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "17",
+        "artist": "Anna Christenson",
+        "flavorText": "Serra's grace most often manifests as a healing touch, but it may also grant a merciful death.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4f7862ef-2c8d-4d28-9e50-7cc41861f245.jpg?1783921366"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Electrostatic Infantry
 {
     "name": "Electrostatic Infantry",
