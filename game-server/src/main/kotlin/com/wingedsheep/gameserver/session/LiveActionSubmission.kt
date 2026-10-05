@@ -13,4 +13,6 @@ data class LiveActionSubmission(
     val expectedStateRevision: Long? = null,
     /** AI mana decisions are checked by the native processor before live submission. */
     val previewManaPayment: Boolean = false,
+    /** An asynchronous AI reply can arrive after native game completion. */
+    val aiReply: Boolean = false,
 )
