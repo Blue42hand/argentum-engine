@@ -2472,6 +2472,56 @@
     ]
 }
 
+// Ornery Goblin
+{
+    "name": "Ornery Goblin",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Warrior",
+    "oracleText": "Whenever this creature blocks or becomes blocked by a creature, this creature deals 1 damage to that creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ornery Goblin:1",
+                "trigger": {
+                    "type": "BlocksOrBecomesBlockedByEvent",
+                    "partnerFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "TriggeringEntity"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "artist": "Johann Bodin",
+        "flavorText": "\"Nobody ever listens to my complaints! Not even when I use the listening stick.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/e/be1c1353-b315-4a0e-80b5-0d9a2962e35f.jpg?1783934159",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "The triggered ability triggers once for each creature blocking or blocked by Ornery Goblin. The ability resolves and deals damage to that creature before combat damage is dealt. If that damage destroys all creatures blocking Ornery Goblin, Ornery Goblin doesn’t become unblocked."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Pack's Favor
 {
     "name": "Pack's Favor",
