@@ -1486,6 +1486,9 @@ class ManaSolver(
             // Set when a mana ability was skipped purely because its dynamic amount is zero right
             // now. It gates the land fallback below: such a land is not a colorless source.
             var hadDryManaAbility = false
+            // Set when an ability was skipped because its life cost can't be paid (Mana Confluence
+            // at 0 life): like a dry ability, the land must not fall through to a phantom {C}.
+            var hadUnpayableLifeAbility = false
             // Track which colors are produceable WITHOUT sacrificing the source. A color is
             // sacrifice-free if any accepted ability producing it has no SacrificeSelf cost.
             // Colors in `combinedColors` but not here can only be made by sacrificing — the
@@ -1598,6 +1601,15 @@ class ManaSolver(
                 }
 
                 if (!abilityCanBeUsed) continue
+
+                // A mana ability whose life cost (printed "Pay N life" plus any Thran Portal tax)
+                // its controller can't pay can't be activated (CR 119.4), so auto-pay mustn't pick it.
+                if (abilityHasPainCost &&
+                    !state.canPayLife(playerId, ManaAbilityLifeCost.total(state, entityId, ability))
+                ) {
+                    hadUnpayableLifeAbility = true
+                    continue
+                }
 
                 if (abilityRequiresSacrifice) anyAcceptedWithSac = true else anyAcceptedWithoutSac = true
                 if (abilityTapPermanentsSubCost != null) {
@@ -1924,7 +1936,7 @@ class ManaSolver(
             // restriction, a cost shape auto-tap doesn't model, a summoning-sick creature-land)
             // still reach the fallback exactly as before; whether they should is a separate
             // question from this one, and not one to settle silently here.
-            if (hadDryManaAbility) return@mapNotNull null
+            if (hadDryManaAbility || hadUnpayableLifeAbility) return@mapNotNull null
 
             ManaSource(
                 entityId = entityId,
@@ -2517,7 +2529,7 @@ class ManaSolver(
      * pay the life (CR 119.4) can't be activated at all, so it is dropped.
      */
     private fun withLifeTax(state: GameState, playerId: EntityId, source: ManaSource): ManaSource? {
-        val tax = ManaAbilityLifeTax.amount(state, source.entityId)
+        val tax = ManaAbilityLifeCost.tax(state, source.entityId)
         if (tax <= 0) return source
         if (!state.canPayLife(playerId, tax)) return null
         return source.copy(

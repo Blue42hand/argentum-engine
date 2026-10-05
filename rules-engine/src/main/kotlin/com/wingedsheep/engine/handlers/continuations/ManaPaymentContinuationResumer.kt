@@ -1,5 +1,5 @@
 package com.wingedsheep.engine.handlers.continuations
-import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 
@@ -742,7 +742,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1149,7 +1149,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1323,7 +1323,7 @@ class ManaPaymentContinuationResumer(
                 ?: return ExecutionResult.error(state, "Cannot pay mana cost")
 
             for (source in solution.sources) {
-                val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
+                val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                 currentState = tappedState
                 events.addAll(tapEvents)
             }
@@ -1415,7 +1415,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1542,7 +1542,7 @@ class ManaPaymentContinuationResumer(
                 events.add(PermanentsSacrificedEvent(sourceController, listOf(sourceId)))
                 events.addAll(transition.events)
             } else {
-                val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, sourceId, fallbackControllerId)
+                val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, sourceId, fallbackControllerId, ManaAbilityLifeCost.creditedProduction(source.producesColors))
                 currentState = tappedState
                 events.addAll(tapEvents)
             }
@@ -1703,7 +1703,7 @@ class ManaPaymentContinuationResumer(
         // Tap the source and each chosen permanent, then credit the source's mana to the pool.
         var currentState = state
         val events = mutableListOf<GameEvent>()
-        val (headTappedState, headTapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(services.zones, currentState, headSourceId, continuation.payingPlayerId)
+        val (headTappedState, headTapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, headSourceId, continuation.payingPlayerId, ManaAbilityLifeCost.creditedProduction(sourceOption.producesColors))
         currentState = headTappedState
         events.addAll(headTapEvents)
         for (chosen in response.selectedCards) {

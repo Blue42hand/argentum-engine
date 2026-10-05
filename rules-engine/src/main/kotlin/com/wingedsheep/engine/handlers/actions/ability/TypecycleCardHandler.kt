@@ -1,5 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.ability
-import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.dsl.Patterns
 
@@ -161,7 +161,7 @@ class TypecycleCardHandler(
         if (!remainingCost.isEmpty()) {
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(zones, currentState, sourceId, action.playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(zones, currentState, sourceId, action.playerId)
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }

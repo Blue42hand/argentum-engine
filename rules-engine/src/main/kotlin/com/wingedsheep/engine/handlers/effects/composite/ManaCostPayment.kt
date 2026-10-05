@@ -1,6 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
-import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -62,10 +62,14 @@ fun payManaCostFromPool(
         for (source in solution.sources) {
             val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, player)
                 .let { (tapped, tapEvents) ->
-                    // Thran Portal's mana-ability life tax. Only a taxed source needs the zone
-                    // service (for a life-payment replacement), so it is built only then.
-                    if (tapEvents.isEmpty() || ManaAbilityLifeTax.amount(tapped, source.entityId) <= 0) tapped to tapEvents
-                    else ManaAbilityLifeTax.pay(ZoneTransitionService(cardRegistry, predicateEvaluator), tapped, source.entityId, player)
+                    // The mana ability's life cost (Mana Confluence's printed "Pay 1 life", Thran
+                    // Portal's tax). Only a life-costing source needs the zone service (for a
+                    // life-payment replacement), so it is built only then.
+                    val ability = ManaAbilityLifeCost.activatedManaAbility(
+                        cardRegistry, tapped, source.entityId, solution.manaProduced[source.entityId]
+                    )
+                    if (tapEvents.isEmpty() || ManaAbilityLifeCost.total(tapped, source.entityId, ability) <= 0) tapped to tapEvents
+                    else ManaAbilityLifeCost.pay(ZoneTransitionService(cardRegistry, predicateEvaluator), tapped, source.entityId, player, ability)
                         .let { (paid, lifeEvents) -> paid to (tapEvents + lifeEvents) }
                 }
             currentState = tappedState

@@ -132,7 +132,7 @@ class ThranPortalScenarioTest : FunSpec({
 
         val tax = driver.state.projectedState.getManaAbilityLifeTax(portal)
         tax shouldBe 1
-        val taxed = com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax.withTax(
+        val taxed = com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost.withTax(
             com.wingedsheep.engine.mechanics.mana.IntrinsicManaAbilities.lookup(AbilityId.intrinsicMana('G'))!!,
             tax
         )

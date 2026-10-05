@@ -417,7 +417,7 @@ internal class ActivationCostPayer(
                         currentState, action.playerId, remainingCost, manaXValue, excludeSources = excluded, xManaRestriction = ability.xManaRestriction
                     ) ?: return ManaTapOutcome.Failed("Selected mana sources cannot pay this ability's cost")
                     for (source in solution.sources) {
-                        val (tappedState, tapEvents) = autoTapper.tapChosenSource(currentState, source.entityId, action.playerId)
+                        val (tappedState, tapEvents) = autoTapper.tapChosenSource(currentState, source.entityId, action.playerId, solution.manaProduced[source.entityId])
                         currentState = tappedState
                         events.addAll(tapEvents)
                     }

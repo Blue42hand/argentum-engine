@@ -378,7 +378,7 @@ class TurnFaceUpHandler(
 
                     is PaymentStrategy.Explicit -> {
                         for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                            val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingTax(currentState, sourceId, action.playerId)
+                            val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingLife(currentState, sourceId, action.playerId)
                             currentState = tappedState
                             events.addAll(tapEvents)
                         }

@@ -1,6 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
-import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeTax
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.CardCycledEvent
 import com.wingedsheep.engine.core.CardsDiscardedEvent
@@ -217,7 +217,7 @@ class CycleCardHandler(
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
                 // Tap specified sources explicitly
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvents) = ManaAbilityLifeTax.tapForManaPayingTax(zones, currentState, sourceId, action.playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(zones, currentState, sourceId, action.playerId)
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
