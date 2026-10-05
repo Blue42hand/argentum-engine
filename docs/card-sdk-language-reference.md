@@ -397,6 +397,9 @@ plus the frame fields:
 - `isAlternateFrame: Boolean` (derived) — true when the printing is a **showcase** frame
   (`"showcase" in frameEffects`) or **borderless** (`borderColor == "borderless"`). This is the predicate the booster
   variant slot selects on; plain full-art / promo treatments are not counted.
+- `printedName: String?` — Scryfall `printed_name`, set only when the printed name differs from the oracle name
+  (Through the Omenpaths' in-universe names for Spider-Man cards). Display-only: shown in the deckbuilder printing
+  picker; rules, decks and lookups keep using `name`.
 
 `CardDefinition.withPrinting(printing)` returns a copy presenting that printing — it overlays only presentation
 metadata (set code, collector number, art, artist, Scryfall id, and the back-face art for genuine DFCs) and leaves the
