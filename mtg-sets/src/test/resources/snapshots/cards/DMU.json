@@ -789,6 +789,122 @@
     ]
 }
 
+// Ertai Resurrected
+{
+    "name": "Ertai Resurrected",
+    "manaCost": "{2}{U}{B}",
+    "typeLine": "Legendary Creature — Phyrexian Human Wizard",
+    "oracleText": "Flash\nWhen Ertai Resurrected enters, choose up to one —\n• Counter target spell, activated ability, or triggered ability. Its controller draws a card.\n• Destroy another target creature or planeswalker. Its controller draws a card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ertai Resurrected:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "DrawCards",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "target": "TargetController"
+                                    },
+                                    {
+                                        "type": "Counter",
+                                        "target": "CounterTarget.SpellOrAbility"
+                                    }
+                                ]
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "anyOf": [
+                                                {},
+                                                {
+                                                    "cardPredicates": [
+                                                        "IsActivatedOrTriggeredAbility"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "zone": "Stack"
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "Counter target spell, activated ability, or triggered ability. Its controller draws a card"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveToZone",
+                                        "target": {
+                                            "type": "BoundVariable",
+                                            "name": "t1"
+                                        },
+                                        "destination": "Graveyard",
+                                        "byDestruction": true
+                                    },
+                                    {
+                                        "type": "DrawCards",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "target": "TargetController"
+                                    }
+                                ]
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature|planeswalker",
+                                        "excludeSelf": true
+                                    },
+                                    "id": "t1"
+                                }
+                            ],
+                            "description": "Destroy another target creature or planeswalker. Its controller draws a card"
+                        }
+                    ],
+                    "minChooseCount": 0
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "199",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f7e780e-fbc5-4dc0-b5c7-efcb8645c7c6.jpg?1783921288"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // Floriferous Vinewall
 {
     "name": "Floriferous Vinewall",
