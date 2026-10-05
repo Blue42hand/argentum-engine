@@ -414,8 +414,7 @@ played rather than what it does. Nearly everything else was rows in those lists.
 coverage went from 3,004 cards to 4,287 in the same change, which is the argument for picking a set
 as the target rather than picking the number.
 
-Nothing here changes `:mtgish-tooling`, which stays authoritative until a per-set cutover replaces it
-(Phase 5). Assay is **not a runtime card loader** and never will be — with one carved-out exception,
+Assay has superseded `:mtgish-tooling`, which is deprecated. Assay is **not a runtime card loader** and never will be — with one carved-out exception,
 the [custom-card sandbox](#the-compiler-and-the-custom-card-sandbox), which compiles a *pasted* card
 for a dev-gated Scenario Builder session and never touches the corpus.
 
