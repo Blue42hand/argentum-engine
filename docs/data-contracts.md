@@ -844,3 +844,29 @@ The continuation also checks the resulting combat restrictions before committing
 mana colors, computed by the engine. For Sunglasses of Urza it includes `"R": ["R", "W"]`.
 The existing mana readouts consume these server-provided options; mana source/pool colors and printed
 costs remain unchanged. The field defaults to empty and is public information.
+
+### Jumpstart pack selection
+
+For a lobby selecting only `JMP`, ordinary `SEALED` and `DRAFT` use Jumpstart by default.
+`LobbySettings.useJumpstart` is the host's persistent preference; `jumpstartEligible` and
+`jumpstartActive` are server-derived. Selecting multiple sets, a cube, Commander rules, or another
+pack format disables Jumpstart. Setting `useJumpstart: false` in `updateLobbySettings` retains the
+traditional draft/sealed flow, including its pack-count settings.
+
+Starting Jumpstart enters `DECK_BUILDING`, but sends no editable sealed pool. Each player's
+`lobbyUpdate.jumpstart` contains only their own `pickNumber`, `selectedPacks`, and three `offers`
+(`id`, `theme`, `cards`). The client sends `pickJumpstartPack { packId, pickNumber }`. The server
+validates both fields against the current offer, adds the entire 20-card pack, and offers three
+new themes for the second pick. After two picks, the 40 cards are submitted unchanged through the
+normal tournament readiness flow. AI seats select packs server-side. Players cannot add lands,
+remove cards, or edit this deck. Offers, selections, and the preference survive persistence and
+reconnection; retransmitting an earlier pick cannot choose another pack.
+
+The checked-in `game-server/src/main/resources/jumpstart/jmp.txt` contains Wizards' 121 paper JMP
+lists (including cards printed in M21). Themed basic-land labels are normalized to their printed
+names. A variant is available only when every card resolves in the enabled catalog and no card is
+banned; missing cards are never substituted. Start requires three complete themes. Three distinct
+themes are sampled for each offer, then one available variant per theme; a theme can appear again
+in the second offer. This provides Arena-style choices over paper lists, without Arena's card
+substitutions or rarity-weighted offering algorithm. Initially the newly completed starter themes
+are Archaeology, Goblins, and Unicorns. Other themes unlock automatically as cards are implemented.
