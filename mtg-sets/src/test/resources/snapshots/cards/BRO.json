@@ -1262,6 +1262,68 @@
     "colorIdentityOverride": []
 }
 
+// Lay Down Arms
+{
+    "name": "Lay Down Arms",
+    "manaCost": "{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exile target creature with mana value less than or equal to the number of Plains you control. Its controller gains 3 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Exile"
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": "TargetController"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "AggregateBattlefield",
+                                    "player": "You",
+                                    "filter": "land Plains"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "rarity": "UNCOMMON",
+        "artist": "Liiga Smilshkalne",
+        "flavorText": "She'll swing a blade all her life, but never again for war.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/5649ee5a-4485-40a2-96d1-2e061905a71e.jpg?1783920130"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Machine Over Matter
 {
     "name": "Machine Over Matter",
