@@ -131,6 +131,7 @@ class LegalActionEnricher(
             hasDelve = action.hasDelve,
             validDelveCards = action.delveCards?.map { it.toDto() },
             minDelveNeeded = action.minDelveNeeded,
+            maxDelveCards = fixedDelveCap(action),
             hasHarmonize = action.hasHarmonize,
             validHarmonizeCreatures = action.harmonizeCreatures?.map { it.toDto() },
             manaCostString = action.manaCostString,
@@ -151,6 +152,27 @@ class LegalActionEnricher(
             modalEnumeration = action.modalEnumeration?.toDto(),
             holdPriority = action.holdPriority
         )
+    }
+
+    private fun fixedDelveCap(action: LegalAction): Int? {
+        if (!action.hasDelve || action.hasXCost || action.manaCostPerExtraTarget != null
+            || action.maxAdditionalManaForCounters != null || action.additionalCostInfo != null
+            || action.modalEnumeration != null
+        ) return null
+        // Enumeration may advertise an optimistic price before targets are chosen. Both the
+        // spell's own modifiers and battlefield modifiers can change the final cost for a target.
+        // A sole player target may already be auto-selected in CastSpell, leaving the separate
+        // requiresTargets and targetRequirements fields empty. Modal targets can also live in the
+        // cast payload; neither representation certifies a fixed price at the offer boundary.
+        val cast = action.action as? CastSpell
+        if (action.requiresTargets || !action.targetRequirements.isNullOrEmpty()
+            || cast?.targets?.isNotEmpty() == true
+            || cast?.modeTargetsOrdered?.any { it.isNotEmpty() } == true
+        ) return null
+        val cost = action.manaCostString ?: return null
+        val candidates = action.delveCards ?: return null
+        val parsed = ManaCost.parse(cost)
+        return if (parsed.hasX) null else minOf(parsed.genericAmount, candidates.size)
     }
 
     /**

@@ -134,6 +134,8 @@ data class LegalActionInfo(
     val hasDelve: Boolean = false,
     val validDelveCards: List<DelveCardInfo>? = null,
     val minDelveNeeded: Int? = null,
+    /** Maximum graveyard cards payable for this fixed-cost delve offer; null for a dynamic cost. */
+    val maxDelveCards: Int? = null,
     val hasHarmonize: Boolean = false,
     val validHarmonizeCreatures: List<HarmonizeCreatureInfo>? = null,
     val manaCostString: String? = null,
