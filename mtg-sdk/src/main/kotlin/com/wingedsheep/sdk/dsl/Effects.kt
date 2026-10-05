@@ -4503,6 +4503,10 @@ object Effects {
     fun CastAnyNumberFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
         CastAnyNumberFromCollectionWithoutPayingCost(from.key)
 
+    /** Play lands and cast spells from among the cards in [from] without paying their mana costs. */
+    fun PlayAnyNumberFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
+        PlayAnyNumberFromCollectionWithoutPayingCost(from.key)
+
     /** Cast up to [maxCasts] of the cards in [from] without paying their mana costs. */
     fun CastUpToNFromCollectionWithoutPayingCost(from: CollectionSlot, maxCasts: Int): Effect =
         CastUpToNFromCollectionWithoutPayingCost(from.key, maxCasts)
@@ -4542,7 +4546,9 @@ object Effects {
      * Prefer the named shortcuts ([Destroy], [Exile], [ReturnToHand], [PutOnTopOfLibrary],
      * [ShuffleIntoLibrary], [PutOntoBattlefield], …) when one fits; reach for `Move` for the
      * less-common shapes (custom placement, `fromZone` gating, face-down entry, linked exile,
-     * `positionFromTop`, controller override).
+     * `positionFromTop`, controller override). `addCounterType` + `addCounterIf` spell "it enters
+     * with a counter on it" and its conditional form "if a creature enters this way, it enters with
+     * an additional +1/+1 counter" (the filter is read off projected state as the card lands).
      */
     fun Move(
         target: EffectTarget,
@@ -4554,7 +4560,8 @@ object Effects {
         faceDown: FaceDownMode? = null,
         linkToSource: Boolean = false,
         positionFromTop: Int? = null,
-        addCounterType: CounterType? = null
+        addCounterType: CounterType? = null,
+        addCounterIf: GameObjectFilter? = null
     ): Effect = MoveToZoneEffect(
         target = target,
         destination = destination,
@@ -4565,7 +4572,8 @@ object Effects {
         faceDown = faceDown,
         linkToSource = linkToSource,
         positionFromTop = positionFromTop,
-        addCounterType = addCounterType
+        addCounterType = addCounterType,
+        addCounterIf = addCounterIf
     )
 
     /**
@@ -4723,6 +4731,16 @@ object Effects {
      */
     fun CastAnyNumberFromCollectionWithoutPayingCost(from: String): Effect =
         CastAnyNumberFromCollectionWithoutPayingCostEffect(from = from)
+
+    /**
+     * "You may **play lands and cast spells** from among [them] without paying their mana costs"
+     * (Gix, Yawgmoth Praetor) — [CastAnyNumberFromCollectionWithoutPayingCost] with land plays
+     * allowed. During this effect's resolution the controller is offered the cards one at a time;
+     * a land is played as their land for the turn (only on their own turn with a land play left),
+     * a spell is cast for free. Cards left unplayed stay where they are.
+     */
+    fun PlayAnyNumberFromCollectionWithoutPayingCost(from: String): Effect =
+        CastAnyNumberFromCollectionWithoutPayingCostEffect(from = from, playLands = true)
 
     /**
      * Cast **up to [maxCasts]** of the cards stored under [from] without paying their mana costs,

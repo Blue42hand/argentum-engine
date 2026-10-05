@@ -920,9 +920,17 @@ class ModalAndCloneContinuationResumer(
             )?.let { return it }
         }
 
-        // Final choice resolved — emit the entry event, so the permanent's enters triggers (landfall,
-        // "when ~ enters") fire now that the chosen value is recorded. The permanent already moved to
-        // the battlefield when it was placed; the caller deliberately left this event to us.
+        // Final choice resolved — the Saga's entry lore counters (CR 714.3a / 714.3b). A token that
+        // paused for an as-enters choice left them to us: a read-ahead Saga's count *is* the number
+        // just chosen (CR 702.155b), so they can only be placed now. No-op for a non-Saga, and for a
+        // Saga whose entry already placed them (a land played or moved through the zone pipeline).
+        val (sagaState, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+            .applySagaEntryIfNeeded(newState, entityId)
+        newState = sagaState
+
+        // Emit the entry event, so the permanent's enters triggers (landfall, "when ~ enters") fire
+        // now that the chosen value is recorded. The permanent already moved to the battlefield when
+        // it was placed; the caller deliberately left this event to us.
         val zoneChangeEvent = ZoneChangeEvent(
             entityId,
             cardComponent?.name ?: "Unknown",
@@ -932,7 +940,7 @@ class ModalAndCloneContinuationResumer(
             copyOfOriginalName = continuation.copyOfOriginalName,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        return checkForMore(newState, syntheticRiotEvents + zoneChangeEvent)
+        return checkForMore(newState, syntheticRiotEvents + zoneChangeEvent + sagaEvents)
     }
 
     /**

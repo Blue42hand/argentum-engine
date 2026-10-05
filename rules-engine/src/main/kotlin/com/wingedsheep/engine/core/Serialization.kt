@@ -473,6 +473,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ActivateAbilityTapXTargetsContinuation::class)
         subclass(ActivateAbilityExileFromGraveyardContinuation::class)
         subclass(ActivateAbilityExileXFromGraveyardContinuation::class)
+        subclass(ActivateAbilityDiscardXContinuation::class)
         subclass(ActivateAbilityOpponentTargetContinuation::class)
         subclass(ActivateAbilityOpponentChooserContinuation::class)
         subclass(ActivateAbilitySacrificeContinuation::class)
