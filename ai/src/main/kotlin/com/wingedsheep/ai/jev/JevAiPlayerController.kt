@@ -112,7 +112,10 @@ class JevAiPlayerController(
         Thread.currentThread().interrupt()
         throw e
     } catch (e: Exception) {
-        logger.warn("Jev failed ({}); using engine fallback", e.javaClass.simpleName)
+        // Log only a fixed category and source location. Exception messages can contain
+        // card text or decision prompts and must not escape into ordinary server logs.
+        logger.warn("Jev failed ({} at {}; category={}); using engine fallback",
+            e.javaClass.simpleName, jevFailureSite(e), jevFailureCategory(e))
         fallbackCall()
     }
 
@@ -122,4 +125,17 @@ class JevAiPlayerController(
         is JsonArray -> JsonArray(value.map(::compact))
         else -> value
     }
+}
+
+internal fun jevFailureCategory(e: Exception): String = when {
+    e is IllegalArgumentException && e.message == "Jev request exceeds the context budget" -> "request_too_large"
+    e is IllegalArgumentException && e.message?.startsWith("No choices for ") == true -> "no_choices"
+    e is IllegalArgumentException -> "invalid_argument"
+    else -> "other"
+}
+
+internal fun jevFailureSite(e: Exception): String {
+    val frame = e.stackTrace.firstOrNull { it.className.startsWith("com.wingedsheep.ai.jev.") }
+        ?: return "outside_jev"
+    return "${frame.className.substringAfterLast('.')}.${frame.methodName}:${frame.lineNumber}"
 }

@@ -65,4 +65,20 @@ class JevClientTest : FunSpec({
         q.pick("choose", (0..600).toList()) shouldBe 600
         q.number("X", 0, Int.MAX_VALUE) shouldBe Int.MAX_VALUE
     }
+
+    test("offline failure diagnostics identify request size and omit private prompt text") {
+        val tooLarge = shouldThrowAny {
+            JevClient(JevConfig("test-key", "http://127.0.0.1:1/alpha/decisions"))
+                .choose("x".repeat(28_000), "Pick", mapOf("c0" to "A", "c1" to "B"), 1000)
+        }
+        jevFailureCategory(tooLarge as Exception) shouldBe "request_too_large"
+        check(jevFailureSite(tooLarge).startsWith("JevClient.choose:"))
+
+        val noChoices = shouldThrowAny {
+            JevChoices(JevChoiceClient { _, _, _, _ -> error("should not call provider") }, "state", 1000)
+                .pick("private prompt text", emptyList<Int>())
+        }
+        jevFailureCategory(noChoices as Exception) shouldBe "no_choices"
+        check("private prompt text" !in jevFailureSite(noChoices))
+    }
 })
