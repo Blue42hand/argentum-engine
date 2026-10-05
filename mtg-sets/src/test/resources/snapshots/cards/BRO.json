@@ -1367,6 +1367,135 @@
     ]
 }
 
+// Gix, Yawgmoth Praetor
+{
+    "name": "Gix, Yawgmoth Praetor",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Legendary Creature — Phyrexian Praetor",
+    "oracleText": "Whenever a creature deals combat damage to one of your opponents, its controller may pay 1 life. If they do, they draw a card.\n{4}{B}{B}{B}, Discard X cards: Exile the top X cards of target opponent's library. You may play lands and cast spells from among cards exiled this way without paying their mana costs.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Gix, Yawgmoth Praetor:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
+                    "sourceFilter": "creature"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayDynamicLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "payer": "ControllerOfTriggeringEntity"
+                        }
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "ControllerOfTriggeringEntity"
+                    },
+                    "decisionMaker": "ControllerOfTriggeringEntity"
+                },
+                "descriptionOverride": "Whenever a creature deals combat damage to one of your opponents, its controller may pay 1 life. If they do, they draw a card."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Gix, Yawgmoth Praetor:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{B}{B}{B}"
+                            }
+                        },
+                        "CostDiscardX"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": "XValue",
+                                "player": "TargetOpponent"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile",
+                                "player": "TargetOpponent"
+                            }
+                        },
+                        {
+                            "type": "CastAnyNumberFromCollectionWithoutPayingCost",
+                            "from": "gathered0",
+                            "playLands": true
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Exile the top X cards of target opponent's library. You may play lands and cast spells from among cards exiled this way without paying their mana costs."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "95",
+        "rarity": "MYTHIC",
+        "artist": "Anna Podedworna",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/c/2c76f7e0-37e7-4e87-93a3-a25ba0674645.jpg?1783920090",
+        "rulings": [
+            {
+                "date": "2022-10-14",
+                "text": "You must play the cards as you resolve the last ability. You can't wait and play them later."
+            },
+            {
+                "date": "2022-10-14",
+                "text": "You may play a land this way only during your own turn and only if you have not yet played a land this turn."
+            },
+            {
+                "date": "2022-10-14",
+                "text": "If a spell you cast this way has an {X} in its mana cost, you must choose 0 for X."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Gnarlroot Pallbearer
 {
     "name": "Gnarlroot Pallbearer",

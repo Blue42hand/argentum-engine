@@ -157,6 +157,13 @@ class PlayLandHandler(
         return null
     }
 
+    /**
+     * Would [executeDuringResolution] accept [action] in [state]? Null when the land can be played
+     * mid-resolution, otherwise why not (not your turn, no land play left, a lock, …).
+     */
+    fun validateDuringResolution(state: GameState, action: PlayLand): String? =
+        validate(state, action, duringResolution = true)
+
     /** Play a land when a resolving effect explicitly instructs the player to do so. */
     fun executeDuringResolution(state: GameState, action: PlayLand): ExecutionResult {
         val validationError = validate(state, action, duringResolution = true)

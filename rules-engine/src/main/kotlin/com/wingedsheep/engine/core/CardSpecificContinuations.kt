@@ -698,6 +698,24 @@ data class ActivateAbilityExileXFromGraveyardContinuation(
 ) : AnswerContinuation
 
 /**
+ * Resume after a player picks the hand cards for an
+ * [com.wingedsheep.sdk.scripting.AbilityCost.DiscardX] cost — the hand-side twin of
+ * [ActivateAbilityExileXFromGraveyardContinuation]. The resumer re-enters the handler with the
+ * chosen cards in `costPayment.discardedCards` and `xValue` bound to how many were chosen.
+ *
+ * @property action The original [ActivateAbility] (`costPayment.discardedCards` still empty).
+ * @property discardCandidates The hand cards matching the cost's filter, offered as options.
+ * @property fixedCount Non-null when a `{X}` mana symbol already fixed X; the selection must then
+ *   be exactly this many. Null when X is defined by the discard alone (Gix, Yawgmoth Praetor).
+ */
+@Serializable
+data class ActivateAbilityDiscardXContinuation(
+    val action: ActivateAbility,
+    val discardCandidates: List<EntityId>,
+    val fixedCount: Int? = null
+) : AnswerContinuation
+
+/**
  * Resume after an opponent picks the target(s) for an activated ability's "… of an opponent's
  * choice" requirement (Cuombajj Witches: "{T}: This creature deals 1 damage to any target and 1
  * damage to any target of an opponent's choice").
