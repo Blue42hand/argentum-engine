@@ -302,6 +302,136 @@
     ]
 }
 
+// Blast Zone
+{
+    "name": "Blast Zone",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters with a charge counter on it.\n{T}: Add {C}.\n{X}{X}, {T}: Put X charge counters on this land.\n{3}, {T}, Sacrifice this land: Destroy each nonland permanent with mana value equal to the number of charge counters on this land.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Blast Zone:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add {C}."
+            },
+            {
+                "id": "Blast Zone:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{X}{X}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "CHARGE",
+                    "amount": "XValue",
+                    "target": "Self"
+                },
+                "descriptionOverride": "{X}{X}, {T}: Put X charge counters on this land."
+            },
+            {
+                "id": "Blast Zone:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsNonland",
+                                        "IsPermanent",
+                                        {
+                                            "type": "ManaValueEqualsDynamic",
+                                            "amount": {
+                                                "type": "LastKnownSourceCounters",
+                                                "counterType": "CHARGE"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                },
+                "descriptionOverride": "{3}, {T}, Sacrifice this land: Destroy each nonland permanent with mana value equal to the number of charge counters on this land."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "counterType": "CHARGE",
+                "count": 1,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "244",
+        "rarity": "RARE",
+        "artist": "Chris Ostrowski",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/ea6bc7d5-e8f6-4103-920c-9f7ec5cd6c28.jpg?1783933369",
+        "rulings": [
+            {
+                "date": "2025-07-25",
+                "text": "An activation cost of {X}{X} means that you pay twice X. If you want X to be 3, you pay {6} to activate Blast Zone's ability."
+            },
+            {
+                "date": "2025-07-25",
+                "text": "Every token has mana value 0 unless it is copying something or was created with a specific mana cost."
+            },
+            {
+                "date": "2025-07-25",
+                "text": "If a permanent has {X} in its mana cost, X is 0 for the purpose of determining its mana value."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Bolt Bend
 {
     "name": "Bolt Bend",
