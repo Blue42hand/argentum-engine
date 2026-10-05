@@ -109,7 +109,8 @@ internal object StackPlacement {
         modeTargetRequirements: Map<Int, List<TargetRequirement>>? = null,
         copyIndex: Int? = null,
         copyTotal: Int? = null,
-        controllerId: EntityId? = null
+        controllerId: EntityId? = null,
+        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None
     ): ExecutionResult {
         val sourceContainer = state.getEntity(sourceSpellId)
             ?: return ExecutionResult.error(state, "Source spell not found: $sourceSpellId")
@@ -145,7 +146,8 @@ internal object StackPlacement {
 
         // Clone the card characteristics. The CardComponent keeps the same cardDefinitionId,
         // name, types, colors, mana cost, and spellEffect (707.10).
-        val copiedCardComp = sourceCard.copy(ownerId = copyController)
+        val copiedCardComp = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
+            .apply(sourceCard, exceptions).copy(ownerId = copyController)
 
         // Clone cast-time state; per 707.10 the copy inherits every decision made for
         // the original. The data-class copy preserves: xValue, declaredCostSlot, wasBlightPaid,
@@ -178,7 +180,9 @@ internal object StackPlacement {
             modeTargetRequirements = effectiveModeRequirements
         )
 
-        var container = ComponentContainer.of(copiedCardComp, copiedSpellComp)
+        var container = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier.withNumericKeywords(
+            ComponentContainer.of(copiedCardComp, copiedSpellComp), sourceContainer, exceptions
+        )
         if (effectiveTargets.isNotEmpty()) {
             container = container.with(TargetsComponent.capture(state, effectiveTargets, effectiveRequirements))
         }
@@ -191,19 +195,23 @@ internal object StackPlacement {
 
         var newState = stateWithId.withEntity(copyId, container)
         sourceContainer.get<com.wingedsheep.engine.mechanics.BestowedComponent>()?.let { bestowed ->
-            newState = newState.updateEntity(copyId) { it.with(bestowed.copy(original = bestowed.original.copy(ownerId = copyController))) }
+            // Bestow restores this identity on entry or when its target becomes illegal.
+            // Restore the copy's exceptions as well as its printed characteristics.
+            val original = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
+                .apply(bestowed.original, exceptions).copy(ownerId = copyController)
+            newState = newState.updateEntity(copyId) { it.with(bestowed.copy(original = original)) }
         }
         newState = newState.pushToStack(copyId).copy(priorityPassedBy = emptySet())
 
         val events = mutableListOf<GameEvent>(
             SpellCopiedEvent(
                 copyEntityId = copyId,
-                cardName = sourceCard.name,
+                cardName = copiedCardComp.name,
                 controllerId = copyController,
                 originalSpellId = sourceSpellId,
                 copyIndex = copyIndex,
                 copyTotal = copyTotal,
-                manaValue = sourceCard.manaValue
+                manaValue = copiedCardComp.manaValue
             )
         )
 

@@ -5074,7 +5074,8 @@ object Effects {
         addedTokenKeywords: Set<com.wingedsheep.sdk.core.Keyword> = emptySet(),
         sacrificeTokenAtStep: com.wingedsheep.sdk.core.Step? = null,
         sacrificeTokenOnlyOnControllersTurn: Boolean = false,
-        copies: DynamicAmount = DynamicAmount.Fixed(1)
+        copies: DynamicAmount = DynamicAmount.Fixed(1),
+        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None
     ): Effect =
         CopyTargetSpellEffect(
             target,
@@ -5083,7 +5084,8 @@ object Effects {
             addedTokenKeywords,
             sacrificeTokenAtStep,
             sacrificeTokenOnlyOnControllersTurn,
-            copies
+            copies,
+            exceptions
         )
 
     /**
