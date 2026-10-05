@@ -12,6 +12,7 @@ import com.wingedsheep.engine.legalactions.TapForGenericPermanentData
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
@@ -148,6 +149,9 @@ class LegalActionMinimumCostTest : FunSpec({
             fixed.copy(hasXCost = true),
             fixed.copy(manaCostPerExtraTarget = "{1}"),
             fixed.copy(manaCostString = "{X}{U}"),
+            fixed.copy(action = (fixed.action as CastSpell).copy(
+                modeTargetsOrdered = listOf(listOf(ChosenTarget.Player(driver.player2))),
+            )),
         )) {
             enricher(driver).enrich(listOf(dynamic), driver.state, driver.player1)
                 .single().maxDelveCards.shouldBeNull()

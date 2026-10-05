@@ -10,6 +10,7 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.CostModification
@@ -67,9 +68,27 @@ class DelveTargetCostPresentationTest : FunSpec({
             )
         }
     }
+    val autoTarget = card("Test Auto Target Delve") {
+        manaCost = "{6}{U}"
+        colorIdentity = "U"
+        typeLine = "Instant"
+        keywords(Keyword.DELVE)
+        spell {
+            val opponent = target(Targets.Opponent)
+            effect = Effects.DealDamage(1, opponent)
+        }
+        staticAbility {
+            ability = ModifySpellCost(
+                target = SpellCostTarget.SelfCast,
+                modification = CostModification.IncreaseGenericIfAnyTargetMatches(
+                    amount = 2, filter = GameObjectFilter.Any,
+                ),
+            )
+        }
+    }
 
     fun setup(): GameTestDriver = GameTestDriver().apply {
-        registerCards(TestCards.all + listOf(conditional, fixed, targetingTax))
+        registerCards(TestCards.all + listOf(conditional, fixed, targetingTax, autoTarget))
         initMirrorMatch(Deck.of("Island" to 40))
         passPriorityUntil(Step.PRECOMBAT_MAIN)
     }
@@ -112,6 +131,22 @@ class DelveTargetCostPresentationTest : FunSpec({
         val graveyard = driver.state.getGraveyard(player).take(8)
         val cast = ActionParameterizer.apply(
             presented, ActionParams(targets = listOf(protected), delvedCards = graveyard), driver.state,
+        )
+        driver.submit(cast).error shouldBe null
+    }
+
+    test("auto-selected opponent in CastSpell payload leaves the Delve cap unknown") {
+        val driver = setup()
+        val player = driver.activePlayer!!
+        val (offered, presented) = info(driver, "Test Auto Target Delve", graveyardCount = 8)
+        offered.manaCostString shouldBe "{6}{U}"
+        offered.requiresTargets shouldBe false
+        offered.targetRequirements shouldBe null
+        (offered.action as CastSpell).targets.size shouldBe 1
+        presented.maxDelveCards.shouldBeNull()
+        val graveyard = driver.state.getGraveyard(player).take(8)
+        val cast = ActionParameterizer.apply(
+            presented, ActionParams(delvedCards = graveyard), driver.state,
         )
         driver.submit(cast).error shouldBe null
     }

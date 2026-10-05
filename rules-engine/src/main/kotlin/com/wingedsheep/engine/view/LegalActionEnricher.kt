@@ -160,9 +160,15 @@ class LegalActionEnricher(
             || action.modalEnumeration != null
         ) return null
         // Enumeration may advertise an optimistic price before targets are chosen. Both the
-        // spell's own modifiers and battlefield modifiers can change the final cost for a chosen
-        // target. The offer does not certify fixedness, so no hard cap is safe for targeted casts.
-        if (action.requiresTargets || !action.targetRequirements.isNullOrEmpty()) return null
+        // spell's own modifiers and battlefield modifiers can change the final cost for a target.
+        // A sole player target may already be auto-selected in CastSpell, leaving the separate
+        // requiresTargets and targetRequirements fields empty. Modal targets can also live in the
+        // cast payload; neither representation certifies a fixed price at the offer boundary.
+        val cast = action.action as? CastSpell
+        if (action.requiresTargets || !action.targetRequirements.isNullOrEmpty()
+            || cast?.targets?.isNotEmpty() == true
+            || cast?.modeTargetsOrdered?.any { it.isNotEmpty() } == true
+        ) return null
         val cost = action.manaCostString ?: return null
         val candidates = action.delveCards ?: return null
         val parsed = ManaCost.parse(cost)
