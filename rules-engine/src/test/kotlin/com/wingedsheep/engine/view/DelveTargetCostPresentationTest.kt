@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -54,18 +55,30 @@ class DelveTargetCostPresentationTest : FunSpec({
             effect = Effects.Destroy(creature)
         }
     }
+    val targetingTax = card("Test Targeting Tax") {
+        manaCost = "{2}"
+        typeLine = "Creature — Wizard"
+        power = 1
+        toughness = 3
+        staticAbility {
+            ability = ModifySpellCost(
+                target = SpellCostTarget.OpponentsCastTargeting(GroupFilter.source()),
+                modification = CostModification.IncreaseGeneric(2),
+            )
+        }
+    }
 
     fun setup(): GameTestDriver = GameTestDriver().apply {
-        registerCards(TestCards.all + listOf(conditional, fixed))
+        registerCards(TestCards.all + listOf(conditional, fixed, targetingTax))
         initMirrorMatch(Deck.of("Island" to 40))
         passPriorityUntil(Step.PRECOMBAT_MAIN)
     }
 
-    fun info(driver: GameTestDriver, name: String): Pair<com.wingedsheep.engine.legalactions.LegalAction, LegalActionInfo> {
+    fun info(driver: GameTestDriver, name: String, graveyardCount: Int = 6): Pair<com.wingedsheep.engine.legalactions.LegalAction, LegalActionInfo> {
         val player = driver.activePlayer!!
         val spell = driver.putCardInHand(player, name)
         driver.putLandOnBattlefield(player, "Island")
-        repeat(6) { driver.putCardInGraveyard(player, "Grizzly Bears") }
+        repeat(graveyardCount) { driver.putCardInGraveyard(player, "Grizzly Bears") }
         val offered = driver.legalActions(player).first { (it.action as? CastSpell)?.cardId == spell }
         val presented = LegalActionEnricher(
             ManaSolver(driver.cardRegistry, PredicateEvaluator(driver.cardRegistry)),
@@ -89,12 +102,26 @@ class DelveTargetCostPresentationTest : FunSpec({
         driver.submit(cast).error shouldBe null
     }
 
-    test("fixed targeted Delve price still advertises its native cap") {
+    test("battlefield targeting tax cannot make a fixed-looking offer cap legal Delve payment") {
+        val driver = setup()
+        val player = driver.activePlayer!!
+        val protected = driver.putCreatureOnBattlefield(driver.getOpponent(player), "Test Targeting Tax")
+        val (offered, presented) = info(driver, "Test Fixed Target Delve", graveyardCount = 8)
+        offered.manaCostString shouldBe "{6}{U}"
+        presented.maxDelveCards.shouldBeNull()
+        val graveyard = driver.state.getGraveyard(player).take(8)
+        val cast = ActionParameterizer.apply(
+            presented, ActionParams(targets = listOf(protected), delvedCards = graveyard), driver.state,
+        )
+        driver.submit(cast).error shouldBe null
+    }
+
+    test("targeted offers remain unbounded even without an observed modifier") {
         val driver = setup()
         val player = driver.activePlayer!!
         driver.putCreatureOnBattlefield(driver.getOpponent(player), "Grizzly Bears")
         val (offered, presented) = info(driver, "Test Fixed Target Delve")
         offered.manaCostString shouldBe "{6}{U}"
-        presented.maxDelveCards shouldBe 6
+        presented.maxDelveCards.shouldBeNull()
     }
 })

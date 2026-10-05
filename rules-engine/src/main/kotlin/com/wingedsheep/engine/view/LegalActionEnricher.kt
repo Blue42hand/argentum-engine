@@ -17,8 +17,6 @@ import com.wingedsheep.engine.state.components.player.RestrictedManaEntry
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
-import com.wingedsheep.sdk.scripting.ModifySpellCost
-import com.wingedsheep.sdk.scripting.SpellCostTarget
 
 /**
  * Thin mapping layer from engine [LegalAction] to server [LegalActionInfo] DTO.
@@ -36,7 +34,6 @@ class LegalActionEnricher(
         return actions.map { action ->
             toLegalActionInfo(
                 action,
-                state,
                 manaSourceInfos,
                 eligibleRestrictedMana = if (restrictedMana.isEmpty() || !shouldExposeManaSources(action)) null
                 else buildEligibleRestrictedMana(state, action, restrictedMana)
@@ -91,7 +88,6 @@ class LegalActionEnricher(
 
     private fun toLegalActionInfo(
         action: LegalAction,
-        state: GameState,
         manaSourceInfos: List<ManaSourceInfo>?,
         eligibleRestrictedMana: List<ClientRestrictedManaEntry>?
     ): LegalActionInfo {
@@ -135,7 +131,7 @@ class LegalActionEnricher(
             hasDelve = action.hasDelve,
             validDelveCards = action.delveCards?.map { it.toDto() },
             minDelveNeeded = action.minDelveNeeded,
-            maxDelveCards = fixedDelveCap(action, state),
+            maxDelveCards = fixedDelveCap(action),
             hasHarmonize = action.hasHarmonize,
             validHarmonizeCreatures = action.harmonizeCreatures?.map { it.toDto() },
             manaCostString = action.manaCostString,
@@ -158,22 +154,15 @@ class LegalActionEnricher(
         )
     }
 
-    private fun fixedDelveCap(action: LegalAction, state: GameState): Int? {
+    private fun fixedDelveCap(action: LegalAction): Int? {
         if (!action.hasDelve || action.hasXCost || action.manaCostPerExtraTarget != null
             || action.maxAdditionalManaForCounters != null || action.additionalCostInfo != null
             || action.modalEnumeration != null
         ) return null
-        if (action.requiresTargets || !action.targetRequirements.isNullOrEmpty()) {
-            val cast = action.action as? CastSpell ?: return null
-            val card = state.getEntity(cast.cardId)?.get<CardComponent>() ?: return null
-            val definition = cardRegistry.getCard(card.cardDefinitionId) ?: return null
-            // Enumeration may advertise the cheapest target-dependent price, while payment
-            // recalculates the cost from chosen targets. Any self-cost modifier on a targeted
-            // spell makes that advertised price unsafe as a hard Delve selection limit.
-            if (definition.script.staticAbilities.any {
-                it is ModifySpellCost && it.target == SpellCostTarget.SelfCast
-            }) return null
-        }
+        // Enumeration may advertise an optimistic price before targets are chosen. Both the
+        // spell's own modifiers and battlefield modifiers can change the final cost for a chosen
+        // target. The offer does not certify fixedness, so no hard cap is safe for targeted casts.
+        if (action.requiresTargets || !action.targetRequirements.isNullOrEmpty()) return null
         val cost = action.manaCostString ?: return null
         val candidates = action.delveCards ?: return null
         val parsed = ManaCost.parse(cost)

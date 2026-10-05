@@ -237,6 +237,7 @@ class NativeCostChoiceActionTest : FunSpec({
 
         offered.affordable shouldBe true
         info.minDelveNeeded shouldBe 5
+        info.maxDelveCards shouldBe 7
         info.validDelveCards!!.map { it.entityId }.toSet() shouldBe graveyard.toSet()
         info.parameterSpec.allowedFields["delvedCards"] shouldBe
             com.wingedsheep.engine.core.ActionParameterFieldKind.ENTITY_ID_ARRAY
