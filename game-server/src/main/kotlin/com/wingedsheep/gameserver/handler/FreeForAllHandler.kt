@@ -286,6 +286,12 @@ class FreeForAllHandler(
             val gameSession = gameRepository.findById(gameSessionId)
             val standings = buildStandings(lobby, gameSession, winnerId)
 
+            val finalState = gameSession?.getStateSnapshot()
+            lobby.ffaLastGameSessionId = gameSessionId
+            lobby.ffaLastWinnerId = winnerId?.value
+            lobby.ffaLastFinalTurnNumber = finalState?.turnNumber
+            lobby.ffaLastNativeGameOver = finalState?.gameOver == true
+
             lobby.ffaGameSessionId = null
             lobby.ffaGamesPlayed += 1
             lobby.ffaLastStandings = standings

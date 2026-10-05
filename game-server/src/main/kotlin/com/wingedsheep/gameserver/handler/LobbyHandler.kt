@@ -316,10 +316,17 @@ class LobbyHandler(
         gamesPerMatch: Int? = null,
         controllerSpecs: List<com.wingedsheep.gameserver.ai.AiControllerSpec>? = null,
         rules: com.wingedsheep.sdk.core.GameRules = com.wingedsheep.sdk.core.GameRules.STANDARD,
+        gameMode: LobbyGameMode = LobbyGameMode.TOURNAMENT,
     ): String {
         require(aiGameManager.isEnabled) { "AI opponent is not enabled on this server" }
         require(decks.size in 2..8) { "Player count must be between 2 and 8 (got ${decks.size} decks)" }
         require(gamesPerMatch == null || gamesPerMatch in 1..9) { "Games per match must be between 1 and 9" }
+        require(gameMode in setOf(LobbyGameMode.TOURNAMENT, LobbyGameMode.FREE_FOR_ALL)) {
+            "Fixed-deck AI games support only tournament or free-for-all mode"
+        }
+        require(gameMode != LobbyGameMode.FREE_FOR_ALL || decks.size <= 6) {
+            "Free-for-all player count must be between 2 and 6"
+        }
         require(controllerSpecs == null || models == null) {
             "Choose native controller specs or legacy model overrides, not both"
         }
@@ -383,6 +390,7 @@ class LobbyHandler(
             rules = rules,
             deckSizeMin = if (rules.usesCommanders) 100 else 60,
             commanderPreset = com.wingedsheep.sdk.core.CommanderPreset.COMMANDER,
+            gameMode = gameMode,
         )
 
         val playerIds = mutableListOf<EntityId>()
@@ -413,11 +421,20 @@ class LobbyHandler(
         lobby.activatePremadeTournament()
         lobbyRepository.saveLobby(lobby)
 
-        val tournament = tournamentMatchHandler.ensureTournamentCreated(lobby)
-        lobby.players.values.forEach { ps ->
-            tournamentMatchHandler.sendTournamentStartedToPlayer(lobby, tournament, ps.identity)
+        if (lobby.isFreeForAll) {
+            val lock = ctx.roundLocks.computeIfAbsent(lobby.lobbyId) { Any() }
+            synchronized(lock) {
+                check(freeForAllHandler.maybeStartGame(lobby)) {
+                    "Fixed-deck AI free-for-all did not start its native multiplayer game"
+                }
+            }
+        } else {
+            val tournament = tournamentMatchHandler.ensureTournamentCreated(lobby)
+            lobby.players.values.forEach { ps ->
+                tournamentMatchHandler.sendTournamentStartedToPlayer(lobby, tournament, ps.identity)
+            }
+            tournamentMatchHandler.autoReadyAiPlayers(lobby, tournament)
         }
-        tournamentMatchHandler.autoReadyAiPlayers(lobby, tournament)
         lobbyRepository.saveLobby(lobby)
 
         logger.info("AI fixed-deck tournament created: ${lobby.lobbyId} (${decks.size} AI players, deck sizes: ${decks.map { it.values.sum() }})")

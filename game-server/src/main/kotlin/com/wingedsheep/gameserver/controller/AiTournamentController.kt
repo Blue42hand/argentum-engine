@@ -3,6 +3,7 @@ package com.wingedsheep.gameserver.controller
 import com.wingedsheep.gameserver.handler.LobbyHandler
 import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.gameserver.lobby.LobbyState
+import com.wingedsheep.gameserver.lobby.LobbyGameMode
 import com.wingedsheep.sdk.core.GameRules
 import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
@@ -56,6 +57,8 @@ class AiTournamentController(
         val controllerSpecs: List<AiControllerSpec>? = null,
         /** Rules for the fixed-deck game; defaults to the historical Standard path. */
         val rules: GameRules? = null,
+        /** Fixed-deck games may use the native multiplayer pod lifecycle. */
+        val gameMode: LobbyGameMode? = null,
     )
 
     data class AiTournamentResponse(
@@ -72,7 +75,7 @@ class AiTournamentController(
         val playerCount = decks?.size
             ?: request?.playerCount?.coerceIn(2, 8) ?: 2
 
-        if (decks == null && (request?.controllerSpecs != null || request?.rules != null)) {
+        if (decks == null && (request?.controllerSpecs != null || request?.rules != null || request?.gameMode != null)) {
             return ResponseEntity.badRequest().body(AiTournamentResponse(
                 lobbyId = "", spectateUrl = "",
                 message = "Native controller specs and rules require fixed decks"
@@ -81,6 +84,14 @@ class AiTournamentController(
 
         return try {
             val lobbyId = if (decks != null) {
+                val gameMode = request.gameMode ?: LobbyGameMode.TOURNAMENT
+                if (gameMode !in setOf(LobbyGameMode.TOURNAMENT, LobbyGameMode.FREE_FOR_ALL)
+                    || (gameMode == LobbyGameMode.FREE_FOR_ALL && decks.size > 6)) {
+                    return ResponseEntity.badRequest().body(AiTournamentResponse(
+                        lobbyId = "", spectateUrl = "",
+                        message = "Fixed-deck free-for-all requires 2–6 players"
+                    ))
+                }
                 if (decks.size < 2) {
                     return ResponseEntity.badRequest().body(AiTournamentResponse(
                         lobbyId = "", spectateUrl = "",
@@ -93,6 +104,7 @@ class AiTournamentController(
                     request.gamesPerMatch?.coerceIn(1, 9),
                     request.controllerSpecs,
                     request.rules ?: GameRules.STANDARD,
+                    gameMode,
                 )
             } else {
                 // Auto-pick a random *fully implemented* set (partial sets aren't reliable enough
@@ -140,7 +152,8 @@ class AiTournamentController(
         val player2Name: String,
         val player1Life: Int,
         val player2Life: Int,
-        val turnNumber: Int
+        val turnNumber: Int,
+        val playerCount: Int = 2,
     )
 
     data class AiTournamentStatus(
@@ -155,6 +168,8 @@ class AiTournamentController(
         val liveGames: List<AiLiveGame>,
         /** Played terminal matches, separate from byes and synthetic AI simulations. */
         val completedGames: List<AiCompletedGame>,
+        val gameMode: String = LobbyGameMode.TOURNAMENT.name,
+        val ffaGamesPlayed: Int = 0,
     )
 
     data class AiCompletedGame(
@@ -177,7 +192,7 @@ class AiTournamentController(
         val lobby = lobbyRepository.findLobbyById(lobbyId) ?: return ResponseEntity.notFound().build()
         val tournament = lobbyRepository.findTournamentById(lobbyId)
 
-        val liveGames = tournament?.getAllInProgressMatches().orEmpty().mapNotNull { match ->
+        val bracketLiveGames = tournament?.getAllInProgressMatches().orEmpty().mapNotNull { match ->
             val gameSessionId = match.gameSessionId ?: return@mapNotNull null
             val session = gameRepository.findById(gameSessionId) ?: return@mapNotNull null
             if (session.isGameOver()) return@mapNotNull null
@@ -194,7 +209,23 @@ class AiTournamentController(
             )
         }.sortedBy { it.gameSessionId }
 
-        val completedGames = tournament?.getRoundsForPersistence().orEmpty()
+        val podLiveGame = (if (lobby.isFreeForAll) lobby.ffaGameSessionId else null)?.let { gameId ->
+            val session = gameRepository.findById(gameId)
+            if (session == null || session.isGameOver()) null else {
+                val names = session.getPlayerNames()
+                val life = session.getLifeTotals()
+                if (names.size < 2 || life.size < 2) null else AiLiveGame(
+                    gameSessionId = gameId,
+                    player1Name = names[0], player2Name = names[1],
+                    player1Life = life[0], player2Life = life[1],
+                    turnNumber = session.getStateSnapshot()?.turnNumber ?: 0,
+                    playerCount = names.size,
+                )
+            }
+        }
+        val liveGames = if (lobby.isFreeForAll) listOfNotNull(podLiveGame) else bracketLiveGames
+
+        val bracketCompletedGames = tournament?.getRoundsForPersistence().orEmpty()
             .flatMap { it.matches }
             .filter { it.isComplete && it.gameSessionId != null }
             .map { match ->
@@ -210,16 +241,33 @@ class AiTournamentController(
                 )
             }.sortedBy { it.gameSessionId }
 
+        val podCompletedGame = (if (lobby.isFreeForAll) lobby.ffaLastGameSessionId else null)?.let { gameId ->
+            AiCompletedGame(
+                gameSessionId = gameId,
+                winnerId = lobby.ffaLastWinnerId,
+                isDraw = lobby.ffaLastWinnerId == null,
+                isSimulated = false,
+                nativeGameOver = lobby.ffaLastNativeGameOver,
+                finalTurnNumber = lobby.ffaLastFinalTurnNumber,
+            )
+        }
+        val completedGames = if (lobby.isFreeForAll) listOfNotNull(podCompletedGame)
+            else bracketCompletedGames
+
         return ResponseEntity.ok(AiTournamentStatus(
             lobbyId = lobby.lobbyId,
             state = lobby.state.name,
             playerNames = lobby.players.values.map { it.identity.playerName }.sorted(),
             decksSubmitted = lobby.players.values.count { it.hasSubmittedDeck },
             round = tournament?.currentRound?.roundNumber ?: 0,
-            totalRounds = tournament?.totalRounds ?: 0,
-            complete = lobby.state == LobbyState.TOURNAMENT_COMPLETE,
+            totalRounds = if (lobby.isFreeForAll) 1 else tournament?.totalRounds ?: 0,
+            complete = if (lobby.isFreeForAll)
+                lobby.ffaGamesPlayed > 0 && lobby.ffaGameSessionId == null
+                else lobby.state == LobbyState.TOURNAMENT_COMPLETE,
             liveGames = liveGames,
             completedGames = completedGames,
+            gameMode = lobby.gameMode.name,
+            ffaGamesPlayed = if (lobby.isFreeForAll) lobby.ffaGamesPlayed else 0,
         ))
     }
 

@@ -4,6 +4,7 @@ import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.gameserver.handler.LobbyHandler
 import com.wingedsheep.gameserver.lobby.LobbyState
+import com.wingedsheep.gameserver.lobby.LobbyGameMode
 import com.wingedsheep.gameserver.lobby.TournamentLobby
 import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
@@ -30,7 +31,7 @@ class AiTournamentControllerProfileTest : FunSpec({
         )
         val decks = listOf(mapOf("Forest" to 99), mapOf("Island" to 99))
         every {
-            handler.createAiTournamentWithFixedDecks(decks, null, 1, specs, GameRules.COMMANDER)
+            handler.createAiTournamentWithFixedDecks(decks, null, 1, specs, GameRules.COMMANDER, LobbyGameMode.TOURNAMENT)
         } returns "test-lobby"
 
         val response = controller.createAiTournament(
@@ -43,7 +44,32 @@ class AiTournamentControllerProfileTest : FunSpec({
         response.statusCode.value() shouldBe 200
         response.body!!.lobbyId shouldBe "test-lobby"
         verify(exactly = 1) {
-            handler.createAiTournamentWithFixedDecks(decks, null, 1, specs, GameRules.COMMANDER)
+            handler.createAiTournamentWithFixedDecks(decks, null, 1, specs, GameRules.COMMANDER, LobbyGameMode.TOURNAMENT)
+        }
+    }
+
+    test("four fixed Commander profiles select one native free-for-all pod") {
+        val specs = (0 until 4).map { AiControllerSpec("commander-gym", "profile-$it") }
+        val decks = (0 until 4).map { mapOf("Forest" to 99) }
+        every {
+            handler.createAiTournamentWithFixedDecks(
+                decks, null, 1, specs, GameRules.COMMANDER, LobbyGameMode.FREE_FOR_ALL,
+            )
+        } returns "pod-lobby"
+
+        val response = controller.createAiTournament(
+            AiTournamentController.AiTournamentRequest(
+                decks = decks, controllerSpecs = specs, rules = GameRules.COMMANDER,
+                gamesPerMatch = 1, gameMode = LobbyGameMode.FREE_FOR_ALL,
+            )
+        )
+
+        response.statusCode.value() shouldBe 200
+        response.body!!.lobbyId shouldBe "pod-lobby"
+        verify(exactly = 1) {
+            handler.createAiTournamentWithFixedDecks(
+                decks, null, 1, specs, GameRules.COMMANDER, LobbyGameMode.FREE_FOR_ALL,
+            )
         }
     }
 
@@ -73,6 +99,8 @@ class AiTournamentControllerProfileTest : FunSpec({
         every { lobby.lobbyId } returns lobbyId
         every { lobby.state } returns LobbyState.TOURNAMENT_COMPLETE
         every { lobby.players } returns ConcurrentHashMap()
+        every { lobby.isFreeForAll } returns false
+        every { lobby.gameMode } returns LobbyGameMode.TOURNAMENT
         val lobbyRepository = mockk<LobbyRepository>()
         every { lobbyRepository.findLobbyById(lobbyId) } returns lobby
         every { lobbyRepository.findTournamentById(lobbyId) } returns tournament
@@ -86,5 +114,33 @@ class AiTournamentControllerProfileTest : FunSpec({
         status.completedGames.single().nativeGameOver shouldBe true
         status.completedGames.single().finalTurnNumber shouldBe 13
         status.completedGames.single().winnerId shouldBe krenko.value
+    }
+
+    test("free-for-all status retains native terminal evidence without a bracket") {
+        val lobby = mockk<TournamentLobby>()
+        every { lobby.lobbyId } returns "pod-lobby"
+        every { lobby.state } returns LobbyState.TOURNAMENT_ACTIVE
+        every { lobby.players } returns ConcurrentHashMap()
+        every { lobby.isFreeForAll } returns true
+        every { lobby.gameMode } returns LobbyGameMode.FREE_FOR_ALL
+        every { lobby.ffaGameSessionId } returns null
+        every { lobby.ffaGamesPlayed } returns 1
+        every { lobby.ffaLastGameSessionId } returns "pod-game"
+        every { lobby.ffaLastWinnerId } returns "winner"
+        every { lobby.ffaLastFinalTurnNumber } returns 15
+        every { lobby.ffaLastNativeGameOver } returns true
+        val lobbyRepository = mockk<LobbyRepository>()
+        every { lobbyRepository.findLobbyById("pod-lobby") } returns lobby
+        every { lobbyRepository.findTournamentById("pod-lobby") } returns null
+
+        val result = AiTournamentController(handler, mockk(), lobbyRepository, mockk())
+            .status("pod-lobby").body!!
+
+        result.complete shouldBe true
+        result.gameMode shouldBe LobbyGameMode.FREE_FOR_ALL.name
+        result.completedGames.single().gameSessionId shouldBe "pod-game"
+        result.completedGames.single().nativeGameOver shouldBe true
+        result.completedGames.single().finalTurnNumber shouldBe 15
+        result.completedGames.single().winnerId shouldBe "winner"
     }
 })

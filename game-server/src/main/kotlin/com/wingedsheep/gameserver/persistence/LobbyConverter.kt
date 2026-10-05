@@ -78,7 +78,11 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
         randomTeams = randomTeams,
         teamAssignments = teamAssignments.mapKeys { it.key.value },
         ffaGameSessionId = ffaGameSessionId,
-        ffaGamesPlayed = ffaGamesPlayed
+        ffaGamesPlayed = ffaGamesPlayed,
+        ffaLastGameSessionId = ffaLastGameSessionId,
+        ffaLastWinnerId = ffaLastWinnerId,
+        ffaLastFinalTurnNumber = ffaLastFinalTurnNumber,
+        ffaLastNativeGameOver = ffaLastNativeGameOver
     )
 }
 
@@ -134,6 +138,10 @@ fun restoreTournamentLobby(
     }
     lobby.ffaGameSessionId = persistent.ffaGameSessionId
     lobby.ffaGamesPlayed = persistent.ffaGamesPlayed
+    lobby.ffaLastGameSessionId = persistent.ffaLastGameSessionId
+    lobby.ffaLastWinnerId = persistent.ffaLastWinnerId
+    lobby.ffaLastFinalTurnNumber = persistent.ffaLastFinalTurnNumber
+    lobby.ffaLastNativeGameOver = persistent.ffaLastNativeGameOver
 
     val playerIdentities = mutableListOf<PlayerIdentity>()
     for ((playerIdStr, persistentPlayer) in persistent.players) {

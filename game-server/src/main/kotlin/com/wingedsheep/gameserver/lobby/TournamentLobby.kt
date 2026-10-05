@@ -595,6 +595,16 @@ class TournamentLobby(
     @Volatile
     var ffaGamesPlayed: Int = 0
 
+    /** Native result of the most recent pod game, retained after the live session is cleared. */
+    @Volatile
+    var ffaLastGameSessionId: String? = null
+    @Volatile
+    var ffaLastWinnerId: String? = null
+    @Volatile
+    var ffaLastFinalTurnNumber: Int? = null
+    @Volatile
+    var ffaLastNativeGameOver: Boolean = false
+
     /** Final standings of the most recent FFA game (placement order), for late joiners/reconnects. */
     @Volatile
     var ffaLastStandings: List<ServerMessage.FfaStandingInfo>? = null
