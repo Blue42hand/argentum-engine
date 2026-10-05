@@ -219,6 +219,29 @@ class LiveActionSubmissionTest : ScenarioTestBase() {
             session.isUndoAvailable(owner) shouldBe true
         }
 
+        test("a delayed AI reply to a terminal game is obsolete without changing replay evidence") {
+            val game = scenario().withPlayers().withCardInHand(1, "Forest").build()
+            val player = game.player1Id
+            val session = GameSession(cardRegistry = cardRegistry)
+            val socket = mockk<WebSocketSession>(relaxed = true) { every { id } returns "terminal" }
+            session.injectStateForTesting(
+                game.state.copy(gameOver = true, winnerId = game.player2Id),
+                mapOf(player to PlayerSession(socket, player, "First")),
+            )
+            val origin = epoch(session, player)
+            val action = PlayLand(player, game.findCardsInHand(1, "Forest").single())
+            val before = session.getStateForTesting()
+            val actions = session.getRecordedActions()
+            val checkpoints = session.getReplayCheckpoints()
+            session.executeAiAction(player, action, origin) shouldBe null
+            session.executeAiPaymentCorrection(player, action, origin, "obsolete", 0L) shouldBe null
+            session.executeClientAction(player, action, interactionEpoch = origin)
+                .shouldBeInstanceOf<GameSession.ActionResult.Failure>()
+            session.getStateForTesting() shouldBe before
+            session.getRecordedActions() shouldBe actions
+            session.getReplayCheckpoints() shouldBe checkpoints
+        }
+
         // GamePlayHandler reaches noteAiActionRejected only after every safe fallback has itself
         // been rejected, so the undo-between-the-last-fallback-and-the-count race is not reachable
         // through handleAiAction in a test. Exercise the guard where it lives instead: without it,

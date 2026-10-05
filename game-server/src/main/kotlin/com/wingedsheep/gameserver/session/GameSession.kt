@@ -876,7 +876,7 @@ class GameSession(
         interactionEpoch: String?,
     ): ActionResult? {
         val origin = interactionEpoch ?: return null
-        return executeLiveAction(playerId, LiveActionSubmission(action, origin, previewManaPayment = true))
+        return executeLiveAction(playerId, LiveActionSubmission(action, origin, previewManaPayment = true, aiReply = true))
     }
 
     /** A correction may activate mana rather than answer the question; guard both paths. */
@@ -890,7 +890,7 @@ class GameSession(
         val origin = interactionEpoch ?: return null
         return executeLiveAction(playerId,
             LiveActionSubmission(action, origin, expectedDecisionId = expectedDecisionId,
-                expectedStateRevision = expectedStateRevision, previewManaPayment = true))
+                expectedStateRevision = expectedStateRevision, previewManaPayment = true, aiReply = true))
     }
 
     /**
@@ -901,6 +901,7 @@ class GameSession(
      */
     fun executeLiveAction(playerId: EntityId, submission: LiveActionSubmission): ActionResult? = synchronized(stateLock) {
         if (!isCurrentInteraction(submission.interactionEpoch)) return null
+        if (submission.aiReply && gameState?.gameOver == true) return null
         if (submission.expectedStateRevision != null &&
             submission.expectedStateRevision != liveStateRevision.get()) return null
         val action = submission.action
