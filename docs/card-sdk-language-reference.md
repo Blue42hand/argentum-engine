@@ -7821,13 +7821,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   (`finalChapterOnly = false`).
 - **Read ahead** (CR 702.155 / 714.3b) — `card { readAhead() }` (`readAhead(finalChapter = 3)`). Adds the
   `Keyword.READ_AHEAD` tag plus an `EntersWithChoice(ChoiceType.NUMBER, minValue = 1, maxValue = finalChapter)`, so
-  the controller picks a chapter as the Saga enters (stored in `ChoiceSlot.CHOSEN_NUMBER`, before entry, on both the
-  cast and the put-onto-battlefield paths). The engine reads the keyword twice: Saga entry
+  the controller picks a chapter as the Saga enters, however it enters (CR 702.155b) — stored in
+  `ChoiceSlot.CHOSEN_NUMBER` before entry on the cast and put-onto-battlefield paths, and on arrival for a token copy
+  (whose lore counters the as-enters choice resumer then places) or a permanent entering as a copy. The engine reads the keyword twice: Saga entry
   (`ZoneMovementUtils.sagaEntryLoreCount`) places the chosen number of lore counters instead of one, and
   `TriggerDetector.detectSagaChapterTriggers` lets a chapter trigger the turn the Saga entered only when its lore
   count is *exactly* that chapter number (CR 702.155a) — skipped chapters don't trigger, later lore counters
-  (including a same-turn proliferate to exactly N) trigger normally. A token copy of a read-ahead Saga has no entry
-  prompt and enters with one lore counter. Founding the Third Path is the reference card.
+  (including a same-turn proliferate to exactly N) trigger normally. Founding the Third Path is the reference card.
 
 ### Sacrifice & counters
 

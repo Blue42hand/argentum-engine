@@ -1,12 +1,16 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseNumberDecision
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.identity.TokenComponent
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.mtg.sets.definitions.woe.cards.YennaRedtoothRegent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -202,6 +206,115 @@ class FoundingTheThirdPathScenarioTest : ScenarioTestBase() {
                 withClue("Divination is in exile, no cards drawn") {
                     game.state.getZone(game.player1Id, Zone.EXILE) shouldContainExactly listOf(divination)
                     game.state.getZone(game.player1Id, Zone.HAND).size shouldBe 0
+                }
+            }
+            test("a token copy chooses its own chapter as it enters (CR 702.155b)") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardOnBattlefield(1, "Yenna, Redtooth Regent")
+                    .withCardOnBattlefield(1, "Founding the Third Path")
+                    .withLandsOnBattlefield(1, "Forest", 2)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val yenna = game.findPermanent("Yenna, Redtooth Regent")!!
+                val original = game.findPermanent("Founding the Third Path")!!
+                val copyAbilityId = YennaRedtoothRegent.activatedAbilities.first { !it.isManaAbility }.id
+                game.execute(
+                    ActivateAbility(
+                        playerId = game.player1Id,
+                        sourceId = yenna,
+                        abilityId = copyAbilityId,
+                        targets = listOf(ChosenTarget.Permanent(original)),
+                    )
+                ).error shouldBe null
+                game.resolveStack()
+
+                withClue("the token copy asks for a chapter number as it enters") {
+                    val decision = game.getPendingDecision().shouldBeInstanceOf<ChooseNumberDecision>()
+                    decision.minValue shouldBe 1
+                    decision.maxValue shouldBe 3
+                }
+                game.chooseNumber(2)
+
+                val token = game.findAllPermanents("Founding the Third Path").single { it != original }
+                game.state.getEntity(token)?.has<TokenComponent>() shouldBe true
+                withClue("the token entered with the chosen two lore counters") {
+                    game.state.getEntity(token)?.get<CountersComponent>()?.getCount(CounterType.LORE) shouldBe 2
+                }
+                withClue("only chapter II triggers: it targets a player") {
+                    game.getPendingDecision().shouldBeInstanceOf<ChooseTargetsDecision>()
+                }
+                game.selectTargets(listOf(game.player2Id))
+                game.resolveStack()
+                withClue("chapter I didn't trigger — no free-cast offer — and nothing else is pending") {
+                    game.hasPendingDecision() shouldBe false
+                }
+            }
+
+            test("a Saga put onto the battlefield by an effect chooses its chapter as it enters") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardInHand(1, "Squirming Emergence")
+                    .withCardInGraveyard(1, "Founding the Third Path")
+                    .withCardInGraveyard(1, "Island")
+                    .withCardInGraveyard(1, "Divination")
+                    .withLandsOnBattlefield(1, "Bayou", 3)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val saga = game.findCardsInGraveyard(1, "Founding the Third Path").first()
+                game.castSpellTargetingGraveyardCard(1, "Squirming Emergence", listOf(saga)).error shouldBe null
+                game.resolveStack()
+
+                withClue("the returned Saga asks for a chapter number as it enters") {
+                    val decision = game.getPendingDecision().shouldBeInstanceOf<ChooseNumberDecision>()
+                    decision.maxValue shouldBe 3
+                }
+                game.chooseNumber(3)
+                withClue("the Saga entered with three lore counters") { game.lore() shouldBe 3 }
+
+                val divination = game.findCardsInGraveyard(1, "Divination").first()
+                withClue("only chapter III triggers: it targets the instant or sorcery in the graveyard") {
+                    game.getPendingDecision().shouldBeInstanceOf<ChooseTargetsDecision>()
+                }
+                game.selectTargets(listOf(divination))
+                game.resolveStack()
+                game.answerYesNo(false)
+                game.resolveStack()
+                withClue("chapter III exiled Divination; the Saga is sacrificed after its final chapter") {
+                    game.state.getZone(game.player1Id, Zone.EXILE) shouldContainExactly listOf(divination)
+                    game.findPermanent("Founding the Third Path") shouldBe null
+                }
+            }
+            test("an enchantment entering as a copy of the Saga chooses its own chapter") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardInHand(1, "Copy Enchantment")
+                    .withCardOnBattlefield(1, "Founding the Third Path")
+                    .withLandsOnBattlefield(1, "Island", 3)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val original = game.findPermanent("Founding the Third Path")!!
+                game.castSpell(1, "Copy Enchantment").error shouldBe null
+                game.resolveStack()
+                game.getPendingDecision().shouldBeInstanceOf<SelectCardsDecision>()
+                game.selectCards(listOf(original))
+
+                withClue("the copy asks for a chapter number as it enters") {
+                    game.getPendingDecision().shouldBeInstanceOf<ChooseNumberDecision>().maxValue shouldBe 3
+                }
+                game.chooseNumber(2)
+                val copy = game.findAllPermanents("Founding the Third Path").single { it != original }
+                withClue("the copy entered with the chosen two lore counters") {
+                    game.state.getEntity(copy)?.get<CountersComponent>()?.getCount(CounterType.LORE) shouldBe 2
+                }
+                withClue("only chapter II triggers: it targets a player") {
+                    game.getPendingDecision().shouldBeInstanceOf<ChooseTargetsDecision>()
                 }
             }
         }

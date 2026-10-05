@@ -127,8 +127,13 @@ object ZoneMovementUtils {
     )
 
     /**
-     * Apply Saga entry setup to an entity entering the battlefield (Rule 714.3a).
-     * Adds SagaComponent with chapter 1 marked as triggered, and adds an initial lore counter.
+     * Apply Saga entry setup to an entity entering the battlefield (CR 714.3a / 714.3b): adds the
+     * [SagaComponent] with the entry chapters marked as triggered and the entry lore counter(s).
+     *
+     * Idempotent per battlefield stint — a Saga that already carries a [SagaComponent] (stripped
+     * whenever it leaves the battlefield) is left alone. That lets every token-placement path defer
+     * this to the as-enters choice resumer when it pauses for a choice (a read-ahead Saga's lore
+     * count is that choice) while entries that placed the counters before pausing aren't doubled.
      *
      * @return Pair of (updated state, list of events to emit) — empty events if not a Saga
      */
@@ -139,6 +144,7 @@ object ZoneMovementUtils {
         val container = state.getEntity(entityId) ?: return state to emptyList()
         val cardComponent = container.get<CardComponent>() ?: return state to emptyList()
         if (!cardComponent.typeLine.isSaga) return state to emptyList()
+        if (container.has<SagaComponent>()) return state to emptyList()
 
         val current = container.get<CountersComponent>() ?: CountersComponent()
         val loreCount = sagaEntryLoreCount(container)
@@ -153,9 +159,10 @@ object ZoneMovementUtils {
     /**
      * How many lore counters a Saga enters with: one (CR 714.3a), or — for a Saga with read ahead —
      * the number chosen as it entered (CR 714.3b), recorded by its `EntersWithChoice(NUMBER)` in the
-     * [com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER] slot before this runs. A read-ahead
-     * Saga entering with no recorded choice (a token copy, which has no entry prompt) falls back to
-     * one.
+     * [com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER] slot before this runs — on every entry
+     * route: a cast, an effect's put-onto-the-battlefield (asked before entry), or a token or copy
+     * (asked on arrival, with the counters placed by the choice resumer). A read-ahead Saga whose
+     * choice couldn't be recorded falls back to one.
      */
     fun sagaEntryLoreCount(container: ComponentContainer): Int {
         val cardComponent = container.get<CardComponent>() ?: return 1
