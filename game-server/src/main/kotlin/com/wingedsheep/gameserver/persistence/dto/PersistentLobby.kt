@@ -68,7 +68,16 @@ data class PersistentTournamentLobby(
     /** FFA mode: session id of the game currently in progress, or null between games. */
     val ffaGameSessionId: String? = null,
     /** FFA mode: completed games in this lobby's play-again loop. */
-    val ffaGamesPlayed: Int = 0
+    val ffaGamesPlayed: Int = 0,
+    val ffaLastResult: PersistentFfaTerminalResult? = null
+)
+
+@Serializable
+data class PersistentFfaTerminalResult(
+    val gameSessionId: String,
+    val winnerId: String?,
+    val finalTurnNumber: Int?,
+    val nativeGameOver: Boolean,
 )
 
 /**

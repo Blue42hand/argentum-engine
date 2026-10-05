@@ -283,6 +283,14 @@ sealed interface WinstonActionResult {
     data class Error(val message: String) : WinstonActionResult
 }
 
+/** Native terminal facts published as one value after an FFA game ends. */
+data class FfaTerminalResult(
+    val gameSessionId: String,
+    val winnerId: String?,
+    val finalTurnNumber: Int?,
+    val nativeGameOver: Boolean,
+)
+
 /**
  * Multi-player tournament lobby supporting up to 8 players with host controls.
  * Supports Sealed, Draft, and Winston Draft formats.
@@ -594,6 +602,10 @@ class TournamentLobby(
     /** Completed FFA games in this lobby (drives the "Game N" label in the play-again loop). */
     @Volatile
     var ffaGamesPlayed: Int = 0
+
+    /** One immutable publication of the most recent native pod result. */
+    @Volatile
+    var ffaLastResult: FfaTerminalResult? = null
 
     /** Final standings of the most recent FFA game (placement order), for late joiners/reconnects. */
     @Volatile

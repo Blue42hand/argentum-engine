@@ -72,6 +72,8 @@ class TournamentTerminalCaptureTest : FunSpec({
                 every { lobby.lobbyId } returns lobbyId
                 every { lobby.state } returns LobbyState.TOURNAMENT_COMPLETE
                 every { lobby.players } returns ConcurrentHashMap()
+                every { lobby.isFreeForAll } returns false
+                every { lobby.gameMode } returns com.wingedsheep.gameserver.lobby.LobbyGameMode.TOURNAMENT
                 lobbyRepository.saveLobby(lobby)
 
                 val completed = AiTournamentController(

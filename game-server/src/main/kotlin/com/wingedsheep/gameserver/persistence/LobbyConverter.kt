@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.persistence
 
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.gameserver.lobby.LobbyGameMode
+import com.wingedsheep.gameserver.lobby.FfaTerminalResult
 import com.wingedsheep.gameserver.lobby.LobbyPlayerState
 import com.wingedsheep.gameserver.lobby.LobbyState
 import com.wingedsheep.gameserver.lobby.TournamentFormat
@@ -78,7 +79,10 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
         randomTeams = randomTeams,
         teamAssignments = teamAssignments.mapKeys { it.key.value },
         ffaGameSessionId = ffaGameSessionId,
-        ffaGamesPlayed = ffaGamesPlayed
+        ffaGamesPlayed = ffaGamesPlayed,
+        ffaLastResult = ffaLastResult?.let {
+            PersistentFfaTerminalResult(it.gameSessionId, it.winnerId, it.finalTurnNumber, it.nativeGameOver)
+        }
     )
 }
 
@@ -134,6 +138,9 @@ fun restoreTournamentLobby(
     }
     lobby.ffaGameSessionId = persistent.ffaGameSessionId
     lobby.ffaGamesPlayed = persistent.ffaGamesPlayed
+    lobby.ffaLastResult = persistent.ffaLastResult?.let {
+        FfaTerminalResult(it.gameSessionId, it.winnerId, it.finalTurnNumber, it.nativeGameOver)
+    }
 
     val playerIdentities = mutableListOf<PlayerIdentity>()
     for ((playerIdStr, persistentPlayer) in persistent.players) {
