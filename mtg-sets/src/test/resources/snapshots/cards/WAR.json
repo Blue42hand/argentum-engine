@@ -1960,6 +1960,130 @@
     ]
 }
 
+// Kasmina, Enigmatic Mentor
+{
+    "name": "Kasmina, Enigmatic Mentor",
+    "manaCost": "{3}{U}",
+    "typeLine": "Legendary Planeswalker — Kasmina",
+    "oracleText": "Spells your opponents cast that target a creature or planeswalker you control cost {2} more to cast.\n−2: Create a 2/2 blue Wizard creature token. Draw a card, then discard a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Kasmina, Enigmatic Mentor:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [
+                                "BLUE"
+                            ],
+                            "creatureTypes": [
+                                "Wizard"
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b0b95ce-4821-4955-a27c-93471240f54b.jpg?1783933354"
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "DrawCards",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GatherCards",
+                                            "source": {
+                                                "type": "FromZone",
+                                                "zone": "Hand"
+                                            },
+                                            "storeAs": "hand"
+                                        },
+                                        {
+                                            "type": "SelectFromCollection",
+                                            "from": "hand",
+                                            "selection": {
+                                                "type": "ChooseExactly",
+                                                "count": {
+                                                    "type": "Fixed",
+                                                    "amount": 1
+                                                }
+                                            },
+                                            "storeSelected": "discarded",
+                                            "prompt": "Choose 1 card to discard"
+                                        },
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "discarded",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Graveyard"
+                                            },
+                                            "moveType": "Discard"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "OpponentsCastTargeting",
+                    "targetFilter": {
+                        "baseFilter": "creature|planeswalker ctrl:you"
+                    }
+                },
+                "modification": {
+                    "type": "IncreaseGeneric",
+                    "amount": 2
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "rarity": "UNCOMMON",
+        "artist": "Magali Villeneuve",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/7/c77d9454-a78c-4063-ad66-46b2f5a030aa.jpg?1783933460",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "To determine the total cost of an opponent's spell that targets a creature or planeswalker you control, start with the mana cost or alternative cost that player is paying, add any cost increases (such as that of Kasmina's effect), then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "Spells that target more than one creature and/or planeswalker you control cost only {2} more to cast."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "You can't do anything in between drawing a card and discarding a card, including casting the card you drew."
+            }
+        ]
+    },
+    "startingLoyalty": 5,
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Kraul Stinger
 {
     "name": "Kraul Stinger",
