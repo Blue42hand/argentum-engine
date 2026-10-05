@@ -654,6 +654,130 @@
     "colorIdentityOverride": []
 }
 
+// Dreams of Steel and Oil
+{
+    "name": "Dreams of Steel and Oil",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target opponent reveals their hand. You choose an artifact or creature card from it, then choose an artifact or creature card from their graveyard. Exile the chosen cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "RevealHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "filter": "artifact|creature"
+                    },
+                    "storeAs": "gathered1"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered1",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected2",
+                    "prompt": "Choose an artifact or creature card from their hand to exile"
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "filter": "artifact|creature"
+                    },
+                    "storeAs": "gathered3"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered3",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected4",
+                    "prompt": "Choose an artifact or creature card from their graveyard to exile"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected4",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "92",
+        "rarity": "UNCOMMON",
+        "artist": "Jeremy Wilson",
+        "flavorText": "Mishra's nightmares of Phyrexia rang with screams of agony and groans of twisted metal. The sounds stayed with him long after he awoke.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/261ac92e-c61a-4c11-aa6a-9ae1cb703e5c.jpg?1783920092",
+        "rulings": [
+            {
+                "date": "2022-10-14",
+                "text": "You must choose an artifact or creature card from their hand if they reveal one. Similarly, you must choose an artifact or creature card from their graveyard if one exists there."
+            },
+            {
+                "date": "2022-10-14",
+                "text": "If the opponent has no artifact or creature cards in their hand, you must still choose an artifact or creature card from their graveyard to exile."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dwarven Forge-Chanter
 {
     "name": "Dwarven Forge-Chanter",
