@@ -29,6 +29,7 @@ import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTur
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.ExileOnLeaveBattlefieldComponent
 import com.wingedsheep.engine.state.components.battlefield.SagaComponent
+import com.wingedsheep.engine.state.components.battlefield.numberChoice
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.WarpedComponent
@@ -140,12 +141,27 @@ object ZoneMovementUtils {
         if (!cardComponent.typeLine.isSaga) return state to emptyList()
 
         val current = container.get<CountersComponent>() ?: CountersComponent()
-        val sagaComponent = SagaComponent(triggeredChapters = setOf(1))
+        val loreCount = sagaEntryLoreCount(container)
+        val sagaComponent = SagaComponent(triggeredChapters = (1..loreCount).toSet())
         val newState = state.updateEntity(entityId) { c ->
             c.with(sagaComponent)
-                .with(current.withAdded(CounterType.LORE, 1))
+                .with(current.withAdded(CounterType.LORE, loreCount))
         }.let { DamageUtils.markCounterOnControlledPermanent(it, entityId, CounterType.LORE, entering = true) }
-        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, 1, cardComponent.name))
+        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, loreCount, cardComponent.name))
+    }
+
+    /**
+     * How many lore counters a Saga enters with: one (CR 714.3a), or — for a Saga with read ahead —
+     * the number chosen as it entered (CR 714.3b), recorded by its `EntersWithChoice(NUMBER)` in the
+     * [com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER] slot before this runs. A read-ahead
+     * Saga entering with no recorded choice (a token copy, which has no entry prompt) falls back to
+     * one.
+     */
+    fun sagaEntryLoreCount(container: ComponentContainer): Int {
+        val cardComponent = container.get<CardComponent>() ?: return 1
+        if (com.wingedsheep.sdk.core.Keyword.READ_AHEAD !in cardComponent.baseKeywords) return 1
+        return container.numberChoice(com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER)
+            ?.coerceAtLeast(1) ?: 1
     }
 
     /**
