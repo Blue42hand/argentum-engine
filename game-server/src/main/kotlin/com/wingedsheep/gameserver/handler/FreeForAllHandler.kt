@@ -4,6 +4,7 @@ import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.gameserver.deck.EasterEggDeckInjector
+import com.wingedsheep.gameserver.lobby.FfaTerminalResult
 import com.wingedsheep.gameserver.lobby.TournamentLobby
 import com.wingedsheep.gameserver.protocol.ErrorCode
 import com.wingedsheep.gameserver.protocol.ServerMessage
@@ -287,10 +288,12 @@ class FreeForAllHandler(
             val standings = buildStandings(lobby, gameSession, winnerId)
 
             val finalState = gameSession?.getStateSnapshot()
-            lobby.ffaLastGameSessionId = gameSessionId
-            lobby.ffaLastWinnerId = winnerId?.value
-            lobby.ffaLastFinalTurnNumber = finalState?.turnNumber
-            lobby.ffaLastNativeGameOver = finalState?.gameOver == true
+            val terminalResult = FfaTerminalResult(
+                gameSessionId = gameSessionId,
+                winnerId = winnerId?.value,
+                finalTurnNumber = finalState?.turnNumber,
+                nativeGameOver = finalState?.gameOver == true,
+            )
 
             lobby.ffaGameSessionId = null
             lobby.ffaGamesPlayed += 1
@@ -298,6 +301,8 @@ class FreeForAllHandler(
             lobby.clearReadyState()
             // The AI seats are ready the moment the pod is between games; only the humans are asked.
             autoReadyAiSeats(lobby)
+            // Status readers see either no terminal result or all of its fields together.
+            lobby.ffaLastResult = terminalResult
             ctx.lobbyRepository.saveLobby(lobby)
 
             logger.info(

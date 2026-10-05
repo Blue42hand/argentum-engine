@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.persistence
 
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.gameserver.lobby.LobbyGameMode
+import com.wingedsheep.gameserver.lobby.FfaTerminalResult
 import com.wingedsheep.gameserver.lobby.LobbyPlayerState
 import com.wingedsheep.gameserver.lobby.LobbyState
 import com.wingedsheep.gameserver.lobby.TournamentFormat
@@ -79,10 +80,9 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
         teamAssignments = teamAssignments.mapKeys { it.key.value },
         ffaGameSessionId = ffaGameSessionId,
         ffaGamesPlayed = ffaGamesPlayed,
-        ffaLastGameSessionId = ffaLastGameSessionId,
-        ffaLastWinnerId = ffaLastWinnerId,
-        ffaLastFinalTurnNumber = ffaLastFinalTurnNumber,
-        ffaLastNativeGameOver = ffaLastNativeGameOver
+        ffaLastResult = ffaLastResult?.let {
+            PersistentFfaTerminalResult(it.gameSessionId, it.winnerId, it.finalTurnNumber, it.nativeGameOver)
+        }
     )
 }
 
@@ -138,10 +138,9 @@ fun restoreTournamentLobby(
     }
     lobby.ffaGameSessionId = persistent.ffaGameSessionId
     lobby.ffaGamesPlayed = persistent.ffaGamesPlayed
-    lobby.ffaLastGameSessionId = persistent.ffaLastGameSessionId
-    lobby.ffaLastWinnerId = persistent.ffaLastWinnerId
-    lobby.ffaLastFinalTurnNumber = persistent.ffaLastFinalTurnNumber
-    lobby.ffaLastNativeGameOver = persistent.ffaLastNativeGameOver
+    lobby.ffaLastResult = persistent.ffaLastResult?.let {
+        FfaTerminalResult(it.gameSessionId, it.winnerId, it.finalTurnNumber, it.nativeGameOver)
+    }
 
     val playerIdentities = mutableListOf<PlayerIdentity>()
     for ((playerIdStr, persistentPlayer) in persistent.players) {

@@ -209,7 +209,8 @@ class AiTournamentController(
             )
         }.sortedBy { it.gameSessionId }
 
-        val podLiveGame = (if (lobby.isFreeForAll) lobby.ffaGameSessionId else null)?.let { gameId ->
+        val podGameSessionId = if (lobby.isFreeForAll) lobby.ffaGameSessionId else null
+        val podLiveGame = podGameSessionId?.let { gameId ->
             val session = gameRepository.findById(gameId)
             if (session == null || session.isGameOver()) null else {
                 val names = session.getPlayerNames()
@@ -241,14 +242,15 @@ class AiTournamentController(
                 )
             }.sortedBy { it.gameSessionId }
 
-        val podCompletedGame = (if (lobby.isFreeForAll) lobby.ffaLastGameSessionId else null)?.let { gameId ->
+        val podResult = if (lobby.isFreeForAll) lobby.ffaLastResult else null
+        val podCompletedGame = podResult?.let { result ->
             AiCompletedGame(
-                gameSessionId = gameId,
-                winnerId = lobby.ffaLastWinnerId,
-                isDraw = lobby.ffaLastWinnerId == null,
+                gameSessionId = result.gameSessionId,
+                winnerId = result.winnerId,
+                isDraw = result.winnerId == null,
                 isSimulated = false,
-                nativeGameOver = lobby.ffaLastNativeGameOver,
-                finalTurnNumber = lobby.ffaLastFinalTurnNumber,
+                nativeGameOver = result.nativeGameOver,
+                finalTurnNumber = result.finalTurnNumber,
             )
         }
         val completedGames = if (lobby.isFreeForAll) listOfNotNull(podCompletedGame)
@@ -262,7 +264,7 @@ class AiTournamentController(
             round = tournament?.currentRound?.roundNumber ?: 0,
             totalRounds = if (lobby.isFreeForAll) 1 else tournament?.totalRounds ?: 0,
             complete = if (lobby.isFreeForAll)
-                lobby.ffaGamesPlayed > 0 && lobby.ffaGameSessionId == null
+                podResult != null && podGameSessionId == null
                 else lobby.state == LobbyState.TOURNAMENT_COMPLETE,
             liveGames = liveGames,
             completedGames = completedGames,

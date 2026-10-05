@@ -5,6 +5,7 @@ import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.gameserver.handler.LobbyHandler
 import com.wingedsheep.gameserver.lobby.LobbyState
 import com.wingedsheep.gameserver.lobby.LobbyGameMode
+import com.wingedsheep.gameserver.lobby.FfaTerminalResult
 import com.wingedsheep.gameserver.lobby.TournamentLobby
 import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
@@ -125,10 +126,7 @@ class AiTournamentControllerProfileTest : FunSpec({
         every { lobby.gameMode } returns LobbyGameMode.FREE_FOR_ALL
         every { lobby.ffaGameSessionId } returns null
         every { lobby.ffaGamesPlayed } returns 1
-        every { lobby.ffaLastGameSessionId } returns "pod-game"
-        every { lobby.ffaLastWinnerId } returns "winner"
-        every { lobby.ffaLastFinalTurnNumber } returns 15
-        every { lobby.ffaLastNativeGameOver } returns true
+        every { lobby.ffaLastResult } returns FfaTerminalResult("pod-game", "winner", 15, true)
         val lobbyRepository = mockk<LobbyRepository>()
         every { lobbyRepository.findLobbyById("pod-lobby") } returns lobby
         every { lobbyRepository.findTournamentById("pod-lobby") } returns null
@@ -142,5 +140,58 @@ class AiTournamentControllerProfileTest : FunSpec({
         result.completedGames.single().nativeGameOver shouldBe true
         result.completedGames.single().finalTurnNumber shouldBe 15
         result.completedGames.single().winnerId shouldBe "winner"
+    }
+
+    test("free-for-all completion published during status assembly waits for next poll") {
+        val lobby = mockk<TournamentLobby>()
+        val terminal = FfaTerminalResult("pod-game", "winner", 15, true)
+        var published: FfaTerminalResult? = null
+        every { lobby.lobbyId } returns "pod-lobby"
+        // Publication happens after the controller captures the terminal result,
+        // while it is assembling this status response.
+        every { lobby.state } answers {
+            published = terminal
+            LobbyState.TOURNAMENT_ACTIVE
+        }
+        every { lobby.players } returns ConcurrentHashMap()
+        every { lobby.isFreeForAll } returns true
+        every { lobby.gameMode } returns LobbyGameMode.FREE_FOR_ALL
+        every { lobby.ffaGameSessionId } returns null
+        every { lobby.ffaGamesPlayed } returns 1
+        every { lobby.ffaLastResult } answers { published }
+        val lobbyRepository = mockk<LobbyRepository>()
+        every { lobbyRepository.findLobbyById("pod-lobby") } returns lobby
+        every { lobbyRepository.findTournamentById("pod-lobby") } returns null
+        val controller = AiTournamentController(handler, mockk(), lobbyRepository, mockk())
+
+        val crossingPoll = controller.status("pod-lobby").body!!
+        crossingPoll.complete shouldBe false
+        crossingPoll.completedGames shouldBe emptyList()
+
+        val nextPoll = controller.status("pod-lobby").body!!
+        nextPoll.complete shouldBe true
+        nextPoll.completedGames.single().nativeGameOver shouldBe true
+        nextPoll.completedGames.single().finalTurnNumber shouldBe 15
+    }
+
+    test("free-for-all exposes failed native terminal proof without qualifying it") {
+        val lobby = mockk<TournamentLobby>()
+        every { lobby.lobbyId } returns "failed-pod"
+        every { lobby.state } returns LobbyState.TOURNAMENT_ACTIVE
+        every { lobby.players } returns ConcurrentHashMap()
+        every { lobby.isFreeForAll } returns true
+        every { lobby.gameMode } returns LobbyGameMode.FREE_FOR_ALL
+        every { lobby.ffaGameSessionId } returns null
+        every { lobby.ffaGamesPlayed } returns 1
+        every { lobby.ffaLastResult } returns FfaTerminalResult("pod-game", null, null, false)
+        val lobbyRepository = mockk<LobbyRepository>()
+        every { lobbyRepository.findLobbyById("failed-pod") } returns lobby
+        every { lobbyRepository.findTournamentById("failed-pod") } returns null
+
+        val status = AiTournamentController(handler, mockk(), lobbyRepository, mockk())
+            .status("failed-pod").body!!
+        status.complete shouldBe true
+        status.completedGames.single().nativeGameOver shouldBe false
+        status.completedGames.single().finalTurnNumber shouldBe null
     }
 })
