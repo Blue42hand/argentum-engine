@@ -573,6 +573,19 @@ enum class Keyword(val displayName: String) {
     EMBALM("Embalm"),
 
     /**
+     * Unearth [cost] (CR 702.84, Shards of Alara). "[Cost]: Return this card from your graveyard
+     * to the battlefield. It gains haste. Exile it at the beginning of the next end step. If it
+     * would leave the battlefield, exile it instead of putting it anywhere else. Activate only as
+     * a sorcery."
+     *
+     * Like [EMBALM], a graveyard-activated ability composed of existing primitives (return to the
+     * battlefield, permanent haste grant, timestamp-tracked delayed exile, exile-on-leave
+     * replacement). Wired in one call via the `unearth(cost)` helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder]; the keyword itself is display-only.
+     */
+    UNEARTH("Unearth"),
+
+    /**
      * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
      * enters, if you control ten or more permanents, you get the city's blessing
      * for the rest of the game." Engine wires the trigger explicitly per card; the

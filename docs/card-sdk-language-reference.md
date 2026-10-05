@@ -10562,7 +10562,7 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
 > **Where set-mechanic helpers live.** The `card { … }` keyword helpers below for *set-specific*
 > mechanics — `mayBeginGameOnBattlefield()`, `flurry { }`, `mobilize(…)`, `firebending(n)`, `sneak(cost)`, `webSlinging(cost)`, `mayhem(cost)`, `madness(cost)`, `decayed()`,
 > `vividEtb { }` / `vividCostReduction()`, `convergeEntersWithCounters(counterType?)`,
-> `impending(time, cost)`, `renew(cost) { }`, `embalm(cost)`, `enduring()`,
+> `impending(time, cost)`, `renew(cost) { }`, `embalm(cost)`, `unearth(cost)`, `enduring()`,
 > `craft(filter, cost)`, `station()`, `jobSelect()`, `forMirrodin()`, `gift(kind)` — are `CardBuilder` **extension functions** in
 > `mtg-sdk/.../dsl/mechanics/` (one file per mechanic), not methods on the core `CardBuilder`. They
 > stay in package `com.wingedsheep.sdk.dsl`, so the call syntax is unchanged, but a card file that
@@ -11934,6 +11934,17 @@ composite abilities).
   rather than an alternative way to cast, the grant rides the plain `GrantedActivatedAbility` channel — not the
   `GrantedKeywordAbility` record `GrantHarmonize`/`GrantFlashback` need — and `ZoneActivatedAbilityEnumerator` surfaces
   printed **and** granted zone abilities alike.
+- `Unearth(cost)` — `card { unearth(cost) }` builder helper (CR 702.84, Shards of Alara). "[Cost]: Return this card
+  from your graveyard to the battlefield. It gains haste. Exile it at the beginning of the next end step. If it would
+  leave the battlefield, exile it instead of putting it anywhere else. Activate only as a sorcery." Composed entirely
+  from existing primitives by the shared `unearthAbility(cost)` factory: `AbilityCost.Atom(Mana(cost))` (the card is
+  *not* exiled as a cost — it can be removed in response, and then the ability does nothing) +
+  `activateFromZone = Zone.GRAVEYARD` + `timing = SorcerySpeed`, whose effect is
+  `PutOntoBattlefieldFromGraveyard(Self)` then, gated on `Conditions.SourceInZone(BATTLEFIELD)`,
+  `GrantKeyword(HASTE, Self, Permanent)` + `CreateDelayedTrigger(step = END, MoveTrackedBattlefieldObjectEffect(Self,
+  EXILE))` (entry-timestamp tracked, so a blinked permanent is a new object the old trigger ignores) +
+  `GrantExileOnLeave(Self)` (a component, not an ability — it survives "loses all abilities", per the unearth rulings).
+  Declares `Keyword.UNEARTH` for display.
 - `station()` — `card { station() }` builder helper (CR 702.184, Edge of Eternities; Spacecraft and Planet cards).
   Emits the fixed station keyword ability (CR 702.184a): "Tap another untapped creature you control: Put a number of
   charge counters on this permanent equal to the tapped creature's power. Activate only as a sorcery." The ability is
