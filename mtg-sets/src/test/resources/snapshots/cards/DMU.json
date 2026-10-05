@@ -2736,6 +2736,118 @@
     ]
 }
 
+// Temporary Lockdown
+{
+    "name": "Temporary Lockdown",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, exile each nonland permanent with mana value 2 or less until this enchantment leaves the battlefield.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Temporary Lockdown:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "SourceInZone",
+                            "zones": [
+                                "Battlefield"
+                            ]
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "nonland permanent mv<=2",
+                                    "excludeSelf": true
+                                },
+                                "storeAs": "linked_exile"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "linked_exile",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "linkToSource": true
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "id": "Temporary Lockdown:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "linked_return"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "linked_return",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "underOwnersControl": true
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "36",
+        "rarity": "RARE",
+        "artist": "Bryan Sola",
+        "flavorText": "\"Any one of us could be compromised,\" said Karn. \"No one leaves until we know who can be trusted.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82b3088f-7b49-45e9-b447-129a597ceb75.jpg?1783921358",
+        "rulings": [
+            {
+                "date": "2022-09-09",
+                "text": "If Temporary Lockdown leaves the battlefield before its enters-the-battlefield ability resolves, no permanents will be exiled."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "Auras with mana value 3 or greater attached to an exiled permanent will be put into their owners' graveyards. Equipment with mana value 3 or greater attached to an exiled creature will become unattached and remain on the battlefield. Any counters on the exiled permanent will cease to exist."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "Aura cards exiled this way will return to the battlefield attached to a permanent that they could enchant (based on their enchant ability) chosen by their owner. They cannot enchant any permanents that are entering the battlefield at the same time."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "If a token is exiled, it ceases to exist. It won't be returned to the battlefield. The mana value of a token that isn't a copy of another permanent is always 0."
+            },
+            {
+                "date": "2022-09-09",
+                "text": "In a multiplayer game, if Temporary Lockdown's owner leaves the game, the exiled cards will return to the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Territorial Maro
 {
     "name": "Territorial Maro",
