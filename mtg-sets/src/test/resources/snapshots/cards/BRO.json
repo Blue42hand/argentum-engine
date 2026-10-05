@@ -900,6 +900,106 @@
     }
 }
 
+// Fallaji Archaeologist
+{
+    "name": "Fallaji Archaeologist",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Human Scout",
+    "oracleText": "When this creature enters, mill three cards. You may put a noncreature, nonland card from among the cards milled this way into your hand. If you don't, put a +1/+1 counter on this creature. (To mill a card, put the top card of your library into your graveyard.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fallaji Archaeologist:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "noncreature nonland",
+                            "storeSelected": "selected2",
+                            "prompt": "You may put a noncreature, nonland card milled this way into your hand",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Leave in graveyard",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected2",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Not",
+                                    "condition": {
+                                        "type": "CollectionContainsMatch",
+                                        "collection": "selected2"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "Self"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "artist": "Caroline Gariba",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b0eab397-25a6-4377-8e12-e8acef9675cf.jpg?1783920114"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Fallaji Chaindancer
 {
     "name": "Fallaji Chaindancer",
