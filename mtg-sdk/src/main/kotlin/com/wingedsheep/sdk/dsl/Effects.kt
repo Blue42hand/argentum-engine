@@ -4542,7 +4542,9 @@ object Effects {
      * Prefer the named shortcuts ([Destroy], [Exile], [ReturnToHand], [PutOnTopOfLibrary],
      * [ShuffleIntoLibrary], [PutOntoBattlefield], …) when one fits; reach for `Move` for the
      * less-common shapes (custom placement, `fromZone` gating, face-down entry, linked exile,
-     * `positionFromTop`, controller override).
+     * `positionFromTop`, controller override). `addCounterType` + `addCounterIf` spell "it enters
+     * with a counter on it" and its conditional form "if a creature enters this way, it enters with
+     * an additional +1/+1 counter" (the filter is read off projected state as the card lands).
      */
     fun Move(
         target: EffectTarget,
@@ -4554,7 +4556,8 @@ object Effects {
         faceDown: FaceDownMode? = null,
         linkToSource: Boolean = false,
         positionFromTop: Int? = null,
-        addCounterType: CounterType? = null
+        addCounterType: CounterType? = null,
+        addCounterIf: GameObjectFilter? = null
     ): Effect = MoveToZoneEffect(
         target = target,
         destination = destination,
@@ -4565,7 +4568,8 @@ object Effects {
         faceDown = faceDown,
         linkToSource = linkToSource,
         positionFromTop = positionFromTop,
-        addCounterType = addCounterType
+        addCounterType = addCounterType,
+        addCounterIf = addCounterIf
     )
 
     /**

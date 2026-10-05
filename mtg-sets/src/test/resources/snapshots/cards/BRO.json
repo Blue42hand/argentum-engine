@@ -1805,6 +1805,56 @@
     ]
 }
 
+// Recommission
+{
+    "name": "Recommission",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target artifact or creature card with mana value 3 or less from your graveyard to the battlefield. If a creature enters this way, it enters with an additional +1/+1 counter on it.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Battlefield",
+            "fromZone": "Graveyard",
+            "addCounterType": "PLUS_ONE_PLUS_ONE",
+            "addCounterIf": {
+                "cardPredicates": [
+                    "IsCreature"
+                ]
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|artifact mv<=3 own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "22",
+        "artist": "Andrew Mar",
+        "flavorText": "\"Put your backs into it! If we don't lay claim to it, the Fallaji will!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/a/2a64e330-1257-4ec3-9a75-889cdcac3ade.jpg?1783920125",
+        "rulings": [
+            {
+                "date": "2022-10-14",
+                "text": "If a noncreature artifact is returned to the battlefield this way and another effect would cause that artifact to be a creature while it is on the battlefield (such as the ability of March of the Machines), that artifact will enter the battlefield with an additional +1/+1 counter."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Retrieval Agent
 {
     "name": "Retrieval Agent",

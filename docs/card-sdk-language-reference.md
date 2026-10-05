@@ -1597,7 +1597,12 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   once it lands ("exile it **with a stash counter on it**" — Tinybones, Bauble Burglar), and is skipped
   along with the move when the `fromZone` gate closes. Both are pass-throughs to `MoveToZoneEffect`
   (also reachable via `Effects.Move`), where `addCounterType` is the single-target counterpart of
-  `MoveCollectionEffect.addCounterType`.
+  `MoveCollectionEffect.addCounterType`. `Effects.Move` also takes `addCounterIf: GameObjectFilter?`, which places
+  that counter only when the card landed in the destination and matches the filter in *projected*
+  state there — "if a creature enters this way, it enters with an additional +1/+1 counter on it"
+  (**Recommission**: `Move(t, BATTLEFIELD, fromZone = GRAVEYARD, addCounterType = PLUS_ONE_PLUS_ONE,
+  addCounterIf = GameObjectFilter.Creature)`; a noncreature artifact made a creature on arrival by
+  March of the Machines still gets it).
 - `ExileAndGrantOwnerPlayPermission(target, until?)` — exile + owner may play it (Garth-style).
 - `ExileOpponentsGraveyards()` — exile every card in each opponent's graveyard.
 - `MoveUntilSourceLeaves(target, destination)` — move an object to a non-battlefield, non-stack zone and return it to its previous zone immediately when the source's battlefield visit ends. The return does not use the stack and survives loss of the source's abilities. An exile also populates the ordinary linked-exile pile for client display and linked abilities. Returning permanents enter under their owner's control; tokens and objects that have since left the destination do not return. If the source has already left (including leaving and returning), the initial move does nothing. Ossification uses `Effects.MoveUntilSourceLeaves(victim, Zone.EXILE)` with no leaves trigger.
