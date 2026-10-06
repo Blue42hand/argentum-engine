@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { computePhases, enterPhase, mergeResult } from './pipelinePhases'
+import { optionalManaCostForCount } from './pipelineSlice'
 import type { LegalActionInfo } from '@/types/messages'
 
 /**
@@ -64,6 +65,47 @@ describe('computePhases — choose-N modal', () => {
       },
     })
     expect(computePhases(info)).toEqual([{ type: 'modalModes' }, { type: 'xSelection' }])
+  })
+})
+
+describe('compact repeatable optional cast cost', () => {
+  const info = castAction({
+    actionType: 'CastWithKicker',
+    description: 'Cast Everflowing Chalice (Multikicker)',
+    action: { type: 'CastSpell', playerId: 'p1', cardId: 'chalice', declaredCostSlot: 'KICKED', declaredCostTimes: 1 },
+    maxOptionalCostTimes: 14,
+    optionalManaCostString: '{2}',
+    manaCostString: '{2}',
+  })
+
+  it('selects a count before manual payment without changing ordinary X', () => {
+    expect(computePhases(info, { autoTapEnabled: true })).toEqual([{ type: 'optionalCostCount' }])
+    const chosen = mergeResult(info.action, info, { type: 'optionalCostCount', count: 11 }, {} as never)
+    expect(chosen).toMatchObject({ declaredCostTimes: 11 })
+    expect((chosen as { xValue?: number }).xValue).toBeUndefined()
+  })
+
+  it('opens the existing count selector with the offered resource bound', () => {
+    let selected: Record<string, unknown> | null = null
+    const store = { startXSelection: (value: Record<string, unknown>) => { selected = value } } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'optionalCostCount' }, info, info.action, store)
+    expect(selected).toMatchObject({ minX: 1, maxX: 14, isOptionalCostCount: true })
+  })
+
+  it('keeps a printed X choice distinct from the optional-cost count', () => {
+    const withX = { ...info, hasXCost: true, maxAffordableX: 13, manaCostString: '{X}{2}' }
+    expect(computePhases(withX, { autoTapEnabled: true })).toEqual([
+      { type: 'xSelection' }, { type: 'optionalCostCount' },
+    ])
+    const withChosenX = mergeResult(info.action, withX, { type: 'xSelection', xValue: 3 }, {} as never)
+    const withBoth = mergeResult(withChosenX, withX, { type: 'optionalCostCount', count: 11 }, {} as never)
+    expect(withBoth).toMatchObject({ xValue: 3, declaredCostTimes: 11 })
+  })
+
+  it('scales a huge generic cost without allocating one symbol per payment', () => {
+    expect(optionalManaCostForCount('{2}', '{2}', 1_000_000_000)).toBe('{2}{1999999998}')
+    expect(optionalManaCostForCount('{G}', '{G}', 1_000_000_000)).toBeNull()
+    expect(optionalManaCostForCount('{2}', '{2}', -1)).toBeNull()
   })
 })
 

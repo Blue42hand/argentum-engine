@@ -306,6 +306,10 @@ data class LegalActionView(
     val manaCost: String? = null,
     val hasXCost: Boolean = false,
     val maxAffordableX: Int? = null,
+    /** Offered upper bound for `ActionParams.declaredCostTimes` on a compact repeatable cast. */
+    val maxOptionalCostTimes: Int? = null,
+    /** Server-authored mana price of one optional payment, before repeating it. */
+    val optionalManaCostString: String? = null,
     val minTargets: Int = 0,
     val maxTargets: Int = 0,
     val requiresDamageDistribution: Boolean = false,

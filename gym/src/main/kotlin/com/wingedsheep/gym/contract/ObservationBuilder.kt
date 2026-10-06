@@ -427,6 +427,8 @@ class ObservationBuilder(
             manaCost = la.manaCostString,
             hasXCost = la.hasXCost,
             maxAffordableX = la.maxAffordableX,
+            maxOptionalCostTimes = la.maxOptionalCostTimes,
+            optionalManaCostString = la.optionalManaCostString,
             minTargets = la.minTargets,
             maxTargets = la.targetCount,
             requiresDamageDistribution = la.requiresDamageDistribution,

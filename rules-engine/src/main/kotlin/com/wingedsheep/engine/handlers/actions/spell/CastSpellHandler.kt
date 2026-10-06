@@ -182,7 +182,7 @@ class CastSpellHandler(
     private val grantedKeywordResolver = com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver(cardRegistry)
     private val castTriggers = CastTriggers(predicateEvaluator, grantedKeywordResolver, stackResolver)
     private val castValidator = CastValidator(
-        cardRegistry, turnManager, costCalculator, alternativePaymentHandler, costHandler, targetValidator,
+        cardRegistry, turnManager, manaSolver, costCalculator, alternativePaymentHandler, costHandler, targetValidator,
         conditionEvaluator, zoneResolver, castPermissionUtils, castCostTotaller, castCostPayer,
         grantedKeywordResolver, predicateEvaluator, legality,
     )
@@ -696,7 +696,9 @@ class CastSpellHandler(
             declaredCostSlot = action.declaredCostSlot,
             // Plus which kicker(s) of a two-kicker card were paid (CR 702.33f), recorded on the
             // same cast-choice rail so the linked "kicked with its [A] kicker" abilities read them.
-            additionalCostChoices = action.additionalCostChoices + linkedKickerChoices(action, cardDef),
+            additionalCostChoices = action.additionalCostChoices + linkedKickerChoices(action, cardDef) +
+                (if (action.declaredCostSlot != null) mapOf(ChoiceSlot.OPTIONAL_COST_TIMES to action.declaredCostTimes)
+                else emptyMap()),
             wasBlightPaid = (action.additionalCostPayment?.blightTargets?.isNotEmpty() == true),
             // True when the spell's waterbend additional cost was paid (Avatar) — mandatory costs
             // always, optional "you may waterbend {N}" only when the player elected it.

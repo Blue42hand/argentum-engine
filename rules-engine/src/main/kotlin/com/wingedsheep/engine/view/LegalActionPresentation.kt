@@ -139,6 +139,8 @@ data class LegalActionInfo(
     val hasHarmonize: Boolean = false,
     val validHarmonizeCreatures: List<HarmonizeCreatureInfo>? = null,
     val manaCostString: String? = null,
+    val maxOptionalCostTimes: Int? = null,
+    val optionalManaCostString: String? = null,
     /**
      * Mana added to this spell's cost per target beyond the first, so [manaCostString] above is
      * only the one-target minimum and the real price is settled by targeting. Mirrors

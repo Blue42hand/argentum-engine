@@ -936,6 +936,7 @@ object CardLinter {
                 if (type == "Kicker") {
                     val declaredSlot = (element["declaredSlot"] as? JsonPrimitive)?.contentOrNull
                     slots.declared.add(declaredSlot ?: "KICKED")
+                    slots.declared.add("OPTIONAL_COST_TIMES")
                     // "Kicker [A] and/or [B]" (CR 702.33f): the engine stamps which kicker was paid.
                     if ((declaredSlot ?: "KICKED") == "KICKED" && ++slots.kickerCosts >= 2) {
                         slots.declared.add("FIRST_KICKER")

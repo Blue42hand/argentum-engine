@@ -38,6 +38,7 @@ import kotlinx.serialization.Serializable
  *   against the current state: a player id becomes a player target, an object on the stack a spell
  *   target, a battlefield permanent a permanent target, and a card in any other zone a card target.
  * @property xValue The value chosen for X.
+ * @property declaredCostTimes The selected repeat count for an offered optional cast cost.
  * @property tappedPermanents Permanents chosen to tap as a spell or ability cost.
  * @property sacrificedPermanents Permanents chosen to sacrifice as a cost.
  * @property discardedCards Cards chosen to discard as a cost.
@@ -50,6 +51,7 @@ data class ActionParams(
     val blockers: Map<EntityId, List<EntityId>> = emptyMap(),
     val targets: List<EntityId> = emptyList(),
     val xValue: Int? = null,
+    val declaredCostTimes: Int? = null,
     val tappedPermanents: List<EntityId> = emptyList(),
     val sacrificedPermanents: List<EntityId> = emptyList(),
     val discardedCards: List<EntityId> = emptyList(),
@@ -66,6 +68,7 @@ data class ActionParams(
             if (blockers.isNotEmpty()) add("blockers")
             if (targets.isNotEmpty()) add("targets")
             if (xValue != null) add("xValue")
+            if (declaredCostTimes != null) add("declaredCostTimes")
             if (tappedPermanents.isNotEmpty()) add("tappedPermanents")
             if (sacrificedPermanents.isNotEmpty()) add("sacrificedPermanents")
             if (discardedCards.isNotEmpty()) add("discardedCards")
@@ -131,11 +134,13 @@ object ActionParameterizer {
         if (legalAction.action is CastSpell &&
             (!legalAction.hasDelve || legalAction.hasXCost || legalAction.delveCards.isNullOrEmpty())
         ) fields.remove("delvedCards")
+        if (legalAction.maxOptionalCostTimes == null) fields.remove("declaredCostTimes")
         return ActionParameterSpec(fields)
     }
 
     fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(legalAction.action, spec(legalAction))
+        params.requireOptionalCostTimes(legalAction.maxOptionalCostTimes)
         params.requireBlockTargets(legalAction.validBlockTargets)
         legalAction.additionalCostInfo?.let { cost ->
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
@@ -148,6 +153,7 @@ object ActionParameterizer {
     /** Complete a server controller's enriched offered action with the same cost checks as Gym. */
     fun apply(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(info.action, info.parameterSpec)
+        params.requireOptionalCostTimes(info.maxOptionalCostTimes)
         params.requireBlockTargets(info.validBlockTargets)
         info.additionalCostInfo?.let { cost ->
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
@@ -182,6 +188,14 @@ object ActionParameterizer {
         }
     }
 
+    private fun ActionParams.requireOptionalCostTimes(maximum: Int?) {
+        declaredCostTimes?.let { count ->
+            require(maximum != null && count in 1..maximum) {
+                "declaredCostTimes $count is outside the offered range 1..${maximum ?: 0}"
+            }
+        }
+    }
+
     /**
      * Return the native parameter contract for [action].
      *
@@ -200,6 +214,7 @@ object ActionParameterizer {
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
+                "declaredCostTimes" to ActionParameterFieldKind.INTEGER,
                 "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
@@ -240,6 +255,7 @@ object ActionParameterizer {
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
                     xValue = params.xValue ?: action.xValue,
+                    declaredCostTimes = params.declaredCostTimes ?: action.declaredCostTimes,
                     additionalCostPayment = params.withCostChoices(action.additionalCostPayment),
                     alternativePayment = params.withDelveChoice(action.alternativePayment),
                 )

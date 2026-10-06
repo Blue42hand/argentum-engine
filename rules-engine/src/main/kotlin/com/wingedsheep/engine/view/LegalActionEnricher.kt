@@ -136,6 +136,8 @@ class LegalActionEnricher(
             hasHarmonize = action.hasHarmonize,
             validHarmonizeCreatures = action.harmonizeCreatures?.map { it.toDto() },
             manaCostString = action.manaCostString,
+            maxOptionalCostTimes = action.maxOptionalCostTimes,
+            optionalManaCostString = action.optionalManaCostString,
             manaCostPerExtraTarget = action.manaCostPerExtraTarget,
             minimumManaCostString = minimumManaCostString(action),
             requiresDamageDistribution = action.requiresDamageDistribution,

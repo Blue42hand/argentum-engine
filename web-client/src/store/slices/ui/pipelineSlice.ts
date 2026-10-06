@@ -65,6 +65,31 @@ export function isActionStillOffered(
   return legalActions.some((info) => actionSourceKey(info.action) === key)
 }
 
+/**
+ * Price a chosen repeat count for the manual mana picker without building one symbol per generic
+ * mana. A pathological non-generic price cannot be shown by the picker safely, so the caller
+ * lets the server solve that payment instead. This limit is on UI representation, not cast count.
+ */
+export function optionalManaCostForCount(
+  onePaymentCost: string,
+  perPaymentCost: string,
+  count: number,
+): string | null {
+  if (!Number.isSafeInteger(count) || count < 1) return null
+  const extra = count - 1
+  const symbols = parseManaCostUtil(perPaymentCost)
+  const generic = symbols.filter((symbol) => /^\d+$/.test(symbol))
+    .reduce((sum, symbol) => sum + BigInt(symbol), 0n)
+  const other = symbols.filter((symbol) => !/^\d+$/.test(symbol))
+    .map((symbol) => `{${symbol}}`).join('')
+  // The manual picker needs each colored/hybrid/colorless symbol individually. Bound only that
+  // display string; no repeat count is forbidden by this presentation constraint.
+  if (other.length > 0 && extra > Math.floor(65536 / other.length)) return null
+  const repeatedGeneric = generic * BigInt(extra)
+  const extraCost = repeatedGeneric > 0n ? `{${repeatedGeneric}}` : ''
+  return onePaymentCost + extraCost + other.repeat(extra)
+}
+
 function actionSourceKey(action: GameAction): string {
   const source =
     'cardId' in action ? action.cardId
@@ -148,7 +173,26 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
     if (interactionEpoch !== get().interactionEpoch) return
 
     // Merge result into accumulated action
-    const mergedAction = mergeResult(accumulatedAction, actionInfo, result, gameState)
+    let mergedAction = mergeResult(accumulatedAction, actionInfo, result, gameState)
+
+    // The compact optional-cost offer is priced at one payment. Once the count is chosen,
+    // carry the full mana cost into the existing manual-payment phase. The engine still owns
+    // final cost calculation and validation; this only keeps the displayed source pick honest.
+    let optionalCostNeedsServerPayment = false
+    if (result.type === 'optionalCostCount' &&
+        mergedAction.type === 'CastSpell' && actionInfo.optionalManaCostString) {
+      const fullCost = optionalManaCostForCount(
+        actionInfo.manaCostString ?? '', actionInfo.optionalManaCostString,
+        mergedAction.declaredCostTimes ?? 1,
+      )
+      if (fullCost == null) {
+        optionalCostNeedsServerPayment = true
+        mergedAction = { ...mergedAction, paymentStrategy: { type: 'AutoPay' } }
+      } else {
+        const { autoTapPreview: _preview, ...actionInfoWithoutPreview } = actionInfo
+        actionInfo = { ...actionInfoWithoutPreview, manaCostString: fullCost, action: mergedAction }
+      }
+    }
 
     // If delve modified the mana cost, update actionInfo for subsequent phases.
     // Also trim the server's full-cost autoTapPreview down to the subset needed for
@@ -254,6 +298,9 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
 
     // Pop current phase
     let nextPhases = remainingPhases.slice(1)
+    if (optionalCostNeedsServerPayment) {
+      nextPhases = nextPhases.filter((phase) => phase.type !== 'manaSource')
+    }
 
     // Dynamic phase injection: when BlightVariable is paid with X > 0, we need
     // a follow-up battlefield-target step so the player picks which of their

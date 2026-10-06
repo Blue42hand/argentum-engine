@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.core.PaymentStrategy
@@ -63,9 +64,20 @@ class ReplicateTest : FunSpec({
         }
     }
 
+    val flashbackReplicate = card("Test Flashback Replicate Ping") {
+        manaCost = "{R}"
+        typeLine = "Instant"
+        keywordAbility(KeywordAbility.flashback("{R}"))
+        keywordAbility(KeywordAbility.replicate("{1}"))
+        spell {
+            val t = target(Targets.Any)
+            effect = Effects.DealDamage(1, t)
+        }
+    }
+
     fun newDriver(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(manaReplicate, energyReplicate, kickerPing))
+        driver.registerCards(TestCards.all + listOf(manaReplicate, energyReplicate, kickerPing, flashbackReplicate))
         driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
         return driver
@@ -215,6 +227,48 @@ class ReplicateTest : FunSpec({
             "Cast Test Replicate Ping (Replicate ×1)",
             "Cast Test Replicate Ping (Replicate ×2)",
         )
+    }
+
+    test("eleven affordable replicate payments are offered without an arbitrary ceiling") {
+        val driver = newDriver()
+        val caster = driver.activePlayer!!
+        repeat(12) { driver.putLandOnBattlefield(caster, "Mountain") }
+        driver.putCardInHand(caster, "Test Replicate Ping")
+
+        val actions = LegalActionEnumerator.create(driver.cardRegistry).enumerate(driver.state, caster)
+        actions.mapNotNull { (it.action as? CastSpell)
+            ?.takeIf { cast -> cast.declaredCostSlot == ChoiceSlot.REPLICATED }?.declaredCostTimes }
+            .shouldBe((1..11).toList())
+    }
+
+    test("a huge energy repeat count is rejected without overflowing the payment") {
+        val driver = newDriver()
+        val caster = driver.activePlayer!!
+        val opponent = driver.getOpponent(caster)
+        driver.putLandOnBattlefield(caster, "Mountain")
+        driver.giveEnergy(caster, 6)
+        val ping = driver.putCardInHand(caster, "Test Energy Replicate Ping")
+
+        driver.cast(ping, opponent, times = Int.MAX_VALUE).outcome shouldNotBe Outcome.Done
+        driver.energy(caster) shouldBe 6
+    }
+
+    test("flashback replaces only the base cost and still charges replicate") {
+        val driver = newDriver()
+        val caster = driver.activePlayer!!
+        val opponent = driver.getOpponent(caster)
+        driver.putLandOnBattlefield(caster, "Mountain")
+        val ping = driver.putCardInGraveyard(caster, "Test Flashback Replicate Ping")
+
+        val cast = CastSpell(
+            playerId = caster, cardId = ping, targets = listOf(ChosenTarget.Player(opponent)),
+            paymentStrategy = PaymentStrategy.AutoPay, useAlternativeCost = true,
+            alternativeCostType = AlternativeCostType.FLASHBACK,
+            declaredCostSlot = ChoiceSlot.REPLICATED, declaredCostTimes = 1,
+        )
+        driver.submit(cast).outcome shouldNotBe Outcome.Done
+        driver.putLandOnBattlefield(caster, "Mountain")
+        driver.submit(cast).outcome shouldBe Outcome.Done
     }
 
     test("the enumerator caps an energy replicate at the energy the caster has") {
