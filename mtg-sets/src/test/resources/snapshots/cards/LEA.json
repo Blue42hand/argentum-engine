@@ -3140,6 +3140,127 @@
     ]
 }
 
+// Drain Life
+{
+    "name": "Drain Life",
+    "manaCost": "{X}{1}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Spend only black mana on X.\nDrain Life deals X damage to any target. You gain life equal to the damage dealt, but not more life than the player's life total before the damage was dealt, the planeswalker's loyalty before the damage was dealt, or the creature's toughness.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "StoreNumber",
+                    "name": "number0",
+                    "amount": {
+                        "type": "IfPositive",
+                        "amount": {
+                            "type": "Conditional",
+                            "condition": "TargetIsPlayer",
+                            "ifTrue": {
+                                "type": "LifeTotal",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "ifFalse": {
+                                "type": "Conditional",
+                                "condition": {
+                                    "type": "EntityMatches",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
+                                    "filter": "planeswalker"
+                                },
+                                "ifTrue": {
+                                    "type": "EntityProperty",
+                                    "entity": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    },
+                                    "numericProperty": {
+                                        "type": "CounterCount",
+                                        "counterType": "LOYALTY"
+                                    }
+                                },
+                                "ifFalse": {
+                                    "type": "Conditional",
+                                    "condition": {
+                                        "type": "EntityMatches",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
+                                        "filter": "creature"
+                                    },
+                                    "ifTrue": {
+                                        "type": "EntityProperty",
+                                        "entity": {
+                                            "type": "BoundVariable",
+                                            "name": "t0"
+                                        },
+                                        "numericProperty": "Toughness"
+                                    },
+                                    "ifFalse": "XValue"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": "XValue",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "damageDealtVariable": "storedNumber1"
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Min",
+                        "left": {
+                            "type": "VariableReference",
+                            "variableName": "number0"
+                        },
+                        "right": {
+                            "type": "VariableReference",
+                            "variableName": "storedNumber1"
+                        }
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
+        ],
+        "xManaRestriction": [
+            "BLACK"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "105",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d077a49-73d4-4958-b42a-31b814e110e8.jpg?1783948696",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "You may gain up to the total toughness of the creature even if it was already damaged."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Drain Power
 {
     "name": "Drain Power",
@@ -6180,6 +6301,120 @@
     "colorIdentityOverride": []
 }
 
+// Kudzu
+{
+    "name": "Kudzu",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant land\nWhen enchanted land becomes tapped, destroy it. That land's controller may attach this Aura to a land of their choice.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kudzu:1",
+                "trigger": "TapEvent",
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": "TriggeringEntity",
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceInZone",
+                                    "zones": [
+                                        "Battlefield"
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Players",
+                                    "players": "ControllerOfTriggeringEntity"
+                                },
+                                "body": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GatherCards",
+                                            "source": {
+                                                "type": "BattlefieldMatching",
+                                                "filter": "land"
+                                            },
+                                            "storeAs": "gathered0"
+                                        },
+                                        {
+                                            "type": "SelectFromCollection",
+                                            "from": "gathered0",
+                                            "selection": {
+                                                "type": "ChooseUpTo",
+                                                "count": {
+                                                    "type": "Fixed",
+                                                    "amount": 1
+                                                }
+                                            },
+                                            "storeSelected": "selected1",
+                                            "prompt": "You may attach Kudzu to a land",
+                                            "useTargetingUI": true
+                                        },
+                                        {
+                                            "type": "ConditionalOnCollection",
+                                            "collection": "selected1",
+                                            "ifNotEmpty": {
+                                                "type": "AttachEquipment",
+                                                "target": {
+                                                    "type": "PipelineTarget",
+                                                    "collectionName": "selected1"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "land"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "204",
+        "rarity": "RARE",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/2/b2b72dcd-9ea1-4729-baae-ecd262fdff67.jpg?1783948675",
+        "rulings": [
+            {
+                "date": "2008-04-01",
+                "text": "Because the ability isn't targeted, the controller of the destroyed land may attach it to a land that can't be the target of abilities."
+            },
+            {
+                "date": "2005-08-01",
+                "text": "If Kudzu is destroyed directly, or the land is destroyed by a spell or ability, then Kudzu goes to the graveyard like any Aura would."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "You can move it to any other player's land whenever you get to move it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Lance
 {
     "name": "Lance",
@@ -8281,6 +8516,105 @@
     ]
 }
 
+// Personal Incarnation
+{
+    "name": "Personal Incarnation",
+    "manaCost": "{3}{W}{W}{W}",
+    "typeLine": "Creature — Avatar Incarnation",
+    "oracleText": "{0}: The next 1 damage that would be dealt to this creature this turn is dealt to its owner instead. Only this creature's owner may activate this ability.\nWhen this creature dies, its owner loses half their life, rounded up.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Personal Incarnation:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Divide",
+                        "numerator": {
+                            "type": "IfPositive",
+                            "amount": {
+                                "type": "LifeTotal",
+                                "player": "OwnerOfSource"
+                            }
+                        },
+                        "denominator": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "OwnerOfSource"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Personal Incarnation:1",
+                "cost": "CostFree",
+                "effect": {
+                    "type": "RedirectNextDamage",
+                    "protectedTargets": [
+                        "Self"
+                    ],
+                    "redirectTo": "Controller",
+                    "amount": 1
+                },
+                "restrictions": [
+                    {
+                        "type": "ActivationAll",
+                        "restrictions": [
+                            "AnyPlayerMay",
+                            {
+                                "type": "ActivationOnlyIfCondition",
+                                "condition": {
+                                    "type": "EntityMatches",
+                                    "entity": "Self",
+                                    "filter": "own:you"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "descriptionOverride": "{0}: The next 1 damage that would be dealt to this creature this turn is dealt to its owner instead. Only this creature's owner may activate this ability."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "rarity": "RARE",
+        "artist": "Kev Brockschmidt",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/caf9cef4-0f2d-478a-b119-fe1967687f74.jpg?1783948711",
+        "rulings": [
+            {
+                "date": "2007-02-01",
+                "text": "If you attempt to halve a negative life total, you halve 0. This means that the life total stays the same. A life total of -10 would remain -10."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "You do not lose life if this card is exiled or sent someplace without going to the graveyard first."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "The owner of the Incarnation loses life when it is destroyed, not the controller. So if you control your opponent's Incarnation you can let it die to make them lose life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Pestilence
 {
     "name": "Pestilence",
@@ -9289,6 +9623,42 @@
     ]
 }
 
+// Reverse Damage
+{
+    "name": "Reverse Damage",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Instant",
+    "oracleText": "The next time a source of your choice would deal damage to you this turn, prevent that damage. You gain life equal to the damage prevented this way.",
+    "script": {
+        "spellEffect": {
+            "type": "PreventDamageShield",
+            "sourceFilter": "PreventFromChosen",
+            "onPrevented": {
+                "type": "GainLife",
+                "amount": {
+                    "type": "ContextProperty",
+                    "key": "PREVENTED_DAMAGE_AMOUNT"
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "RARE",
+        "artist": "Dameon Willich",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/943baea8-b173-4863-a3ab-dd217d483cd9.jpg?1783948711",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "It only affects damage dealt by the source one time. If the source damages you a second time this turn, the damage will not be reversed."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Righteousness
 {
     "name": "Righteousness",
@@ -10197,6 +10567,117 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Siren's Call
+{
+    "name": "Siren's Call",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Cast this spell only during an opponent's turn, before attackers are declared.\nCreatures the active player controls attack this turn if able.\nAt the beginning of the next end step, destroy all non-Wall creatures that player controls that didn't attack this turn. Ignore this effect for each creature the player didn't control continuously since the beginning of the turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "controllerPredicate": "ControlledByActivePlayer"
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "MarkMustAttackThisTurn",
+                        "target": "IterationEntity"
+                    }
+                },
+                {
+                    "type": "CreateDelayedTrigger",
+                    "step": "END",
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": {
+                                        "cardPredicates": [
+                                            "IsCreature",
+                                            {
+                                                "type": "NotSubtype",
+                                                "subtype": "Wall"
+                                            }
+                                        ],
+                                        "statePredicates": [
+                                            {
+                                                "type": "StateNot",
+                                                "predicate": "AttackedThisTurn"
+                                            },
+                                            "ControlledSinceTurnBegan"
+                                        ],
+                                        "controllerPredicate": "ControlledByActivePlayer"
+                                    }
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "castRestrictions": [
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": {
+                    "type": "All",
+                    "conditions": [
+                        "IsOpponentsTurn",
+                        "BeforeAttackersDeclaredThisTurn"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "77",
+        "rarity": "UNCOMMON",
+        "artist": "Anson Maddocks",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/9/d992b336-3b6e-43e1-8662-d85664349b44.jpg?1783948702",
+        "rulings": [
+            {
+                "date": "2013-09-20",
+                "text": "If a turn has multiple combat phases, this spell can only be cast before the beginning of the Declare Attackers Step of the first combat phase in that turn."
+            },
+            {
+                "date": "2009-02-01",
+                "text": "This will destroy creatures that weren't able to attack because they had been previously tapped."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "It will require creatures with Haste to attack since they are able, but it won't destroy them if they don't for some reason."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "The creature is destroyed if it does not attack because it simply can't do so legally."
+            }
+        ]
+    }
 }
 
 // Sleight of Mind
@@ -11767,6 +12248,179 @@
     ]
 }
 
+// Veteran Bodyguard
+{
+    "name": "Veteran Bodyguard",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Human",
+    "oracleText": "As long as this creature is untapped, all damage that would be dealt to you by unblocked creatures is dealt to this creature instead.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 5
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "RedirectDamage",
+                "redirectTo": "Self",
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
+                    "source": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "IsUnblocked"
+                        ]
+                    }
+                },
+                "condition": {
+                    "type": "EntityMatches",
+                    "entity": "Self",
+                    "filter": "untapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "flavorText": "Good bodyguards are hard to find, mainly because they don't live long.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cbd9ab01-a833-4fa4-8dee-151bd9800835.jpg?1783948709",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "If a creature is blocked but Trample damage is still done to a player, this damage can't be redirected to the Bodyguard because the Bodyguard only takes damage from unblocked creatures."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "Damage goes to the Bodyguard as long as he is untapped. This works even if he is blocking."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "If you have multiple Veteran Bodyguards, you can decide which one receives the redirected damage each time damage would be dealt to you."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Volcanic Eruption
+{
+    "name": "Volcanic Eruption",
+    "manaCost": "{X}{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy X target Mountains. Volcanic Eruption deals damage to each creature and each player equal to the number of Mountains put into a graveyard this way.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": "ChosenTargets",
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "gathered0",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Destroy",
+                    "storeMovedAs": "moved1"
+                },
+                {
+                    "type": "FilterCollection",
+                    "from": "moved1",
+                    "filter": {
+                        "statePredicates": [
+                            {
+                                "type": "InZone",
+                                "zone": "Graveyard"
+                            }
+                        ]
+                    },
+                    "storeMatching": "matching2"
+                },
+                {
+                    "type": "StoreNumber",
+                    "name": "number3",
+                    "amount": {
+                        "type": "VariableReference",
+                        "variableName": "matching2_count"
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature"
+                        }
+                    },
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "VariableReference",
+                            "variableName": "number3"
+                        },
+                        "target": "IterationEntity"
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "VariableReference",
+                            "variableName": "number3"
+                        },
+                        "target": "Controller"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "land Mountain"
+                },
+                "id": "t0",
+                "dynamicMaxCount": "XValue"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/8/a80582b1-09db-45f8-b362-0e5207a5a8e6.jpg?1783948698",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "Can be used with X equal to zero. This is useful if no Mountains are on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Wall of Air
 {
     "name": "Wall of Air",
@@ -12281,6 +12935,73 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Wheel of Fortune
+{
+    "name": "Wheel of Fortune",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player discards their hand, then draws seven cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "discardedHand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discardedHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "rarity": "RARE",
+        "artist": "Daniel Gelon",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/67b369c4-faa8-45c8-a1b9-98f228b69682.jpg?1783948679"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
