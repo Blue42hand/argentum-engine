@@ -181,6 +181,26 @@ describe('browser live action origins', () => {
     expect(send).toHaveBeenCalledOnce()
   })
 
+  it('uses the engine-offered total blocker cap for human assignments', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      blockerAssignments: {}, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
+      attackingCreatures: [TARGET], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET], [SPELL]: [TARGET] },
+      blockerMaxBlockCounts: {}, maxTotalBlockers: 1, bands: [],
+    }
+    useGameStore.getState().startCombat(combat)
+    send.mockClear()
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    useGameStore.getState().assignBlocker(SPELL, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [MANA]: [TARGET] })
+    expect(send).toHaveBeenCalledOnce()
+    useGameStore.getState().removeBlockerAssignment(MANA)
+    useGameStore.getState().assignBlocker(SPELL, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [SPELL]: [TARGET] })
+  })
+
   it('drops a stale blocker pair completely before confirming refreshed blocks', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,

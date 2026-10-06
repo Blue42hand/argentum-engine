@@ -74,6 +74,9 @@ class CombatManager(
     fun getValidBlockTargets(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): List<EntityId> =
         blockPhase.getValidBlockTargets(state, blockerId, blockingPlayer)
 
+    fun getGlobalBlockerCountLimit(state: GameState): Int? =
+        blockPhase.getGlobalBlockerCountLimit(state)
+
     fun beginBlockerPiles(state: GameState, blockingPlayer: EntityId): ExecutionResult =
         blockPhase.beginBlockerPiles(state, blockingPlayer)
 

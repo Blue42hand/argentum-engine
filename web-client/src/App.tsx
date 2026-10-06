@@ -362,6 +362,7 @@ export default function App() {
         mustBeBlockedAttackers,
         blockerMaxBlockCounts,
         validBlockTargets: blockersAction?.validBlockTargets,
+        maxTotalBlockers: blockersAction?.maxTotalBlockers,
         bands: [],
       })
     }

@@ -938,27 +938,27 @@ internal class BlockPhaseManager(
      * battlefield (e.g. Dueling Grounds), the total number of distinct blocking creatures across
      * all players may not exceed the smallest such cap. Returns an error message when violated.
      */
-    private fun validateGlobalBlockerCount(
-        state: GameState,
-        blockerIds: Set<EntityId>
-    ): String? {
-        var cap: Int? = null
-        var capDescription = ""
+    fun getGlobalBlockerCountLimit(state: GameState): Int? =
+        activeGlobalBlockerCountLimit(state)?.maxBlockers
+
+    private fun activeGlobalBlockerCountLimit(state: GameState): BlockerCountLimit? {
+        var limit: BlockerCountLimit? = null
         for (permId in state.getBattlefield()) {
             val cardComponent = state.getEntity(permId)?.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
             for (ability in cardDef.staticAbilities.filterIsInstance<BlockerCountLimit>()) {
-                if (cap == null || ability.maxBlockers < cap) {
-                    cap = ability.maxBlockers
-                    capDescription = ability.description
+                if (limit == null || ability.maxBlockers < limit.maxBlockers) {
+                    limit = ability
                 }
             }
         }
-        if (cap != null && blockerIds.size > cap) {
-            return capDescription
-        }
-        return null
+        return limit
     }
+
+    private fun validateGlobalBlockerCount(state: GameState, blockerIds: Set<EntityId>): String? =
+        activeGlobalBlockerCountLimit(state)
+            ?.takeIf { blockerIds.size > it.maxBlockers }
+            ?.description
 
     /**
      * Validate "can't block unless [X] also blocks" restrictions ([CantBlockUnlessCoBlocker], CR

@@ -83,6 +83,7 @@ data class LegalAction(
     override val validBlockers: List<EntityId>? = null,
     val validBlockTargets: Map<EntityId, List<EntityId>>? = null,
     val blockerMaxBlockCounts: Map<EntityId, Int>? = null,
+    val maxTotalBlockers: Int? = null,
     val mandatoryBlockerAssignments: Map<EntityId, List<EntityId>>? = null,
 
     // Costs

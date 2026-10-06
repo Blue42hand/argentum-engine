@@ -196,6 +196,8 @@ data class LegalActionInfo(
      */
     val castsTransformed: Boolean = false,
     val blockerMaxBlockCounts: Map<EntityId, Int>? = null,
+    /** Native cap on distinct blocking creatures across this combat, when present. */
+    val maxTotalBlockers: Int? = null,
     val mandatoryBlockerAssignments: Map<EntityId, List<EntityId>>? = null,
     val maxRepeatableActivations: Int? = null,
     val tapForPower: Boolean = false,
