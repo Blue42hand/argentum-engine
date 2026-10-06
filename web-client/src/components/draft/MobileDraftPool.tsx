@@ -20,17 +20,23 @@ const GROUPINGS: ReadonlyArray<readonly [PoolGrouping, string]> = [
  */
 export function MobilePoolView({
   cards,
+  picksPerRound,
   grouping,
   onGroupingChange,
   onPreview,
 }: {
   cards: readonly SealedCardInfo[]
+  /** Cards taken per pick; that many of the latest cards get the NEW tag. */
+  picksPerRound: number
   grouping: PoolGrouping
   onGroupingChange: (grouping: PoolGrouping) => void
   onPreview: (card: SealedCardInfo) => void
 }) {
   const groups = useMemo(() => groupPool(cards, grouping), [cards, grouping])
-  const newestPick = cards.length > 0 ? cards[cards.length - 1]!.name : null
+  const newestPicks = useMemo(
+    () => new Set(cards.slice(-Math.max(1, picksPerRound)).map((c) => c.name)),
+    [cards, picksPerRound],
+  )
 
   const stats = useMemo(() => {
     let creatures = 0
@@ -131,7 +137,7 @@ export function MobilePoolView({
                   card={card}
                   count={count}
                   isLast={i === group.entries.length - 1}
-                  isNewest={card.name === newestPick}
+                  isNewest={newestPicks.has(card.name)}
                   onClick={() => onPreview(card)}
                 />
               ))}

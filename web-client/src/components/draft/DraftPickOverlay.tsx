@@ -350,6 +350,7 @@ function DraftPicker({ draftState, settings }: { draftState: DraftState; setting
           <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
             <MobilePoolView
               cards={draftState.pickedCards}
+              picksPerRound={picksRequired}
               grouping={poolGrouping}
               onGroupingChange={setPoolGrouping}
               onPreview={setPreviewCard}

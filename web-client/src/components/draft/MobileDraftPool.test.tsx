@@ -23,7 +23,7 @@ describe('MobilePoolView', () => {
 
   it('shows every drafted card as an image, with a column per color', () => {
     const html = renderToStaticMarkup(
-      <MobilePoolView cards={pool} grouping="color" onGroupingChange={noop} onPreview={noop} />,
+      <MobilePoolView cards={pool} picksPerRound={1} grouping="color" onGroupingChange={noop} onPreview={noop} />,
     )
     expect(html).toContain('White 1')
     expect(html).toContain('Red 3')
@@ -34,7 +34,7 @@ describe('MobilePoolView', () => {
 
   it('marks duplicates with a count and the newest pick as NEW', () => {
     const html = renderToStaticMarkup(
-      <MobilePoolView cards={pool} grouping="color" onGroupingChange={noop} onPreview={noop} />,
+      <MobilePoolView cards={pool} picksPerRound={1} grouping="color" onGroupingChange={noop} onPreview={noop} />,
     )
     expect(html).toContain('aria-label="Shock ×2"')
     expect(html.match(/>NEW</g)).toHaveLength(1)
@@ -43,9 +43,19 @@ describe('MobilePoolView', () => {
     expect(html.indexOf('>NEW<', sparksmith)).toBeGreaterThan(sparksmith)
   })
 
+  it('marks every card from the latest pick as NEW in pick-2 formats', () => {
+    const html = renderToStaticMarkup(
+      <MobilePoolView cards={pool} picksPerRound={2} grouping="color" onGroupingChange={noop} onPreview={noop} />,
+    )
+    // The last two picks were Shock and Sparksmith; Glory Seeker was earlier.
+    expect(html.match(/>NEW</g)).toHaveLength(2)
+    const glorySeeker = html.indexOf('aria-label="Glory Seeker"')
+    expect(html.slice(glorySeeker, html.indexOf('aria-label=', glorySeeker + 1))).not.toContain('>NEW<')
+  })
+
   it('shows the creature/spell split and marks the active grouping', () => {
     const html = renderToStaticMarkup(
-      <MobilePoolView cards={pool} grouping="type" onGroupingChange={noop} onPreview={noop} />,
+      <MobilePoolView cards={pool} picksPerRound={1} grouping="type" onGroupingChange={noop} onPreview={noop} />,
     )
     expect(html).toMatch(/>2<\/span><span[^>]*>Creatures</)
     expect(html).toMatch(/>2<\/span><span[^>]*>Spells</)
@@ -55,7 +65,7 @@ describe('MobilePoolView', () => {
 
   it('shows an empty state before the first pick', () => {
     const html = renderToStaticMarkup(
-      <MobilePoolView cards={[]} grouping="color" onGroupingChange={noop} onPreview={noop} />,
+      <MobilePoolView cards={[]} picksPerRound={1} grouping="color" onGroupingChange={noop} onPreview={noop} />,
     )
     expect(html).toContain('Cards you pick will show up here.')
   })
