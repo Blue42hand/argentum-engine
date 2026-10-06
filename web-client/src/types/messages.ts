@@ -926,7 +926,7 @@ export interface LegalActionInfo {
   /** Pairwise legal attacker IDs for each blocker; full declarations are checked by the server. */
   readonly validBlockTargets?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Native limit on distinct blocking creatures this combat, when present. */
-  readonly maxTotalBlockers?: number
+  readonly maxTotalBlockers?: number | null
   /** Whether this spell has X in its mana cost */
   readonly hasXCost?: boolean
   /** Maximum X value the player can afford (null if not X cost spell) */

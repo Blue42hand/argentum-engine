@@ -208,7 +208,7 @@ export interface CombatState {
   /** Engine-offered attacker targets for each blocker. */
   validBlockTargets?: Readonly<Record<EntityId, readonly EntityId[]>> | undefined
   /** Native limit on distinct blocking creatures this combat, when present. */
-  maxTotalBlockers?: number | undefined
+  maxTotalBlockers?: number | null | undefined
   /** Max block counts for blockers that can block more than one attacker (blocker ID -> max attackers) */
   blockerMaxBlockCounts: Readonly<Record<EntityId, number>>
   /**

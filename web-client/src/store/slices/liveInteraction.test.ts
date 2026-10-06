@@ -201,6 +201,41 @@ describe('browser live action origins', () => {
     expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [SPELL]: [TARGET] })
   })
 
+  it('accepts blocks when an uncapped native offer serializes a null limit', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      blockerAssignments: {}, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
+      attackingCreatures: [TARGET], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET], [SPELL]: [TARGET] },
+      blockerMaxBlockCounts: {}, maxTotalBlockers: null, bands: [],
+    }
+    useGameStore.getState().startCombat(combat)
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    useGameStore.getState().assignBlocker(SPELL, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({
+      [MANA]: [TARGET], [SPELL]: [TARGET],
+    })
+  })
+
+  it('counts distinct blockers while honoring a zero cap and a native multi-block allowance', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      blockerAssignments: {}, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
+      attackingCreatures: [TARGET, SPELL], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET, SPELL] },
+      blockerMaxBlockCounts: { [MANA]: 2 }, maxTotalBlockers: 0, bands: [],
+    }
+    useGameStore.getState().startCombat(combat)
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({})
+    useGameStore.getState().startCombat({ ...combat, maxTotalBlockers: 1 })
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    useGameStore.getState().assignBlocker(MANA, SPELL)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [MANA]: [TARGET, SPELL] })
+  })
+
   it('drops a stale blocker pair completely before confirming refreshed blocks', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,

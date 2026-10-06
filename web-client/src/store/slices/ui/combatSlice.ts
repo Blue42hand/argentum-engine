@@ -227,7 +227,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       // If already blocking this attacker, don't add duplicate
       if (existing.includes(attackerId)) return state
       const totalCap = state.combatState.maxTotalBlockers
-      if (totalCap !== undefined && existing.length === 0 &&
+      if (totalCap != null && existing.length === 0 &&
           Object.values(state.combatState.blockerAssignments).filter((ids) => ids.length > 0).length >= totalCap) {
         return state
       }
