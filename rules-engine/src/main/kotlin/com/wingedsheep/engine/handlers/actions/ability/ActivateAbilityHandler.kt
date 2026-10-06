@@ -177,8 +177,11 @@ class ActivateAbilityHandler(
         // 3. Pay the total cost (CR 601.2g–h): mana abilities first, then every cost atom.
         val paymentContext =
             buildAbilityPaymentContext(activation.cardComponent, state.projectedState, action.sourceId, activation.ability)
-        if (lockedCost == null && action.paymentStrategy is com.wingedsheep.engine.core.PaymentStrategy.AutoPay &&
-            state.playerActionPermissions.any { it.playerId == action.playerId && it.action.timing == com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility }) {
+        // An offered ability may rely on mana that requires a player choice (for example,
+        // Springleaf Drum's creature tap or Channel's life payment). Open the existing
+        // payment window only when that manual mana is actually needed; other costs such
+        // as Phyrexian life payments follow the normal activation payment path.
+        if (lockedCost == null && action.paymentStrategy is com.wingedsheep.engine.core.PaymentStrategy.AutoPay) {
             var previewMana = activation.effectiveCost.extractManaCost()
             val alternative = action.alternativePayment
             if (previewMana != null && alternative != null && !alternative.isEmpty) {
@@ -188,23 +191,38 @@ class ActivateAbilityHandler(
                     .applyWaterbendForAbility(state, previewMana, alternative, action.playerId).reducedCost
             }
             val mana = previewMana?.withXAs(activation.effectiveXValue ?: 0)
-            if (mana != null && !ManaPaymentWindow.floatingManaCovers(state, action.playerId, mana, paymentContext)) {
+            val excluded = if (activation.effectiveCost.hasTapCost()) setOf(action.sourceId) else emptySet()
+            val manualManaNeeded = mana != null &&
+                !manaSolver.canPay(state, action.playerId, mana, excludeSources = excluded,
+                    spellContext = paymentContext, includeManualMana = false) &&
+                manaSolver.canPay(state, action.playerId, mana, excludeSources = excluded,
+                    spellContext = paymentContext)
+            if (manualManaNeeded && mana != null &&
+                !ManaPaymentWindow.floatingManaCovers(state, action.playerId, mana, paymentContext)) {
                 val pool = state.getEntity(action.playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
                 val remaining = ManaPool(pool.white, pool.blue, pool.black, pool.red, pool.green, pool.colorless,
                     restrictedMana = pool.restrictedMana,
                     snowMana = pool.snowMana,
                     snowColorless = pool.snowColorless).withSpendingColors(state, action.playerId).payPartial(mana, paymentContext).remainingCost
-                val excluded = if (activation.effectiveCost.hasTapCost()) setOf(action.sourceId) else emptySet()
                 if (manaSolver.solve(state, action.playerId, remaining, excludeSources = excluded, spellContext = paymentContext) == null) {
+                    // The window checks only mana production. Let the eventual cost payer
+                    // choose and charge Phyrexian life, but ask the window for the mana left
+                    // after the currently payable life split. Otherwise it rejects a valid
+                    // Drum + life payment before the activation can resume.
+                    val lifePips = manaSolver.choosePhyrexianLifePayments(
+                        state, action.playerId, mana, excludeSources = excluded,
+                        spellContext = paymentContext, xManaRestriction = activation.ability.xManaRestriction
+                    )
+                    val windowMana = lifePips?.let(mana::withPhyrexianPaidByLife) ?: mana
                     return state.suspendForDecision(
                         question = { id -> ManaPaymentWindow.buildDecision(
-                            state, action.playerId, mana, id, "Produce mana for ${activation.sourceName}",
+                            state, action.playerId, windowMana, id, "Produce mana for ${activation.sourceName}",
                             com.wingedsheep.engine.core.DecisionContext(sourceId = action.sourceId, sourceName = activation.sourceName,
                                 phase = com.wingedsheep.engine.core.DecisionPhase.CASTING), true, manaSolver,
                             excludeSources = excluded, spellContext = paymentContext,
                             unknownAutoPayFeasibility = previewMana.xCount > 0 && (activation.effectiveXValue ?: 0) > 0,
                         ) },
-                        answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, mana,
+                        answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, windowMana,
                             lockedAbilityCost = activation.effectiveCost, lockedAbilityX = activation.effectiveXValue,
                             excludedSources = excluded, paymentContext = paymentContext),
                     )

@@ -2568,7 +2568,8 @@ class ManaSolver(
         xValue: Int = 0,
         excludeSources: Set<EntityId> = emptySet(),
         spellContext: SpellPaymentContext? = null,
-        xManaRestriction: Set<Color> = emptySet()
+        xManaRestriction: Set<Color> = emptySet(),
+        includeManualMana: Boolean = true
     ): List<Color>? {
         val pipColors = cost.phyrexianSymbols.mapNotNull { it.phyrexianLifeColor }
         if (pipColors.isEmpty()) return emptyList()
@@ -2582,7 +2583,7 @@ class ManaSolver(
                 if (canPay(
                         state, playerId, reduced, xValue, excludeSources, spellContext,
                         xManaRestriction = xManaRestriction, phyrexianLifePipsCommitted = lifePips,
-                        allowPhyrexianLife = false
+                        allowPhyrexianLife = false, includeManualMana = includeManualMana
                     )) return choice
             }
         }

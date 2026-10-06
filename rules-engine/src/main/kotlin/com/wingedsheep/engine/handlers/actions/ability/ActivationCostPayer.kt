@@ -146,7 +146,8 @@ internal class ActivationCostPayer(
             else -> manaSolver.choosePhyrexianLifePayments(
                 currentState, action.playerId, reducedManaCost, if (reducedManaCost.hasX) xValue else 0,
                 excludeSources = if (effectiveCost.hasTapCost()) setOf(action.sourceId) else emptySet(),
-                spellContext = paymentContext, xManaRestriction = ability.xManaRestriction
+                spellContext = paymentContext, xManaRestriction = ability.xManaRestriction,
+                includeManualMana = false
             ) ?: emptyList()
         }
         val phyrexianLife = phyrexianLifePayments.size * 2
