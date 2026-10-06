@@ -19,9 +19,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Equip {1}
  *
  * Spinner of Souls' reveal-until-to-hand recipe, with the match narrowed to "shares a creature
- * type with it" — `it` being the triggering (dead) creature. The comparison reads the dead
- * creature's types off the trigger's entity, which the engine falls back to once it has left the
- * battlefield (token type lines are re-materialized from last-known information).
+ * type with it" — `it` being the triggering (dead) creature, compared by its last-known types
+ * from the dies event (so a dead token or Changeling still counts).
  */
 val HeirloomBlade = card("Heirloom Blade") {
     manaCost = "{3}"
