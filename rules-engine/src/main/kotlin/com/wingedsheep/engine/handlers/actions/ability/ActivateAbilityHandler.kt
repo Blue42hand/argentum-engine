@@ -205,15 +205,24 @@ class ActivateAbilityHandler(
                     snowMana = pool.snowMana,
                     snowColorless = pool.snowColorless).withSpendingColors(state, action.playerId).payPartial(mana, paymentContext).remainingCost
                 if (manaSolver.solve(state, action.playerId, remaining, excludeSources = excluded, spellContext = paymentContext) == null) {
+                    // The window checks only mana production. Let the eventual cost payer
+                    // choose and charge Phyrexian life, but ask the window for the mana left
+                    // after the currently payable life split. Otherwise it rejects a valid
+                    // Drum + life payment before the activation can resume.
+                    val lifePips = manaSolver.choosePhyrexianLifePayments(
+                        state, action.playerId, mana, excludeSources = excluded,
+                        spellContext = paymentContext, xManaRestriction = activation.ability.xManaRestriction
+                    )
+                    val windowMana = lifePips?.let(mana::withPhyrexianPaidByLife) ?: mana
                     return state.suspendForDecision(
                         question = { id -> ManaPaymentWindow.buildDecision(
-                            state, action.playerId, mana, id, "Produce mana for ${activation.sourceName}",
+                            state, action.playerId, windowMana, id, "Produce mana for ${activation.sourceName}",
                             com.wingedsheep.engine.core.DecisionContext(sourceId = action.sourceId, sourceName = activation.sourceName,
                                 phase = com.wingedsheep.engine.core.DecisionPhase.CASTING), true, manaSolver,
                             excludeSources = excluded, spellContext = paymentContext,
                             unknownAutoPayFeasibility = previewMana.xCount > 0 && (activation.effectiveXValue ?: 0) > 0,
                         ) },
-                        answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, mana,
+                        answer = com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, windowMana,
                             lockedAbilityCost = activation.effectiveCost, lockedAbilityX = activation.effectiveXValue,
                             excludedSources = excluded, paymentContext = paymentContext),
                     )
