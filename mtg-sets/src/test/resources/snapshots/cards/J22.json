@@ -1623,6 +1623,71 @@
     ]
 }
 
+// Dutiful Replicator
+{
+    "name": "Dutiful Replicator",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Assembly-Worker",
+    "oracleText": "When this creature enters, you may pay {1}. When you do, create a token that's a copy of target token you control not named Dutiful Replicator.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Dutiful Replicator:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "PayManaCost",
+                        "cost": "{1}"
+                    },
+                    "reflexiveEffect": {
+                        "type": "CreateTokenCopyOfTarget",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        "IsToken",
+                                        {
+                                            "type": "Not",
+                                            "predicate": {
+                                                "type": "NameEquals",
+                                                "name": "Dutiful Replicator"
+                                            }
+                                        }
+                                    ],
+                                    "controllerPredicate": "ControlledByYou"
+                                }
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "descriptionOverride": "You may pay {1}. When you do, create a token that's a copy of target token you control not named Dutiful Replicator."
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "artist": "Alexander Forssberg",
+        "flavorText": "\"Careful. Leave it running for too long and it'll turn the whole building into angels.\"\n—Tawnos",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0de6fc60-89ad-4c6f-a734-5344e5b954fa.jpg?1783919177"
+    }
+}
+
 // Giant Ladybug
 {
     "name": "Giant Ladybug",
@@ -1869,6 +1934,74 @@
     ]
 }
 
+// Infernal Idol
+{
+    "name": "Infernal Idol",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {B}.\n{1}{B}{B}, {T}, Sacrifice this artifact: You draw two cards and lose 2 life.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Infernal Idol:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Infernal Idol:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{B}{B}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Drew Tucker",
+        "flavorText": "\"The courier's death was regrettable, but then again, she was warned not to touch it.\"\n—Lord Xander",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d986229-c8d5-462c-bf74-ae94326a5aa0.jpg?1783919175"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Ingenious Leonin
 {
     "name": "Ingenious Leonin",
@@ -1949,6 +2082,44 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Instruments of War
+{
+    "name": "Instruments of War",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "Flash\nAs this artifact enters, choose a creature type.\nCreatures you control of the chosen type get +1/+1.",
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature ctrl:you",
+                    "chosenSubtypeKey": "chosenCreatureType"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CREATURE_TYPE"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "UNCOMMON",
+        "artist": "Drew Tucker",
+        "flavorText": "Perfect for keeping time at a battle or a ball.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/9526bea2-8d47-4a82-a617-6c57c7abc69a.jpg?1783919175"
+    },
+    "colorIdentityOverride": []
 }
 
 // Isu the Abominable
