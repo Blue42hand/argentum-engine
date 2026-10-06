@@ -28,6 +28,7 @@ class ActionParameterSpecTest : FunSpec({
         ).allowedFields shouldContainExactly mapOf(
             "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "xValue" to ActionParameterFieldKind.INTEGER,
+            "declaredCostTimes" to ActionParameterFieldKind.INTEGER,
             "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,

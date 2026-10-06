@@ -13,16 +13,20 @@ export function XCostSelector() {
 
   if (!xSelectionState) return null
 
-  const { cardName, minX, maxX, selectedX, isRepeatCount, isAdditionalManaForCounters } = xSelectionState
+  const { cardName, minX, maxX, selectedX, isRepeatCount, isOptionalCostCount, isAdditionalManaForCounters } = xSelectionState
   const title = isAdditionalManaForCounters
     ? 'Pay Extra Mana for +1/+1 Counters?'
-    : isRepeatCount
+    : isOptionalCostCount
+      ? 'Pay Optional Cost How Many Times?'
+      : isRepeatCount
       ? 'Activate How Many Times?'
       : 'Choose X Value'
-  const valueLabel = isAdditionalManaForCounters ? 'Extra mana =' : isRepeatCount ? 'Times =' : 'X ='
+  const valueLabel = isAdditionalManaForCounters ? 'Extra mana =' : isRepeatCount || isOptionalCostCount ? 'Times =' : 'X ='
   const maxLabel = isAdditionalManaForCounters
     ? 'Each extra mana adds a +1/+1 counter. Maximum'
-    : isRepeatCount
+    : isOptionalCostCount
+      ? 'Maximum affordable payments'
+      : isRepeatCount
       ? 'Maximum activations'
       : 'Maximum X'
 

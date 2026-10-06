@@ -18,6 +18,8 @@ import com.wingedsheep.engine.handlers.actions.spell.chosenKickersLabel
 import com.wingedsheep.engine.handlers.actions.spell.optionalCostDeclarations
 import com.wingedsheep.engine.handlers.actions.spell.optionalCostsAdditionalPaid
 import com.wingedsheep.engine.handlers.actions.spell.optionalCostsManaPaid
+import com.wingedsheep.engine.handlers.actions.spell.repeatableOptionalCostLimit
+import com.wingedsheep.engine.handlers.actions.spell.maxAffordableOptionalCostTimes
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostEnumeration
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostOffer
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCosts
@@ -86,12 +88,6 @@ class CastSpellEnumerator(
             "CastWithConspire",
         )
 
-        /**
-         * The most times a repeatable optional cost (replicate) is offered as a separate cast
-         * variant. Affordability ends the run first in any real game; this only bounds a free-mana
-         * board so the action list stays finite.
-         */
-        private const val MAX_OPTIONAL_COST_REPEATS = 10
     }
 
     override fun enumerate(context: EnumerationContext): List<LegalAction> {
@@ -2039,7 +2035,38 @@ class CastSpellEnumerator(
                 // rises, so the first unaffordable count past one ends the run; a once-only cost
                 // has the single count 1.
                 val repeatable = kickers.any { it.multi }
-                for (times in 1..(if (repeatable) MAX_OPTIONAL_COST_REPEATS else 1)) {
+                val repeatLimit = if (repeatable) {
+                    val paymentContext = spellPaymentContextFor(
+                        cardComponent, isKicked = declaredSlot == ChoiceSlot.KICKED
+                    )
+                    val mana = context.manaSolver.getAvailableManaCount(
+                        state, playerId, precomputedSources = context.availableManaSources,
+                        spellContext = paymentContext
+                    )
+                    repeatableOptionalCostLimit(state, playerId, kickers, mana.toLong()) ?: 1
+                } else 1
+                val maxRepeat = if (repeatLimit > 32) {
+                    val base = context.costCalculator.calculateEffectiveCost(
+                        state, cardDef, playerId, declaredCostSlot = declaredSlot
+                    )
+                    val paymentContext = spellPaymentContextFor(
+                        cardComponent, isKicked = declaredSlot == ChoiceSlot.KICKED
+                    )
+                    maxAffordableOptionalCostTimes(repeatLimit) { count ->
+                        val addedMana = optionalCostsManaPaid(kickers.filter { it.manaCost != null }, count)
+                        val total = if (addedMana == null) base else base + addedMana
+                        context.manaSolver.canPay(
+                            state, playerId, total, spellContext = paymentContext,
+                            precomputedSources = context.availableManaSources
+                        ) && optionalCostsAdditionalPaid(kickers, count)?.let { added ->
+                            val env = SpellCostEnumeration(context, cardId)
+                            SpellCosts.canPayFrom(env, added, SpellCosts.candidates(env, added))
+                        } != false
+                    }
+                } else repeatLimit
+                val firstRepeatActions = mutableListOf<LegalAction>()
+                for (times in 1..minOf(maxRepeat.coerceAtLeast(1), 32)) {
+                    val beforeCount = result.size
                     val additionalCostKicker = kickers.firstOrNull { it.additionalCost != null }
                     val offspringAbility = kickers.firstOrNull { it.keyword == Keyword.OFFSPRING }
                     val collectEvidenceAtom = (
@@ -2313,6 +2340,19 @@ class CastSpellEnumerator(
                             maxAffordableX = kickedMaxAffordableX
                         ))
                     }
+                    if (times == 1) firstRepeatActions.addAll(result.subList(beforeCount, result.size))
+                }
+                if (maxRepeat > 32) {
+                    val perRepeatMana = optionalCostsManaPaid(
+                        kickers.filter { it.manaCost != null && it.keyword != Keyword.OFFSPRING }, 1
+                    )?.toString()
+                    result.addAll(firstRepeatActions.filter { it.affordable }.map { offer ->
+                        offer.copy(
+                            description = "${offer.description} — choose count",
+                            maxOptionalCostTimes = maxRepeat,
+                            optionalManaCostString = perRepeatMana
+                        )
+                    })
                 }
             }
 

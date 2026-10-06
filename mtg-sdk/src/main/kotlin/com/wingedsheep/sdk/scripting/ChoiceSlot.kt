@@ -60,6 +60,13 @@ enum class ChoiceSlot {
     KICKED,
 
     /**
+     * Number of times a declared optional additional cost was paid while casting. Unlike [KICKED],
+     * this numeric slot preserves the count for multikicker entry effects (Everflowing Chalice).
+     * Absent on spells cast without an optional cost, so [DynamicAmount.CastChoice] reads zero.
+     */
+    OPTIONAL_COST_TIMES,
+
+    /**
      * Whether the spell was kicked with its **first-listed** kicker cost — the `[A]` of
      * "Kicker [A] and/or [B]" (CR 702.33b, 702.33f; Wastescape Battlemage's `{G}` kicker). A present
      * value means that kicker was paid. Stamped only for a card with two kicker costs, alongside

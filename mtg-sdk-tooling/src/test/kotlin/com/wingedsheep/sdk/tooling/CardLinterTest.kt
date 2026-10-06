@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -22,6 +23,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
@@ -304,6 +306,19 @@ class CardLinterTest : DescribeSpec({
     }
 
     describe("choice slots") {
+        it("accepts the optional cost payment count when multikicker is declared") {
+            val card = card("Multikicker Count") {
+                manaCost = "{0}"
+                typeLine = "Artifact"
+                keywordAbility(KeywordAbility.multikicker("{2}"))
+                replacementEffect(EntersWithDynamicCounters(
+                    CounterType.CHARGE,
+                    DynamicAmount.CastChoice(ChoiceSlot.OPTIONAL_COST_TIMES),
+                ))
+            }
+            CardLinter.lint(card).shouldBeEmpty()
+        }
+
         it("recognizes a named additional-cost branch as a slot declaration") {
             val card = instant("Branch Reader", CardScript(
                 additionalCosts = listOf(AdditionalCost.Choice(

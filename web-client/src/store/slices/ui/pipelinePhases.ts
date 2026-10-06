@@ -114,6 +114,9 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
     if (actionInfo.hasXCost) {
       modalPhases.push({ type: 'xSelection' })
     }
+    if (actionInfo.action.type === 'CastSpell' && actionInfo.maxOptionalCostTimes != null) {
+      modalPhases.push({ type: 'optionalCostCount' })
+    }
     return modalPhases
   }
 
@@ -136,6 +139,9 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
     actionInfo.maxRepeatableActivations > 1
   ) {
     phases.push({ type: 'xSelection' })
+  }
+  if (actionInfo.action.type === 'CastSpell' && actionInfo.maxOptionalCostTimes != null) {
+    phases.push({ type: 'optionalCostCount' })
   }
 
   // 1b. "You may pay any amount of mana" as an additional cost (Chorus of the Conclave). Announced
@@ -378,6 +384,10 @@ export function mergeResult(
         return { ...action, additionalManaForCounters: result.amount }
       }
       return action
+    }
+
+    case 'optionalCostCount': {
+      return action.type === 'CastSpell' ? { ...action, declaredCostTimes: result.count } : action
     }
 
     case 'xSelection': {
@@ -687,6 +697,20 @@ export function enterPhase(
         selectedX: 0,
         isAdditionalManaForCounters: true,
       })
+      break
+    }
+
+    case 'optionalCostCount': {
+      if (action.type === 'CastSpell' && actionInfo.maxOptionalCostTimes != null) {
+        store.startXSelection({
+          actionInfo,
+          cardName: actionInfo.description.replace('Cast ', ''),
+          minX: 1,
+          maxX: actionInfo.maxOptionalCostTimes,
+          selectedX: action.type === 'CastSpell' ? action.declaredCostTimes ?? 1 : 1,
+          isOptionalCostCount: true,
+        })
+      }
       break
     }
 

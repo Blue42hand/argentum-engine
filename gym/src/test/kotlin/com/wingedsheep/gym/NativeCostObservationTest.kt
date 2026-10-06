@@ -3,6 +3,9 @@ package com.wingedsheep.gym
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.ActionParams
+import com.wingedsheep.engine.core.ActionParameterizer
+import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.gym.contract.ObservationBuilder
@@ -16,10 +19,36 @@ import com.wingedsheep.mtg.sets.definitions.mkm.cards.UrgentNecropsy
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 
 class NativeCostObservationTest : FunSpec({
+    test("Gym accepts only an offered repeatable optional-cost count") {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all)
+        driver.initMirrorMatch(Deck.of("Forest" to 40))
+        val player = driver.activePlayer!!
+        val cast = CastSpell(player, EntityId("choice-card"), declaredCostSlot = ChoiceSlot.KICKED,
+            declaredCostTimes = 1)
+        val repeatable = LegalAction(action = cast, actionType = "CastWithKicker",
+            description = "Cast with multikicker", maxOptionalCostTimes = 14)
+        ("declaredCostTimes" in ActionParameterizer.spec(repeatable).allowedFields) shouldBe true
+        val chosen = ActionParameterizer.apply(repeatable, ActionParams(declaredCostTimes = 11), driver.state)
+        (chosen as CastSpell).declaredCostTimes shouldBe 11
+        for (invalid in listOf(-1, 0, 15, Int.MAX_VALUE)) {
+            shouldThrow<IllegalArgumentException> {
+                ActionParameterizer.apply(repeatable, ActionParams(declaredCostTimes = invalid), driver.state)
+            }
+        }
+        val ordinary = repeatable.copy(maxOptionalCostTimes = null)
+        ("declaredCostTimes" in ActionParameterizer.spec(ordinary).allowedFields) shouldBe false
+        shouldThrow<IllegalArgumentException> {
+            ActionParameterizer.apply(ordinary, ActionParams(declaredCostTimes = 2), driver.state)
+        }
+    }
     test("Nethergoyf native view carries each exile candidate's card types") {
         val driver = GameTestDriver()
         driver.registerCards(TestCards.all + listOf(Nethergoyf))

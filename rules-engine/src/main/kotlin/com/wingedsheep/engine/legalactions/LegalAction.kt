@@ -88,6 +88,10 @@ data class LegalAction(
 
     // Costs
     val manaCostString: String? = null,
+    /** Maximum repeat count for a compact optional-cost cast offer. */
+    val maxOptionalCostTimes: Int? = null,
+    /** Mana added by each repeat, for pricing a chosen count in the client. */
+    val optionalManaCostString: String? = null,
     /**
      * The mana this spell adds to its own cost for each target beyond the first — "This spell
      * costs {W}{U} more to cast for each target beyond the first" (Officious Interrogation) sends

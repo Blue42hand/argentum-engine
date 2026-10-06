@@ -170,6 +170,10 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
       get().advancePipeline({ type: 'additionalManaForCounters', amount: xSelectionState.selectedX })
       return
     }
+    if (xSelectionState.isOptionalCostCount) {
+      get().advancePipeline({ type: 'optionalCostCount', count: xSelectionState.selectedX })
+      return
+    }
     get().advancePipeline({
       type: 'xSelection',
       xValue: xSelectionState.selectedX,

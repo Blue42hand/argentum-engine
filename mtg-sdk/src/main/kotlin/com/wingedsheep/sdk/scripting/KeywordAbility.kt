@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.costs.CostAtom
@@ -387,7 +388,18 @@ sealed interface KeywordAbility {
          * (CR 702.56a "pay [cost] any number of times"). Null when this cost has no mana half.
          */
         fun manaCostPaid(times: Int): ManaCost? =
-            manaCost?.let { cost -> ManaCost(List(times) { cost.symbols }.flatten()) }
+            manaCost?.let { cost ->
+                require(times >= 0)
+                // Keep an arbitrarily large generic repeat count compact. A count picker can
+                // otherwise allocate millions of identical symbols merely to price one offer.
+                val generic = cost.symbols.filterIsInstance<ManaSymbol.Generic>()
+                    .sumOf { it.amount.toLong() }
+                val scaled = generic * times
+                require(scaled <= Int.MAX_VALUE) { "Repeated generic cost exceeds Int range" }
+                val repeated = cost.symbols.filterNot { it is ManaSymbol.Generic }
+                    .flatMap { symbol -> List(times) { symbol } }
+                ManaCost((if (scaled > 0) listOf(ManaSymbol.Generic(scaled.toInt())) else emptyList()) + repeated)
+            }
 
         /**
          * The non-mana half of this cost paid [times] times over, as one cost whose amount is

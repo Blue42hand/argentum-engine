@@ -184,6 +184,7 @@ internal class CastSource(
 internal class CastValidator(
     private val cardRegistry: CardRegistry,
     private val turnManager: TurnManager,
+    private val manaSolver: ManaSolver,
     private val costCalculator: CostCalculator,
     private val alternativePaymentHandler: AlternativePaymentHandler,
     private val costHandler: CostHandler,
@@ -228,6 +229,7 @@ internal class CastValidator(
         if (!duringResolution) validateTiming(state, action, cardComponent, cardDef, source)?.let { return it }
         validateAlternativeCostSelections(state, action, cardDef)?.let { return it }
         validateAnnouncements(state, action, cardDef)?.let { return it }
+        validateRepeatableCostCount(state, action, cardDef)?.let { return it }
         validateOwedCosts(state, action, cardDef)?.let { return it }
         validateOptionalCostKeywords(state, action, cardComponent, cardDef, source)?.let { return it }
         validateTotalCost(state, action, cardComponent, cardDef, source)?.let { return it }
@@ -604,6 +606,38 @@ internal class CastValidator(
             if (sacrificed.first() !in EmergeCasts.sacrificeCandidates(state, action.playerId, emerge, predicateEvaluator)) {
                 return "The permanent chosen for emerge can't be sacrificed to pay its emerge cost"
             }
+        }
+        return null
+    }
+
+    /** Reject a forged huge count before cost scaling allocates symbols or multiplies Int amounts. */
+    private fun validateRepeatableCostCount(
+        state: GameState, action: CastSpell, cardDef: CardDefinition?
+    ): String? {
+        if (action.declaredCostTimes <= 1) return null
+        val costs = declaredOptionalCosts(action, cardDef)
+        if (costs.none { it.multi }) return null // validateAnnouncements reports this case.
+        val alternative = action.alternativePayment
+        val extraMana = if (alternative == null) 0L else {
+            alternative.delvedCards.size.toLong() + alternative.convokedCreatures.size +
+                alternative.tapForGenericPermanents.size +
+                (alternative.harmonizeCreature?.let { state.projectedState.getPower(it) }
+                    ?.coerceAtLeast(0)?.toLong() ?: 0L)
+        }
+        // A Phyrexian pip may spend life instead of mana. Ordinary generic kicker costs cannot,
+        // so an unrelated large life total must not authorize a huge count for cost expansion.
+        val phyrexianLife = if (costs.any { it.manaCost?.phyrexianSymbols?.isNotEmpty() == true }) {
+            state.lifeTotal(action.playerId).toLong().coerceAtLeast(0) / 2
+        } else 0L
+        // Include restricted floating mana conservatively. The final cast-cost validator still
+        // checks actual restrictions, colors, and chosen alternative payments.
+        val restricted = state.getEntity(action.playerId)?.get<ManaPoolComponent>()
+            ?.restrictedMana?.size?.toLong() ?: 0L
+        val budget = manaSolver.getAvailableManaCount(state, action.playerId).toLong() +
+            restricted + extraMana + phyrexianLife
+        val limit = repeatableOptionalCostLimit(state, action.playerId, costs, budget)
+        if (limit == null || action.declaredCostTimes > limit) {
+            return "The declared optional cost cannot be paid that many times"
         }
         return null
     }

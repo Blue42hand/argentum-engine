@@ -74,15 +74,12 @@ internal class CastCostTotaller(
         var effectiveCost = baseCost(state, action, cardDef, cardComponent, playForFree, castingFromCommandZone)
             ?: return null
 
-        // Add kicker/offspring mana cost if kicked (only for mana-based kicker/offspring; not
-        // applicable with alternative costs).
-        if (!playForFree && !action.useAlternativeCost) {
-            // Summed over every declared cost: "Kicker [A] and/or [B]" kicked with both pays both
-            // (CR 702.33b); a single-cost declaration is the one-element case.
-            val kickerManaCost = optionalCostsManaPaid(declaredOptionalCosts(action, cardDef), action.declaredCostTimes)
-            if (kickerManaCost != null) {
-                effectiveCost = ManaCost(effectiveCost.symbols + kickerManaCost.symbols)
-            }
+        // Optional additional costs are still owed when the spell's base mana cost is waived or
+        // replaced by an alternative cost. Only the base above changes on those cast paths.
+        // Summed over every declared cost: "Kicker [A] and/or [B]" pays both when declared.
+        val kickerManaCost = optionalCostsManaPaid(declaredOptionalCosts(action, cardDef), action.declaredCostTimes)
+        if (kickerManaCost != null) {
+            effectiveCost = ManaCost(effectiveCost.symbols + kickerManaCost.symbols)
         }
 
         // "This spell costs {W}{U} more to cast for each target beyond the first" (Officious

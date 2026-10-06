@@ -931,6 +931,10 @@ export interface LegalActionInfo {
   readonly hasXCost?: boolean
   /** Maximum X value the player can afford (null if not X cost spell) */
   readonly maxAffordableX?: number
+  /** Upper bound for a compact repeatable optional cast-cost count choice. */
+  readonly maxOptionalCostTimes?: number
+  /** Server-authored mana price of each additional optional-cost payment. */
+  readonly optionalManaCostString?: string
   /**
    * Set when the caster may pay "any amount of mana" as an additional cost (Chorus of the
    * Conclave): the upper bound for the amount picker. Sent back as `additionalManaForCounters`.
