@@ -1,3 +1,40 @@
+// Coldsteel Heart
+{
+    "name": "Coldsteel Heart",
+    "manaCost": "{2}",
+    "typeLine": "Snow Artifact",
+    "oracleText": "This artifact enters tapped.\nAs this artifact enters, choose a color.\n{T}: Add one mana of the chosen color.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Coldsteel Heart:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": "ManaColorSet.SourceChosenColor"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped",
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "COLOR"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Romanoski",
+        "flavorText": "The Phyrexian death machine awoke, its coldsteel heart imbuing it with sinister new power.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/d/cdd5015e-fe31-42e3-923d-44b9cdece273.jpg?1783943319"
+    },
+    "colorIdentityOverride": []
+}
+
 // Deathmark
 {
     "name": "Deathmark",
