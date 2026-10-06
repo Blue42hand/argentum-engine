@@ -113,6 +113,7 @@ class LegalActionEnricher(
             validBlockers = action.validBlockers,
             validBlockTargets = action.validBlockTargets,
             blockerMaxBlockCounts = action.blockerMaxBlockCounts,
+            maxTotalBlockers = action.maxTotalBlockers,
             mandatoryBlockerAssignments = action.mandatoryBlockerAssignments,
             hasXCost = action.hasXCost,
             maxAffordableX = action.maxAffordableX,

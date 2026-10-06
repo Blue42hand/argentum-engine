@@ -114,6 +114,7 @@ class CombatEnumerator : ActionEnumerator {
                     validBlockers = validBlockers,
                     validBlockTargets = validBlockTargets,
                     blockerMaxBlockCounts = blockerMaxBlockCounts.ifEmpty { null },
+                    maxTotalBlockers = context.turnManager.getGlobalBlockerCountLimit(state),
                     mandatoryBlockerAssignments = mandatoryAssignments.ifEmpty { null }
                 ))
             }

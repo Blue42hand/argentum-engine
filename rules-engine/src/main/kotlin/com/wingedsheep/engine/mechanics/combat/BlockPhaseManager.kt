@@ -15,6 +15,7 @@ import com.wingedsheep.engine.state.components.combat.BlockersDeclaredThisCombat
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.state.components.identity.RoomFaceStatics
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.mechanics.combat.rules.BlockCheckContext
 import com.wingedsheep.engine.mechanics.combat.rules.BlockEvasionRule
@@ -935,30 +936,35 @@ internal class BlockPhaseManager(
 
     /**
      * Validate global blocker-count caps. While any permanent with [BlockerCountLimit] is on the
-     * battlefield (e.g. Dueling Grounds), the total number of distinct blocking creatures across
-     * all players may not exceed the smallest such cap. Returns an error message when violated.
+     * battlefield (e.g. Dueling Grounds), the current defending player's number of distinct
+     * blocking creatures may not exceed the smallest such cap. Returns an error when violated.
      */
-    private fun validateGlobalBlockerCount(
-        state: GameState,
-        blockerIds: Set<EntityId>
-    ): String? {
-        var cap: Int? = null
-        var capDescription = ""
+    fun getGlobalBlockerCountLimit(state: GameState): Int? =
+        activeGlobalBlockerCountLimit(state)?.maxBlockers
+
+    private fun activeGlobalBlockerCountLimit(state: GameState): BlockerCountLimit? {
+        var limit: BlockerCountLimit? = null
+        val projected = state.projectedState
         for (permId in state.getBattlefield()) {
-            val cardComponent = state.getEntity(permId)?.get<CardComponent>() ?: continue
+            val container = state.getEntity(permId) ?: continue
+            // The same effective source controls the offer and native validation. Never
+            // disclose a face-down card's printed rule or enforce an ability it has lost.
+            if (container.has<FaceDownComponent>() || projected.hasLostAllAbilities(permId)) continue
+            val cardComponent = container.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
-            for (ability in cardDef.staticAbilities.filterIsInstance<BlockerCountLimit>()) {
-                if (cap == null || ability.maxBlockers < cap) {
-                    cap = ability.maxBlockers
-                    capDescription = ability.description
+            for (ability in RoomFaceStatics.activeStaticAbilities(container, cardDef).filterIsInstance<BlockerCountLimit>()) {
+                if (limit == null || ability.maxBlockers < limit.maxBlockers) {
+                    limit = ability
                 }
             }
         }
-        if (cap != null && blockerIds.size > cap) {
-            return capDescription
-        }
-        return null
+        return limit
     }
+
+    private fun validateGlobalBlockerCount(state: GameState, blockerIds: Set<EntityId>): String? =
+        activeGlobalBlockerCountLimit(state)
+            ?.takeIf { blockerIds.size > it.maxBlockers }
+            ?.description
 
     /**
      * Validate "can't block unless [X] also blocks" restrictions ([CantBlockUnlessCoBlocker], CR

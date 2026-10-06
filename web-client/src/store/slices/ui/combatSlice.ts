@@ -226,6 +226,11 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       const existing = state.combatState.blockerAssignments[blockerId] ?? []
       // If already blocking this attacker, don't add duplicate
       if (existing.includes(attackerId)) return state
+      const totalCap = state.combatState.maxTotalBlockers
+      if (totalCap != null && existing.length === 0 &&
+          Object.values(state.combatState.blockerAssignments).filter((ids) => ids.length > 0).length >= totalCap) {
+        return state
+      }
       // Check max block count (default 1 for normal creatures)
       const maxBlocks = state.combatState.blockerMaxBlockCounts[blockerId] ?? 1
       if (existing.length >= maxBlocks) {
