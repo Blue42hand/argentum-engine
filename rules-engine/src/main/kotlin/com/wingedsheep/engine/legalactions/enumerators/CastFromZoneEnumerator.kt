@@ -531,7 +531,7 @@ class CastFromZoneEnumerator(
                     val castRestrictions = effectiveScript?.castRestrictions ?: emptyList()
                     val meetsRestrictions = context.legality.castRestrictionsMet(state, playerId, castRestrictions)
                     val baseEffectiveCost = if (cardDef != null && prepareFace != null) {
-                        context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, prepareFace.manaCost, playerId)
+                        context.costCalculator.calculateFaceCastCost(state, cardDef, prepareFace, playerId)
                     } else if (cardDef != null) {
                         context.costCalculator.calculateEffectiveCost(state, cardDef, playerId)
                     } else {

@@ -19,6 +19,8 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.CardFace
+import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.CharacteristicValue
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -71,6 +73,8 @@ class CostCalculator(
      * @param state The current game state
      * @param cardDef The card definition being cast
      * @param casterId The player casting the spell
+     * @param card The card being cast, when [cardDef] is only one face of it — commander tax is
+     *   owed by the card, whichever face is cast
      * @return The effective mana cost after reductions
      */
     fun calculateEffectiveCost(
@@ -81,6 +85,7 @@ class CostCalculator(
         fromZone: Zone? = null,
         declaredCostSlot: ChoiceSlot? = null,
         baseCost: ManaCost = cardDef.manaCost,
+        card: CardDefinition = cardDef,
     ): ManaCost {
         var totalReduction = 0
         var totalIncrease = 0
@@ -150,7 +155,7 @@ class CostCalculator(
         }
 
         // Commander tax (CR 903.8).
-        totalIncrease += calculateCommanderTax(state, cardDef, casterId, fromZone)
+        totalIncrease += calculateCommanderTax(state, card, casterId, fromZone)
 
         // CR 601.2f: the total cost is the base cost plus all cost increases, then minus all cost
         // reductions; the mana component is floored at {0} (it can't be reduced below {0}). Apply
@@ -172,6 +177,45 @@ class CostCalculator(
         // increase and reduction.
         return LifePayableMana.apply(state, cardRegistry, casterId, effectiveCost)
     }
+
+    /**
+     * The effective cost of casting [face] of [cardDef] instead of its primary characteristics —
+     * a split half (CR 709.3b), an Adventure or Omen (CR 715.3b), a modal DFC's spell back
+     * (CR 712.11c) or a prepare-spell copy (CR 722.3c).
+     *
+     * On the stack such a spell has only the face's characteristics, so every cost modifier is
+     * judged against the face, and the face is priced exactly like a normal cast with its own mana
+     * cost as the base. "Noncreature spells you cast cost {1} less" (Geist of Saint Thalia)
+     * discounts a creature card's Adventure or prepare spell, and a noncreature tax applies to
+     * it — reading the card's creature type line instead got both wrong.
+     */
+    fun calculateFaceCastCost(
+        state: GameState,
+        cardDef: CardDefinition,
+        face: CardFace,
+        casterId: EntityId,
+        chosenTargets: List<EntityId> = emptyList(),
+        fromZone: Zone? = null,
+        declaredCostSlot: ChoiceSlot? = null,
+    ): ManaCost = calculateEffectiveCost(
+        state, faceCharacteristics(cardDef, face), casterId, chosenTargets, fromZone, declaredCostSlot,
+        card = cardDef,
+    )
+
+    /** [cardDef] seen with only [face]'s characteristics, as the spell is while on the stack. */
+    private fun faceCharacteristics(cardDef: CardDefinition, face: CardFace): CardDefinition = cardDef.copy(
+        name = face.name,
+        manaCost = face.manaCost,
+        typeLine = face.typeLine,
+        oracleText = face.oracleText,
+        creatureStats = null,
+        keywords = face.keywords,
+        keywordAbilities = emptyList(),
+        script = face.script,
+        colorIndicator = null,
+        layout = CardLayout.NORMAL,
+        cardFaces = emptyList(),
+    )
 
     /**
      * Compute commander tax for [cardDef] when cast from [fromZone].
