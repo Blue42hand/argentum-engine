@@ -22,8 +22,9 @@ import kotlin.random.Random
  * per card for uncommon:rare:mythic; the rare/mythic slot 2:1 per card for rare:mythic; the
  * wildcard 40:22:6:3 per card for common:uncommon:rare:mythic.
  *
- * Engine adaptation: foils, borderless treatments, and Special Guests are not modeled and the land
- * slot is omitted (basics are supplied at deck building), giving 13 cards per pack.
+ * Engine adaptation: foils, borderless treatments, and Special Guests are not modeled here. This
+ * strategy selects 13 cards; compose it with [LandSlotBooster] to reserve dual lands for the land
+ * slot and append the fourteenth card.
  *
  * Pairs missing a half from the pool (unimplemented or host-banned) are never opened. If no
  * complete pair remains, the echoed slot falls back to three unpaired echoed cards, then to

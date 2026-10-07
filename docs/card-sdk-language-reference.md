@@ -425,6 +425,12 @@ Both halves must be in the pool to open as a pair; the third echoed card exclude
 Missing echoed slots use remaining echoed cards, then unused regular uncommons, commons, rares, and
 mythics in that order. This preserves those slots when host bans or incomplete pools exhaust uncommons,
 without duplicating names. Other regular slots exclude echoed names; the wildcard includes them.
+Compose with `LandSlotBooster(base, nonbasicLandNames, basicLands, basicWeight, nonbasicWeight)` to reserve
+named lands for a dedicated final slot. The wrapper removes those names from every base slot (including
+the wildcard) and adds one weighted land from the available nonbasics and supplied basic arts. Basic
+arts are supplied explicitly because the generator strips basics from the ordinary pool. Host bans
+remove nonbasics; basics remain available as they do in deck building. FRA uses ten duals at weight 3
+and 25 basic arts at weight 1, giving a 6/11 dual chance and 14 cards per pack.
 
 **Showcase / borderless in boosters** — a set advertises a per-card variant rate via `MtgSet.boosterVariantChance`
 (default `0.0`). When non-zero, `BoosterGenerator` rolls each generated card independently and, on a hit, re-skins it
