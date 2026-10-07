@@ -826,7 +826,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       if (nextStep === 'END') {
         return 'End Turn'
       }
-      return `Pass to ${StepShortNames[nextStep]}`
+      return `To ${StepShortNames[nextStep]}`
     }
     return 'Pass'
   }
@@ -1799,12 +1799,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 cursor: passEnabled ? 'pointer' : 'default',
               }}
             >
-              {(() => {
-                const label = passEnabled ? getPassButtonLabel() : 'Pass'
-                // "Pass to Attackers" is too wide for a phone or tablet — "→ Attackers"
-                // carries the same meaning in half the space.
-                return responsive.isMobile || responsive.isTablet ? label.replace(/^Pass to /, '→ ') : label
-              })()}
+              {passEnabled ? getPassButtonLabel() : 'Pass'}
             </button>
           </div>
         )
