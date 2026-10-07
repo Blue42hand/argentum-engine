@@ -34,6 +34,7 @@ import {
   needsSet,
   opponentRange,
   recipeForOptions,
+  rollsDeck,
   stagesFor,
   type DraftStyle,
   type HumanTable,
@@ -171,6 +172,7 @@ function LaunchPanel({
   const allStarters = useStarterDecks()
   const [options, setOptionsState] = useState<PlayOptions>(() => loadOptions(mode, aiEnabled))
   const [setPickerOpen, setSetPickerOpen] = useState(false)
+  const [randomSetPickerOpen, setRandomSetPickerOpen] = useState(false)
 
   const setOptions = (patch: Partial<PlayOptions>) => {
     setOptionsState((prev) => {
@@ -202,7 +204,11 @@ function LaunchPanel({
   const setCode = options.setCode && availableSets.some((s) => s.code === options.setCode)
     ? options.setCode
     : availableSets.length > 0 ? defaultSetCode(availableSets) : null
-  const resolved: PlayOptions = { ...options, setCode }
+  // A remembered set the server no longer offers falls back to "any set" rather than a failed roll.
+  const randomSetCode = options.randomSetCode && availableSets.some((s) => s.code === options.randomSetCode)
+    ? options.randomSetCode
+    : null
+  const resolved: PlayOptions = { ...options, setCode, randomSetCode }
   const deck = resolveDeck(options.deck, deckChoices, starterChoices, canRollDeck(resolved))
   const effective: PlayOptions = { ...resolved, deck }
 
@@ -210,6 +216,7 @@ function LaunchPanel({
   const opponents = effectiveOpponents(effective)
   const stages = stagesFor(effective)
   const set = availableSets.find((s) => s.code === setCode)
+  const randomSet = availableSets.find((s) => s.code === randomSetCode)
   const isAi = effective.playWith === 'AI'
 
   return (
@@ -331,6 +338,21 @@ function LaunchPanel({
             />
           </Field>
         )}
+
+        {rollsDeck(effective) && (
+          <Field label="Random deck from">
+            <button
+              type="button"
+              className={styles.setButton}
+              data-testid="launch-random-set"
+              onClick={() => setRandomSetPickerOpen(true)}
+            >
+              {randomSetCode && <SetIcon code={randomSetCode} className={styles.setIcon} />}
+              <span className={styles.setName}>{randomSet?.name ?? 'Any set'}</span>
+              <span className={styles.setChange}>{randomSetCode ? 'Change' : 'Choose'}</span>
+            </button>
+          </Field>
+        )}
       </div>
 
       <footer className={styles.panelFooter}>
@@ -367,6 +389,18 @@ function LaunchPanel({
           title="Choose a set"
           onToggleSet={(code) => setOptions({ setCode: code })}
           onClose={() => setSetPickerOpen(false)}
+        />
+      )}
+
+      {randomSetPickerOpen && (
+        <SetPickerModal
+          sets={availableSets}
+          selectedCodes={randomSetCode ? [randomSetCode] : []}
+          mode="single"
+          title="Random deck from"
+          onToggleSet={(code) => setOptions({ randomSetCode: code })}
+          onSelectRandom={() => setOptions({ randomSetCode: null })}
+          onClose={() => setRandomSetPickerOpen(false)}
         />
       )}
     </section>
@@ -576,6 +610,7 @@ function loadOptions(mode: ModeId, aiEnabled: boolean): PlayOptions {
     sealedStyle: pick('sealedStyle', ['STANDARD', 'COMMANDER']),
     tableCards: pick('tableCards', ['DECKS', 'JUMP_IN', 'SEALED', 'DRAFT']),
     setCode: typeof stored.setCode === 'string' ? stored.setCode : null,
+    randomSetCode: typeof stored.randomSetCode === 'string' ? stored.randomSetCode : null,
     deck: storedDeck(stored),
   }
 }

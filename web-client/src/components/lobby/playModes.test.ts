@@ -7,6 +7,7 @@ import {
   modeFromSlug,
   opponentRange,
   recipeForOptions,
+  rollsDeck,
   selectionFor,
   stagesFor,
   type DraftStyle,
@@ -139,6 +140,23 @@ describe('playModes', () => {
     expect(stagesFor({ ...defaultOptions('DRAFT', true) })).toEqual(['Draft', 'Build 40', 'Everyone plays everyone', 'Standings'])
     expect(stagesFor({ ...defaultOptions('MOMIR', true) })).toEqual(['Play'])
     expect(stagesFor({ ...defaultOptions('RANDOM', true), playWith: 'FRIENDS' })).toEqual(['Players join', 'Get a deck', 'Play'])
+  })
+
+  it('rolls a Random deck from the chosen set, or any set when none is chosen', () => {
+    const random = defaultOptions('RANDOM', true)
+    expect(rollsDeck(random)).toBe(true)
+    expect(recipeForOptions(random).deck).toEqual({ kind: 'RANDOM' })
+    expect(recipeForOptions({ ...random, randomSetCode: 'BLB' }).deck).toEqual({ kind: 'RANDOM', setCodes: ['BLB'] })
+
+    // "Random deck" as your Constructed deck offers the same choice; a starter deck does not.
+    const constructed = { ...defaultOptions('CONSTRUCTED', true), randomSetCode: 'BLB' }
+    expect(rollsDeck({ ...constructed, deck: { kind: 'RANDOM' } })).toBe(true)
+    expect(recipeForOptions({ ...constructed, deck: { kind: 'RANDOM' } }).deck).toEqual({ kind: 'RANDOM', setCodes: ['BLB'] })
+    expect(rollsDeck({ ...constructed, deck: { kind: 'EXAMPLE', name: 'Goblins' } })).toBe(false)
+    expect(recipeForOptions({ ...constructed, deck: { kind: 'EXAMPLE', name: 'Goblins' } }).deck)
+      .toEqual({ kind: 'EXAMPLE', name: 'Goblins' })
+    // A bracket can't roll a deck, so a remembered set doesn't sneak one in.
+    expect(rollsDeck({ ...constructed, deck: { kind: 'RANDOM' }, opponents: 3 })).toBe(false)
   })
 
   it('round-trips every mode through its slug', () => {

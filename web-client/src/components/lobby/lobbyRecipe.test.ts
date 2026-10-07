@@ -247,6 +247,14 @@ describe('validateRecipe', () => {
       .toEqual({ kind: 'SAVED', name: 'Goblins' })
   })
 
+  it('keeps a Random deck\'s sets, dropping ones this server does not have', () => {
+    expect(validateRecipe({ ...base, deck: { kind: 'RANDOM', setCodes: ['ECL'] } }, ctx)?.recipe.deck)
+      .toEqual({ kind: 'RANDOM', setCodes: ['ECL'] })
+    const stale = validateRecipe({ ...base, deck: { kind: 'RANDOM', setCodes: ['XYZ'] } }, ctx)
+    expect(stale?.recipe.deck).toEqual({ kind: 'RANDOM' })
+    expect(stale?.notes.join(' ')).toContain('XYZ')
+  })
+
   it('keeps a cube only when it still has cards to build from', () => {
     const cube = { name: 'Vintage', cards: ['Black Lotus'], basicLandSetCode: 'ECL', packSize: 15, poolPlay: false }
     expect(validateRecipe({ ...base, settings: { cube } }, ctx)?.recipe.settings.cube).toEqual(cube)

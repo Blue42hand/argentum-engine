@@ -22,9 +22,10 @@ export function createQuickGameLobbyHandlers(
     onQuickGameLobbyState: (msg) => {
       set({ quickGameLobbyState: msg })
       // A recipe's leftovers, flushed by the first broadcast for the lobby it created. Everything a
-      // quick lobby has rides its create message except the AI's deck, which is keyed on the lobby
-      // existing — so this is the one field that has to wait. See `pendingLobbyIntent.ts`.
+      // quick lobby has rides its create message except the AI's deck and your Random-deck sets,
+      // which are keyed on the lobby existing — so these have to wait. See `pendingLobbyIntent.ts`.
       const pending = takePendingLobbyApply()
+      if (pending?.randomSetCodes) get().setQuickGameLobbySetCode(pending.randomSetCodes)
       if (pending?.aiDeck) get().setQuickGameAiDeck(pending.aiDeck)
     },
 
