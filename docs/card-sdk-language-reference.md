@@ -850,7 +850,10 @@ counts a hybrid Phyrexian pip paid with life like any other Phyrexian pip.
   is spread across permanents matching `filter` — the player is asked to distribute it, the
   Retribution of the Ancients shape. Pass **`self = true`** for "remove any number of counters from
   ~" (The Astonishing Ant-Man), where the counters come off the ability's own source: that takes
-  the direct payment path and caps X by the source's own counters. The filter-based form is not
+  the direct payment path and caps X by the source's own counters. **X = 0 is legal even if the
+  source has never had counters**; removing zero leaves counters unchanged and emits no counter-removal
+  event. Fixed zero self-removal costs work the same way, including resolution-time payments. Other
+  costs (such as tapping the source) and targeting requirements still apply. The filter-based form is not
   merely imprecise for a self-scoped cost, it is *unpayable* — nothing is ever distributed, so
   payment fails with a total of 0. Don't reach for `GameObjectFilter.Permanent.sourceItself()`.
 
@@ -2156,7 +2159,8 @@ vocabulary; this primitive does not provide Word of Command's full mana restrict
   from a may-pay-{X} reflexive) of `counterType` from `source` onto `destination`. The count is capped at the
   number actually on `source`, and adding to `destination` honors counter-placement replacement effects
   (Hardened Scales). No-op when source/destination missing, they're the same permanent, amount ≤ 0, or source has
-  none of that kind. The count-fixed counterpart to the interactive `MoveChosenCountersToTarget`.
+  none of that kind. If the destination can't receive counters, none are removed from the source.
+  The count-fixed counterpart to the interactive `MoveChosenCountersToTarget`.
 - **Passive named counters** — flavor counters with no inherent rule; the card that uses one accumulates
   it (`AddCounters(CounterType.X, …)`) and reads the count via `Conditions.SourceCounterCountAtLeast(CounterType.X, …)`
   or `DynamicAmounts.countersOnSelf(…)`, and may spend it as a cost (`Costs.RemoveCounterFromSelf(CounterType.X, …)`).
