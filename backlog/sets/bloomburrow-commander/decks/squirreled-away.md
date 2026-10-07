@@ -14,7 +14,7 @@
 - [ ] 1 Arasta of the Endless Web
 - [ ] 1 Beledros Witherbloom
 - [ ] 1 Chatterfang, Squirrel General
-- [ ] 1 Chittering Witch
+- [x] 1 Chittering Witch
 - [ ] 1 Deep Forest Hermit
 - [ ] 1 End-Raze Forerunners
 - [x] 1 Gilded Goose

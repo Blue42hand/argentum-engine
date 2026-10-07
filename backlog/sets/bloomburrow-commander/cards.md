@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 155 / 312
+**Implemented:** 156 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -66,7 +66,7 @@
 - [ ] Chasm Skulker
 - [ ] Chatterfang, Squirrel General
 - [ ] Chatterstorm
-- [ ] Chittering Witch
+- [x] Chittering Witch
 - [ ] Chitterspitter
 - [x] Cinder Glade
 - [x] Circuit Mender
