@@ -71,11 +71,75 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
             return allocation.pool.dischargedObligations.containsAll(required)
         }
         data class Prefix(val state: GameState, val events: List<GameEvent>)
+        fun settled(current: GameState, floor: Int) =
+            current.pendingDecision == null && current.continuationStack.size == floor
+        // Finish one activation's production questions, preferring the color the guide wanted.
+        fun finish(prefix: Prefix, floor: Int, wanted: Color?): Prefix? {
+            var (current, events) = prefix
+            repeat(GUIDED_ANSWER_LIMIT) {
+                if (current.pendingDecision == null) return Prefix(current, events).takeIf { settled(current, floor) }
+                val decision = current.pendingDecision!!
+                val responses = activationResponses(current, player)?.toList() ?: return null
+                val ordered = responses.sortedByDescending { (it as? ColorChosenResponse)?.color == wanted }
+                val response = ordered.firstOrNull { DecisionValidators.validate(decision, it, current) == null }
+                    ?: return null
+                val result = services.continuationHandler.resumeWithin(current, response, floor)
+                if (result.error != null || result.state.gameOver) return null
+                events = events + DecisionSubmittedEvent(decision.id, player) + result.events
+                current = result.state
+            }
+            return null
+        }
+        // The ordinary solver picks a minimal source set; each tap then runs through the real
+        // activation handler. Only the complete exact allocation below certifies the result, so a
+        // misleading guide merely falls through to the exhaustive search.
+        fun guided(initial: GameState, floor: Int): Prefix? {
+            val component = initial.getEntity(player)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
+            val partial = ManaPool(component.white, component.blue, component.black, component.red,
+                component.green, component.colorless, restrictedMana = component.restrictedMana,
+                snowMana = component.snowMana, snowColorless = component.snowColorless)
+                .withSpendingColors(initial, player).payPartial(cost, context)
+            val xRemaining = (xAmount - partial.newPool.xCoverage(xAmount, xColors, context)).coerceAtLeast(0)
+            val solution = services.manaSolver.solve(initial, player, partial.remainingCost, xRemaining,
+                excludeSources, context, xManaRestriction = xColors) ?: return null
+            var prefix = Prefix(initial, emptyList())
+            for ((sourceId, wanted) in solution.manaProduced) {
+                val candidates = services.legalActionEnumerator.enumerateManaAbilities(prefix.state, player)
+                    .filter { (it.action as? ActivateAbility)?.sourceId == sourceId }
+                var fallback: Prefix? = null
+                var matched: Prefix? = null
+                for (candidate in candidates) {
+                    val base = candidate.action as ActivateAbility
+                    val ability = resolver.lookup(prefix.state, sourceId, base.abilityId)?.ability ?: continue
+                    val color = wanted.color?.takeIf {
+                        candidate.requiresManaColorChoice && ability.effect !is CompositeEffect &&
+                            (candidate.availableManaColors?.contains(it) ?: true)
+                    }
+                    if (candidate.requiresManaColorChoice && ability.effect !is CompositeEffect && color == null &&
+                        wanted.color != null) continue
+                    val action = base.copy(manaColorChoice = color, paymentStrategy = PaymentStrategy.FromPool)
+                    if (handler.validate(prefix.state, action) != null) continue
+                    val executed = handler.execute(prefix.state, action)
+                    if (executed.error != null || executed.state.gameOver) continue
+                    val done = finish(Prefix(executed.state, prefix.events + executed.events), floor, wanted.color)
+                        ?: continue
+                    if (producedWanted(prefix.state, done.state, player, wanted)) { matched = done; break }
+                    if (fallback == null) fallback = done
+                }
+                prefix = matched ?: fallback ?: return null
+            }
+            return prefix.takeIf { settled(it.state, floor) && complete(it.state) }
+        }
         fun search(initial: GameState): ScopedManaPlanResult {
             // Floating payment needs no source enumeration, even on hidden boards or at zero budget.
             val continuationFloor = prefixFloor ?: initial.continuationStack.size
             if (initial.pendingDecision == null && initial.continuationStack.size == continuationFloor &&
                 complete(initial)) return ScopedManaPlanResult.Found(ExecutionResult.success(initial))
+            // A guided execution is real game truth, not a preview, so it is valid on any public board.
+            if (nodeLimit > 0 && initial.pendingDecision == null && initial.continuationStack.size == continuationFloor)
+                guided(initial, continuationFloor)?.let {
+                    return ScopedManaPlanResult.Found(ExecutionResult.success(it.state, it.events))
+                }
             // Hidden identities must not affect this public proof boundary.
             if (initial.getBattlefield().any { initial.getEntity(it)?.has<FaceDownComponent>() == true })
                 return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.HIDDEN_BATTLEFIELD))
@@ -202,6 +266,28 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
         return ScopedManaPlanResult.Found(result.copy(state = result.state.copy(
             continuationStack = result.state.continuationStack + listOfNotNull(suspended),
             priorityPlayerId = state.priorityPlayerId, priorityPassedBy = state.priorityPassedBy)))
+    }
+
+    /** Whether the activation added at least one unit of the kind the ordinary solver planned for it. */
+    private fun producedWanted(before: GameState, after: GameState, player: EntityId, wanted: ManaProduction): Boolean {
+        fun count(state: GameState): Int {
+            val pool = state.getEntity(player)?.get<ManaPoolComponent>() ?: return 0
+            val color = wanted.color
+            val plain = when (color) {
+                Color.WHITE -> pool.white
+                Color.BLUE -> pool.blue
+                Color.BLACK -> pool.black
+                Color.RED -> pool.red
+                Color.GREEN -> pool.green
+                null -> pool.colorless
+            }
+            return plain + pool.restrictedMana.count { it.color == color }
+        }
+        return count(after) > count(before)
+    }
+
+    private companion object {
+        const val GUIDED_ANSWER_LIMIT = 16
     }
 
     private fun activationResponses(state: GameState, player: EntityId): Sequence<DecisionResponse>? {

@@ -1881,8 +1881,9 @@ play. Prohibitions and costs remain authoritative. No playable offer means no ef
 cancellation returns to the mandatory instruction. Only a completed play publishes `storePlayedTo`;
 empty collections, unavailable cards and impossible plays publish nothing. The captured card object
 and serialized continuation prevent a later zone visit from inheriting the instruction. It grants
-no enduring play-from-zone permission. Mana-ability origin/spending restrictions require separate
-vocabulary; this primitive does not provide Word of Command's full mana restriction.
+no enduring play-from-zone permission. Mana-ability origin/spending restrictions are separate
+wrappers: Word of Command composes it inside `WithManaAbilitySources` and
+`WithManaSpendingObligations` (see "Resolution-scoped player control" below).
 
 ### Linked exile & play-from-exile permissions
 
@@ -16610,8 +16611,23 @@ capture their authorized observers before the control window ends, without trans
 Shared-turn teams follow the existing player-control team rule. A later resolution-control grant wins,
 and a completed window reveals the underlying turn control again. Session hotseat routing keeps precedence.
 
-This primitive composes with `Effects.ForcePlay` for mandatory paid card play. Word of Command
-still needs complete forced-play mana windows and remaining proof boundaries (G51); it is not yet authorable faithfully.
+This primitive composes with `Effects.ForcePlay` for mandatory paid card play. **Word of Command**
+(LEA) is the full shape:
+
+```kotlin
+val opponent = target(Targets.Opponent)
+effect = Effects.Pipeline {
+    run(Effects.ControlPlayerDuringResolution(opponent))
+    run(Effects.LookAtHand(opponent))
+    val chosen = chooseExactly(1, from = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer)),
+        showAllCards = true, alwaysPrompt = true)
+    run(Effects.WithManaSpendingObligations(Effects.WithManaAbilitySources(
+        Effects.ForcePlay(chosen.key, opponent, "played"), GameObjectFilter.Land.youControl(), opponent), opponent))
+    run(Effects.ControlPlayerDuringResolution(opponent, EffectTarget.PipelineTarget("played")))
+}
+```
+
+A played land is not on the stack, so the trailing grant is inert for it.
 
 ### Scoped mana-ability sources
 
@@ -16778,11 +16794,20 @@ SDK, event, decision, replay or client field.
 
 The current payment frame does not capture X color restrictions or the chosen Phyrexian life split;
 manual prefixes for those prices are conservatively rejected rather than proved against a weaker
-price. Existing direct automatic casting remains available. G51 must complete reachable mandatory
-mana windows, capture these payment choices and other casting-cost resources, and close the remaining unsupported mana-ability proof
-boundaries before a printed card uses this wrapper. Hidden boards, hidden-zone/distributed-counter
-costs, multiple/nested graveyard selections, free costs, non-mana effect leaves and unsupported
-questions still report uncertainty. Word of Command remains blocked; no incomplete canonical is registered.
+price. Existing direct automatic casting remains available.
+
+**Guided plan first.** Before the exhaustive search, the planner asks the ordinary auto-pay solver
+(which already honours the scoped source filter and excluded sources) for a minimal source set
+covering the cost left after floating mana, then executes each of those activations through the real
+activation handler, answering production questions with the planned color. Only the same complete
+exact allocation certifies the result, so a misleading guide merely falls through to the search.
+Because it executes rather than previews, the guide also works on boards with face-down permanents
+and for abilities with non-mana effect leaves (pain lands). This matters for "if able": an
+unguided breadth-first search over activation orders exhausts its 256-node budget on a five-mana
+spell paid by six basic lands. Satisfying the per-activation obligation never makes a payable cost
+unpayable (drop any activation whose mana goes unspent), so the ordinary solver's minimal plan is
+the right guide. Hidden-zone/distributed-counter costs, multiple/nested graveyard selections, free
+costs and unsupported questions still report uncertainty when the guide fails.
 
 
 ### Flip-card identities under copy effects
