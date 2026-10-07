@@ -857,15 +857,16 @@ pack format disables Jumpstart. Setting `useJumpstart: false` in `updateLobbySet
 traditional draft/sealed flow, including its pack-count settings.
 
 Starting Jumpstart enters `DECK_BUILDING`, but sends no editable sealed pool. Each player's
-`lobbyUpdate.jumpstart` contains only their own `pickNumber`, `selectedPacks`, and three `offers`
-(`id`, `theme`, `cards`). The client sends `pickJumpstartPack { packId, pickNumber }`. The server
-validates both fields against the current offer, adds the entire 20-card pack, and offers three
-new themes for the second pick. After two picks, the 40 cards are submitted unchanged through the
-normal deck submission path. Players remain on the private pack screen until everyone has
-chosen, then the server readies the first matchup automatically. Later rounds use the ordinary
-tournament readiness flow. AI seats select packs server-side. Players cannot add lands,
-remove cards, or edit this deck. Offers, selections, and the preference survive persistence and
-reconnection; retransmitting an earlier pick cannot choose another pack.
+`lobbyUpdate.jumpstart` contains only their own `selectedPacks`, three `offers` and three
+`secondOffers` (`id`, `theme`, `cards`), both rolled when Jumpstart starts so a pair is chosen on one
+screen. The client sends `pickJumpstartPacks { firstPackId, secondPackId }`; the server validates
+the first against `offers` and the second against `secondOffers`, adds both entire 20-card packs,
+and submits the 40 cards unchanged through the normal deck submission path. Players remain on the
+private pack screen until everyone has chosen, then the server readies the first matchup
+automatically. Later rounds use the ordinary tournament readiness flow. AI seats select packs
+server-side. Players cannot add lands, remove cards, or edit this deck. Offers, selections, and the
+preference survive persistence and reconnection; a pair can be chosen only once, so a retransmit
+cannot choose another.
 
 The checked-in `game-server/src/main/resources/jumpstart/j22.txt` contains Wizards' 121 paper J22
 variants across 46 themes, taken from the [published decklists](https://magic.wizards.com/en/news/feature/jumpstart-2022-booster-themes-and-card-lists).

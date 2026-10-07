@@ -82,7 +82,9 @@ data class PersistentLobbyPlayer(
     val token: String,
     val jumpstartOffers: List<String> = emptyList(),
     val jumpstartSelections: List<String> = emptyList(),
+    /** Legacy: written while picks were one at a time; read only to upgrade such a row. */
     val jumpstartFirstOffers: List<String> = emptyList(),
+    val jumpstartSecondOffers: List<String> = emptyList(),
     val cardPoolNames: List<String>,  // Card names only
     val currentPackNames: List<String>? = null,  // Draft only: current pack cards
     val packQueueNames: List<List<String>> = emptyList(),  // Draft only: queued packs (async passing)

@@ -26,10 +26,21 @@ class JumpstartPacks(generator: BoosterGenerator, setCode: String = "JMP") {
         pack.cards.none { card -> banned.any { it.equals(card.name, ignoreCase = true) } }
     }
 
-    /** Offer distinct themes, then roll a variant within each theme. Same themes may recur in pick two. */
+    /** Offer distinct themes, then roll a variant within each theme. */
     fun offer(banned: Set<String>, random: Random = Random.Default): List<String> =
         available(banned).groupBy { it.theme }.values.shuffled(random).take(3)
             .map { it.random(random).id }
+
+    /**
+     * The two rows a deck is chosen from. Six distinct themes when there are that many, so no row
+     * repeats the other; with fewer (heavy bans), each row is drawn on its own and may overlap.
+     */
+    fun offerPair(banned: Set<String>, random: Random = Random.Default): Pair<List<String>, List<String>> {
+        val themes = available(banned).groupBy { it.theme }.values.shuffled(random)
+        if (themes.size < 6) return offer(banned, random) to offer(banned, random)
+        val ids = themes.take(6).map { it.random(random).id }
+        return ids.take(3) to ids.drop(3)
+    }
 
     companion object {
         val lists: Map<String, List<String>> get() = listsFor("JMP")

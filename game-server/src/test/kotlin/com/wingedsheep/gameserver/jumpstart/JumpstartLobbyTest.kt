@@ -53,22 +53,26 @@ class JumpstartLobbyTest : FunSpec({
         lobby(TournamentFormat.WINSTON_DRAFT).isJumpstart shouldBe false
     }
 
-    test("two authorized picks make an exact forty-card deck without adding basic lands") {
+    test("one pack from each offer makes an exact forty-card deck without adding basic lands") {
         val l = lobby()
         l.startJumpstart(guest) shouldBe false
         l.startJumpstart(host) shouldBe true
         l.startJumpstart(host) shouldBe false
         for (id in listOf(host, guest)) {
-            l.players.getValue(id).jumpstartOffers.size shouldBe 3
-            l.pickJumpstart(id, "unoffered", 1) shouldBe false
-            val first = l.players.getValue(id).jumpstartOffers.first()
-            l.pickJumpstart(id, first, 1) shouldBe true
-            l.players.getValue(id).cardPool.size shouldBe 20
-            l.pickJumpstart(id, first, 1) shouldBe false
-            // Pick two shows pick one's full list beside the new offers, as Arena does.
-            l.buildLobbyUpdate(id).jumpstart!!.selected.map { it.id to it.cards.size } shouldBe listOf(first to 20)
-            val second = l.players.getValue(id).jumpstartOffers.last()
-            l.pickJumpstart(id, second, 2) shouldBe true
+            val player = l.players.getValue(id)
+            player.jumpstartOffers.size shouldBe 3
+            player.jumpstartSecondOffers.size shouldBe 3
+            // Both rows are sent up front, so the pair can be weighed together.
+            l.buildLobbyUpdate(id).jumpstart!!.secondOffers.map { it.id } shouldBe player.jumpstartSecondOffers
+            val first = player.jumpstartOffers.first()
+            val second = player.jumpstartSecondOffers.last()
+            l.pickJumpstart(id, "unoffered", second) shouldBe false
+            l.pickJumpstart(id, first, "unoffered") shouldBe false
+            // Each pack must come from its own row (unless the same id was rolled in both).
+            if (second !in player.jumpstartOffers) l.pickJumpstart(id, second, first) shouldBe false
+            l.pickJumpstart(id, first, second) shouldBe true
+            l.pickJumpstart(id, first, second) shouldBe false
+            l.buildLobbyUpdate(id).jumpstart!!.selected.map { it.id to it.cards.size } shouldBe listOf(first to 20, second to 20)
             val pool = l.players.getValue(id).cardPool
             pool.size shouldBe 40
             val expected = (JumpstartPacks.lists.getValue(first) + JumpstartPacks.lists.getValue(second)).groupingBy { it }.eachCount()
@@ -77,29 +81,37 @@ class JumpstartLobbyTest : FunSpec({
             l.submitDeck(id, expected).shouldBeInstanceOf<TournamentLobby.DeckSubmissionResult.Success>()
             l.getSubmittedSideboard(id) shouldBe emptyMap()
             l.unsubmitDeck(id) shouldBe false
-            l.pickJumpstart(id, second, 3) shouldBe false
         }
         l.allDecksSubmitted() shouldBe true
     }
 
-    test("the first pack can be put back while the second is undecided, returning the original offers") {
+    test("a lobby persisted mid-pick under one-at-a-time offers returns to a choice of both") {
         val l = lobby()
         l.startJumpstart(host) shouldBe true
-        val offers = l.players.getValue(host).jumpstartOffers
-        l.undoJumpstartPick(host, 2) shouldBe false
-        l.pickJumpstart(host, offers.first(), 1) shouldBe true
-        val (restored, _) = restoreTournamentLobby(l.toPersistent(), registry, generator)
-        restored.undoJumpstartPick(host, 1) shouldBe false
-        restored.undoJumpstartPick(host, 2) shouldBe true
-        restored.undoJumpstartPick(host, 2) shouldBe false
+        val firstOffers = l.players.getValue(host).jumpstartOffers
+        val secondOffers = l.players.getValue(host).jumpstartSecondOffers
+        val first = JumpstartPacks(generator).packs.first { it.id == firstOffers.first() }
+        val legacy = l.toPersistent().let { persisted ->
+            persisted.copy(players = persisted.players.mapValues { (id, player) ->
+                when (id) {
+                    // Picked one pack: offers had moved on to round two.
+                    host.value -> player.copy(jumpstartSelections = listOf(first.id), jumpstartFirstOffers = firstOffers,
+                        jumpstartOffers = secondOffers, jumpstartSecondOffers = emptyList(),
+                        cardPoolNames = first.cards.map { it.name })
+                    // Picked nothing: round two hadn't been rolled.
+                    else -> player.copy(jumpstartSecondOffers = emptyList())
+                }
+            })
+        }
+        val (restored, _) = restoreTournamentLobby(legacy, registry, generator)
         restored.players.getValue(host).let {
             it.jumpstartSelections shouldBe emptyList()
             it.cardPool shouldBe emptyList()
-            it.jumpstartOffers shouldBe offers
+            it.jumpstartOffers shouldBe firstOffers
+            it.jumpstartSecondOffers shouldBe secondOffers
         }
-        restored.pickJumpstart(host, offers.last(), 1) shouldBe true
-        restored.pickJumpstart(host, restored.players.getValue(host).jumpstartOffers.first(), 2) shouldBe true
-        restored.undoJumpstartPick(host, 2) shouldBe false
+        restored.players.getValue(guest).jumpstartSecondOffers.size shouldBe 3
+        restored.pickJumpstart(host, firstOffers.first(), secondOffers.first()) shouldBe true
         restored.players.getValue(host).cardPool.size shouldBe 40
     }
 
@@ -109,10 +121,9 @@ class JumpstartLobbyTest : FunSpec({
             for (pack in packs) {
                 val l = lobby().apply { updateSets(listOf(set)) }
                 l.startJumpstart(host) shouldBe true
-                for ((pick, id) in listOf(pack.id, packs.first().id).withIndex()) {
-                    l.players[host] = l.players.getValue(host).copy(jumpstartOffers = listOf(id))
-                    l.pickJumpstart(host, id, pick + 1) shouldBe true
-                }
+                l.players[host] = l.players.getValue(host).copy(
+                    jumpstartOffers = listOf(pack.id), jumpstartSecondOffers = listOf(packs.first().id))
+                l.pickJumpstart(host, pack.id, packs.first().id) shouldBe true
                 val deck = l.players.getValue(host).cardPool.groupingBy { it.name }.eachCount()
                 withClue("$set ${pack.id}") {
                     l.submitDeck(host, deck).shouldBeInstanceOf<TournamentLobby.DeckSubmissionResult.Success>()
@@ -121,16 +132,17 @@ class JumpstartLobbyTest : FunSpec({
         }
     }
 
-    test("private offers and pick progress survive a server restart") {
+    test("private offers and picks survive a server restart") {
         val l = lobby()
         l.startJumpstart(host) shouldBe true
-        l.pickJumpstart(host, l.players.getValue(host).jumpstartOffers.first(), 1) shouldBe true
         val (restored, _) = restoreTournamentLobby(l.toPersistent(), registry, generator)
         restored.buildLobbyUpdate(host).jumpstart shouldBe l.buildLobbyUpdate(host).jumpstart
-        restored.players.getValue(host).cardPool.map { it.name } shouldBe l.players.getValue(host).cardPool.map { it.name }
-        restored.buildLobbyUpdate(guest).jumpstart!!.selectedPacks shouldBe emptyList()
-        restored.pickJumpstart(host, restored.players.getValue(host).jumpstartOffers.first(), 2) shouldBe true
-        restored.players.getValue(host).cardPool.size shouldBe 40
+        val player = restored.players.getValue(host)
+        restored.pickJumpstart(host, player.jumpstartOffers.first(), player.jumpstartSecondOffers.first()) shouldBe true
+        val (again, _) = restoreTournamentLobby(restored.toPersistent(), registry, generator)
+        again.buildLobbyUpdate(host).jumpstart shouldBe restored.buildLobbyUpdate(host).jumpstart
+        again.players.getValue(host).cardPool.map { it.name } shouldBe restored.players.getValue(host).cardPool.map { it.name }
+        again.buildLobbyUpdate(guest).jumpstart!!.selectedPacks shouldBe emptyList()
         l.useJumpstart = false
         restoreTournamentLobby(l.toPersistent(), registry, generator).first.useJumpstart shouldBe false
     }
@@ -147,6 +159,25 @@ class JumpstartLobbyTest : FunSpec({
         l.startJumpstart(host) shouldBe false
         l.state shouldBe LobbyState.WAITING_FOR_PLAYERS
     }
+    test("the two rows share no theme when six are playable, and are drawn independently when not") {
+        // How many themes are playable depends on which cards are implemented, so the assertion
+        // follows the corpus rather than assuming a count.
+        for (set in listOf("JMP", "J22")) {
+            val packs = JumpstartPacks(generator, set)
+            val available = packs.available(emptySet()).map { it.theme }.distinct().size
+            repeat(20) {
+                val (first, second) = packs.offerPair(emptySet())
+                val firstThemes = first.map { it.substringBefore(" (") }
+                val secondThemes = second.map { it.substringBefore(" (") }
+                withClue("$set with $available playable themes: $first / $second") {
+                    firstThemes.distinct().size shouldBe minOf(3, available)
+                    secondThemes.distinct().size shouldBe minOf(3, available)
+                    if (available >= 6) (firstThemes + secondThemes).distinct().size shouldBe 6
+                }
+            }
+        }
+    }
+
     test("J22 has 121 exact published variants spanning 46 themes") {
         JumpstartPacks.listsFor("J22").size shouldBe 121
         JumpstartPacks.listsFor("J22").values.all { it.size == 20 } shouldBe true
@@ -162,13 +193,13 @@ class JumpstartLobbyTest : FunSpec({
         l.isJumpstart shouldBe true
         l.startJumpstart(host) shouldBe true
         val lists = JumpstartPacks.listsFor("J22")
-        l.players.getValue(host).jumpstartOffers.all { it in lists } shouldBe true
-        val first = l.players.getValue(host).jumpstartOffers.first()
-        l.pickJumpstart(host, first, 1) shouldBe true
+        val player = l.players.getValue(host)
+        (player.jumpstartOffers + player.jumpstartSecondOffers).all { it in lists } shouldBe true
+        val first = player.jumpstartOffers.first()
+        val second = player.jumpstartSecondOffers.first()
         val (restored, _) = restoreTournamentLobby(l.toPersistent(), registry, generator)
         restored.buildLobbyUpdate(host).jumpstart shouldBe l.buildLobbyUpdate(host).jumpstart
-        val second = restored.players.getValue(host).jumpstartOffers.first()
-        restored.pickJumpstart(host, second, 2) shouldBe true
+        restored.pickJumpstart(host, first, second) shouldBe true
         val expected = (lists.getValue(first) + lists.getValue(second)).groupingBy { it }.eachCount()
         restored.players.getValue(host).cardPool.groupingBy { it.name }.eachCount() shouldBe expected
         restored.submitDeck(host, expected).shouldBeInstanceOf<TournamentLobby.DeckSubmissionResult.Success>()
