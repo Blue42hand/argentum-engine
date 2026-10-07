@@ -3,6 +3,7 @@ package com.wingedsheep.gameserver.controller
 import com.wingedsheep.gameserver.GameServerTestBase
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.int
@@ -39,6 +40,19 @@ class ExampleDeckSummaryTest : GameServerTestBase() {
                 summary["curve"]!!.jsonArray.sumOf { it.jsonPrimitive.int } shouldBe creatures + spells
                 summary["colors"]!!.jsonArray.shouldNotBeEmpty()
                 summary["coverCard"]!!.jsonPrimitive.content.length shouldBeGreaterThan 0
+            }
+        }
+
+        // The tip is loaded as the deck's note, which the client caps at 120 characters.
+        test("every starter deck has a play tip short enough to be a deck note") {
+            val body = HttpClient.newHttpClient().send(
+                HttpRequest.newBuilder(URI("http://localhost:$port/api/decks/examples")).GET().build(),
+                HttpResponse.BodyHandlers.ofString(),
+            ).body()
+            for (deck in json.parseToJsonElement(body).jsonArray) {
+                val note = deck.jsonObject["note"].shouldNotBeNull().jsonPrimitive.content
+                note.isNotBlank() shouldBe true
+                note.length shouldBeLessThanOrEqual 120
             }
         }
     }

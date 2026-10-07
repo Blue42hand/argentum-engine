@@ -107,6 +107,8 @@ interface ExampleDeck {
   id: string
   name: string
   description: string
+  /** A one-line tip on how to play it — loaded as the deck's note. */
+  note?: string | null
   cards: Record<string, number>
   /** Deck format this example is built for. Null = no format hint. */
   format?: string | null
@@ -1126,7 +1128,7 @@ export function DeckbuilderPage() {
     if (ex.commander && ex.commanderPrinting) initialPins[ex.commander] = ex.commanderPrinting
     setPinnedPrintings(initialPins)
     setDeckName(ex.name)
-    setDeckNote('')
+    setDeckNote(ex.note ?? '')
     setCoverCard(null)
     // Stamp the example's format into the URL inside the navigate call (rather than via
     // a separate setActiveFormat) so it lands before render. Without this, the next
@@ -1816,6 +1818,7 @@ function ExampleDecksModal({
                   key={ex.id}
                   name={ex.name}
                   description={ex.description}
+                  note={ex.note ?? undefined}
                   {...deckTileModel(ex, catalog)}
                   format={ex.format ?? null}
                   formatTitle={ex.format ? `Built for ${labelForFormat(ex.format)}` : undefined}

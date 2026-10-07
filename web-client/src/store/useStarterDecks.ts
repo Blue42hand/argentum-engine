@@ -27,6 +27,8 @@ export interface StarterDeck {
   readonly id: string
   readonly name: string
   readonly description: string
+  /** A one-line tip on how to play it. Absent on an older server. */
+  readonly note?: string | null
   readonly cards: Record<string, number>
   /** The format it is built for; null = no hint (a 60-card casual list). */
   readonly format?: string | null

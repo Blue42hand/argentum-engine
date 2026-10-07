@@ -24,6 +24,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PrintingRef } from '@/types'
 import type { AvailableSet } from '@/types/messages'
 import {
+  type SavedDeck,
   mergeCommanderIntoCards,
   stripCommanderFromCards,
 } from '@/store/deckLibrary'
@@ -123,6 +124,8 @@ interface ExampleDeck {
   id: string
   name: string
   description: string
+  /** A one-line tip on how to play it. */
+  note?: string | null
   cards: Record<string, number>
   /** Deck format this example is built for. Null = no format hint. */
   format?: string | null
@@ -220,6 +223,9 @@ export function DeckPicker({
   const [selectedSavedId, setSelectedSavedId] = useState<string | null>(null)
   const [selectedExampleId, setSelectedExampleId] = useState<string | null>(null)
   const [pendingName, setPendingName] = useState('')
+  // Note and cover riding along with whatever was opened into Paste (a saved deck being edited, or a
+  // starter's tip), so re-saving it there doesn't strip them. A save replaces the deck wholesale.
+  const [pendingDetails, setPendingDetails] = useState<Pick<SavedDeck, 'note' | 'coverCard' | 'coverImageUri'>>({})
   const cards = useCardIndex()
   const [examples, setExamples] = useState<ExampleDeck[]>([])
   const [validation, setValidation] = useState<ValidationResult | null>(null)
@@ -506,6 +512,7 @@ export function DeckPicker({
     setPasteText(formatDeckText(ex.cards))
     setPasteCommander(ex.commander ?? null)
     setPendingName(ex.name)
+    setPendingDetails(ex.note ? { note: ex.note } : {})
     setTab('paste')
   }
 
@@ -516,10 +523,12 @@ export function DeckPicker({
       name: pendingName.trim(),
       cards: currentDeck,
       ...(Object.keys(currentSideboard).length > 0 ? { sideboard: currentSideboard } : {}),
+      ...pendingDetails,
     })
     reloadDecks()
     setSelectedSavedId(id)
     setPendingName('')
+    setPendingDetails({})
     setTab('saved')
   }
 
@@ -592,6 +601,11 @@ export function DeckPicker({
                 formatDeckText(mergeCommanderIntoCards(d.cards, d.commander ?? null), d.sideboard),
               )
               setPendingName(d.name)
+              setPendingDetails({
+                ...(d.note ? { note: d.note } : {}),
+                ...(d.coverCard ? { coverCard: d.coverCard } : {}),
+                ...(d.coverImageUri ? { coverImageUri: d.coverImageUri } : {}),
+              })
               setTab('paste')
             }}
           />
@@ -869,6 +883,7 @@ function ExampleDecksPanel({
             key={example.id}
             name={example.name}
             description={example.description}
+            note={example.note ?? undefined}
             total={total}
             colors={colors}
             hero={hero}

@@ -79,7 +79,7 @@ export function LaunchDeckChoice({
           </span>
           <span className={styles.setChange}>{open ? 'Close' : 'Change'}</span>
         </button>
-        {!open && summary && <StarterFacts summary={summary} />}
+        {!open && summary && <StarterFacts summary={summary} note={starter?.note ?? undefined} />}
       </div>
 
       {open && (
@@ -178,7 +178,7 @@ function deckSize(deck: UnifiedDeck): number {
  * The chosen starter deck in numbers: its curve as a sparkline, what it is made of, and the cards
  * it is built around — the three things a player reads off a decklist before deciding to play it.
  */
-function StarterFacts({ summary }: { summary: StarterDeckSummary }) {
+function StarterFacts({ summary, note }: { summary: StarterDeckSummary; note?: string | undefined }) {
   const peak = Math.max(1, ...summary.curve)
   return (
     <div className={styles.deckFacts} data-testid="launch-deck-facts">
@@ -202,6 +202,7 @@ function StarterFacts({ summary }: { summary: StarterDeckSummary }) {
           <span className={styles.keyCardsLabel}>Built around</span> {summary.keyCards.join(' · ')}
         </p>
       )}
+      {note && <p className={styles.deckTip}>{note}</p>}
     </div>
   )
 }
