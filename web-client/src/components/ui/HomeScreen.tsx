@@ -13,7 +13,7 @@
  * What is playable is declarative (`lobby/playModes.ts` over `lobby/modeMatrix.ts`); this file only
  * lays the screen out and turns a recipe into lobby-creation messages via `useApplyRecipe`.
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '@/store/gameStore.ts'
 import type { TournamentFormat } from '@/types'
@@ -439,21 +439,20 @@ export function HomeScreen({
 
         </main>
 
-        <footer className={home.footer}>
+        <HomeFooter>
           {/* Dev builds only: every entry point drives `/api/dev/*`, which exists only when the
               server runs with GAME_DEV_ENDPOINTS_ENABLED. The *routes* stay open either way — a
               replay's "share as scenario" link is a real `/scenario?s=` deep link. */}
           {import.meta.env.DEV && (
             <nav className={home.lab} aria-label="Lab">
               <span className={home.labLabel}>Lab</span>
-              <button type="button" onClick={() => navigate('/scenario')} className={home.footerLink}>Scenario Builder</button>
-              <button type="button" onClick={() => navigate('/llm-tournament')} className={home.footerLink}>LLM Tournament</button>
+              <button type="button" onClick={() => navigate('/scenario')} className={home.labLink}>Scenario Builder</button>
+              <button type="button" onClick={() => navigate('/llm-tournament')} className={home.labLink}>LLM Tournament</button>
               {/* Bot-vs-bot with nobody in a seat — the way to watch the engine AI play. */}
-              <button type="button" onClick={() => navigate('/ai-sandbox')} className={home.footerLink}>AI Sandbox</button>
+              <button type="button" onClick={() => navigate('/ai-sandbox')} className={home.labLink}>AI Sandbox</button>
             </nav>
           )}
-          <CompactAttribution />
-        </footer>
+        </HomeFooter>
         <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
       </div>
     )
@@ -585,9 +584,7 @@ export function HomeScreen({
         </div>
       </main>
 
-      <footer className={home.footer}>
-        <CompactAttribution />
-      </footer>
+      <HomeFooter />
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   )
@@ -599,34 +596,43 @@ function BrandMark() {
 }
 
 /**
- * Community links (sharing a row with the dev-only Lab links) and, beneath them, one quiet line of
- * credits and the fan-content disclaimer — a three-line credits card would have pushed the hub into
- * scrolling on a laptop.
+ * One glass bar, styled like the top bar's nav: the credits and fan-content disclaimer on the left,
+ * the community links on the right, and `children` (the dev-only Lab links) between them. On a
+ * desktop it is a single row — anything taller would push the hub into scrolling on a laptop.
  */
-function CompactAttribution() {
+function HomeFooter({ children }: { children?: ReactNode }) {
   return (
-    <>
-      <div className={home.credits}>
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
-          <DiscordIcon />
-          Discord
-        </a>
-        <a href={GITHUB_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
-          <GitHubIcon />
-          GitHub
-        </a>
-        <a href={CONTRIBUTING_GUIDE_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
-          <GuideIcon />
-          Help build it
-        </a>
+    <footer className={home.footer}>
+      <div className={home.footerBar}>
+        <p className={home.credits}>
+          <span>
+            Made by <a href={MAKER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">wingedsheep</a>
+            <span className={home.creditsDot} aria-hidden>·</span>
+            Card images via <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer">Scryfall</a>
+            <span className={home.creditsDot} aria-hidden>·</span>
+            Mana symbols by <a href="https://mana.andrewgioia.com" target="_blank" rel="noopener noreferrer">Mana Font</a>
+          </span>
+          <span className={home.disclaimer}>
+            Fan-made; not affiliated with or endorsed by Wizards of the Coast. Magic: The Gathering is © Wizards of the Coast LLC.
+          </span>
+        </p>
+        {children}
+        <nav className={home.community} aria-label="Community">
+          <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className={home.communityLink} data-brand="discord">
+            <DiscordIcon />
+            Discord
+          </a>
+          <a href={GITHUB_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className={home.communityLink}>
+            <GitHubIcon />
+            GitHub
+          </a>
+          <a href={CONTRIBUTING_GUIDE_URL} target="_blank" rel="noopener noreferrer" className={home.communityLink}>
+            <GuideIcon />
+            Help build it
+          </a>
+        </nav>
       </div>
-      <p className={home.creditsText}>
-        Made by <a href={MAKER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">wingedsheep</a>
-        {' · '}Card images via <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer">Scryfall</a>
-        {' · '}Mana symbols by <a href="https://mana.andrewgioia.com" target="_blank" rel="noopener noreferrer">Mana Font</a>
-        {' · '}Fan-made; not affiliated with or endorsed by Wizards of the Coast. Magic: The Gathering is © Wizards of the Coast LLC.
-      </p>
-    </>
+    </footer>
   )
 }
 
