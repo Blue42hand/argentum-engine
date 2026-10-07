@@ -236,6 +236,21 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     ],
   },
   {
+    id: 'matchmaking',
+    section: 'getting-started',
+    title: 'Finding an opponent',
+    summary:
+      'No one to invite? Pick casual or ranked and a format on the home screen and press Search — the server pairs you with another player searching for the same thing.',
+    body: [
+      { kind: 'p', text: 'Limited gives each of you a random sealed pool; every other format plays one of your saved decks. Casual and ranked are separate queues, and ranked needs both players signed in.' },
+      { kind: 'p', text: 'Casual pairs the two players who have waited longest. Ranked looks for an opponent within 100 rating points, widens that range the longer you wait, and after two minutes takes anyone in the queue.' },
+      { kind: 'p', text: 'When a match is found, both players get a one-minute accept prompt. If the other player declines or does not answer, you go back into the queue at your old place. Your search keeps running while you browse other pages, such as the deckbuilder.' },
+      { kind: 'tip', text: 'Queues that already have someone waiting are listed above the search line; press Play on one to be paired at once.' },
+      { kind: 'p', text: 'A matched lobby has no host, invite code, AI seats or settings to change, and it closes if either player leaves.' },
+    ],
+    related: ['invite-codes', 'ranked', 'home-screen'],
+  },
+  {
     id: 'where-decks-live',
     section: 'getting-started',
     title: 'Where your decks live',
@@ -522,6 +537,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       'Ranked games adjust each player’s ELO. Every player must be signed in — otherwise the game still runs, but silently counts as unranked.',
     body: [
       { kind: 'p', text: 'Turn it on with the Ranked row in a lobby’s Event settings. Ranked is available for 1v1 games only — a single game between two signed-in people, or a 1v1 bracket. Multiplayer tables and games against the AI are always casual.' },
+      { kind: 'p', text: 'Matchmaking also has ranked queues: choose Ranked before you search, and the game counts automatically.' },
       { kind: 'p', text: 'You have three separate ratings, one per kind of game:' },
       { kind: 'table', head: ['Rating', 'Counts games played with'], rows: [
         ['Constructed', 'Your own or a restricted-format deck, and Momir Basic'],
@@ -531,7 +547,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       { kind: 'p', text: 'Every rating starts at 1200. Your first 10 games are placement and move it quickly; after that, an even game moves it by about 10 points. Tiers: Bronze below 1000, Silver to 1200, Gold to 1400, Platinum to 1600, Diamond to 2000, and Mythic above.' },
       { kind: 'p', text: 'Ratings, tiers and a rating-over-time chart appear on your Stats page and public profile once you have played a ranked game.' },
     ],
-    related: ['guest-vs-account', 'axis-limits', 'stats'],
+    related: ['guest-vs-account', 'axis-limits', 'stats', 'matchmaking'],
   },
   {
     id: 'profile',
