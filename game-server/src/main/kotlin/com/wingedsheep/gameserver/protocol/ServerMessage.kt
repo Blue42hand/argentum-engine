@@ -596,6 +596,8 @@ sealed interface ServerMessage {
         val pickNumber: Int,
         val selectedPacks: List<String>,
         val offers: List<JumpstartOffer>,
+        /** Full contents of the packs already chosen, so pick two can be weighed against pick one. */
+        val selected: List<JumpstartOffer> = emptyList(),
     )
 
     /**

@@ -193,6 +193,8 @@ data class LobbyPlayerState(
     val identity: PlayerIdentity,
     val jumpstartOffers: List<String> = emptyList(),
     val jumpstartSelections: List<String> = emptyList(),
+    /** The three packs offered for pick one, kept so a player can go back and choose again. */
+    val jumpstartFirstOffers: List<String> = emptyList(),
     /** For sealed: full pool. For draft: cards picked so far. */
     val cardPool: List<CardDefinition> = emptyList(),
     /** Draft only: current pack to pick from. */
@@ -947,6 +949,13 @@ class TournamentLobby(
         com.wingedsheep.gameserver.jumpstart.JumpstartPacks(boosterGenerator, setCodes.single())
     }
 
+    private fun jumpstartOffer(packId: String): ServerMessage.JumpstartOffer? =
+        jumpstartPacks.packs.find { it.id == packId }?.let { pack ->
+            ServerMessage.JumpstartOffer(pack.id, pack.theme, pack.cards.map {
+                com.wingedsheep.gameserver.handler.ConnectionHandler.cardToSealedCardInfo(it)
+            })
+        }
+
     fun jumpstartStartError(): String? = if (isJumpstart &&
         jumpstartPacks.available(bannedCardNames).map { it.theme }.distinct().size < 3
     ) "Jumpstart needs at least three complete themes after card bans. Remove bans or choose traditional draft/sealed."
@@ -972,6 +981,30 @@ class TournamentLobby(
             cardPool = player.cardPool + pack.cards,
             jumpstartSelections = selected,
             jumpstartOffers = if (selected.size == 2) emptyList() else jumpstartPacks.offer(bannedCardNames),
+            jumpstartFirstOffers = if (pickNumber == 1) player.jumpstartOffers else player.jumpstartFirstOffers,
+        )
+        return true
+    }
+
+    /**
+     * Put the first pack back and return to the pick-one offers. Only while the second pack is
+     * still undecided: choosing it submits the deck. [pickNumber] is the pick the client is on, so
+     * a retried request can't undo twice.
+     */
+    fun undoJumpstartPick(playerId: EntityId, pickNumber: Int): Boolean {
+        if (!isJumpstart || state != LobbyState.DECK_BUILDING) return false
+        val player = players[playerId] ?: return false
+        if (player.hasSubmittedDeck || pickNumber != 2 || player.jumpstartSelections.size != 1) return false
+        val pack = jumpstartPacks.packs.find { it.id == player.jumpstartSelections.single() } ?: return false
+        val pool = player.cardPool.toMutableList()
+        // By name: a pool restored after a restart resolves basics to another printing.
+        pack.cards.forEach { card -> pool.indexOfFirst { it.name == card.name }.takeIf { it >= 0 }?.let(pool::removeAt) }
+        val available = jumpstartPacks.available(bannedCardNames).map { it.id }.toSet()
+        players[playerId] = player.copy(
+            cardPool = pool,
+            jumpstartSelections = emptyList(),
+            jumpstartOffers = player.jumpstartFirstOffers.filter { it in available }
+                .ifEmpty { jumpstartPacks.offer(bannedCardNames) },
         )
         return true
     }
@@ -1728,7 +1761,10 @@ class TournamentLobby(
             return DeckSubmissionResult.Error("Jumpstart decks must contain exactly the two chosen packs")
         }
 
-        if (isPremade) {
+        if (isJumpstart) {
+            // Already proven equal to the two chosen packs above. The sealed pool rules don't apply:
+            // a published pack can hold seven Snow-Covered Islands, which they'd reject twice over.
+        } else if (isPremade) {
             // Pool-free validation: count + 4-of rule. Card existence is checked by the
             // caller via DeckValidator (it has access to the CardRegistry).
             val premadeError = validatePremadeDeck(deckList)
@@ -1924,13 +1960,8 @@ class TournamentLobby(
                 ServerMessage.JumpstartState(
                     pickNumber = player.jumpstartSelections.size + 1,
                     selectedPacks = player.jumpstartSelections,
-                    offers = player.jumpstartOffers.mapNotNull { id ->
-                        jumpstartPacks.packs.find { it.id == id }?.let { pack ->
-                            ServerMessage.JumpstartOffer(pack.id, pack.theme, pack.cards.map {
-                                com.wingedsheep.gameserver.handler.ConnectionHandler.cardToSealedCardInfo(it)
-                            })
-                        }
-                    },
+                    offers = player.jumpstartOffers.mapNotNull(::jumpstartOffer),
+                    selected = player.jumpstartSelections.mapNotNull(::jumpstartOffer),
                 )
             } else null,
             settings = ServerMessage.LobbySettings(
