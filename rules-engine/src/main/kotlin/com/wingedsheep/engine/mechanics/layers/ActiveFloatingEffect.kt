@@ -747,11 +747,15 @@ sealed interface SerializableModification {
      *   (Dark Sphere: "prevent half that damage, rounded down") — the rest is dealt, and the shield
      *   is consumed either way. A 1-damage instance therefore prevents nothing and still spends the
      *   shield, which is what the printed card does.
+     * @property maxAmount When set, at most this much of the instance is prevented ("prevent X of
+     *   that damage" — Power Leak); the shield is still spent by the instance, so a surplus never
+     *   carries over to later damage. Null prevents the whole instance.
      */
     @Serializable
     data class PreventNextDamageInstanceFromSource(
         val damageSourceId: EntityId,
-        val halveRoundedDown: Boolean = false
+        val halveRoundedDown: Boolean = false,
+        val maxAmount: Int? = null
     ) : SerializableModification
 
     /**

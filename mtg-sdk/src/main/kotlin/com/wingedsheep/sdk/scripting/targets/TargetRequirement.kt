@@ -198,7 +198,9 @@ data class AnyTarget(
     override val chooser: TargetChooser = TargetChooser.Controller,
     private val descriptionOverride: String? = null,
     /** Additional predicates shared by permanent and player candidates. */
-    val filter: GameObjectFilter = GameObjectFilter.Any
+    val filter: GameObjectFilter = GameObjectFilter.Any,
+    /** "Any number of targets" (Fireball) — no upper bound, minimum 0. See [TargetRequirement.unlimited]. */
+    override val unlimited: Boolean = false
 ) : TargetRequirement {
     override fun applyTextReplacement(replacer: TextReplacer): TargetRequirement {
         val replaced = filter.applyTextReplacement(replacer)
@@ -209,6 +211,7 @@ data class AnyTarget(
         ?: buildString {
             append(
                 when {
+                    unlimited -> "any number of targets"
                     count == 1 -> "any target"
                     minCount < count -> "${countRange(maxOf(minCount, 1), count)} targets"
                     else -> "${numberToWord(count)} targets"

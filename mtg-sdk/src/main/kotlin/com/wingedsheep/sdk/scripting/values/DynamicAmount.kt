@@ -1509,6 +1509,34 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
+     * The smallest value [inner] takes when measured **once per player** in [players] — Oracle's
+     * "the number of lands controlled by the player who controls the fewest" (Balance). The
+     * minimum twin of [GreatestAmongPlayers], with the same per-player rebinding: [Player.You]
+     * inside [inner] is the player being measured, so write [inner] from that player's side.
+     *
+     * An empty [players] set evaluates to 0.
+     *
+     * @param players Which players to measure, one at a time. [Player.Each] for "a player".
+     * @param inner The per-player amount, written from the measured player's own perspective.
+     */
+    @SerialName("LeastAmongPlayers")
+    @Serializable
+    data class LeastAmongPlayers(
+        val players: Player = Player.Each,
+        val inner: DynamicAmount,
+    ) : DynamicAmount {
+        override val description: String =
+            "the least ${inner.description} among ${
+                if (players == Player.EachOpponent) "your opponents" else "all players"
+            }"
+
+        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
+            val newInner = inner.applyTextReplacement(replacer)
+            return if (newInner !== inner) copy(inner = newInner) else this
+        }
+    }
+
+    /**
      * Generic zone aggregation primitive.
      * Queries cards in a player's zone, filters them, optionally maps to a numeric
      * property, and applies an aggregation function.

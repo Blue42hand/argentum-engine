@@ -61,6 +61,50 @@ class PreventDamageExecutor(
             }
         }
         PreventionSourceFilter.AnySource -> createFloatingEffect(state, effect, sourceFilter = null, context)
+        PreventionSourceFilter.ThisSource -> handleThisSource(state, effect, context)
+    }
+
+    /**
+     * "~ deals 2 damage to that player. Prevent X of that damage" (Power Leak): a single-instance
+     * shield on the recipient covering only damage from this effect's own source, capped at
+     * [PreventDamageEffect.amount] when one is given. Only the next-instance, single-recipient,
+     * prevent-only shape has a lowering; anything else fails rather than guess a scope.
+     */
+    private fun handleThisSource(
+        state: GameState,
+        effect: PreventDamageEffect,
+        context: EffectContext
+    ): EffectResult {
+        if (!effect.nextInstanceOnly || effect.direction != PreventionDirection.ToTarget ||
+            effect.recipientGroup != null || effect.recipientGroupIncludesController ||
+            effect.onPrevented != null || effect.gainLifeFromPrevented || effect.gainLifeFromColors.isNotEmpty() ||
+            effect.toPlayersOnly || !effect.preventDamage || effect.halvePreventedDamage ||
+            effect.scope != PreventionScope.AllDamage
+        ) {
+            return EffectResult.error(
+                state,
+                "PreventDamageEffect with ThisSource supports only a next-instance shield on one recipient"
+            )
+        }
+        val sourceId = context.sourceId
+            ?: return EffectResult.error(state, "PreventDamageEffect with ThisSource has no source")
+        val targetId = context.resolveTarget(effect.target, state)
+            ?: return EffectResult.success(state)
+        val amount = effect.amount?.let { amountEvaluator.evaluate(state, it, context) }
+        if (amount != null && amount <= 0) return EffectResult.success(state)
+
+        val newState = state.addFloatingEffect(
+            layer = Layer.ABILITY,
+            modification = SerializableModification.PreventNextDamageInstanceFromSource(
+                damageSourceId = sourceId,
+                maxAmount = amount
+            ),
+            affectedEntities = setOf(targetId),
+            duration = effect.duration,
+            context = context,
+            timestamp = state.timestamp
+        )
+        return EffectResult.success(newState)
     }
 
     /**

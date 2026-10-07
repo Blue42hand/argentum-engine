@@ -134,6 +134,10 @@ object DynamicAmounts {
     fun greatestAmongPlayers(inner: DynamicAmount, players: Player = Player.Each): DynamicAmount =
         DynamicAmount.GreatestAmongPlayers(players, inner)
 
+    /** The least value of [inner] (evaluated as each of [players]) — "the player who has the fewest". */
+    fun leastAmongPlayers(inner: DynamicAmount, players: Player = Player.Each): DynamicAmount =
+        DynamicAmount.LeastAmongPlayers(players, inner)
+
     /** The total mana spent to cast this spell. */
     fun totalManaSpent(): DynamicAmount = DynamicAmount.TotalManaSpent
 
@@ -442,6 +446,19 @@ object DynamicAmounts {
         filter: GameObjectFilter = GameObjectFilter.Any,
         players: Player = Player.Each,
     ): DynamicAmount = DynamicAmount.GreatestAmongPlayers(
+        players = players,
+        inner = battlefield(Player.You, filter).count(),
+    )
+
+    /**
+     * "The number of [filter] controlled by the player who controls the fewest" —
+     * [DynamicAmount.LeastAmongPlayers] around a per-player battlefield count (Balance). The
+     * minimum twin of [greatestControlledBySinglePlayer], keeping the same per-player boundary.
+     */
+    fun fewestControlledBySinglePlayer(
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        players: Player = Player.Each,
+    ): DynamicAmount = DynamicAmount.LeastAmongPlayers(
         players = players,
         inner = battlefield(Player.You, filter).count(),
     )

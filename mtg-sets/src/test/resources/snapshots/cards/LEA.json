@@ -498,6 +498,202 @@
     ]
 }
 
+// Balance
+{
+    "name": "Balance",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player chooses a number of lands they control equal to the number of lands controlled by the player who controls the fewest, then sacrifices the rest. Players discard cards and sacrifice creatures the same way.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "ControlledPermanents",
+                                    "filter": "land"
+                                },
+                                "storeAs": "gathered1"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered1",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "LeastAmongPlayers",
+                                        "inner": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "land"
+                                        }
+                                    }
+                                },
+                                "storeSelected": "selected2",
+                                "storeRemainder": "remainder2",
+                                "prompt": "Choose lands to keep; the rest are sacrificed.",
+                                "selectedLabel": "Keep",
+                                "remainderLabel": "Sacrifice",
+                                "useTargetingUI": true
+                            }
+                        ]
+                    },
+                    "collectCollections": {
+                        "remainder2": "collected3"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "collected3",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Sacrifice"
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "gathered6"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered6",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "LeastAmongPlayers",
+                                        "inner": {
+                                            "type": "Count",
+                                            "player": "You",
+                                            "zone": "Hand"
+                                        }
+                                    }
+                                },
+                                "storeSelected": "selected7",
+                                "storeRemainder": "remainder7",
+                                "prompt": "Choose cards to keep; the rest are discarded.",
+                                "selectedLabel": "Keep",
+                                "remainderLabel": "Discard"
+                            }
+                        ]
+                    },
+                    "collectCollections": {
+                        "remainder7": "collected8"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "collected8",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Discard"
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "ControlledPermanents",
+                                    "filter": "creature"
+                                },
+                                "storeAs": "gathered11"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered11",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "LeastAmongPlayers",
+                                        "inner": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "creature"
+                                        }
+                                    }
+                                },
+                                "storeSelected": "selected12",
+                                "storeRemainder": "remainder12",
+                                "prompt": "Choose creatures to keep; the rest are sacrificed.",
+                                "selectedLabel": "Keep",
+                                "remainderLabel": "Sacrifice",
+                                "useTargetingUI": true
+                            }
+                        ]
+                    },
+                    "collectCollections": {
+                        "remainder12": "collected13"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "collected13",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Sacrifice"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "3",
+        "rarity": "RARE",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/f/6f9ea46a-411f-40ce-a873-a905180093f4.jpg?1783948717",
+        "rulings": [
+            {
+                "date": "2016-06-08",
+                "text": "First the player whose turn it is chooses which lands to keep, then each other player in turn order does the same, knowing the choices made before them. All unchosen lands are sacrificed at the same time. The same process is then used for cards in hand, except no cards are revealed until all players have chosen what to discard; then all are discarded at the same time. Lastly the same is done for creatures."
+            },
+            {
+                "date": "2016-06-08",
+                "text": "Balance doesn't target any players or permanents. You may sacrifice creatures with shroud or protection, for example."
+            },
+            {
+                "date": "2016-06-08",
+                "text": "Each type is counted during its own part of the resolution. The number of cards in hand is counted after lands have been sacrificed, and the number of creatures is counted after cards have been discarded. A land creature sacrificed in the first part isn't counted when determining how many creatures to keep."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Basalt Monolith
 {
     "name": "Basalt Monolith",
@@ -3981,6 +4177,92 @@
         "rarity": "UNCOMMON",
         "artist": "Melissa A. Benson",
         "imageUri": "https://cards.scryfall.io/normal/front/d/a/da237992-2919-4e37-8f56-2164095f59b5.jpg?1559591353"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fireball
+{
+    "name": "Fireball",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "This spell costs {1} more to cast for each target beyond the first.\nFireball deals X damage divided evenly, rounded down, among any number of targets.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "StoreNumber",
+                    "name": "share",
+                    "amount": {
+                        "type": "Divide",
+                        "numerator": "XValue",
+                        "denominator": {
+                            "type": "ContextProperty",
+                            "key": "TARGET_COUNT"
+                        },
+                        "roundUp": false
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "VariableReference",
+                            "variableName": "share"
+                        },
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0",
+                "unlimited": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "IncreaseGenericBy",
+                    "source": "ChosenTargetsBeyondTheFirst"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7623c00-144b-4a8f-9c6c-f5e9e4f65ece.jpg?1783948686",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "For example, if you choose three targets and X is 5, Fireball costs {7}{R} to cast. If all three targets are still legal as Fireball resolves, it deals 1 damage to each of them."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "You may cast Fireball with zero targets, regardless of the value you choose for X. If you do, it's not a targeted spell and won't deal any damage."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "Fireball's damage is divided as Fireball resolves, not as it's cast, because there are no choices involved. The division takes into account only targets that are still legal at that time."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "You can choose more targets than X. If the number of legal targets as Fireball resolves is greater than X, none of them are dealt damage."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "RED"
@@ -8952,6 +9234,74 @@
     ]
 }
 
+// Power Leak
+{
+    "name": "Power Leak",
+    "manaCost": "{1}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant enchantment\nAt the beginning of the upkeep of enchanted enchantment's controller, that player may pay any amount of mana. This Aura deals 2 damage to that player. Prevent X of that damage, where X is the amount of mana that player paid this way.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Power Leak:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Gated",
+                            "gate": "Gate.MayPayX",
+                            "then": {
+                                "type": "PreventDamageShield",
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "TriggeringPlayer"
+                                },
+                                "amount": "XValue",
+                                "sourceFilter": "PreventFromThisSource",
+                                "nextInstanceOnly": true
+                            },
+                            "decisionMaker": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "enchantment"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "artist": "Drew Tucker",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/ccc982b6-35b2-4e33-ace2-86cb79123e4f.jpg?1783948702"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Power Sink
 {
     "name": "Power Sink",
@@ -13239,6 +13589,117 @@
         "artist": "Mark Tedin",
         "imageUri": "https://cards.scryfall.io/normal/front/b/c/bcae01a2-171b-47cd-87be-f1e4e5314326.jpg?1783948661"
     }
+}
+
+// Word of Command
+{
+    "name": "Word of Command",
+    "manaCost": "{B}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Look at target opponent's hand and choose a card from it. You control that player until Word of Command finishes resolving. The player plays that card if able. While doing so, the player can activate mana abilities only if they're from lands that player controls and only if mana they produce is spent to activate other mana abilities of lands the player controls and/or to play that card. If the chosen card is cast as a spell, you control the player while that spell is resolving.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ControlPlayerDuringResolution",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "storeAs": "gathered2"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered2",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected3",
+                    "prompt": "Choose a card for that player to play",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "WithManaSpendingObligations",
+                    "effect": {
+                        "type": "WithManaAbilitySources",
+                        "effect": {
+                            "type": "ForcePlay",
+                            "from": "selected3",
+                            "player": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "storePlayedTo": "stored4"
+                        },
+                        "sources": {
+                            "cardPredicates": [
+                                "IsLand"
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        },
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "player": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ControlPlayerDuringResolution",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "resolvingObject": {
+                        "type": "PipelineTarget",
+                        "collectionName": "stored4"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/96c21429-98d3-416b-be00-6aa9c4c5a006.jpg?1783948689"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
 
 // Wrath of God

@@ -1881,8 +1881,9 @@ play. Prohibitions and costs remain authoritative. No playable offer means no ef
 cancellation returns to the mandatory instruction. Only a completed play publishes `storePlayedTo`;
 empty collections, unavailable cards and impossible plays publish nothing. The captured card object
 and serialized continuation prevent a later zone visit from inheriting the instruction. It grants
-no enduring play-from-zone permission. Mana-ability origin/spending restrictions require separate
-vocabulary; this primitive does not provide Word of Command's full mana restriction.
+no enduring play-from-zone permission. Mana-ability origin/spending restrictions are separate
+wrappers: Word of Command composes it inside `WithManaAbilitySources` and
+`WithManaSpendingObligations` (see "Resolution-scoped player control" below).
 
 ### Linked exile & play-from-exile permissions
 
@@ -3143,6 +3144,14 @@ vocabulary; this primitive does not provide Word of Command's full mana restrict
 - `FilterCollection(from, GameObjectFilter.Any.currentlyIn(zone), storeMatching)` — keep only the cards in pipeline collection `from` that are **currently** in `zone`. Pipeline collections track entity refs, not live location, so a card can leave its zone mid-resolution (e.g. an exiled card cast for free moves to the stack). Use this to act on "the ones still there." Models the "you may cast it … if you don't, put that card into your hand" fallback of the **Tarkir: Dragonstorm "…storm" enchantments** (Breaching Dragonstorm): `GatherUntilMatch(Nonland) → MoveCollection(→ exile) → FilterCollection(Any.manaValueAtMostDynamic(Fixed(8)), "castable") → ConditionalOnCollection("castable", ifNotEmpty = Effects.May(CastFromCollectionWithoutPayingCost("castable"))) → FilterCollection("nonland", Any.currentlyIn(EXILE), "uncast") → MoveCollection("uncast" → hand)` — only the nonland still in exile (not the one just cast) goes to hand; the lands stay exiled. The `ConditionalOnCollection` wrapper suppresses the empty "you may cast" prompt when the nonland's mana value is > 8.
 - `FilterCollection(from, collectionFilter = CollectionFilter.GreatestManaValue, storeMatching)` — keep the cards tied for the greatest mana value (ties all kept, so a downstream "exactly one" step can see them). A face-down permanent in the collection counts as mana value 0 (CR 708.2a, 202.3a). Over a gathered battlefield collection it spells "sacrifices a creature with the greatest mana value among creatures they control": Gather → `GreatestManaValue` → `SelectFromCollection(ChooseExactly(1), chooser = TargetPlayer)` → `MoveCollection(moveType = Sacrifice)` (Break Under Pressure). Reveal-and-compare cards use it the same way (Psychic Battle).
 - `MoveCollectionEffect(from, destination, filter = null, …)` *(SDK-internal step; cards use `Effects.Pipeline { move/moveTracked and the destroy/sacrifice/discard/exile/toHand/… shortcuts }` — §5.5.)* — move a pipeline collection to a zone.
+  **A collection spanning several players is one simultaneous move by each of them.** A graveyard
+  destination always routes each card to its owner's graveyard (CR 400.3); a `MoveType.Discard`
+  emits one `CardsDiscardedEvent` per owner (and asks each owner their own discard-destination
+  choices); a `MoveType.Sacrifice` emits one `PermanentsSacrificedEvent` per controller. That is the
+  "each player chooses …, then all are sacrificed / discarded at the same time" shape:
+  `forEachPlayerCollecting(Player.ActivePlayerFirst) { …; listOf(rest) }` collects every player's
+  remainder in APNAP order, then a single `sacrifice(rest)` / `discard(rest)` acts on all of them
+  (Balance).
   `destination = ToZone(zone, player, placement)` or `ToZoneExiledFrom(fallback = BATTLEFIELD)`
   (below); `ZonePlacement.Tapped` enters the battlefield
   tapped, and `player` sets the controller for a battlefield destination (so a card can enter under
@@ -3217,7 +3226,8 @@ vocabulary; this primitive does not provide Word of Command's full mana restrict
 - `Effects.PreventDamage(target = Controller, direction = ToTarget, sources = AnySource, amount = null, combatOnly = false, toGroup = null, alsoToYou = false, nextInstanceOnly = false, halve = false, onPrevented = null, stillDealt = false, gainLifeFromColors = emptySet(), gainLifeFromPrevented = false, toPlayersOnly = false, duration = EndOfTurn)` — **the** damage-prevention facade over `PreventDamageEffect` (serial `PreventDamageShield`); each parameter mirrors one field, and a call names only the words the card prints. Named shorthands for the commonest points: `Effects.PreventNextDamage(amount, target)`, `Effects.PreventAllCombatDamage()` (Fog), `Effects.PreventCombatDamageToAndBy(target = Self)`, `Effects.PreventAllDamageDealtBy(target, duration = EndOfTurn, scope = AllDamage)` (pass `PreventionScope.CombatOnly` for "prevent all **combat** damage that would be dealt by …" — Restrain, Safeguard, Loafing Giant, Heroism; `Duration.WhileSourceOnBattlefield` for Old Fat Spider Can't See Me), `Effects.PreventCombatDamageFrom(source: GameObjectFilter, duration)` (Frontline Strategist, Hunter's Ambush).
   - **Amount / scope / direction.** `amount = null` prevents all; `combatOnly` is "combat damage". `direction` is damage dealt *to* `target` (`ToTarget`), *by* it (`FromTarget`), or both. An amount-less combat-only shield left on the default `Controller` target is the global Fog. Fleeting Flight = `PreventDamage(target = t, combatOnly = true)`; Indestructible Aura = `PreventDamage(target = t)`; Decorated Griffin = `PreventDamage(amount = Fixed(1), combatOnly = true)`.
   - **Recipient groups.** `toGroup: GameObjectFilter?` protects **every** permanent matching it instead of `target` — "prevent all damage that would be dealt to creatures you control this turn" (Summon: Alexander = `PreventDamage(toGroup = Creature.youControl())`). `alsoToYou` adds the shield's controller ("to **you and** creatures you control" — Safe Passage), and without `toGroup` names you alone. Both recipient filters and any `Matching` source filter are re-evaluated against projected state when each damage instance would be dealt, with the shield's controller as "you"; an unidentifiable damage source fails **closed**.
-  - **`sources: PreventionSourceFilter`** has three members. `AnySource`. `Matching(filter)` — every source matching a `GameObjectFilter`, re-evaluated at damage time; its recipients must be a group (`toGroup` / `alsoToYou` — "to you by attacking creatures" is Heavy Fog / Deep Wood = `PreventDamage(alsoToYou = true, sources = Matching(Creature.attacking()))`, Scarecrow, Eerie Interference), no recipient at all (`direction = FromTarget` — "by creatures", Ethereal Haze; with `gainLifeFromPrevented = true`, Chant of Vitu-Ghazi), or a single `target` with `nextInstanceOnly` (Circle of Solace = `PreventDamage(sources = Matching(Creature.withChosenSubtype()), nextInstanceOnly = true)`). A chosen-value predicate in the filter is bound to the choice when the shield is created, so it survives the source leaving play. A `Matching` shield over a single target for more than one instance has no lowering and fails at resolution. `Chosen(eligible = Any)` — the controller picks one source (permanent or stack spell) at resolution among those matching `eligible`, evaluated relative to the ability's source against projected state (stack spells on their base characteristics): Samite Ministration (`Chosen()` + `gainLifeFromColors = {BLACK, RED}`), Circle of Protection: Artifacts (`Chosen(Artifact)` + `nextInstanceOnly`), Protective Sphere ("shares a color with the mana spent" → `Chosen(Any.withCardPredicate(IsColored))`), Healing Grace (`target = t, amount = Fixed(3), sources = Chosen()`). With `direction = FromTarget` and no amount a chosen source loses its recipient clause — "prevent all damage … by a source of your choice" to *anything* (Mourner's Shield = `Chosen(Any.sharingColorWith(LinkedExiledCard()))`, Burrenton Forge-Tender).
+  - **`sources: PreventionSourceFilter`** has four members. `AnySource`. `Matching(filter)` — every source matching a `GameObjectFilter`, re-evaluated at damage time; its recipients must be a group (`toGroup` / `alsoToYou` — "to you by attacking creatures" is Heavy Fog / Deep Wood = `PreventDamage(alsoToYou = true, sources = Matching(Creature.attacking()))`, Scarecrow, Eerie Interference), no recipient at all (`direction = FromTarget` — "by creatures", Ethereal Haze; with `gainLifeFromPrevented = true`, Chant of Vitu-Ghazi), or a single `target` with `nextInstanceOnly` (Circle of Solace = `PreventDamage(sources = Matching(Creature.withChosenSubtype()), nextInstanceOnly = true)`). A chosen-value predicate in the filter is bound to the choice when the shield is created, so it survives the source leaving play. A `Matching` shield over a single target for more than one instance has no lowering and fails at resolution. `Chosen(eligible = Any)` — the controller picks one source (permanent or stack spell) at resolution among those matching `eligible`, evaluated relative to the ability's source against projected state (stack spells on their base characteristics): Samite Ministration (`Chosen()` + `gainLifeFromColors = {BLACK, RED}`), Circle of Protection: Artifacts (`Chosen(Artifact)` + `nextInstanceOnly`), Protective Sphere ("shares a color with the mana spent" → `Chosen(Any.withCardPredicate(IsColored))`), Healing Grace (`target = t, amount = Fixed(3), sources = Chosen()`). With `direction = FromTarget` and no amount a chosen source loses its recipient clause — "prevent all damage … by a source of your choice" to *anything* (Mourner's Shield = `Chosen(Any.sharingColorWith(LinkedExiledCard()))`, Burrenton Forge-Tender).
+  - **`ThisSource`** — only damage dealt by the effect's own source object, bound at resolution: "~ deals 2 damage to that player. Prevent X of that damage" (Power Leak = `MayPayX(then = PreventDamage(target = thatPlayer, sources = ThisSource, amount = xValue(), nextInstanceOnly = true), decisionMaker = thatPlayer) then DealDamage(2, thatPlayer)`). Install it *before* the damage in the same resolution. It lowers only as a next-instance shield on one recipient (`nextInstanceOnly = true`, `direction = ToTarget`, no group/reaction/halving): the next instance from this source to the recipient loses up to `amount` (all of it when `amount` is null) and the shield is spent by that instance, so a surplus never carries over. It is real prevention — "damage can't be prevented" beats it. Any other shape fails at resolution.
   - **Single instance.** `nextInstanceOnly` (with `amount = null`) prevents only the next whole damage instance from a covered source, then spends the shield; `halve` prevents half that instance, rounded down (Dark Sphere), and is spent even when it prevents nothing.
   - **Life.** `gainLifeFromColors` — gain that much life whenever damage from a source of those colours is prevented (Samite Ministration). `gainLifeFromPrevented` — "you gain life equal to the damage prevented this way", honoured by the source-side `Matching` + `FromTarget` shield (Chant of Vitu-Ghazi) and by the amount shield on one target (Candles' Glow = `PreventDamage(target = t, amount = Fixed(3), gainLifeFromPrevented = true)`), one gain per damage event — a combat damage step is one event, so everything a controller's shields prevent in it is one gain. The life goes to the shield's controller, not the protected recipient.
   - **`stillDealt`** (maps to `preventDamage = false`) — the damage is dealt in full but the shield is still spent and `onPrevented` still fires with the captured amount: Eye for an Eye's "instead that source deals that much damage to you and ~ deals that much to that source's controller".
@@ -3699,8 +3709,10 @@ vocabulary; this primitive does not provide Word of Command's full mana restrict
   shared `MayPayManaSelectionContinuation` (now carrying `waterbend`/`otherwise`). Waterbend is
   generic-only, so `amount` carries no colored pips. **Waterbending Lesson**: `Composite(DrawCards(3),
   UnlessYouWaterbend(2, Discard(1)))` — "Draw three cards. Then discard a card unless you waterbend {2}."
-- `Effects.MayPayX(then)` — "You may pay {X}. If you do, [then]." Lowers to
-  `GatedEffect(Gate.MayPayX, then = then)`. Prompts a 0..max-affordable number chooser; paying X auto-taps
+- `Effects.MayPayX(then, decisionMaker = null)` — "You may pay {X}. If you do, [then]." Lowers to
+  `GatedEffect(Gate.MayPayX, then = then, decisionMaker = decisionMaker)`. `decisionMaker` routes the
+  number prompt *and* the payment to another player ("that player may pay any amount of mana" —
+  Power Leak passes `PlayerRef(Player.TriggeringPlayer)`). Prompts a 0..max-affordable number chooser; paying X auto-taps
   X generic mana and binds the chosen X into `then`'s context (read via `DynamicAmount.XValue`).
   Decree of Justice's cycling trigger, Hollow Specter's combat-damage trigger.
 - `Effects.MayPayAnyAmountOfLife(then)` — "You may pay any amount of life. If you do, [then]." Lowers to
@@ -4873,6 +4885,12 @@ non-object shapes are the `Targets.*` presets.
   `Targets.Any(GameObjectFilter.Any.wasDealtDamageThisTurn())` (Needle Drop) uses damage history,
   including combat damage and damage dealt through counters. Prevented damage and life loss do not
   qualify. History survives removing marked damage, but resets on zone changes and turn cleanup.
+- `Targets.AnyNumber` — "any number of targets" (Fireball): `AnyTarget(unlimited = true)`, zero or more
+  distinct creatures, players, planeswalkers, or battles. A zero-target cast is legal and resolves
+  untargeted. Read the targets uniformly with `Effects.ForEachTarget(…)`; an amount that depends on how
+  many are still legal ("divided evenly") must be frozen with `Effects.StoreNumber(name,
+  DynamicAmounts.xValue() / DynamicAmounts.targetCount())` *before* the loop — the resolver hands the
+  effect only still-legal targets (CR 608.2b), but inside `ForEachTarget` the context holds just one.
 - `Targets.AnyChosenByOpponent` — "any target **of an opponent's choice**" (Cuombajj Witches). A real
   target of *your* spell/ability that an **opponent** selects: announced at the same time as your own
   targets, equally respondable, and with legality (hexproof/protection/shroud) measured relative to
@@ -5049,7 +5067,7 @@ spell {
   `val (first, second) = targets(TargetFilter.Creature, count = 2)`. An ability that treats the
   targets uniformly ignores the handles and reads them with `Effects.ForEachTarget(…)`.
 - **Any other shape** — players, "any target", the mixed "X or Y" shapes — is `target(Targets.X)`:
-  `Targets.Player`, `Targets.Opponent`, `Targets.Any`, `Targets.Any(filter)`, `Targets.AnyChosenByOpponent`,
+  `Targets.Player`, `Targets.Opponent`, `Targets.Any`, `Targets.Any(filter)`, `Targets.AnyNumber`, `Targets.AnyChosenByOpponent`,
   `Targets.AnyOtherThanEnchantedCreature`, `Targets.CreatureOrPlayer`, `Targets.PermanentOrPlayer`,
   `Targets.CreatureOrPlaneswalker`, `Targets.PlayerOrPlaneswalker`, `Targets.OpponentOrPlaneswalker`,
   `Targets.PlayerOrBattle` (`TargetPermanentOrPlayer(permanentFilter = TargetFilter.Battle)` — Onakke
@@ -9273,7 +9291,8 @@ staticAbility {
   appends one copy of `symbols` per unit of `countSource`. Unlike the reduction side there is no
   overflow question — added pips always land. Officious Interrogation's "This spell costs {W}{U}
   more to cast for each target beyond the first" is
-  `SelfCast` + `IncreaseColoredPerUnit("{W}{U}", ChosenTargetsBeyondTheFirst)`),
+  `SelfCast` + `IncreaseColoredPerUnit("{W}{U}", ChosenTargetsBeyondTheFirst)`; Fireball's generic
+  "{1} more … for each target beyond the first" is `IncreaseGenericBy(ChosenTargetsBeyondTheFirst)`),
   `IncreaseGenericPerOtherSpellThisTurn(amountPerSpell)`,
   `IncreaseGenericIfAnyTargetMatches(amount, filter)` (target-gated tax — "{N} more if it targets
   a Dragon", Dragon's Prey; the increase analogue of the `FixedIfAnyTargetMatches` reduction;
@@ -13284,7 +13303,8 @@ forbids `DynamicAmount.X` in card definitions.
   distinctTypes() / totalCounters(type) / totalCounters()` (no type = every kind of counter,
   `CardNumericProperty.COUNTERS` — Hydra Trainer's "the number of counters on permanents you control"), `zone(player, zone, filter).count() / distinctTypes() / …`,
   `lifeTotal(player)`, `yourLifeTotal()`, `startingLifeTotal(player)`, `playerCount(scope)`,
-  `countPlayersWith(scope, condition)`, `greatestAmongPlayers(inner, players)`, `totalManaSpent()`,
+  `countPlayersWith(scope, condition)`, `greatestAmongPlayers(inner, players)`,
+  `leastAmongPlayers(inner, players)`, `fewestControlledBySinglePlayer(filter, players)`, `totalManaSpent()`,
   `manaSpentOnX(color)`, `manaSpentFromSubtype(subtype)`, `unspentMana(player)`,
   `largestSharedCreatureTypeCount(player)`, `craftedMaterialsTotalPower() / TotalManaValue() /
   ColorCount()`, the entity readers `powerOf / toughnessOf / manaValueOf / countersOn /
@@ -13458,6 +13478,13 @@ forbids `DynamicAmount.X` in card definitions.
   `players = Player.EachOpponent` for the "an opponent controls" wording (Cavern-Hoard Dragon). The
   wrapper takes any `DynamicAmount`, so the off-battlefield siblings ("the greatest number of cards an
   opponent has drawn this turn") are the same shape around a `TurnTracking`.
+- `LeastAmongPlayers(players, inner)` — the minimum twin of `GreatestAmongPlayers`, same per-player
+  rebinding of `Player.You` inside `inner`: "the number of lands controlled by **the player who
+  controls the fewest**". Empty player set evaluates to 0. Facades
+  `DynamicAmounts.leastAmongPlayers(inner, players)` and
+  `DynamicAmounts.fewestControlledBySinglePlayer(filter, players)`. Balance keeps
+  `fewestControlledBySinglePlayer(Land)` lands, then `leastAmongPlayers(cardsInYourHand())` cards,
+  then `fewestControlledBySinglePlayer(Creature)` creatures, each counted at its own part.
 - `AggregateZone(player, zone, filter?, aggregation?)` — count cards in a zone.
 - `CountPermanentsOfType(player, subtype)` — count by creature type.
 - `CountCreaturesYouControl` — shorthand for "your creatures".
@@ -16600,8 +16627,23 @@ capture their authorized observers before the control window ends, without trans
 Shared-turn teams follow the existing player-control team rule. A later resolution-control grant wins,
 and a completed window reveals the underlying turn control again. Session hotseat routing keeps precedence.
 
-This primitive composes with `Effects.ForcePlay` for mandatory paid card play. Word of Command
-still needs complete forced-play mana windows and remaining proof boundaries (G51); it is not yet authorable faithfully.
+This primitive composes with `Effects.ForcePlay` for mandatory paid card play. **Word of Command**
+(LEA) is the full shape:
+
+```kotlin
+val opponent = target(Targets.Opponent)
+effect = Effects.Pipeline {
+    run(Effects.ControlPlayerDuringResolution(opponent))
+    run(Effects.LookAtHand(opponent))
+    val chosen = chooseExactly(1, from = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer)),
+        showAllCards = true, alwaysPrompt = true)
+    run(Effects.WithManaSpendingObligations(Effects.WithManaAbilitySources(
+        Effects.ForcePlay(chosen.key, opponent, "played"), GameObjectFilter.Land.youControl(), opponent), opponent))
+    run(Effects.ControlPlayerDuringResolution(opponent, EffectTarget.PipelineTarget("played")))
+}
+```
+
+A played land is not on the stack, so the trailing grant is inert for it.
 
 ### Scoped mana-ability sources
 
@@ -16768,11 +16810,21 @@ SDK, event, decision, replay or client field.
 
 The current payment frame does not capture X color restrictions or the chosen Phyrexian life split;
 manual prefixes for those prices are conservatively rejected rather than proved against a weaker
-price. Existing direct automatic casting remains available. G51 must complete reachable mandatory
-mana windows, capture these payment choices and other casting-cost resources, and close the remaining unsupported mana-ability proof
-boundaries before a printed card uses this wrapper. Hidden boards, hidden-zone/distributed-counter
-costs, multiple/nested graveyard selections, free costs, non-mana effect leaves and unsupported
-questions still report uncertainty. Word of Command remains blocked; no incomplete canonical is registered.
+price. Existing direct automatic casting remains available.
+
+**Guided plan first.** Before the exhaustive search, the planner asks the ordinary auto-pay solver
+(which already honours the scoped source filter and excluded sources) for a minimal source set
+covering the cost left after floating mana, then executes each of those activations through the real
+activation handler, answering production questions with the planned color. Only the same complete
+exact allocation certifies the result, so a misleading guide merely falls through to the search.
+The guide keeps the search's proof boundary: it runs only on a public battlefield (no face-down
+permanents), only within the node budget (the root plus one node per planned activation), and never
+activates an ability the search would classify as unsupported (non-mana effect leaves such as pain
+lands, unsupported costs). This matters for "if able": an unguided breadth-first search over activation orders exhausts its 256-node budget on a five-mana
+spell paid by six basic lands. Satisfying the per-activation obligation never makes a payable cost
+unpayable (drop any activation whose mana goes unspent), so the ordinary solver's minimal plan is
+the right guide. Hidden-zone/distributed-counter costs, multiple/nested graveyard selections, free
+costs and unsupported questions still report uncertainty when the guide fails.
 
 
 ### Flip-card identities under copy effects

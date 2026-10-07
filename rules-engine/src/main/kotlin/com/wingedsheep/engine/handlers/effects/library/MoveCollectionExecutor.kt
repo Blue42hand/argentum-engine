@@ -95,9 +95,14 @@ class MoveCollectionExecutor(
 
         if (effect.moveType == MoveType.Discard && !context.discardIsCost && destination is CardDestination.ToZone && destination.zone == Zone.GRAVEYARD) {
             val playerId = resolvePlayer(destination.player, context, state) ?: context.controllerId
-            com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.prepare(
-                state, effect, context, cards, playerId, zones
-            )?.let { return it }
+            // A collection spanning several hands ("players discard … the same way", Balance) is
+            // one simultaneous discard by each of those players, so each discarder answers their
+            // own discard-destination choices.
+            for ((discarderId, discarded) in discardsByPlayer(state, cards, playerId)) {
+                com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.prepare(
+                    state, effect, context, discarded, discarderId, zones
+                )?.let { return it }
+            }
         }
 
         if (effect.faceDown == null) {
@@ -864,6 +869,8 @@ class MoveCollectionExecutor(
         val movementOrder = if (moveType == MoveType.Discard && libraryOrder.isNotEmpty())
             cards.filter { it !in libraryOrder } + libraryOrder else cards
         val undefinedDiscards = mutableListOf<EntityId>()
+        val discardGroups = if (moveType == MoveType.Discard) discardsByPlayer(state, cards, destPlayerId) else emptyMap()
+        val discarderOf = discardGroups.flatMap { (playerId, ids) -> ids.map { it to playerId } }.toMap()
         for (cardId in movementOrder) {
             if (destZone == Zone.BATTLEFIELD && cardId in context.entryAuraHosts &&
                 context.entryAuraHosts[cardId] == null) continue
@@ -928,6 +935,9 @@ class MoveCollectionExecutor(
                 // whatever zone it leaves — so a mixed-owner collection moved from libraries or
                 // hands (Warp World's stranded Auras) lands in each owner's own library.
                 destZone == Zone.LIBRARY -> ownerId
+                // The same rule for graveyards: a mixed-owner discard (Balance's "players discard
+                // cards the same way") puts each card into its own owner's graveyard.
+                destZone == Zone.GRAVEYARD -> ownerId
                 underOwnersControl && destZone == Zone.BATTLEFIELD -> ownerId
                 else -> destPlayerId
             }
@@ -977,7 +987,7 @@ class MoveCollectionExecutor(
             // Delegate to ZoneTransitionService for full cleanup + entry
             val fromZoneKey = if (fromZone != null) ZoneKey(ownerId, fromZone) else null
             val transitionResult = zones.moveToZone(
-                newState, cardId, chosenZone, entryOptions.copy(libraryMoverId = if (moveType == MoveType.Discard) destPlayerId else context.controllerId), fromZoneKey
+                newState, cardId, chosenZone, entryOptions.copy(libraryMoverId = if (moveType == MoveType.Discard) discarderOf[cardId] ?: destPlayerId else context.controllerId), fromZoneKey
             )
             newState = transitionResult.state
             events.addAll(transitionResult.events)
@@ -1028,33 +1038,50 @@ class MoveCollectionExecutor(
         }
 
         // Emit discard event if configured
+        // One event per discarding player: a collection spanning several hands is each of those
+        // players discarding their own cards at the same time.
         if (moveType == MoveType.Discard && cards.isNotEmpty()) {
-            val discardNames = cards.map { state.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
-            events.add(CardsDiscardedEvent(destPlayerId, cards, discardNames, undefinedCharacteristics = undefinedDiscards.toSet()))
-            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                .trackDiscard(newState, destPlayerId, cards)
+            for ((discarderId, discarded) in discardGroups) {
+                val discardNames = discarded.map { state.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
+                events.add(CardsDiscardedEvent(discarderId, discarded, discardNames,
+                    undefinedCharacteristics = undefinedDiscards.filter { it in discarded }.toSet()))
+                newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                    .trackDiscard(newState, discarderId, discarded)
+            }
         }
 
         // Emit sacrifice event if configured. Track the per-turn sacrifice count + Food
         // sacrifice off the *pre-move* state, where the sacrificed permanents (and their
         // projected subtypes) still exist on the battlefield.
+        //
+        // A permanent is sacrificed by its controller, so a collection spanning several players'
+        // permanents — "each player … sacrifices the rest" resolved as one simultaneous move
+        // (Balance) — is one sacrifice event per controller, read off the pre-move projection.
         if (moveType == MoveType.Sacrifice && cards.isNotEmpty()) {
-            val sacrificeNames = cards.map { cardId ->
-                state.getEntity(cardId)?.get<CardComponent>()?.name ?: "Unknown"
+            val byController = cards.groupBy { cardId ->
+                state.projectedState.getController(cardId) ?: context.controllerId
             }
-            val tracked = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                .trackPermanentSacrifice(state, cards, context.controllerId)
+            var tracked = state
+            val sacrificeEvents = mutableListOf<GameEvent>()
+            for ((sacrificerId, sacrificed) in byController) {
+                val sacrificeNames = sacrificed.map { cardId ->
+                    state.getEntity(cardId)?.get<CardComponent>()?.name ?: "Unknown"
+                }
+                tracked = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                    .trackPermanentSacrifice(tracked, sacrificed, sacrificerId)
+                // trackPermanentSacrifice also tags the controller with SacrificedFoodThisTurnComponent
+                // when a sacrificed permanent was a Food. That tag lives on the controller entity (which
+                // the move above leaves untouched), so carry it over too — otherwise "whenever you
+                // sacrifice a Food" triggers never fire for Foods sacrificed through this path.
+                if (tracked.getEntity(sacrificerId)?.has<SacrificedFoodThisTurnComponent>() == true) {
+                    newState = newState.updateEntity(sacrificerId) { it.with(SacrificedFoodThisTurnComponent) }
+                }
+                sacrificeEvents.add(PermanentsSacrificedEvent(sacrificerId, sacrificed, sacrificeNames))
+            }
             newState = newState.copy(
                 permanentsSacrificedThisTurn = tracked.permanentsSacrificedThisTurn,
             )
-            // trackPermanentSacrifice also tags the controller with SacrificedFoodThisTurnComponent
-            // when a sacrificed permanent was a Food. That tag lives on the controller entity (which
-            // the move above leaves untouched), so carry it over too — otherwise "whenever you
-            // sacrifice a Food" triggers never fire for Foods sacrificed through this path.
-            if (tracked.getEntity(context.controllerId)?.has<SacrificedFoodThisTurnComponent>() == true) {
-                newState = newState.updateEntity(context.controllerId) { it.with(SacrificedFoodThisTurnComponent) }
-            }
-            events.add(0, PermanentsSacrificedEvent(context.controllerId, cards, sacrificeNames))
+            events.addAll(0, sacrificeEvents)
         }
 
         // Emit reveal event if configured
@@ -1116,6 +1143,21 @@ class MoveCollectionExecutor(
                 else emptyMap(),
             updatedSacrificedPermanents = sacrificedSnapshots,
         )
+    }
+
+    /**
+     * Split a discard by the player discarding each card — its owner, whose hand it is in — so a
+     * collection spanning several hands is each of those players discarding at once. A card with
+     * no recorded owner falls back to [nominalPlayerId], the effect's "that player".
+     */
+    private fun discardsByPlayer(
+        state: GameState,
+        cards: List<EntityId>,
+        nominalPlayerId: EntityId
+    ): Map<EntityId, List<EntityId>> = cards.groupBy { cardId ->
+        state.getEntity(cardId)?.get<OwnerComponent>()?.playerId
+            ?: state.getEntity(cardId)?.get<CardComponent>()?.ownerId
+            ?: nominalPlayerId
     }
 
     /**
