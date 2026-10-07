@@ -8,6 +8,10 @@
  * width, and the pages it opens are "things about *your* account", so they belong together rather
  * than in the main navigation.
  *
+ * Friends online and pending friend requests show on the trigger itself — spelled out on a quiet
+ * line under your name, or as count badges on the avatar on narrow screens — so they're visible
+ * without opening the menu.
+ *
  * Anonymous visitors see a single Log in button that opens the magic-link modal. Renders nothing
  * when the server has accounts disabled — a login form there could only fail.
  */
@@ -77,6 +81,10 @@ export function AuthWidget() {
     resetFriends()
     logout()
   }
+  const statusParts = [
+    ...(onlineCount > 0 ? [`${onlineCount} ${onlineCount === 1 ? 'friend' : 'friends'} online`] : []),
+    ...(incomingCount > 0 ? [`${incomingCount} pending friend ${incomingCount === 1 ? 'request' : 'requests'}`] : []),
+  ]
   const initial = user.displayName.trim().charAt(0).toUpperCase() || '?'
 
   return (
@@ -88,12 +96,32 @@ export function AuthWidget() {
         aria-expanded={menuOpen}
         onClick={() => setMenuOpen((open) => !open)}
         data-testid="account-menu"
+        aria-label={[user.displayName, ...statusParts].join(', ')}
+        title={statusParts.length > 0 ? statusParts.join(' · ') : undefined}
       >
         <span className={styles.avatar} aria-hidden>
           {initial}
-          {incomingCount > 0 && <span className={styles.avatarBadge} />}
+          {incomingCount > 0 && <span className={styles.avatarRequests}>{incomingCount}</span>}
+          {onlineCount > 0 && <span className={styles.avatarOnline}>{onlineCount}</span>}
         </span>
-        <span className={styles.name}>{user.displayName}</span>
+        <span className={styles.identity}>
+          <span className={styles.name}>{user.displayName}</span>
+          {(onlineCount > 0 || incomingCount > 0) && (
+            <span className={styles.status} aria-hidden>
+              {onlineCount > 0 && (
+                <span className={styles.presence} data-testid="account-menu-online-count">
+                  <span className={styles.onlineDot} />
+                  {onlineCount} online
+                </span>
+              )}
+              {incomingCount > 0 && (
+                <span className={styles.pending} data-testid="account-menu-request-count">
+                  {incomingCount} {incomingCount === 1 ? 'request' : 'requests'}
+                </span>
+              )}
+            </span>
+          )}
+        </span>
         <svg className={styles.chevron} viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M6 9l6 6 6-6" />
         </svg>

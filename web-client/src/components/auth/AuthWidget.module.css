@@ -57,24 +57,75 @@
   font-size: 14px;
 }
 
-/* A pending friend request, visible without opening the menu. */
-.avatarBadge {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #e15b6e;
-  border: 2px solid #12141c;
-}
-
 .name {
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Name, with a quiet "N online" line under it when friends are online. */
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8fd49b;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.presence .onlineDot { width: 6px; height: 6px; }
+
+/* Pending friend requests, in the menu's request colour so the two read as the same thing. */
+.pending {
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(225, 91, 110, 0.18);
+  color: #f2a0ab;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Counts on the avatar — only where the status line is hidden (narrow screens). */
+.avatarOnline,
+.avatarRequests {
+  display: none;
+  position: absolute;
+  right: -5px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #3fae55;
+  border: 2px solid #12141c;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.avatarOnline { bottom: -3px; }
+.avatarRequests { top: -4px; background: #e15b6e; }
 
 .chevron { color: #9aa3b5; flex: none; }
 
@@ -163,6 +214,8 @@
 .logout:hover { color: #ffc1c8; background: rgba(225, 91, 110, 0.12); }
 
 @media (max-width: 560px) {
-  .name, .chevron { display: none; }
+  .identity, .chevron { display: none; }
   .trigger { padding: 3px; }
+  .avatarOnline,
+  .avatarRequests { display: block; }
 }
