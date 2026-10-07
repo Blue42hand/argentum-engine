@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.config
 
 import com.wingedsheep.gameserver.coverage.SetCoverageService
 import com.wingedsheep.sdk.limited.EchoedPairsPlayBooster
+import com.wingedsheep.sdk.limited.LandSlotBooster
 import com.wingedsheep.sdk.model.Rarity
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -35,11 +36,32 @@ class GameBeansConfigBoosterPoolTest : FunSpec({
 
     test("every Reality Fracture pack opens a complete echoed pair") {
         val strategy = boosterGenerator.availableSets["FRA"].shouldNotBeNull().boosterStrategy
-            .shouldBeInstanceOf<EchoedPairsPlayBooster>()
+            .shouldBeInstanceOf<LandSlotBooster>().base.shouldBeInstanceOf<EchoedPairsPlayBooster>()
         repeat(200) {
             val names = boosterGenerator.generateBooster("FRA").map { it.name }.toSet()
             val pairs = strategy.echoedPairs.filter { it.first in names && it.second in names }
             withClue("pack $names has no echoed pair") { pairs.size shouldBeGreaterThan 0 }
+        }
+    }
+
+    test("Reality Fracture reserves common duals for the fourteenth land slot") {
+        val strategy = boosterGenerator.availableSets["FRA"].shouldNotBeNull().boosterStrategy
+            .shouldBeInstanceOf<LandSlotBooster>()
+        strategy.nonbasicLandNames.size shouldBe 10
+        strategy.basicLands.size shouldBe 25
+        strategy.basicLands.all { it.setCode == "FRA" } shouldBe true
+        repeat(200) {
+            val pack = boosterGenerator.generateBooster("FRA")
+            pack.size shouldBe 14
+            pack.dropLast(1).none { it.name in strategy.nonbasicLandNames || it.typeLine.isBasicLand } shouldBe true
+            val land = pack.last()
+            (land.typeLine.isBasicLand || land.name in strategy.nonbasicLandNames) shouldBe true
+        }
+        repeat(20) {
+            val pack = boosterGenerator.generateBooster("FRA", bannedCardNames = strategy.nonbasicLandNames)
+            pack.size shouldBe 14
+            pack.last().typeLine.isBasicLand shouldBe true
+            pack.none { it.name in strategy.nonbasicLandNames } shouldBe true
         }
     }
 

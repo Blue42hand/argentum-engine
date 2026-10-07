@@ -178,6 +178,12 @@ worktree (recreate it with \`git worktree add\` if missing). Never work in the m
      signpost as \`keyCard\`, a 1–2 sentence description of the deck's plan, and \`creatureTypes\` only when the
      archetype is tribal. No signposts (e.g. a supplemental set) -> model the colour pairs the set's mechanics
      actually support. Add a \`SetArchetypesTest\` case pinning the names and colour pairs.
+   - Unless the set has \`sealedSupported = false\`, verify its booster strategy against the official collecting/product
+     article: slot counts, eligible cards per slot, rarity weights, land/bonus slots and guaranteed pairings.
+     Fix mismatches using existing or composable strategies, and test slot exclusions, pack size, guarantees,
+     bans and sparse pools; add seeded distribution checks where odds matter and a real-pool integration test.
+     Record the source and any unsupported foil/treatment differences in the finishing PR. Run the affected
+     booster tests through \`just\`; do not mark the set finished with a known collation mismatch.
    - Announce the set in the landing page's What's new feed, unless it is already there: add a \`kind: 'set'\` entry
      to \`web-client/src/components/whatsNew/announcements.ts\` (newest first; \`id: 'set-<code>'\`, \`setCode\`, today's
      date, title '<set name> is complete'). \`body\` is the pitch, 1-2 sentences on what the set is like to play: its
@@ -203,7 +209,7 @@ as their own PR first ('[agent-loop: $MODEL] Scaffold <set name> for <card>'), a
 If a step fails twice for the same PR, comment on it, mark it needs-human in the ledger (and the gap \`[!]\` if it
 was one), and move on. A sweep that fails twice marks the sweep line \`[!]\`, and its cards go through steps 6-7. Cards blocked on a \`[!]\` gap are skipped. When the only cards left are blocked on \`[!]\`
 gaps, answer STUCK naming those gaps; when \`card-status\` shows the set complete AND the step-8
-finishing PR (archetypes + no \`incomplete\` + What's new entry) is merged, answer SET_COMPLETE.
+finishing PR (archetypes + verified booster strategy + no \`incomplete\` + What's new entry) is merged, answer SET_COMPLETE.
 Follow AGENTS.md. Never revert or stash work that isn't yours.
 An unrelated failure on origin/main (a test in a module your change doesn't touch) is NOT a reason to answer
 STUCK: run the gates for the modules you changed, note the unrelated failure in the ledger and the PR body,
