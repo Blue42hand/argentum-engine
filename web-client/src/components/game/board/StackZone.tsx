@@ -6,6 +6,7 @@ import type { EntityId } from '@/types'
 import type { ClientAbilityIdentity, ClientCard } from '@/types/gameState'
 import { getCardImageUrl, faceDownImageUrl } from '@/utils/cardImages.ts'
 import { ActiveEffectBadges } from '../card/CardOverlays'
+import { AbilityArtTile, isArtlessAbility } from '../card/AbilityArtTile'
 import { AbilityText, ManaCost } from '../../ui/ManaSymbols'
 import { useOpenCardMenuOnTap } from '@/hooks/useOpenCardMenuOnTap.ts'
 import { useResponsiveContext, handleImageError } from './shared'
@@ -228,7 +229,16 @@ export function StackDisplay() {
           // Creature" for disguise. Its controller still sees the real card on hover, exactly as
           // for their own face-down permanents.
           const faceDown = card.isFaceDown === true
-          const image = (
+          const image = !faceDown && isArtlessAbility(card) ? (
+            <AbilityArtTile
+              name={card.name}
+              typeLine={card.typeLine}
+              width={stackImageWidth}
+              height={stackImageHeight}
+              fontSize={responsive.isMobile ? 8 : 12}
+              style={{ cursor: isValidTarget || opts.onClick ? 'pointer' : 'default' }}
+            />
+          ) : (
             <img
               src={faceDown
                 ? faceDownImageUrl(card.faceDownMode)
