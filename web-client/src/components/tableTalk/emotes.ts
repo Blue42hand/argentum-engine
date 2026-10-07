@@ -42,8 +42,8 @@ export const EMOTE_GROUPS: readonly EmoteGroup[] = [
     mood: 'react',
     emotes: [
       react('WELL_PLAYED', '👏', 'Well played.'),
-      react('NICE_TOPDECK', '🎯', 'What a topdeck!'),
-      react('NO_WAY', '😱', 'Wait, what?!'),
+      react('NICE_TOPDECK', '🎯', 'Of course you drew that.'),
+      react('NO_WAY', '😱', 'That does WHAT?!'),
       react('OUCH', '💥', 'Ouch.'),
     ],
   },
@@ -51,9 +51,9 @@ export const EMOTE_GROUPS: readonly EmoteGroup[] = [
     title: 'Table talk',
     mood: 'talk',
     emotes: [
-      talk('THINKING', '🤔', 'Hmm, let me think…'),
-      talk('MY_BAD', '🤦', 'My bad, that’s on me.'),
-      talk('MANA_SCREW', '🏜️', 'Where are my lands?'),
+      talk('THINKING', '🤔', 'Doing the math…'),
+      talk('MY_BAD', '🙈', 'Oops. You saw nothing.'),
+      talk('MANA_SCREW', '🏜️', 'Land. Please. Any land.'),
       talk('TAUNT', '😏', 'Is that all you’ve got?'),
     ],
   },
