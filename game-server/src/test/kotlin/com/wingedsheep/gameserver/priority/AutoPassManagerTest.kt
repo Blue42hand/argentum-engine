@@ -1023,7 +1023,7 @@ class AutoPassManagerTest : FunSpec({
         test("from my end step the next turn is an opponent's, not mine") {
             // Stopping in player2's turn: the turn after mine is never mine in a pod.
             val state = podState(active = player1, priority = player1, step = Step.END)
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To opponent's turn"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To Opponent's Turn"
         }
 
         test("an opponent's end step leading into another opponent's turn reads 'Pass'") {
@@ -1032,14 +1032,14 @@ class AutoPassManagerTest : FunSpec({
             autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Pass"
         }
 
-        test("the seat before mine passing into my turn reads 'To my turn'") {
+        test("the seat before mine passing into my turn reads 'To My Turn'") {
             val state = podState(active = player3, priority = player1, step = Step.END)
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To my turn"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To My Turn"
         }
 
         test("without stops on opponents' turns the lookahead walks every seat back to my main") {
             val state = podState(active = player1, priority = player1, step = Step.END)
-            autoPassManager.getNextStopPoint(state, player1, false) shouldBe "Pass to Main"
+            autoPassManager.getNextStopPoint(state, player1, false) shouldBe "To Main 1"
         }
 
         test("a departed player's turn skips its main phase but keeps its end step (CR 800.4j)") {
@@ -1048,7 +1048,7 @@ class AutoPassManagerTest : FunSpec({
             autoPassManager.getNextStopPoint(state, player2, true) shouldBe "Pass"
             // From that end step the next turn is player2's own.
             val atEnd = podState(active = player1, priority = player2, step = Step.END, gone = player1)
-            autoPassManager.getNextStopPoint(atEnd, player2, true) shouldBe "To my turn"
+            autoPassManager.getNextStopPoint(atEnd, player2, true) shouldBe "To My Turn"
         }
 
         test("a departed player's main phase is auto-passed even with responses (CR 800.4j)") {
@@ -1065,10 +1065,10 @@ class AutoPassManagerTest : FunSpec({
             autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Resolve"
         }
 
-        test("returns 'Pass to Main 2' from declare attackers on my turn") {
+        test("returns 'To Main 2' from declare attackers on my turn") {
             // On my turn at declare attackers with no attackers, next stop is postcombat main
             val state = createMockState(player1, player1, Step.DECLARE_ATTACKERS)
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Pass to Main 2"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To Main 2"
         }
 
         test("returns 'End Turn' from postcombat main on my turn") {
@@ -1076,16 +1076,16 @@ class AutoPassManagerTest : FunSpec({
             autoPassManager.getNextStopPoint(state, player1, true) shouldBe "End Turn"
         }
 
-        test("returns 'To my turn' from opponent's end step with meaningful actions") {
+        test("returns 'To My Turn' from opponent's end step with meaningful actions") {
             // We already stopped at end step (due to having responses), so next stop is my turn
             val state = createMockState(player1, player2, Step.END)
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To my turn"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To My Turn"
         }
 
-        test("returns 'Pass to Main' from my end step without meaningful actions") {
+        test("returns 'To Main 1' from my end step without meaningful actions") {
             // Without meaningful actions, skips through opponent's entire turn back to my main phase
             val state = createMockState(player1, player1, Step.END)
-            autoPassManager.getNextStopPoint(state, player1, false) shouldBe "Pass to Main"
+            autoPassManager.getNextStopPoint(state, player1, false) shouldBe "To Main 1"
         }
 
         test("returns 'Pass' from declare attackers on opponent's turn with no attackers and meaningful actions") {
@@ -1151,26 +1151,35 @@ class AutoPassManagerTest : FunSpec({
             return state
         }
 
-        test("at DECLARE_BLOCKERS with attackers and no first strike returns 'Resolve combat damage'") {
+        test("at DECLARE_ATTACKERS on my turn with attackers returns 'To Blockers'") {
+            val attacker = EntityId.generate()
+            val state = createCombatState(
+                step = Step.DECLARE_ATTACKERS,
+                attackerIds = listOf(attacker)
+            )
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To Blockers"
+        }
+
+        test("at DECLARE_BLOCKERS with attackers and no first strike returns 'To Damage'") {
             val attacker = EntityId.generate()
             val state = createCombatState(
                 step = Step.DECLARE_BLOCKERS,
                 attackerIds = listOf(attacker)
             )
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Resolve combat damage"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To Damage"
         }
 
-        test("at DECLARE_BLOCKERS with first strike attacker returns 'Resolve first strike damage'") {
+        test("at DECLARE_BLOCKERS with first strike attacker returns 'To First Strike'") {
             val attacker = EntityId.generate()
             val state = createCombatState(
                 step = Step.DECLARE_BLOCKERS,
                 attackerIds = listOf(attacker),
                 firstStrikeEntityIds = setOf(attacker)
             )
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Resolve first strike damage"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To First Strike"
         }
 
-        test("at DECLARE_BLOCKERS with double strike blocker returns 'Resolve first strike damage'") {
+        test("at DECLARE_BLOCKERS with double strike blocker returns 'To First Strike'") {
             val attacker = EntityId.generate()
             val blocker = EntityId.generate()
             val state = createCombatState(
@@ -1179,23 +1188,23 @@ class AutoPassManagerTest : FunSpec({
                 blockerIds = listOf(blocker),
                 doubleStrikeEntityIds = setOf(blocker)
             )
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Resolve first strike damage"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To First Strike"
         }
 
-        test("at FIRST_STRIKE_COMBAT_DAMAGE with attackers returns 'Resolve combat damage'") {
+        test("at FIRST_STRIKE_COMBAT_DAMAGE with attackers returns 'To Damage'") {
             val attacker = EntityId.generate()
             val state = createCombatState(
                 step = Step.FIRST_STRIKE_COMBAT_DAMAGE,
                 attackerIds = listOf(attacker)
             )
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Resolve combat damage"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To Damage"
         }
 
         test("at DECLARE_BLOCKERS with no attackers falls through to normal logic") {
             // No attackers on battlefield - should not return combat label
             val state = createMockState(player1, player1, Step.DECLARE_BLOCKERS)
             val result = autoPassManager.getNextStopPoint(state, player1, true)
-            result shouldBe "Pass to Main 2"
+            result shouldBe "To Main 2"
         }
 
         test("at DECLARE_BLOCKERS with first strike detected via projectedState") {
@@ -1206,7 +1215,7 @@ class AutoPassManagerTest : FunSpec({
                 firstStrikeEntityIds = setOf(attacker)
             )
             // projectedState always available now, so first strike is correctly detected
-            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "Resolve first strike damage"
+            autoPassManager.getNextStopPoint(state, player1, true) shouldBe "To First Strike"
         }
     }
 
@@ -1360,11 +1369,11 @@ class AutoPassManagerTest : FunSpec({
             // On my turn at end step, normally passes to next main phase
             val state = createMockState(player1, player1, Step.END)
             // Without override and no meaningful actions → skips to next main
-            autoPassManager.getNextStopPoint(state, player1, false) shouldBe "Pass to Main"
+            autoPassManager.getNextStopPoint(state, player1, false) shouldBe "To Main 1"
             // With my-turn override on END from COMBAT_DAMAGE → POSTCOMBAT_MAIN stops first
             // (main phases always stop on my turn)
             val combatState = createMockState(player1, player1, Step.COMBAT_DAMAGE)
-            autoPassManager.getNextStopPoint(combatState, player1, false, myTurnStops = setOf(Step.END)) shouldBe "Pass to Main 2"
+            autoPassManager.getNextStopPoint(combatState, player1, false, myTurnStops = setOf(Step.END)) shouldBe "To Main 2"
         }
 
         test("Opponent-turn stop override in getNextStopPoint") {
