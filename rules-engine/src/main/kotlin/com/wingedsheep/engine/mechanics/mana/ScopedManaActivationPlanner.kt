@@ -102,6 +102,8 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
             val xRemaining = (xAmount - partial.newPool.xCoverage(xAmount, xColors, context)).coerceAtLeast(0)
             val solution = services.manaSolver.solve(initial, player, partial.remainingCost, xRemaining,
                 excludeSources, context, xManaRestriction = xColors) ?: return null
+            // The guide is one path through the search tree: the root plus one node per activation.
+            if (solution.manaProduced.size >= nodeLimit) return null
             var prefix = Prefix(initial, emptyList())
             for ((sourceId, wanted) in solution.manaProduced) {
                 val candidates = services.legalActionEnumerator.enumerateManaAbilities(prefix.state, player)
@@ -111,6 +113,9 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                 for (candidate in candidates) {
                     val base = candidate.action as ActivateAbility
                     val ability = resolver.lookup(prefix.state, sourceId, base.abilityId)?.ability ?: continue
+                    // Same proof boundary as the search: an activation it can't model never certifies.
+                    if (!safeCost(ability.cost) || exileCostCount(ability.cost) > 1 ||
+                        hasNestedExileCost(ability.cost) || !manaOnly(ability.effect)) continue
                     val color = wanted.color?.takeIf {
                         candidate.requiresManaColorChoice && ability.effect !is CompositeEffect &&
                             (candidate.availableManaColors?.contains(it) ?: true)
@@ -135,15 +140,16 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
             val continuationFloor = prefixFloor ?: initial.continuationStack.size
             if (initial.pendingDecision == null && initial.continuationStack.size == continuationFloor &&
                 complete(initial)) return ScopedManaPlanResult.Found(ExecutionResult.success(initial))
-            // A guided execution is real game truth, not a preview, so it is valid on any public board.
-            if (nodeLimit > 0 && initial.pendingDecision == null && initial.continuationStack.size == continuationFloor)
-                guided(initial, continuationFloor)?.let {
-                    return ScopedManaPlanResult.Found(ExecutionResult.success(it.state, it.events))
-                }
             // Hidden identities must not affect this public proof boundary.
             if (initial.getBattlefield().any { initial.getEntity(it)?.has<FaceDownComponent>() == true })
                 return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.HIDDEN_BATTLEFIELD))
             if (nodeLimit <= 0) return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.NODE_BUDGET))
+            // Try the ordinary solver's minimal plan first, executed for real; the exact allocation
+            // still certifies it, and a guide that fails falls through to the exhaustive search.
+            if (initial.pendingDecision == null && initial.continuationStack.size == continuationFloor)
+                guided(initial, continuationFloor)?.let {
+                    return ScopedManaPlanResult.Found(ExecutionResult.success(it.state, it.events))
+                }
             val pending = ArrayDeque<Prefix>()
             pending.add(Prefix(initial, emptyList()))
             var attempted = 1

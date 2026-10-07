@@ -16817,9 +16817,10 @@ price. Existing direct automatic casting remains available.
 covering the cost left after floating mana, then executes each of those activations through the real
 activation handler, answering production questions with the planned color. Only the same complete
 exact allocation certifies the result, so a misleading guide merely falls through to the search.
-Because it executes rather than previews, the guide also works on boards with face-down permanents
-and for abilities with non-mana effect leaves (pain lands). This matters for "if able": an
-unguided breadth-first search over activation orders exhausts its 256-node budget on a five-mana
+The guide keeps the search's proof boundary: it runs only on a public battlefield (no face-down
+permanents), only within the node budget (the root plus one node per planned activation), and never
+activates an ability the search would classify as unsupported (non-mana effect leaves such as pain
+lands, unsupported costs). This matters for "if able": an unguided breadth-first search over activation orders exhausts its 256-node budget on a five-mana
 spell paid by six basic lands. Satisfying the per-activation obligation never makes a payable cost
 unpayable (drop any activation whose mana goes unspent), so the ordinary solver's minimal plan is
 the right guide. Hidden-zone/distributed-counter costs, multiple/nested graveyard selections, free
