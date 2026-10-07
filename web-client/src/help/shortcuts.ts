@@ -77,6 +77,18 @@ export const SHORTCUTS: readonly Shortcut[] = [
     where: 'Deckbuilder',
   },
   {
+    id: 'help-search',
+    keys: '/',
+    label: 'Jump to the search box',
+    where: 'Help wiki',
+  },
+  {
+    id: 'scenario-undo',
+    keys: 'Ctrl/⌘ Z / Ctrl/⌘ Shift Z',
+    label: 'Undo / redo a board edit',
+    where: 'Scenario Builder',
+  },
+  {
     id: 'stack-yield-menu',
     keys: 'Right-click / long-press',
     label: 'Open the yield menu for an ability on the stack',

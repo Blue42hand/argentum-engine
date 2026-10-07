@@ -396,6 +396,147 @@
 }
 
 /* =========================================================================
+ * Wiki home — start-here cards, the contents grid, the A–Z index
+ * ========================================================================= */
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.homeBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.startGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.startCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 14, 22, 0.84);
+  color: #d5dae6;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.startCard:hover {
+  border-color: rgba(242, 180, 92, 0.5);
+}
+
+.startCardSection {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f98ac;
+}
+
+.startCardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f2c97a;
+}
+
+.startCardSummary {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b4bccc;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.contentsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.contentsCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 14, 22, 0.84);
+}
+
+.contentsTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: #f4f5f9;
+}
+
+.contentsTitle:hover {
+  color: #f2c97a;
+}
+
+.contentsBlurb {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9aa3b8;
+}
+
+.contentsList {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.indexGrid {
+  columns: 3 200px;
+  column-gap: 20px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 14, 22, 0.84);
+}
+
+.indexGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+  break-inside: avoid;
+}
+
+.indexLetter {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: #f2c97a;
+}
+
+/* =========================================================================
  * Prev / next section pager
  * ========================================================================= */
 .pager {
