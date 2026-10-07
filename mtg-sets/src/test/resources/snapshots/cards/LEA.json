@@ -13653,7 +13653,7 @@
                                 "type": "BoundVariable",
                                 "name": "t0"
                             },
-                            "storePlayedTo": "played"
+                            "storePlayedTo": "stored4"
                         },
                         "sources": {
                             "cardPredicates": [
@@ -13679,7 +13679,7 @@
                     },
                     "resolvingObject": {
                         "type": "PipelineTarget",
-                        "collectionName": "played"
+                        "collectionName": "stored4"
                     }
                 }
             ]

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.CollectionSlot
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Word of Command
@@ -49,17 +49,17 @@ val WordOfCommand = card("Word of Command") {
                 showAllCards = true,
                 alwaysPrompt = true,
             )
-            run(
+            val played = runStoringCollection { playedKey ->
                 Effects.WithManaSpendingObligations(
                     Effects.WithManaAbilitySources(
-                        Effects.ForcePlay(chosen.key, opponent, "played"),
+                        Effects.ForcePlay(chosen, opponent, CollectionSlot(playedKey)),
                         GameObjectFilter.Land.youControl(),
                         opponent,
                     ),
                     opponent,
                 )
-            )
-            run(Effects.ControlPlayerDuringResolution(opponent, EffectTarget.PipelineTarget("played")))
+            }
+            run(Effects.ControlPlayerDuringResolution(opponent, played.asTarget))
         }
     }
 
