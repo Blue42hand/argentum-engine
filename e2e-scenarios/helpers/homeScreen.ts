@@ -98,15 +98,6 @@ export async function saveSetup(page: Page, name: string): Promise<void> {
   await page.getByTestId('confirm-save-setup').click()
 }
 
-/** Open one of the lobby's settings groups by name (`cards`, `rules`, `table`, `event`, `lobby`). */
-export async function openSettingsGroup(page: Page, group: string): Promise<void> {
-  const panel = page.getByTestId(`settings-group-${group}`)
-  if ((await panel.getAttribute('data-open')) !== 'true') {
-    await page.getByTestId(`settings-group-toggle-${group}`).click()
-  }
-  await expect(panel).toHaveAttribute('data-open', 'true')
-}
-
 /** Join an existing lobby by code from the landing screen. */
 export async function joinLobby(page: Page, lobbyId: string): Promise<void> {
   await page.getByPlaceholder(JOIN_PLACEHOLDER).fill(lobbyId)
