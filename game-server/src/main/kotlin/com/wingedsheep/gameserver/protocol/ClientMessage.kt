@@ -664,4 +664,26 @@ sealed interface ClientMessage {
         val format: com.wingedsheep.sdk.core.DeckFormat?,
         val momirBasic: Boolean = false,
     ) : ClientMessage
+
+    /**
+     * Enter the matchmaking queue for [format] (null = Limited: a random sealed pool each). [ranked]
+     * picks the ranked queue for that format, which requires a signed-in account. Joining again
+     * switches queues.
+     */
+    @Serializable
+    @SerialName("joinMatchmaking")
+    data class JoinMatchmaking(
+        val format: com.wingedsheep.sdk.core.DeckFormat? = null,
+        val ranked: Boolean = false,
+    ) : ClientMessage
+
+    /** Leave the matchmaking queue; while a match-found prompt is open this declines it. */
+    @Serializable
+    @SerialName("leaveMatchmaking")
+    data object LeaveMatchmaking : ClientMessage
+
+    /** Answer a [ServerMessage.MatchFound] prompt. */
+    @Serializable
+    @SerialName("respondToMatch")
+    data class RespondToMatch(val matchId: String, val accept: Boolean) : ClientMessage
 }

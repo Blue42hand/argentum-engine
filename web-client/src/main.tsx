@@ -58,6 +58,9 @@ const PublicProfilePage = lazy(() =>
   import('./pages/PublicProfilePage').then(({ PublicProfilePage }) => ({ default: PublicProfilePage }))
 )
 
+// Beside the router, not inside `App`: a search keeps running on every route (see the component).
+const MatchmakingLayer = lazy(() => import('./components/matchmaking/MatchmakingLayer'))
+
 initAnalytics()
 
 const rootElement = document.getElementById('root')
@@ -93,6 +96,9 @@ createRoot(rootElement).render(
           <Route path="/ai-sandbox/:lobbyId" element={<AiSandboxPage />} />
           <Route path="*" element={<App />} />
         </Routes>
+      </Suspense>
+      <Suspense fallback={null}>
+        <MatchmakingLayer />
       </Suspense>
     </BrowserRouter>
   </StrictMode>

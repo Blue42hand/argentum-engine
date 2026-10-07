@@ -27,6 +27,9 @@ export function createConnectionHandlers(set: SetState, get: GetState): Pick<Mes
       const stale = get().sessionId !== null || get().gameState !== null
       set({
         connectionStatus: 'connected',
+        // The server drops a disconnected player from matchmaking, so a search from before is gone.
+        matchmaking: null,
+        matchOffer: null,
         playerId: entityId(msg.playerId),
         aiEnabled: msg.aiEnabled ?? false,
         availableSets: msg.availableSets ?? [],
@@ -62,6 +65,9 @@ export function createConnectionHandlers(set: SetState, get: GetState): Pick<Mes
       localStorage.setItem('argentum-token', msg.token)
       const updates: Partial<import('../types').GameStore> = {
         connectionStatus: 'connected',
+        // The server drops a disconnected player from matchmaking, so a search from before is gone.
+        matchmaking: null,
+        matchOffer: null,
         playerId: entityId(msg.playerId),
         aiEnabled: msg.aiEnabled ?? false,
         availableSets: msg.availableSets ?? [],

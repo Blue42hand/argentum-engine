@@ -52,6 +52,9 @@ import type {
   QuickGameLobbyStateMessage,
   QuickGameLobbyClosedMessage,
   OnlinePlayersCountMessage,
+  MatchmakingStatusMessage,
+  MatchFoundMessage,
+  MatchmakingQueuesMessage,
   FriendPresenceMessage,
   FriendRequestReceivedMessage,
 } from '@/types'
@@ -125,6 +128,10 @@ export interface MessageHandlers {
   onQuickGameLobbyClosed: (message: QuickGameLobbyClosedMessage) => void
   // Presence handlers
   onOnlinePlayersCount: (message: OnlinePlayersCountMessage) => void
+  // Matchmaking handlers
+  onMatchmakingStatus: (message: MatchmakingStatusMessage) => void
+  onMatchFound: (message: MatchFoundMessage) => void
+  onMatchmakingQueues: (message: MatchmakingQueuesMessage) => void
   // Friends handlers
   onFriendPresence: (message: FriendPresenceMessage) => void
   onFriendRequestReceived: (message: FriendRequestReceivedMessage) => void
@@ -306,6 +313,15 @@ export function handleServerMessage(message: ServerMessage, handlers: MessageHan
       break
     case 'onlinePlayersCount':
       handlers.onOnlinePlayersCount(message)
+      break
+    case 'matchmakingStatus':
+      handlers.onMatchmakingStatus(message)
+      break
+    case 'matchFound':
+      handlers.onMatchFound(message)
+      break
+    case 'matchmakingQueues':
+      handlers.onMatchmakingQueues(message)
       break
     case 'friendPresence':
       handlers.onFriendPresence(message)
