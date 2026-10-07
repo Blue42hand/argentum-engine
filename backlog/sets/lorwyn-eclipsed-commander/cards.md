@@ -2,7 +2,7 @@
 
 **Set Size:** 153 cards
 **Release Date:** January 23, 2026
-**Implemented:** 8 / 153
+**Implemented:** 9 / 153
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 4     | 0    |
@@ -126,7 +126,7 @@
 - [ ] Rakdos Carnarium
 - [ ] Reality Shift
 - [ ] Realmwalker
-- [ ] Return of the Wildspeaker
+- [x] Return of the Wildspeaker
 - [ ] Risen Reef
 - [ ] Riveteers Overlook
 - [ ] Rootbound Crag
