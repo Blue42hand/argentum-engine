@@ -424,6 +424,12 @@ export interface YesNoDecision extends PendingDecisionBase {
   readonly noText: string
   /** Optional hint text shown below the prompt (e.g., keyword reminder text) */
   readonly hint?: string
+  /** "No" is an outcome of its own (endure: counters or a Spirit) — show both answers as peers. */
+  readonly peerOptions?: boolean
+  /** Second line under the yes option when `peerOptions` is set. */
+  readonly yesDetail?: string | null
+  /** Second line under the no option when `peerOptions` is set. */
+  readonly noDetail?: string | null
 }
 
 /**

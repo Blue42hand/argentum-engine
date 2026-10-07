@@ -950,7 +950,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 2 +1/+1 counter(s) on this creature? If you don't, create a 2/2 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -3443,7 +3453,17 @@
                         "type": "Gated",
                         "gate": {
                             "type": "Gate.MayDecide",
-                            "hint": "Put 1 +1/+1 counter(s) on this creature? If you don't, create a 1/1 white Spirit creature token."
+                            "choiceLabels": {
+                                "prompt": "Endure {n}",
+                                "yes": "{n} +1/+1 counter{s}",
+                                "no": "{n}/{n} Spirit token",
+                                "yesDetail": "on this creature",
+                                "noDetail": "a white Spirit creature",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
                         },
                         "then": {
                             "type": "AddDynamicCounters",
@@ -4607,7 +4627,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 3 +1/+1 counter(s) on this creature? If you don't, create a 3/3 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -5904,7 +5934,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 1 +1/+1 counter(s) on this creature? If you don't, create a 1/1 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -7429,7 +7469,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 2 +1/+1 counter(s) on this creature? If you don't, create a 2/2 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -7470,7 +7520,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 2 +1/+1 counter(s) on this creature? If you don't, create a 2/2 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -8220,7 +8280,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 1 +1/+1 counter(s) on this creature? If you don't, create a 1/1 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -8762,27 +8832,50 @@
                 "effect": {
                     "type": "Gated",
                     "gate": {
-                        "type": "Gate.MayDecide",
-                        "hint": "Put X +1/+1 counter(s) on this creature? If you don't, create a X/X white Spirit creature token."
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": "XValue",
+                            "operator": "GT",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 0
+                            }
+                        }
                     },
                     "then": {
-                        "type": "AddDynamicCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "amount": "XValue",
-                        "target": "Self"
-                    },
-                    "otherwise": {
-                        "type": "CreateToken",
-                        "power": 0,
-                        "toughness": 0,
-                        "colors": [
-                            "WHITE"
-                        ],
-                        "creatureTypes": [
-                            "Spirit"
-                        ],
-                        "dynamicPower": "XValue",
-                        "dynamicToughness": "XValue"
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "choiceLabels": {
+                                "prompt": "Endure {n}",
+                                "yes": "{n} +1/+1 counter{s}",
+                                "no": "{n}/{n} Spirit token",
+                                "yesDetail": "on this creature",
+                                "noDetail": "a white Spirit creature",
+                                "amount": "XValue"
+                            }
+                        },
+                        "then": {
+                            "type": "AddDynamicCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "amount": "XValue",
+                            "target": "Self"
+                        },
+                        "otherwise": {
+                            "type": "CreateToken",
+                            "power": 0,
+                            "toughness": 0,
+                            "colors": [
+                                "WHITE"
+                            ],
+                            "creatureTypes": [
+                                "Spirit"
+                            ],
+                            "dynamicPower": "XValue",
+                            "dynamicToughness": "XValue"
+                        },
+                        "descriptionOverride": "Put X +1/+1 counter(s) on this creature. If you don't, create a X/X white Spirit creature token."
                     },
                     "descriptionOverride": "Put X +1/+1 counter(s) on this creature. If you don't, create a X/X white Spirit creature token."
                 },
@@ -13585,7 +13678,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put 2 +1/+1 counter(s) on this creature? If you don't, create a 2/2 white Spirit creature token."
+                        "choiceLabels": {
+                            "prompt": "Endure {n}",
+                            "yes": "{n} +1/+1 counter{s}",
+                            "no": "{n}/{n} Spirit token",
+                            "yesDetail": "on this creature",
+                            "noDetail": "a white Spirit creature",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
                     },
                     "then": {
                         "type": "AddDynamicCounters",
@@ -14484,7 +14587,17 @@
                             "type": "Gated",
                             "gate": {
                                 "type": "Gate.MayDecide",
-                                "hint": "Put 1 +1/+1 counter(s) on this creature? If you don't, create a 1/1 white Spirit creature token."
+                                "choiceLabels": {
+                                    "prompt": "Endure {n}",
+                                    "yes": "{n} +1/+1 counter{s}",
+                                    "no": "{n}/{n} Spirit token",
+                                    "yesDetail": "on this creature",
+                                    "noDetail": "a white Spirit creature",
+                                    "amount": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                }
                             },
                             "then": {
                                 "type": "AddDynamicCounters",
@@ -18541,48 +18654,85 @@
                 "effect": {
                     "type": "Gated",
                     "gate": {
-                        "type": "Gate.MayDecide",
-                        "hint": "Put this creature's the number of counters +1/+1 counter(s) on that creature? If you don't, create a this creature's the number of counters/this creature's the number of counters white Spirit creature token."
-                    },
-                    "then": {
-                        "type": "AddDynamicCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "amount": {
-                            "type": "EntityProperty",
-                            "entity": "Self",
-                            "numericProperty": {
-                                "type": "CounterCount",
-                                "counterType": null
-                            }
-                        },
-                        "target": "TriggeringEntity"
-                    },
-                    "otherwise": {
-                        "type": "CreateToken",
-                        "power": 0,
-                        "toughness": 0,
-                        "colors": [
-                            "WHITE"
-                        ],
-                        "creatureTypes": [
-                            "Spirit"
-                        ],
-                        "dynamicPower": {
-                            "type": "EntityProperty",
-                            "entity": "Self",
-                            "numericProperty": {
-                                "type": "CounterCount",
-                                "counterType": null
-                            }
-                        },
-                        "dynamicToughness": {
-                            "type": "EntityProperty",
-                            "entity": "Self",
-                            "numericProperty": {
-                                "type": "CounterCount",
-                                "counterType": null
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": null
+                                }
+                            },
+                            "operator": "GT",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 0
                             }
                         }
+                    },
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "choiceLabels": {
+                                "prompt": "Endure {n}",
+                                "yes": "{n} +1/+1 counter{s}",
+                                "no": "{n}/{n} Spirit token",
+                                "yesDetail": "on that creature",
+                                "noDetail": "a white Spirit creature",
+                                "amount": {
+                                    "type": "EntityProperty",
+                                    "entity": "Self",
+                                    "numericProperty": {
+                                        "type": "CounterCount",
+                                        "counterType": null
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "type": "AddDynamicCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": null
+                                }
+                            },
+                            "target": "TriggeringEntity"
+                        },
+                        "otherwise": {
+                            "type": "CreateToken",
+                            "power": 0,
+                            "toughness": 0,
+                            "colors": [
+                                "WHITE"
+                            ],
+                            "creatureTypes": [
+                                "Spirit"
+                            ],
+                            "dynamicPower": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": null
+                                }
+                            },
+                            "dynamicToughness": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": null
+                                }
+                            }
+                        },
+                        "descriptionOverride": "Put this creature's the number of counters +1/+1 counter(s) on that creature. If you don't, create a this creature's the number of counters/this creature's the number of counters white Spirit creature token."
                     },
                     "descriptionOverride": "Put this creature's the number of counters +1/+1 counter(s) on that creature. If you don't, create a this creature's the number of counters/this creature's the number of counters white Spirit creature token."
                 },

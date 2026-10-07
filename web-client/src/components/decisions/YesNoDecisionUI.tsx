@@ -57,20 +57,49 @@ export function YesNoDecisionUI({
         </p>
       )}
 
-      {/* Yes/No buttons + optional View Battlefield */}
-      <div className={styles.buttonContainer}>
-        {onMinimize && (
-          <button onClick={onMinimize} className={styles.viewBattlefieldButton}>
-            View Battlefield
+      {decision.peerOptions ? (
+        <>
+          {/* Two outcomes of equal standing (endure: counters or a Spirit) — neither is "decline". */}
+          <div className={styles.peerOptions}>
+            <PeerOption label={decision.yesText} detail={decision.yesDetail} onClick={handleYes} />
+            <span className={styles.peerOptionsOr} aria-hidden="true">or</span>
+            <PeerOption label={decision.noText} detail={decision.noDetail} onClick={handleNo} />
+          </div>
+          {onMinimize && (
+            <div className={styles.buttonContainer}>
+              <button onClick={onMinimize} className={styles.viewBattlefieldButton}>
+                View Battlefield
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        /* Yes/No buttons + optional View Battlefield */
+        <div className={styles.buttonContainer}>
+          {onMinimize && (
+            <button onClick={onMinimize} className={styles.viewBattlefieldButton}>
+              View Battlefield
+            </button>
+          )}
+          <button onClick={handleYes} className={styles.yesButton}>
+            <AbilityText text={decision.yesText} size={16} />
           </button>
-        )}
-        <button onClick={handleYes} className={styles.yesButton}>
-          <AbilityText text={decision.yesText} size={16} />
-        </button>
-        <button onClick={handleNo} className={styles.noButton}>
-          <AbilityText text={decision.noText} size={16} />
-        </button>
-      </div>
+          <button onClick={handleNo} className={styles.noButton}>
+            <AbilityText text={decision.noText} size={16} />
+          </button>
+        </div>
+      )}
     </>
+  )
+}
+
+function PeerOption({ label, detail, onClick }: { label: string; detail?: string | null | undefined; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className={styles.peerOption}>
+      <span className={styles.peerOptionLabel}>
+        <AbilityText text={label} size={18} />
+      </span>
+      {detail && <span className={styles.peerOptionDetail}>{detail}</span>}
+    </button>
   )
 }
