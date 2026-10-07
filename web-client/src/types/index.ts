@@ -336,6 +336,7 @@ export type {
   MatchmakingStatusMessage,
   MatchFoundMessage,
   MatchmakingQueuesMessage,
+  MatchmakingMode,
   MatchmakingQueueCount,
   JoinMatchmakingMessage,
   LeaveMatchmakingMessage,

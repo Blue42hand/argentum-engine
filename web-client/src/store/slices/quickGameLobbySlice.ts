@@ -12,6 +12,7 @@ import type {
   AiDeckSpec,
   DeckFormat,
   MatchFoundMessage,
+  MatchmakingMode,
   MatchmakingQueueCount,
   MatchmakingStatusMessage,
   QuickGameLobbyStateMessage,
@@ -75,7 +76,7 @@ export interface QuickGameLobbySliceActions {
   addQuickGameAi: () => void
   removeQuickGameAi: () => void
   /** Search for a stranger to play. `format: null` is Limited (a random sealed pool each). */
-  joinMatchmaking: (format: DeckFormat | null, ranked: boolean) => void
+  joinMatchmaking: (mode: MatchmakingMode, format: DeckFormat | null, ranked: boolean) => void
   /** Stop searching; while a match prompt is open this declines it. */
   leaveMatchmaking: () => void
   respondToMatch: (accept: boolean) => void
@@ -141,8 +142,8 @@ export const createQuickGameLobbySlice: SliceCreator<QuickGameLobbySlice> = (set
     getWebSocket()?.send(createRemoveQuickGameAiMessage())
   },
 
-  joinMatchmaking: (format, ranked) => {
-    getWebSocket()?.send(createJoinMatchmakingMessage(format, ranked))
+  joinMatchmaking: (mode, format, ranked) => {
+    getWebSocket()?.send(createJoinMatchmakingMessage(mode, format, ranked))
   },
 
   leaveMatchmaking: () => {

@@ -30,6 +30,14 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
+    id: 'feature-find-an-opponent',
+    date: '2026-10-08',
+    kind: 'feature',
+    title: 'Find an opponent',
+    body:
+      'No invite code needed: search from the home screen and get paired with another player. Queue for a Random deck, Jump In, Momir Basic or a Constructed format — casual, or ranked if you’re signed in.',
+  },
+  {
     id: 'set-j22',
     date: '2026-10-07',
     kind: 'set',

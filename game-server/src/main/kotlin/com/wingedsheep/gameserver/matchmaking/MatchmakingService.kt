@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.matchmaking
 
+import com.wingedsheep.gameserver.handler.LobbyHandler
 import com.wingedsheep.gameserver.handler.MessageSender
 import com.wingedsheep.gameserver.handler.QuickGameLobbyHandler
 import com.wingedsheep.gameserver.lobby.QuickGameLobbyRepository
@@ -12,7 +13,6 @@ import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
 import com.wingedsheep.gameserver.session.PlayerIdentity
 import com.wingedsheep.gameserver.session.SessionRegistry
-import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.core.GameRules
 import com.wingedsheep.sdk.model.EntityId
 import org.slf4j.LoggerFactory
@@ -23,8 +23,10 @@ import org.springframework.web.socket.WebSocketSession
 /**
  * "Find opponent": lets players who don't know each other get a game. Owns a [MatchmakingQueue] and
  * connects it to the outside world — reads who is asking from the socket, looks up ranked ratings,
- * ticks the queue once a second, turns its events into [ServerMessage]s, and hands a confirmed pair
- * to [QuickGameLobbyHandler.createMatchmadeLobby]. From the lobby on it is an ordinary quick game.
+ * ticks the queue once a second, turns its events into [ServerMessage]s, and seats a confirmed pair:
+ * a Jump In pair in a two-seat Jump In lobby ([LobbyHandler.createMatchmadeJumpInLobby]), every other
+ * mode in a quick-game lobby ([QuickGameLobbyHandler.createMatchmadeLobby]). From there on it is an
+ * ordinary game of that kind.
  *
  * Every queue call happens under [lock]; messages are sent and lobbies created after it is released.
  */
@@ -33,6 +35,7 @@ class MatchmakingService(
     private val sessionRegistry: SessionRegistry,
     private val sender: MessageSender,
     private val quickGameLobbyHandler: QuickGameLobbyHandler,
+    private val lobbyHandler: LobbyHandler,
     private val quickGameLobbies: QuickGameLobbyRepository,
     private val tournamentLobbies: LobbyRepository,
     private val gameRepository: GameRepository,
@@ -48,7 +51,10 @@ class MatchmakingService(
             sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected"); return
         }
         when (message) {
-            is ClientMessage.JoinMatchmaking -> join(session, identity, message.format, message.ranked)
+            is ClientMessage.JoinMatchmaking -> when (val key = QueueKey.of(message.mode, message.format, message.ranked)) {
+                is QueueKey.Result.Valid -> join(session, identity, key.key)
+                is QueueKey.Result.Invalid -> sender.sendError(session, ErrorCode.INVALID_ACTION, key.reason)
+            }
             is ClientMessage.LeaveMatchmaking -> dispatch(synchronized(lock) { queue.leave(identity.playerId) })
             is ClientMessage.RespondToMatch -> dispatch(
                 synchronized(lock) { queue.respond(identity.playerId, message.matchId, message.accept) },
@@ -69,9 +75,9 @@ class MatchmakingService(
         dispatch(synchronized(lock) { queue.tick(System.currentTimeMillis()) { it in available } })
     }
 
-    private fun join(session: WebSocketSession, identity: PlayerIdentity, format: DeckFormat?, ranked: Boolean) {
+    private fun join(session: WebSocketSession, identity: PlayerIdentity, key: QueueKey) {
         val userId = identity.userId
-        if (ranked && userId == null) {
+        if (key.ranked && userId == null) {
             sender.sendError(session, ErrorCode.INVALID_ACTION, "Sign in to play ranked")
             return
         }
@@ -79,9 +85,9 @@ class MatchmakingService(
             sender.sendError(session, ErrorCode.INVALID_ACTION, "Leave your current lobby or game before searching")
             return
         }
-        val key = QueueKey(format, ranked)
-        val rating = if (ranked && userId != null) {
-            ratingLookup.ratingOf(userId, Ranked.modeForQuickGame(GameRules.inferred(false, format), format, false))
+        val rating = if (key.ranked && userId != null) {
+            // Only Random deck and Constructed have ranked queues, and both are quick games.
+            ratingLookup.ratingOf(userId, Ranked.modeForQuickGame(GameRules.inferred(false, key.format), key.format, false))
         } else {
             Elo.STARTING_RATING
         }
@@ -115,6 +121,7 @@ class MatchmakingService(
                     event.entry.playerId,
                     ServerMessage.MatchmakingStatus(
                         searching = true,
+                        mode = event.entry.key.mode,
                         format = event.entry.key.format,
                         ranked = event.entry.key.ranked,
                         searchingSince = event.entry.joinedAt,
@@ -139,6 +146,7 @@ class MatchmakingService(
             ServerMessage.MatchFound(
                 matchId = match.matchId,
                 opponentName = opponent.playerName,
+                mode = key.mode,
                 format = key.format,
                 ranked = key.ranked,
                 opponentRating = if (key.ranked) opponent.rating.toInt() else null,
@@ -160,13 +168,16 @@ class MatchmakingService(
             val identity = identities[entry.playerId]
             identity == null || !identity.isConnected || isBusyElsewhere(identity)
         }
-        val seated = unavailable.isEmpty() && quickGameLobbyHandler.createMatchmadeLobby(
-            players = match.players.map { it.playerId to (identities[it.playerId]?.playerName ?: it.playerName) },
-            format = match.first.key.format,
-            ranked = match.first.key.ranked,
-        )
+        val key = match.first.key
+        val seated = unavailable.isEmpty() && when (key.mode) {
+            MatchmakingMode.JUMP_IN -> lobbyHandler.createMatchmadeJumpInLobby(match.players.map { identities.getValue(it.playerId)!! })
+            else -> quickGameLobbyHandler.createMatchmadeLobby(
+                players = match.players.map { it.playerId to (identities[it.playerId]?.playerName ?: it.playerName) },
+                key = key,
+            )
+        }
         if (seated) {
-            match.players.forEach { sendTo(it.playerId, ServerMessage.MatchmakingStatus(searching = false)) }
+            match.players.forEach { sendTo(it.playerId, ServerMessage.MatchmakingStatus(searching = false, matched = true)) }
             return
         }
         logger.info("Match ${match.matchId}: could not seat ${unavailable.map { it.playerName }}; requeueing the rest")
@@ -199,7 +210,7 @@ class MatchmakingService(
     }
 
     private fun toCounts(counts: Map<QueueKey, Int>) = counts.map { (key, n) ->
-        ServerMessage.MatchmakingQueueCount(format = key.format, ranked = key.ranked, searching = n)
+        ServerMessage.MatchmakingQueueCount(mode = key.mode, format = key.format, ranked = key.ranked, searching = n)
     }
 
     companion object {

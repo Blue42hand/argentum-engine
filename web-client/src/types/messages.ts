@@ -3143,15 +3143,24 @@ export interface OnlinePlayersCountMessage {
  * This player's matchmaking state. `searching: false` means idle; `notice` explains a change the
  * player didn't cause (the opponent didn't accept, the accept window ran out).
  */
+/**
+ * What kind of game a matchmaking queue makes. Only `CONSTRUCTED` brings a deck (and names a format);
+ * the others hand every seat its cards.
+ */
+export type MatchmakingMode = 'RANDOM_DECK' | 'JUMP_IN' | 'MOMIR_BASIC' | 'CONSTRUCTED'
+
 export interface MatchmakingStatusMessage {
   readonly type: 'matchmakingStatus'
   readonly searching: boolean
-  /** Null = Limited (a random sealed pool each). */
+  readonly mode?: MatchmakingMode | null
+  /** The Constructed queue's format; null for every other mode. */
   readonly format?: DeckFormat | null
   readonly ranked?: boolean
   /** Epoch millis the search started; kept across a requeue. */
   readonly searchingSince?: number | null
   readonly notice?: string | null
+  /** The pair was seated: the cue to bring this player to their lobby or game. */
+  readonly matched?: boolean
 }
 
 /** The queue found an opponent; answer with `respondToMatch` before the window closes. */
@@ -3159,6 +3168,7 @@ export interface MatchFoundMessage {
   readonly type: 'matchFound'
   readonly matchId: string
   readonly opponentName: string
+  readonly mode: MatchmakingMode
   readonly format?: DeckFormat | null
   readonly ranked?: boolean
   /** Shown for ranked matches only. */
@@ -3168,6 +3178,7 @@ export interface MatchFoundMessage {
 }
 
 export interface MatchmakingQueueCount {
+  readonly mode: MatchmakingMode
   readonly format?: DeckFormat | null
   readonly ranked: boolean
   readonly searching: number
@@ -3277,6 +3288,7 @@ export interface SetQuickGameLobbyRankedMessage {
 
 export interface JoinMatchmakingMessage {
   readonly type: 'joinMatchmaking'
+  readonly mode: MatchmakingMode
   readonly format: DeckFormat | null
   readonly ranked: boolean
 }
@@ -3352,8 +3364,12 @@ export function createRemoveQuickGameAiMessage(): RemoveQuickGameAiMessage {
 export function createSetQuickGameLobbyRankedMessage(ranked: boolean): SetQuickGameLobbyRankedMessage {
   return { type: 'setQuickGameLobbyRanked', ranked }
 }
-export function createJoinMatchmakingMessage(format: DeckFormat | null, ranked: boolean): JoinMatchmakingMessage {
-  return { type: 'joinMatchmaking', format, ranked }
+export function createJoinMatchmakingMessage(
+  mode: MatchmakingMode,
+  format: DeckFormat | null,
+  ranked: boolean,
+): JoinMatchmakingMessage {
+  return { type: 'joinMatchmaking', mode, format, ranked }
 }
 export function createLeaveMatchmakingMessage(): LeaveMatchmakingMessage {
   return { type: 'leaveMatchmaking' }
