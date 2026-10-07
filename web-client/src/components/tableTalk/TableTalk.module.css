@@ -171,7 +171,20 @@
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: picker-in 0.16s ease-out;
+}
+
+/* Laptop-height screens: tighter rows so the whole picker fits without scrolling. */
+@media (max-height: 820px) {
+  .picker { padding: 6px; }
+  .group + .group { margin-top: 5px; }
+  .groupTitle { margin-bottom: 3px; font-size: 10px; }
+  .grid { gap: 3px; }
+  .emoteOption { height: 31px; font-size: 12px; }
+  .optionIcon { font-size: 15px; }
+  .muteList { margin-top: 5px; padding-top: 5px; }
 }
 
 .picker[data-direction='up'] { transform-origin: 18px 100%; }

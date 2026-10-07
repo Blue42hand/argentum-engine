@@ -4,6 +4,7 @@ import { useGameStore } from '@/store/gameStore'
 import type { Emote } from '@/types'
 import { EMOTE_COOLDOWN_MS, useTableTalkStore } from '@/store/tableTalkStore'
 import { EMOTE_GROUPS } from './emotes'
+import { placePicker, type Placement } from './pickerPlacement'
 import styles from './TableTalk.module.css'
 
 /**
@@ -12,16 +13,27 @@ import styles from './TableTalk.module.css'
  * and starts a short cooldown, drawn as a ring draining around the button.
  *
  * The picker is portalled to the body and pinned to the button's rect: the HUD row the button lives
- * in stacks below the battlefields, so a popover rendered in place would open underneath them.
+ * in stacks below the battlefields, so a popover rendered in place would open underneath them. It is
+ * measured before it shows, so {@link placePicker} can keep it on screen however short the window.
  */
-export function EmotePicker({ opensUp = true }: { opensUp?: boolean }) {
+export function EmotePicker() {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
-  const [anchor, setAnchor] = useState<DOMRect | null>(null)
+  const [placement, setPlacement] = useState<Placement | null>(null)
   useLayoutEffect(() => {
-    if (!open) return
-    const place = () => setAnchor(rootRef.current?.getBoundingClientRect() ?? null)
+    if (!open) { setPlacement(null); return }
+    const place = () => {
+      const anchor = rootRef.current?.getBoundingClientRect()
+      const picker = pickerRef.current
+      if (!anchor || !picker) return
+      // Natural size: measured with any earlier max-height lifted.
+      const prev = picker.style.maxHeight
+      picker.style.maxHeight = 'none'
+      const size = { width: picker.offsetWidth, height: picker.offsetHeight }
+      picker.style.maxHeight = prev
+      setPlacement(placePicker(anchor, size, { width: window.innerWidth, height: window.innerHeight }))
+    }
     place()
     window.addEventListener('resize', place)
     return () => window.removeEventListener('resize', place)
@@ -80,20 +92,18 @@ export function EmotePicker({ opensUp = true }: { opensUp?: boolean }) {
         </svg>
       </button>
 
-      {open && anchor && createPortal(
+      {open && createPortal(
         <div
           ref={pickerRef}
           className={styles.picker}
-          data-direction={opensUp ? 'up' : 'down'}
+          data-direction={placement?.direction ?? 'up'}
           role="menu"
           aria-label="Send an emote"
           onClick={(e) => e.stopPropagation()}
-          style={{
-            left: Math.max(8, Math.min(anchor.left - 6, window.innerWidth - 428)),
-            ...(opensUp
-              ? { bottom: window.innerHeight - anchor.top + 10 }
-              : { top: anchor.bottom + 10 }),
-          }}
+          // Rendered hidden for one layout pass so it can be measured, then placed.
+          style={placement
+            ? { left: placement.left, top: placement.top, ...(placement.maxHeight ? { maxHeight: placement.maxHeight } : {}) }
+            : { left: 0, top: 0, visibility: 'hidden' }}
         >
           {EMOTE_GROUPS.map((group) => (
             <div key={group.title} className={styles.group} data-mood={group.mood}>
