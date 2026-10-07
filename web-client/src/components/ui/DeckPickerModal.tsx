@@ -9,6 +9,10 @@
  * Named for the seat it belongs to (`title`) with one line of orientation under it (`subtitle`),
  * because these are always opened *from a player row* and the first thing to be sure of is whose
  * deck is about to change.
+ *
+ * The footer can carry the lobby's next step (`primary`) — "Ready up", or "Start game" against the
+ * AI — so picking a deck and committing to it is one motion rather than Done, find the action bar,
+ * press Ready. Done stays beside it for when you only came to look.
  */
 import type { ReactNode } from 'react'
 import styles from './GameUI.module.css'
@@ -17,6 +21,8 @@ export function DeckPickerModal({
   title,
   subtitle = 'Choose the deck for this player seat.',
   hidden = false,
+  primary,
+  selection,
   onClose,
   children,
 }: {
@@ -27,6 +33,10 @@ export function DeckPickerModal({
    * resolves, so a seat whose deck is already decided needs it alive before anyone opens it.
    */
   hidden?: boolean
+  /** The lobby's next step, offered where the deck was just chosen. Closes the dialog when run. */
+  primary?: { label: string; disabled: boolean; reason?: string | undefined; onRun: () => void } | undefined
+  /** The deck currently chosen, named in the footer — the gallery may have scrolled it away. */
+  selection?: string | null | undefined
   onClose: () => void
   children: ReactNode
 }) {
@@ -55,8 +65,33 @@ export function DeckPickerModal({
           </button>
         </div>
         {children}
-        <div className={styles.confirmActions}>
-          <button type="button" onClick={onClose} className={styles.startButton}>Done</button>
+        <div className={styles.deckPickerModalFooter}>
+          {primary?.disabled && primary.reason ? (
+            <span className={styles.deckPickerModalReason}>{primary.reason}</span>
+          ) : selection ? (
+            <span className={styles.deckPickerModalSelection}>
+              <span className={styles.deckPickerModalSelectionLabel}>Playing</span>
+              <span className={styles.deckPickerModalSelectionName}>{selection}</span>
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            className={primary ? styles.deckPickerModalSecondary : styles.deckPickerModalPrimary}
+          >
+            Done
+          </button>
+          {primary && (
+            <button
+              type="button"
+              onClick={() => { primary.onRun(); onClose() }}
+              disabled={primary.disabled}
+              className={styles.deckPickerModalPrimary}
+              data-testid="deck-modal-primary"
+            >
+              {primary.label}
+            </button>
+          )}
         </div>
       </div>
     </div>

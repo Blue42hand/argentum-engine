@@ -925,6 +925,7 @@ class QuickGameLobbyHandler(
             deckLabel = label,
             setCode = setCode,
             setCodes = setCodes,
+            randomDeck = !lobby.momirBasic && !isAi && deckList?.isEmpty() == true,
             teamIndex = lobby.teamIndexOf(seatIndex),
         )
     }

@@ -3,7 +3,8 @@
  *
  * Tabs:
  *   - My decks: the unified deck library (cloud + browser), as a full-art deck gallery
- *   - Examples: server-supplied starter lists, same gallery tiles
+ *   - Examples: server-supplied starter decks, same gallery tiles — selected in place, like a
+ *               saved deck; "Customize" copies one into Paste
  *   - Paste:    free-form deck list parser ("4 Lightning Bolt" / "Lightning Bolt x4")
  *   - Random:   defer to the server (empty deck list → random sealed pool)
  *
@@ -112,6 +113,10 @@ export interface DeckPickerProps {
    * `onDeckChange` a recipe needs and that one can't give, since a decklist has no identity.
    */
   onSavedDeckNameChange?: (name: string | null) => void
+  /** A starter deck to preselect, by name, once the examples have loaded. Same guards as a saved one. */
+  initialExampleName?: string | undefined
+  /** Fired with the name of the selected starter deck, or null when the selection isn't one. */
+  onExampleNameChange?: (name: string | null) => void
 }
 
 interface ExampleDeck {
@@ -150,10 +155,12 @@ export function DeckPicker({
   onTabChange,
   initialSavedDeckName,
   onSavedDeckNameChange,
+  initialExampleName,
+  onExampleNameChange,
 }: DeckPickerProps) {
   // Unified library: cloud decks (when signed in) + browser-only decks, each tagged with where it
   // lives. Selecting a cloud deck works the same as a local one because both carry their card list.
-  const { decks, reload: reloadDecks, removeDeck } = useUnifiedDecks()
+  const { decks, settled: decksSettled, reload: reloadDecks, removeDeck } = useUnifiedDecks()
   const { save: saveDeckRouted } = useSaveDeck()
 
   const showSaved = tabs.includes('saved')
@@ -168,21 +175,28 @@ export function DeckPicker({
   const randomIsConstructed = format !== null && !COMMANDER_SHAPES.includes(format.toUpperCase())
   const formatLabel = format?.replace('_', ' ').toLowerCase() ?? ''
 
-  // Default tab: saved if available, else paste, else the first allowed tab.
-  const initialTab: Tab = decks.length > 0 && showSaved
-    ? 'saved'
-    : showRandom
-      ? 'random'
-      : showPaste
-        ? 'paste'
-        : (tabs[0] ?? 'paste')
+  // Default tab: wherever a deck the caller named lives; else saved if available, else the starter
+  // decks, else random, else paste. Starters before Random because landing there submits nothing:
+  // Random's empty list *is* a deck, so defaulting to it quietly dealt a random deck to anyone with
+  // no saved decks who merely opened the picker — in a lobby that then retitled itself "Random deck".
+  const initialTab: Tab = initialExampleName && showExamples
+    ? 'examples'
+    : (decks.length > 0 || initialSavedDeckName) && showSaved
+      ? 'saved'
+      : showExamples
+        ? 'examples'
+        : showRandom
+          ? 'random'
+          : showPaste
+            ? 'paste'
+            : (tabs[0] ?? 'paste')
   const [uncontrolledTab, setUncontrolledTab] = useState<Tab>(() => initialTab)
   const tab = controlledTab ?? uncontrolledTab
   /**
-   * Whether landing on Random was a *placeholder* rather than a decision.
+   * Whether the opening tab was a *placeholder* rather than a decision.
    *
    * The deck library hydrates asynchronously, so on the first render `decks` is always empty and
-   * {@link initialTab} falls through to `random` — the picker's way of showing something rather than
+   * {@link initialTab} falls through past `saved` — the picker's way of showing something rather than
    * an empty "My Decks". That placeholder is replaced by `saved` as soon as the list arrives.
    *
    * Random asked for *from outside* is the opposite: the landing wizard's "Random pool" and the
@@ -191,9 +205,9 @@ export function DeckPicker({
    * "A friend → Random pool → Create lobby" opened a lobby sitting on My Decks — the picker
    * overwrote the answer the wizard had just collected.
    */
-  const randomIsPlaceholder = useRef(controlledTab === undefined)
+  const tabIsPlaceholder = useRef(controlledTab === undefined && !initialExampleName)
   const setTab = useCallback((next: Tab) => {
-    randomIsPlaceholder.current = false
+    tabIsPlaceholder.current = false
     setUncontrolledTab(next)
     onTabChange?.(next)
   }, [onTabChange])
@@ -204,6 +218,7 @@ export function DeckPicker({
   // can't outlive the original example contents.
   const [pasteCommander, setPasteCommander] = useState<string | null>(null)
   const [selectedSavedId, setSelectedSavedId] = useState<string | null>(null)
+  const [selectedExampleId, setSelectedExampleId] = useState<string | null>(null)
   const [pendingName, setPendingName] = useState('')
   const [cards, setCards] = useState<Record<string, CardSummary>>({})
   const [examples, setExamples] = useState<ExampleDeck[]>([])
@@ -268,12 +283,11 @@ export function DeckPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Replace the placeholder Random tab with `saved` once decks are hydrated, so users land on their
-  // own list. Keyed on `decks.length`, so this only fires as the deck list arrives — a user who
-  // picks Random later stays on it, and so does a Random the caller asked for
-  // (see `randomIsPlaceholder`).
+  // Replace the placeholder tab with `saved` once decks are hydrated, so users land on their own
+  // list. Keyed on `decks.length`, so this only fires as the deck list arrives — a user who picks
+  // another tab later stays on it, and so does a tab the caller asked for (see `tabIsPlaceholder`).
   useEffect(() => {
-    if (randomIsPlaceholder.current && decks.length > 0 && tab === 'random' && showSaved) {
+    if (tabIsPlaceholder.current && decks.length > 0 && tab !== 'saved' && showSaved) {
       setTab('saved')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -295,6 +309,40 @@ export function DeckPicker({
     if (match) setSelectedSavedId(match.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wantedSavedName, decks, tab])
+
+  /** Same as {@link wantedSavedName}, for a starter deck the launch panel picked. */
+  const wantedExampleName = initialExampleName?.trim().toLowerCase()
+  useEffect(() => {
+    if (!wantedExampleName || selectedExampleId !== null || tab !== 'examples') return
+    const match = examples.find((ex) => ex.name.trim().toLowerCase() === wantedExampleName)
+    if (match) setSelectedExampleId(match.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantedExampleName, examples, tab])
+
+  /**
+   * An empty "My Decks" is a dead end — a blank box and a sentence pointing at the other tabs — so
+   * someone with no decks of their own lands on the starter decks instead. Only once the library has
+   * really settled (an empty list on the first render means "not loaded yet"), only from Saved, and
+   * never over a saved deck the caller asked for.
+   */
+  const leftEmptySaved = useRef(false)
+  useEffect(() => {
+    if (leftEmptySaved.current || !decksSettled) return
+    // Once: after the library has settled, the player's own clicks decide — including going back
+    // to an empty My Decks to read its empty state.
+    leftEmptySaved.current = true
+    if (decks.length === 0 && tab === 'saved' && showExamples && !wantedSavedName) {
+      setTab('examples')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decksSettled, decks.length, tab])
+
+  useEffect(() => {
+    onExampleNameChange?.(
+      tab === 'examples' ? (examples.find((ex) => ex.id === selectedExampleId)?.name ?? null) : null,
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, selectedExampleId, examples])
 
   // Report the *identity* of the chosen deck, which `onDeckChange`'s card list cannot carry.
   useEffect(() => {
@@ -356,12 +404,10 @@ export function DeckPicker({
         return mergeCommanderIntoCards(saved.cards, saved.commander ?? null)
       }
       case 'examples':
-        // Examples become a deck via the picker's Paste preview as soon as the user clicks one.
-        // Selecting an example loads its text into the paste tab; while still on the Examples tab
-        // we treat it as "no deck chosen yet".
-        return {}
+        // A starter deck is played as-is, like a saved one; "Customize" is the way into Paste.
+        return examples.find((ex) => ex.id === selectedExampleId)?.cards ?? {}
     }
-  }, [tab, parsedPaste, decks, selectedSavedId])
+  }, [tab, parsedPaste, decks, selectedSavedId, examples, selectedExampleId])
 
   // Auto-populate the Save-deck name from an Arena export's `Name <…>` line.
   // Only fills when the user hasn't typed something themselves, so we don't
@@ -381,8 +427,9 @@ export function DeckPicker({
       return saved?.commander ?? null
     }
     if (tab === 'paste') return pasteCommander
+    if (tab === 'examples') return examples.find((ex) => ex.id === selectedExampleId)?.commander ?? null
     return null
-  }, [tab, decks, selectedSavedId, pasteCommander])
+  }, [tab, decks, selectedSavedId, pasteCommander, examples, selectedExampleId])
 
   // The constructed sideboard ("outside the game", CR 400.11a) the wish effects fetch from.
   // Saved decks carry one (the deckbuilder persists it) and a pasted list carries whatever sat
@@ -464,7 +511,7 @@ export function DeckPicker({
     [parsedPaste],
   )
 
-  const handleLoadExample = (ex: ExampleDeck) => {
+  const handleCustomizeExample = (ex: ExampleDeck) => {
     setPasteText(formatDeckText(ex.cards))
     setPasteCommander(ex.commander ?? null)
     setPendingName(ex.name)
@@ -501,7 +548,9 @@ export function DeckPicker({
   // Examples are curated for a concrete format. Once the lobby chooses one, do not show untagged
   // or differently-shaped decks that the server will reject on submission.
   const visibleExamples = useMemo(() => {
-    if (!format) return examples
+    // With no format a lobby plays 60-card decks; a 100-card commander precon is not a starter
+    // for that table, only for a Commander one.
+    if (!format) return examples.filter((ex) => !COMMANDER_SHAPES.includes(ex.format?.toUpperCase() ?? ''))
     const target = format.toUpperCase()
     return examples.filter((ex) => ex.format?.toUpperCase() === target)
   }, [examples, format])
@@ -520,9 +569,9 @@ export function DeckPicker({
 
   return (
     <div className={styles.picker}>
-      <div className={styles.tabs}>
-        {showSaved && <TabButton label={`My Decks${decks.length ? ` (${decks.length})` : ''}`} active={tab === 'saved'} onClick={() => setTab('saved')} disabled={disabled} />}
-        {showExamples && <TabButton label="Examples" active={tab === 'examples'} onClick={() => setTab('examples')} disabled={disabled} />}
+      <div className={styles.tabs} role="tablist" aria-label="Where the deck comes from">
+        {showSaved && <TabButton label="My Decks" count={decks.length || undefined} active={tab === 'saved'} onClick={() => setTab('saved')} disabled={disabled} />}
+        {showExamples && <TabButton label="Starter" title="Starter decks — ready-made lists to play or customise" active={tab === 'examples'} onClick={() => setTab('examples')} disabled={disabled} />}
         {showPaste && <TabButton label="Paste" active={tab === 'paste'} onClick={() => setTab('paste')} disabled={disabled} />}
         {showRandom && <TabButton label="Random" active={tab === 'random'} onClick={() => setTab('random')} disabled={disabled} />}
       </div>
@@ -538,6 +587,8 @@ export function DeckPicker({
             selectedId={selectedSavedId}
             disabled={disabled}
             onSelect={setSelectedSavedId}
+            onBrowse={showExamples ? () => setTab('examples') : undefined}
+            onPaste={showPaste ? () => setTab('paste') : undefined}
             onDelete={(d) => {
               void removeDeck(d)
               if (selectedSavedId === d.id) setSelectedSavedId(null)
@@ -561,7 +612,9 @@ export function DeckPicker({
             catalog={cards}
             loading={examples.length === 0}
             disabled={disabled}
-            onLoad={handleLoadExample}
+            selectedId={selectedExampleId}
+            onSelect={setSelectedExampleId}
+            onCustomize={handleCustomizeExample}
           />
         )}
 
@@ -649,7 +702,7 @@ export function DeckPicker({
 
       {tab !== 'random' && (
         <div className={styles.summaryWrapper}>
-          <DeckSummary validation={validation} totalCards={totalCards} stats={stats} />
+          <DeckSummary validation={validation} totalCards={totalCards} stats={stats} compactOnSmallScreens />
         </div>
       )}
     </div>
@@ -657,11 +710,20 @@ export function DeckPicker({
 }
 
 function TabButton({
-  label, active, onClick, disabled,
-}: { label: string; active: boolean; onClick: () => void; disabled?: boolean }) {
+  label, count, title, active, onClick, disabled,
+}: { label: string; count?: number | undefined; title?: string; active: boolean; onClick: () => void; disabled?: boolean }) {
   return (
-    <button className={`${styles.tab} ${active ? styles.tabActive : ''}`} onClick={onClick} disabled={disabled} type="button">
+    <button
+      className={`${styles.tab} ${active ? styles.tabActive : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+      type="button"
+      role="tab"
+      aria-selected={active}
+      title={title}
+    >
       {label}
+      {count !== undefined && <span className={styles.tabCount}>{count}</span>}
     </button>
   )
 }
@@ -672,7 +734,7 @@ function TabButton({
  * deck to play, and hover exposes Edit (opens it in the Paste tab) / Delete.
  */
 function SavedDecksPanel({
-  decks, catalog, legalityMap, format, hiddenCount, selectedId, disabled, onSelect, onDelete, onEdit,
+  decks, catalog, legalityMap, format, hiddenCount, selectedId, disabled, onSelect, onDelete, onEdit, onBrowse, onPaste,
 }: {
   decks: UnifiedDeck[]
   catalog: Record<string, CardSummary>
@@ -684,6 +746,8 @@ function SavedDecksPanel({
   onSelect: (id: string) => void
   onDelete: (d: UnifiedDeck) => void
   onEdit: (d: UnifiedDeck) => void
+  onBrowse?: (() => void) | undefined
+  onPaste?: (() => void) | undefined
 }) {
   // Tile metadata per deck. The commander is folded back into the card map (saved decks keep
   // it out of `cards` per `SavedDeck.commander`) so the count and pips match what actually
@@ -711,7 +775,16 @@ function SavedDecksPanel({
         </p>
       )
     }
-    return <p className={styles.helperText}>No saved decks yet. Try an example, paste a list, or let the server roll a random deck.</p>
+    return (
+      <div className={styles.emptyState}>
+        <strong>No decks of your own yet</strong>
+        <span>Build one in the Deckbuilder, or start from a ready-made list.</span>
+        <div className={styles.emptyActions}>
+          {onBrowse && <button type="button" className={styles.emptyAction} onClick={onBrowse}>Browse starter decks</button>}
+          {onPaste && <button type="button" className={styles.emptyAction} onClick={onPaste}>Paste a list</button>}
+        </div>
+      </div>
+    )
   }
   return (
     <>
@@ -777,17 +850,22 @@ function SavedDecksPanel({
 
 /**
  * Server-supplied starter decks, shown as the same art tiles as "My Decks" so both halves of
- * the picker read as one gallery. Clicking a tile loads the list into the Paste tab (where the
- * user can tweak and save it) — matching the pre-gallery behaviour.
+ * the picker read as one gallery. Clicking a tile selects it to play, exactly as on My Decks;
+ * the hover ✎ copies it into the Paste tab to tweak and save.
+ *
+ * Clicking used to *load into Paste* — so choosing a starter deck threw you onto a textarea of
+ * card names, which read as "now edit this" when all you wanted was to play it.
  */
 function ExampleDecksPanel({
-  examples, catalog, loading, disabled, onLoad,
+  examples, catalog, loading, disabled, selectedId, onSelect, onCustomize,
 }: {
   examples: ExampleDeck[]
   catalog: Record<string, CardSummary>
   loading: boolean
   disabled: boolean
-  onLoad: (ex: ExampleDeck) => void
+  selectedId: string | null
+  onSelect: (id: string) => void
+  onCustomize: (ex: ExampleDeck) => void
 }) {
   const tiles = useMemo(
     () =>
@@ -802,7 +880,7 @@ function ExampleDecksPanel({
   if (tiles.length === 0) {
     return (
       <p className={styles.helperText}>
-        {loading ? 'Loading examples…' : 'No examples for this format.'}
+        {loading ? 'Loading starter decks…' : 'No starter decks for this format.'}
       </p>
     )
   }
@@ -819,9 +897,20 @@ function ExampleDecksPanel({
             hero={hero}
             format={example.format ?? null}
             formatTitle={example.format ? `Built for ${labelForFormat(example.format)}` : undefined}
-            title={`Load ${example.name} into the Paste tab`}
+            selected={example.id === selectedId}
+            badge={example.id === selectedId ? 'Selected' : undefined}
+            title={`Play with ${example.name}`}
             disabled={disabled}
-            onClick={() => onLoad(example)}
+            onClick={() => onSelect(example.id)}
+            actions={
+              <DeckTileActionButton
+                onClick={() => onCustomize(example)}
+                title="Customize — copy into the Paste tab"
+                ariaLabel={`Customize ${example.name}`}
+              >
+                ✎
+              </DeckTileActionButton>
+            }
           />
         ))}
       </div>

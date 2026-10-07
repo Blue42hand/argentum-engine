@@ -113,6 +113,12 @@ export type RecipeDeck =
   /** The deck picker's Random tab, whose empty list is the server's "roll me one" signal. */
   | { readonly kind: 'RANDOM' }
   | { readonly kind: 'SAVED'; readonly name: string }
+  /**
+   * A server starter deck (`/api/decks/examples`), by name — the same portable-key rule as a saved
+   * deck. It is what lets someone with no decks of their own pick one on the launch panel and go
+   * straight into a game, instead of meeting an empty "My Decks" in the lobby.
+   */
+  | { readonly kind: 'EXAMPLE'; readonly name: string }
 
 /** What the AI opponent plays. Quick vs-AI lobbies only; mirrors the server's `AiDeckSpec`. */
 export type RecipeAiDeck =
@@ -364,8 +370,8 @@ function validDeck(raw: unknown): RecipeDeck {
   if (typeof raw !== 'object' || raw === null) return { kind: 'NONE' }
   const { kind, name } = raw as { kind?: string; name?: unknown }
   if (kind === 'RANDOM') return { kind: 'RANDOM' }
-  if (kind === 'SAVED' && typeof name === 'string' && name.trim() !== '') {
-    return { kind: 'SAVED', name }
+  if ((kind === 'SAVED' || kind === 'EXAMPLE') && typeof name === 'string' && name.trim() !== '') {
+    return { kind, name }
   }
   return { kind: 'NONE' }
 }
@@ -497,7 +503,7 @@ function settingsTail(recipe: LobbyRecipe, availableSets: readonly AvailableSet[
   if (packs !== undefined && needsPacks(recipe.selection.cards)) {
     tail.push(`${packs} ${recipe.selection.cards.kind === 'DRAFT' ? 'packs' : 'boosters'}`)
   }
-  if (recipe.deck.kind === 'SAVED') tail.push(recipe.deck.name)
+  if (recipe.deck.kind === 'SAVED' || recipe.deck.kind === 'EXAMPLE') tail.push(recipe.deck.name)
   return tail
 }
 

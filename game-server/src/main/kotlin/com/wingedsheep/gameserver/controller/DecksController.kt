@@ -1,11 +1,15 @@
 package com.wingedsheep.gameserver.controller
 
+import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
 import com.wingedsheep.gameserver.deck.DeckValidationResult
 import com.wingedsheep.gameserver.deck.DeckValidator
 import com.wingedsheep.gameserver.protocol.DeckEntryDTO
 import com.wingedsheep.gameserver.protocol.DeckRequestConverter
 import com.wingedsheep.sdk.core.DeckFormat
+import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.model.PrintingRef
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/decks")
 class DecksController(
     private val deckValidator: DeckValidator,
+    private val cardRegistry: CardRegistry,
+    private val printingRegistry: PrintingRegistry,
 ) {
 
     data class ExampleDeckDTO(
@@ -64,7 +70,68 @@ class DecksController(
          * the commander itself is stored separately from the rest of the deck (CR 903.6a).
          */
         val commanderPrinting: PrintingRef? = null,
+        /**
+         * What the deck *is*, at a glance — colours, cover art, curve, key cards — for surfaces
+         * that offer a starter deck without the whole card catalog loaded (the landing page's
+         * launch panel). Computed once from the registry; null only before enrichment.
+         */
+        val summary: ExampleDeckSummaryDTO? = null,
     )
+
+    data class ExampleDeckSummaryDTO(
+        /** WUBRG letters, most-represented first, counted over non-land cards. */
+        val colors: List<String>,
+        val cardCount: Int,
+        val creatures: Int,
+        /** Non-creature, non-land cards. */
+        val spells: Int,
+        val lands: Int,
+        /** Non-land cards per mana value, index 0..7 (7 = seven or more). */
+        val curve: List<Int>,
+        /** The deck's face: the commander, else its rarest non-land card. */
+        val coverCard: String?,
+        val coverImageUri: String?,
+        /** Up to three standout non-land cards (rarest first), cover included. */
+        val keyCards: List<String>,
+    )
+
+    private val enrichedExamples: List<ExampleDeckDTO> by lazy {
+        EXAMPLE_DECKS.map { it.copy(summary = summarize(it)) }
+    }
+
+    private fun summarize(deck: ExampleDeckDTO): ExampleDeckSummaryDTO {
+        val entries = deck.cards.mapNotNull { (name, n) -> cardRegistry.getCard(name)?.let { it to n } }
+        val nonLand = entries.filter { (card, _) -> !card.typeLine.isLand }
+        val colorWeight = mutableMapOf<String, Int>()
+        for ((card, n) in nonLand) for (c in card.colors) colorWeight.merge(c.symbol.toString(), n, Int::plus)
+        val curve = MutableList(8) { 0 }
+        for ((card, n) in nonLand) curve[card.cmc.coerceIn(0, 7)] += n
+        val byStandout = nonLand.map { it.first }.distinctBy { it.name }.sortedWith(
+            compareByDescending<CardDefinition> { it.name == deck.commander }
+                .thenByDescending { RARITY_RANK[it.metadata.rarity] ?: 0 }
+                .thenByDescending { it.cmc }
+                .thenBy { it.name },
+        )
+        val cover = byStandout.firstOrNull()
+        val coverImage = cover?.let { card ->
+            deck.printings?.get(card.name)?.let { printingRegistry.getPrinting(it)?.imageUri }
+                ?: printingRegistry.defaultPrinting(card.name)?.imageUri
+                ?: card.metadata.imageUri
+        }
+        return ExampleDeckSummaryDTO(
+            colors = colorWeight.entries
+                .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { WUBRG.indexOf(it.key) })
+                .map { it.key },
+            cardCount = deck.cards.values.sum(),
+            creatures = nonLand.filter { (card, _) -> card.typeLine.isCreature }.sumOf { it.second },
+            spells = nonLand.filter { (card, _) -> !card.typeLine.isCreature }.sumOf { it.second },
+            lands = entries.filter { (card, _) -> card.typeLine.isLand }.sumOf { it.second },
+            curve = curve,
+            coverCard = cover?.name,
+            coverImageUri = coverImage,
+            keyCards = byStandout.take(3).map { it.name },
+        )
+    }
 
     data class ValidateRequest(
         val deckList: Map<String, Int>,
@@ -86,7 +153,7 @@ class DecksController(
     )
 
     @GetMapping("/examples")
-    fun getExamples(): List<ExampleDeckDTO> = EXAMPLE_DECKS
+    fun getExamples(): List<ExampleDeckDTO> = enrichedExamples
 
     @PostMapping("/validate")
     fun validate(@RequestBody request: ValidateRequest): DeckValidationResult {
@@ -247,6 +314,11 @@ class DecksController(
         // and Simic Frogs are taken from the Bloomburrow Constructed Midweek Magic decklists
         // (https://mtgazone.com/midweek-magic-bloomburrow-constructed/). Boros Mice and Orzhov
         // Bats are hand-built tribal lists restricted to Bloomburrow cards in the registry.
+        private const val WUBRG = "WUBRG"
+        private val RARITY_RANK = mapOf(
+            Rarity.COMMON to 0, Rarity.UNCOMMON to 1, Rarity.RARE to 2, Rarity.MYTHIC to 3,
+        )
+
         private val EXAMPLE_DECKS = listOf(
             ExampleDeckDTO(
                 id = "boros_mice",

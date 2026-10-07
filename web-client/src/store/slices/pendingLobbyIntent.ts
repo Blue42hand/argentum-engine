@@ -43,6 +43,8 @@ export interface PendingLobbyIntent {
   readonly deckTab?: DeckPickerTab
   /** A saved deck to preselect, by name — resolved against the merged deck library. */
   readonly deckName?: string
+  /** A server starter deck to preselect, by name. */
+  readonly exampleName?: string
   /** Ready up / start as soon as the lobby is configured. Only honoured when nobody can join. */
   readonly autoStart?: boolean
   /**

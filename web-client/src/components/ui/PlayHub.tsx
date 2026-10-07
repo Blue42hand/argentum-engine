@@ -23,6 +23,7 @@ import { useUnifiedDecks } from '@/store/useUnifiedDecks'
 import {
   MODES,
   MODE_GROUPS,
+  canRollDeck,
   defaultOptions,
   effectiveOpponents,
   hasHumanTableChoice,
@@ -38,6 +39,7 @@ import {
   type HumanTable,
   type ModeGroup,
   type ModeId,
+  type PanelDeck,
   type PlayOptions,
   type PlayWith,
   type SealedStyle,
@@ -48,6 +50,9 @@ import { AI_DISABLED_ON_SERVER } from '../lobby/modeMatrix'
 import { defaultSetCode } from '../lobby/useApplyRecipe'
 import { SetPickerModal } from './SetPickerModal'
 import { SetIcon } from './SetIcon'
+import { LaunchDeckChoice } from './LaunchDeckChoice'
+import { useStarterDecks, type StarterDeck } from '@/store/useStarterDecks'
+import type { UnifiedDeck } from '@/store/useUnifiedDecks'
 import styles from './PlayHub.module.css'
 
 const PLAY_PREFIX = '/play'
@@ -163,6 +168,7 @@ function LaunchPanel({
   const info = modeInfo(mode)
   const availableSets = useGameStore((s) => s.availableSets)
   const { decks } = useUnifiedDecks()
+  const allStarters = useStarterDecks()
   const [options, setOptionsState] = useState<PlayOptions>(() => loadOptions(mode, aiEnabled))
   const [setPickerOpen, setSetPickerOpen] = useState(false)
 
@@ -186,18 +192,19 @@ function LaunchPanel({
     return [...pool].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
   }, [decks, mode])
 
-  // A remembered deck that has since been deleted or renamed falls back to the newest one, so the
-  // common case — play the deck I just built — needs no click at all.
-  // An empty name is the explicit "Choose in the lobby".
-  const deckName = options.deckName === ''
-    ? null
-    : options.deckName && deckChoices.some((d) => d.name === options.deckName)
-      ? options.deckName
-      : deckChoices[0]?.name ?? null
+  // Starter decks the mode can play: Commander wants the commander precons, everything else the
+  // 60-card lists.
+  const starterChoices = useMemo(() => {
+    if (!allStarters) return null
+    return allStarters.filter((d) => (d.format?.toUpperCase() === 'COMMANDER') === (mode === 'COMMANDER'))
+  }, [allStarters, mode])
+
   const setCode = options.setCode && availableSets.some((s) => s.code === options.setCode)
     ? options.setCode
     : availableSets.length > 0 ? defaultSetCode(availableSets) : null
-  const effective: PlayOptions = { ...options, deckName, setCode }
+  const resolved: PlayOptions = { ...options, setCode }
+  const deck = resolveDeck(options.deck, deckChoices, starterChoices, canRollDeck(resolved))
+  const effective: PlayOptions = { ...resolved, deck }
 
   const range = opponentRange(effective)
   const opponents = effectiveOpponents(effective)
@@ -314,26 +321,14 @@ function LaunchPanel({
         )}
 
         {needsDeck(effective) && (
-          <Field label="Your deck">
-            {deckChoices.length > 0 ? (
-              <select
-                className={styles.select}
-                value={deckName ?? ''}
-                onChange={(e) => setOptions({ deckName: e.target.value })}
-                aria-label="Your deck"
-              >
-                {deckChoices.map((d) => (
-                  <option key={d.id} value={d.name}>{d.name}</option>
-                ))}
-                <option value="">Choose in the lobby</option>
-              </select>
-            ) : (
-              <p className={styles.fieldNote}>
-                {mode === 'COMMANDER'
-                  ? 'No commander decks saved yet — pick or paste one in the lobby.'
-                  : 'No saved decks yet — pick a precon or paste a list in the lobby.'}
-              </p>
-            )}
+          <Field label={isAi ? 'Your deck' : 'Your deck · others bring their own'}>
+            <LaunchDeckChoice
+              value={deck}
+              saved={deckChoices}
+              starters={starterChoices}
+              canRoll={canRollDeck(resolved)}
+              onChange={(next) => setOptions({ deck: next })}
+            />
           </Field>
         )}
       </div>
@@ -376,6 +371,38 @@ function LaunchPanel({
       )}
     </section>
   )
+}
+
+/**
+ * The deck the panel will launch with.
+ *
+ * A remembered choice wins while it still holds — the deck still exists, a rolled deck is still
+ * possible at this table. Otherwise the newest of your decks, so "play the deck I just built" is no
+ * clicks at all; with none, the first starter deck, so a first game against the AI goes straight to
+ * the table. Only with nothing at all (starters still loading) does it fall back to the lobby.
+ */
+function resolveDeck(
+  stored: PanelDeck | null,
+  saved: readonly UnifiedDeck[],
+  starters: readonly StarterDeck[] | null,
+  canRoll: boolean,
+): PanelDeck {
+  switch (stored?.kind) {
+    case 'SAVED':
+      if (saved.some((d) => d.name === stored.name)) return stored
+      break
+    case 'EXAMPLE':
+      if (starters === null || starters.some((d) => d.name === stored.name)) return stored
+      break
+    case 'RANDOM':
+      if (canRoll) return stored
+      break
+    case 'LOBBY':
+      return stored
+  }
+  if (saved[0]) return { kind: 'SAVED', name: saved[0].name }
+  if (starters?.[0]) return { kind: 'EXAMPLE', name: starters[0].name }
+  return { kind: 'LOBBY' }
 }
 
 /* ── Small controls ─────────────────────────────────────────────────────── */
@@ -549,8 +576,22 @@ function loadOptions(mode: ModeId, aiEnabled: boolean): PlayOptions {
     sealedStyle: pick('sealedStyle', ['STANDARD', 'COMMANDER']),
     tableCards: pick('tableCards', ['DECKS', 'JUMP_IN', 'SEALED', 'DRAFT']),
     setCode: typeof stored.setCode === 'string' ? stored.setCode : null,
-    deckName: typeof stored.deckName === 'string' ? stored.deckName : null,
+    deck: storedDeck(stored),
   }
+}
+
+/** A stored deck choice, including the `deckName` string the panel stored before `deck` existed. */
+function storedDeck(stored: Partial<PlayOptions> & { deckName?: unknown }): PanelDeck | null {
+  const deck = stored.deck as { kind?: unknown; name?: unknown } | null | undefined
+  if (deck && typeof deck === 'object') {
+    if ((deck.kind === 'SAVED' || deck.kind === 'EXAMPLE') && typeof deck.name === 'string' && deck.name !== '') {
+      return { kind: deck.kind, name: deck.name }
+    }
+    if (deck.kind === 'RANDOM' || deck.kind === 'LOBBY') return { kind: deck.kind }
+  }
+  if (stored.deckName === '') return { kind: 'LOBBY' }
+  if (typeof stored.deckName === 'string') return { kind: 'SAVED', name: stored.deckName }
+  return null
 }
 
 function saveOptions(options: PlayOptions): void {

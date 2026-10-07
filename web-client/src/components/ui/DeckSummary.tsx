@@ -150,13 +150,16 @@ export function DeckSummary({
   validation,
   totalCards,
   stats,
+  compactOnSmallScreens = false,
 }: {
   validation: DeckValidationResult | null
   totalCards: number
   stats: DeckStats
+  /** Drop the curve chart on phones and short screens, where the summary shares a dialog. */
+  compactOnSmallScreens?: boolean
 }) {
   return (
-    <div className={styles.summary}>
+    <div className={styles.summary} data-compact={compactOnSmallScreens || undefined}>
       <div className={styles.summaryRow}>
         <span>{totalCards} cards</span>
         <span className={statusClass(validation, totalCards)}>

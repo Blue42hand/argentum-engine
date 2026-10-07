@@ -1040,6 +1040,99 @@
   cursor: pointer;
 }
 
+/* Sticky so the commit button stays in reach under a long deck gallery, on a phone especially. */
+.deckPickerModalFooter {
+  position: sticky;
+  bottom: calc(-1 * var(--space-5));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--space-5)) calc(-1 * var(--space-5));
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-surface-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.deckPickerModalSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-right: auto;
+  min-width: 0;
+}
+.deckPickerModalSelectionLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.deckPickerModalSelectionName {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deckPickerModalReason {
+  margin-right: auto;
+  font-size: var(--font-sm);
+  color: #e8c27a;
+}
+
+/* The lobby's own gold, so the dialog's commit reads as the same action as the bar's Ready button. */
+.deckPickerModalPrimary {
+  min-height: 44px;
+  min-width: 160px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: 12px;
+  background: #f2b45c;
+  color: #1d1405;
+  font: inherit;
+  font-size: var(--font-md);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(242, 180, 92, 0.22);
+  transition: background var(--transition-fast);
+}
+
+.deckPickerModalPrimary:hover:not(:disabled) { background: #f7c67f; }
+
+.deckPickerModalPrimary:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: #8f98ac;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.deckPickerModalSecondary {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-md);
+  cursor: pointer;
+}
+
+.deckPickerModalSecondary:hover { color: var(--text-primary); border-color: var(--border-medium); }
+
+.deckPickerModalPrimary:focus-visible,
+.deckPickerModalSecondary:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .deckPickerModalReason { flex: 1 0 100%; margin-right: 0; }
+  .deckPickerModalSelection { flex: 1 1 100%; margin-right: 0; flex-direction: row; align-items: baseline; gap: 6px; }
+  .deckPickerModalFooter { flex-wrap: wrap; }
+  .deckPickerModalPrimary { flex: 1 1 auto; }
+}
+
 .deckPickerModalClose:hover {
   color: var(--text-primary);
   border-color: var(--border-medium);
@@ -1741,6 +1834,11 @@
 .playerDeckButton:hover:not(:disabled) {
   border-color: var(--color-primary);
   background: rgba(79, 195, 247, 0.08);
+}
+
+/* Your own seat with a deck chosen: an editable chip, not the faint text of somebody else's state. */
+.playerDeckButtonChosen {
+  color: var(--text-secondary);
 }
 
 /* Your own seat before it has a deck: the one control that unblocks the lobby, so it reads as one. */

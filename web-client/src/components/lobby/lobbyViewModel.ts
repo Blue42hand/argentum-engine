@@ -171,6 +171,7 @@ export function fromQuickGameLobby(
     tone: p.ready ? 'ready' : 'joined',
     ...(p.playerId === lobby.youPlayerId && !isMomir && !p.deckSelected ? { needsDeck: true } : {}),
   }))
+  const opponent = lobby.players.find((p) => p.playerId !== lobby.youPlayerId)
   const guidance = quickGuidance({
     players,
     isHost,
@@ -179,6 +180,8 @@ export function fromQuickGameLobby(
     needsAiCommander,
     invitable: !lobby.vsAi,
     bringsDeck: axes.cards.kind === 'BRING_A_DECK',
+    opponentChoosing: opponent !== undefined && !opponent.isAi && !opponent.deckSelected,
+    youRollRandom: you?.randomDeck === true,
   })
 
   return {
@@ -228,6 +231,8 @@ function quickGuidance({
   needsAiCommander,
   invitable,
   bringsDeck,
+  opponentChoosing = false,
+  youRollRandom = false,
 }: {
   players: readonly LobbyViewPlayer[]
   isHost: boolean
@@ -237,13 +242,19 @@ function quickGuidance({
   invitable: boolean
   /** Only a brought deck is a choice; Random and Momir have nothing to pick while you wait. */
   bringsDeck: boolean
+  /** The other human hasn't chosen a deck yet — the honest reason the game can't start. */
+  opponentChoosing?: boolean
+  /** Your seat is on the server-rolled deck, so there is nothing for you to prepare. */
+  youRollRandom?: boolean
 }): LobbyGuidance {
   const other = players.find((p) => !p.isYou)
 
   if (needsDeck) {
     return {
       title: 'Choose your deck',
-      detail: 'Use “Choose deck” on your row, then ready up.',
+      detail: invitable
+        ? 'Use “Choose deck” on your row, then ready up.'
+        : 'Use “Choose deck” on your row — the game starts as soon as you’re ready.',
       tone: 'action',
     }
   }
@@ -259,7 +270,9 @@ function quickGuidance({
       title: 'You’re ready',
       detail: other?.tone === 'ready'
         ? 'Everyone is ready. The game is starting.'
-        : `Waiting for ${other?.name ?? 'the other player'} to get ready. You can cancel ready below.`,
+        : opponentChoosing
+          ? `${other?.name ?? 'Your opponent'} is still choosing a deck. The game starts once they ready up.`
+          : `Waiting for ${other?.name ?? 'the other player'} to get ready. You can cancel ready below.`,
       tone: 'ready',
     }
   }
@@ -279,9 +292,12 @@ function quickGuidance({
       tone: 'action',
     }
   }
+  const yourDeck = youRollRandom ? 'You’re on a random deck — nothing to prepare. ' : ''
   return {
     title: 'Ready when you are',
-    detail: 'Mark yourself ready below. The game starts automatically when both players are ready.',
+    detail: opponentChoosing
+      ? `${yourDeck}${other?.name ?? 'Your opponent'} is still choosing a deck; ready up now and the game starts when they do.`
+      : `${yourDeck}Mark yourself ready below. The game starts automatically when both players are ready.`,
     tone: 'action',
   }
 }

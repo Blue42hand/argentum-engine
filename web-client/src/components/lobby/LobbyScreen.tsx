@@ -93,15 +93,34 @@ export function LobbyScreen() {
    * Once mounted it stays mounted, so reopening shows the deck you chose rather than a blank list.
    */
   const [deckPickerMounted, setDeckPickerMounted] = useState(
-    () => intent?.deckTab === 'random' || Boolean(intent?.deckName),
+    () => intent?.deckTab === 'random' || Boolean(intent?.deckName) || Boolean(intent?.exampleName),
   )
   const [tournamentDeckOpen, setTournamentDeckOpen] = useState(false)
+  /**
+   * The premade-decks twin of {@link deckPickerMounted}: a deck named on the launch panel is
+   * submitted without anyone opening the dialog, so "Constructed vs 3 AI" with a deck picked starts
+   * on its own instead of stopping at a Choose-deck button whose answer is already known.
+   */
+  const [tournamentDeckMounted, setTournamentDeckMounted] = useState(
+    () => Boolean(intent?.deckName) || Boolean(intent?.exampleName),
+  )
+  /** A deck submission the picker has debounced but not yet sent — readying now would race it. */
+  const [deckSubmitPending, setDeckSubmitPending] = useState(false)
   const [pendingRecreate, setPendingRecreate] = useState<RecreateSpec | null>(null)
   /** Which AI seat's deck the host is choosing, by player id. Null = the modal is closed. */
   const [aiDeckSeat, setAiDeckSeat] = useState<string | null>(null)
   // Which saved deck is loaded, by name — the identity `onDeckChange`'s card list can't carry, and
   // the one thing a setup needs in order to bring the same deck back. See `lobbyRecipe.ts`.
   const [savedDeckName, setSavedDeckName] = useState<string | null>(null)
+  const [exampleName, setExampleName] = useState<string | null>(null)
+  /**
+   * The deck your seat last submitted, by name, for the dialog's footer. Browsing to another tab
+   * clears the picker's own selection but not the submission, so the footer keeps naming what
+   * you would actually play.
+   */
+  const pickedNow = savedDeckName ?? exampleName ?? (deckTab === 'random' ? 'Random deck' : null)
+  const [lastPicked, setLastPicked] = useState<string | null>(null)
+  useEffect(() => { if (pickedNow) setLastPicked(pickedNow) }, [pickedNow])
   const [savingSetup, setSavingSetup] = useState(false)
   const [notes, setNotes] = useState<readonly string[]>(intent?.notes ?? [])
 
@@ -112,7 +131,7 @@ export function LobbyScreen() {
       : null
 
   const commands = useLobbyCommands(view, setDeckTab)
-  const capture = useCaptureRecipe(view, lobbyState, quickLobby, deckTab, savedDeckName)
+  const capture = useCaptureRecipe(view, lobbyState, quickLobby, deckTab, savedDeckName, exampleName)
   /**
    * Start the game, remembering what it was first.
    *
@@ -141,8 +160,13 @@ export function LobbyScreen() {
   const seatedForAutoStart = intent?.startWhenSeated !== undefined && view !== null && view.isHost &&
     view.primaryAction?.kind === 'START' && !view.primaryAction.disabled &&
     view.players.length >= intent.startWhenSeated
+  // A quick lobby readies itself only for a deck the launch already named. "Choose in the lobby"
+  // means the player is still deciding — readying the instant any valid deck appears would start
+  // the game on the first tile they click, or halfway through pasting a list.
+  const launchNamedDeck = intent?.deckTab === 'random' || Boolean(intent?.deckName) ||
+    Boolean(intent?.exampleName) || view?.axes.cards.kind === 'MOMIR'
   const canAutoStart = intent?.autoStart === true && view !== null && (
-    (!view.invitable && view.primaryAction?.kind === 'READY' && !view.primaryAction.disabled) ||
+    (!view.invitable && launchNamedDeck && view.primaryAction?.kind === 'READY' && !view.primaryAction.disabled) ||
     seatedForAutoStart
   )
   const autoStarted = useRef(false)
@@ -152,6 +176,27 @@ export function LobbyScreen() {
     runPrimary()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canAutoStart])
+
+  /**
+   * A guest follows the host into a Random-deck game.
+   *
+   * Random is per seat on the server, so the host's choice never reached the guest: they joined a
+   * game the host launched as "Random deck" and met a lobby titled Constructed asking them to choose
+   * a deck. Once, on the first broadcast that shows the host on a rolled deck and you on nothing,
+   * your picker is moved to Random and mounted so it submits — exactly what the host's own launch
+   * did. Choosing something else afterwards is still one click on your row.
+   */
+  const followedHostRandom = useRef(false)
+  const hostRollsRandom = quickLobby?.players.find((p) => !p.isAi)?.randomDeck === true
+  const youHaveNoDeck = quickLobby?.players.find((p) => p.playerId === quickLobby.youPlayerId)?.deckSelected === false
+  const youAreGuest = view !== null && !view.isHost
+  useEffect(() => {
+    if (followedHostRandom.current || !youAreGuest || !hostRollsRandom || !youHaveNoDeck) return
+    if (deckPickerMounted || quickLobby?.momirBasic) return
+    followedHostRandom.current = true
+    setDeckTab('random')
+    setDeckPickerMounted(true)
+  }, [youAreGuest, hostRollsRandom, youHaveNoDeck, deckPickerMounted, quickLobby?.momirBasic])
 
   if (!view) return null
 
@@ -297,12 +342,17 @@ export function LobbyScreen() {
                     type="button"
                     onClick={() => { setDeckPickerMounted(true); setQuickDeckSeat('human') }}
                     disabled={player.tone === 'ready'}
-                    className={`${styles.playerStatus} ${styles.playerDeckButton} ${player.needsDeck ? styles.playerDeckButtonCta : statusClass(player.tone)}`}
-                    title={player.tone === 'ready' ? 'Cancel ready before changing your deck' : 'Choose your deck'}
+                    className={`${styles.playerStatus} ${styles.playerDeckButton} ${player.needsDeck ? styles.playerDeckButtonCta : player.tone === 'ready' ? statusClass(player.tone) : styles.playerDeckButtonChosen}`}
+                    title={player.tone === 'ready' ? 'Cancel ready before changing your deck' : 'Change your deck'}
+                    data-testid="your-deck-button"
                   >
                     {/* Your own row is where a deck is chosen, so until one is it names the action
-                        rather than reporting a state ("Choosing deck…" read as somebody else's). */}
-                    {player.needsDeck ? 'Choose deck' : player.status} <span aria-hidden>✎</span>
+                        rather than reporting a state ("Choosing deck…" read as somebody else's).
+                        Once chosen it names the deck you know — the server only knows "Custom (60)". */}
+                    {player.needsDeck
+                      ? 'Choose deck'
+                      : ownDeckLabel(player.status, player.tone === 'ready', savedDeckName ?? exampleName)}{' '}
+                    <span aria-hidden>✎</span>
                   </button>
                 )}
                 {view.kind === 'QUICK' && !isMomir && player.isAi && view.isHost && (
@@ -320,7 +370,7 @@ export function LobbyScreen() {
                   view.axes.cards.kind === 'BRING_A_DECK' && player.isYou && (
                     <button
                       type="button"
-                      onClick={() => setTournamentDeckOpen(true)}
+                      onClick={() => { setTournamentDeckMounted(true); setTournamentDeckOpen(true) }}
                       className={`${styles.playerStatus} ${styles.playerDeckButton} ${player.tone === 'ready' ? statusClass(player.tone) : styles.playerDeckButtonCta}`}
                       title={player.tone === 'ready' ? 'View or change your submitted deck' : 'Choose and submit your deck'}
                     >
@@ -458,8 +508,21 @@ export function LobbyScreen() {
       {deckPickerMounted && quickLobby && !isMomir && (
         <DeckPickerModal
           title="Your deck"
+          subtitle={view.invitable
+            ? 'Pick what you bring to this game. Your opponent chooses their own.'
+            : 'Pick what you play against the AI.'}
           hidden={quickDeckSeat !== 'human'}
           onClose={() => setQuickDeckSeat(null)}
+          selection={quickLobby?.players.find((p) => p.playerId === quickLobby.youPlayerId)?.deckSelected ? lastPicked : null}
+          primary={view.primaryAction?.kind === 'READY'
+            ? {
+                // Against the AI, ready *is* start — the AI is always ready.
+                label: view.invitable ? 'Ready up' : 'Start game',
+                disabled: view.primaryAction.disabled || deckSubmitPending,
+                reason: deckSubmitPending ? undefined : view.primaryAction.reason,
+                onRun: runPrimary,
+              }
+            : undefined}
         >
           <QuickGameDeckPicker
             youSetCode={quickLobby.players.find((p) => p.playerId === quickLobby.youPlayerId)?.setCode ?? null}
@@ -471,6 +534,9 @@ export function LobbyScreen() {
             onValidityChange={setDeckValid}
             initialSavedDeckName={intent?.deckName}
             onSavedDeckNameChange={setSavedDeckName}
+            initialExampleName={intent?.exampleName}
+            onExampleNameChange={setExampleName}
+            onSubmitPendingChange={setDeckSubmitPending}
           />
         </DeckPickerModal>
       )}
@@ -492,14 +558,21 @@ export function LobbyScreen() {
         )
       })()}
 
-      {tournamentDeckOpen && lobbyState && view.kind === 'TOURNAMENT' && view.isWaiting &&
+      {tournamentDeckMounted && lobbyState && view.kind === 'TOURNAMENT' && view.isWaiting &&
         lobbyState.settings.format === 'PREMADE_DECKS' && (
-          <DeckPickerModal title="Your deck" onClose={() => setTournamentDeckOpen(false)}>
+          <DeckPickerModal
+            title="Your deck"
+            hidden={!tournamentDeckOpen}
+            onClose={() => setTournamentDeckOpen(false)}
+          >
             <PremadeDeckPickerPanel
               lobbyState={lobbyState}
               playerId={playerId}
               initialSavedDeckName={intent?.deckName}
               onSavedDeckNameChange={setSavedDeckName}
+              initialExampleName={intent?.exampleName}
+              onExampleNameChange={setExampleName}
+              autoSubmit={Boolean(intent?.deckName) || Boolean(intent?.exampleName)}
             />
           </DeckPickerModal>
       )}
@@ -664,6 +737,12 @@ function statusClass(tone: 'ready' | 'joined' | 'disconnected'): string {
   }
 }
 
+/** Your own seat's deck chip: the deck's own name where the picker knows it, and an explicit Change. */
+function ownDeckLabel(status: string, ready: boolean, localName: string | null): string {
+  if (!localName) return ready ? status : `${status} · Change`
+  return ready ? `✓ Ready · ${localName}` : `${localName} · Change`
+}
+
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
@@ -759,6 +838,9 @@ function QuickGameDeckPicker({
   onValidityChange,
   initialSavedDeckName,
   onSavedDeckNameChange,
+  initialExampleName,
+  onExampleNameChange,
+  onSubmitPendingChange,
 }: {
   youSetCode: string | null
   youSetCodes: readonly string[] | undefined
@@ -770,6 +852,10 @@ function QuickGameDeckPicker({
   /** A saved setup's deck, preselected once the library hydrates. */
   initialSavedDeckName: string | undefined
   onSavedDeckNameChange: (name: string | null) => void
+  initialExampleName: string | undefined
+  onExampleNameChange: (name: string | null) => void
+  /** Whether a debounced submission is waiting to be sent. */
+  onSubmitPendingChange: (pending: boolean) => void
 }) {
   const submitDeck = useGameStore((s) => s.submitQuickGameLobbyDeck)
   const setSetCode = useGameStore((s) => s.setQuickGameLobbySetCode)
@@ -796,7 +882,9 @@ function QuickGameDeckPicker({
       pendingCommanderRef.current = commander ?? null
       pendingSideboardRef.current = board
       if (debounceRef.current !== null) window.clearTimeout(debounceRef.current)
+      onSubmitPendingChange(true)
       debounceRef.current = window.setTimeout(() => {
+        onSubmitPendingChange(false)
         const pending = pendingDeckRef.current
         if (!pending) return
         const pendingCmdr = pendingCommanderRef.current
@@ -807,7 +895,7 @@ function QuickGameDeckPicker({
         submitDeck(pending, pendingCmdr, pendingSide)
       }, 250)
     },
-    [submitDeck],
+    [submitDeck, onSubmitPendingChange],
   )
 
   // Flush any pending deck on unmount so the user's last edit isn't dropped.
@@ -844,6 +932,8 @@ function QuickGameDeckPicker({
       onTabChange={onTabChange}
       initialSavedDeckName={initialSavedDeckName}
       onSavedDeckNameChange={onSavedDeckNameChange}
+      initialExampleName={initialExampleName}
+      onExampleNameChange={onExampleNameChange}
     />
   )
 }
@@ -910,11 +1000,18 @@ function PremadeDeckPickerPanel({
   playerId,
   initialSavedDeckName,
   onSavedDeckNameChange,
+  initialExampleName,
+  onExampleNameChange,
+  autoSubmit,
 }: {
   lobbyState: LobbyState
   playerId: string | null
   initialSavedDeckName: string | undefined
   onSavedDeckNameChange: (name: string | null) => void
+  initialExampleName: string | undefined
+  onExampleNameChange: (name: string | null) => void
+  /** Submit the preselected deck by itself, once, as soon as it resolves and validates. */
+  autoSubmit: boolean
 }) {
   const submitLobbyDeck = useGameStore((s) => s.submitLobbyDeck)
   const unsubmitLobbyDeck = useGameStore((s) => s.unsubmitLobbyDeck)
@@ -926,6 +1023,7 @@ function PremadeDeckPickerPanel({
   const [pendingCommander, setPendingCommander] = useState<string | null>(null)
   const [pendingSideboard, setPendingSideboard] = useState<Record<string, number>>({})
   const [isValid, setIsValid] = useState(false)
+  const autoSubmitted = useRef(false)
 
   const handleDeckChange = useCallback(
     (deck: Record<string, number>, commander?: string | null, sideboard?: Record<string, number>) => {
@@ -935,6 +1033,22 @@ function PremadeDeckPickerPanel({
     },
     [],
   )
+
+  const deckFormat = lobbyState.settings.deckFormat
+  // Whether this submission needs a commander follows the lobby's Rules axis, not its deck legality:
+  // the server's deck-submit path keys on `usesCommanderRules`, so deriving it from the legality here
+  // would ask for a commander the server doesn't want (Commander-legal decks under Standard rules) or
+  // — worse — not ask for one it requires.
+  const isCommanderShape = rulesFromLobbySettings(lobbyState.settings) === 'COMMANDER'
+  const totalCards = Object.values(pendingDeck).reduce((a, b) => a + b, 0)
+  const needsCommander = isCommanderShape && !pendingCommander
+  const canSubmit = isValid && totalCards >= 40 && !needsCommander
+
+  useEffect(() => {
+    if (!autoSubmit || autoSubmitted.current || hasSubmitted || !canSubmit) return
+    autoSubmitted.current = true
+    submitLobbyDeck(pendingDeck, isCommanderShape ? pendingCommander : null, pendingSideboard)
+  }, [autoSubmit, hasSubmitted, canSubmit, submitLobbyDeck, pendingDeck, isCommanderShape, pendingCommander, pendingSideboard])
 
   if (hasSubmitted) {
     return (
@@ -948,16 +1062,6 @@ function PremadeDeckPickerPanel({
       </div>
     )
   }
-
-  const deckFormat = lobbyState.settings.deckFormat
-  // Whether this submission needs a commander follows the lobby's Rules axis, not its deck legality:
-  // the server's deck-submit path keys on `usesCommanderRules`, so deriving it from the legality here
-  // would ask for a commander the server doesn't want (Commander-legal decks under Standard rules) or
-  // — worse — not ask for one it requires.
-  const isCommanderShape = rulesFromLobbySettings(lobbyState.settings) === 'COMMANDER'
-  const totalCards = Object.values(pendingDeck).reduce((a, b) => a + b, 0)
-  const needsCommander = isCommanderShape && !pendingCommander
-  const canSubmit = isValid && totalCards >= 40 && !needsCommander
 
   return (
     <div className={styles.settingsPanel}>
@@ -976,6 +1080,8 @@ function PremadeDeckPickerPanel({
           format={deckFormat ?? null}
           initialSavedDeckName={initialSavedDeckName}
           onSavedDeckNameChange={onSavedDeckNameChange}
+          initialExampleName={initialExampleName}
+          onExampleNameChange={onExampleNameChange}
         />
         <button
           onClick={() => submitLobbyDeck(pendingDeck, isCommanderShape ? pendingCommander : null, pendingSideboard)}
