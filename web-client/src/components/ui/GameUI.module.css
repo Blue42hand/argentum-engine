@@ -1055,6 +1055,28 @@
   border-top: 1px solid var(--border-subtle);
 }
 
+.deckPickerModalSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-right: auto;
+  min-width: 0;
+}
+.deckPickerModalSelectionLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.deckPickerModalSelectionName {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .deckPickerModalReason {
   margin-right: auto;
   font-size: var(--font-sm);
@@ -1106,6 +1128,7 @@
 
 @media (max-width: 640px) {
   .deckPickerModalReason { flex: 1 0 100%; margin-right: 0; }
+  .deckPickerModalSelection { flex: 1 1 100%; margin-right: 0; flex-direction: row; align-items: baseline; gap: 6px; }
   .deckPickerModalFooter { flex-wrap: wrap; }
   .deckPickerModalPrimary { flex: 1 1 auto; }
 }

@@ -8,6 +8,21 @@
  */
 import { useEffect, useState } from 'react'
 
+/** What the server says a starter deck is, at a glance (`DecksController.ExampleDeckSummaryDTO`). */
+export interface StarterDeckSummary {
+  /** W/U/B/R/G, most-represented first. */
+  readonly colors: readonly string[]
+  readonly cardCount: number
+  readonly creatures: number
+  readonly spells: number
+  readonly lands: number
+  /** Non-land cards per mana value 0..7 (7 = seven or more). */
+  readonly curve: readonly number[]
+  readonly coverCard: string | null
+  readonly coverImageUri: string | null
+  readonly keyCards: readonly string[]
+}
+
 export interface StarterDeck {
   readonly id: string
   readonly name: string
@@ -16,6 +31,8 @@ export interface StarterDeck {
   /** The format it is built for; null = no hint (a 60-card casual list). */
   readonly format?: string | null
   readonly commander?: string | null
+  /** Absent on a server older than the summary. */
+  readonly summary?: StarterDeckSummary | null
 }
 
 let cached: readonly StarterDeck[] | null = null

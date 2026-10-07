@@ -325,8 +325,13 @@ export function DeckPicker({
    * really settled (an empty list on the first render means "not loaded yet"), only from Saved, and
    * never over a saved deck the caller asked for.
    */
+  const leftEmptySaved = useRef(false)
   useEffect(() => {
-    if (decksSettled && decks.length === 0 && tab === 'saved' && showExamples && !wantedSavedName) {
+    if (leftEmptySaved.current || !decksSettled) return
+    // Once: after the library has settled, the player's own clicks decide — including going back
+    // to an empty My Decks to read its empty state.
+    leftEmptySaved.current = true
+    if (decks.length === 0 && tab === 'saved' && showExamples && !wantedSavedName) {
       setTab('examples')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -543,7 +548,9 @@ export function DeckPicker({
   // Examples are curated for a concrete format. Once the lobby chooses one, do not show untagged
   // or differently-shaped decks that the server will reject on submission.
   const visibleExamples = useMemo(() => {
-    if (!format) return examples
+    // With no format a lobby plays 60-card decks; a 100-card commander precon is not a starter
+    // for that table, only for a Commander one.
+    if (!format) return examples.filter((ex) => !COMMANDER_SHAPES.includes(ex.format?.toUpperCase() ?? ''))
     const target = format.toUpperCase()
     return examples.filter((ex) => ex.format?.toUpperCase() === target)
   }, [examples, format])
@@ -562,9 +569,9 @@ export function DeckPicker({
 
   return (
     <div className={styles.picker}>
-      <div className={styles.tabs}>
-        {showSaved && <TabButton label={`My Decks${decks.length ? ` (${decks.length})` : ''}`} active={tab === 'saved'} onClick={() => setTab('saved')} disabled={disabled} />}
-        {showExamples && <TabButton label="Examples" active={tab === 'examples'} onClick={() => setTab('examples')} disabled={disabled} />}
+      <div className={styles.tabs} role="tablist" aria-label="Where the deck comes from">
+        {showSaved && <TabButton label="My Decks" count={decks.length || undefined} active={tab === 'saved'} onClick={() => setTab('saved')} disabled={disabled} />}
+        {showExamples && <TabButton label="Starter" title="Starter decks — ready-made lists to play or customise" active={tab === 'examples'} onClick={() => setTab('examples')} disabled={disabled} />}
         {showPaste && <TabButton label="Paste" active={tab === 'paste'} onClick={() => setTab('paste')} disabled={disabled} />}
         {showRandom && <TabButton label="Random" active={tab === 'random'} onClick={() => setTab('random')} disabled={disabled} />}
       </div>
@@ -580,6 +587,8 @@ export function DeckPicker({
             selectedId={selectedSavedId}
             disabled={disabled}
             onSelect={setSelectedSavedId}
+            onBrowse={showExamples ? () => setTab('examples') : undefined}
+            onPaste={showPaste ? () => setTab('paste') : undefined}
             onDelete={(d) => {
               void removeDeck(d)
               if (selectedSavedId === d.id) setSelectedSavedId(null)
@@ -693,7 +702,7 @@ export function DeckPicker({
 
       {tab !== 'random' && (
         <div className={styles.summaryWrapper}>
-          <DeckSummary validation={validation} totalCards={totalCards} stats={stats} />
+          <DeckSummary validation={validation} totalCards={totalCards} stats={stats} compactOnSmallScreens />
         </div>
       )}
     </div>
@@ -701,11 +710,20 @@ export function DeckPicker({
 }
 
 function TabButton({
-  label, active, onClick, disabled,
-}: { label: string; active: boolean; onClick: () => void; disabled?: boolean }) {
+  label, count, title, active, onClick, disabled,
+}: { label: string; count?: number | undefined; title?: string; active: boolean; onClick: () => void; disabled?: boolean }) {
   return (
-    <button className={`${styles.tab} ${active ? styles.tabActive : ''}`} onClick={onClick} disabled={disabled} type="button">
+    <button
+      className={`${styles.tab} ${active ? styles.tabActive : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+      type="button"
+      role="tab"
+      aria-selected={active}
+      title={title}
+    >
       {label}
+      {count !== undefined && <span className={styles.tabCount}>{count}</span>}
     </button>
   )
 }
@@ -716,7 +734,7 @@ function TabButton({
  * deck to play, and hover exposes Edit (opens it in the Paste tab) / Delete.
  */
 function SavedDecksPanel({
-  decks, catalog, legalityMap, format, hiddenCount, selectedId, disabled, onSelect, onDelete, onEdit,
+  decks, catalog, legalityMap, format, hiddenCount, selectedId, disabled, onSelect, onDelete, onEdit, onBrowse, onPaste,
 }: {
   decks: UnifiedDeck[]
   catalog: Record<string, CardSummary>
@@ -728,6 +746,8 @@ function SavedDecksPanel({
   onSelect: (id: string) => void
   onDelete: (d: UnifiedDeck) => void
   onEdit: (d: UnifiedDeck) => void
+  onBrowse?: (() => void) | undefined
+  onPaste?: (() => void) | undefined
 }) {
   // Tile metadata per deck. The commander is folded back into the card map (saved decks keep
   // it out of `cards` per `SavedDeck.commander`) so the count and pips match what actually
@@ -755,7 +775,16 @@ function SavedDecksPanel({
         </p>
       )
     }
-    return <p className={styles.helperText}>No saved decks yet. Try an example, paste a list, or let the server roll a random deck.</p>
+    return (
+      <div className={styles.emptyState}>
+        <strong>No decks of your own yet</strong>
+        <span>Build one in the Deckbuilder, or start from a ready-made list.</span>
+        <div className={styles.emptyActions}>
+          {onBrowse && <button type="button" className={styles.emptyAction} onClick={onBrowse}>Browse starter decks</button>}
+          {onPaste && <button type="button" className={styles.emptyAction} onClick={onPaste}>Paste a list</button>}
+        </div>
+      </div>
+    )
   }
   return (
     <>
@@ -851,7 +880,7 @@ function ExampleDecksPanel({
   if (tiles.length === 0) {
     return (
       <p className={styles.helperText}>
-        {loading ? 'Loading examples…' : 'No examples for this format.'}
+        {loading ? 'Loading starter decks…' : 'No starter decks for this format.'}
       </p>
     )
   }

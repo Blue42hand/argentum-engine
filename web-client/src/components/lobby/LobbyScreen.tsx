@@ -113,6 +113,14 @@ export function LobbyScreen() {
   // the one thing a setup needs in order to bring the same deck back. See `lobbyRecipe.ts`.
   const [savedDeckName, setSavedDeckName] = useState<string | null>(null)
   const [exampleName, setExampleName] = useState<string | null>(null)
+  /**
+   * The deck your seat last submitted, by name, for the dialog's footer. Browsing to another tab
+   * clears the picker's own selection but not the submission, so the footer keeps naming what
+   * you would actually play.
+   */
+  const pickedNow = savedDeckName ?? exampleName ?? (deckTab === 'random' ? 'Random deck' : null)
+  const [lastPicked, setLastPicked] = useState<string | null>(null)
+  useEffect(() => { if (pickedNow) setLastPicked(pickedNow) }, [pickedNow])
   const [savingSetup, setSavingSetup] = useState(false)
   const [notes, setNotes] = useState<readonly string[]>(intent?.notes ?? [])
 
@@ -505,6 +513,7 @@ export function LobbyScreen() {
             : 'Pick what you play against the AI.'}
           hidden={quickDeckSeat !== 'human'}
           onClose={() => setQuickDeckSeat(null)}
+          selection={quickLobby?.players.find((p) => p.playerId === quickLobby.youPlayerId)?.deckSelected ? lastPicked : null}
           primary={view.primaryAction?.kind === 'READY'
             ? {
                 // Against the AI, ready *is* start — the AI is always ready.

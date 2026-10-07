@@ -7,13 +7,20 @@
  * Done, I'm ready. Now the deck is named here, where everything else about the game already is, and
  * an AI game goes from the tile to the table.
  *
+ * A starter deck is shown as what it is — cover art, colours, a one-line pitch — and the chosen one
+ * gets a strip of facts underneath (curve, creature/spell/land split, the cards it is built around),
+ * from the summary the server attaches to each starter. Picking a deck you have never seen should
+ * not be a guess from its name.
+ *
  * Collapsed it is one row naming the deck (the panel stays short on a phone); "Change" opens the
  * choices inline, grouped by where the deck comes from: yours, the server's starter decks, a rolled
  * one where the lobby can roll it, or the explicit "choose in the lobby".
  */
 import { useId, useState, type ReactNode } from 'react'
 import type { UnifiedDeck } from '@/store/useUnifiedDecks'
-import { starterDeckSize, type StarterDeck } from '@/store/useStarterDecks'
+import { starterDeckSize, type StarterDeck, type StarterDeckSummary } from '@/store/useStarterDecks'
+import { getCdnArtCropUrl, getScryfallArtCropUrl } from '@/utils/cardImages'
+import { ManaSymbol } from './ManaSymbols'
 import type { PanelDeck } from '../lobby/playModes'
 import styles from './PlayHub.module.css'
 
@@ -35,6 +42,7 @@ export function LaunchDeckChoice({
   const [open, setOpen] = useState(false)
   const listId = useId()
   const current = describe(value, saved, starters)
+  const starter = value.kind === 'EXAMPLE' ? starters?.find((d) => d.name === value.name) : undefined
 
   const choose = (deck: PanelDeck) => {
     onChange(deck)
@@ -43,21 +51,27 @@ export function LaunchDeckChoice({
 
   return (
     <div className={styles.deckChoice}>
-      <button
-        type="button"
-        className={styles.deckChoiceButton}
-        aria-expanded={open}
-        aria-controls={listId}
-        data-testid="launch-deck"
-        onClick={() => setOpen((o) => !o)}
-      >
-        <DeckGlyph kind={value.kind} />
-        <span className={styles.deckChoiceText}>
-          <span className={styles.deckChoiceName}>{current.name}</span>
-          <span className={styles.deckChoiceMeta}>{current.meta}</span>
-        </span>
-        <span className={styles.setChange}>{open ? 'Done' : 'Change'}</span>
-      </button>
+      <div className={styles.deckChoiceCard} data-open={open}>
+        <button
+          type="button"
+          className={styles.deckChoiceButton}
+          aria-expanded={open}
+          aria-controls={listId}
+          data-testid="launch-deck"
+          onClick={() => setOpen((o) => !o)}
+        >
+          <DeckThumb kind={value.kind} starter={starter} />
+          <span className={styles.deckChoiceText}>
+            <span className={styles.deckChoiceNameRow}>
+              <span className={styles.deckChoiceName}>{current.name}</span>
+              {starter?.summary && <Pips colors={starter.summary.colors} />}
+            </span>
+            <span className={styles.deckChoiceMeta}>{current.meta}</span>
+          </span>
+          <span className={styles.setChange}>{open ? 'Close' : 'Change'}</span>
+        </button>
+        {!open && starter?.summary && <StarterFacts summary={starter.summary} />}
+      </div>
 
       {open && (
         <div id={listId} className={styles.deckList} role="listbox" aria-label="Your deck">
@@ -66,7 +80,7 @@ export function LaunchDeckChoice({
               {saved.map((d) => (
                 <DeckOption
                   key={d.id}
-                  kind="SAVED"
+                  thumb={<DeckThumb kind="SAVED" />}
                   name={d.name}
                   meta={`${deckSize(d)} cards`}
                   selected={value.kind === 'SAVED' && value.name === d.name}
@@ -78,21 +92,26 @@ export function LaunchDeckChoice({
           <DeckGroup label="Starter decks">
             {starters === null && <p className={styles.deckListNote}>Loading…</p>}
             {starters?.length === 0 && <p className={styles.deckListNote}>None for this format.</p>}
-            {starters?.map((d) => (
-              <DeckOption
-                key={d.id}
-                kind="EXAMPLE"
-                name={d.name}
-                meta={d.description}
-                selected={value.kind === 'EXAMPLE' && value.name === d.name}
-                onSelect={() => choose({ kind: 'EXAMPLE', name: d.name })}
-              />
-            ))}
+            {starters?.map((d) => {
+              const selected = value.kind === 'EXAMPLE' && value.name === d.name
+              return (
+                <DeckOption
+                  key={d.id}
+                  thumb={<DeckThumb kind="EXAMPLE" starter={d} />}
+                  name={d.name}
+                  pips={d.summary?.colors}
+                  meta={d.description}
+                  aside={`${starterDeckSize(d)}`}
+                  selected={selected}
+                  onSelect={() => choose({ kind: 'EXAMPLE', name: d.name })}
+                />
+              )
+            })}
           </DeckGroup>
           <DeckGroup label="Or">
             {canRoll && (
               <DeckOption
-                kind="RANDOM"
+                thumb={<DeckThumb kind="RANDOM" />}
                 name="Random deck"
                 meta="The server builds one for you when the game starts"
                 selected={value.kind === 'RANDOM'}
@@ -100,7 +119,7 @@ export function LaunchDeckChoice({
               />
             )}
             <DeckOption
-              kind="LOBBY"
+              thumb={<DeckThumb kind="LOBBY" />}
               name="Choose in the lobby"
               meta="Paste a list, or decide once you're there"
               selected={value.kind === 'LOBBY'}
@@ -126,7 +145,7 @@ function describe(
     }
     case 'EXAMPLE': {
       const match = starters?.find((d) => d.name === deck.name)
-      return { name: deck.name, meta: match ? `Starter deck · ${starterDeckSize(match)} cards` : 'Starter deck' }
+      return { name: deck.name, meta: match?.description ?? 'Starter deck' }
     }
     case 'RANDOM':
       return { name: 'Random deck', meta: 'Built for you when the game starts' }
@@ -139,6 +158,47 @@ function deckSize(deck: UnifiedDeck): number {
   return Object.values(deck.cards).reduce((a, b) => a + b, 0) + (deck.commander ? 1 : 0)
 }
 
+/**
+ * The chosen starter deck in numbers: its curve as a sparkline, what it is made of, and the cards
+ * it is built around — the three things a player reads off a decklist before deciding to play it.
+ */
+function StarterFacts({ summary }: { summary: StarterDeckSummary }) {
+  const peak = Math.max(1, ...summary.curve)
+  return (
+    <div className={styles.deckFacts} data-testid="launch-deck-facts">
+      <div className={styles.deckFactsRow}>
+        <div className={styles.curve} aria-label={`Mana curve: ${summary.curve.join(', ')}`} role="img">
+          {summary.curve.map((n, i) => (
+            <span key={i} className={styles.curveCol} title={`${i === 7 ? '7+' : i} mana: ${n}`}>
+              <span className={styles.curveBar} style={{ height: `${Math.max(n > 0 ? 12 : 4, (n / peak) * 100)}%` }} data-empty={n === 0} />
+              <span className={styles.curveLabel}>{i === 7 ? '7+' : i}</span>
+            </span>
+          ))}
+        </div>
+        <dl className={styles.deckSplit}>
+          <div><dt>Creatures</dt><dd>{summary.creatures}</dd></div>
+          <div><dt>Spells</dt><dd>{summary.spells}</dd></div>
+          <div><dt>Lands</dt><dd>{summary.lands}</dd></div>
+        </dl>
+      </div>
+      {summary.keyCards.length > 0 && (
+        <p className={styles.keyCards}>
+          <span className={styles.keyCardsLabel}>Built around</span> {summary.keyCards.join(' · ')}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function Pips({ colors }: { colors: readonly string[] }) {
+  if (colors.length === 0) return null
+  return (
+    <span className={styles.pips} aria-label={`Colours: ${colors.join('')}`}>
+      {colors.map((c) => <ManaSymbol key={c} symbol={c} size={14} />)}
+    </span>
+  )
+}
+
 function DeckGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className={styles.deckGroup} role="group" aria-label={label}>
@@ -149,15 +209,20 @@ function DeckGroup({ label, children }: { label: string; children: ReactNode }) 
 }
 
 function DeckOption({
-  kind,
+  thumb,
   name,
+  pips,
   meta,
+  aside,
   selected,
   onSelect,
 }: {
-  kind: PanelDeck['kind']
+  thumb: ReactNode
   name: string
+  pips?: readonly string[] | undefined
   meta: string
+  /** A small right-hand figure — a starter's card count. */
+  aside?: string | undefined
   selected: boolean
   onSelect: () => void
 }) {
@@ -169,16 +234,21 @@ function DeckOption({
       className={styles.deckOption}
       onClick={onSelect}
     >
-      <DeckGlyph kind={kind} />
+      {thumb}
       <span className={styles.deckChoiceText}>
-        <span className={styles.deckChoiceName}>{name}</span>
+        <span className={styles.deckChoiceNameRow}>
+          <span className={styles.deckChoiceName}>{name}</span>
+          {pips && <Pips colors={pips} />}
+        </span>
         <span className={styles.deckChoiceMeta}>{meta}</span>
       </span>
-      {selected && (
+      {selected ? (
         <svg className={styles.deckOptionCheck} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M5 12.5l4.5 4.5L19 7" />
         </svg>
-      )}
+      ) : aside ? (
+        <span className={styles.deckOptionAside}>{aside}</span>
+      ) : null}
     </button>
   )
 }
@@ -190,7 +260,20 @@ const GLYPHS: Record<PanelDeck['kind'], string> = {
   LOBBY: 'M4 12h12 M12 6l6 6-6 6',
 }
 
-function DeckGlyph({ kind }: { kind: PanelDeck['kind'] }) {
+/** A starter's cover art, cropped; every other kind gets its glyph on a tinted square. */
+function DeckThumb({ kind, starter }: { kind: PanelDeck['kind']; starter?: StarterDeck | undefined }) {
+  const cover = starter?.summary?.coverCard
+  const art = cover ? (getCdnArtCropUrl(starter?.summary?.coverImageUri) ?? getScryfallArtCropUrl(cover)) : null
+  if (art) {
+    return (
+      <span
+        className={styles.deckArt}
+        style={{ backgroundImage: `url("${art}")` }}
+        title={cover ?? undefined}
+        aria-hidden
+      />
+    )
+  }
   return (
     <span className={styles.deckGlyph} data-kind={kind} aria-hidden>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

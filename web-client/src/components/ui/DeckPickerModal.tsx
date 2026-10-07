@@ -22,6 +22,7 @@ export function DeckPickerModal({
   subtitle = 'Choose the deck for this player seat.',
   hidden = false,
   primary,
+  selection,
   onClose,
   children,
 }: {
@@ -34,6 +35,8 @@ export function DeckPickerModal({
   hidden?: boolean
   /** The lobby's next step, offered where the deck was just chosen. Closes the dialog when run. */
   primary?: { label: string; disabled: boolean; reason?: string | undefined; onRun: () => void } | undefined
+  /** The deck currently chosen, named in the footer — the gallery may have scrolled it away. */
+  selection?: string | null | undefined
   onClose: () => void
   children: ReactNode
 }) {
@@ -63,9 +66,14 @@ export function DeckPickerModal({
         </div>
         {children}
         <div className={styles.deckPickerModalFooter}>
-          {primary?.disabled && primary.reason && (
+          {primary?.disabled && primary.reason ? (
             <span className={styles.deckPickerModalReason}>{primary.reason}</span>
-          )}
+          ) : selection ? (
+            <span className={styles.deckPickerModalSelection}>
+              <span className={styles.deckPickerModalSelectionLabel}>Playing</span>
+              <span className={styles.deckPickerModalSelectionName}>{selection}</span>
+            </span>
+          ) : null}
           <button
             type="button"
             onClick={onClose}
