@@ -139,21 +139,81 @@
   line-height: 1.4;
 }
 
-.footnoteLink {
+/* Someone is waiting: the one place the panel raises its voice. Green like the rail's other
+   "people are here" cues, with a slow pulse so it's noticed without nagging. */
+.waitingList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
   padding: 0;
+  list-style: none;
+}
+
+.waitingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid rgba(46, 204, 113, 0.35);
+  border-radius: 12px;
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.waitingDot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ecc71;
+  box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.6);
+  animation: matchmaking-pulse 1.8s ease-out infinite;
+}
+
+@keyframes matchmaking-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.6); }
+  70% { box-shadow: 0 0 0 7px rgba(46, 204, 113, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+.waitingText {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.waitingQueue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.waitingCount {
+  color: #8fe0b0;
+  font-size: 11px;
+}
+
+.play {
+  flex: 0 0 auto;
+  height: 28px;
+  padding: 0 14px;
   border: none;
-  background: none;
-  color: var(--text-secondary, #c8c8d0);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
   font: inherit;
-  text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.25);
-  text-underline-offset: 2px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.footnoteLink:hover {
-  color: #f6c27a;
-  text-decoration-color: currentColor;
+.play:hover {
+  filter: brightness(1.1);
 }
 
 .footnoteDismiss {
@@ -170,7 +230,7 @@
 .pick:focus-visible,
 .search:focus-visible,
 .cancel:focus-visible,
-.footnoteLink:focus-visible,
+.play:focus-visible,
 .footnoteDismiss:focus-visible,
 .pillClose:focus-visible {
   outline: 2px solid var(--color-focus-ring);
@@ -193,6 +253,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation-duration: 3s; }
+  .waitingDot { animation: none; }
 }
 
 /* ── Searching pill (every route but the home screen) ────────────────── */

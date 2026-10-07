@@ -194,7 +194,7 @@ class MatchmakingQueue(
     }
 
     companion object {
-        const val DEFAULT_ACCEPT_WINDOW_MS: Long = 15_000
+        const val DEFAULT_ACCEPT_WINDOW_MS: Long = 60_000
         const val BASE_RATING_BAND: Double = 100.0
         const val BAND_STEP: Double = 50.0
         const val BAND_STEP_MS: Long = 10_000

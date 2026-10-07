@@ -19,6 +19,9 @@ import {
 
 const STORAGE_KEY = 'argentum-matchmaking-choice'
 
+/** Enough to show where the players are without turning the panel into a lobby list. */
+const MAX_WAITING_ROWS = 3
+
 interface QueueChoice {
   format: DeckFormat | null
   ranked: boolean
@@ -69,14 +72,44 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
   }
 
   const searching = status?.searching === true
-  // Somewhere else a game is waiting: worth one line, never a list.
-  const elsewhere = activeQueues(counts).find((c) =>
-    !((c.format ?? null) === effective.format && c.ranked === effective.ranked) && (!c.ranked || rankedAvailable),
-  )
+  // Before you search, everyone counted is someone else — a game you can have right now. Shown
+  // first and in green, because joining their queue pairs you at once.
+  const waiting = searching ? [] : activeQueues(counts).slice(0, MAX_WAITING_ROWS)
+  const play = (format: DeckFormat | null, ranked: boolean) => {
+    choose({ format, ranked })
+    joinMatchmaking(format, ranked)
+  }
 
   return (
     <section className={styles.panel} aria-labelledby="find-opponent-title" data-testid="find-opponent">
       <span id="find-opponent-title" className={styles.title}>Find an opponent</span>
+
+      {waiting.length > 0 && (
+        <ul className={styles.waitingList} aria-label="Players waiting for a game">
+          {waiting.map((q) => {
+            const needsSignIn = q.ranked && !rankedAvailable
+            return (
+              <li key={`${q.format ?? 'LIMITED'}-${q.ranked}`} className={styles.waitingRow} data-testid="waiting-queue">
+                <span className={styles.waitingDot} aria-hidden />
+                <span className={styles.waitingText}>
+                  <span className={styles.waitingQueue}>{queueLabel(q.format, q.ranked)}</span>
+                  <span className={styles.waitingCount}>
+                    {q.searching === 1 ? '1 player waiting' : `${q.searching} players waiting`}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  className={styles.play}
+                  onClick={() => (needsSignIn ? onSignIn() : play(q.format ?? null, q.ranked))}
+                  title={needsSignIn ? 'Sign in to play ranked' : `Play ${queueLabel(q.format, q.ranked)} now`}
+                >
+                  {needsSignIn ? 'Sign in' : 'Play'}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
 
       {searching ? (
         <SearchingRow
@@ -133,21 +166,6 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
         <p className={styles.footnote} role="status">
           {status.notice}
           <button type="button" className={styles.footnoteDismiss} aria-label="Dismiss" onClick={dismissNotice}>×</button>
-        </p>
-      ) : !searching && elsewhere ? (
-        <p className={styles.footnote}>
-          {elsewhere.searching} waiting in{' '}
-          <button
-            type="button"
-            className={styles.footnoteLink}
-            onClick={() => {
-              const next = { format: elsewhere.format ?? null, ranked: elsewhere.ranked }
-              choose(next)
-              joinMatchmaking(next.format, next.ranked)
-            }}
-          >
-            {queueLabel(elsewhere.format, elsewhere.ranked)}
-          </button>
         </p>
       ) : null}
     </section>

@@ -152,7 +152,7 @@ longest waiter with the closest rating (looked up via `RatingLookup` for the for
 a band of ±100 that grows by 50 every 10 s and opens fully after two minutes, so a small population still
 finds a game. One account never pairs with itself.
 
-A pair gets a 15 s **accept** prompt (`matchFound` → `respondToMatch`). Whoever declines, times out,
+A pair gets a one-minute **accept** prompt (`matchFound` → `respondToMatch`). Whoever declines, times out,
 disconnects or wanders into another lobby/game drops out; whoever accepted goes back in the queue at their
 original join time. When both accept, `QuickGameLobbyHandler.createMatchmadeLobby` seats them in a quick
 lobby with `matchmade = true`: format and ranked are locked, it has no host, invite code or AI seat, and
