@@ -50,12 +50,7 @@ import {
 } from './LobbyAxes'
 import { SettingsGroup } from './SettingsGroup'
 import lobby from './Lobby.module.css'
-import {
-  GROUP_IDS,
-  groupLabel,
-  groupSummary,
-  groupTopicId,
-} from './settingsGroups'
+import { GROUP_IDS, groupLabel, groupTopicId } from './settingsGroups'
 import { LobbyAxisSummary } from './LobbyAxisSummary'
 import { TeamChip, TournamentLobbySettings } from './TournamentLobbySettings'
 import { rulesFromLobbySettings } from './axes'
@@ -89,6 +84,17 @@ export function LobbyScreen() {
   const [aiSource, setAiSource] = useState<AiDeckSource>(() => initialAiSource(quickLobby?.aiDeck))
   /** Which quick-lobby seat's deck modal is open. */
   const [quickDeckSeat, setQuickDeckSeat] = useState<'human' | 'ai' | null>(null)
+  /**
+   * Whether your quick-lobby deck picker is mounted — not the same as open.
+   *
+   * The picker is what submits a deck, so a lobby launched with one already decided (a Random deck,
+   * or the saved deck named on the launch panel) mounts it hidden straight away; otherwise "Random
+   * deck · Starts right away" would sit in the lobby until someone opened a modal to confirm it.
+   * Once mounted it stays mounted, so reopening shows the deck you chose rather than a blank list.
+   */
+  const [deckPickerMounted, setDeckPickerMounted] = useState(
+    () => intent?.deckTab === 'random' || Boolean(intent?.deckName),
+  )
   const [tournamentDeckOpen, setTournamentDeckOpen] = useState(false)
   const [pendingRecreate, setPendingRecreate] = useState<RecreateSpec | null>(null)
   /** Which AI seat's deck the host is choosing, by player id. Null = the modal is closed. */
@@ -227,7 +233,7 @@ export function LobbyScreen() {
               </span>
               <span className={lobby.inviteAction}>{copied ? 'Copied!' : 'Copy'}</span>
             </button>
-            <JoinQrModal url={buildJoinUrl(view.lobbyId)} />
+            <JoinQrModal url={buildJoinUrl(view.lobbyId)} buttonClassName={lobby.qrButton} />
           </div>
         )}
 
@@ -289,12 +295,14 @@ export function LobbyScreen() {
                 {view.kind === 'QUICK' && !isMomir && player.isYou && (
                   <button
                     type="button"
-                    onClick={() => setQuickDeckSeat('human')}
+                    onClick={() => { setDeckPickerMounted(true); setQuickDeckSeat('human') }}
                     disabled={player.tone === 'ready'}
-                    className={`${styles.playerStatus} ${styles.playerDeckButton} ${statusClass(player.tone)}`}
+                    className={`${styles.playerStatus} ${styles.playerDeckButton} ${player.needsDeck ? styles.playerDeckButtonCta : statusClass(player.tone)}`}
                     title={player.tone === 'ready' ? 'Cancel ready before changing your deck' : 'Choose your deck'}
                   >
-                    {player.status} <span aria-hidden>✎</span>
+                    {/* Your own row is where a deck is chosen, so until one is it names the action
+                        rather than reporting a state ("Choosing deck…" read as somebody else's). */}
+                    {player.needsDeck ? 'Choose deck' : player.status} <span aria-hidden>✎</span>
                   </button>
                 )}
                 {view.kind === 'QUICK' && !isMomir && player.isAi && view.isHost && (
@@ -313,12 +321,12 @@ export function LobbyScreen() {
                     <button
                       type="button"
                       onClick={() => setTournamentDeckOpen(true)}
-                      className={`${styles.playerStatus} ${styles.playerDeckButton} ${statusClass(player.tone)}`}
+                      className={`${styles.playerStatus} ${styles.playerDeckButton} ${player.tone === 'ready' ? statusClass(player.tone) : styles.playerDeckButtonCta}`}
                       title={player.tone === 'ready' ? 'View or change your submitted deck' : 'Choose and submit your deck'}
                     >
                       {/* Every other seat shows its state here, but on your own seat this is the only
                           control that submits a deck — so it says what pressing it does instead. */}
-                      {player.tone === 'ready' ? '✓ Deck ready · Change' : 'Choose your deck'}{' '}
+                      {player.tone === 'ready' ? '✓ Deck ready · Change' : 'Choose deck'}{' '}
                       <span aria-hidden>✎</span>
                     </button>
                 )}
@@ -359,7 +367,7 @@ export function LobbyScreen() {
               className={styles.playerRow}
               style={{ borderBottom: 'none', justifyContent: 'center', color: 'var(--text-faint)', fontStyle: 'italic' }}
             >
-              Waiting for opponent…
+              {view.maxPlayers > 2 ? 'Waiting for players…' : 'Waiting for opponent…'}
             </div>
           )}
         </div>
@@ -412,7 +420,6 @@ export function LobbyScreen() {
                   key={id}
                   label={groupLabel(id)}
                   topicId={groupTopicId(id, view)}
-                  summary={groupSummary(id, view, lobbyState)}
                   axisStrip={axisStrip}
                   blocking={view.blockGroup === id ? view.primaryAction?.reason : undefined}
                   testId={id.toLowerCase()}
@@ -448,8 +455,12 @@ export function LobbyScreen() {
         </div>
       </div>
 
-      {quickDeckSeat === 'human' && quickLobby && !isMomir && (
-        <DeckPickerModal title={`${view.you?.name ?? 'Your'} deck`} onClose={() => setQuickDeckSeat(null)}>
+      {deckPickerMounted && quickLobby && !isMomir && (
+        <DeckPickerModal
+          title="Your deck"
+          hidden={quickDeckSeat !== 'human'}
+          onClose={() => setQuickDeckSeat(null)}
+        >
           <QuickGameDeckPicker
             youSetCode={quickLobby.players.find((p) => p.playerId === quickLobby.youPlayerId)?.setCode ?? null}
             youSetCodes={quickLobby.players.find((p) => p.playerId === quickLobby.youPlayerId)?.setCodes}
@@ -483,7 +494,7 @@ export function LobbyScreen() {
 
       {tournamentDeckOpen && lobbyState && view.kind === 'TOURNAMENT' && view.isWaiting &&
         lobbyState.settings.format === 'PREMADE_DECKS' && (
-          <DeckPickerModal title={`${view.you?.name ?? 'Your'} deck`} onClose={() => setTournamentDeckOpen(false)}>
+          <DeckPickerModal title="Your deck" onClose={() => setTournamentDeckOpen(false)}>
             <PremadeDeckPickerPanel
               lobbyState={lobbyState}
               playerId={playerId}
@@ -662,9 +673,9 @@ function MomirCrest() {
     <div
       aria-hidden
       style={{
-        width: 84,
-        height: 84,
-        margin: '0 auto 8px',
+        flex: 'none',
+        width: 52,
+        height: 52,
         backgroundColor: 'var(--accent-teal, #6fd3c0)',
         WebkitMaskImage: `url(${momirVigUrl})`,
         maskImage: `url(${momirVigUrl})`,
@@ -810,6 +821,10 @@ function QuickGameDeckPicker({
         ? `${serializeDeck(pending)}|${pendingCmdr ?? ''}|${serializeDeck(pendingSide)}`
         : null
       if (pending && pendingKey !== lastSubmittedKeyRef.current) {
+        // Recorded like any other submission, so a remount (StrictMode's, or the picker's) that
+        // re-emits the same deck doesn't send it again — once the game has started, that second
+        // send lands on a lobby that no longer exists.
+        lastSubmittedKeyRef.current = pendingKey
         submitDeck(pending, pendingCmdr, pendingSide)
       }
     }

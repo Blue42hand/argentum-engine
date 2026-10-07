@@ -17,6 +17,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* "safe" falls back to start alignment when the content is taller than the screen, so a
+     tall decision scrolls instead of losing its title off the top and its buttons off the
+     bottom (landscape phones). */
+  justify-content: safe center;
+  overflow-y: auto;
   pointer-events: auto;
   z-index: var(--z-modal);
   gap: var(--space-6);
@@ -27,6 +32,17 @@
   .overlay {
     gap: var(--space-3);
     padding: var(--space-1);
+  }
+}
+
+.overlay > * {
+  flex-shrink: 0;
+}
+
+@media (max-height: 500px) {
+  .overlay {
+    gap: var(--space-2);
+    padding: var(--space-2);
   }
 }
 
@@ -128,6 +144,12 @@
 @media (max-width: 639px) {
   .bannerCardImage {
     width: 80px;
+  }
+}
+
+@media (max-height: 500px) {
+  .bannerCardImage {
+    width: 56px;
   }
 }
 
@@ -1075,12 +1097,16 @@
   padding: var(--space-4) var(--space-8);
   font-size: var(--font-lg);
   min-width: 120px;
-  background-color: var(--color-primary);
-  color: var(--text-primary);
+  /* Secondary action: a quiet glass button, so the decision's own confirm stays the one loud
+     button in the row instead of competing with a second saturated fill. */
+  background-color: var(--chrome-bg);
+  color: var(--chrome-text);
+  box-shadow: inset 0 0 0 1px var(--chrome-border);
 }
 
 .viewBattlefieldButton:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.25);
+  color: var(--text-primary);
 }
 
 .floatingReturnButton {
@@ -1215,4 +1241,14 @@
 
 .zoneSectionSelected {
   color: var(--color-selected, #4ade80);
+}
+
+/* Short (landscape-phone) screens: compact the decision buttons so they stay on screen. Last in
+   the file so it wins over the base button rules above. */
+@media (max-height: 500px) {
+  .confirmButton,
+  .viewBattlefieldButton {
+    padding: var(--space-2) var(--space-5);
+    font-size: var(--font-md);
+  }
 }

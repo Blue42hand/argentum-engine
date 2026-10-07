@@ -599,31 +599,34 @@ function BrandMark() {
 }
 
 /**
- * Community links, credits and the fan-content disclaimer on one quiet line at the foot of the
- * landing screen — a three-line credits card would have pushed the hub into scrolling on a laptop.
+ * Community links (sharing a row with the dev-only Lab links) and, beneath them, one quiet line of
+ * credits and the fan-content disclaimer — a three-line credits card would have pushed the hub into
+ * scrolling on a laptop.
  */
 function CompactAttribution() {
   return (
-    <div className={home.credits}>
-      <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
-        <DiscordIcon />
-        Discord
-      </a>
-      <a href={GITHUB_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
-        <GitHubIcon />
-        GitHub
-      </a>
-      <a href={CONTRIBUTING_GUIDE_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
-        <GuideIcon />
-        Help build it
-      </a>
-      <span className={home.creditsText}>
+    <>
+      <div className={home.credits}>
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
+          <DiscordIcon />
+          Discord
+        </a>
+        <a href={GITHUB_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
+          <GitHubIcon />
+          GitHub
+        </a>
+        <a href={CONTRIBUTING_GUIDE_URL} target="_blank" rel="noopener noreferrer" className={home.footerLink}>
+          <GuideIcon />
+          Help build it
+        </a>
+      </div>
+      <p className={home.creditsText}>
         Made by <a href={MAKER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">wingedsheep</a>
         {' · '}Card images via <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer">Scryfall</a>
         {' · '}Mana symbols by <a href="https://mana.andrewgioia.com" target="_blank" rel="noopener noreferrer">Mana Font</a>
         {' · '}Fan-made; not affiliated with or endorsed by Wizards of the Coast. Magic: The Gathering is © Wizards of the Coast LLC.
-      </span>
-    </div>
+      </p>
+    </>
   )
 }
 

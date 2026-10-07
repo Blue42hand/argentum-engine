@@ -240,10 +240,20 @@
   gap: 5px;
 }
 
+.rowBreak { flex-basis: 100%; height: 0; }
+
 .modeHint {
+  flex: 1 1 220px;
+  min-width: 0;
   font-size: 11px;
   color: #8f98ac;
-  flex-basis: 100%;
+}
+
+.boardTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .ghostBtn {
@@ -990,7 +1000,11 @@
   .actionBtn { flex: none; }
   .actionHint { display: none; }
   .browserPane { flex-basis: 60vh !important; }
-  .seatHead { flex-wrap: wrap; }
+  /* Badge on its own line; name, life and the seat buttons share the next one instead of Clear
+     dangling on a line of its own. */
+  .seatHead { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; }
+  .seatBadge { grid-column: 1 / -1; justify-self: start; }
+  .seatHead .nameInput { min-width: 0; }
   .zoneRow { flex-wrap: wrap; }
   .zoneRow > * { flex: 1 1 calc(50% - 4px); min-width: 0; }
 }

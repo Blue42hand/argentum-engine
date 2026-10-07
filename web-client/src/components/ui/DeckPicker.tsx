@@ -711,7 +711,7 @@ function SavedDecksPanel({
         </p>
       )
     }
-    return <p className={styles.helperText}>No saved decks yet. Use the Paste tab to enter a list, then Save it.</p>
+    return <p className={styles.helperText}>No saved decks yet. Try an example, paste a list, or let the server roll a random deck.</p>
   }
   return (
     <>

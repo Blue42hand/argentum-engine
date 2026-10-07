@@ -43,6 +43,8 @@ export interface LobbyViewPlayer {
   /** Right-hand status text — "Deck Ready", "Choosing deck…", "✓ Ready · Custom (60)". */
   status: string
   tone: 'ready' | 'joined' | 'disconnected'
+  /** Your own seat still has a deck to choose before you can ready up (quick lobbies only). */
+  needsDeck?: boolean
   /**
    * For an AI seat: what the host chose for it to play, or null where the choice doesn't exist —
    * on a human seat, and in a lobby whose format deals the AI a pool to build from.
@@ -167,6 +169,7 @@ export function fromQuickGameLobby(
         ? `✓ Ready · ${p.deckLabel}`
         : `Deck: ${p.deckLabel}`,
     tone: p.ready ? 'ready' : 'joined',
+    ...(p.playerId === lobby.youPlayerId && !isMomir && !p.deckSelected ? { needsDeck: true } : {}),
   }))
   const guidance = quickGuidance({
     players,
@@ -175,12 +178,13 @@ export function fromQuickGameLobby(
     needsDeck,
     needsAiCommander,
     invitable: !lobby.vsAi,
+    bringsDeck: axes.cards.kind === 'BRING_A_DECK',
   })
 
   return {
     kind: 'QUICK',
     lobbyId: lobby.lobbyId,
-    title: '1v1 Lobby',
+    title: quickTitle(axes.cards.kind),
     subtitle: quickSubtitle(axes.cards.kind, lobby.vsAi),
     isHost,
     // A quick lobby has no state machine: it is staging right up until the game starts.
@@ -199,7 +203,7 @@ export function fromQuickGameLobby(
           label: "I'm ready",
           disabled: needsDeck || needsAiCommander,
           reason: needsDeck
-            ? 'Pick a deck first'
+            ? you?.deckSelected ? 'Your deck isn’t legal in this lobby' : 'Pick a deck first'
             : needsAiCommander
               ? 'Pick a Commander deck for the AI'
               : undefined,
@@ -223,6 +227,7 @@ function quickGuidance({
   needsDeck,
   needsAiCommander,
   invitable,
+  bringsDeck,
 }: {
   players: readonly LobbyViewPlayer[]
   isHost: boolean
@@ -230,13 +235,15 @@ function quickGuidance({
   needsDeck: boolean
   needsAiCommander: boolean
   invitable: boolean
+  /** Only a brought deck is a choice; Random and Momir have nothing to pick while you wait. */
+  bringsDeck: boolean
 }): LobbyGuidance {
   const other = players.find((p) => !p.isYou)
 
   if (needsDeck) {
     return {
       title: 'Choose your deck',
-      detail: 'Open your player row to choose one. When it is valid, mark yourself ready below.',
+      detail: 'Use “Choose deck” on your row, then ready up.',
       tone: 'action',
     }
   }
@@ -260,7 +267,7 @@ function quickGuidance({
     return {
       title: isHost ? 'Invite your opponent' : 'Waiting for the host',
       detail: isHost
-        ? 'Copy the invite code or share the QR code. You can choose your deck while you wait.'
+        ? `Copy the invite code or share the QR code.${bringsDeck ? ' You can choose your deck while you wait.' : ''}`
         : 'The host will invite the other player.',
       tone: 'waiting',
     }
@@ -276,6 +283,16 @@ function quickGuidance({
     title: 'Ready when you are',
     detail: 'Mark yourself ready below. The game starts automatically when both players are ready.',
     tone: 'action',
+  }
+}
+
+/** A quick lobby is named for its Cards value — the same words as the home screen's mode tiles. */
+function quickTitle(cards: CardsKind): string {
+  switch (cards) {
+    case 'RANDOM': return 'Random deck'
+    case 'MOMIR': return 'Momir Basic'
+    case 'BRING_A_DECK': return 'Constructed'
+    default: return '1v1 Lobby'
   }
 }
 
@@ -466,11 +483,14 @@ function tournamentTitle(lobbyState: LobbyState): string {
   if (s.jumpstartActive) return 'Jump In / Jumpstart'
   if (s.cubeName) return s.cubeName
   if (s.format !== 'PREMADE_DECKS') return s.setNames.join(' + ') || 'Lobby'
+  // Named for the table, as the home screen's tiles are; "Premade Decks" is the server's word for
+  // "bring a deck", and the Cards chip under the title already says that.
+  const commander = rulesFromLobbySettings(s) === 'COMMANDER'
   switch (s.gameMode) {
-    case 'TWO_HEADED_GIANT': return 'Premade Decks Two-Headed Giant'
-    case 'TEAM_VS_TEAM': return 'Premade Decks Team vs. Team'
-    case 'FREE_FOR_ALL': return 'Premade Decks Free-for-All'
-    case 'TOURNAMENT': return 'Premade Decks Tournament'
+    case 'TWO_HEADED_GIANT': return commander ? 'Commander Two-Headed Giant' : 'Two-Headed Giant'
+    case 'TEAM_VS_TEAM': return commander ? 'Commander Team vs. Team' : 'Team vs. Team'
+    case 'FREE_FOR_ALL': return commander ? 'Commander' : 'Free-for-All'
+    case 'TOURNAMENT': return commander ? 'Commander bracket' : 'Constructed bracket'
   }
 }
 
@@ -495,7 +515,7 @@ function tournamentSubtitle(lobbyState: LobbyState): string {
     : preset === 'COMMANDER' ? 'Commander 30 life'
     : 'Brawl 25 life'
   const commanderNote = rulesFromLobbySettings(s) !== 'COMMANDER' ? null
-    : s.format === 'PREMADE_DECKS' ? 'Commander 40 life'
+    : s.format === 'PREMADE_DECKS' ? '40 life'
     : presetLabel
   const pick2 = s.picksPerRound === 2 ? ' · Pick 2' : ''
 
@@ -512,7 +532,9 @@ function tournamentSubtitle(lobbyState: LobbyState): string {
         case 'COMMANDER_SEALED':
           return `${distText ?? `${s.boosterCount} packs`}`
         case 'PREMADE_DECKS':
-          return 'Premade Decks · bring your own ≥40-card deck'
+          return rulesFromLobbySettings(s) === 'COMMANDER'
+            ? 'Bring your own commander deck'
+            : 'Bring your own deck (40+ cards)'
         case 'SEALED':
           return distText ?? `${s.boosterCount} boosters per player`
       }

@@ -39,7 +39,7 @@ export function LoginVerifyPage() {
           <>
             <h1 className={p.h1}>Sign-in failed</h1>
             <p className={a.muted}>{error}</p>
-            <p className={a.muted}>Sign-in links work once and expire after a short while — request a fresh one.</p>
+            <p className={a.muted}>Request a fresh link and use it soon — each one works only once.</p>
             <button type="button" className={p.buttonPrimary} onClick={() => navigate('/', { replace: true })}>
               Back home
             </button>

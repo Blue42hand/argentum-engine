@@ -426,9 +426,9 @@ export function DamageDistributionModal() {
           style={{
             padding: responsive.isMobile ? '12px 24px' : '16px 32px',
             fontSize: responsive.fontSize.normal,
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
+            backgroundColor: 'var(--chrome-bg)',
+            color: 'var(--chrome-text)',
+            border: '1px solid var(--chrome-border)',
             borderRadius: 8,
             cursor: 'pointer',
             fontWeight: 600,

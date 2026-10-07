@@ -137,7 +137,7 @@ export function ActionMenu() {
 
           {/* Cancel button */}
           <button onClick={cancelAction} className={styles.cancelButton}>
-            Cancel (Esc)
+            {hasHover ? 'Cancel (Esc)' : 'Cancel'}
           </button>
         </div>
       </div>

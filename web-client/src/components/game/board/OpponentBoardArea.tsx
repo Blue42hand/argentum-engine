@@ -298,7 +298,7 @@ export function OpponentBoardArea({
     >
       <div style={{ ...styles.playerRowWithZones, alignItems: 'flex-start' }}>
         {/* Opponent command zone (left side) — Commander format only; renders nothing otherwise. */}
-        <CommandZone player={opponent} isOpponent />
+        <CommandZone player={opponent} isOpponent compact={layout === 'strip'} />
 
         <div
           style={{
@@ -447,7 +447,11 @@ export function OpponentBoardArea({
           title={`Collapse ${opponent.name}'s board`}
           style={{
             position: 'absolute',
-            top: controlsTop ?? (drivesOwnHand ? handReservation : 0) + 6,
+            // A plate hung from the bottom edge (your side of a team table) leaves no band at the
+            // top — the zone piles start there — so the control moves down beside the plate.
+            ...(plateAtBottom && hideHand
+              ? { bottom: 6 }
+              : { top: controlsTop ?? (drivesOwnHand ? handReservation : 0) + 6 }),
             right: 8,
             zIndex: 56,
             width: 24,

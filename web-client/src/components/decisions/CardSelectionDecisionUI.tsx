@@ -126,7 +126,9 @@ export function CardSelectionDecision({
   // Calculate card size that fits all cards
   const availableWidth = responsive.viewportWidth - responsive.containerPadding * 2 - 32
   const gap = responsive.isMobile ? 4 : 8
-  const maxCardWidth = responsive.isMobile ? 90 : 130
+  // Height caps it too: on a landscape phone a 130px card plus the source banner pushed the
+  // confirm buttons off the bottom of the screen.
+  const maxCardWidth = Math.min(responsive.isMobile ? 90 : 130, Math.floor((responsive.viewportHeight * 0.32) / 1.4))
   const nonSelectableOptions = decision.nonSelectableOptions ?? []
   const totalCardCount = decision.options.length + nonSelectableOptions.length
   const cardWidth = calculateFittingCardWidth(
@@ -350,7 +352,7 @@ export function CardSelectionDecision({
           : conditionalMinimums.length > 0
           ? `Selected: ${selectedCards.length} / ${requiredMinimum}; fewer is allowed if the selection matches the requirement`
           : decision.minSelections === 0
-          ? `Select up to ${decision.maxSelections}`
+          ? `Selected: ${selectedCards.length} / ${decision.maxSelections}`
           : `Selected: ${selectedCards.length} / ${decision.minSelections}${decision.minSelections !== decision.maxSelections ? ` - ${decision.maxSelections}` : ''}`
         }
       </p>

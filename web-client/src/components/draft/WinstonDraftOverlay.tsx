@@ -127,6 +127,8 @@ function WinstonDrafter({ winstonState, settings }: { winstonState: WinstonDraft
   }, [winstonState.pickedCards])
 
   const isMobile = responsive.isMobile
+  // A phone on its side is wide but short: the phone-sized piles keep Take / Skip within reach.
+  const compactPiles = isMobile || responsive.viewportHeight < 500
 
   return (
     <div className={ls.screen} style={{ zIndex: 100 }}>
@@ -236,7 +238,7 @@ function WinstonDrafter({ winstonState, settings }: { winstonState: WinstonDraft
                   ? 'Opponent'
                   : winstonState.activePlayerName}
                 <span style={{ marginLeft: 6, opacity: 0.7 }}>
-                  — {winstonState.totalPickedByOpponent} cards
+                  — {winstonState.totalPickedByOpponent} {winstonState.totalPickedByOpponent === 1 ? 'card' : 'cards'}
                 </span>
                 {winstonState.knownOpponentCards.length > 0 && (
                   <span style={{ marginLeft: 4, opacity: 0.6 }}>
@@ -275,8 +277,8 @@ function WinstonDrafter({ winstonState, settings }: { winstonState: WinstonDraft
 
                     {/* Pile visualization */}
                     <div style={{
-                      width: isMobile ? 100 : 140,
-                      height: isMobile ? 140 : 196,
+                      width: compactPiles ? 100 : 140,
+                      height: compactPiles ? 140 : 196,
                       borderRadius: 8,
                       border: isExaminable
                         ? '2px solid #f2b45c'
@@ -373,31 +375,17 @@ function WinstonDrafter({ winstonState, settings }: { winstonState: WinstonDraft
                 marginBottom: 16,
               }}>
                 <button
+                  type="button"
                   onClick={winstonTakePile}
                   disabled={winstonState.pileSizes[winstonState.currentPileIndex] === 0}
-                  style={{
-                    background: '#f2b45c', boxShadow: '0 4px 16px rgba(242,180,92,0.25)',
-                    border: 'none', borderRadius: 10,
-                    padding: '11px 24px',
-                    color: '#1d1405', fontWeight: 700, fontSize: 14,
-                    cursor: winstonState.pileSizes[winstonState.currentPileIndex] === 0 ? 'not-allowed' : 'pointer',
-                    opacity: winstonState.pileSizes[winstonState.currentPileIndex] === 0 ? 0.3 : 1,
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                  }}
+                  className={`${ls.primary} ${ls.large}`}
                 >
                   Take Pile {winstonState.currentPileIndex + 1}
                 </button>
                 <button
+                  type="button"
                   onClick={winstonSkipPile}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: 10,
-                    padding: '11px 24px',
-                    color: '#fff', fontWeight: 600, fontSize: 14,
-                    cursor: 'pointer',
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                  }}
+                  className={`${ls.button} ${ls.large}`}
                 >
                   {winstonState.currentPileIndex === 2
                     ? 'Skip (Blind Pick)'
@@ -419,15 +407,17 @@ function WinstonDrafter({ winstonState, settings }: { winstonState: WinstonDraft
           }}>
             {/* Sidebar header with stats */}
             <div style={{
-              padding: '10px 14px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
+              padding: '12px 14px',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
             }}>
+              {/* Same heading as the booster draft's pool rail. */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 8,
               }}>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 13 }}>
-                  Picked Cards ({winstonState.pickedCards.length})
+                <span style={{ color: '#ccc', fontWeight: 600, fontSize: 14 }}>Card Pool</span>
+                <span style={{ color: '#4fc3f7', fontWeight: 600, fontSize: 13 }}>
+                  {winstonState.pickedCards.length} {winstonState.pickedCards.length === 1 ? 'card' : 'cards'}
                 </span>
               </div>
 

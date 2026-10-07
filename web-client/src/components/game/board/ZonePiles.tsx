@@ -174,10 +174,16 @@ export function ZonePile({
   // Clamp labels to the column so a wide label ("Graveyard") can't spill past the cell's
   // overflow clip — at the table's rightmost column that clip edge is the viewport edge,
   // and the spill rendered as sheared half-letters.
+  // Both seats' columns share one width — the nominal pile width, not the fitted one — so a
+  // column whose piles shrank to clear the Concede button still lines up with the other seat's
+  // and still has room for its "Graveyard" label instead of ellipsizing it.
+  const labelWidth = showLabels ? (responsive.isMobile ? 58 : 72) : 0
+  const columnWidth = Math.max(effectivePileWidth + 10, showLabels ? responsive.pileWidth + 10 : 0, labelWidth)
   const zoneLabelStyle: React.CSSProperties = {
     ...styles.zoneLabel,
     fontSize: responsive.isMobile ? 8 : 10,
-    maxWidth: effectivePileWidth + 10,
+    letterSpacing: responsive.isMobile ? 0.6 : 1,
+    maxWidth: columnWidth,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -215,7 +221,7 @@ export function ZonePile({
   }, [isOwnDeck])
 
   return (
-    <div ref={containerRef} style={{ ...styles.zonePile, gap: responsive.cardGap, minWidth: effectivePileWidth + 10, ...verticalOffset }}>
+    <div ref={containerRef} style={{ ...styles.zonePile, gap: responsive.cardGap, minWidth: columnWidth, ...verticalOffset }}>
       {/* Library/Deck */}
       <div style={styles.zoneStack}>
         <div

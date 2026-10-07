@@ -212,7 +212,7 @@
 .joinButton:hover:not(:disabled) { background: rgba(255, 255, 255, 0.18); }
 .joinButton:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* ── Footer: lab links (dev builds) and the credits, on one quiet line ──── */
+/* ── Footer: lab links (dev builds) and community links on one row, the credits beneath ──── */
 
 .footer {
   position: relative;
@@ -220,8 +220,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px 18px;
+  gap: 2px 18px;
   width: 100%;
   max-width: 1320px;
   margin: 0 auto;
@@ -232,11 +231,20 @@
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
 }
 
-.lab {
+.lab,
+.credits {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 2px 4px;
+  gap: 2px 2px;
+}
+
+/* Link text, not link padding, lines up with the footer's edges. */
+.credits { margin-left: -8px; }
+.lab + .credits { margin-left: auto; margin-right: -8px; }
+/* On a phone the two link groups stack; keep both on the left edge rather than zig-zagging. */
+@media (max-width: 560px) {
+  .lab + .credits { margin-left: -8px; margin-right: 0; }
 }
 
 .labLabel {
@@ -246,15 +254,6 @@
   font-size: 11px;
   color: #8f98ac;
   margin-right: 4px;
-}
-
-.credits {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 4px;
-  margin-left: auto;
-  justify-content: flex-end;
 }
 
 .footerLink {
@@ -275,8 +274,14 @@
 .footerLink:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
 .footerLink svg { width: 14px; height: 14px; }
 
-.creditsText { padding-left: 4px; max-width: 760px; text-align: right; line-height: 1.4; }
-.creditsText a { color: rgba(255, 255, 255, 0.85); }
+.creditsText {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+.creditsText a { color: rgba(255, 255, 255, 0.75); }
 
 /* ── Fit the viewport on a desktop ───────────────────────────────────────
  * Wide and tall enough for the two-column hub: the page stops scrolling, the catalogue and the side

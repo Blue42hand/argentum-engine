@@ -184,6 +184,25 @@
 }
 .inviteButton[data-copied='true'] .inviteAction { background: rgba(95, 208, 184, 0.25); color: #c9f3e9; }
 
+/* The QR trigger is part of the invite: same height, glass and radius as the code beside it. */
+.qrButton {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 12, 20, 0.62);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #b4bccd;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.qrButton:hover { border-color: rgba(242, 180, 92, 0.5); color: #eef0f6; }
+.qrButton:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
 /* ── Action bar ────────────────────────────────────────────────────────── */
 
 .actionBar {

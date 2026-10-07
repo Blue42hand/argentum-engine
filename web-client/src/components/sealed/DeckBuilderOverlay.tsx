@@ -1069,11 +1069,12 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           )}
 
           {/* Pool cards */}
+          {/* The bottom padding lets the last row scroll clear of the floating deck-advisor button. */}
           <div
             style={{
               flex: 1,
               overflow: 'auto',
-              padding: 8,
+              padding: '8px 8px 56px',
             }}
           >
             {sortBy === 'rarity' && poolByRarity ? (
@@ -1174,6 +1175,8 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
 
             {/* Mana curve histogram. The 62px box is the tallest bar (36) plus both 9px labels and
                 their margins — at 48 the count label overflowed upward into whatever sat above. */}
+            {/* An empty deck has no curve to draw — just the axis, which read as a broken chart. */}
+            {deckAnalytics.typeTotal > 0 && (
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 62 }}>
               {[0, 1, 2, 3, 4, 5, 6, 7].map((cmc) => {
                 const count = deckAnalytics.curve[cmc] || 0
@@ -1200,6 +1203,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 )
               })}
             </div>
+            )}
 
             {/* Color distribution bars + mana source counts */}
             {(totalColorSymbols > 0 || Object.values(deckAnalytics.landColors).some((v) => v > 0)) && (
@@ -1343,7 +1347,8 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
             style={{
               flex: 1,
               overflow: 'auto',
-              padding: '4px 0',
+              // On phones the deck list sits under the floating deck-advisor button; let it scroll clear.
+              padding: responsive.isMobile ? '4px 0 56px' : '4px 0',
             }}
           >
             {deckCardGroups.map(({ card, count }) => (
@@ -1843,7 +1848,7 @@ function DeckTypeDistribution({
 }) {
   if (total === 0) {
     return (
-      <div style={{ color: '#666', fontSize: 10, marginBottom: 8 }}>
+      <div style={{ color: '#8f98ac', fontSize: 12, padding: '6px 0' }}>
         Click cards in the pool to build your deck
       </div>
     )

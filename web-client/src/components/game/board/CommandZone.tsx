@@ -16,7 +16,21 @@ import { GameCard } from '../card'
  *
  * Renders nothing when the command zone is empty (default for non-Commander formats).
  */
-export function CommandZone({ player, isOpponent = false }: { player: ClientPlayer; isOpponent?: boolean }) {
+export function CommandZone({
+  player,
+  isOpponent = false,
+  compact = false,
+}: {
+  player: ClientPlayer
+  isOpponent?: boolean
+  /**
+   * A multiplayer board cell (table overview, team rows). The cell's battlefield sizes its cards
+   * from the cell, but this zone sat outside that slot and kept the full-board card width — so a
+   * commander rendered two or three times the size of everything around it and spilled into the
+   * neighbouring cell. Compact matches the zone-pile column on the cell's other side instead.
+   */
+  compact?: boolean
+}) {
   const cards = useZoneCards(command(player.playerId))
   const responsive = useResponsiveContext()
 
@@ -26,7 +40,7 @@ export function CommandZone({ player, isOpponent = false }: { player: ClientPlay
   // so the commander reads as a real, interactive card rather than a shrunken pile thumbnail.
   // (`smallCardWidth` is *smaller* than `pileWidth` on desktop, despite the name; battlefield
   // is the correct "regular card" reference size.)
-  const cardWidth = responsive.battlefieldCardWidth
+  const cardWidth = compact ? responsive.pileWidth : responsive.battlefieldCardWidth
 
   // Mirror ZonePile's vertical alignment so the command zone hugs the same edge of the row.
   const verticalOffset = isOpponent
@@ -40,8 +54,8 @@ export function CommandZone({ player, isOpponent = false }: { player: ClientPlay
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 6,
-        minWidth: cardWidth + 16,
+        gap: compact ? 3 : 6,
+        minWidth: cardWidth + (compact ? 8 : 16),
         ...verticalOffset,
       }}
     >
@@ -58,7 +72,7 @@ export function CommandZone({ player, isOpponent = false }: { player: ClientPlay
       <span
         style={{
           color: '#d4af37',
-          fontSize: responsive.isMobile ? 8 : 10,
+          fontSize: responsive.isMobile || compact ? 8 : 10,
           textTransform: 'uppercase',
           letterSpacing: 1,
           fontWeight: 600,

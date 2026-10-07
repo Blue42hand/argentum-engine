@@ -179,12 +179,12 @@ export function FreeForAllOverlay({ ffaState }: { ffaState: FfaState }) {
       {/* ── Leave ── */}
       <div className={styles.trnSection} style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
         {!confirmLeave ? (
-          <button onClick={() => setConfirmLeave(true)} className={styles.leaveButton}>
+          <button onClick={() => setConfirmLeave(true)} className={styles.trnLeave}>
             Leave
           </button>
         ) : (
           <>
-            <button onClick={leaveTournament} className={styles.leaveButton}>
+            <button onClick={leaveTournament} className={styles.trnLeaveConfirm}>
               Confirm Leave
             </button>
             <button onClick={() => setConfirmLeave(false)} className={styles.trnToolbarBtn}>

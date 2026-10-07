@@ -456,7 +456,7 @@ function GridDrafter({ gridState, settings }: { gridState: GridDraftState; setti
                     {name}{isYou ? ' (You)' : ''}
                     {isOpponent && opponentCount != null && (
                       <span style={{ marginLeft: 6, opacity: 0.7 }}>
-                        — {opponentCount} cards
+                        — {opponentCount} {opponentCount === 1 ? 'card' : 'cards'}
                       </span>
                     )}
                   </div>
@@ -644,15 +644,17 @@ function GridDrafter({ gridState, settings }: { gridState: GridDraftState; setti
           }}>
             {/* Sidebar header with stats */}
             <div style={{
-              padding: '10px 14px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
+              padding: '12px 14px',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
             }}>
+              {/* Same heading as the booster draft's pool rail. */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 8,
               }}>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 13 }}>
-                  Picked Cards ({gridState.pickedCards.length})
+                <span style={{ color: '#ccc', fontWeight: 600, fontSize: 14 }}>Card Pool</span>
+                <span style={{ color: '#4fc3f7', fontWeight: 600, fontSize: 13 }}>
+                  {gridState.pickedCards.length} {gridState.pickedCards.length === 1 ? 'card' : 'cards'}
                 </span>
               </div>
 

@@ -351,9 +351,9 @@ export function ZoneSelectionUI({
           style={{
             padding: responsive.isMobile ? '10px 20px' : '12px 28px',
             fontSize: responsive.fontSize.normal,
-            backgroundColor: '#1e40af',
-            color: 'white',
-            border: 'none',
+            backgroundColor: 'var(--chrome-bg)',
+            color: 'var(--chrome-text)',
+            border: '1px solid var(--chrome-border)',
             borderRadius: 8,
             cursor: 'pointer',
             transition: 'all 0.15s',

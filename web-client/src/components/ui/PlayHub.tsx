@@ -111,7 +111,6 @@ export function PlayHub({
                   data-selected={selected === mode.id}
                   data-testid={`mode-${mode.slug}`}
                   aria-pressed={selected === mode.id}
-                  title={mode.players}
                   onClick={() => (selected === mode.id ? close() : open(mode.id))}
                 >
                   <ModeIcon mode={mode.id} group={mode.group} />

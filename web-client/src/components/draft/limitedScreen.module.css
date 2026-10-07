@@ -196,8 +196,25 @@
   color: #8f98ac;
 }
 
+/* Short screens (a phone on its side): every pixel of height goes to the cards, so the bars slim down. */
+@media (max-height: 500px) {
+  .header { padding: 6px 12px; gap: 6px 8px; }
+  .title { font-size: 17px; }
+  .pill { min-height: 28px; padding: 0 9px; font-size: 12px; }
+  .primary, .button, .leave { min-height: 30px; padding: 0 12px; font-size: 13px; }
+  .footer { padding: 6px 12px; }
+  .large { min-height: 38px; padding: 0 24px; font-size: 15px; }
+  .banner { padding: 4px 12px; }
+}
+
 @media (max-width: 640px) {
-  .header { padding: 8px 12px; gap: 6px 8px; }
+  .header { padding: 8px 12px; gap: 6px 8px; justify-content: flex-start; }
+  /* The title's controls (Archetypes, a grid number) stay on its line — the title ellipsizes to make
+     room — instead of stranding on a line of their own; the bar is two rows, not three. */
+  .header > .headerGroup:first-child { flex-wrap: nowrap; max-width: 100%; }
+  .header > .headerGroup:first-child > * { flex-shrink: 0; }
+  .header > .headerGroup:first-child > .title { flex-shrink: 1; }
+  .header > .headerGroup:last-child { margin-left: auto; }
   .title { font-size: 17px; }
   .titleSub { display: none; }
   .pill { min-height: 28px; padding: 0 9px; font-size: 12px; }
