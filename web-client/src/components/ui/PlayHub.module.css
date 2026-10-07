@@ -620,3 +620,10 @@
   .stages, .footerHint { display: none; }
   .playButton { min-height: 44px; }
 }
+
+/* Large screens (see Home.module.css): the hub takes its content's height so the page column can
+   centre it; everything fits, so nothing needs to scroll on its own. */
+@media (min-width: 1500px) and (min-height: 940px) {
+  .hub { flex: 0 0 auto; height: auto; }
+  .catalog, .side { max-height: none; }
+}

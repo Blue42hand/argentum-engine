@@ -307,3 +307,9 @@
   .joinLabel { display: none; }
   .navItem { padding: 0 12px; }
 }
+
+/* A large screen has height to spare once the hub fits: centre the content between the top bar
+   and the footer instead of leaving it all at the top. */
+@media (min-width: 1500px) and (min-height: 940px) {
+  .main { justify-content: center; padding-bottom: 6vh; }
+}
