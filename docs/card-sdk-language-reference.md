@@ -3144,6 +3144,14 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
 - `FilterCollection(from, GameObjectFilter.Any.currentlyIn(zone), storeMatching)` — keep only the cards in pipeline collection `from` that are **currently** in `zone`. Pipeline collections track entity refs, not live location, so a card can leave its zone mid-resolution (e.g. an exiled card cast for free moves to the stack). Use this to act on "the ones still there." Models the "you may cast it … if you don't, put that card into your hand" fallback of the **Tarkir: Dragonstorm "…storm" enchantments** (Breaching Dragonstorm): `GatherUntilMatch(Nonland) → MoveCollection(→ exile) → FilterCollection(Any.manaValueAtMostDynamic(Fixed(8)), "castable") → ConditionalOnCollection("castable", ifNotEmpty = Effects.May(CastFromCollectionWithoutPayingCost("castable"))) → FilterCollection("nonland", Any.currentlyIn(EXILE), "uncast") → MoveCollection("uncast" → hand)` — only the nonland still in exile (not the one just cast) goes to hand; the lands stay exiled. The `ConditionalOnCollection` wrapper suppresses the empty "you may cast" prompt when the nonland's mana value is > 8.
 - `FilterCollection(from, collectionFilter = CollectionFilter.GreatestManaValue, storeMatching)` — keep the cards tied for the greatest mana value (ties all kept, so a downstream "exactly one" step can see them). A face-down permanent in the collection counts as mana value 0 (CR 708.2a, 202.3a). Over a gathered battlefield collection it spells "sacrifices a creature with the greatest mana value among creatures they control": Gather → `GreatestManaValue` → `SelectFromCollection(ChooseExactly(1), chooser = TargetPlayer)` → `MoveCollection(moveType = Sacrifice)` (Break Under Pressure). Reveal-and-compare cards use it the same way (Psychic Battle).
 - `MoveCollectionEffect(from, destination, filter = null, …)` *(SDK-internal step; cards use `Effects.Pipeline { move/moveTracked and the destroy/sacrifice/discard/exile/toHand/… shortcuts }` — §5.5.)* — move a pipeline collection to a zone.
+  **A collection spanning several players is one simultaneous move by each of them.** A graveyard
+  destination always routes each card to its owner's graveyard (CR 400.3); a `MoveType.Discard`
+  emits one `CardsDiscardedEvent` per owner (and asks each owner their own discard-destination
+  choices); a `MoveType.Sacrifice` emits one `PermanentsSacrificedEvent` per controller. That is the
+  "each player chooses …, then all are sacrificed / discarded at the same time" shape:
+  `forEachPlayerCollecting(Player.ActivePlayerFirst) { …; listOf(rest) }` collects every player's
+  remainder in APNAP order, then a single `sacrifice(rest)` / `discard(rest)` acts on all of them
+  (Balance).
   `destination = ToZone(zone, player, placement)` or `ToZoneExiledFrom(fallback = BATTLEFIELD)`
   (below); `ZonePlacement.Tapped` enters the battlefield
   tapped, and `player` sets the controller for a battlefield destination (so a card can enter under
@@ -13295,7 +13303,8 @@ forbids `DynamicAmount.X` in card definitions.
   distinctTypes() / totalCounters(type) / totalCounters()` (no type = every kind of counter,
   `CardNumericProperty.COUNTERS` — Hydra Trainer's "the number of counters on permanents you control"), `zone(player, zone, filter).count() / distinctTypes() / …`,
   `lifeTotal(player)`, `yourLifeTotal()`, `startingLifeTotal(player)`, `playerCount(scope)`,
-  `countPlayersWith(scope, condition)`, `greatestAmongPlayers(inner, players)`, `totalManaSpent()`,
+  `countPlayersWith(scope, condition)`, `greatestAmongPlayers(inner, players)`,
+  `leastAmongPlayers(inner, players)`, `fewestControlledBySinglePlayer(filter, players)`, `totalManaSpent()`,
   `manaSpentOnX(color)`, `manaSpentFromSubtype(subtype)`, `unspentMana(player)`,
   `largestSharedCreatureTypeCount(player)`, `craftedMaterialsTotalPower() / TotalManaValue() /
   ColorCount()`, the entity readers `powerOf / toughnessOf / manaValueOf / countersOn /
@@ -13469,6 +13478,13 @@ forbids `DynamicAmount.X` in card definitions.
   `players = Player.EachOpponent` for the "an opponent controls" wording (Cavern-Hoard Dragon). The
   wrapper takes any `DynamicAmount`, so the off-battlefield siblings ("the greatest number of cards an
   opponent has drawn this turn") are the same shape around a `TurnTracking`.
+- `LeastAmongPlayers(players, inner)` — the minimum twin of `GreatestAmongPlayers`, same per-player
+  rebinding of `Player.You` inside `inner`: "the number of lands controlled by **the player who
+  controls the fewest**". Empty player set evaluates to 0. Facades
+  `DynamicAmounts.leastAmongPlayers(inner, players)` and
+  `DynamicAmounts.fewestControlledBySinglePlayer(filter, players)`. Balance keeps
+  `fewestControlledBySinglePlayer(Land)` lands, then `leastAmongPlayers(cardsInYourHand())` cards,
+  then `fewestControlledBySinglePlayer(Creature)` creatures, each counted at its own part.
 - `AggregateZone(player, zone, filter?, aggregation?)` — count cards in a zone.
 - `CountPermanentsOfType(player, subtype)` — count by creature type.
 - `CountCreaturesYouControl` — shorthand for "your creatures".
