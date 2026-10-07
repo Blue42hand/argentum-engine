@@ -61,9 +61,9 @@ class GeistOfSaintThaliaScenarioTest : ScenarioTestBase() {
             val copyId = game.state.getExile(game.player1Id).first {
                 game.state.getEntity(it)?.has<PreparedSpellCopyComponent>() == true
             }
-            val offer = game.legalActions(game.player1Id).first { (it.action as? CastSpell)?.cardId == copyId }
+            val offer = game.getLegalActions(1).first { (it.action as? CastSpell)?.cardId == copyId }
             offer.manaCostString shouldBe "{G}"
-            offer.affordable shouldBe true
+            offer.isAffordable shouldBe true
 
             // Rampant Growth costs {1}{G}; one Forest is left, so only the discount pays for it.
             game.execute(CastSpell(game.player1Id, copyId, faceIndex = 0)).error shouldBe null
