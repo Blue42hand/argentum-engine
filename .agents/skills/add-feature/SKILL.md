@@ -194,6 +194,8 @@ details (`ScenarioTestBase` vs `GameTestDriver`, inline test cards) and which co
 - **[`web-client/src/components/whatsNew/announcements.ts`](../../../web-client/src/components/whatsNew/announcements.ts)**
   — when the feature is a new game mode or changes how players use the site (not an engine primitive,
   fix or polish), add a `mode`/`feature` entry at the top of the "What's new" feed.
+- **[`web-client/src/help/topics.ts`](../../../web-client/src/help/topics.ts)** — the in-app Help wiki.
+  Any player-visible feature gets a topic (or fixes the topics it makes wrong) in the same change.
 
 ## Step 9: Keep Argentum Assay compiling and honest
 

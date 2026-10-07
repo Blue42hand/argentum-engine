@@ -71,6 +71,11 @@ docs it points at; load those when the work needs them.
   in the *same* PR. A set entry needs `setCode`, a `body` that pitches what the set is like to play, and
   `tryIf`; never change a shipped `id`. Card batches, fixes and UI polish don't go in. The file's header
   comment has the bar.
+- **Document user-facing features in the in-app Help wiki.** A new mode, screen, or change to how
+  players use the site updates [`web-client/src/help/topics.ts`](web-client/src/help/topics.ts) — the
+  single source behind `/help` and the inline `HelpTip` popovers — in the *same* PR: add a topic, or
+  correct the ones the change makes wrong, and link it from `related` on its neighbours. Audience: knows
+  Magic, new to Argentum — explain what the app does, not the rules.
 
 ## Module layout
 
