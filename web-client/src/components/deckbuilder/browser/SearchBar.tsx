@@ -94,7 +94,16 @@ export function SearchBar({
   )
 }
 
-export function SearchHelp({ onClose, onInsert }: { onClose: () => void; onInsert: (t: string) => void }) {
+export function SearchHelp({
+  onClose,
+  onInsert,
+  intro,
+}: {
+  onClose: () => void
+  onInsert: (t: string) => void
+  /** Rendered above the syntax reference — e.g. how this search box's modes differ. */
+  intro?: React.ReactNode
+}) {
   const examples: Array<{ syntax: string; desc: string }> = [
     { syntax: 'lightning', desc: 'name contains "lightning"' },
     { syntax: '!"Lightning Bolt"', desc: 'exact card name' },
@@ -133,6 +142,7 @@ export function SearchHelp({ onClose, onInsert }: { onClose: () => void; onInser
             Close
           </button>
         </div>
+        {intro}
         <p className={styles.helpHint}>
           Tokens combine with implicit AND. Use <code>or</code> for alternation,
           parentheses for grouping, and <code>-</code> or <code>not</code> for negation.

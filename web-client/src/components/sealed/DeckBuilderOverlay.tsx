@@ -179,7 +179,6 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
   const [searchMode, setSearchMode] = useState<SearchMode>(loadSearchMode)
   const changeSearchMode = (mode: SearchMode) => {
     setSearchMode(mode)
-    if (mode === 'simple') setSearchHelpOpen(false)
     try { localStorage.setItem(SEARCH_MODE_KEY, mode) } catch { /* storage unavailable */ }
   }
   // Phones: the sort / filter / search controls fold behind one button so the pool gets the screen.
@@ -860,14 +859,28 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
 
             <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255, 255, 255, 0.12)', margin: '0 4px' }} />
 
+            {/* One field: the mode switch is the search box's own prefix, sharing its border. */}
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'stretch',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: searchQuery.errors.length > 0
+                  ? '1px solid #d96c5e'
+                  : searchText ? '1px solid #4fc3f7' : '1px solid rgba(255, 255, 255, 0.16)',
+                borderRadius: 4,
+              }}
+            >
             <div
               role="radiogroup"
               aria-label="Search mode"
               style={{
                 display: 'flex',
-                borderRadius: 4,
-                border: '1px solid rgba(255, 255, 255, 0.16)',
-                overflow: 'hidden',
+                alignItems: 'center',
+                gap: 2,
+                padding: '0 3px',
+                borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                 flexShrink: 0,
               }}
             >
@@ -882,12 +895,14 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                     onClick={() => changeSearchMode(mode)}
                     title={hint}
                     style={{
-                      padding: '3px 8px',
+                      padding: '1px 6px',
                       fontSize: 11,
-                      backgroundColor: active ? '#4fc3f7' : 'rgba(255, 255, 255, 0.04)',
-                      color: active ? '#000' : '#aaa',
+                      lineHeight: '16px',
+                      backgroundColor: active ? 'rgba(79, 195, 247, 0.2)' : 'transparent',
+                      color: active ? '#4fc3f7' : '#888',
                       fontWeight: active ? 600 : 400,
                       border: 'none',
+                      borderRadius: 3,
                       cursor: 'pointer',
                     }}
                   >
@@ -897,7 +912,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
               })}
             </div>
 
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="text"
                 value={searchText}
@@ -913,14 +928,11 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                   padding: '3px 24px 3px 8px',
                   fontSize: 12,
                   fontFamily: searchMode === 'scryfall' ? 'var(--font-mono, monospace)' : undefined,
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'transparent',
                   color: '#ddd',
-                  border: searchQuery.errors.length > 0
-                    ? '1px solid #d96c5e'
-                    : searchText ? '1px solid #4fc3f7' : '1px solid rgba(255, 255, 255, 0.16)',
-                  borderRadius: 4,
+                  border: 'none',
                   outline: 'none',
-                  width: responsive.isMobile ? 170 : 240,
+                  width: responsive.isMobile ? 150 : 220,
                 }}
               />
               {searchText && (
@@ -979,10 +991,11 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 </ul>
               )}
             </div>
-            {searchMode === 'scryfall' && <button
+            </div>
+            <button
               onClick={() => setSearchHelpOpen((v) => !v)}
-              title="Search syntax"
-              aria-label="Show search syntax help"
+              title="How search works"
+              aria-label="Show search help"
               type="button"
               style={{
                 width: 20,
@@ -1000,9 +1013,16 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
               }}
             >
               ?
-            </button>}
+            </button>
             {searchHelpOpen && (
-              <SearchHelp onClose={() => setSearchHelpOpen(false)} onInsert={setSearchText} />
+              <SearchHelp
+                onClose={() => setSearchHelpOpen(false)}
+                onInsert={(t) => {
+                  changeSearchMode('scryfall')
+                  setSearchText(t)
+                }}
+                intro={<SearchModeExplainer />}
+              />
             )}
             </>)}
 
@@ -2573,6 +2593,22 @@ const SEARCH_MODE_OPTIONS: { mode: SearchMode; label: string; hint: string }[] =
 ]
 
 const EMPTY_QUERY = parseQuery('')
+
+function SearchModeExplainer() {
+  const term = { color: '#4fc3f7', fontWeight: 600 } as const
+  return (
+    <div style={{ fontSize: 12, lineHeight: 1.5, color: '#ccc', margin: '4px 0 8px', display: 'grid', gap: 4 }}>
+      <div>
+        <span style={term}>Simple</span> — finds cards whose name, type line, or rules text contains
+        what you type. <code>flying</code> matches every card that mentions flying.
+      </div>
+      <div>
+        <span style={term}>Scryfall</span> — reads the query syntax below, so you can combine
+        conditions: <code>t:creature cmc&lt;=3 o:flying</code>. Clicking an example switches to it.
+      </div>
+    </div>
+  )
+}
 
 function loadSearchMode(): SearchMode {
   try {
