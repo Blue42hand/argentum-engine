@@ -103,6 +103,23 @@ class JumpstartLobbyTest : FunSpec({
         restored.players.getValue(host).cardPool.size shouldBe 40
     }
 
+    test("pick one shows pick two's offers, which stay fixed through a pick, an undo and a restart") {
+        val l = lobby()
+        l.startJumpstart(host) shouldBe true
+        val upcoming = l.buildLobbyUpdate(host).jumpstart!!.upcomingOffers.map { it.id }
+        upcoming.size shouldBe 3
+        l.players.getValue(host).jumpstartOffers.let { first ->
+            l.pickJumpstart(host, first.first(), 1) shouldBe true
+        }
+        l.players.getValue(host).jumpstartOffers shouldBe upcoming
+        l.buildLobbyUpdate(host).jumpstart!!.upcomingOffers shouldBe emptyList()
+        val (restored, _) = restoreTournamentLobby(l.toPersistent(), registry, generator)
+        restored.undoJumpstartPick(host, 2) shouldBe true
+        restored.buildLobbyUpdate(host).jumpstart!!.upcomingOffers.map { it.id } shouldBe upcoming
+        restored.pickJumpstart(host, restored.players.getValue(host).jumpstartOffers.last(), 1) shouldBe true
+        restored.players.getValue(host).jumpstartOffers shouldBe upcoming
+    }
+
     test("every published pack makes a submittable deck, including seven Snow-Covered Islands") {
         for (set in listOf("JMP", "J22")) {
             val packs = JumpstartPacks(generator, set).packs

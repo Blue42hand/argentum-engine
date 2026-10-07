@@ -44,18 +44,19 @@ function DeckSlot({ pack, label, tone, ghost, onView, onChange }: {
 
 /**
  * The deck under construction — Arena's two-packet strip. The pack chosen first stays on screen
- * while the second is picked, and hovering an offer drops it into the empty slot so the colors,
- * counts and curve shown are those of the 40-card deck the pair would make.
+ * while the second is picked, and hovering an offer drops it into its empty slot so the colors,
+ * counts and curve shown are those of the 40-card deck the pair would make. During pick one both
+ * slots can hold a candidate: one from each round's offers.
  */
-function DeckBar({ chosen, candidate, onViewChosen, onChangeFirst }: {
+function DeckBar({ chosen, candidates, onViewChosen, onChangeFirst }: {
   chosen: readonly JumpstartOffer[]
-  candidate: JumpstartOffer | undefined
+  candidates: readonly [JumpstartOffer | undefined, JumpstartOffer | undefined]
   onViewChosen: (index: number) => void
   /** Present only while the second pack is undecided. */
   onChangeFirst: (() => void) | undefined
 }) {
-  const first = chosen[0] ?? (chosen.length === 0 ? candidate : undefined)
-  const second = chosen[1] ?? (chosen.length === 1 ? candidate : undefined)
+  const first = chosen[0] ?? candidates[0]
+  const second = chosen[1] ?? candidates[1]
   const parts = useMemo(() => [first, second].filter((p): p is JumpstartOffer => p !== undefined)
     .map((p) => summarizePack(p.cards)), [first, second])
   const colors = mergeColors(...parts.map((p) => p.colors))
@@ -63,10 +64,10 @@ function DeckBar({ chosen, candidate, onViewChosen, onChangeFirst }: {
   const complete = parts.length === 2
   return <section className={styles.deckBar} aria-label="Your deck">
     <div className={styles.slots}>
-      <DeckSlot pack={first} label="First pack" tone="base" ghost={chosen.length === 0 && !!candidate}
+      <DeckSlot pack={first} label="First pack" tone="base" ghost={!chosen[0] && !!candidates[0]}
         onView={chosen[0] ? () => onViewChosen(0) : undefined} onChange={onChangeFirst} />
       <span className={styles.plus} aria-hidden>+</span>
-      <DeckSlot pack={second} label="Second pack" tone="pack" ghost={chosen.length === 1 && !!candidate}
+      <DeckSlot pack={second} label="Second pack" tone="pack" ghost={!chosen[1] && !!candidates[1]}
         onView={chosen[1] ? () => onViewChosen(1) : undefined} />
     </div>
     <div className={styles.deckSummary}>
@@ -91,7 +92,8 @@ function OfferCard({ offer, base, pending, disabled, onChoose, onExplore, onPrev
   base: JumpstartOffer | undefined
   pending: boolean
   disabled: boolean
-  onChoose: () => void
+  /** Absent for pick two's offers previewed during pick one. */
+  onChoose: (() => void) | undefined
   onExplore: () => void
   onPreview: (previewing: boolean) => void
 }) {
@@ -117,15 +119,15 @@ function OfferCard({ offer, base, pending, disabled, onChoose, onExplore, onPrev
       </div>
       <div className={styles.packActions}>
         <button className={styles.explore} onClick={onExplore}>Explore this pack</button>
-        <button className={styles.choose} disabled={disabled} onClick={onChoose}>
+        {onChoose ? <button className={styles.choose} disabled={disabled} onClick={onChoose}>
           {pending ? 'Choosing…' : `Choose ${offer.theme}`}
-        </button>
+        </button> : <span className={styles.upcomingTag}>Offered in pick two</span>}
       </div>
     </div>
   </article>
 }
 
-type Explorer = { from: 'offers' | 'chosen'; index: number }
+type Explorer = { from: 'offers' | 'upcoming' | 'chosen'; index: number }
 
 /** Pack legality, offers and deck assembly all come from the server. */
 export function JumpstartOverlay() {
@@ -137,13 +139,14 @@ export function JumpstartOverlay() {
   const connection = useGameStore((s) => s.connectionStatus)
   const [pending, setPending] = useState<string | null>(null)
   const [previewing, setPreviewing] = useState<string | null>(null)
+  const [previewingUpcoming, setPreviewingUpcoming] = useState<string | null>(null)
   const [explorer, setExplorer] = useState<Explorer | null>(null)
   // Touch has no hover: previewing on tap would reflow the page under the finger.
   const hasHover = useHasHover()
   const state = lobby?.jumpstart
   const roundKey = `${lobby?.lobbyId}:${state?.pickNumber}`
   useEffect(() => { setPending(null) }, [roundKey, error, connection])
-  useEffect(() => { setPreviewing(null); setExplorer(null) }, [roundKey])
+  useEffect(() => { setPreviewing(null); setPreviewingUpcoming(null); setExplorer(null) }, [roundKey])
   if (!state || !lobby) return null
   const ready = state.selectedPacks.length === 2
   const chosen = state.selected ?? []
@@ -155,8 +158,20 @@ export function JumpstartOverlay() {
     setPending(offer.id)
     pick(offer.id, state.pickNumber)
   }
+  const upcoming = state.pickNumber === 1 ? state.upcomingOffers ?? [] : []
+  // With both rounds on screen, a preview sticks after the pointer leaves, so a pack from one row
+  // stays in its slot while the other row is browsed for a partner.
+  const planning = upcoming.length > 0
   const candidate = ready ? undefined : state.offers.find((o) => o.id === (pending ?? previewing))
-  const explorerPacks = explorer?.from === 'chosen' ? chosen : state.offers
+  const upcomingCandidate = upcoming.find((o) => o.id === previewingUpcoming)
+  const candidates = state.pickNumber === 1
+    ? [candidate, upcomingCandidate] as const
+    : [undefined, candidate] as const
+  const explorerPacks = explorer?.from === 'chosen' ? chosen : explorer?.from === 'upcoming' ? upcoming : state.offers
+  const explorerBase = explorer?.from === 'chosen' ? chosen[0]
+    : explorer?.from === 'upcoming' ? candidate : base ?? upcomingCandidate
+  const preview = (set: typeof setPreviewing, id: string) => (on: boolean) =>
+    hasHover && set((prev) => on ? id : prev === id && !planning ? null : prev)
   const table = lobby.settings.gameMode === 'FREE_FOR_ALL' ? `Free-for-All · ${lobby.players.length} players` : null
   return (
     <div className={styles.overlay}>
@@ -178,22 +193,34 @@ export function JumpstartOverlay() {
         <h1>{ready ? 'Two themes. One deck. Let’s play.' : `Choose your ${state.pickNumber === 1 ? 'first' : 'second'} theme`}</h1>
         <p className={styles.intro}>
           {ready ? 'Your 40-card deck is ready. The game starts when everyone has chosen.'
-            : state.pickNumber === 1 ? 'Find a theme you love. You’ll pair it with a second pack to make your deck — all the lands are included.'
+            : state.pickNumber === 1 ? (planning
+              ? 'Find a theme you love, with a partner in mind. Below your choices are the packs your second pick will offer — hover one from each row to see the deck the pair would make. All the lands are included.'
+              : 'Find a theme you love. You’ll pair it with a second pack to make your deck — all the lands are included.')
               : `Pick a partner for ${base?.theme ?? 'your first pack'}. Hover a pack to see the deck the two would make, or explore it card by card. Changed your mind? You can still swap your first pack.`}
         </p>
         {state.selectedPacks.length > 0 &&
           <span className={styles.srOnly} aria-label="Chosen themes">{state.selectedPacks.map((name) => `✓ ${name}`).join(' ')}</span>}
-        <DeckBar chosen={chosen} candidate={candidate} onViewChosen={(index) => setExplorer({ from: 'chosen', index })}
+        <DeckBar chosen={chosen} candidates={candidates} onViewChosen={(index) => setExplorer({ from: 'chosen', index })}
           onChangeFirst={state.selectedPacks.length === 1 && canPick ? () => { setPending('undo'); undo(state.pickNumber) } : undefined} />
         {connection !== 'connected' && <p role="status" className={styles.intro}>Reconnecting… Your choices are saved.</p>}
         {error && <p className={styles.error} role="alert">{error.message}</p>}
         {!ready && <div className={styles.packs} aria-busy={pending !== null}>
           {state.offers.map((offer, i) => <OfferCard key={`${state.pickNumber}-${offer.id}`}
-            offer={offer} base={base} pending={pending === offer.id} disabled={!canPick}
+            offer={offer} base={base ?? upcomingCandidate} pending={pending === offer.id} disabled={!canPick}
             onChoose={() => choose(offer)}
             onExplore={() => setExplorer({ from: 'offers', index: i })}
-            onPreview={(on) => hasHover && setPreviewing((prev) => on ? offer.id : prev === offer.id ? null : prev)} />)}
+            onPreview={preview(setPreviewing, offer.id)} />)}
         </div>}
+        {!ready && planning && <section aria-label="Second pick offers">
+          <h2 className={styles.upcomingHeading}>Your second pick will offer</h2>
+          <div className={styles.packs}>
+            {upcoming.map((offer, i) => <OfferCard key={`upcoming-${offer.id}`}
+              offer={offer} base={candidate} pending={false} disabled
+              onChoose={undefined}
+              onExplore={() => setExplorer({ from: 'upcoming', index: i })}
+              onPreview={preview(setPreviewingUpcoming, offer.id)} />)}
+          </div>
+        </section>}
         {ready && <section className={styles.waiting} aria-label="Player readiness">
           <h2>At the table</h2>
           <ul>{lobby.players.map((player) => <li key={player.playerId}>
@@ -210,7 +237,7 @@ export function JumpstartOverlay() {
         packs={explorerPacks}
         index={explorer.index}
         onIndex={(index) => setExplorer({ ...explorer, index })}
-        base={explorer.from === 'offers' ? base : chosen[0]}
+        base={explorerBase}
         onChoose={explorer.from === 'offers' ? choose : undefined}
         chooseDisabled={!canPick}
         onClose={() => setExplorer(null)}

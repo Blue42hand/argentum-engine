@@ -598,6 +598,8 @@ sealed interface ServerMessage {
         val offers: List<JumpstartOffer>,
         /** Full contents of the packs already chosen, so pick two can be weighed against pick one. */
         val selected: List<JumpstartOffer> = emptyList(),
+        /** During pick one, the packs pick two will offer, so the pair can be planned together. */
+        val upcomingOffers: List<JumpstartOffer> = emptyList(),
     )
 
     /**

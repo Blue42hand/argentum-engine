@@ -1598,6 +1598,8 @@ export interface JumpstartState {
   readonly offers: readonly JumpstartOffer[]
   /** Full contents of the packs already chosen (older servers omit it). */
   readonly selected?: readonly JumpstartOffer[]
+  /** During pick one, the packs pick two will offer (older servers omit it). */
+  readonly upcomingOffers?: readonly JumpstartOffer[]
 }
 
 export interface LobbyUpdateMessage {

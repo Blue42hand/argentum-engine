@@ -81,6 +81,8 @@
 .explore:hover { background: #ffffff0d; }
 .leave { background: transparent; color: #c9cfdc; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 13px; }
 .leave:hover { background: #ffffff0a; }
+.upcomingTag { align-self: center; justify-self: end; color: var(--js-muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.upcomingHeading { margin: 36px 0 0; font-family: var(--font-display); font-weight: 600; font-size: 20px; color: #d9dde7; }
 .overlay button:focus-visible, .explorer button:focus-visible { outline: 2px solid var(--js-gold-hi); outline-offset: 3px; }
 
 .waiting { max-width: 620px; margin-top: 28px; padding: 24px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; background: rgba(255, 255, 255, 0.04); }

@@ -195,6 +195,8 @@ data class LobbyPlayerState(
     val jumpstartSelections: List<String> = emptyList(),
     /** The three packs offered for pick one, kept so a player can go back and choose again. */
     val jumpstartFirstOffers: List<String> = emptyList(),
+    /** The three packs pick two will offer, rolled at the start so pick one can be weighed against them. */
+    val jumpstartSecondOffers: List<String> = emptyList(),
     /** For sealed: full pool. For draft: cards picked so far. */
     val cardPool: List<CardDefinition> = emptyList(),
     /** Draft only: current pack to pick from. */
@@ -964,7 +966,12 @@ class TournamentLobby(
     fun startJumpstart(playerId: EntityId): Boolean {
         if (!isJumpstart || !isHost(playerId) || state != LobbyState.WAITING_FOR_PLAYERS || players.size < 2) return false
         if (jumpstartStartError() != null) return false
-        players.replaceAll { _, player -> player.copy(jumpstartOffers = jumpstartPacks.offer(bannedCardNames)) }
+        players.replaceAll { _, player ->
+            player.copy(
+                jumpstartOffers = jumpstartPacks.offer(bannedCardNames),
+                jumpstartSecondOffers = jumpstartPacks.offer(bannedCardNames),
+            )
+        }
         state = LobbyState.DECK_BUILDING
         return true
     }
@@ -977,11 +984,14 @@ class TournamentLobby(
             pickNumber != player.jumpstartSelections.size + 1 || packId !in player.jumpstartOffers) return false
         val pack = jumpstartPacks.packs.find { it.id == packId } ?: return false
         val selected = player.jumpstartSelections + packId
+        // A lobby persisted before pick two was pre-rolled has no second offers yet.
+        val secondOffers = player.jumpstartSecondOffers.ifEmpty { jumpstartPacks.offer(bannedCardNames) }
         players[playerId] = player.copy(
             cardPool = player.cardPool + pack.cards,
             jumpstartSelections = selected,
-            jumpstartOffers = if (selected.size == 2) emptyList() else jumpstartPacks.offer(bannedCardNames),
+            jumpstartOffers = if (selected.size == 2) emptyList() else secondOffers,
             jumpstartFirstOffers = if (pickNumber == 1) player.jumpstartOffers else player.jumpstartFirstOffers,
+            jumpstartSecondOffers = secondOffers,
         )
         return true
     }
@@ -1962,6 +1972,8 @@ class TournamentLobby(
                     selectedPacks = player.jumpstartSelections,
                     offers = player.jumpstartOffers.mapNotNull(::jumpstartOffer),
                     selected = player.jumpstartSelections.mapNotNull(::jumpstartOffer),
+                    upcomingOffers = if (player.jumpstartSelections.isEmpty())
+                        player.jumpstartSecondOffers.mapNotNull(::jumpstartOffer) else emptyList(),
                 )
             } else null,
             settings = ServerMessage.LobbySettings(
