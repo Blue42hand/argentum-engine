@@ -40,6 +40,72 @@ interface SetSynergies {
  * Scryfall name is known and representative; otherwise the tile uses a gradient.
  */
 const SET_SYNERGIES: Record<string, SetSynergies> = {
+  J22: {
+    setCode: 'J22',
+    setName: 'Jumpstart 2022',
+    archetypes: [
+      {
+        name: 'Blink Value',
+        colors: ['W', 'U'],
+        keyCard: 'Preston, the Vanisher',
+        description: 'Reuse enter-the-battlefield abilities with blink and bounce effects. Evasive creatures finish the game while each return to the battlefield earns more value.',
+      },
+      {
+        name: 'Draw and Attrition',
+        colors: ['U', 'B'],
+        keyCard: 'Biblioplex Kraken',
+        description: 'Use blue card draw to keep black removal flowing and trade resources until the opponent runs out. Evasive threats and graveyard recursion close the game.',
+      },
+      {
+        name: 'Sacrifice and Raid',
+        colors: ['B', 'R'],
+        keyCard: 'Spark Reaper',
+        description: 'Turn expendable creatures into sacrifice fodder and death-trigger value. Red attackers and burn keep pressure on while black creatures profit from the trades.',
+      },
+      {
+        name: 'Ferocious Ramp',
+        colors: ['R', 'G'],
+        keyCard: 'Rampaging Growth',
+        description: 'Ramp into large creatures, then use red burn to clear their path. Power-based rewards and trample help turn a single big attacker into a decisive threat.',
+      },
+      {
+        name: 'Counters and Tokens',
+        colors: ['G', 'W'],
+        keyCard: 'Iridescent Hornbeetle',
+        description: 'Build a wide board with creature tokens and grow it with +1/+1 counters. White team boosts and green counter payoffs turn small creatures into a threatening army.',
+      },
+      {
+        name: 'Life Gain and Drain',
+        colors: ['W', 'B'],
+        keyCard: 'Marauding Blight-Priest',
+        description: 'Pair white life gain with black drain rewards to pull ahead in a race. Defensive creatures buy time while repeated life-gain triggers wear the opponent down.',
+      },
+      {
+        name: 'Spells and Cycling',
+        colors: ['U', 'R'],
+        keyCard: 'Thermo-Alchemist',
+        description: 'Combine card draw and cycling with creatures that reward casting spells. Cheap interaction keeps attackers clear while repeated spell triggers add damage.',
+      },
+      {
+        name: 'Morbid Recursion',
+        colors: ['B', 'G'],
+        keyCard: 'Reaper from the Abyss',
+        description: 'Trade creatures to enable morbid rewards and recover threats from the graveyard. Tokens and death payoffs help sustain a steady stream of creatures.',
+      },
+      {
+        name: 'Equipment Aggro',
+        colors: ['R', 'W'],
+        keyCard: 'Danitha Capashen, Paragon',
+        description: 'Equip efficient attackers and keep attacking with combat tricks and burn as backup. First strike and other combat abilities make equipment especially effective.',
+      },
+      {
+        name: 'Ramp and Big Spells',
+        colors: ['G', 'U'],
+        keyCard: 'Kenessos, Priest of Thassa',
+        description: 'Use green mana acceleration to cast large threats while blue draw and scry find the next one. Bounce and defensive creatures buy time for expensive finishers.',
+      },
+    ],
+  },
   POR: {
     setCode: 'POR',
     setName: 'Portal',

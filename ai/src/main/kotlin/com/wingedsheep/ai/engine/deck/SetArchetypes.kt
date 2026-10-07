@@ -31,6 +31,32 @@ data class SetSynergies(
 object SetArchetypes {
 
     private val allSets: Map<String, SetSynergies> = mapOf(
+        "J22" to SetSynergies(
+            setCode = "J22",
+            setName = "Jumpstart 2022",
+            archetypes = listOf(
+                Archetype("Blink Value", listOf(Color.WHITE, Color.BLUE),
+                    "Reuse enter-the-battlefield abilities with blink and bounce effects. Evasive creatures finish the game while each return to the battlefield earns more value."),
+                Archetype("Draw and Attrition", listOf(Color.BLUE, Color.BLACK),
+                    "Use blue card draw to keep black removal flowing and trade resources until the opponent runs out. Evasive threats and graveyard recursion close the game."),
+                Archetype("Sacrifice and Raid", listOf(Color.BLACK, Color.RED),
+                    "Turn expendable creatures into sacrifice fodder and death-trigger value. Red attackers and burn keep pressure on while black creatures profit from the trades."),
+                Archetype("Ferocious Ramp", listOf(Color.RED, Color.GREEN),
+                    "Ramp into large creatures, then use red burn to clear their path. Power-based rewards and trample help turn a single big attacker into a decisive threat."),
+                Archetype("Counters and Tokens", listOf(Color.GREEN, Color.WHITE),
+                    "Build a wide board with creature tokens and grow it with +1/+1 counters. White team boosts and green counter payoffs turn small creatures into a threatening army."),
+                Archetype("Life Gain and Drain", listOf(Color.WHITE, Color.BLACK),
+                    "Pair white life gain with black drain rewards to pull ahead in a race. Defensive creatures buy time while repeated life-gain triggers wear the opponent down."),
+                Archetype("Spells and Cycling", listOf(Color.BLUE, Color.RED),
+                    "Combine card draw and cycling with creatures that reward casting spells. Cheap interaction keeps attackers clear while repeated spell triggers add damage."),
+                Archetype("Morbid Recursion", listOf(Color.BLACK, Color.GREEN),
+                    "Trade creatures to enable morbid rewards and recover threats from the graveyard. Tokens and death payoffs help sustain a steady stream of creatures."),
+                Archetype("Equipment Aggro", listOf(Color.RED, Color.WHITE),
+                    "Equip efficient attackers and keep attacking with combat tricks and burn as backup. First strike and other combat abilities make equipment especially effective."),
+                Archetype("Ramp and Big Spells", listOf(Color.GREEN, Color.BLUE),
+                    "Use green mana acceleration to cast large threats while blue draw and scry find the next one. Bounce and defensive creatures buy time for expensive finishers."),
+            )
+        ),
         "POR" to SetSynergies(
             setCode = "POR",
             setName = "Portal",

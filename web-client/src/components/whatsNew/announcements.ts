@@ -30,6 +30,16 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
+    id: 'set-j22',
+    date: '2026-10-07',
+    kind: 'set',
+    setCode: 'J22',
+    title: 'Jumpstart 2022 is complete',
+    body:
+      'Mix and match themes from across Magic: Goblins, snow creatures, blink tricks, giant monsters and more. Combine two themed packs for a ready-to-play deck, or explore the full set in Limited.',
+    tryIf: 'surprising theme combinations and quick games without deckbuilding',
+  },
+  {
     id: 'mode-jump-in',
     date: '2026-10-07',
     kind: 'mode',
