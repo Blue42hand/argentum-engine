@@ -744,6 +744,8 @@ enum class Emote {
 
     // Reactions
     WELL_PLAYED,
+    NICE_DECK,
+    NICE_COMBO,
     NICE_TOPDECK,
     OUCH,
     NO_WAY,

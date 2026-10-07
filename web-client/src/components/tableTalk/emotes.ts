@@ -42,8 +42,10 @@ export const EMOTE_GROUPS: readonly EmoteGroup[] = [
     mood: 'react',
     emotes: [
       react('WELL_PLAYED', '👏', 'Well played.'),
+      react('NICE_DECK', '🃏', 'Love this deck!'),
+      react('NICE_COMBO', '✨', 'Ooh, nice combo!'),
       react('NICE_TOPDECK', '🎯', 'Of course you drew that.'),
-      react('NO_WAY', '😱', 'That does WHAT?!'),
+      react('NO_WAY', '😮', 'Didn’t see that coming!'),
       react('OUCH', '💥', 'Ouch.'),
     ],
   },

@@ -7,7 +7,7 @@ import { EMOTE_GROUPS } from './emotes'
 import styles from './TableTalk.module.css'
 
 /**
- * The emote button beside your life orb and the picker it opens: twelve presets in three groups, and
+ * The emote button beside your life orb and the picker it opens: fourteen presets in three groups, and
  * a mute switch per opponent underneath. Sending closes the picker
  * and starts a short cooldown, drawn as a ring draining around the button.
  *

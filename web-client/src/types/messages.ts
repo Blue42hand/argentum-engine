@@ -3225,6 +3225,8 @@ export type Emote =
   | 'GOOD_GAME'
   | 'THANKS'
   | 'WELL_PLAYED'
+  | 'NICE_DECK'
+  | 'NICE_COMBO'
   | 'NICE_TOPDECK'
   | 'OUCH'
   | 'NO_WAY'

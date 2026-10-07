@@ -937,10 +937,10 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     body: [
       { kind: 'table', head: ['Group', 'Says'], rows: [
         ['Hello & goodbye', 'Hello! · Good luck, have fun! · Thanks! · Good game!'],
-        ['Reactions', 'Well played. · Of course you drew that. · That does WHAT?! · Ouch.'],
+        ['Reactions', 'Well played. · Love this deck! · Ooh, nice combo! · Of course you drew that. · Didn’t see that coming! · Ouch.'],
         ['Table talk', 'Doing the math… · Oops. You saw nothing. · Land. Please. Any land. · Is that all you’ve got?'],
       ] },
-      { kind: 'p', text: 'Messages appear as a bubble over the sender’s life total for a few seconds. There is no free typing, and a short cooldown keeps it friendly. The AI answers a greeting.' },
+      { kind: 'p', text: 'Messages appear as a bubble over the sender’s life total for a few seconds. There is no free typing, and a short cooldown keeps it friendly. The AI answers a greeting, and says thanks for a compliment.' },
       { kind: 'tip', text: 'Not in the mood? Switch off “Show their emotes” at the bottom of the emote menu to mute an opponent for the rest of the game.' },
     ],
     related: ['game-table', 'after-the-game'],
