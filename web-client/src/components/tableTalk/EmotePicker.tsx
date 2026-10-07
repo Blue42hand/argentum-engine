@@ -89,7 +89,7 @@ export function EmotePicker({ opensUp = true }: { opensUp?: boolean }) {
           aria-label="Send an emote"
           onClick={(e) => e.stopPropagation()}
           style={{
-            left: Math.max(8, Math.min(anchor.left - 6, window.innerWidth - 400)),
+            left: Math.max(8, Math.min(anchor.left - 6, window.innerWidth - 428)),
             ...(opensUp
               ? { bottom: window.innerHeight - anchor.top + 10 }
               : { top: anchor.bottom + 10 }),

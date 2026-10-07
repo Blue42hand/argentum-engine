@@ -35,7 +35,7 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'feature',
     title: 'Rematch, emotes and a warm-up while you queue',
     body:
-      'After a game against someone you met through Find an opponent, ask for a rematch, add them as a friend, or block them. Wish them luck, groan at a perfect topdeck or own up to a misclick with the emote button beside your life total. And while the queue searches, play the AI — you stay in line and are asked before the game ends.',
+      'After a game against someone you met through Find an opponent, ask for a rematch, add them as a friend, or block them. Wish them luck, groan at a perfect topdeck or own up to a blunder with the emote button beside your life total. And while the queue searches, play the AI — you stay in line and are asked before the game ends.',
   },
   {
     id: 'mode-matchmaking',

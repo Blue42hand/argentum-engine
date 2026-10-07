@@ -750,7 +750,7 @@ enum class Emote {
 
     // Table talk
     THINKING,
-    MISCLICK,
+    MY_BAD,
     MANA_SCREW,
-    MANA_FLOOD,
+    TAUNT,
 }

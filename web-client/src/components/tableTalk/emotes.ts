@@ -1,8 +1,8 @@
 /**
  * How each preset emote reads on screen. The server only knows the names; the words and icons are
  * presentation. They're the things people actually say across a Magic table — the hello and the
- * handshake, the groan at a perfect topdeck, the honest "misclick" and the eternal "where are my
- * lands?" — grouped the way the picker shows them.
+ * handshake, the groan at a perfect topdeck, owning up to a blunder, the eternal "where are my lands?",
+ * and one bit of friendly trash talk (anyone who doesn't enjoy it can mute or block) — grouped the way the picker shows them.
  */
 import type { Emote } from '@/types'
 
@@ -52,9 +52,9 @@ export const EMOTE_GROUPS: readonly EmoteGroup[] = [
     mood: 'talk',
     emotes: [
       talk('THINKING', '🤔', 'Hmm, let me think…'),
-      talk('MISCLICK', '🙈', 'Misclick, sorry!'),
+      talk('MY_BAD', '🤦', 'My bad, that’s on me.'),
       talk('MANA_SCREW', '🏜️', 'Where are my lands?'),
-      talk('MANA_FLOOD', '🌊', 'All lands, no spells…'),
+      talk('TAUNT', '😏', 'Is that all you’ve got?'),
     ],
   },
 ]

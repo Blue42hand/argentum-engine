@@ -3229,9 +3229,9 @@ export type Emote =
   | 'OUCH'
   | 'NO_WAY'
   | 'THINKING'
-  | 'MISCLICK'
+  | 'MY_BAD'
   | 'MANA_SCREW'
-  | 'MANA_FLOOD'
+  | 'TAUNT'
 
 /** A seat (possibly you) sent the table an emote. Never delivered from a player you blocked. */
 export interface EmoteMessage {

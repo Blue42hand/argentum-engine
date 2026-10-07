@@ -938,7 +938,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       { kind: 'table', head: ['Group', 'Says'], rows: [
         ['Hello & goodbye', 'Hello! · Good luck, have fun! · Thanks! · Good game!'],
         ['Reactions', 'Well played. · What a topdeck! · Wait, what?! · Ouch.'],
-        ['Table talk', 'Hmm, let me think… · Misclick, sorry! · Where are my lands? · All lands, no spells…'],
+        ['Table talk', 'Hmm, let me think… · My bad, that’s on me. · Where are my lands? · Is that all you’ve got?'],
       ] },
       { kind: 'p', text: 'Messages appear as a bubble over the sender’s life total for a few seconds. There is no free typing, and a short cooldown keeps it friendly. The AI answers a greeting.' },
       { kind: 'tip', text: 'Not in the mood? Switch off “Show their emotes” at the bottom of the emote menu to mute an opponent for the rest of the game.' },

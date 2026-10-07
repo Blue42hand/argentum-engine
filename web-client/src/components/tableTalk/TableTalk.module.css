@@ -63,6 +63,7 @@
 .bubble[data-emote='GOOD_GAME'] .bubbleIcon { animation: icon-wave 0.9s 0.1s ease-in-out both; transform-origin: 70% 80%; }
 .bubble[data-emote='OUCH'] .bubbleIcon,
 .bubble[data-emote='NO_WAY'] .bubbleIcon { animation: icon-shake 0.5s 0.12s ease-in-out both; }
+.bubble[data-emote='TAUNT'] .bubbleIcon { animation: icon-smirk 0.8s 0.12s ease-in-out both; }
 .bubble[data-emote='THINKING'] .bubbleIcon { animation: icon-ponder 1.6s 0.1s ease-in-out infinite; }
 
 @keyframes icon-pop {
@@ -83,6 +84,11 @@
   40% { transform: translateX(3px) rotate(8deg); }
   60% { transform: translateX(-2px) rotate(-4deg); }
   80% { transform: translateX(2px) rotate(4deg); }
+}
+@keyframes icon-smirk {
+  0%, 100% { transform: rotate(0) scale(1); }
+  30% { transform: rotate(-12deg) scale(1.2); }
+  60% { transform: rotate(8deg) scale(1.1); }
 }
 @keyframes icon-ponder {
   0%, 100% { transform: rotate(0); }
@@ -156,7 +162,7 @@
 .picker {
   position: fixed;
   z-index: 1500;
-  width: min(392px, calc(100vw - 16px));
+  width: min(420px, calc(100vw - 16px));
   padding: 8px;
   box-sizing: border-box;
   border-radius: 16px;
