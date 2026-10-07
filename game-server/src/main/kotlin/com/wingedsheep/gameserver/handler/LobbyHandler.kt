@@ -149,8 +149,7 @@ class LobbyHandler(
         when (message) {
             is ClientMessage.CreateSealedGame -> handleCreateSealedGame(session, message)
             is ClientMessage.JoinSealedGame -> handleJoinSealedGame(session, message)
-            is ClientMessage.PickJumpstartPack -> handleJumpstartPick(session, message)
-            is ClientMessage.UndoJumpstartPick -> handleJumpstartUndo(session, message)
+            is ClientMessage.PickJumpstartPacks -> handleJumpstartPick(session, message)
             is ClientMessage.SubmitSealedDeck -> handleSubmitSealedDeck(session, message)
             is ClientMessage.UnsubmitDeck -> handleUnsubmitDeck(session)
             is ClientMessage.CreateTournamentLobby -> handleCreateTournamentLobby(session, message)
@@ -458,45 +457,23 @@ class LobbyHandler(
 
     private fun finishAiJumpstartPicks(lobby: TournamentLobby) {
         lobby.players.values.filter { it.identity.isAi && !it.hasSubmittedDeck }.forEach { player ->
-            while (lobby.players.getValue(player.identity.playerId).jumpstartOffers.isNotEmpty()) {
-                val current = lobby.players.getValue(player.identity.playerId)
-                lobby.pickJumpstart(player.identity.playerId, current.jumpstartOffers.random(), current.jumpstartSelections.size + 1)
-            }
+            lobby.pickJumpstart(player.identity.playerId, player.jumpstartOffers.random(), player.jumpstartSecondOffers.random())
             val pool = lobby.players.getValue(player.identity.playerId).cardPool
             lobby.submitDeck(player.identity.playerId, pool.groupingBy { it.name }.eachCount())
         }
     }
 
-    private fun handleJumpstartUndo(session: WebSocketSession, message: ClientMessage.UndoJumpstartPick) {
-        val identity = sessionRegistry.getTokenByWsId(session.id)?.let { sessionRegistry.getIdentityByToken(it) } ?: return
-        val lobby = identity.currentLobbyId?.let(lobbyRepository::findLobbyById) ?: return
-        synchronized(lobby) {
-            if (!lobby.undoJumpstartPick(identity.playerId, message.pickNumber)) {
-                sender.sendError(session, ErrorCode.INVALID_ACTION, "Your first pack can no longer be changed")
-                return
-            }
-            ctx.broadcastLobbyUpdate(lobby)
-            lobbyRepository.saveLobby(lobby)
-        }
-    }
-
-    private fun handleJumpstartPick(session: WebSocketSession, message: ClientMessage.PickJumpstartPack) {
+    private fun handleJumpstartPick(session: WebSocketSession, message: ClientMessage.PickJumpstartPacks) {
         val playerSession = sessionRegistry.getPlayerSession(session.id) ?: return
         val identity = sessionRegistry.getTokenByWsId(session.id)?.let { sessionRegistry.getIdentityByToken(it) } ?: return
         val lobby = identity.currentLobbyId?.let(lobbyRepository::findLobbyById) ?: return
         synchronized(lobby) {
-            if (!lobby.pickJumpstart(identity.playerId, message.packId, message.pickNumber)) {
+            if (!lobby.pickJumpstart(identity.playerId, message.firstPackId, message.secondPackId)) {
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "That Jumpstart choice is no longer available")
                 return
             }
-            val player = lobby.players.getValue(identity.playerId)
-            if (player.jumpstartSelections.size == 2) {
-                handleLobbyDeckSubmit(session, playerSession, identity, lobby.lobbyId,
-                    player.cardPool.groupingBy { it.name }.eachCount())
-            } else {
-                ctx.broadcastLobbyUpdate(lobby)
-                lobbyRepository.saveLobby(lobby)
-            }
+            handleLobbyDeckSubmit(session, playerSession, identity, lobby.lobbyId,
+                lobby.players.getValue(identity.playerId).cardPool.groupingBy { it.name }.eachCount())
         }
     }
 

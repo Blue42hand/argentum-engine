@@ -49,7 +49,6 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
                 cardPoolNames = playerState.cardPool.map { it.name },
                 jumpstartOffers = playerState.jumpstartOffers,
                 jumpstartSelections = playerState.jumpstartSelections,
-                jumpstartFirstOffers = playerState.jumpstartFirstOffers,
                 jumpstartSecondOffers = playerState.jumpstartSecondOffers,
                 currentPackNames = playerState.currentPack?.map { it.name },
                 packQueueNames = playerState.packQueue.map { pack -> pack.map { it.name } },
@@ -203,7 +202,6 @@ fun restoreTournamentLobby(
             cardPool = cardPool,
             jumpstartOffers = persistentPlayer.jumpstartOffers,
             jumpstartSelections = persistentPlayer.jumpstartSelections,
-            jumpstartFirstOffers = persistentPlayer.jumpstartFirstOffers,
             jumpstartSecondOffers = persistentPlayer.jumpstartSecondOffers,
             currentPack = currentPack,
             packQueue = packQueue,
@@ -221,6 +219,9 @@ fun restoreTournamentLobby(
         state = LobbyState.valueOf(persistent.state),
         hostPlayerId = persistent.hostPlayerId?.let { EntityId(it) },
         completedAt = persistent.completedAt
+    )
+    lobby.upgradeLegacyJumpstartPicks(
+        persistent.players.entries.associate { (id, player) -> EntityId(id) to player.jumpstartFirstOffers }
     )
 
     // Restore draft state if applicable

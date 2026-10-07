@@ -1593,13 +1593,13 @@ export interface JumpstartOffer {
 }
 
 export interface JumpstartState {
-  readonly pickNumber: number
   readonly selectedPacks: readonly string[]
+  /** The packs the first half of the deck is chosen from. */
   readonly offers: readonly JumpstartOffer[]
-  /** Full contents of the packs already chosen (older servers omit it). */
+  /** The packs the second half is chosen from, offered alongside the first. */
+  readonly secondOffers?: readonly JumpstartOffer[]
+  /** Full contents of the chosen packs. */
   readonly selected?: readonly JumpstartOffer[]
-  /** During pick one, the packs pick two will offer (older servers omit it). */
-  readonly upcomingOffers?: readonly JumpstartOffer[]
 }
 
 export interface LobbyUpdateMessage {
@@ -2092,8 +2092,7 @@ export interface TournamentPlayerReconnectedMessage {
  * Matches backend ClientMessage.kt
  */
 export type ClientMessage =
-  | { readonly type: 'pickJumpstartPack'; readonly packId: string; readonly pickNumber: number }
-  | { readonly type: 'undoJumpstartPick'; readonly pickNumber: number }
+  | { readonly type: 'pickJumpstartPacks'; readonly firstPackId: string; readonly secondPackId: string }
   | ConnectMessage
   | CreateGameMessage
   | JoinGameMessage

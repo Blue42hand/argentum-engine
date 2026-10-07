@@ -593,13 +593,13 @@ sealed interface ServerMessage {
 
     @Serializable
     data class JumpstartState(
-        val pickNumber: Int,
         val selectedPacks: List<String>,
+        /** The packs the first half of the deck is chosen from. */
         val offers: List<JumpstartOffer>,
-        /** Full contents of the packs already chosen, so pick two can be weighed against pick one. */
+        /** The packs the second half is chosen from, offered alongside so the pair is chosen together. */
+        val secondOffers: List<JumpstartOffer> = emptyList(),
+        /** Full contents of the chosen packs. */
         val selected: List<JumpstartOffer> = emptyList(),
-        /** During pick one, the packs pick two will offer, so the pair can be planned together. */
-        val upcomingOffers: List<JumpstartOffer> = emptyList(),
     )
 
     /**

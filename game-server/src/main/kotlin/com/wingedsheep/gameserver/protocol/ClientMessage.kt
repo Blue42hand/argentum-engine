@@ -283,14 +283,10 @@ sealed interface ClientMessage {
     /**
      * Update lobby settings (host only).
      */
+    /** Choose both Jumpstart packs at once: one from the first offers, one from the second. */
     @Serializable
-    @SerialName("pickJumpstartPack")
-    data class PickJumpstartPack(val packId: String, val pickNumber: Int) : ClientMessage
-
-    /** Return the first Jumpstart pack and choose again; [pickNumber] is the pick the client is on. */
-    @Serializable
-    @SerialName("undoJumpstartPick")
-    data class UndoJumpstartPick(val pickNumber: Int) : ClientMessage
+    @SerialName("pickJumpstartPacks")
+    data class PickJumpstartPacks(val firstPackId: String, val secondPackId: String) : ClientMessage
 
     @Serializable
     @SerialName("updateLobbySettings")

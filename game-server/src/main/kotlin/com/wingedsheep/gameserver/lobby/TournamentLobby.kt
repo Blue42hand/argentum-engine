@@ -191,12 +191,11 @@ enum class PassDirection {
  */
 data class LobbyPlayerState(
     val identity: PlayerIdentity,
+    /** The three packs the first half of the deck is chosen from. */
     val jumpstartOffers: List<String> = emptyList(),
-    val jumpstartSelections: List<String> = emptyList(),
-    /** The three packs offered for pick one, kept so a player can go back and choose again. */
-    val jumpstartFirstOffers: List<String> = emptyList(),
-    /** The three packs pick two will offer, rolled at the start so pick one can be weighed against them. */
+    /** The three packs the second half is chosen from — shown beside the first, so a pair is chosen together. */
     val jumpstartSecondOffers: List<String> = emptyList(),
+    val jumpstartSelections: List<String> = emptyList(),
     /** For sealed: full pool. For draft: cards picked so far. */
     val cardPool: List<CardDefinition> = emptyList(),
     /** Draft only: current pack to pick from. */
@@ -967,56 +966,49 @@ class TournamentLobby(
         if (!isJumpstart || !isHost(playerId) || state != LobbyState.WAITING_FOR_PLAYERS || players.size < 2) return false
         if (jumpstartStartError() != null) return false
         players.replaceAll { _, player ->
-            player.copy(
-                jumpstartOffers = jumpstartPacks.offer(bannedCardNames),
-                jumpstartSecondOffers = jumpstartPacks.offer(bannedCardNames),
-            )
+            val (first, second) = jumpstartPacks.offerPair(bannedCardNames)
+            player.copy(jumpstartOffers = first, jumpstartSecondOffers = second)
         }
         state = LobbyState.DECK_BUILDING
         return true
     }
 
-    /** The pick number makes retries harmless, even when a theme is offered in both rounds. */
-    fun pickJumpstart(playerId: EntityId, packId: String, pickNumber: Int): Boolean {
+    /**
+     * Choose both halves of the deck at once: [firstPackId] from the first offers, [secondPackId]
+     * from the second. Allowed once, so a retransmit can't pick a different pair.
+     */
+    fun pickJumpstart(playerId: EntityId, firstPackId: String, secondPackId: String): Boolean {
         if (!isJumpstart || state != LobbyState.DECK_BUILDING) return false
         val player = players[playerId] ?: return false
-        if (player.hasSubmittedDeck || player.jumpstartSelections.size >= 2 ||
-            pickNumber != player.jumpstartSelections.size + 1 || packId !in player.jumpstartOffers) return false
-        val pack = jumpstartPacks.packs.find { it.id == packId } ?: return false
-        val selected = player.jumpstartSelections + packId
-        // A lobby persisted before pick two was pre-rolled has no second offers yet.
-        val secondOffers = player.jumpstartSecondOffers.ifEmpty { jumpstartPacks.offer(bannedCardNames) }
+        if (player.hasSubmittedDeck || player.jumpstartSelections.isNotEmpty() ||
+            firstPackId !in player.jumpstartOffers || secondPackId !in player.jumpstartSecondOffers) return false
+        val first = jumpstartPacks.packs.find { it.id == firstPackId } ?: return false
+        val second = jumpstartPacks.packs.find { it.id == secondPackId } ?: return false
         players[playerId] = player.copy(
-            cardPool = player.cardPool + pack.cards,
-            jumpstartSelections = selected,
-            jumpstartOffers = if (selected.size == 2) emptyList() else secondOffers,
-            jumpstartFirstOffers = if (pickNumber == 1) player.jumpstartOffers else player.jumpstartFirstOffers,
-            jumpstartSecondOffers = secondOffers,
+            cardPool = first.cards + second.cards,
+            jumpstartSelections = listOf(firstPackId, secondPackId),
         )
         return true
     }
 
     /**
-     * Put the first pack back and return to the pick-one offers. Only while the second pack is
-     * still undecided: choosing it submits the deck. [pickNumber] is the pick the client is on, so
-     * a retried request can't undo twice.
+     * A lobby persisted while offers were rolled one pick at a time may have no second offers, or
+     * a first pack already taken. Return such a player to an untouched choice of both.
      */
-    fun undoJumpstartPick(playerId: EntityId, pickNumber: Int): Boolean {
-        if (!isJumpstart || state != LobbyState.DECK_BUILDING) return false
-        val player = players[playerId] ?: return false
-        if (player.hasSubmittedDeck || pickNumber != 2 || player.jumpstartSelections.size != 1) return false
-        val pack = jumpstartPacks.packs.find { it.id == player.jumpstartSelections.single() } ?: return false
-        val pool = player.cardPool.toMutableList()
-        // By name: a pool restored after a restart resolves basics to another printing.
-        pack.cards.forEach { card -> pool.indexOfFirst { it.name == card.name }.takeIf { it >= 0 }?.let(pool::removeAt) }
-        val available = jumpstartPacks.available(bannedCardNames).map { it.id }.toSet()
-        players[playerId] = player.copy(
-            cardPool = pool,
-            jumpstartSelections = emptyList(),
-            jumpstartOffers = player.jumpstartFirstOffers.filter { it in available }
-                .ifEmpty { jumpstartPacks.offer(bannedCardNames) },
-        )
-        return true
+    fun upgradeLegacyJumpstartPicks(legacyFirstOffers: Map<EntityId, List<String>>) {
+        if (!isJumpstart || state != LobbyState.DECK_BUILDING) return
+        players.replaceAll { id, player ->
+            when {
+                player.hasSubmittedDeck || player.jumpstartSecondOffers.isNotEmpty() -> player
+                player.jumpstartSelections.size == 1 -> player.copy(
+                    cardPool = emptyList(),
+                    jumpstartSelections = emptyList(),
+                    jumpstartOffers = legacyFirstOffers[id].orEmpty().ifEmpty { jumpstartPacks.offer(bannedCardNames) },
+                    jumpstartSecondOffers = player.jumpstartOffers,
+                )
+                else -> player.copy(jumpstartSecondOffers = jumpstartPacks.offer(bannedCardNames))
+            }
+        }
     }
 
     fun startDeckBuilding(requestingPlayerId: EntityId): Boolean {
@@ -1968,12 +1960,10 @@ class TournamentLobby(
             players = playerInfos,
             jumpstart = if (isJumpstart && state != LobbyState.WAITING_FOR_PLAYERS) players[forPlayerId]?.let { player ->
                 ServerMessage.JumpstartState(
-                    pickNumber = player.jumpstartSelections.size + 1,
                     selectedPacks = player.jumpstartSelections,
                     offers = player.jumpstartOffers.mapNotNull(::jumpstartOffer),
+                    secondOffers = player.jumpstartSecondOffers.mapNotNull(::jumpstartOffer),
                     selected = player.jumpstartSelections.mapNotNull(::jumpstartOffer),
-                    upcomingOffers = if (player.jumpstartSelections.isEmpty())
-                        player.jumpstartSecondOffers.mapNotNull(::jumpstartOffer) else emptyList(),
                 )
             } else null,
             settings = ServerMessage.LobbySettings(

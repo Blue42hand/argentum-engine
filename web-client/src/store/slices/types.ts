@@ -1008,8 +1008,7 @@ export type GameStore = {
   /** Host picks what one AI seat plays (premade-decks lobbies — elsewhere it builds from its pool). */
   setLobbyAiDeck: (playerId: string, spec: AiDeckSpec) => void
   stopLobby: () => void
-  pickJumpstartPack: (packId: string, pickNumber: number) => void
-  undoJumpstartPick: (pickNumber: number) => void
+  pickJumpstartPacks: (firstPackId: string, secondPackId: string) => void
   updateLobbySettings: (settings: LobbySettingsUpdate) => void
   /** Disconnected tournament players: playerId -> info */
   disconnectedPlayers: Record<string, { playerName: string; secondsRemaining: number; disconnectedAt: number }>
