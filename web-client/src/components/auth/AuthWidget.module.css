@@ -76,6 +76,22 @@
   white-space: nowrap;
 }
 
+/* Friends online, visible without opening the menu. */
+.triggerOnline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(91, 209, 110, 0.14);
+  border: 1px solid rgba(91, 209, 110, 0.3);
+  color: #5bd16e;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
 .chevron { color: #9aa3b5; flex: none; }
 
 .menu {
@@ -165,4 +181,5 @@
 @media (max-width: 560px) {
   .name, .chevron { display: none; }
   .trigger { padding: 3px; }
+  .trigger:has(.triggerOnline) { padding-right: 6px; }
 }

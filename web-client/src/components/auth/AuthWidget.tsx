@@ -8,6 +8,8 @@
  * width, and the pages it opens are "things about *your* account", so they belong together rather
  * than in the main navigation.
  *
+ * How many friends are online shows on the trigger itself, so it's visible without opening the menu.
+ *
  * Anonymous visitors see a single Log in button that opens the magic-link modal. Renders nothing
  * when the server has accounts disabled — a login form there could only fail.
  */
@@ -94,6 +96,17 @@ export function AuthWidget() {
           {incomingCount > 0 && <span className={styles.avatarBadge} />}
         </span>
         <span className={styles.name}>{user.displayName}</span>
+        {onlineCount > 0 && (
+          <span
+            className={styles.triggerOnline}
+            title={`${onlineCount} ${onlineCount === 1 ? 'friend' : 'friends'} online`}
+            aria-label={`${onlineCount} ${onlineCount === 1 ? 'friend' : 'friends'} online`}
+            data-testid="account-menu-online-count"
+          >
+            <span className={styles.onlineDot} aria-hidden />
+            {onlineCount}
+          </span>
+        )}
         <svg className={styles.chevron} viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M6 9l6 6 6-6" />
         </svg>
