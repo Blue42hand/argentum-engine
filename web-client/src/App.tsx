@@ -17,7 +17,6 @@ import { DamageDistributionModal } from './components/decisions/DamageDistributi
 import { OpponentDecisionIndicator } from './components/ui/OpponentDecisionIndicator'
 import { DisconnectCountdown } from './components/ui/DisconnectCountdown'
 import { SessionReplacedOverlay } from './components/ui/SessionReplacedOverlay'
-import { MatchFoundDialog } from './components/matchmaking/MatchFoundDialog'
 import { MatchIntroAnimation } from './components/animations/MatchIntroAnimation'
 import { StandaloneConcedeButton } from './components/game/overlay'
 import overlay from './components/game/overlay/GameOverlays.module.css'
@@ -457,9 +456,6 @@ export default function App() {
 
       {/* Spectator view (when watching another game — skip when ReplayViewer handles its own UI) */}
       {spectatingState && !spectatingState.isReplay && <Suspense fallback={null}><SpectatorGameBoard /></Suspense>}
-
-      {/* Matchmaking accept prompt — wherever the player is when the queue pairs them */}
-      <MatchFoundDialog />
 
       {/* Session takeover overlay (this tab's identity connected from another tab/device) */}
       <SessionReplacedOverlay />

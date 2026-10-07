@@ -1,19 +1,18 @@
 /**
- * "Find an opponent" — the home hub's way to play someone you don't know. Pick a format and casual
- * or ranked, then search; the server pairs you with another searcher and {@link MatchFoundDialog}
- * asks both of you to accept. The panel only captures intent and mirrors the server's queue state.
+ * "Find an opponent" — the home hub's way to play someone you don't know. One quiet line: a casual /
+ * ranked choice, a format, and a Search button; while searching, the same line becomes the status.
+ * The server pairs you with another searcher and {@link MatchFoundDialog} asks both of you to accept.
+ * The panel only captures intent and mirrors the server's queue state.
  */
 import { useEffect, useState } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import { useAuthStore } from '@/store/authStore'
 import type { DeckFormat, MatchmakingQueueCount } from '@/types'
-import panel from '../ui/GameUI.module.css'
 import styles from './Matchmaking.module.css'
 import {
   QUEUE_FORMATS,
   activeQueues,
   formatWait,
-  queueFormatLabel,
   queueLabel,
   searchingIn,
 } from './queues'
@@ -64,52 +63,49 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
 
   const rankedAvailable = accountsEnabled && signedIn
   const effective: QueueChoice = { format: choice.format, ranked: choice.ranked && rankedAvailable }
-
   const choose = (next: QueueChoice) => {
     setChoice(next)
     saveChoice(next)
   }
 
   const searching = status?.searching === true
-  const busy = activeQueues(counts)
-  const totalSearching = busy.reduce((sum, c) => sum + c.searching, 0)
+  // Somewhere else a game is waiting: worth one line, never a list.
+  const elsewhere = activeQueues(counts).find((c) =>
+    !((c.format ?? null) === effective.format && c.ranked === effective.ranked) && (!c.ranked || rankedAvailable),
+  )
 
   return (
-    <section className={panel.publicTournamentPanel} aria-labelledby="find-opponent-title" data-testid="find-opponent">
-      <div className={panel.publicTournamentHeader}>
-        <span id="find-opponent-title" className={panel.publicTournamentTitle}>Find an opponent</span>
-        {totalSearching > 0 && (
-          <span className={panel.onlinePlayersBadge}>
-            <span className={panel.onlinePlayersDot} />
-            {totalSearching} searching
-          </span>
-        )}
-      </div>
-
-      {status?.notice && (
-        <div className={styles.notice} role="status">
-          <span>{status.notice}</span>
-          <button type="button" className={styles.noticeDismiss} aria-label="Dismiss" onClick={dismissNotice}>×</button>
-        </div>
-      )}
+    <section className={styles.panel} aria-labelledby="find-opponent-title" data-testid="find-opponent">
+      <span id="find-opponent-title" className={styles.title}>Find an opponent</span>
 
       {searching ? (
-        <SearchingState
-          format={status.format ?? null}
-          ranked={status.ranked ?? false}
+        <SearchingRow
+          label={queueLabel(status.format, status.ranked)}
           since={status.searchingSince ?? null}
           others={Math.max(0, searchingIn(counts, status.format ?? null, status.ranked ?? false) - 1)}
           onCancel={leaveMatchmaking}
         />
       ) : (
-        <>
-          <p className={panel.publicTournamentEmpty}>
-            Get paired with another player looking for the same game.
-          </p>
-          <label className={styles.fieldLabel} htmlFor="matchmaking-format">Format</label>
+        <div className={styles.controls}>
+          {accountsEnabled && (
+            <select
+              className={`${styles.pick} ${styles.pickMode}`}
+              aria-label="Casual or ranked"
+              value={effective.ranked ? 'ranked' : 'casual'}
+              onChange={(e) => {
+                if (e.target.value === 'signin') { onSignIn(); return }
+                choose({ ...choice, ranked: e.target.value === 'ranked' })
+              }}
+            >
+              <option value="casual">Casual</option>
+              {rankedAvailable
+                ? <option value="ranked">Ranked</option>
+                : <option value="signin">Ranked — sign in</option>}
+            </select>
+          )}
           <select
-            id="matchmaking-format"
-            className={styles.select}
+            className={`${styles.pick} ${styles.pickFormat}`}
+            aria-label="Format"
             value={effective.format ?? ''}
             onChange={(e) => choose({ ...choice, format: (e.target.value || null) as DeckFormat | null })}
           >
@@ -117,91 +113,54 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
               const n = searchingIn(counts, o.format, effective.ranked)
               return (
                 <option key={o.label} value={o.format ?? ''}>
-                  {o.label}{o.format === null ? ' (sealed pool)' : ''}{n > 0 ? ` — ${n} searching` : ''}
+                  {o.label}{n > 0 ? ` · ${n} waiting` : ''}
                 </option>
               )
             })}
           </select>
-
-          {accountsEnabled && (
-            <div className={styles.segmented} role="radiogroup" aria-label="Casual or ranked">
-              <button
-                type="button"
-                role="radio"
-                aria-checked={!effective.ranked}
-                className={styles.segment}
-                data-active={!effective.ranked}
-                onClick={() => choose({ ...choice, ranked: false })}
-              >
-                Casual
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={effective.ranked}
-                className={styles.segment}
-                data-active={effective.ranked}
-                disabled={!rankedAvailable}
-                title={rankedAvailable ? 'Counts toward your rating' : 'Sign in to play ranked'}
-                onClick={() => choose({ ...choice, ranked: true })}
-              >
-                Ranked
-              </button>
-            </div>
-          )}
-          {accountsEnabled && !signedIn && (
-            <p className={panel.publicTournamentEmpty}>
-              <button type="button" className={styles.linkButton} onClick={onSignIn}>Sign in</button> to play ranked.
-            </p>
-          )}
-
           <button
             type="button"
-            className={styles.primary}
+            className={styles.search}
             data-testid="find-opponent-search"
             onClick={() => joinMatchmaking(effective.format, effective.ranked)}
           >
-            Find opponent
+            Search
           </button>
-
-          {busy.length > 0 && (
-            <div className={styles.busy}>
-              <span className={styles.busyLabel}>Searching now</span>
-              <div className={styles.chips}>
-                {busy.map((c) => (
-                  <button
-                    key={`${c.format ?? 'LIMITED'}-${c.ranked}`}
-                    type="button"
-                    className={styles.chip}
-                    disabled={c.ranked && !rankedAvailable}
-                    title={`Search ${queueLabel(c.format, c.ranked)}`}
-                    onClick={() => {
-                      const next = { format: c.format ?? null, ranked: c.ranked }
-                      choose(next)
-                      joinMatchmaking(next.format, next.ranked)
-                    }}
-                  >
-                    {queueLabel(c.format, c.ranked)} · {c.searching}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
+
+      {status?.notice ? (
+        <p className={styles.footnote} role="status">
+          {status.notice}
+          <button type="button" className={styles.footnoteDismiss} aria-label="Dismiss" onClick={dismissNotice}>×</button>
+        </p>
+      ) : !searching && elsewhere ? (
+        <p className={styles.footnote}>
+          {elsewhere.searching} waiting in{' '}
+          <button
+            type="button"
+            className={styles.footnoteLink}
+            onClick={() => {
+              const next = { format: elsewhere.format ?? null, ranked: elsewhere.ranked }
+              choose(next)
+              joinMatchmaking(next.format, next.ranked)
+            }}
+          >
+            {queueLabel(elsewhere.format, elsewhere.ranked)}
+          </button>
+        </p>
+      ) : null}
     </section>
   )
 }
 
-function SearchingState({
-  format,
-  ranked,
+function SearchingRow({
+  label,
   since,
   others,
   onCancel,
 }: {
-  format: DeckFormat | null
-  ranked: boolean
+  label: string
   since: number | null
   others: number
   onCancel: () => void
@@ -213,22 +172,17 @@ function SearchingState({
   }, [])
 
   return (
-    <div className={styles.searching} role="status" aria-live="polite">
-      <div className={styles.searchingRow}>
-        <span className={styles.spinner} aria-hidden />
-        <span className={styles.searchingText}>
-          Searching {ranked ? 'ranked' : 'casual'} {queueFormatLabel(format)}
-        </span>
-        {since !== null && <span className={styles.wait}>{formatWait(now - since)}</span>}
-      </div>
-      <p className={panel.publicTournamentEmpty}>
-        {others > 0
-          ? `${others} other ${others === 1 ? 'player is' : 'players are'} searching here — pairing shortly.`
-          : 'Nobody else is in this queue yet. You’ll be paired as soon as someone joins.'}
-        {ranked ? ' Ranked pairs you with a similar rating first, widening the longer you wait.' : ''}
-      </p>
-      <button type="button" className={styles.secondary} onClick={onCancel} data-testid="find-opponent-cancel">
-        Stop searching
+    <div
+      className={styles.searchingRow}
+      role="status"
+      aria-live="polite"
+      title={others > 0 ? `${others} other ${others === 1 ? 'player' : 'players'} in this queue` : 'You’ll be paired as soon as someone joins'}
+    >
+      <span className={styles.spinner} aria-hidden />
+      <span className={styles.searchingText}>{label}</span>
+      {since !== null && <span className={styles.wait}>{formatWait(now - since)}</span>}
+      <button type="button" className={styles.cancel} onClick={onCancel} data-testid="find-opponent-cancel">
+        Cancel
       </button>
     </div>
   )
