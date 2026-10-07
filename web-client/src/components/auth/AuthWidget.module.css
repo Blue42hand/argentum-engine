@@ -76,20 +76,46 @@
   white-space: nowrap;
 }
 
-/* Friends online, visible without opening the menu. */
-.triggerOnline {
+/* Name, with a quiet "N online" line under it when friends are online. */
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.presence {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(91, 209, 110, 0.14);
-  border: 1px solid rgba(91, 209, 110, 0.3);
-  color: #5bd16e;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8fd49b;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.presence .onlineDot { width: 6px; height: 6px; }
+
+/* Friends online on the avatar — only where the name line is hidden (narrow screens). */
+.avatarOnline {
+  display: none;
+  position: absolute;
+  bottom: -3px;
+  right: -5px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #3fae55;
+  border: 2px solid #12141c;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .chevron { color: #9aa3b5; flex: none; }
@@ -179,7 +205,7 @@
 .logout:hover { color: #ffc1c8; background: rgba(225, 91, 110, 0.12); }
 
 @media (max-width: 560px) {
-  .name, .chevron { display: none; }
+  .identity, .chevron { display: none; }
   .trigger { padding: 3px; }
-  .trigger:has(.triggerOnline) { padding-right: 6px; }
+  .avatarOnline { display: block; }
 }
