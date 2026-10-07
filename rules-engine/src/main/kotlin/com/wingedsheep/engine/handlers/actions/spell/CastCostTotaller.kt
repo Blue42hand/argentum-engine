@@ -271,15 +271,22 @@ internal class CastCostTotaller(
         playForFree: Boolean,
         castingFromCommandZone: Boolean,
     ): ManaCost? {
-        // Split-layout (CR 709.3a) — only the chosen half is evaluated for legality. When
-        // `faceIndex` is set, the cost is the face's printed mana cost passed through the standard
-        // battlefield cost-modifier pipeline (CR 118.9a applies cost modifiers to the chosen half
-        // just like to a normal cast).
-        val faceManaCostOverride: ManaCost? = action.faceIndex?.let { idx -> cardDef?.cardFaces?.getOrNull(idx)?.manaCost }
+        // A face cast — split half, Adventure, Omen, modal spell back, prepare-spell copy. Only the
+        // chosen face is evaluated (CR 709.3a / 715.3a / 712.11c / 722.3c), so it is priced as a
+        // normal cast of that face: its own mana cost, with every modifier judged against it.
+        val castFace = action.faceIndex?.let { idx -> cardDef?.cardFaces?.getOrNull(idx) }
         return when {
             playForFree -> ManaCost.ZERO
-            faceManaCostOverride != null && cardDef != null ->
-                costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, faceManaCostOverride, action.playerId)
+            castFace != null && cardDef != null ->
+                costCalculator.calculateFaceCastCost(
+                    state,
+                    cardDef,
+                    castFace,
+                    action.playerId,
+                    action.targets.map { it.toEntityId() },
+                    fromZone = if (castingFromCommandZone) Zone.COMMAND else castSourceZone(state, action.cardId),
+                    declaredCostSlot = action.declaredCostSlot,
+                )
             action.useAlternativeCost && cardDef != null ->
                 alternativeBases.firstNotNullOfOrNull { (type, base) ->
                     if (action.altAllows(type)) base(AlternativeBaseQuery(state, action, cardDef)) else null
@@ -326,7 +333,7 @@ internal class CastCostTotaller(
      * cost isn't available to this cast, and a cast with no available base is rejected — a specific
      * alternative cost whose own permission gate failed never falls back to an unrelated one.
      *
-     * Every base runs through the alternative-base cost-modifier pipeline, so battlefield cost
+     * Every base runs through a cost-modifier pipeline, so battlefield cost
      * modifiers apply to it.
      */
     private val alternativeBases: List<Pair<AlternativeCostType, AlternativeBaseQuery.() -> ManaCost?>> = listOf(
@@ -366,9 +373,15 @@ internal class CastCostTotaller(
         },
         // Modal DFC back face (CR 712.11b) — you pay that face's *own* printed mana cost, not an
         // alternative one; unlike disturb the base is the back face's cost, because CR 712.8f gives
-        // a modal back face its own mana value.
+        // a modal back face its own mana value. Only the back is evaluated (CR 712.11c), so it is
+        // priced as a normal cast of the back, with every modifier judged against the back.
         AlternativeCostType.MODAL_BACK_FACE to {
-            zoneResolver.modalBackCastFace(state, playerId, cardId)?.let { priced(it.manaCost) }
+            zoneResolver.modalBackCastFace(state, playerId, cardId)?.let { back ->
+                costCalculator.calculateEffectiveCost(
+                    state, back, playerId, action.targets.map { it.toEntityId() },
+                    declaredCostSlot = action.declaredCostSlot, card = cardDef,
+                )
+            }
         },
         // Warp (hand only — CR 702.185a). Re-casts from exile pay the regular mana cost. Printed warp
         // wins; a battlefield grant ([GrantWarpToCardsInHand]) supplies the cost otherwise.

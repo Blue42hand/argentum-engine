@@ -2904,7 +2904,7 @@ class CastSpellEnumerator(
 
         val cachedSources = context.availableManaSources
         val effectiveCost = context.costCalculator
-            .calculateEffectiveCostWithAlternativeBase(state, cardDef, face.manaCost, playerId)
+            .calculateFaceCastCost(state, cardDef, face, playerId)
         if (!context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = cachedSources)) return
 
         val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -3033,9 +3033,8 @@ class CastSpellEnumerator(
             alternativeCostType = AlternativeCostType.MODAL_BACK_FACE
         )
 
-        val effectiveCost = context.costCalculator.calculateEffectiveCostWithAlternativeBase(
-            state, cardDef, back.manaCost, playerId
-        )
+        // Only the back face is evaluated (CR 712.11c), so modifiers judge the back, not the front.
+        val effectiveCost = context.costCalculator.calculateEffectiveCost(state, back, playerId, card = cardDef)
         val costString = effectiveCost.toString()
 
         val canAfford = context.manaSolver.canPay(
@@ -3120,7 +3119,7 @@ class CastSpellEnumerator(
         if (!isInstantAdventure && !context.canPlaySorcerySpeed) return false
 
         val effectiveCost = context.costCalculator
-            .calculateEffectiveCostWithAlternativeBase(state, cardDef, face.manaCost, playerId)
+            .calculateFaceCastCost(state, cardDef, face, playerId)
         val cachedSources = context.availableManaSources
         // Same payment context `CastSpellHandler.validatePayment` builds for this cast, so
         // conditional mana ("spend only to cast …") is judged identically on both sides and the
