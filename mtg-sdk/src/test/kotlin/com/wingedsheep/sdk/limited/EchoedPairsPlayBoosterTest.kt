@@ -68,6 +68,27 @@ class EchoedPairsPlayBoosterTest : DescribeSpec({
             }
         }
 
+        it("fills missing echoed slots after regular uncommons run out") {
+            val withoutUncommons = regularPool().filterNot { it.metadata.rarity == Rarity.UNCOMMON }
+            repeat(100) { seed ->
+                val pack = strategy.generate(withoutUncommons, Random(seed))
+                pack shouldHaveSize 13
+                pack.map { it.name }.toSet().size shouldBe 13
+            }
+        }
+
+        it("fills missing echoed slots from rares and mythics when commons also run out") {
+            for (fallbackRarity in listOf(Rarity.RARE, Rarity.MYTHIC)) {
+                val sparsePool = (1..8).map { card("Common $it", Rarity.COMMON) } +
+                    (1..5).map { card("Fallback $it", fallbackRarity) }
+                repeat(100) { seed ->
+                    val pack = strategy.generate(sparsePool, Random(seed))
+                    pack shouldHaveSize 13
+                    pack.map { it.name }.toSet().size shouldBe 13
+                }
+            }
+        }
+
         it("keeps the pack size when no echoed cards are in the pool") {
             val pack = strategy.generate(regularPool(), Random(1))
             pack shouldHaveSize 13

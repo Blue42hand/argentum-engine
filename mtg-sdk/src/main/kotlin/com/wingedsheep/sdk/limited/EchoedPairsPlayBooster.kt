@@ -27,7 +27,8 @@ import kotlin.random.Random
  *
  * Pairs missing a half from the pool (unimplemented or host-banned) are never opened. If no
  * complete pair remains, the echoed slot falls back to three unpaired echoed cards, then to
- * regular uncommons, so packs keep their size.
+ * regular uncommons, commons, rares, then mythics, filling each missing echoed slot while
+ * unused regular cards remain.
  *
  * @param echoedPairs Both halves of each echoed pair, by card name. Every named card is treated
  *                    as echoed and kept out of the regular slots.
@@ -64,7 +65,14 @@ data class EchoedPairsPlayBooster(
 
         val echoedSlot = pickEchoedSlot(echoed, random)
         echoedSlot.forEach { booster.addPick(it) }
-        repeat(ECHOED_SLOT_SIZE - echoedSlot.size) { booster.addPick(regularPicker.pick(Rarity.UNCOMMON)) }
+        repeat(ECHOED_SLOT_SIZE - echoedSlot.size) {
+            booster.addPick(
+                regularPicker.pick(Rarity.UNCOMMON)
+                    ?: regularPicker.pick(Rarity.COMMON)
+                    ?: regularPicker.pick(Rarity.RARE)
+                    ?: regularPicker.pick(Rarity.MYTHIC)
+            )
+        }
 
         repeat(raresOrMythics) {
             val card = weightedPick(regular.filter { it.name !in used }, random, ::rareSlotWeight)
