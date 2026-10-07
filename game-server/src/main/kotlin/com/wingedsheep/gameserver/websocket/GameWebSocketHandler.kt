@@ -99,6 +99,7 @@ class GameWebSocketHandler(
                 is ClientMessage.CreateSealedGame,
                 is ClientMessage.JoinSealedGame,
                 is ClientMessage.PickJumpstartPack,
+                is ClientMessage.UndoJumpstartPick,
                 is ClientMessage.SubmitSealedDeck,
                 is ClientMessage.UnsubmitDeck,
                 is ClientMessage.CreateTournamentLobby,

@@ -150,6 +150,7 @@ class LobbyHandler(
             is ClientMessage.CreateSealedGame -> handleCreateSealedGame(session, message)
             is ClientMessage.JoinSealedGame -> handleJoinSealedGame(session, message)
             is ClientMessage.PickJumpstartPack -> handleJumpstartPick(session, message)
+            is ClientMessage.UndoJumpstartPick -> handleJumpstartUndo(session, message)
             is ClientMessage.SubmitSealedDeck -> handleSubmitSealedDeck(session, message)
             is ClientMessage.UnsubmitDeck -> handleUnsubmitDeck(session)
             is ClientMessage.CreateTournamentLobby -> handleCreateTournamentLobby(session, message)
@@ -463,6 +464,19 @@ class LobbyHandler(
             }
             val pool = lobby.players.getValue(player.identity.playerId).cardPool
             lobby.submitDeck(player.identity.playerId, pool.groupingBy { it.name }.eachCount())
+        }
+    }
+
+    private fun handleJumpstartUndo(session: WebSocketSession, message: ClientMessage.UndoJumpstartPick) {
+        val identity = sessionRegistry.getTokenByWsId(session.id)?.let { sessionRegistry.getIdentityByToken(it) } ?: return
+        val lobby = identity.currentLobbyId?.let(lobbyRepository::findLobbyById) ?: return
+        synchronized(lobby) {
+            if (!lobby.undoJumpstartPick(identity.playerId, message.pickNumber)) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "Your first pack can no longer be changed")
+                return
+            }
+            ctx.broadcastLobbyUpdate(lobby)
+            lobbyRepository.saveLobby(lobby)
         }
     }
 

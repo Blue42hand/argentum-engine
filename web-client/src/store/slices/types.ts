@@ -1009,6 +1009,7 @@ export type GameStore = {
   setLobbyAiDeck: (playerId: string, spec: AiDeckSpec) => void
   stopLobby: () => void
   pickJumpstartPack: (packId: string, pickNumber: number) => void
+  undoJumpstartPick: (pickNumber: number) => void
   updateLobbySettings: (settings: LobbySettingsUpdate) => void
   /** Disconnected tournament players: playerId -> info */
   disconnectedPlayers: Record<string, { playerName: string; secondsRemaining: number; disconnectedAt: number }>

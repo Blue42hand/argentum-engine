@@ -222,6 +222,7 @@ export type {
   AvailableSet,
   // Sealed Draft types
   SealedCardInfo,
+  JumpstartOffer,
   SealedGameCreatedMessage,
   SealedPoolGeneratedMessage,
   OpponentDeckSubmittedMessage,

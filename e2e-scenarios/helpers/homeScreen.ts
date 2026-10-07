@@ -26,10 +26,14 @@ export type HumanTable = 'one-v-one' | 'bracket'
 /** The placeholder on the join field, so specs don't each hard-code the copy. */
 export const JOIN_PLACEHOLDER = 'Invite code'
 
+/** Where a multiplayer table's decks come from (the "Decks from" chips, by label). */
+export type DecksFrom = 'Your decks' | 'Jump In' | 'Sealed' | 'Draft'
+
 export interface ModeChoice {
   mode: Mode
   playWith: PlayWith
   table?: HumanTable
+  decksFrom?: DecksFrom
 }
 
 /** Wait for the landing screen to be interactive (the catalogue rendered). */
@@ -53,6 +57,9 @@ async function configure(page: Page, choice: ModeChoice): Promise<void> {
   if (choice.table) {
     await page.getByTestId(`human-table-${choice.table === 'one-v-one' ? 'one_v_one' : 'bracket'}`).click()
   }
+  if (choice.decksFrom) {
+    await page.getByTestId('launch-panel').getByRole('button', { name: choice.decksFrom, exact: true }).click()
+  }
 }
 
 /** Create a lobby for people to join. Returns once the invite code is on screen. */
@@ -66,8 +73,8 @@ export async function createLobby(page: Page, choice: ModeChoice): Promise<strin
 }
 
 /** Launch a game against the AI. It starts on its own once every AI seat is filled. */
-export async function launchVsAi(page: Page, mode: Mode): Promise<void> {
-  await configure(page, { mode, playWith: 'ai' })
+export async function launchVsAi(page: Page, mode: Mode, options: { decksFrom?: DecksFrom } = {}): Promise<void> {
+  await configure(page, { mode, playWith: 'ai', ...options })
   await page.getByTestId('launch-play').click()
 }
 
