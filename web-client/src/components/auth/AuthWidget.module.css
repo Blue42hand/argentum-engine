@@ -57,18 +57,6 @@
   font-size: 14px;
 }
 
-/* A pending friend request, visible without opening the menu. */
-.avatarBadge {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #e15b6e;
-  border: 2px solid #12141c;
-}
-
 .name {
   max-width: 160px;
   overflow: hidden;
@@ -85,6 +73,12 @@
   line-height: 1.15;
 }
 
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .presence {
   display: inline-flex;
   align-items: center;
@@ -98,11 +92,23 @@
 
 .presence .onlineDot { width: 6px; height: 6px; }
 
-/* Friends online on the avatar — only where the name line is hidden (narrow screens). */
-.avatarOnline {
+/* Pending friend requests, in the menu's request colour so the two read as the same thing. */
+.pending {
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(225, 91, 110, 0.18);
+  color: #f2a0ab;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Counts on the avatar — only where the status line is hidden (narrow screens). */
+.avatarOnline,
+.avatarRequests {
   display: none;
   position: absolute;
-  bottom: -3px;
   right: -5px;
   min-width: 15px;
   height: 15px;
@@ -117,6 +123,9 @@
   text-align: center;
   box-sizing: border-box;
 }
+
+.avatarOnline { bottom: -3px; }
+.avatarRequests { top: -4px; background: #e15b6e; }
 
 .chevron { color: #9aa3b5; flex: none; }
 
@@ -207,5 +216,6 @@
 @media (max-width: 560px) {
   .identity, .chevron { display: none; }
   .trigger { padding: 3px; }
-  .avatarOnline { display: block; }
+  .avatarOnline,
+  .avatarRequests { display: block; }
 }
