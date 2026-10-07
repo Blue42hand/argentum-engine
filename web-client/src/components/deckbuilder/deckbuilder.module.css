@@ -377,6 +377,12 @@
   color: var(--text-muted);
 }
 
+.savedNone {
+  padding: 0 2px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .savedEmpty {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -2180,7 +2186,8 @@
 
 /* ── Responsive ────────────────────────────────────────────────────────────
  * ≥1181px: three panes, every tool inline. Down to 901px the side panes narrow and the secondary
- * tools fold into a "More" menu. At 900px and below one pane shows at a time, picked by tabs. */
+ * tools fold into a "More" menu. At 900px and below one pane shows at a time, picked by tabs
+ * (Cards · Filters · Deck) that replace the view toggle. */
 
 .workspace { grid-template-rows: minmax(0, 1fr); }
 
@@ -2234,12 +2241,16 @@
   .workspace:not(.workspaceDeckMode)[data-pane='cards'] > .left,
   .workspace:not(.workspaceDeckMode)[data-pane='cards'] > .right,
   .workspace:not(.workspaceDeckMode)[data-pane='filters'] > .center,
-  .workspace:not(.workspaceDeckMode)[data-pane='filters'] > .right,
-  .workspace:not(.workspaceDeckMode)[data-pane='deck'] > .left,
-  .workspace:not(.workspaceDeckMode)[data-pane='deck'] > .center { display: none; }
+  .workspace:not(.workspaceDeckMode)[data-pane='filters'] > .right { display: none; }
 
+  /* The pane tabs below take over the view toggle's job. */
+  .viewToggle { display: none; }
+
+  /* The tabs share the toolbar row with More / New deck. */
+  .toolbarSpacer { display: none; }
   .paneTabs {
-    flex: none;
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     gap: 2px;
     padding: 4px;
@@ -2254,6 +2265,7 @@
 @media (max-width: 560px) {
   .toolbar { gap: 6px; }
   .viewToggleButton { padding: 0 10px; }
+  .paneTab { gap: 4px; padding: 0 4px; font-size: 13px; }
   .moreButton,
   .newDeckButton { padding: 0 12px; }
   .left::before,

@@ -283,7 +283,7 @@ function SetupForm({
 
   return (
     <div style={styles.card}>
-      <h2 style={styles.h2}>New Tournament</h2>
+      <h2 style={styles.h2}>New tournament</h2>
 
       <label style={styles.label}>Models (one per line — they are seeded top to bottom)</label>
       <textarea

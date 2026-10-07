@@ -697,33 +697,36 @@ export function ScenarioBuilderPage() {
             >
               + Seat
             </button>
-            <div className={styles.spacer} />
-            <button
-              type="button"
-              className={styles.ghostBtn}
-              onClick={() => setCustomOpen((o) => !o)}
-              title="Paste a Scryfall card and have Assay compile it for this scenario"
-            >
-              {customOpen ? 'Hide custom cards' : `Custom cards${state.customCards.length ? ` (${state.customCards.length})` : ''}`}
-            </button>
-            <button type="button" className={styles.ghostBtn} onClick={() => setJsonOpen((o) => !o)}>
-              {jsonOpen ? 'Hide JSON' : 'Edit as JSON'}
-            </button>
-            <button
-              type="button"
-              className={styles.ghostBtn}
-              onClick={() => {
-                reset(emptyBuilderState())
-                setStatus('Board cleared.')
-              }}
-            >
-              Reset
-            </button>
+            {/* Second row: what this setup means on the left, the board tools on the right. */}
+            <span className={styles.rowBreak} aria-hidden />
             <span className={styles.modeHint}>
               {state.seats.length > 2
                 ? 'Pods of 3-4 seats always start as hotseat — you control every seat.'
                 : MODE_HINT[state.mode]}
             </span>
+            <div className={styles.boardTools}>
+              <button
+                type="button"
+                className={styles.ghostBtn}
+                onClick={() => setCustomOpen((o) => !o)}
+                title="Paste a Scryfall card and have Assay compile it for this scenario"
+              >
+                {customOpen ? 'Hide custom cards' : `Custom cards${state.customCards.length ? ` (${state.customCards.length})` : ''}`}
+              </button>
+              <button type="button" className={styles.ghostBtn} onClick={() => setJsonOpen((o) => !o)}>
+                {jsonOpen ? 'Hide JSON' : 'Edit as JSON'}
+              </button>
+              <button
+                type="button"
+                className={styles.ghostBtn}
+                onClick={() => {
+                  reset(emptyBuilderState())
+                  setStatus('Board cleared.')
+                }}
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
           <ScenarioBoard

@@ -31,7 +31,10 @@ function authHeaders(): Record<string, string> {
 }
 
 async function errorMessage(res: Response, fallback: string): Promise<string> {
-  const body = (await res.json().catch(() => null)) as { error?: string } | null
+  const body = (await res.json().catch(() => null)) as { error?: string; timestamp?: unknown; path?: unknown } | null
+  // Spring's default error body also carries `error` — the bare HTTP reason ("Not Found") — beside
+  // `timestamp` and `path`. That is not a message for a player; only our own `{ error }` bodies are.
+  if (body?.timestamp !== undefined && body.path !== undefined) return fallback
   return body?.error ?? fallback
 }
 

@@ -736,6 +736,9 @@
 .tileNotPlanned .tileName {
   color: var(--text-tertiary);
 }
+/* A full-colour implemented card already prints its name; the caption would only cover its text
+   box. Dimmed missing / not-planned art keeps the caption, since its own title is unreadable. */
+.tile .tileName { display: none; }
 
 /* ---- progress chart overlay ------------------------------------------- */
 /* The plot takes whatever height the header and stats leave over, so the modal — and with it the

@@ -484,27 +484,33 @@ export function TournamentOverlay({
           <h3 className={styles.resultsSectionTitle}>
             Round {tournamentState.currentRound} Results
           </h3>
-          {tournamentState.lastRoundResults.map((result, i) => (
-            <div key={i} className={styles.resultRow}>
-              <span>{result.player1Name}</span>
-              <span className={styles.resultOutcome}>
-                {result.isBye
-                  ? 'BYE'
-                  : result.isDraw
-                    ? 'Draw'
-                    : `Winner: ${result.winnerId === result.player1Id ? result.player1Name : result.player2Name}`}
-                {result.isSimulated && (
-                  <span
-                    className={styles.resultSimulated}
-                    title="Both seats were AI, so the server decided this match instead of playing it. There is no replay."
-                  >
-                    simulated
-                  </span>
-                )}
-              </span>
-              <span>{result.isBye ? '' : result.player2Name}</span>
-            </div>
-          ))}
+          {tournamentState.lastRoundResults.map((result, i) => {
+            // The winner's name is lit; the middle says only what a name can't (draw, bye, simulated).
+            const decided = !result.isBye && !result.isDraw
+            const p1Won = decided && result.winnerId === result.player1Id
+            const p2Won = decided && result.winnerId === result.player2Id
+            return (
+              <div key={i} className={styles.resultRow}>
+                <span className={p1Won ? styles.resultWinner : decided ? styles.resultLoser : undefined}>
+                  {result.player1Name}
+                </span>
+                <span className={styles.resultOutcome}>
+                  {result.isBye ? 'Bye' : result.isDraw ? 'Draw' : 'vs'}
+                  {result.isSimulated && (
+                    <span
+                      className={styles.resultSimulated}
+                      title="Both seats were AI, so the server decided this match instead of playing it. There is no replay."
+                    >
+                      simulated
+                    </span>
+                  )}
+                </span>
+                <span className={p2Won ? styles.resultWinner : decided ? styles.resultLoser : undefined}>
+                  {result.isBye ? '' : result.player2Name}
+                </span>
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -513,11 +519,11 @@ export function TournamentOverlay({
         {tournamentState.isComplete ? (
           <>
             {lobbyState?.isHost && (
-              <button onClick={addExtraRound} className={styles.readyButton}>
+              <button onClick={addExtraRound} className={styles.editDeckButton}>
                 Add Round
               </button>
             )}
-            <button onClick={leaveTournament} className={styles.returnButton}>
+            <button onClick={leaveTournament} className={styles.readyButton}>
               Return to Menu
             </button>
           </>
@@ -531,7 +537,7 @@ export function TournamentOverlay({
                 setTimeout(() => setConfirmLeave(false), 3000)
               }
             }}
-            className={confirmLeave ? styles.leaveButtonConfirm : styles.leaveButton}
+            className={confirmLeave ? styles.trnLeaveConfirm : styles.trnLeave}
           >
             {confirmLeave ? 'Confirm Leave?' : 'Leave Tournament'}
           </button>

@@ -65,7 +65,7 @@
 
 @media (max-width: 639px) {
   .tournamentOverlay {
-    padding: var(--space-1);
+    padding: var(--space-4) var(--space-3);
   }
 }
 
@@ -173,7 +173,45 @@
   max-width: 760px;
   display: flex;
   justify-content: center;
+  gap: var(--space-3);
   padding-top: var(--space-2);
+}
+
+/* Leaving: a quiet glass button that still reads over the card art (the generic leave button is
+   near-invisible there), turning red only on the confirm click. */
+.trnLeave {
+  min-height: 40px;
+  padding: 0 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c9cfdc;
+  background: rgba(10, 12, 20, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.trnLeave:hover {
+  border-color: rgba(248, 113, 113, 0.6);
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+}
+
+.trnLeaveConfirm {
+  composes: trnLeave;
+  border-color: rgba(248, 113, 113, 0.7);
+  background: rgba(127, 29, 29, 0.45);
+  color: #fecaca;
+}
+
+.trnLeave:focus-visible,
+.trnLeaveConfirm:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 @media (max-width: 639px) {
@@ -1705,6 +1743,19 @@
   background: rgba(79, 195, 247, 0.08);
 }
 
+/* Your own seat before it has a deck: the one control that unblocks the lobby, so it reads as one. */
+.playerDeckButtonCta {
+  color: #f2c97a;
+  font-weight: var(--font-weight-semibold);
+  border-color: rgba(242, 180, 92, 0.55);
+  background: rgba(242, 180, 92, 0.12);
+}
+
+.playerDeckButtonCta:hover:not(:disabled) {
+  border-color: #f2b45c;
+  background: rgba(242, 180, 92, 0.2);
+}
+
 .playerDeckButton:disabled {
   border-color: transparent;
   background: transparent;
@@ -2034,8 +2085,8 @@
 
 .standingsGwr {
   color: var(--text-muted);
-  font-size: 12px;
-  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 .meIndicator {
@@ -2563,8 +2614,9 @@
 }
 
 .resultRow {
-  display: flex;
-  justify-content: space-between;
+  /* Two equal name columns around the outcome, so "vs" sits on the centre line of every row. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-2);
   padding: 9px 14px;
@@ -2577,12 +2629,29 @@
   -webkit-backdrop-filter: blur(14px);
 }
 
+.resultRow > :last-child {
+  text-align: right;
+}
+
+.resultWinner {
+  color: #f4f5f9;
+  font-weight: var(--font-weight-semibold);
+}
+
+.resultWinner::after {
+  content: ' \2713';
+  color: var(--color-success-light);
+}
+
+.resultLoser {
+  color: #8f98ac;
+}
+
 .resultOutcome {
   color: var(--text-tertiary);
   font-size: 12px;
   padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-sm);
+  text-align: center;
 }
 
 /* Badge on an AI-vs-AI result the server decided without playing the game. */
@@ -2687,8 +2756,8 @@
   }
 
   .resultRow {
-    font-size: var(--font-xs);
-    padding: var(--space-2);
+    font-size: 12px;
+    padding: var(--space-2) var(--space-3);
     gap: var(--space-1);
   }
 
@@ -2699,15 +2768,14 @@
   }
 
   .statusBoxBye,
-  .statusBoxMatch,
   .statusBoxWaiting {
     padding: var(--space-3) var(--space-4);
     font-size: var(--font-sm);
   }
 
   .readyButton {
-    padding: 10px var(--space-6);
-    font-size: var(--font-md);
+    padding: 0 var(--space-5);
+    font-size: 15px;
   }
 
   .disconnectedPlayer {

@@ -27,7 +27,7 @@ import { useGameStore } from './store/gameStore'
 import { useConnectName } from './store/useConnectName'
 import { useRematch } from '@/components/lobby/useRematch'
 import { LearnCoach } from '@/components/learn/LearnCoach'
-import { useViewingPlayer, useBattlefieldCards } from './store/selectors'
+import { useViewingPlayer, useBattlefieldCards, selectTeamMap } from './store/selectors'
 import type { ClientAttacker, EntityId } from './types'
 import { GameOverReason } from './types'
 import { defendingPlayerOf } from './utils/combatTargets'
@@ -463,10 +463,18 @@ export default function App() {
   )
 }
 
-function formatGameOverReason(reason: GameOverReason, result: 'win' | 'lose' | 'draw'): string {
+function formatGameOverReason(
+  reason: GameOverReason,
+  result: 'win' | 'lose' | 'draw',
+  table: 'duel' | 'pod' | 'teams' = 'duel',
+): string {
   if (result === 'draw') {
-    return 'Both players lost simultaneously.'
+    return table === 'duel' ? 'Both players lost simultaneously.' : 'The remaining players lost simultaneously.'
   }
+  // A pod is won by outlasting several opponents, so "your opponent" (singular, and naming only
+  // how the last one fell) misdescribes it.
+  if (result === 'win' && table === 'pod') return 'You are the last player standing.'
+  if (result === 'win' && table === 'teams') return 'Your team is the last one standing.'
   const winMessages: Partial<Record<GameOverReason, string>> = {
     [GameOverReason.LIFE_ZERO]: "Your opponent's life total reached zero.",
     [GameOverReason.DECK_OUT]: 'Your opponent had no cards left to draw.',
@@ -494,6 +502,11 @@ function GameOverlay() {
   const clearError = useGameStore((state) => state.clearError)
   const returnToMenu = useGameStore((state) => state.returnToMenu)
   const enterEliminatedSpectate = useGameStore((state) => state.enterEliminatedSpectate)
+  // The board state is still in the store behind the overlay; with it gone, fall back to duel copy.
+  const table = useGameStore((state): 'duel' | 'pod' | 'teams' => {
+    if ((state.gameState?.players.length ?? 0) <= 2) return 'duel'
+    return Object.keys(selectTeamMap(state)).length > 0 ? 'teams' : 'pod'
+  })
   const navigate = useNavigate()
   const rematch = useRematch()
 
@@ -503,7 +516,7 @@ function GameOverlay() {
 
   if (gameOverState) {
     // Use custom message if provided, otherwise fall back to standard reason
-    const reasonText = gameOverState.message || formatGameOverReason(gameOverState.reason, gameOverState.result)
+    const reasonText = gameOverState.message || formatGameOverReason(gameOverState.reason, gameOverState.result, table)
     const title =
       gameOverState.result === 'win' ? 'Victory!' : gameOverState.result === 'draw' ? 'Draw' : 'Defeat'
     const showReplay = gameOverState.gameId != null

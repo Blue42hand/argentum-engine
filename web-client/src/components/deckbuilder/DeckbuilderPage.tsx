@@ -1083,7 +1083,7 @@ export function DeckbuilderPage() {
 
   // Toolbar overflow menu (compact widths) and, on a phone, which pane of the cards view is showing.
   const [toolsOpen, setToolsOpen] = useState(false)
-  const [mobilePane, setMobilePane] = useState<'cards' | 'filters' | 'deck'>('cards')
+  const [mobilePane, setMobilePane] = useState<'cards' | 'filters'>('cards')
   const stats = useMemo(() => computeStats(deckCards, catalogIndex), [deckCards, catalogIndex])
 
   // Lazily fill the art cache for any pinned printing the picker hasn't seen yet.
@@ -1200,6 +1200,31 @@ export function DeckbuilderPage() {
             Deck
           </button>
         </div>
+        {/* Narrow screens only: one tab bar picks the pane and stands in for the view toggle, whose
+            "Deck" view is a superset of the narrow deck pane — two bars with a "Deck" each was noise. */}
+        <div className={styles.paneTabs} role="tablist" aria-label="Deckbuilder panes">
+          <button
+            type="button"
+            role="tab"
+            className={styles.paneTab}
+            aria-selected={viewMode === 'cards' && mobilePane !== 'filters'}
+            onClick={() => { setViewMode('cards'); setMobilePane('cards') }}
+          >
+            Cards
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={styles.paneTab}
+            aria-selected={viewMode === 'cards' && mobilePane === 'filters'}
+            onClick={() => { setViewMode('cards'); setMobilePane('filters') }}
+          >
+            Filters
+          </button>
+          <button type="button" role="tab" className={styles.paneTab} aria-selected={viewMode === 'deck'} onClick={() => setViewMode('deck')}>
+            Deck <span className={styles.paneTabCount}>{totalCards}</span>
+          </button>
+        </div>
         <div className={styles.toolbarSpacer} />
         {toolsOpen && <div className={styles.toolsBackdrop} onClick={closeTools} aria-hidden />}
         <div className={styles.tools} data-open={toolsOpen}>
@@ -1278,20 +1303,6 @@ export function DeckbuilderPage() {
           New deck
         </button>
       </div>
-
-      {viewMode === 'cards' && (
-        <div className={styles.paneTabs} role="tablist" aria-label="Deckbuilder panes">
-          <button type="button" role="tab" className={styles.paneTab} aria-selected={mobilePane === 'cards'} onClick={() => setMobilePane('cards')}>
-            Cards
-          </button>
-          <button type="button" role="tab" className={styles.paneTab} aria-selected={mobilePane === 'filters'} onClick={() => setMobilePane('filters')}>
-            Filters
-          </button>
-          <button type="button" role="tab" className={styles.paneTab} aria-selected={mobilePane === 'deck'} onClick={() => setMobilePane('deck')}>
-            Deck <span className={styles.paneTabCount}>{totalCards}</span>
-          </button>
-        </div>
-      )}
 
       <div
         className={`${styles.workspace} ${viewMode === 'deck' ? styles.workspaceDeckMode : ''}`}
@@ -2207,17 +2218,14 @@ function SavedDecksSummary({
             </>
           )}
         </div>
-        <button
-          className={styles.savedBrowseButton}
-          onClick={onOpen}
-          type="button"
-          disabled={decks.length === 0}
-          title={decks.length === 0 ? 'No saved decks yet' : 'Browse saved decks'}
-        >
-          {decks.length === 0
-            ? 'No saved decks yet'
-            : `Browse decks (${decks.length}) →`}
-        </button>
+        {/* Nothing to browse is a note, not a disabled button. */}
+        {decks.length === 0 ? (
+          <span className={styles.savedNone}>No saved decks yet</span>
+        ) : (
+          <button className={styles.savedBrowseButton} onClick={onOpen} type="button" title="Browse saved decks">
+            {`Browse decks (${decks.length}) →`}
+          </button>
+        )}
       </div>
     </section>
   )

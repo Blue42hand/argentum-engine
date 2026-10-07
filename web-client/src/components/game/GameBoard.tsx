@@ -4,7 +4,7 @@ import { useGameStore } from '@/store/gameStore'
 import { useInteraction } from '@/hooks/useInteraction'
 import { useViewingPlayer, useOpponent, useOpponents, useViewedOpponent, useStackCards, selectPriorityMode, useGhostCards, useBattlefieldCards, selectTeamMap, useIdentityColor, useViewerTeamIndex, useIsAlly, identitySeatColor, selectViewingPlayerId, useEliminatedBottomSeatId, useViewerEliminated, useIsSharedLifeTeamGame, useTeamLabelFor, useTeammateNames, useTeamHasPriority, useIsMyTeamTurn, useIsSharedTurnTeamGame, turnQueueHintFor } from '@/store/selectors'
 import { useMultiplayerView, useCombatDefenderFocus } from '@/hooks/useMultiplayerView'
-import { OpponentRail, railReservedWidth } from './OpponentRail'
+import { OpponentRail, railReservedWidth, overviewSupported } from './OpponentRail'
 import { hand, getNextStep, StepShortNames } from '@/types'
 import type { EntityId } from '@/types'
 import { StepStrip } from '../ui/StepStrip'
@@ -22,7 +22,7 @@ import { DamageAnimations } from '../animations/DamageAnimations'
 import { RevealAnimations } from '../animations/RevealAnimations'
 import { CoinFlipAnimations } from '../animations/CoinFlipAnimations'
 import { TargetReselectedAnimations } from '../animations/TargetReselectedAnimations'
-import { useResponsive } from '@/hooks/useResponsive'
+import { useResponsive, useViewportSize, MOBILE_BREAKPOINT } from '@/hooks/useResponsive'
 import { ManaSymbol } from '../ui/ManaSymbols'
 import { computeCoverage } from '../decisions/manaCoverage'
 
@@ -107,7 +107,16 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // MTGO-style per-board collapse, the eliminated-spectator layout, and the combat
   // defender-focus split (combat between two *other* players shows attacker and defender
   // side by side).
-  const overviewModeOn = useGameStore((state) => state.overviewMode)
+  // The overview needs a viewport that can hold per-seat cells (see `overviewSupported`). Read
+  // straight off the viewport: `responsive` is derived further down, from state that depends on
+  // the camera this decides. A phone keeps the one-board sliding camera even when the mode was
+  // switched on elsewhere (a desktop session, or "Keep watching" after an elimination).
+  const viewport = useViewportSize()
+  const overviewFits = overviewSupported({
+    isMobile: viewport.width < MOBILE_BREAKPOINT,
+    viewportHeight: viewport.height,
+  })
+  const overviewModeOn = useGameStore((state) => state.overviewMode) && overviewFits
   const collapsedSeats = useGameStore((state) => state.collapsedSeats)
   const toggleSeatCollapsed = useGameStore((state) => state.toggleSeatCollapsed)
   const viewerEliminated = useViewerEliminated()
@@ -245,12 +254,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   const overviewDefaultKey = spectatorMode ? spectatingState?.gameSessionId ?? null : sessionId
   const defaultedOverviewFor = useRef<string | null>(null)
   useEffect(() => {
-    if (!isMulti || responsive.isMobile || !overviewDefaultKey) return
+    if (!isMulti || !overviewFits || !overviewDefaultKey) return
     if (defaultedOverviewFor.current === overviewDefaultKey) return
     defaultedOverviewFor.current = overviewDefaultKey
     const store = useGameStore.getState()
     if (!store.overviewMode) store.toggleOverviewMode()
-  }, [isMulti, responsive.isMobile, overviewDefaultKey])
+  }, [isMulti, overviewFits, overviewDefaultKey])
 
   // Grid row 1: keeps the battlefield clear of the fixed/absolute opponent hand.
   const oppHandReservation =
@@ -304,8 +313,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     if (!isMulti) return []
     const single = viewedOpponent ? [viewedOpponent.playerId] : []
     // Phones: the shared-strip views split into ~33% cells that are unusable in
-    // portrait — keep the focused one-board camera only.
-    if (responsive.isMobile) return single
+    // portrait (no width) and landscape (no height) — keep the focused one-board camera only.
+    if (!overviewFits) return single
     // Two-row "show table": the top row is the enemy team / the balanced top half.
     if (twoRowActive) return topRowIds
     if (overviewActive) return stripOpponents.map((o) => o.playerId)
@@ -316,7 +325,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     // Keep strip (turn) order so boards don't jump when defenders change.
     const visible = new Set([viewedOpponent.playerId, ...extras])
     return stripOpponents.filter((o) => visible.has(o.playerId)).map((o) => o.playerId)
-  }, [isMulti, responsive.isMobile, twoRowActive, topRowIds, overviewActive, stripOpponents, viewedOpponent, defenderFocusIds])
+  }, [isMulti, overviewFits, twoRowActive, topRowIds, overviewActive, stripOpponents, viewedOpponent, defenderFocusIds])
   const multiView = visibleStripIds.length > 1
   // MTGO-style per-board collapse — table overview only; the focused camera and the
   // combat defender-focus split ignore it (their board sets are already deliberate).
@@ -463,7 +472,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // life and anchors, so the orb would print the same number sixty pixels above the plate: the
   // duplicate the team banners exist to remove, just in a free-for-all. Every plate then carries
   // its own player's anchors, exactly as with the banners up.
-  const centerOrbStandsIn = !teamBannersActive && !twoRowActive
+  // A two-row table whose top row is down to one board (a pod reduced to two survivors) draws that
+  // board the single-camera way — no plate — so the orb has to stand in for it again, or the
+  // opponent's name and life vanish from the board entirely.
+  const centerOrbStandsIn = !teamBannersActive && (!twoRowActive || !multiView)
   // The one ally seat whose hand you may read (CR 810.5). Null outside a shared-life team game,
   // while spectating, and for the (unsupported today) team of one.
   const allySeat = useMemo(() => {
@@ -487,17 +499,22 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     // clears it on its own (it is far narrower than the space); a *pair* does not, so the row
     // gives that corner back and re-centers itself on what is left. Without this the ally fan
     // lands straight on top of the buttons.
-    const cornerReserve = responsive.isMobile ? 0 : 190
+    // The bottom-right corner is the same story with the priority button and its tool row: the
+    // ally fan sits on the right when you're the earlier seat, and it ran up against the Pass
+    // button. Both corners are given back (the zone-pile columns sit above this row, so they
+    // don't need reserving too) and the pair re-centers on the space between.
+    const leftReserve = responsive.isMobile ? 0 : 190
+    const rightReserve = responsive.isMobile ? 0 : 205
     const pairWidth =
       responsive.viewportWidth -
       responsive.containerPadding * 2 -
-      (responsive.pileWidth + 20) * 2 -
-      cornerReserve -
+      leftReserve -
+      rightReserve -
       gap
     if (pairWidth < 280) return null
     // A third of the pair, capped: your hand is the one you play from and keeps the lion's share.
     const allyWidth = Math.min(300, Math.round(pairWidth * 0.32))
-    return { gap, allyWidth, ownWidth: pairWidth - allyWidth, shiftRight: cornerReserve / 2 }
+    return { gap, allyWidth, ownWidth: pairWidth - allyWidth, shiftRight: (leftReserve - rightReserve) / 2 }
   }, [allySeat, spectatorMode, isEliminatedSpectator, responsive])
 
   // Team-split bottom half: the viewer's whole team in seat order, so each player sits in their
@@ -784,6 +801,14 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // No "remaining" concept — X is determined by total allocated
 
   // Compute pass button label - prefer server-computed nextStopPoint, fall back to naive logic
+  // Combat buttons take the Pass button's slot, so they match its compact phone / short-screen
+  // sizes — the desktop 42px buttons rode up over the hand fan and the undo/auto/help row.
+  const compactCombatButton: React.CSSProperties | null = responsive.isMobile
+    ? { width: 'auto', height: 28, padding: '0 10px', fontSize: 12, borderRadius: 8 }
+    : responsive.viewportHeight < 560
+      ? { width: 'auto', height: 34, padding: '0 16px', fontSize: 13, borderRadius: 8 }
+      : null
+
   const getPassButtonLabel = () => {
     if (nextStopPoint) {
       return nextStopPoint
@@ -1214,8 +1239,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           minWidth: 0,
         }}>
         {(isHijacking || isHijacked || hotseat) && (() => {
+          const actingName = gameState.players.find((p) => p.playerId === gameState.priorityPlayerId)?.name ?? 'active player'
           const text = hotseat
-            ? `Hotseat — acting as ${gameState.players.find((p) => p.playerId === gameState.priorityPlayerId)?.name ?? 'active player'}`
+            ? (responsive.isMobile ? `Acting as ${actingName}` : `Hotseat — acting as ${actingName}`)
             : (() => {
                 const otherId = youAreHijacking ?? youAreHijackedBy
                 const otherName = gameState.players.find((p) => p.playerId === otherId)?.name ?? 'opponent'
@@ -1241,10 +1267,15 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 boxShadow: '0 0 10px rgba(168, 85, 247, 0.25)',
                 whiteSpace: 'nowrap',
                 userSelect: 'none',
+                // The center column is content-sized, so on a phone a long label widened it and
+                // pushed both life orbs off the screen edges. Cap it there and let it ellipsize.
+                maxWidth: responsive.isMobile ? 180 : '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
               }}
             >
               <span aria-hidden style={{ fontSize: 11 }}>🔒</span>
-              <span>{text}</span>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{text}</span>
             </div>
           )
         })()}
@@ -1252,7 +1283,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             Without this the window looks like someone else's turn to speak, and the whole point of
             team priority — answering what your partner just did, before the table moves on — goes
             unused. */}
-        {sharedTurnTeamGame && !spectatorMode && (
+        {/* Hotseat already names the acting seat in the badge above; a second badge saying the
+            same thing about the same seat is noise. */}
+        {sharedTurnTeamGame && !spectatorMode && !hotseat && (
           <div
             role="status"
             aria-live="polite"
@@ -1272,6 +1305,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
               border: `1px solid ${selfSeatColor.base}`,
               whiteSpace: 'nowrap',
               userSelect: 'none',
+              maxWidth: responsive.isMobile ? 180 : '100%',
+              boxSizing: 'border-box',
+              overflow: 'hidden',
               // The baton moves between teammates constantly, so this badge blinks on and off
               // several times a turn. Mounting and unmounting it did that *in flow*: the centre
               // HUD grew and shrank by a row each time and the step strip (plus everything
@@ -1285,7 +1321,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             }}
           >
             <span aria-hidden style={{ fontSize: 11 }}>🤝</span>
-            <span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
               Team priority
               {batonLabelName ? ` — ${batonLabelName} is acting` : ''}
             </span>
@@ -1330,7 +1366,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             <>
               {/* When another seat is anchored here (eliminated spectator), the orb is
                   spectator-shaped: no "You" role tag, no player-click handling. */}
-              {!teamBannersActive && <LifeDisplay life={bottomHudPlayer.life} isPlayer playerId={bottomHudPlayer.playerId} playerName={bottomHudPlayer.name} spectatorMode={spectatorMode || eliminatedBottomSeat != null} poisonCounters={bottomHudPlayer.poisonCounters} energyCounters={bottomHudPlayer.energyCounters ?? 0} commanderDamage={bottomHudPlayer.commanderDamage ?? []} handSize={bottomHudPlayer.handSize} maxHandSize={bottomHudPlayer.maxHandSize} {...(isMulti ? { seatColor: bottomHudSeatColor.base } : {})} {...(teamCenterOrbs ? { teamName: bottomTeamLabel, teamMembers: bottomTeamMembers } : {})} />}
+              {/* Stands down wherever your own board cell carries a plate (team banners, or the
+                  two-row table) — the plate is then your life total and player anchor. */}
+              {!teamBannersActive && !(bottomStripActive && !viewerIsObserver) && <LifeDisplay life={bottomHudPlayer.life} isPlayer playerId={bottomHudPlayer.playerId} playerName={bottomHudPlayer.name} spectatorMode={spectatorMode || eliminatedBottomSeat != null} poisonCounters={bottomHudPlayer.poisonCounters} energyCounters={bottomHudPlayer.energyCounters ?? 0} commanderDamage={bottomHudPlayer.commanderDamage ?? []} handSize={bottomHudPlayer.handSize} maxHandSize={bottomHudPlayer.maxHandSize} {...(isMulti ? { seatColor: bottomHudSeatColor.base } : {})} {...(teamCenterOrbs ? { teamName: bottomTeamLabel, teamMembers: bottomTeamMembers } : {})} />}
               <SpeedGauge speed={bottomHudPlayer.speed ?? 0} />
               {!responsive.isMobile && <ActiveEffectsBadges effects={bottomHudPlayer.activeEffects} />}
               {!responsive.isMobile && bottomHudPlayer.manaPool && <ManaPool manaPool={bottomHudPlayer.manaPool} />}
@@ -1444,9 +1482,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                   basis={bottomCellBasis}
                   isActiveTurn={p.playerId === gameState.activePlayerId}
                   ringColor={selfSeatColor.base}
-                  // Two-Headed Giant: your own board is the other head of the team, so it grows a
-                  // name plate at the bottom edge beside your ally's and the shared-life banner.
-                  showPlate={teamBannersActive}
+                  // Every board on the two-row table wears a plate, yours included — it replaces
+                  // the center-HUD orb, which otherwise floated between the rows naming you a
+                  // second time. Two-Headed Giant hangs it from the bottom edge beside your ally's
+                  // and the shared-life banner; elsewhere it sits on top like its neighbours'.
+                  showPlate
+                  plateAnchor={teamBannersActive ? 'bottom' : 'top'}
                   spectatorMode={spectatorMode}
                   {...(isHijacked ? { hijackedSurfaceStyle } : {})}
                 />
@@ -1597,6 +1638,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             // a waterbend or mana cost) — the CardRow re-enables pointer events on its cards, so the
             // wrapper's pointerEvents:none isn't enough; gate interactivity at the component level.
             interactive={!isHijacked && pipelineState == null}
+            // Stay a fan while inert: dropping to the flat row mid-cast made the hand jump, and on
+            // narrower screens the flat row wrapped onto a second line over your lands.
+            fan
             ghostCards={isHijacked ? [] : ghostCards}
             {...(teamHandRow ? { fitWidth: teamHandRow.ownWidth } : {})}
           />
@@ -1641,6 +1685,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 }}
                 disabled={!undoAvailable}
                 title="Undo"
+                aria-label="Undo"
                 style={{
                   ...styles.floatingBarButton,
                   color: undoAvailable ? '#d4a017' : '#555',
@@ -1653,6 +1698,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
               </button>
               <button
                 onClick={toggleAutoTap}
+                aria-label={autoTapEnabled ? 'Auto tap lands' : 'Manual mana tapping'}
+                aria-pressed={!autoTapEnabled}
                 title={
                   autoTapEnabled
                     ? 'Auto Tap: Lands are tapped automatically. Click to switch to manual mana selection.'
@@ -1820,28 +1867,37 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             (o) => !o.hasLost && combatState.validAttackTargets.includes(o.playerId),
           )
           return (
-            <div style={{
-              position: 'fixed',
-              bottom: 110,
-              right: 16,
-              zIndex: 110,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-              alignItems: 'flex-end',
-            }}>
+            // One panel — the question and its answers together — rather than a floating label
+            // above a loose row of pills, which read as two unrelated things over the board.
+            <div
+              role="group"
+              aria-label="Attack which player?"
+              style={{
+                position: 'fixed',
+                bottom: 110,
+                right: 16,
+                zIndex: 110,
+                maxWidth: 'calc(100vw - 32px)',
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                alignItems: 'flex-end',
+                padding: responsive.isMobile ? '8px 10px' : '10px 12px',
+                borderRadius: 12,
+                border: '1px solid rgba(239, 83, 80, 0.55)',
+                background: 'rgba(10, 12, 20, 0.94)',
+                boxShadow: '0 6px 20px rgba(0, 0, 0, 0.45)',
+              }}
+            >
               <div style={{
-                background: 'rgba(0, 0, 0, 0.9)',
-                border: '1px solid #ef5350',
-                borderRadius: 8,
-                padding: '6px 12px',
                 color: '#ffb3b3',
                 fontSize: responsive.isMobile ? 11 : 12,
                 fontWeight: 600,
               }}>
                 Attack which player?{combatState.selectedAttackers.length > 1 ? ` (${unassignedCount} unassigned)` : ''}
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 6 }}>
                 {living.map((o) => {
                   const idx = gameState.players.findIndex((p) => p.playerId === o.playerId)
                   const seat = identitySeatColor(teamMap, o.playerId, idx)
@@ -1892,6 +1948,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatActionButton,
+                  ...compactCombatButton,
                   backgroundColor: '#c62828',
                   border: '1px solid #ef5350',
                   opacity: combatState.validCreatures.length === 0 ? 0.5 : 1,
@@ -1904,6 +1961,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatPassButton,
+                  ...compactCombatButton,
                 }}
               >
                 Skip Attacking
@@ -1923,6 +1981,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                     style={{
                       ...styles.floatingBarButton,
                       ...styles.combatActionButton,
+                      ...compactCombatButton,
                       backgroundColor: '#c62828',
                       border: '1px solid #ef5350',
                       opacity: awaitingDefender ? 0.5 : 1,
@@ -1938,6 +1997,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatActionButton,
+                  ...compactCombatButton,
                   backgroundColor: '#424242',
                   border: '1px solid #757575',
                 }}
@@ -1958,6 +2018,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatPassButton,
+                  ...compactCombatButton,
                 }}
               >
                 {blockerDeclarationDescription === 'Choose blocker piles' ? blockerDeclarationDescription : 'No Blocks'}
@@ -1970,6 +2031,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatActionButton,
+                  ...compactCombatButton,
                   backgroundColor: '#c62828',
                   border: '1px solid #ef5350',
                 }}
@@ -1981,6 +2043,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatActionButton,
+                  ...compactCombatButton,
                   backgroundColor: '#424242',
                   border: '1px solid #757575',
                 }}
@@ -2462,6 +2525,7 @@ function SelfBottomCell({
   isActiveTurn,
   ringColor,
   showPlate = false,
+  plateAnchor = 'bottom',
   spectatorMode,
   hijackedSurfaceStyle,
 }: {
@@ -2476,10 +2540,13 @@ function SelfBottomCell({
    * for the pair to read as a team. It also gives your seat's card anchors a home down here.
    */
   showPlate?: boolean
+  /** Which edge the plate hangs from: the bottom (team banners) or the top (like its neighbours). */
+  plateAnchor?: 'top' | 'bottom'
   spectatorMode: boolean
   hijackedSurfaceStyle?: React.CSSProperties
 }) {
   const { cellRef, handBand } = useCellHandMetrics()
+  const plateAtBottom = showPlate && plateAnchor === 'bottom'
   return (
     <div
       ref={cellRef}
@@ -2507,20 +2574,20 @@ function SelfBottomCell({
         />
       )}
       {showPlate && (
-        <BoardNamePlate player={player} carriesAnchors top={6} anchor="bottom" />
+        <BoardNamePlate player={player} carriesAnchors top={6} anchor={plateAnchor} />
       )}
       {/* Reservation band mirrors the other cells' name-plate + cell-hand bands so all bottom
           boards line up. With the plate at the bottom edge (team game) the band goes there too —
           your ally's cell reserves its own the same way. */}
-      {!showPlate && <div style={{ height: CELL_PLATE_BAND + handBand, flexShrink: 0 }} aria-hidden />}
+      {!plateAtBottom && <div style={{ height: CELL_PLATE_BAND + handBand, flexShrink: 0 }} aria-hidden />}
       <div style={{ ...styles.playerRowWithZones, alignItems: 'flex-start', flex: 1 }}>
-        <CommandZone player={player} />
+        <CommandZone player={player} compact />
         <div style={{ ...styles.playerMainArea, ...(hijackedSurfaceStyle ?? null) }}>
           <Battlefield isOpponent={false} spectatorMode={spectatorMode} />
         </div>
         <ZonePile player={player} />
       </div>
-      {showPlate && <div style={{ height: CELL_PLATE_BAND, flexShrink: 0 }} aria-hidden />}
+      {plateAtBottom && <div style={{ height: CELL_PLATE_BAND, flexShrink: 0 }} aria-hidden />}
     </div>
   )
 }

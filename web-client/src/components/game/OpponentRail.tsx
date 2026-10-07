@@ -27,19 +27,43 @@ import { AttackRelationBadge, useAttackRelation } from './AttackRelationTag'
  * small gap). The table overview pads the board strip by this much so the leftmost
  * board never renders under the rail.
  */
-export function railReservedWidth(responsive: { isMobile: boolean; isTablet: boolean; isShortDesktop: boolean }): number {
-  return chipSizing(responsive).width + (responsive.isMobile ? 8 : 12) + 8
+type RailResponsive = { isMobile: boolean; isTablet: boolean; isShortDesktop: boolean; viewportHeight: number }
+
+/**
+ * Phone-style compact chips (no names): a phone in portrait, and any viewport too short for the
+ * full column — a landscape phone has tablet width but only ~390px of height, and the named
+ * column ran straight into the center HUD's opponent orb there.
+ */
+function railCompact(responsive: RailResponsive): boolean {
+  return responsive.isMobile || responsive.viewportHeight < 560
+}
+
+export function railReservedWidth(responsive: RailResponsive): number {
+  return chipSizing(responsive).width + (railCompact(responsive) ? 8 : 12) + 8
+}
+
+/**
+ * Whether the all-boards table overview can run at this viewport. Splitting the board into
+ * per-seat cells needs both width and height: a portrait phone has no width for it, and a
+ * landscape phone (844×390) has no height — its cells end up a few pixels tall. Every place
+ * that reads the overview (GameBoard's layout, the default-on effect, the rail's toggle) goes
+ * through this, so the camera never degrades in one place and not another.
+ */
+export function overviewSupported(responsive: { isMobile: boolean; viewportHeight: number }): boolean {
+  return !responsive.isMobile && responsive.viewportHeight >= 560
 }
 
 /**
  * Chip dimensions by screen size. The rail is a fixed-width column, so every chip shares one
  * size; large desktops get noticeably bigger chips (the small default felt cramped there).
  */
-function chipSizing(responsive: { isMobile: boolean; isTablet: boolean; isShortDesktop: boolean }) {
-  const compact = responsive.isMobile
-  const large = !responsive.isMobile && !responsive.isTablet && !responsive.isShortDesktop
+function chipSizing(responsive: RailResponsive) {
+  const compact = railCompact(responsive)
+  const large = !compact && !responsive.isTablet && !responsive.isShortDesktop
   return {
-    width: compact ? 150 : large ? 224 : 188,
+    // Phones hide names, so a compact chip only needs the seat dot, life and hand count — and
+    // every pixel of it sits on top of the viewed opponent's board, which has no room to spare.
+    width: compact ? 86 : large ? 232 : 196,
     height: compact ? 22 : large ? 32 : 26,
     padX: compact ? 7 : large ? 14 : 11,
     gap: compact ? 4 : large ? 9 : 7,
@@ -125,8 +149,8 @@ export function OpponentRail({
   // ~36px tall). A column reads as a clear turn-order list and leaves the board its full height.
   // In replay/spectator mode a fixed playback header sits above the board, so drop the whole
   // column below it (topOffset) — otherwise the top chips render under the header bar.
-  const top = (responsive.isMobile ? 46 : 54) + topOffset
-  const left = responsive.isMobile ? 8 : 12
+  const top = (railCompact(responsive) ? 46 : 54) + topOffset
+  const left = railCompact(responsive) ? 8 : 12
   const columnWidth = chipSizing(responsive).width
 
   return (
@@ -232,7 +256,7 @@ export function OpponentRail({
           multi-board camera). Overview is desktop/tablet-landscape only — three ~33% board cells
           are unusable on a portrait phone (GameBoard ignores the mode on isMobile too). */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 6, pointerEvents: 'none' }}>
-        {!responsive.isMobile && (
+        {overviewSupported(responsive) && (
           <CameraToggle
             label="Overview"
             on={overviewMode}
@@ -256,9 +280,11 @@ export function OpponentRail({
               : 'Manual camera: the view only moves when you switch boards. Click to follow the action.'
           }
         />
-        <span style={{ pointerEvents: 'auto', marginLeft: 'auto', display: 'inline-flex' }}>
-          <HelpTip topicId="multiplayer-camera" label="How the multiplayer camera works" size="sm" />
-        </span>
+        {!railCompact(responsive) && (
+          <span style={{ pointerEvents: 'auto', marginLeft: 'auto', display: 'inline-flex' }}>
+            <HelpTip topicId="multiplayer-camera" label="How the multiplayer camera works" size="sm" />
+          </span>
+        )}
       </div>
     </div>
   )
@@ -439,7 +465,7 @@ function BottomSeatRailChip({ seat, isViewerSeat }: { seat: ClientPlayer; isView
   const hasPriority = gameState?.priorityPlayerId === playerId && !seat.hasLost
   const isDeciding = opponentDecisionStatus?.playerId === playerId
 
-  const compact = responsive.isMobile
+  const compact = railCompact(responsive)
   const sz = chipSizing(responsive)
   const tomb = seat.hasLost
   const lifeDanger = seat.life <= 5
@@ -568,8 +594,10 @@ function BottomSeatRailChip({ seat, isViewerSeat }: { seat: ClientPlayer; isView
           </span>
         )}
 
-        {/* Hand count */}
-        {!tomb && (
+        {/* Hand count — only for a seat that isn't yours: your own hand is on screen already,
+            and the number cost the chip the room its name needed. A changed maximum hand size
+            is the exception, since the suffix is the only place it shows. */}
+        {!tomb && (!isViewerSeat || handLimitSuffix(seat.maxHandSize)) && (
           <span
             style={{
               display: 'inline-flex',
@@ -874,7 +902,7 @@ function RailChip({
     }
   }
 
-  const compact = responsive.isMobile
+  const compact = railCompact(responsive)
   const sz = chipSizing(responsive)
   const tomb = opponent.hasLost
 
@@ -919,7 +947,8 @@ function RailChip({
           chipTitle(opponent) +
           (attackRelation === 'target' ? '\nThe only opponent you can attack' : '') +
           (attackRelation === 'attacker' ? '\nThe only opponent who can attack you' : '') +
-          (isAttackRestricted ? "\nCan't be attacked this combat" : '')
+          (isAttackRestricted ? "\nCan't be attacked this combat" : '') +
+          (isAlly ? '\nYour teammate' : '')
         }
         onClick={handleChipClick}
         onKeyDown={(e) => {
@@ -1052,9 +1081,6 @@ function RailChip({
             >
               {opponent.name}
             </span>
-            {isAlly && !tomb && (
-              <span aria-hidden title="Your teammate" style={{ fontSize: 9, opacity: 0.85, fontWeight: 700, flexShrink: 0, color: seat.bright }}>ALLY</span>
-            )}
             {isViewed && viewPinned && !spectatorMode && (
               <span aria-hidden title="Pinned — follow-the-action paused" style={{ flexShrink: 0 }}>📌</span>
             )}

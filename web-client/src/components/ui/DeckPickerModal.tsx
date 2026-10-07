@@ -16,16 +16,29 @@ import styles from './GameUI.module.css'
 export function DeckPickerModal({
   title,
   subtitle = 'Choose the deck for this player seat.',
+  hidden = false,
   onClose,
   children,
 }: {
   title: string
   subtitle?: string
+  /**
+   * Keep the dialog — and the picker inside it — mounted but out of sight. A picker submits as it
+   * resolves, so a seat whose deck is already decided needs it alive before anyone opens it.
+   */
+  hidden?: boolean
   onClose: () => void
   children: ReactNode
 }) {
   return (
-    <div className={styles.confirmBackdrop} role="dialog" aria-modal="true" onClick={onClose}>
+    <div
+      className={styles.confirmBackdrop}
+      role="dialog"
+      aria-modal="true"
+      aria-hidden={hidden || undefined}
+      style={hidden ? { display: 'none' } : undefined}
+      onClick={onClose}
+    >
       <div className={styles.deckPickerModal} onClick={(event) => event.stopPropagation()}>
         <div className={styles.deckPickerModalHeader}>
           <div>

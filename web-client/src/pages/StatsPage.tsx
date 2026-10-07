@@ -35,6 +35,7 @@ export function StatsPage() {
   const navigate = useNavigate()
   const status = useAuthStore((s) => s.status)
   const init = useAuthStore((s) => s.init)
+  const accountsEnabled = useAuthStore((s) => s.accountsEnabled)
 
   const [stats, setStats] = useState<AccountStats | null>(null)
   const [colors, setColors] = useState<StatBucket[]>([])
@@ -75,8 +76,14 @@ export function StatsPage() {
       <AccountPage title="Stats" width="wide" plain>
         <MessageCard>
           <h1 className={p.h1}>Your stats</h1>
-          <p className={a.muted}>{resolving ? 'Loading…' : 'Sign in to see your record, ratings and the cards you play.'}</p>
-          {!resolving && (
+          <p className={a.muted}>
+            {resolving
+              ? 'Loading…'
+              : accountsEnabled
+                ? 'Sign in to see your record, ratings and the cards you play.'
+                : "Accounts aren't available on this server."}
+          </p>
+          {!resolving && accountsEnabled && (
             <button type="button" className={p.buttonPrimary} onClick={() => navigate('/profile')}>
               Go to sign in
             </button>

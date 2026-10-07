@@ -220,7 +220,10 @@ export function LifeDisplay({
   // (otherwise the name itself already carries the same information) and when
   // not spectating (there's no "you" in spectator mode). A team name already says
   // "yours" or "theirs", so it replaces the tag rather than doubling it.
+  const roleText = isPlayer ? 'You' : isAlly ? 'Ally' : 'Opponent'
+  // …nor when the custom name *is* the role ("Opponent" over an OPPONENT tag says it twice).
   const showRoleTag = !spectatorMode && !!playerName && !teamName
+    && playerName.trim().toLowerCase() !== roleText.toLowerCase()
   // Seat-tinted in multiplayer (SEAT_COLORS are 6-digit hex, so appending an alpha byte gives the
   // translucent variants the tag uses). A supplied seatColor wins for both roles; otherwise fall
   // back to the fixed 2-player blue (player) / orange (opponent).
@@ -279,7 +282,7 @@ export function LifeDisplay({
             lineHeight: '12px',
           }}
         >
-          {isPlayer ? 'You' : isAlly ? 'Ally' : 'Opponent'}
+          {roleText}
         </span>
       )}
     </div>

@@ -41,7 +41,8 @@ export function SearchBar({
       <div className={styles.searchInputWrap}>
         <input
           className={hasErrors ? styles.searchInputError : styles.searchInput}
-          placeholder='Search — try: t:creature c:r cmc<=3, o:flying, (c:u or c:b) -is:legendary'
+          // Short enough not to be cut mid-query in a narrow pane; the ? button holds the full syntax.
+          placeholder='Search — e.g. t:goblin c:r'
           value={localQuery}
           onChange={(e) => {
             setLocalQuery(e.target.value)

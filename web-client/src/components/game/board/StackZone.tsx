@@ -470,7 +470,9 @@ export function StackDisplay() {
     <>
     <div data-learn="stack" style={{
       position: 'fixed',
-      left: responsive.isMobile ? 12 : 120,
+      // A tablet's HUD reaches further left than a desktop's; at 120px the stack sat on the
+      // left life orb's name.
+      left: responsive.isMobile ? 12 : responsive.viewportWidth < 1200 ? 16 : 120,
       top: '50%',
       transform: 'translateY(-50%)',
       display: 'flex',

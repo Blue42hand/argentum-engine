@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import type { SealedCardInfo } from '@/types'
 import { ManaSymbol } from '../ui/ManaSymbols'
 import { getCdnArtCropUrl, getScryfallArtCropUrl } from '@/utils/cardImages'
+import ls from './limitedScreen.module.css'
 
 /**
  * Archetype definition for a set's draft strategy.
@@ -1982,25 +1983,10 @@ export function SetSynergiesButton({
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        style={{
-          padding: '6px 14px',
-          fontSize: 13,
-          backgroundColor: 'rgba(255, 255, 255, 0.06)',
-          color: '#e8ecf4',
-          border: '1px solid rgba(255, 255, 255, 0.14)',
-          borderRadius: 6,
-          cursor: 'pointer',
-          fontWeight: 600,
-          transition: 'background-color 0.15s ease',
-          ...style,
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)'
-        }}
+        className={ls.button}
+        style={style}
       >
         Archetypes
       </button>

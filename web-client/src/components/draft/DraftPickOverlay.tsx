@@ -553,19 +553,19 @@ function PassDirectionIndicator({
         border: '1px solid rgba(255, 255, 255, 0.1)',
       }}
     >
-      {/* Direction label */}
+      {/* Direction — an arrow, not a word: the strip has to fit a 1366px bar beside everything else. */}
       <span
+        title={`Packs pass ${passDirection === 'LEFT' ? 'left' : 'right'}`}
+        aria-label={`Packs pass ${passDirection === 'LEFT' ? 'left' : 'right'}`}
         style={{
           color: '#8f98ac',
-          fontSize: 10,
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginRight: 8,
+          fontSize: 13,
+          fontWeight: 700,
+          marginRight: 6,
           whiteSpace: 'nowrap',
         }}
       >
-        Pass {passDirection === 'LEFT' ? 'L' : 'R'}
+        {passDirection === 'LEFT' ? '\u2190' : '\u2192'}
       </span>
 
       {/* Player nodes in passing order */}
@@ -610,7 +610,7 @@ function PassDirectionIndicator({
                   color: player.isYou
                     ? '#4fc3f7'
                     : isIdle
-                      ? '#666'
+                      ? '#8f98ac'
                       : hasQueue
                         ? '#ff9800'
                         : '#8bc34a',
@@ -621,8 +621,10 @@ function PassDirectionIndicator({
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                 }}
+                title={player.name}
               >
-                {player.isYou ? 'You' : player.name}
+                {/* The seat's "[AI] " tag costs a third of the strip's room; the full name is the tooltip. */}
+                {player.isYou ? 'You' : player.name.replace(/^\[AI\]\s*/, '')}
               </span>
             </div>
           </div>
@@ -1048,7 +1050,7 @@ function PickedCardsSidebar({
             Card Pool
           </span>
           <span style={{ color: '#4fc3f7', fontSize: 13, fontWeight: 600 }}>
-            {totalPicked} cards
+            {totalPicked} {totalPicked === 1 ? 'card' : 'cards'}
           </span>
         </div>
 
