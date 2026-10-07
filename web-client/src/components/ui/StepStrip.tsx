@@ -122,8 +122,10 @@ export function StepStrip({
     : modeColors[priorityMode]
   // Treat short-desktop viewports (e.g. MBP 14") like mobile for HUD density:
   // smaller icons, tighter padding, compact text. Frees vertical room for the
-  // battlefield rows without changing the strip's information layout.
-  const isMobile = responsive.isMobile || responsive.isShortDesktop
+  // battlefield rows without changing the strip's information layout. A landscape phone (any
+  // viewport under 560px tall) gets the same density — at desktop size the strip took a third of
+  // the board's height there.
+  const isMobile = responsive.isMobile || responsive.isShortDesktop || responsive.viewportHeight < 560
   const currentStepIndex = STEP_ORDER.indexOf(step)
 
   const statusText = activePlayerName

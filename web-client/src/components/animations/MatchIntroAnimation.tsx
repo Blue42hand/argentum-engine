@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
+import { randomBackground } from '@/utils/background'
 import styles from './MatchIntroAnimation.module.css'
 
 type Phase = 'fadeIn' | 'slideIn' | 'hold' | 'fadeOut' | 'done'
 
 /**
- * Full-screen "Player VS Opponent" intro animation shown when a match starts.
- * Plays before the mulligan screen appears.
+ * Full-screen intro shown when a match starts, before the mulligan screen: the landing art
+ * full-bleed (the one place it isn't behind the interface) with the matchup in a glass band.
  */
 export function MatchIntroAnimation() {
   const matchIntro = useGameStore((state) => state.matchIntro)
@@ -20,17 +21,17 @@ export function MatchIntroAnimation() {
 
     const timers: ReturnType<typeof setTimeout>[] = []
 
-    // Phase 1: Fade in backdrop (0-200ms)
+    // Phase 1: Fade in the art (0-200ms)
     timers.push(setTimeout(() => setPhase('slideIn'), 200))
-    // Phase 2: Slide in names + scale VS (200-700ms)
+    // Phase 2: Bring up the matchup band (200-700ms)
     timers.push(setTimeout(() => setPhase('hold'), 700))
-    // Phase 3: Hold (700-2200ms)
-    timers.push(setTimeout(() => setPhase('fadeOut'), 2200))
-    // Phase 4: Fade out (2200-2800ms)
+    // Phase 3: Hold — a beat longer than the old VS card, since the art is the point (700-2600ms)
+    timers.push(setTimeout(() => setPhase('fadeOut'), 2600))
+    // Phase 4: Fade out (2600-3200ms)
     timers.push(setTimeout(() => {
       setPhase('done')
       clearMatchIntro()
-    }, 2800))
+    }, 3200))
 
     return () => { timers.forEach(clearTimeout) }
   }, [matchIntro, clearMatchIntro])
@@ -42,34 +43,23 @@ export function MatchIntroAnimation() {
 
   const backdropClass = [
     styles.backdrop,
-    isVisible && !isFadeOut ? styles.backdropVisible : '',
+    phase !== 'fadeIn' && !isFadeOut ? styles.backdropVisible : '',
     isFadeOut ? styles.backdropFadeOut : '',
   ].filter(Boolean).join(' ')
 
-  const playerClass = [
-    styles.playerPanel,
-    isVisible && !isFadeOut ? styles.playerPanelVisible : '',
-    isFadeOut ? styles.playerPanelFadeOut : '',
-  ].filter(Boolean).join(' ')
-
-  const opponentClass = [
-    styles.playerPanel,
-    styles.opponentPanel,
-    isVisible && !isFadeOut ? styles.playerPanelVisible : '',
-    isFadeOut ? styles.playerPanelFadeOut : '',
-  ].filter(Boolean).join(' ')
-
-  const vsClass = [
-    styles.vsContainer,
-    isVisible && !isFadeOut ? styles.vsContainerVisible : '',
-    isFadeOut ? styles.vsContainerFadeOut : '',
+  const bandClass = [
+    styles.band,
+    isVisible && !isFadeOut ? styles.bandVisible : '',
+    isFadeOut ? styles.bandFadeOut : '',
   ].filter(Boolean).join(' ')
 
   return (
     <div className={backdropClass}>
-      <div className={styles.content}>
+      <div className={styles.art} style={{ backgroundImage: `url(${randomBackground})` }} aria-hidden />
+      <div className={styles.shade} aria-hidden />
+      <div className={bandClass}>
         {/* Player (left) */}
-        <div className={playerClass}>
+        <div className={`${styles.side} ${styles.sidePlayer}`}>
           <p className={styles.playerName}>{matchIntro.playerName}</p>
           {matchIntro.playerRecord && (
             <p className={styles.playerRecord}>{matchIntro.playerRecord}</p>
@@ -77,15 +67,15 @@ export function MatchIntroAnimation() {
         </div>
 
         {/* VS (center) */}
-        <div className={vsClass}>
+        <div className={styles.vs}>
           {matchIntro.round != null && (
             <p className={styles.roundLabel}>Round {matchIntro.round}</p>
           )}
-          <p className={styles.vsText}>VS</p>
+          <p className={styles.vsText}>vs</p>
         </div>
 
         {/* Opponent (right) */}
-        <div className={opponentClass}>
+        <div className={`${styles.side} ${styles.sideOpponent}`}>
           {matchIntro.opponentNames.length > 1
             ? matchIntro.opponentNames.map((name, i) => (
                 <p key={i} className={styles.playerName}>{name}</p>

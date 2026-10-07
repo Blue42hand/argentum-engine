@@ -34,6 +34,8 @@ import {
   type LandColor,
 } from '@/utils/landSuggestion'
 import { rulesFromLobbySettings } from '../lobby/axes'
+import { randomBackground } from '@/utils/background'
+import ls from '../draft/limitedScreen.module.css'
 
 /**
  * Hard per-card copy cap while deckbuilding (basic lands exempt, managed via `landCounts`). Mirrors
@@ -72,7 +74,10 @@ function WaitingForOpponent({ setName }: { setName: string }) {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        backgroundColor: '#07080d',
+        backgroundImage: `linear-gradient(rgba(6, 7, 12, 0.7), rgba(6, 7, 12, 0.8)), url(${randomBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -82,7 +87,7 @@ function WaitingForOpponent({ setName }: { setName: string }) {
         zIndex: 1000,
       }}
     >
-      <h2 style={{ color: 'white', margin: 0, fontSize: responsive.isMobile ? 20 : 28 }}>
+      <h2 className={ls.title} style={{ fontSize: responsive.isMobile ? 22 : 30, whiteSpace: 'normal', textAlign: 'center' }}>
         Sealed Draft - {setName}
       </h2>
       <p style={{ color: '#888', margin: 0, fontSize: responsive.fontSize.large }}>
@@ -90,7 +95,7 @@ function WaitingForOpponent({ setName }: { setName: string }) {
       </p>
       <div
         style={{
-          backgroundColor: '#222',
+          backgroundColor: 'rgba(10, 12, 20, 0.6)',
           padding: '16px 24px',
           borderRadius: 8,
           display: 'flex',
@@ -106,7 +111,7 @@ function WaitingForOpponent({ setName }: { setName: string }) {
           style={{
             color: '#4fc3f7',
             fontSize: responsive.isMobile ? 14 : 18,
-            backgroundColor: '#333',
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
             padding: '8px 16px',
             borderRadius: 4,
             fontFamily: 'monospace',
@@ -119,19 +124,7 @@ function WaitingForOpponent({ setName }: { setName: string }) {
           Share this ID with your opponent
         </p>
       </div>
-      <button
-        onClick={cancelGame}
-        style={{
-          marginTop: 8,
-          padding: '10px 20px',
-          fontSize: responsive.fontSize.normal,
-          backgroundColor: '#c0392b',
-          color: 'white',
-          border: 'none',
-          borderRadius: 4,
-          cursor: 'pointer',
-        }}
-      >
+      <button type="button" onClick={cancelGame} className={ls.leave} style={{ marginTop: 8 }}>
         Cancel Game
       </button>
     </div>
@@ -181,6 +174,8 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
   const [searchText, setSearchText] = useState('')
   const [searchHelpOpen, setSearchHelpOpen] = useState(false)
+  // Phones: the sort / filter / search controls fold behind one button so the pool gets the screen.
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [creatureTypeFilter, setCreatureTypeFilter] = useState<string | null>(null)
   const [archetypeFilter, setArchetypeFilter] = useState<Archetype | null>(null)
   // Restrict the pool view to cards inside the chosen commander's colour identity. Defaults to
@@ -552,35 +547,11 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
   const totalColorSymbols = Object.values(deckAnalytics.colorSymbols).reduce((a, b) => a + b, 0)
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#1a1a1a',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 1000,
-        overflow: 'hidden',
-      }}
-    >
+    <div className={ls.screen}>
       {/* Header */}
-      <div
-        style={{
-          padding: responsive.isMobile ? '6px 12px' : '8px 24px',
-          backgroundColor: '#222',
-          borderBottom: '1px solid #444',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <h2 style={{ color: 'white', margin: 0, fontSize: responsive.isMobile ? 16 : 20 }}>
+      <div className={ls.header}>
+        <div className={ls.headerGroup}>
+          <h2 className={ls.title}>
             Deck Builder - {state.setNames.join(' + ')}
             {state.poolPlay ? ' (Pool Play)' : ''}
           </h2>
@@ -595,25 +566,14 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className={ls.headerGroup}>
           {state.opponentReady && (
-            <span style={{ color: '#4caf50', fontSize: responsive.fontSize.small }}>
-              Opponent ready
-            </span>
+            <span className={ls.pill} data-tone="good">Opponent ready</span>
           )}
 
-          <div
-            style={{
-              padding: '6px 14px',
-              backgroundColor: isValidDeck ? '#2e7d32' : '#555',
-              borderRadius: 6,
-              color: 'white',
-              fontWeight: 600,
-              fontSize: responsive.fontSize.normal,
-            }}
-          >
+          <span className={ls.pill} data-tone={isValidDeck ? 'good' : undefined} title="Cards in your deck">
             {totalCount} / {requiredSize}
-          </div>
+          </span>
           {isCommanderShape && !isSubmitted && state.commander == null && (
             <div
               title="Click the crown next to a legendary creature in your deck to designate it as your commander."
@@ -656,19 +616,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           )}
 
           {isSubmitted ? (
-            <button
-              onClick={unsubmitDeck}
-              style={{
-                padding: responsive.isMobile ? '6px 14px' : '8px 20px',
-                fontSize: responsive.fontSize.normal,
-                backgroundColor: '#ff9800',
-                color: 'white',
-                border: 'none',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
-            >
+            <button type="button" onClick={unsubmitDeck} className={ls.button}>
               Edit Deck
             </button>
           ) : (
@@ -682,16 +630,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                   ? 'Designate a commander first — click the crown ♛ on a legendary creature in your deck'
                   : `Deck needs at least ${requiredSize} cards`
               }
-              style={{
-                padding: responsive.isMobile ? '6px 14px' : '8px 20px',
-                fontSize: responsive.fontSize.normal,
-                backgroundColor: isValidDeck ? '#4caf50' : '#555',
-                color: 'white',
-                border: 'none',
-                borderRadius: 6,
-                cursor: isValidDeck ? 'pointer' : 'not-allowed',
-                fontWeight: 600,
-              }}
+              className={ls.primary}
             >
               Submit Deck
             </button>
@@ -711,16 +650,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 )
               }
               title="Copy this deck in MTG Arena format"
-              style={{
-                padding: responsive.isMobile ? '6px 14px' : '8px 20px',
-                fontSize: responsive.fontSize.normal,
-                backgroundColor: '#2c5aa0',
-                color: 'white',
-                border: 'none',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
+              className={ls.button}
             >
               Export
             </button>
@@ -728,52 +658,16 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
 
           {isInLobby ? (
             isHost ? (
-              <button
-                onClick={stopLobby}
-                style={{
-                  padding: responsive.isMobile ? '6px 14px' : '8px 20px',
-                  fontSize: responsive.fontSize.normal,
-                  backgroundColor: '#c0392b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                }}
-              >
+              <button type="button" onClick={stopLobby} className={ls.leave}>
                 Stop Game
               </button>
             ) : (
-              <button
-                onClick={leaveLobby}
-                style={{
-                  padding: responsive.isMobile ? '6px 14px' : '8px 20px',
-                  fontSize: responsive.fontSize.normal,
-                  backgroundColor: '#c0392b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                }}
-              >
+              <button type="button" onClick={leaveLobby} className={ls.leave}>
                 Leave
               </button>
             )
           ) : (
-            <button
-              onClick={cancelGame}
-              style={{
-                padding: responsive.isMobile ? '6px 14px' : '8px 20px',
-                fontSize: responsive.fontSize.normal,
-                backgroundColor: '#c0392b',
-                color: 'white',
-                border: 'none',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
-            >
+            <button type="button" onClick={cancelGame} className={ls.leave}>
               Cancel Game
             </button>
           )}
@@ -792,11 +686,11 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
         {/* Card Pool (left) */}
         <div
           style={{
-            flex: responsive.isMobile ? 1 : 7,
+            flex: responsive.isMobile ? 3 : 7,
             display: 'flex',
             flexDirection: 'column',
-            borderRight: responsive.isMobile ? 'none' : '1px solid #444',
-            borderBottom: responsive.isMobile ? '1px solid #444' : 'none',
+            borderRight: responsive.isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: responsive.isMobile ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
             minHeight: 0,
             minWidth: 0,
           }}
@@ -806,14 +700,34 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
             style={{
               position: 'relative',
               padding: '6px 12px',
-              backgroundColor: '#2a2a2a',
-              borderBottom: '1px solid #333',
+              backgroundColor: 'rgba(10, 12, 20, 0.55)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
               flexWrap: 'wrap',
             }}
           >
+            {responsive.isMobile && (
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen((v) => !v)}
+                aria-expanded={mobileFiltersOpen}
+                style={{
+                  padding: '5px 12px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  backgroundColor: mobileFiltersOpen ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.08)',
+                  color: '#e6e9f1',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                {mobileFiltersOpen ? 'Hide filters ▴' : `Sort & filter${colorFilter.size > 0 || typeFilter || searchText ? ' •' : ''} ▾`}
+              </button>
+            )}
+            {(!responsive.isMobile || mobileFiltersOpen) && (<>
             <span style={{ color: '#888', fontSize: 12 }}>Sort:</span>
             {(['color', 'cmc', 'rarity'] as const).map((option) => (
               <button
@@ -822,7 +736,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 style={{
                   padding: '3px 10px',
                   fontSize: 12,
-                  backgroundColor: sortBy === option ? '#4fc3f7' : '#444',
+                  backgroundColor: sortBy === option ? '#4fc3f7' : 'rgba(255, 255, 255, 0.08)',
                   color: sortBy === option ? '#000' : '#ccc',
                   border: 'none',
                   borderRadius: 4,
@@ -834,7 +748,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
               </button>
             ))}
 
-            <div style={{ width: 1, height: 18, backgroundColor: '#444', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255, 255, 255, 0.12)', margin: '0 4px' }} />
 
             <span style={{ color: '#888', fontSize: 12 }}>Filter:</span>
             <ColorModeSegmented mode={colorMode} onChange={setColorMode} />
@@ -882,9 +796,9 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 style={{
                   padding: '3px 10px',
                   fontSize: 11,
-                  backgroundColor: restrictToCommanderIdentity ? '#3a2b00' : '#444',
+                  backgroundColor: restrictToCommanderIdentity ? '#3a2b00' : 'rgba(255, 255, 255, 0.08)',
                   color: restrictToCommanderIdentity ? '#ffd76b' : '#ccc',
-                  border: restrictToCommanderIdentity ? '1px solid #daa520' : '1px solid #555',
+                  border: restrictToCommanderIdentity ? '1px solid #daa520' : '1px solid rgba(255, 255, 255, 0.16)',
                   borderRadius: 4,
                   cursor: 'pointer',
                   fontWeight: 600,
@@ -901,7 +815,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                   fontSize: 11,
                   backgroundColor: 'transparent',
                   color: '#888',
-                  border: '1px solid #555',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
                   borderRadius: 4,
                   cursor: 'pointer',
                 }}
@@ -910,7 +824,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
               </button>
             )}
 
-            <div style={{ width: 1, height: 18, backgroundColor: '#444', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255, 255, 255, 0.12)', margin: '0 4px' }} />
 
             <span style={{ color: '#888', fontSize: 12 }}>Type:</span>
             {TYPE_FILTER_OPTIONS.map(({ key, label }) => (
@@ -920,7 +834,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 style={{
                   padding: '3px 10px',
                   fontSize: 11,
-                  backgroundColor: typeFilter === key ? '#4fc3f7' : '#444',
+                  backgroundColor: typeFilter === key ? '#4fc3f7' : 'rgba(255, 255, 255, 0.08)',
                   color: typeFilter === key ? '#000' : '#ccc',
                   border: 'none',
                   borderRadius: 4,
@@ -931,7 +845,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
               </button>
             ))}
 
-            <div style={{ width: 1, height: 18, backgroundColor: '#444', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255, 255, 255, 0.12)', margin: '0 4px' }} />
 
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input
@@ -946,11 +860,11 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                   padding: '3px 24px 3px 8px',
                   fontSize: 12,
                   fontFamily: 'var(--font-mono, monospace)',
-                  backgroundColor: '#333',
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
                   color: '#ddd',
                   border: searchQuery.errors.length > 0
                     ? '1px solid #d96c5e'
-                    : searchText ? '1px solid #4fc3f7' : '1px solid #555',
+                    : searchText ? '1px solid #4fc3f7' : '1px solid rgba(255, 255, 255, 0.16)',
                   borderRadius: 4,
                   outline: 'none',
                   width: responsive.isMobile ? 170 : 240,
@@ -1025,7 +939,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 fontSize: 11,
                 fontWeight: 700,
                 fontFamily: 'var(--font-mono, monospace)',
-                backgroundColor: searchHelpOpen ? '#4fc3f7' : '#444',
+                backgroundColor: searchHelpOpen ? '#4fc3f7' : 'rgba(255, 255, 255, 0.08)',
                 color: searchHelpOpen ? '#000' : '#ccc',
                 border: 'none',
                 cursor: 'pointer',
@@ -1037,6 +951,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
             {searchHelpOpen && (
               <SearchHelp onClose={() => setSearchHelpOpen(false)} onInsert={setSearchText} />
             )}
+            </>)}
 
             <span
               style={{ color: '#666', fontSize: 12, marginLeft: 'auto' }}
@@ -1051,12 +966,12 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           </div>
 
           {/* Pool creature types and color distribution overview */}
-          {(poolCreatureTypes.length > 0 || poolColorDistribution.total > 0) && (
+          {!responsive.isMobile && (poolCreatureTypes.length > 0 || poolColorDistribution.total > 0) && (
             <div
               style={{
                 padding: '5px 12px',
-                backgroundColor: '#242424',
-                borderBottom: '1px solid #333',
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
@@ -1072,11 +987,11 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                   onClick={() => setCreatureTypeFilter(creatureTypeFilter === type ? null : type)}
                   style={{
                     padding: '1px 6px',
-                    backgroundColor: creatureTypeFilter === type ? '#3a5a2a' : '#2e2e2e',
+                    backgroundColor: creatureTypeFilter === type ? '#3a5a2a' : 'rgba(255, 255, 255, 0.06)',
                     borderRadius: 3,
                     fontSize: 10,
                     color: creatureTypeFilter === type ? '#c5e1a5' : '#999',
-                    border: `1px solid ${creatureTypeFilter === type ? '#8bc34a' : '#3a3a3a'}`,
+                    border: `1px solid ${creatureTypeFilter === type ? '#8bc34a' : 'rgba(255, 255, 255, 0.1)'}`,
                     whiteSpace: 'nowrap',
                     cursor: 'pointer',
                   }}
@@ -1238,10 +1153,10 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
         {/* Deck Panel (right) */}
         <div
           style={{
-            flex: responsive.isMobile ? 1 : 3,
+            flex: responsive.isMobile ? 2 : 3,
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: '#1e1e1e',
+            backgroundColor: 'rgba(255, 255, 255, 0.025)',
             minHeight: 0,
             minWidth: 0,
           }}
@@ -1250,8 +1165,8 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           <div
             style={{
               padding: '8px 12px',
-              backgroundColor: '#252525',
-              borderBottom: '1px solid #333',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}
           >
             {/* Card-type distribution — one bucket per card, so the counts sum to the deck size */}
@@ -1326,7 +1241,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                     )
                   })}
                   {Object.values(deckAnalytics.landColors).every((v) => v === 0) && (
-                    <div style={{ flex: 1, backgroundColor: '#333' }} />
+                    <div style={{ flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
                   )}
                 </div>
                 {/* Per-color counts with mana symbols */}
@@ -1391,8 +1306,8 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           <div
             style={{
               padding: '6px 12px',
-              backgroundColor: '#222',
-              borderBottom: '1px solid #333',
+              backgroundColor: 'rgba(10, 12, 20, 0.6)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
@@ -1411,9 +1326,9 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                   marginLeft: 'auto',
                   padding: '2px 8px',
                   fontSize: 10,
-                  backgroundColor: '#444',
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
                   color: '#ef5350',
-                  border: '1px solid #555',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
                   borderRadius: 4,
                   cursor: 'pointer',
                 }}
@@ -1454,7 +1369,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
             ))}
 
             {/* Basic lands */}
-            <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #333' }}>
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ padding: '0 12px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ color: '#666', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
                   Basic Lands
@@ -1465,9 +1380,9 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                     style={{
                       padding: '2px 8px',
                       fontSize: 10,
-                      backgroundColor: '#444',
+                      backgroundColor: 'rgba(255, 255, 255, 0.12)',
                       color: '#4fc3f7',
-                      border: '1px solid #555',
+                      border: '1px solid rgba(255, 255, 255, 0.16)',
                       borderRadius: 4,
                       cursor: 'pointer',
                     }}
@@ -1610,9 +1525,9 @@ function ArenaExportModal({
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: '#1e1e1e',
-          border: '1px solid #444',
-          borderRadius: 10,
+          backgroundColor: 'rgba(16, 18, 28, 0.97)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: 14,
           padding: 20,
           width: 'min(560px, 90vw)',
           maxHeight: '80vh',
@@ -1649,9 +1564,9 @@ function ArenaExportModal({
             width: '100%',
             minHeight: 240,
             resize: 'vertical',
-            backgroundColor: '#0f0f0f',
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
             color: '#ddd',
-            border: '1px solid #333',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: 6,
             padding: 10,
             fontFamily: 'monospace',
@@ -1666,9 +1581,9 @@ function ArenaExportModal({
             style={{
               padding: '8px 20px',
               fontSize: responsive.fontSize.normal,
-              backgroundColor: '#3a3a3a',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
               color: 'white',
-              border: '1px solid #555',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
               borderRadius: 6,
               cursor: 'pointer',
               fontWeight: 600,
@@ -1757,9 +1672,9 @@ function AutoBuildControl({
           style={{
             padding: '6px 8px',
             fontSize: 13,
-            backgroundColor: '#333',
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
             color: '#ddd',
-            border: '1px solid #555',
+            border: '1px solid rgba(255, 255, 255, 0.16)',
             borderRadius: 6,
           }}
         >
@@ -1817,7 +1732,7 @@ function AutoBuildControl({
           style={{
             padding: '6px 10px',
             fontSize: 13,
-            backgroundColor: '#444',
+            backgroundColor: 'rgba(255, 255, 255, 0.12)',
             color: '#ccc',
             border: 'none',
             borderRadius: 6,
@@ -2155,7 +2070,7 @@ function DeckListRow({
         opacity: disabled ? 0.8 : 1,
         position: 'relative',
         overflow: 'hidden',
-        borderBottom: '1px solid #2a2a2a',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
         // Off-identity rows get a red left strip + faint red tint, matching the standalone
         // /deckbuilder's deckRowViolation visual treatment.
         borderLeft: offIdentity ? '3px solid #ef5350' : '3px solid transparent',
@@ -2300,7 +2215,7 @@ function LandRow({
         alignItems: 'center',
         height: 28,
         padding: '0 8px',
-        borderBottom: '1px solid #2a2a2a',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
       }}
     >
       {/* Count */}
@@ -2319,7 +2234,7 @@ function LandRow({
             height: 20,
             borderRadius: 3,
             border: 'none',
-            backgroundColor: count > 0 && !disabled ? '#555' : '#333',
+            backgroundColor: count > 0 && !disabled ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.06)',
             color: count > 0 && !disabled ? 'white' : '#555',
             cursor: count > 0 && !disabled ? 'pointer' : 'not-allowed',
             fontWeight: 600,
@@ -2479,7 +2394,7 @@ function ColorModeSegmented({
     <div
       role="group"
       aria-label="Colour comparison mode"
-      style={{ display: 'inline-flex', gap: 0, border: '1px solid #444', borderRadius: 4, overflow: 'hidden' }}
+      style={{ display: 'inline-flex', gap: 0, border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 4, overflow: 'hidden' }}
     >
       {options.map((opt) => {
         const active = mode === opt.op

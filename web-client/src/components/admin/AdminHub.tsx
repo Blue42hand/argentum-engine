@@ -23,19 +23,15 @@ const ITEMS: HubItem[] = [
 
 export function AdminHub({
   onNavigate,
-  onExit,
   authLabel,
 }: {
   onNavigate: (area: AdminArea) => void
-  onExit: () => void
   authLabel: string
 }) {
   return (
     <AdminScreen
-      title="Admin Dashboard"
+      title="Admin dashboard"
       subtitle={authLabel}
-      onBack={onExit}
-      backLabel="← Home"
     >
       <div style={styles.grid}>
         {ITEMS.map((item) => (
@@ -68,13 +64,16 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: adminTheme.panel,
     border: `1px solid ${adminTheme.border}`,
     borderRadius: 16,
+    backdropFilter: 'blur(18px) saturate(140%)',
+    WebkitBackdropFilter: 'blur(18px) saturate(140%)',
     padding: '22px 20px 18px',
+    font: 'inherit',
     color: adminTheme.text,
     cursor: 'pointer',
     transition: 'border-color 120ms ease, transform 120ms ease',
   },
   icon: { fontSize: 30, lineHeight: 1 },
-  cardTitle: { fontSize: 18, fontWeight: 700, marginTop: 4 },
+  cardTitle: { fontFamily: 'var(--font-display)', fontSize: 21, fontWeight: 600, marginTop: 4 },
   cardDesc: { fontSize: 13, color: adminTheme.textSecondary, lineHeight: 1.45 },
   cardArrow: { marginTop: 6, fontSize: 13, fontWeight: 600, color: adminTheme.accent },
 }

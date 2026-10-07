@@ -19,6 +19,7 @@ import { DisconnectCountdown } from './components/ui/DisconnectCountdown'
 import { SessionReplacedOverlay } from './components/ui/SessionReplacedOverlay'
 import { MatchIntroAnimation } from './components/animations/MatchIntroAnimation'
 import { StandaloneConcedeButton } from './components/game/overlay'
+import overlay from './components/game/overlay/GameOverlays.module.css'
 import { trackPageView } from './utils/analytics'
 import { randomBackground } from './utils/background'
 import { useNavigate } from 'react-router-dom'
@@ -503,33 +504,22 @@ function GameOverlay() {
   if (gameOverState) {
     // Use custom message if provided, otherwise fall back to standard reason
     const reasonText = gameOverState.message || formatGameOverReason(gameOverState.reason, gameOverState.result)
-    const titleColor =
-      gameOverState.result === 'win' ? '#00ff00' : gameOverState.result === 'draw' ? '#ffcc00' : '#ff0000'
     const title =
       gameOverState.result === 'win' ? 'Victory!' : gameOverState.result === 'draw' ? 'Draw' : 'Defeat'
+    const showReplay = gameOverState.gameId != null
+    const watchReplay = () => {
+      returnToMenu()
+      navigate(`/replay/${gameOverState.gameId}`)
+    }
+    // One amber action: play again when there is a rematch to offer, otherwise back to the menu.
+    // Everything else sits in the quieter row beneath it.
     return (
-      <>
-        {/* Transparent layer to block board interaction */}
-        <div style={overlayStyles.clickBlocker} />
-        <div style={overlayStyles.container}>
-          <h1 style={{
-            ...overlayStyles.title,
-            color: titleColor,
-          }}>
-            {title}
-          </h1>
-          <p style={overlayStyles.subtitle}>{reasonText}</p>
-          <div style={overlayStyles.buttonRow}>
-            {/* Eliminated from a multiplayer game that plays on: offer to stay and
-                spectate the rest of it (board overview, action UI hidden). */}
-            {gameOverState.eliminated && (
-              <button
-                onClick={enterEliminatedSpectate}
-                style={overlayStyles.replayButton}
-              >
-                Keep Watching
-              </button>
-            )}
+      <div className={overlay.scrim} role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+        <div className={overlay.card} data-result={gameOverState.result}>
+          <p className={overlay.eyebrow}>Game over</p>
+          <h1 id="game-over-title" className={overlay.title}>{title}</h1>
+          <p className={overlay.reason}>{reasonText}</p>
+          <div className={overlay.actions}>
             {/* The quick lobby is destroyed when the game starts
                 (`QuickGameLobbyHandler.startGame` removes it), but the recipe that built it is not —
                 so a rematch is that recipe replayed, and for a vs-AI game every input is decidable
@@ -538,43 +528,45 @@ function GameOverlay() {
 
                 A rematch and a saved setup are the same object with different seats: a rematch is
                 a recipe replayed with the seats intact, a setup is one replayed with them open. */}
-            {rematch && (
-              <button
-                onClick={rematch.play}
-                style={overlayStyles.button}
-                data-testid="game-over-play-again"
-              >
+            {rematch ? (
+              <button type="button" onClick={rematch.play} className={overlay.primary} data-testid="game-over-play-again">
                 Play Again
               </button>
-            )}
-            <button
-              onClick={returnToMenu}
-              style={overlayStyles.button}
-            >
-              Return to Menu
-            </button>
-            {gameOverState.gameId && (
-              <button
-                onClick={() => {
-                  returnToMenu()
-                  navigate(`/replay/${gameOverState.gameId}`)
-                }}
-                style={overlayStyles.replayButton}
-              >
-                Watch Replay
+            ) : (
+              <button type="button" onClick={returnToMenu} className={overlay.primary}>
+                Return to Menu
               </button>
             )}
+            <div className={overlay.secondaryRow}>
+              {/* Eliminated from a multiplayer game that plays on: offer to stay and
+                  spectate the rest of it (board overview, action UI hidden). */}
+              {gameOverState.eliminated && (
+                <button type="button" onClick={enterEliminatedSpectate} className={overlay.secondary}>
+                  Keep Watching
+                </button>
+              )}
+              {rematch && (
+                <button type="button" onClick={returnToMenu} className={overlay.secondary}>
+                  Return to Menu
+                </button>
+              )}
+              {showReplay && (
+                <button type="button" onClick={watchReplay} className={overlay.secondary}>
+                  Watch Replay
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   if (lastError) {
     return (
-      <div style={overlayStyles.errorToast}>
+      <div className={overlay.toast} role="alert">
         <span>{lastError.message}</span>
-        <button onClick={clearError} style={overlayStyles.closeButton}>
+        <button type="button" onClick={clearError} className={overlay.toastClose} aria-label="Dismiss">
           ×
         </button>
       </div>
@@ -584,118 +576,15 @@ function GameOverlay() {
   return null
 }
 
-const overlayStyles: Record<string, React.CSSProperties> = {
-  clickBlocker: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1999,
-  },
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 24,
-    zIndex: 2000,
-  },
-  title: {
-    margin: 0,
-    fontSize: 48,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#888',
-  },
-  buttonRow: {
-    display: 'flex',
-    gap: 12,
-  },
-  button: {
-    padding: '12px 24px',
-    fontSize: 18,
-    backgroundColor: '#333',
-    color: 'white',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  replayButton: {
-    padding: '12px 24px',
-    fontSize: 18,
-    backgroundColor: '#1e40af',
-    color: 'white',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  errorToast: {
-    position: 'absolute',
-    top: 16,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: '#cc0000',
-    color: 'white',
-    padding: '12px 24px',
-    borderRadius: 8,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    zIndex: 2000,
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    color: 'white',
-    fontSize: 18,
-    cursor: 'pointer',
-  },
-}
-
 function WaitingForMulliganOverlay() {
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 16,
-        zIndex: 1000,
-      }}
-    >
+    <div className={`${overlay.scrim} ${overlay.scrimFixed}`}>
       <StandaloneConcedeButton />
-      <div
-        style={{
-          width: 40,
-          height: 40,
-          border: '3px solid #333',
-          borderTopColor: '#888',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-        }}
-      />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <h2 style={{ color: 'white', margin: 0, fontSize: 22 }}>
-        Waiting for opponent...
-      </h2>
-      <p style={{ color: '#666', margin: 0, fontSize: 14 }}>
-        Your opponent is choosing their opening hand
-      </p>
+      <div className={overlay.card}>
+        <div className={overlay.spinner} aria-hidden />
+        <h2 className={overlay.waitTitle}>Waiting for your opponent</h2>
+        <p className={overlay.waitText}>They're choosing their opening hand.</p>
+      </div>
     </div>
   )
 }

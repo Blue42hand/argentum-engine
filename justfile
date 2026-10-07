@@ -458,6 +458,29 @@ assay-ready SET *ARGS:
 server:
     @if [ -f .env ]; then set -a && . ./.env && set +a; fi && ./gradlew :game-server:bootRun --args='--spring.profiles.active=local'
 
+# Accounts need Postgres: a container on port 5433, created on first use and kept between runs. No
+# mail is configured, so the login modal offers "Sign in now" instead of emailing a link.
+#
+# Start the game server with accounts on (login, profile, stats, friends)
+[group: 'dev']
+server-accounts PORT="8080":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -f .env ]; then set -a; . ./.env; set +a; fi
+    db=argentum-accounts-db
+    if ! docker container inspect "$db" >/dev/null 2>&1; then
+      docker run -d --name "$db" -e POSTGRES_DB=argentum -e POSTGRES_USER=argentum \
+        -e POSTGRES_PASSWORD=argentum -p 5433:5432 -v argentum_accounts_db:/var/lib/postgresql/data \
+        postgres:16-alpine >/dev/null
+    else
+      docker start "$db" >/dev/null
+    fi
+    until docker exec "$db" pg_isready -U argentum >/dev/null 2>&1; do sleep 1; done
+    ACCOUNTS_ENABLED=true ACCOUNTS_AUTOCONFIG_EXCLUDE= \
+      ACCOUNTS_DB_URL=jdbc:postgresql://localhost:5433/argentum ACCOUNTS_DB_USER=argentum ACCOUNTS_DB_PASSWORD=argentum \
+      MAIL_USERNAME= GAME_DEV_ENDPOINTS_ENABLED=true \
+      ./gradlew :game-server:bootRun --args="--spring.profiles.active=local --server.port={{PORT}}"
+
 # Start the game server and web client together
 [group: 'dev']
 dev:

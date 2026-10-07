@@ -187,16 +187,18 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
         top: living.filter((p) => !bottomIds.has(p.playerId)).map((p) => p.playerId),
       }
     }
-    // Free-for-all: anchor first on the bottom, the rest split evenly — the top row takes the odd
-    // one so the bottom (which holds your interactive board when playing) is never more crowded.
-    const anchorFirst = [
-      ...living.filter((p) => p.playerId === anchorId),
-      ...living.filter((p) => p.playerId !== anchorId),
-    ]
+    // Free-for-all: the seats sit around the table in turn order, which proceeds to the left
+    // (CR 101.4), so attack-left / attack-right (CR 803.1) points at the board actually beside you.
+    // The anchor holds the bottom-right corner; walking left from it, the next seats fill the
+    // bottom row right-to-left, then the top row left-to-right, ending top-right above the anchor —
+    // the seat to its right. The top row takes the odd one so the bottom (which holds your
+    // interactive board when playing) is never more crowded. Both rows are returned left-to-right.
+    const anchorIndex = Math.max(0, living.findIndex((p) => p.playerId === anchorId))
+    const clockwise = living.map((_, i) => living[(anchorIndex + i) % living.length]!.playerId)
     const bottomCount = Math.max(1, Math.floor(living.length / 2))
     return {
-      bottom: anchorFirst.slice(0, bottomCount).map((p) => p.playerId),
-      top: anchorFirst.slice(bottomCount).map((p) => p.playerId),
+      bottom: clockwise.slice(0, bottomCount).reverse(),
+      top: clockwise.slice(bottomCount),
     }
   }, [twoRowActive, gameState, isTeamGame, viewerTeam, teamMap, anchorId])
   const bottomRowIds = twoRow.bottom
@@ -332,8 +334,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // boards splitting the width, collapsed boards as narrow tabs), then the hidden *and*
   // collapsed full boards at full width, overflowing off-screen to the right — so card
   // anchors on boards without an expanded cell keep resolving to rail chips.
+  // In visibleStripIds order: the two-row overview lays the top row out around the table, which
+  // isn't raw turn order once the rotation from the anchor wraps past the first seat.
   const visibleStripCells = useMemo(
-    () => stripOpponents.filter((o) => visibleStripIds.includes(o.playerId)),
+    () => visibleStripIds.flatMap((id) => stripOpponents.filter((o) => o.playerId === id)),
     [stripOpponents, visibleStripIds],
   )
   const offscreenStripBoards = useMemo(
@@ -503,11 +507,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // the overview cell + per-board collapse.
   const bottomRowOrdered = useMemo(() => {
     if (!twoRowActive || !gameState) return []
-    const row = gameState.players.filter((p) => bottomRowIds.includes(p.playerId))
-    if (isTeamGame) return row
-    // Free-for-all: the anchor stays bottom-right, under the right-hand orb and zone piles.
-    return row.sort((a, b) => (a.playerId === anchorId ? 1 : b.playerId === anchorId ? -1 : 0))
-  }, [twoRowActive, gameState, bottomRowIds, isTeamGame, anchorId])
+    if (isTeamGame) return gameState.players.filter((p) => bottomRowIds.includes(p.playerId))
+    // Free-for-all: already in table order, anchor bottom-right under the right-hand orb and zone piles.
+    return bottomRowIds.flatMap((id) => gameState.players.filter((p) => p.playerId === id))
+  }, [twoRowActive, gameState, bottomRowIds, isTeamGame])
   // The bottom half becomes a multi-board strip only when it holds more than the anchor (team
   // games; 4+ player free-for-alls). A lone anchor keeps the classic single bottom board — but
   // only when it really is the anchor: the single-board paths below draw the anchor's board, so
@@ -876,10 +879,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              borderRadius: 6,
-              border: '1px solid #555',
-              background: 'rgba(18, 18, 26, 0.85)',
-              color: '#ccc',
+              borderRadius: 'var(--chrome-radius)',
+              border: '1px solid var(--chrome-border)',
+              background: 'var(--chrome-bg)',
+              backdropFilter: 'var(--chrome-blur)',
+              WebkitBackdropFilter: 'var(--chrome-blur)',
+              color: 'var(--chrome-text)',
               fontSize: 12,
               fontWeight: 600,
               cursor: 'pointer',
@@ -905,9 +910,11 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
               gap: 8,
               padding: '5px 14px',
               borderRadius: 999,
-              border: '1px solid #3a3a44',
-              background: 'rgba(10, 12, 20, 0.9)',
-              color: '#9fb0d0',
+              border: '1px solid var(--chrome-border)',
+              background: 'var(--chrome-panel-bg)',
+              backdropFilter: 'var(--chrome-blur)',
+              WebkitBackdropFilter: 'var(--chrome-blur)',
+              color: '#b4bccd',
               fontSize: 12,
               fontWeight: 600,
               whiteSpace: 'nowrap',
@@ -1509,8 +1516,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           style={{
             ...styles.spectatorNameLabel,
             position: 'fixed',
-            bottom: responsive.smallCardHeight + responsive.handBattlefieldGap + 8,
-            left: 16,
+            // The bottom-left corner, under the command zone — one hand-height up, it sat on the
+            // command zone's label (spectators have no log button down here to collide with).
+            bottom: responsive.isMobile ? 8 : 16,
+            left: responsive.isMobile ? 8 : 16,
           }}
         >
           {effectiveViewingPlayer.name}
@@ -1608,8 +1617,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             zIndex: 100,
             display: 'flex',
             flexDirection: 'column',
-            // On phones the pass button is label-sized, so right-align instead of stretching it.
-            alignItems: responsive.isMobile ? 'flex-end' : 'stretch',
+            // On phones and tablets the pass button is label-sized, so right-align instead of
+            // stretching it.
+            alignItems: responsive.isMobile || responsive.isTablet ? 'flex-end' : 'stretch',
             gap: responsive.isMobile ? 6 : 8,
           }}>
             <div
@@ -1726,9 +1736,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 // On phones the desktop-sized button dwarfs the other
                 // controls and covers the hand — let the label size it.
                 // On desktop it stretches to the column, with 170 as the floor.
-                width: responsive.isMobile ? 'auto' : '100%',
-                minWidth: responsive.isMobile ? 'auto' : 170,
-                height: responsive.isMobile ? 28 : 42,
+                // A tablet keeps the desktop height but not the 170 floor: in portrait the hand
+                // fan reaches the right third of the screen, and a desktop-width button sat on it.
+                width: responsive.isMobile || responsive.isTablet ? 'auto' : '100%',
+                minWidth: responsive.isMobile ? 'auto' : responsive.isTablet ? 120 : 170,
+                // A landscape phone keeps the full label but not the full height.
+                height: responsive.isMobile ? 28 : responsive.viewportHeight < 560 ? 34 : 42,
                 padding: responsive.isMobile ? '0 10px' : '0 24px',
                 color: passEnabled ? 'white' : '#555',
                 fontWeight: 600,
@@ -1741,9 +1754,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             >
               {(() => {
                 const label = passEnabled ? getPassButtonLabel() : 'Pass'
-                // "Pass to Attackers" is too wide for a phone — "→ Attackers"
+                // "Pass to Attackers" is too wide for a phone or tablet — "→ Attackers"
                 // carries the same meaning in half the space.
-                return responsive.isMobile ? label.replace(/^Pass to /, '→ ') : label
+                return responsive.isMobile || responsive.isTablet ? label.replace(/^Pass to /, '→ ') : label
               })()}
             </button>
           </div>

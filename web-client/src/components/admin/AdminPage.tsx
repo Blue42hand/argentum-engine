@@ -9,13 +9,13 @@
  * account — that account can then reach the dashboard with its own sign-in.
  */
 import { useCallback, useEffect, useState } from 'react'
-import type React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdminDashboard } from './AdminDashboard'
 import { AdminActivity } from './AdminActivity'
 import { AdminPlayers } from './AdminPlayers'
 import { AdminHub, type AdminArea } from './AdminHub'
-import { adminTheme } from './adminUi'
+import { PageShell, pageStyles } from '@/components/ui/PageShell'
+import { devStyles } from './DevPage'
 import type { AdminAuth } from '@/api/adminAuth'
 import { useAuthStore } from '@/store/authStore'
 
@@ -105,9 +105,9 @@ export function AdminPage() {
 
   if (access === 'pending') {
     return (
-      <div style={styles.pageContainer}>
-        <p style={styles.loadingText}>Loading…</p>
-      </div>
+      <PageShell title="Admin" width="narrow" plain>
+        <p className={`${pageStyles.empty} ${pageStyles.muted}`}>Loading…</p>
+      </PageShell>
     )
   }
 
@@ -135,7 +135,7 @@ export function AdminPage() {
   }
 
   const authLabel = auth ? 'Signed in with the admin password' : `Signed in as ${user?.displayName ?? 'admin'}`
-  return <AdminHub onNavigate={setView} onExit={() => navigate('/')} authLabel={authLabel} />
+  return <AdminHub onNavigate={setView} authLabel={authLabel} />
 }
 
 // ============================================================================
@@ -158,13 +158,10 @@ function LoginView({
   loading: boolean
 }) {
   return (
-    <div style={styles.pageContainer}>
-      <div style={styles.loginCard}>
-        <div style={styles.loginIcon} aria-hidden>
-          🔑
-        </div>
-        <h1 style={styles.loginTitle}>Admin Dashboard</h1>
-        <p style={styles.loginSubtitle}>
+    <PageShell title="Admin" width="narrow" plain>
+      <div className={`${pageStyles.panel} ${devStyles.loginCard}`}>
+        <h1 className={pageStyles.h1}>Admin dashboard</h1>
+        <p className={devStyles.loginLede}>
           Enter the admin password, or sign in with an admin account to skip this step.
         </p>
         <input
@@ -173,79 +170,18 @@ function LoginView({
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && onLogin()}
           placeholder="Admin password"
-          style={styles.input}
+          className={pageStyles.input}
+          style={{ width: '100%' }}
           autoFocus
         />
-        <button onClick={onLogin} disabled={loading || !password} style={styles.primaryButton}>
+        <button onClick={onLogin} disabled={loading || !password} className={pageStyles.buttonPrimary} style={{ width: '100%', minHeight: 42 }}>
           {loading ? 'Connecting…' : 'Continue'}
         </button>
-        {error && <p style={styles.errorText}>{error}</p>}
-        <button type="button" onClick={onHome} style={styles.homeLink}>
+        {error && <p className={devStyles.error}>{error}</p>}
+        <button type="button" onClick={onHome} className={pageStyles.buttonGhost}>
           ← Back to home
         </button>
       </div>
-    </div>
+    </PageShell>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  pageContainer: {
-    minHeight: '100vh',
-    height: '100vh',
-    overflowY: 'auto',
-    backgroundColor: adminTheme.bg,
-    color: adminTheme.textSecondary,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  loadingText: { color: adminTheme.textMuted, fontSize: 14 },
-  loginCard: {
-    backgroundColor: adminTheme.panel,
-    borderRadius: 16,
-    padding: '36px 40px',
-    textAlign: 'center',
-    border: `1px solid ${adminTheme.border}`,
-    width: 380,
-    maxWidth: '92vw',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  loginIcon: { fontSize: 34, marginBottom: 8 },
-  loginTitle: { margin: '0 0 8px', fontSize: 22, color: adminTheme.text, fontWeight: 700 },
-  loginSubtitle: { margin: '0 0 22px', fontSize: 13.5, color: adminTheme.textMuted, lineHeight: 1.5 },
-  input: {
-    width: '100%',
-    padding: '11px 14px',
-    fontSize: 14,
-    backgroundColor: '#0a0a14',
-    color: adminTheme.text,
-    border: `1px solid ${adminTheme.border}`,
-    borderRadius: 9,
-    outline: 'none',
-    marginBottom: 14,
-    boxSizing: 'border-box',
-  },
-  primaryButton: {
-    width: '100%',
-    padding: '11px 0',
-    fontSize: 14,
-    fontWeight: 600,
-    backgroundColor: adminTheme.accentSolid,
-    color: '#fff',
-    border: 'none',
-    borderRadius: 9,
-    cursor: 'pointer',
-  },
-  errorText: { color: adminTheme.bad, fontSize: 13, marginTop: 12, marginBottom: 0 },
-  homeLink: {
-    marginTop: 18,
-    background: 'none',
-    border: 'none',
-    color: adminTheme.accent,
-    cursor: 'pointer',
-    fontSize: 13,
-  },
 }

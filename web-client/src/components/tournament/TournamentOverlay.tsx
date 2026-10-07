@@ -9,6 +9,7 @@ import { useDeckLibrary, buildDraftedDeckSave, type SavedDeckEntry } from '@/sto
 import { useSaveDeck } from '@/store/useSaveDeck'
 import { deriveRoundPhase } from './roundPhase'
 import styles from '../ui/GameUI.module.css'
+import { randomBackground } from '@/utils/background'
 
 /**
  * Tournament overlay showing standings between rounds.
@@ -156,7 +157,7 @@ export function TournamentOverlay({
     : null
 
   return (
-    <div className={styles.tournamentOverlay}>
+    <div className={styles.tournamentOverlay} style={tournamentBackdrop}>
       {/* ── Header: title + round + toolbar ── */}
       <div className={styles.trnHeader}>
         <div className={styles.trnHeaderTop}>
@@ -180,10 +181,9 @@ export function TournamentOverlay({
                 onClick={openSaveDeckDialog}
                 className={styles.trnToolbarBtn}
                 style={{
-                  background: deckSavedAt ? 'rgba(108, 192, 74, 0.2)' : 'var(--accent-primary, #6aa3ff)',
-                  borderColor: deckSavedAt ? 'rgba(108, 192, 74, 0.5)' : 'var(--accent-primary, #6aa3ff)',
-                  color: '#fff',
-                  fontWeight: 600,
+                  background: deckSavedAt ? 'rgba(95, 208, 140, 0.16)' : 'rgba(242, 180, 92, 0.18)',
+                  borderColor: deckSavedAt ? 'rgba(95, 208, 140, 0.5)' : 'rgba(242, 180, 92, 0.6)',
+                  color: deckSavedAt ? '#c8f2d8' : '#f6d9a8',
                 }}
                 title={isLoggedIn ? 'Save this drafted deck to your account' : 'Save this drafted deck to your browser My Decks library'}
               >
@@ -911,4 +911,9 @@ function DeckViewerCardPreview({ card, pos }: { card: SealedCardInfo; pos: { x: 
       </div>
     </div>
   )
+}
+
+/** The card art behind a tint, as on the landing screen; the tint is darker since this is a table. */
+const tournamentBackdrop = {
+  backgroundImage: `linear-gradient(180deg, rgba(6, 7, 12, 0.7) 0%, rgba(6, 7, 12, 0.6) 45%, rgba(6, 7, 12, 0.82) 100%), url(${randomBackground})`,
 }

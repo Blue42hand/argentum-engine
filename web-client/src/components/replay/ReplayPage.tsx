@@ -15,6 +15,8 @@ import {
   type SpectatorStateUpdate,
 } from '@/replay/reconstructSnapshots.ts'
 import { ReplayPlayer, type ReplayMetadata } from './ReplayPlayer'
+import { PageShell, pageStyles } from '@/components/ui/PageShell'
+import styles from './Replay.module.css'
 
 export function ReplayPage() {
   const { gameId } = useParams<{ gameId: string }>()
@@ -74,24 +76,28 @@ export function ReplayPage() {
 
   const goHome = useCallback(() => { navigate('/') }, [navigate])
 
-  if (loading) {
+  if (loading || error) {
     return (
-      <div style={styles.centered}>
-        <div style={styles.spinner} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <p style={styles.loadingText}>Loading replay...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div style={styles.centered}>
-        <p style={styles.errorText}>{error}</p>
-        <button onClick={goHome} style={styles.backButton}>
-          Go to Home
-        </button>
-      </div>
+      <PageShell title="Replay" width="narrow" plain>
+        <div className={styles.stateCenter}>
+          <section className={`${pageStyles.panel} ${styles.stateCard}`} aria-live="polite">
+            {loading ? (
+              <>
+                <span className={styles.spinner} aria-hidden />
+                <p className={styles.stateText}>Loading replay…</p>
+              </>
+            ) : (
+              <>
+                <h1 className={styles.stateTitle}>Replay unavailable</h1>
+                <p className={styles.stateText}>{error}</p>
+                <button type="button" onClick={goHome} className={pageStyles.buttonPrimary}>
+                  Back to home
+                </button>
+              </>
+            )}
+          </section>
+        </div>
+      </PageShell>
     )
   }
 
@@ -101,44 +107,7 @@ export function ReplayPage() {
       gameId={gameId ?? ''}
       metadata={metadata}
       onExit={goHome}
+      onHome={goHome}
     />
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  centered: {
-    minHeight: '100vh',
-    backgroundColor: '#0a0a12',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  spinner: {
-    width: 40,
-    height: 40,
-    border: '3px solid #333',
-    borderTopColor: '#888',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-  loadingText: {
-    color: '#888',
-    fontSize: 16,
-  },
-  errorText: {
-    color: '#ef4444',
-    fontSize: 16,
-  },
-  backButton: {
-    padding: '8px 16px',
-    fontSize: 13,
-    backgroundColor: 'transparent',
-    color: '#888',
-    border: '1px solid #333',
-    borderRadius: 6,
-    cursor: 'pointer',
-    flexShrink: 0,
-  },
 }

@@ -1986,9 +1986,9 @@ export function SetSynergiesButton({
         style={{
           padding: '6px 14px',
           fontSize: 13,
-          backgroundColor: 'rgba(124, 58, 237, 0.2)',
-          color: '#b388ff',
-          border: '1px solid rgba(124, 58, 237, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+          color: '#e8ecf4',
+          border: '1px solid rgba(255, 255, 255, 0.14)',
           borderRadius: 6,
           cursor: 'pointer',
           fontWeight: 600,
@@ -1996,10 +1996,10 @@ export function SetSynergiesButton({
           ...style,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.35)'
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)'
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.2)'
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)'
         }}
       >
         Archetypes
@@ -2143,7 +2143,7 @@ function SetSynergiesOverlay({
                   background: 'none',
                   border: 'none',
                   borderBottom: i === activeTab
-                    ? '2px solid #7c3aed'
+                    ? '2px solid #f2b45c'
                     : '2px solid transparent',
                   cursor: 'pointer',
                   transition: 'color 0.15s, border-color 0.15s',
@@ -2407,7 +2407,7 @@ function ArchetypeCard({
         borderRadius: 10,
         overflow: 'hidden',
         minHeight: 148,
-        border: `1px solid ${hovered && clickable ? 'rgba(124, 58, 237, 0.65)' : borderColor}`,
+        border: `1px solid ${hovered && clickable ? 'rgba(242, 180, 92, 0.65)' : borderColor}`,
         boxShadow: hovered
           ? '0 12px 28px rgba(0, 0, 0, 0.55)'
           : '0 1px 3px rgba(0, 0, 0, 0.45)',

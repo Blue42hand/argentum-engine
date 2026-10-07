@@ -40,7 +40,7 @@ export function ConcedeButton() {
             background: 'var(--gradient-danger)',
             color: 'white',
             border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: 6,
+            borderRadius: 'var(--chrome-radius)',
             cursor: 'pointer',
             fontWeight: 600,
             display: 'flex',
@@ -60,9 +60,11 @@ export function ConcedeButton() {
             padding: responsive.isMobile ? '6px 10px' : '8px 14px',
             fontSize: responsive.fontSize.small,
             backgroundColor: 'var(--chrome-bg)',
+            backdropFilter: 'var(--chrome-blur)',
+            WebkitBackdropFilter: 'var(--chrome-blur)',
             color: 'var(--chrome-text)',
             border: '1px solid var(--chrome-border)',
-            borderRadius: 6,
+            borderRadius: 'var(--chrome-radius)',
             cursor: 'pointer',
           }}
         >
@@ -80,9 +82,11 @@ export function ConcedeButton() {
           padding: responsive.isMobile ? '6px 10px' : '8px 14px',
           fontSize: responsive.fontSize.small,
           backgroundColor: 'var(--chrome-bg)',
+          backdropFilter: 'var(--chrome-blur)',
+          WebkitBackdropFilter: 'var(--chrome-blur)',
           color: 'var(--chrome-danger-text)',
           border: '1px solid var(--chrome-danger-border)',
-          borderRadius: 6,
+          borderRadius: 'var(--chrome-radius)',
           cursor: 'pointer',
         }}
       >
@@ -120,7 +124,7 @@ export function StandaloneConcedeButton() {
             background: 'var(--gradient-danger)',
             color: 'white',
             border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: 6,
+            borderRadius: 'var(--chrome-radius)',
             cursor: 'pointer',
             fontWeight: 600,
           }}
@@ -133,9 +137,11 @@ export function StandaloneConcedeButton() {
             padding: '8px 14px',
             fontSize: 13,
             backgroundColor: 'var(--chrome-bg)',
+            backdropFilter: 'var(--chrome-blur)',
+            WebkitBackdropFilter: 'var(--chrome-blur)',
             color: 'var(--chrome-text)',
             border: '1px solid var(--chrome-border)',
-            borderRadius: 6,
+            borderRadius: 'var(--chrome-radius)',
             cursor: 'pointer',
           }}
         >
@@ -153,9 +159,11 @@ export function StandaloneConcedeButton() {
           padding: '8px 14px',
           fontSize: 13,
           backgroundColor: 'var(--chrome-bg)',
+          backdropFilter: 'var(--chrome-blur)',
+          WebkitBackdropFilter: 'var(--chrome-blur)',
           color: 'var(--chrome-danger-text)',
           border: '1px solid var(--chrome-danger-border)',
-          borderRadius: 6,
+          borderRadius: 'var(--chrome-radius)',
           cursor: 'pointer',
         }}
       >
@@ -188,10 +196,8 @@ export function SpectatorCountBadge() {
       style={{
         position: 'absolute',
         top: responsive.isMobile ? 8 : 12,
-        // Sits to the right of FullscreenButton (which is at left: 8/12).
-        // The button is roughly 90–110px wide depending on label, so 110/130
-        // gives a safe visual gap without measuring.
-        left: responsive.isMobile ? 110 : 130,
+        // Sits to the right of the icon-only FullscreenButton (30/34px at left 8/12).
+        left: responsive.isMobile ? 46 : 54,
         // Above the multiplayer opponent rail (z 120): the name popover drops down
         // into the rail column, and the seat chips would otherwise paint over it.
         // The badge itself sits above the rail's first chip, so nothing is hidden.
@@ -211,7 +217,7 @@ export function SpectatorCountBadge() {
           backgroundColor: 'rgba(0, 0, 0, 0.35)',
           color: '#9aa6b2',
           border: '1px solid #2c333d',
-          borderRadius: 6,
+          borderRadius: 'var(--chrome-radius)',
           userSelect: 'none',
           opacity: 0.85,
           cursor: 'default',
@@ -237,7 +243,7 @@ export function SpectatorCountBadge() {
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
             color: '#d4dae1',
             border: '1px solid #2c333d',
-            borderRadius: 6,
+            borderRadius: 'var(--chrome-radius)',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
             pointerEvents: 'none',
             whiteSpace: 'nowrap',
@@ -288,6 +294,9 @@ export function FullscreenButton() {
     }
   }
 
+  const size = responsive.isMobile ? 30 : 34
+  const title = isFullscreen ? 'Exit fullscreen (Esc)' : 'Enter fullscreen'
+  // Icon-only, like the landing and lobby top bars — the label cost a card's width in the corner.
   return (
     <button
       onClick={toggleFullscreen}
@@ -296,20 +305,28 @@ export function FullscreenButton() {
         top: responsive.isMobile ? 8 : 12,
         left: responsive.isMobile ? 8 : 12,
         zIndex: 100,
-        padding: responsive.isMobile ? '6px 10px' : '8px 14px',
-        fontSize: responsive.fontSize.small,
+        width: size,
+        height: size,
+        padding: 0,
         backgroundColor: 'var(--chrome-bg)',
+        backdropFilter: 'var(--chrome-blur)',
+        WebkitBackdropFilter: 'var(--chrome-blur)',
         color: 'var(--chrome-text)',
         border: '1px solid var(--chrome-border)',
-        borderRadius: 6,
+        borderRadius: 'var(--chrome-radius)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
-        gap: 4,
+        justifyContent: 'center',
       }}
-      title={isFullscreen ? 'Exit fullscreen (Esc)' : 'Enter fullscreen'}
+      title={title}
+      aria-label={title}
     >
-      {isFullscreen ? '⛶' : '⛶'} {isFullscreen ? 'Exit' : 'Fullscreen'}
+      <svg viewBox="0 0 24 24" width={responsive.isMobile ? 15 : 17} height={responsive.isMobile ? 15 : 17} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        {isFullscreen
+          ? <path d="M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5" />
+          : <path d="M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5" />}
+      </svg>
     </button>
   )
 }

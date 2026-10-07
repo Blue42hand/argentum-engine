@@ -76,14 +76,23 @@ export async function fetchAppConfig(): Promise<AppConfig> {
 
 // ----- Auth -----
 
-/** Request a magic-link sign-in email. Resolves on success regardless of whether the email exists. */
-export async function requestLogin(email: string): Promise<void> {
+/**
+ * Request a magic-link sign-in email. Resolves on success regardless of whether the email exists.
+ *
+ * `devLoginPath` is present only on a dev server that can't send mail (dev endpoints on, no mail
+ * credentials): the link's own path, so local sign-in doesn't mean fishing it out of the server log.
+ */
+export async function requestLogin(email: string): Promise<{ devLoginPath?: string }> {
   const res = await fetch('/api/auth/request-login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   })
   if (!res.ok) throw new Error(await errorMessage(res, `Sign-in request failed (${res.status})`))
+  const body = await res.json().catch(() => ({})) as { devLoginPath?: unknown }
+  return typeof body.devLoginPath === 'string' && body.devLoginPath.startsWith('/login/verify')
+    ? { devLoginPath: body.devLoginPath }
+    : {}
 }
 
 /** Exchange a magic-link token for a durable auth token + the account. */

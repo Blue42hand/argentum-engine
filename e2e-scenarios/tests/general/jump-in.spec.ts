@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { enterName, createLobby, joinLobby } from '../../helpers/homeScreen'
+import { enterName, createLobby, joinLobby, launchVsAi } from '../../helpers/homeScreen'
 
 test.use({ channel: 'chrome' })
 
@@ -10,10 +10,8 @@ async function choosePack(page: Page, index = 0) {
 test('Jump In creates a J22 lobby, previews packs, reconnects, and plays against AI on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await enterName(page, 'Jump In Host')
-  await createLobby(page, { roster: 'solo', cards: 'jump-in', shape: 'bracket' })
-  await expect(page.getByTestId('lobby-axis-summary')).toContainText('Jump In')
-  await expect(page.getByRole('button', { name: 'Remove Jumpstart 2022', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Start Game', exact: true }).click()
+  // Against the AI there is nobody to wait for: the lobby starts itself once the AI is seated.
+  await launchVsAi(page, 'jump-in')
   await expect(page.getByRole('heading', { name: 'Choose your first theme', exact: true })).toBeVisible()
   await expect(page.locator('article')).toHaveCount(3)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -43,7 +41,7 @@ test('friends choose privately and the completed deck waits for the other player
   const guest = await context.newPage()
   try {
     await enterName(page, 'Host')
-    const code = await createLobby(page, { roster: 'friend', cards: 'jump-in', shape: 'bracket' })
+    const code = await createLobby(page, { mode: 'jump-in', playWith: 'friends', table: 'one-v-one' })
     await page.getByTestId('axis-choice-sealed').click()
     await expect(page.getByRole('button', { name: 'Traditional sealed', exact: true })).toHaveAttribute('aria-pressed', 'true')
     await page.getByTestId('axis-choice-jump-in').click()
@@ -73,8 +71,7 @@ test('friends choose privately and the completed deck waits for the other player
 test('the first pack can be swapped back while choosing the second', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await enterName(page, 'Second Thoughts')
-  await createLobby(page, { roster: 'solo', cards: 'jump-in', shape: 'bracket' })
-  await page.getByRole('button', { name: 'Start Game', exact: true }).click()
+  await launchVsAi(page, 'jump-in')
   await expect(page.getByRole('heading', { name: 'Choose your first theme', exact: true })).toBeVisible()
   const firstOffers = await page.locator('article h2').allTextContents()
   await choosePack(page)
@@ -88,11 +85,8 @@ test('the first pack can be swapped back while choosing the second', async ({ pa
 test('Jump In seats a Free-for-All pod and compares the second pick against the first', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await enterName(page, 'Pod Host')
-  await createLobby(page, { roster: 'solo', cards: 'jump-in', shape: 'free-for-all' })
-  await expect(page.getByTestId('lobby-axis-summary')).toContainText('Free-for-All')
-  await page.getByRole('button', { name: '+ Add AI', exact: true }).click()
-  await page.getByRole('button', { name: '+ Add AI', exact: true }).click()
-  await page.getByRole('button', { name: 'Start Game', exact: true }).click()
+  // Three AI opponents is the Free-for-All default; an AI table starts once every seat is filled.
+  await launchVsAi(page, 'free-for-all', { decksFrom: 'Jump In' })
   await expect(page.getByRole('heading', { name: 'Choose your first theme', exact: true })).toBeVisible()
   await expect(page.getByText(/Free-for-All · 4 players/)).toBeVisible()
   await page.locator('article').nth(1).hover()

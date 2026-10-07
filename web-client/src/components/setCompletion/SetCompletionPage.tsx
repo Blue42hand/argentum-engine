@@ -1,7 +1,8 @@
+import { createPortal } from 'react-dom'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { SetIcon } from '../ui/SetIcon'
 import { HelpTip } from '../help/HelpTip'
+import { PageShell, pageStyles } from '../ui/PageShell'
 import { HoverCardPreview } from '../ui/HoverCardPreview'
 import { ProgressChartOverlay } from './ProgressChartOverlay'
 import { getScryfallFallbackUrl } from '@/utils/cardImages'
@@ -98,7 +99,6 @@ interface HoverState {
 }
 
 export function SetCompletionPage() {
-  const navigate = useNavigate()
   const [sets, setSets] = useState<readonly SetCoverage[] | null>(null)
   const [summary, setSummary] = useState<CoverageSummary | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -175,35 +175,36 @@ export function SetCompletionPage() {
   // page stops being its own scroll container while that tab is up and hands the height to the frame.
   const onExplorer = tab === 'explorer'
   return (
-    <div className={onExplorer ? `${styles.page} ${styles.pageFramed}` : styles.page}>
-      <header className={styles.topbar}>
-        <button className={styles.backButton} onClick={() => navigate('/')}>
-          ← Back to menu
-        </button>
-        <h1 className={styles.title}>Set Completion</h1>
-        <div className={styles.segmented} role="tablist" aria-label="View">
-          <button
-            role="tab"
-            aria-selected={tab === 'sets'}
-            className={tab === 'sets' ? styles.segmentActive : styles.segment}
-            onClick={() => setTab('sets')}
-          >
-            Sets
-          </button>
-          <button
-            role="tab"
-            aria-selected={tab === 'explorer'}
-            className={tab === 'explorer' ? styles.segmentActive : styles.segment}
-            onClick={() => setTab('explorer')}
-          >
-            Assay Explorer
-          </button>
+    <PageShell title="Sets" width={onExplorer ? 'full' : 'wide'} fit={onExplorer} plain>
+      <header className={styles.pageHead}>
+        <div className={styles.pageHeading}>
+          <h1 className={pageStyles.h1}>Set completion</h1>
+          <p className={pageStyles.lede}>How much of every Magic set Argentum can play today.</p>
         </div>
-        {/* Sibling of the tablist, never inside it: `HelpTip` is a button, and one nested in a
-            `role="tab"` would be both invalid markup and a click that switches tabs. The explanation
-            lives in `topics.ts` rather than in a `title=` so the popover and `/help` can't disagree. */}
-        <HelpTip topicId="assay-explorer" label="What is the Assay Explorer?" />
-        <div className={styles.topbarSpacer} />
+        <div className={styles.viewSwitch}>
+          <div className={pageStyles.tabs} role="tablist" aria-label="View">
+            <button
+              role="tab"
+              aria-selected={tab === 'sets'}
+              className={pageStyles.tab}
+              onClick={() => setTab('sets')}
+            >
+              Sets
+            </button>
+            <button
+              role="tab"
+              aria-selected={tab === 'explorer'}
+              className={pageStyles.tab}
+              onClick={() => setTab('explorer')}
+            >
+              Assay Explorer
+            </button>
+          </div>
+          {/* Sibling of the tablist, never inside it: `HelpTip` is a button, and one nested in a
+              `role="tab"` would be both invalid markup and a click that switches tabs. The explanation
+              lives in `topics.ts` rather than in a `title=` so the popover and `/help` can't disagree. */}
+          <HelpTip topicId="assay-explorer" label="What is the Assay Explorer?" />
+        </div>
       </header>
 
       {onExplorer && <ExplorerPane />}
@@ -226,9 +227,10 @@ export function SetCompletionPage() {
         />
       )}
 
-      {openCode && <SetDetailOverlay code={openCode} onClose={() => setOpenCode(null)} />}
-      {showProgress && <ProgressChartOverlay onClose={() => setShowProgress(false)} />}
-    </div>
+      {/* Portalled: inside the shell's content column they would sit under its top bar. */}
+      {openCode && createPortal(<SetDetailOverlay code={openCode} onClose={() => setOpenCode(null)} />, document.body)}
+      {showProgress && createPortal(<ProgressChartOverlay onClose={() => setShowProgress(false)} />, document.body)}
+    </PageShell>
   )
 }
 
@@ -357,7 +359,7 @@ function SetsTab({
                     )}
                   </div>
                 </div>
-                <span className={styles.summaryHint}>📈 View progress →</span>
+                <span className={styles.summaryHint}>View progress →</span>
               </>
             )
           })()}

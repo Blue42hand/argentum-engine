@@ -410,7 +410,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 9,
     border: 'none',
     backgroundColor: adminTheme.accentSolid,
-    color: '#fff',
+    color: adminTheme.onAccent,
     fontWeight: 600,
     fontSize: 13,
     cursor: 'pointer',

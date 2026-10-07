@@ -56,7 +56,7 @@ export const BOOTSTRAP_SET_CODE = 'ECL'
  * pool alone (`startBlockReason` rejects an extension-only selection), and partial sets have a
  * knowingly incomplete pool.
  */
-function defaultSetCode(availableSets: readonly AvailableSet[]): string {
+export function defaultSetCode(availableSets: readonly AvailableSet[]): string {
   return availableSets.find((s) => s.code === BOOTSTRAP_SET_CODE)?.code
     ?? availableSets.find((s) => !s.extensionSet && !s.partial)?.code
     ?? BOOTSTRAP_SET_CODE
@@ -87,6 +87,9 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
       deckTab: deckTabFor(recipe),
       ...(recipe.deck.kind === 'SAVED' ? { deckName: recipe.deck.name } : {}),
       autoStart: recipe.autoStart,
+      ...(recipe.autoStart && spec.kind === 'TOURNAMENT' && recipe.selection.roster === 'SOLO'
+        ? { startWhenSeated: 1 + recipe.aiSeats }
+        : {}),
       ...(notes.length > 0 ? { notes: [...notes] } : {}),
     })
 
