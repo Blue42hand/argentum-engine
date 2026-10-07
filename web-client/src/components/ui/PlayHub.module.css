@@ -7,12 +7,12 @@
  */
 
 .hub {
-  --hub-glass: rgba(10, 12, 20, 0.5);
+  --hub-glass: rgba(10, 12, 20, 0.72);
   --hub-glass-strong: rgba(10, 12, 20, 0.84);
   --hub-line: rgba(255, 255, 255, 0.09);
   --hub-line-strong: rgba(255, 255, 255, 0.18);
-  --hub-tile: rgba(255, 255, 255, 0.045);
-  --hub-tile-hover: rgba(255, 255, 255, 0.09);
+  --hub-tile: rgba(255, 255, 255, 0.06);
+  --hub-tile-hover: rgba(255, 255, 255, 0.11);
   --hub-text: #eef0f6;
   --hub-muted: #b4bccd;
   --hub-faint: #8f98ac;
