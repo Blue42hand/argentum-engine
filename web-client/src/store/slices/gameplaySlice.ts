@@ -4,6 +4,7 @@
 import { decisionInteractionEpoch } from '@/network/liveAction'
 import type { SliceCreator, EntityId, LogEntry, MulliganState, GameOverState, ErrorState } from './types'
 import type { ClientGameState, GameAction, LegalActionInfo, PendingDecision, OpponentDecisionStatus } from '@/types'
+import { useTableTalkStore } from '@/store/tableTalkStore'
 import {
   createCreateGameMessage,
   createJoinGameMessage,
@@ -580,6 +581,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
 
   returnToMenu: () => {
     const state = get()
+    useTableTalkStore.getState().leavePostGame()
     // FFA pods keep their lobby context too — "Return to Menu" from the game-over (or
     // eliminated) overlay drops back to the pod's standings screen, not the main menu.
     const isInTournament = state.tournamentState != null || state.ffaState != null

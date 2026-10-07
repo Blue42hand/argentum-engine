@@ -686,4 +686,59 @@ sealed interface ClientMessage {
     @Serializable
     @SerialName("respondToMatch")
     data class RespondToMatch(val matchId: String, val accept: Boolean) : ClientMessage
+
+    // =========================================================================
+    // Table talk and after the game
+    // =========================================================================
+
+    /**
+     * Send one of the preset [Emote]s to the table of the game you are seated in. Rate-limited
+     * server-side; free text is deliberately not offered.
+     */
+    @Serializable
+    @SerialName("sendEmote")
+    data class SendEmote(val emote: Emote) : ClientMessage
+
+    /**
+     * After a human 1v1 game: ask for (or, with [want] false, withdraw) a rematch. When both seats
+     * want one, the server starts a new game with the same decks and settings.
+     */
+    @Serializable
+    @SerialName("postGameRematch")
+    data class PostGameRematch(val gameId: String, val want: Boolean = true) : ClientMessage
+
+    /** After a human 1v1 game: send your opponent a friend request, or accept theirs. */
+    @Serializable
+    @SerialName("postGameAddFriend")
+    data class PostGameAddFriend(val gameId: String) : ClientMessage
+
+    /**
+     * After a human 1v1 game: block (or, with [block] false, unblock) your opponent. A blocked player
+     * is never matched with you again, their emotes stop reaching you, and they can't send you a
+     * friend request or a rematch.
+     */
+    @Serializable
+    @SerialName("postGameBlock")
+    data class PostGameBlock(val gameId: String, val block: Boolean = true) : ClientMessage
+
+    /** You left the game-over screen; your opponent's rematch offer to you lapses. */
+    @Serializable
+    @SerialName("postGameLeave")
+    data class PostGameLeave(val gameId: String) : ClientMessage
+}
+
+/**
+ * The preset messages a player can send the table. A closed set on purpose: quick, friendly, and
+ * nothing to moderate.
+ */
+@Serializable
+enum class Emote {
+    HELLO,
+    GOOD_LUCK,
+    NICE_PLAY,
+    THINKING,
+    OOPS,
+    THANKS,
+    SORRY,
+    GOOD_GAME,
 }

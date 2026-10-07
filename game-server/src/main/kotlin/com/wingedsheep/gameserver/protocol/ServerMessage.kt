@@ -1332,6 +1332,40 @@ sealed interface ServerMessage {
     @SerialName("friendRequestReceived")
     data class FriendRequestReceived(val fromAccountId: String, val fromName: String) : ServerMessage
 
+    /** [playerId] sent the table an [emote]. Not delivered to anyone who has blocked the sender. */
+    @Serializable
+    @SerialName("emote")
+    data class EmoteReceived(val playerId: EntityId, val emote: Emote) : ServerMessage
+
+    /**
+     * What you can do with your opponent after a human 1v1 game, and where each of those stands.
+     * Sent when the game ends and again whenever anything in it changes; the client renders it as-is.
+     *
+     * - [canRematch]: the game can be replayed with the same decks and settings.
+     * - [rematch]: who has asked for one. When both have, the new game starts.
+     * - [opponentLeft]: they left the result screen, so a rematch is off.
+     * - [friendship]: [FriendshipState.UNAVAILABLE] when either seat is a guest (or accounts are off).
+     * - [blocked]: you have blocked them.
+     */
+    @Serializable
+    @SerialName("postGame")
+    data class PostGame(
+        val gameId: String,
+        val opponentName: String,
+        val canRematch: Boolean,
+        val rematch: RematchState,
+        val opponentLeft: Boolean = false,
+        val friendship: FriendshipState,
+        val blocked: Boolean = false,
+        val notice: String? = null,
+    ) : ServerMessage
+
+    @Serializable
+    data class RematchState(val you: Boolean = false, val opponent: Boolean = false, val starting: Boolean = false)
+
+    @Serializable
+    enum class FriendshipState { UNAVAILABLE, NONE, REQUEST_SENT, REQUEST_RECEIVED, FRIENDS }
+
     /** Reply to [ClientMessage.Ping] — always sent, regardless of auth or game state. */
     @Serializable
     @SerialName("pong")

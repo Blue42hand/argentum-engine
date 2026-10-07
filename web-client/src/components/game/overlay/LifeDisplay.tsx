@@ -7,6 +7,8 @@ import { HoverCardPreview } from '../../ui/HoverCardPreview'
 import { AbilityText } from '../../ui/ManaSymbols'
 import { TheRingBadge } from './TheRingBadge'
 import { isLoneTargetRequirement } from '@/utils/targeting.ts'
+import { EmoteBubble } from '../../tableTalk/EmoteBubble'
+import { EmotePicker } from '../../tableTalk/EmotePicker'
 
 /**
  * Life total display - interactive when in targeting mode or when a pending decision requires player targeting.
@@ -329,6 +331,9 @@ export function LifeDisplay({
             {life}
           </span>
 
+          {/* The seat's last emote, over the orb: above yours (bottom of the screen), below theirs. */}
+          <EmoteBubble playerId={playerId} placement={isPlayer ? 'above' : 'below'} />
+
           {/* Damage allocation badge */}
           {isDistributeTarget && distributeAllocated > 0 && (
             <div style={{
@@ -353,6 +358,8 @@ export function LifeDisplay({
           )}
         </div>
         {isPlayer && !compactName && nameLabel}
+        {/* Emotes are sent from beside your own orb; spectators have nothing to say. */}
+        {isPlayer && !spectatorMode && <EmotePicker />}
       </div>
 
       {compactName && (

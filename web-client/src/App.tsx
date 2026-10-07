@@ -26,6 +26,8 @@ import { useNavigate } from 'react-router-dom'
 import { useGameStore } from './store/gameStore'
 import { useConnectName } from './store/useConnectName'
 import { useRematch } from '@/components/lobby/useRematch'
+import { PostGamePanel } from '@/components/tableTalk/PostGamePanel'
+import { useTableTalkStore } from '@/store/tableTalkStore'
 import { LearnCoach } from '@/components/learn/LearnCoach'
 import { useViewingPlayer, useBattlefieldCards, selectTeamMap } from './store/selectors'
 import type { ClientAttacker, EntityId } from './types'
@@ -509,6 +511,10 @@ function GameOverlay() {
   })
   const navigate = useNavigate()
   const rematch = useRematch()
+  // A human opponent's result screen: rematch / add friend / block, all from the server.
+  const postGame = useTableTalkStore((state) =>
+    state.postGame && state.postGame.gameId === gameOverState?.gameId ? state.postGame : null,
+  )
 
   // Auto-dismiss is handled centrally in the store (setError schedules clearError), so it
   // works on every route — not just where this overlay happens to be mounted. The × button
@@ -532,16 +538,19 @@ function GameOverlay() {
           <p className={overlay.eyebrow}>Game over</p>
           <h1 id="game-over-title" className={overlay.title}>{title}</h1>
           <p className={overlay.reason}>{reasonText}</p>
+          {postGame && <PostGamePanel postGame={postGame} />}
           <div className={overlay.actions}>
             {/* The quick lobby is destroyed when the game starts
                 (`QuickGameLobbyHandler.startGame` removes it), but the recipe that built it is not —
                 so a rematch is that recipe replayed, and for a vs-AI game every input is decidable
                 locally: no new protocol, no lobby to keep alive. A human 1v1 rematch needs the
-                server to re-seat both players and is deliberately not faked here.
+                server to ask both players and re-seat them — that is `PostGamePanel`, driven by the
+                server's `PostGameService`, which replays the finished game's own recipe.
 
                 A rematch and a saved setup are the same object with different seats: a rematch is
                 a recipe replayed with the seats intact, a setup is one replayed with them open. */}
-            {rematch ? (
+            {/* Against a person, the panel above carries the one primary action (Rematch). */}
+            {postGame ? null : rematch ? (
               <button type="button" onClick={rematch.play} className={overlay.primary} data-testid="game-over-play-again">
                 Play Again
               </button>
@@ -558,7 +567,7 @@ function GameOverlay() {
                   Keep Watching
                 </button>
               )}
-              {rematch && (
+              {(rematch || postGame) && (
                 <button type="button" onClick={returnToMenu} className={overlay.secondary}>
                   Return to Menu
                 </button>

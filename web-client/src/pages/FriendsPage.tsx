@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { setPresenceHidden } from '@/api/friends'
+import { type BlockedPlayer, fetchBlocked, unblock } from '@/api/blocks'
 import { LoginModal } from '@/components/auth/LoginModal'
 import { AccountPage, Avatar, MessageCard, accountStyles as a } from '@/components/profile/accountUi'
 import { pageStyles as p } from '@/components/ui/PageShell'
@@ -247,6 +248,8 @@ export function FriendsPage() {
               ))}
             </section>
           )}
+
+          <BlockedPlayersSection />
         </div>
       </AccountPage>
     )
@@ -273,5 +276,45 @@ export function FriendsPage() {
         )}
       </MessageCard>
     </AccountPage>
+  )
+}
+
+/**
+ * Players you blocked from a result screen. Absent until there is one — most people never block
+ * anyone, and an empty "Blocked" heading would only suggest they should.
+ */
+function BlockedPlayersSection() {
+  const [blocked, setBlocked] = useState<BlockedPlayer[]>([])
+  useEffect(() => {
+    let cancelled = false
+    fetchBlocked().then((list) => { if (!cancelled) setBlocked(list) }).catch(() => { /* not essential */ })
+    return () => { cancelled = true }
+  }, [])
+  if (blocked.length === 0) return null
+
+  const doUnblock = (accountId: string) => {
+    setBlocked((list) => list.filter((b) => b.accountId !== accountId))
+    void unblock(accountId).catch(() => fetchBlocked().then(setBlocked).catch(() => {}))
+  }
+
+  return (
+    <section className={`${p.panel} ${a.full}`}>
+      <div className={a.sectionHead}>
+        <h2 className={a.sectionTitle}>Blocked</h2>
+        <span className={a.count}>{blocked.length}</span>
+      </div>
+      <p className={a.muted}>You won’t be matched with these players, and their emotes don’t reach you.</p>
+      {blocked.map((b) => (
+        <div key={b.accountId} className={a.personRow}>
+          <span className={a.person}>
+            <Avatar name={b.displayName} small />
+            <span className={a.personName}>{b.displayName}</span>
+          </span>
+          <button type="button" className={a.miniButton} onClick={() => doUnblock(b.accountId)}>
+            Unblock
+          </button>
+        </div>
+      ))}
+    </section>
   )
 }

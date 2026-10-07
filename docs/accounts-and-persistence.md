@@ -161,6 +161,28 @@ either player leaving closes it. From there it is an ordinary quick game — pic
 Searching counts per queue are pushed to every connected player (`matchmakingQueues`) whenever they
 change, and served at `GET /api/matchmaking/queues` for the home screen's first paint.
 
+**Warming up while queued.** A vs-AI quick lobby or game (outside any tournament, one human seat) does
+not count as busy, so a player can play the AI and stay in the queue. When both accept a match,
+`MatchmakingService.releaseFromPractice` dissolves the AI lobby or concedes the AI game through
+`GamePlayHandler.leavePracticeGame`, which marks the seat `departedForMatch`: no `gameOver` reaches them
+and the game isn't recorded in their stats.
+
+### After the game: rematch, add friend, block, emotes
+
+`social/PostGameService` opens a post-game when a 1v1 between two humans outside any tournament ends,
+and pushes each seat a `postGame` message on every change. **Rematch** replays the `RematchRecipe` the
+quick lobby recorded at start (`social/RematchRecipes`): once both ask, `QuickGameLobbyHandler.startRematch`
+seats them with the same decks and settings and starts at once. **Add friend** sends a request or
+accepts theirs (`FriendsService.befriend`), accounts only. **Block** goes through `social/BlockService`:
+durable between accounts (`V14__user_blocks.sql`, which also ends any friendship), session-scoped when
+either side is a guest. A block is mutual in effect — never matched (`MatchmakingQueue.tick`'s
+`isBlocked`), no rematch or friend request, and the blocker stops receiving the other's emotes — and
+to the blocked player it reads only as the opponent leaving. `GET/DELETE /api/blocks` back the Friends
+page's "Blocked" list.
+
+`social/EmoteService` relays a closed set of preset `Emote`s to a seated player's table (and spectators),
+rate-limited per player and filtered by blocks; the AI answers a greeting in kind.
+
 The math (`ranking/Elo.kt`, pure and unit-tested) is standard ELO calibrated to chess.com-style numbers:
 new ratings start at **1200**, an even game between established players shifts about **±10**
 (`K = 20`), and a faster **placement** window (`K = 40` for the first 10 games in a mode) lets a new

@@ -1,5 +1,7 @@
 package com.wingedsheep.gameserver.matchmaking
 
+import com.wingedsheep.gameserver.ai.AiWebSocketSession
+import com.wingedsheep.gameserver.handler.GamePlayHandler
 import com.wingedsheep.gameserver.handler.MessageSender
 import com.wingedsheep.gameserver.handler.QuickGameLobbyHandler
 import com.wingedsheep.gameserver.lobby.QuickGameLobbyRepository
@@ -10,8 +12,11 @@ import com.wingedsheep.gameserver.ranking.Elo
 import com.wingedsheep.gameserver.ranking.Ranked
 import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
+import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.gameserver.session.PlayerIdentity
 import com.wingedsheep.gameserver.session.SessionRegistry
+import com.wingedsheep.gameserver.social.BlockService
+import com.wingedsheep.gameserver.social.Party
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.core.GameRules
 import com.wingedsheep.sdk.model.EntityId
@@ -37,6 +42,8 @@ class MatchmakingService(
     private val tournamentLobbies: LobbyRepository,
     private val gameRepository: GameRepository,
     private val ratingLookup: RatingLookup,
+    private val gamePlayHandler: GamePlayHandler,
+    private val blocks: BlockService,
 ) {
     private val logger = LoggerFactory.getLogger(MatchmakingService::class.java)
     private val queue = MatchmakingQueue()
@@ -66,7 +73,10 @@ class MatchmakingService(
         val available = sessionRegistry.getAllIdentities()
             .filter { !it.isAi && it.isConnected && !isBusyElsewhere(it) }
             .mapTo(HashSet()) { it.playerId }
-        dispatch(synchronized(lock) { queue.tick(System.currentTimeMillis()) { it in available } })
+        val blocked = { a: QueueEntry, b: QueueEntry ->
+            blocks.blockedEitherWay(Party(a.playerId, a.userId), Party(b.playerId, b.userId))
+        }
+        dispatch(synchronized(lock) { queue.tick(System.currentTimeMillis(), isAvailable = { it in available }, isBlocked = blocked) })
     }
 
     private fun join(session: WebSocketSession, identity: PlayerIdentity, format: DeckFormat?, ranked: Boolean) {
@@ -102,11 +112,30 @@ class MatchmakingService(
         dispatch(events)
     }
 
-    /** In a lobby or an unfinished game — somewhere a match would pull them out of. */
-    private fun isBusyElsewhere(identity: PlayerIdentity): Boolean =
-        identity.currentQuickGameLobbyId?.let { quickGameLobbies.findById(it) } != null ||
-            identity.currentLobbyId?.let { tournamentLobbies.findLobbyById(it) } != null ||
-            identity.currentGameSessionId?.let { gameRepository.findById(it) }?.isGameOver() == false
+    /**
+     * In a lobby or an unfinished game — somewhere a match would pull them out of. Practice against
+     * the AI doesn't count: that is how a player passes the time in the queue, and a match found
+     * mid-game ends it ([releaseFromPractice]).
+     */
+    private fun isBusyElsewhere(identity: PlayerIdentity): Boolean {
+        val quickLobby = identity.currentQuickGameLobbyId?.let { quickGameLobbies.findById(it) }
+        if (quickLobby != null && !quickLobby.vsAi) return true
+        if (identity.currentLobbyId?.let { tournamentLobbies.findLobbyById(it) } != null) return true
+        val game = identity.currentGameSessionId?.let { gameRepository.findById(it) } ?: return false
+        return !game.isGameOver() && !isPractice(game)
+    }
+
+    /** A game outside any lobby with exactly one human seat: you against the AI. */
+    private fun isPractice(game: GameSession): Boolean =
+        gameRepository.getLobbyForGame(game.sessionId) == null &&
+            game.getPlayers().count { it.webSocketSession !is AiWebSocketSession } == 1
+
+    /** Close [identity]'s AI lobby or concede their AI game, quietly, so the matched lobby can open. */
+    private fun releaseFromPractice(identity: PlayerIdentity) {
+        quickGameLobbyHandler.dissolvePracticeLobby(identity.playerId)
+        val game = identity.currentGameSessionId?.let { gameRepository.findById(it) } ?: return
+        if (!game.isGameOver() && isPractice(game)) gamePlayHandler.leavePracticeGame(game, identity.playerId)
+    }
 
     private fun dispatch(events: List<MatchmakingEvent>) {
         for (event in events) {
@@ -160,6 +189,7 @@ class MatchmakingService(
             val identity = identities[entry.playerId]
             identity == null || !identity.isConnected || isBusyElsewhere(identity)
         }
+        if (unavailable.isEmpty()) identities.values.filterNotNull().forEach(::releaseFromPractice)
         val seated = unavailable.isEmpty() && quickGameLobbyHandler.createMatchmadeLobby(
             players = match.players.map { it.playerId to (identities[it.playerId]?.playerName ?: it.playerName) },
             format = match.first.key.format,

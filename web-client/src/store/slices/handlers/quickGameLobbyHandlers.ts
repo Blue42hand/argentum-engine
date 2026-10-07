@@ -20,6 +20,12 @@ export function createQuickGameLobbyHandlers(
 ): Pick<MessageHandlers, QuickGameLobbyHandlerKeys> {
   return {
     onQuickGameLobbyState: (msg) => {
+      // The queue found a match while this player was warming up against the AI: the server has
+      // already ended that game quietly, so leave it here too and show the new lobby.
+      const s = get()
+      if (msg.matchmade && (s.gameState || s.gameOverState || s.mulliganState || s.waitingForOpponentMulligan)) {
+        s.returnToMenu()
+      }
       set({ quickGameLobbyState: msg })
       // A recipe's leftovers, flushed by the first broadcast for the lobby it created. Everything a
       // quick lobby has rides its create message except the AI's deck, which is keyed on the lobby

@@ -3,6 +3,7 @@
  */
 import type { MessageHandlers } from '@/network/messageHandlers.ts'
 import { entityId, createJoinLobbyMessage, createSpectateGameMessage } from '@/types'
+import { useTableTalkStore } from '@/store/tableTalkStore'
 import { useFriendsStore } from '@/store/friendsStore'
 import { getWebSocket, clearLobbyId, loadLobbyId } from '../shared'
 import type { SetState, GetState } from './types'
@@ -13,6 +14,8 @@ type ConnectionHandlerKeys =
   | 'onOnlinePlayersCount'
   | 'onFriendPresence'
   | 'onFriendRequestReceived'
+  | 'onEmote'
+  | 'onPostGame'
   | 'onPong'
   | 'onSessionReplaced'
 
@@ -95,6 +98,14 @@ export function createConnectionHandlers(set: SetState, get: GetState): Pick<Mes
     },
     onFriendRequestReceived: () => {
       useFriendsStore.getState().noteIncomingRequest()
+    },
+
+    // Emotes and the result screen's social actions live in the table-talk store, for the same reason.
+    onEmote: (msg) => {
+      useTableTalkStore.getState().receiveEmote(msg.playerId, msg.emote)
+    },
+    onPostGame: (msg) => {
+      useTableTalkStore.getState().setPostGame(msg)
     },
 
     // Liveness replies are consumed by GameWebSocket's last-message tracking; nothing

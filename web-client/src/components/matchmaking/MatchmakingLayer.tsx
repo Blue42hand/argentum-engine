@@ -4,7 +4,9 @@
  * keeps running while the player is in the deckbuilder or the help pages.
  *
  * - The accept prompt shows wherever they are.
- * - Off the home screen, a small pill says the search is still running and offers to stop it.
+ * - Wherever the home panel isn't showing — another page, a lobby, a warm-up game against the AI —
+ *   a small pill says the search is still running and offers to stop it. In a game it moves to the
+ *   top, out of the hand's way.
  * - When the match is confirmed, a player on another page is taken to `/`, where `App` renders the
  *   matchmade lobby the server just sent.
  */
@@ -28,6 +30,12 @@ export default function MatchmakingLayer() {
     s.quickGameLobbyState?.matchmade ? s.quickGameLobbyState.lobbyId : null,
   )
   const onAppRoute = isAppRoute(location.pathname)
+  const inGame = useGameStore((s) => s.gameState != null || s.mulliganState != null || s.waitingForOpponentMulligan)
+  // `App` shows the home hub — and with it the queue panel — only when nothing else is up.
+  const elsewhereInApp = useGameStore((s) =>
+    s.gameOverState != null || s.quickGameLobbyState != null || s.lobbyState != null || s.spectatingState != null,
+  )
+  const homeVisible = onAppRoute && !inGame && !elsewhereInApp
 
   useEffect(() => {
     if (matchmadeLobbyId && !onAppRoute) navigate('/')
@@ -36,17 +44,18 @@ export default function MatchmakingLayer() {
   return (
     <>
       <MatchFoundDialog />
-      {!onAppRoute && status?.searching && (
+      {!homeVisible && status?.searching && (
         <SearchingPill
           label={queueLabel(status.format, status.ranked)}
           since={status.searchingSince ?? null}
+          inGame={inGame}
         />
       )}
     </>
   )
 }
 
-function SearchingPill({ label, since }: { label: string; since: number | null }) {
+function SearchingPill({ label, since, inGame }: { label: string; since: number | null; inGame: boolean }) {
   const leave = useGameStore((s) => s.leaveMatchmaking)
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -55,10 +64,17 @@ function SearchingPill({ label, since }: { label: string; since: number | null }
   }, [])
 
   return (
-    <div className={styles.pill} role="status" aria-live="polite" data-testid="matchmaking-pill">
+    <div
+      className={`${styles.pill} ${inGame ? styles.pillInGame : ''}`}
+      role="status"
+      aria-live="polite"
+      data-testid="matchmaking-pill"
+      title={inGame ? 'When a match is found you’ll be asked first — accepting ends this game' : undefined}
+    >
       <span className={styles.spinner} aria-hidden />
       <span className={styles.pillLabel}>Searching {label}</span>
       {since !== null && <span className={styles.wait}>{formatWait(now - since)}</span>}
+      {inGame && <span className={styles.pillHint}>· you’ll be asked first</span>}
       <button type="button" className={styles.pillClose} onClick={leave} aria-label="Stop searching" title="Stop searching">
         ×
       </button>

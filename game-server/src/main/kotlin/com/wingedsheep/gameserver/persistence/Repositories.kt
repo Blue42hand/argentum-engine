@@ -63,6 +63,13 @@ interface FriendshipRepository : CrudRepository<FriendshipRow, UUID> {
     fun findPair(@Param("a") a: UUID, @Param("b") b: UUID): FriendshipRow?
 }
 
+/** Account blocks, looked up from both sides because a block's effects are mutual. */
+interface UserBlockRepository : CrudRepository<UserBlockRow, UUID> {
+    fun findByBlockerId(blockerId: UUID): List<UserBlockRow>
+    fun findByBlockedId(blockedId: UUID): List<UserBlockRow>
+    fun findByBlockerIdAndBlockedId(blockerId: UUID, blockedId: UUID): UserBlockRow?
+}
+
 interface GameReplayRepository : CrudRepository<GameReplayRow, Long> {
     fun findByGameId(gameId: String): GameReplayRow?
 

@@ -85,6 +85,9 @@ export type ServerMessage =
   // Friends
   | FriendPresenceMessage
   | FriendRequestReceivedMessage
+  // Table talk and after the game
+  | EmoteMessage
+  | PostGameMessage
   // Liveness
   | PongMessage
   // Session takeover
@@ -2164,6 +2167,11 @@ export type ClientMessage =
   | JoinMatchmakingMessage
   | LeaveMatchmakingMessage
   | RespondToMatchMessage
+  | { readonly type: 'sendEmote'; readonly emote: Emote }
+  | { readonly type: 'postGameRematch'; readonly gameId: string; readonly want: boolean }
+  | { readonly type: 'postGameAddFriend'; readonly gameId: string }
+  | { readonly type: 'postGameBlock'; readonly gameId: string; readonly block: boolean }
+  | { readonly type: 'postGameLeave'; readonly gameId: string }
 
 /**
  * Connect to the server with a player name.
@@ -3191,6 +3199,42 @@ export interface FriendRequestReceivedMessage {
   readonly type: 'friendRequestReceived'
   readonly fromAccountId: string
   readonly fromName: string
+}
+
+/** The preset messages a player can send the table. A closed set — nothing to moderate. */
+export type Emote =
+  | 'HELLO'
+  | 'GOOD_LUCK'
+  | 'NICE_PLAY'
+  | 'THINKING'
+  | 'OOPS'
+  | 'THANKS'
+  | 'SORRY'
+  | 'GOOD_GAME'
+
+/** A seat (possibly you) sent the table an emote. Never delivered from a player you blocked. */
+export interface EmoteMessage {
+  readonly type: 'emote'
+  readonly playerId: EntityId
+  readonly emote: Emote
+}
+
+export type FriendshipState = 'UNAVAILABLE' | 'NONE' | 'REQUEST_SENT' | 'REQUEST_RECEIVED' | 'FRIENDS'
+
+/**
+ * What you can do with your opponent after a human 1v1 game — rematch, add friend, block — and where
+ * each stands. Re-sent whole on every change; render it as-is.
+ */
+export interface PostGameMessage {
+  readonly type: 'postGame'
+  readonly gameId: string
+  readonly opponentName: string
+  readonly canRematch: boolean
+  readonly rematch: { readonly you: boolean; readonly opponent: boolean; readonly starting: boolean }
+  readonly opponentLeft: boolean
+  readonly friendship: FriendshipState
+  readonly blocked: boolean
+  readonly notice?: string | null
 }
 
 /**

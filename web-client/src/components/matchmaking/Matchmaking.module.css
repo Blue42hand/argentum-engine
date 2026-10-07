@@ -256,6 +256,75 @@
   .waitingDot { animation: none; }
 }
 
+/* "Play the AI while you wait": the queue's way to pass the time. A quiet card under the
+   searching line — it's an offer, not the main event, so it never takes the amber. */
+.practice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+.practice:hover {
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.practice:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.practiceIcon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(124, 140, 255, 0.14);
+  color: #aab4ff;
+}
+
+.practiceText {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.practiceLabel {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.practiceCaption {
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.practiceArrow {
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+  transition: transform 0.12s, color 0.12s;
+}
+
+.practice:hover .practiceArrow {
+  transform: translateX(2px);
+  color: var(--text-primary);
+}
+
 /* ── Searching pill (every route but the home screen) ────────────────── */
 
 .pill {
@@ -277,6 +346,24 @@
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   color: var(--text-primary, #eef0f6);
+}
+
+/* In a warm-up game the bottom belongs to your hand and the top centre to the opponent's: sit
+   top-left, beside the fullscreen button. */
+.pillInGame {
+  top: 12px;
+  bottom: auto;
+  left: 58px;
+  transform: none;
+  z-index: 150;
+  padding: 4px 4px 4px 10px;
+  background: rgba(14, 16, 24, 0.78);
+}
+
+.pillHint {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .pillLabel {
@@ -320,4 +407,14 @@
   height: 100%;
   background: #f2b45c;
   transition: width 0.25s linear;
+}
+
+.warmUpNote {
+  margin: -4px 0 6px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  background: rgba(124, 140, 255, 0.1);
+  border: 1px solid rgba(124, 140, 255, 0.25);
+  color: #c3c9ff;
+  font-size: 12.5px;
 }

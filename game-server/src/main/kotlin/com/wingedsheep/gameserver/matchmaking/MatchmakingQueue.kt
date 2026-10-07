@@ -66,6 +66,8 @@ sealed interface MatchmakingEvent {
  *    the wider of the two players' [ratingBand]s. The band grows with time waited and opens fully after
  *    [OPEN_BAND_AFTER_MS], so a small population always finds a game eventually.
  *
+ * Two players where either has blocked the other are never paired, however long they wait.
+ *
  * A found pair leaves the queue and waits [acceptWindowMs] for both players to accept. A decline, a
  * timeout or a disconnect drops the player who didn't accept; whoever did goes back in the queue at
  * their original join time, so they don't lose their place for someone else's absence.
@@ -122,7 +124,11 @@ class MatchmakingQueue(
      * Drop players [isAvailable] reports gone (disconnected, or now in a lobby or game elsewhere), expire
      * unanswered prompts, then pair whoever can be paired at [now].
      */
-    fun tick(now: Long, isAvailable: (EntityId) -> Boolean): List<MatchmakingEvent> {
+    fun tick(
+        now: Long,
+        isAvailable: (EntityId) -> Boolean,
+        isBlocked: (QueueEntry, QueueEntry) -> Boolean = { _, _ -> false },
+    ): List<MatchmakingEvent> {
         val events = mutableListOf<MatchmakingEvent>()
 
         for (playerId in entries.keys.filterNot(isAvailable)) {
@@ -141,17 +147,17 @@ class MatchmakingQueue(
             }
         }
 
-        events += pair(now)
+        events += pair(now, isBlocked)
         return events
     }
 
-    private fun pair(now: Long): List<MatchmakingEvent> {
+    private fun pair(now: Long, isBlocked: (QueueEntry, QueueEntry) -> Boolean): List<MatchmakingEvent> {
         val events = mutableListOf<MatchmakingEvent>()
         for ((key, group) in entries.values.groupBy { it.key }) {
             val waiting = group.sortedBy { it.joinedAt }.toMutableList()
             while (waiting.size >= 2) {
                 val first = waiting.removeAt(0)
-                val candidates = waiting.filter { canPair(first, it, now) }
+                val candidates = waiting.filter { canPair(first, it, now) && !isBlocked(first, it) }
                 val second = if (key.ranked) {
                     candidates.minByOrNull { abs(it.rating - first.rating) }
                 } else {
