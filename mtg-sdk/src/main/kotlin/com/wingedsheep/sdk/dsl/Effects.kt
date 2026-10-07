@@ -4137,8 +4137,12 @@ object Effects {
     /**
      * "You may pay {X}. If you do, [then]." — prompts for X (0 to the most the player can afford),
      * pays it, and binds it into [then]'s context as `DynamicAmount.XValue`.
+     *
+     * @param decisionMaker Who chooses X and pays it ("that player may pay any amount of mana" —
+     *   Power Leak). Defaults to the controller.
      */
-    fun MayPayX(then: Effect): GatedEffect = GatedEffect(gate = Gate.MayPayX, then = then)
+    fun MayPayX(then: Effect, decisionMaker: EffectTarget? = null): GatedEffect =
+        GatedEffect(gate = Gate.MayPayX, then = then, decisionMaker = decisionMaker)
 
     /**
      * "You may pay any amount of life. If you do, [then]." — prompts for X (0 to the most life the

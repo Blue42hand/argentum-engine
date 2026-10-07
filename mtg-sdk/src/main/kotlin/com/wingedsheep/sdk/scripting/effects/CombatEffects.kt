@@ -69,6 +69,16 @@ sealed interface PreventionSourceFilter {
      */
     @SerialName("PreventFromChosen") @Serializable
     data class Chosen(val eligible: GameObjectFilter = GameObjectFilter.Any) : PreventionSourceFilter
+
+    /**
+     * Only damage dealt by the effect's own source — "~ deals 2 damage to that player. Prevent X of
+     * that damage" (Power Leak). Bound to the source's id at resolution, so it is the *object* that
+     * is covered (CR 400.7), not anything matching it. Needs `nextInstanceOnly` and a single
+     * recipient: the shield covers just the next instance from this source and is spent by it, so a
+     * paid amount larger than that instance never lingers to soften later damage.
+     */
+    @SerialName("PreventFromThisSource") @Serializable
+    data object ThisSource : PreventionSourceFilter
 }
 
 /**
@@ -157,7 +167,8 @@ data class PreventDamageEffect(
      * of Solace). When false (default), an amount-less chosen-source shield prevents **all** damage
      * from that source for its [duration] (Samite Ministration). This is orthogonal to which
      * sources are covered ([sourceFilter]) — set it explicitly rather than inferring it from the
-     * filter.
+     * filter. With [PreventionSourceFilter.ThisSource] an [amount] caps what the single instance
+     * loses ("prevent X of that damage" — Power Leak); the shield is spent by that instance either way.
      */
     val nextInstanceOnly: Boolean = false,
     /**
@@ -230,6 +241,7 @@ data class PreventDamageEffect(
             }
             is PreventionSourceFilter.Matching ->
                 append(" by ${sourceFilter.filter.description.replaceFirstChar { it.lowercase() }}")
+            PreventionSourceFilter.ThisSource -> append(" by this source")
         }
         append(" this turn")
         onPrevented?.let { append(". When damage is prevented this way, ${it.description}") }
@@ -258,7 +270,7 @@ data class PreventDamageEffect(
                 val newObjFilter = sourceFilter.eligible.applyTextReplacement(replacer)
                 if (newObjFilter !== sourceFilter.eligible) PreventionSourceFilter.Chosen(newObjFilter) else sourceFilter
             }
-            PreventionSourceFilter.AnySource -> sourceFilter
+            PreventionSourceFilter.AnySource, PreventionSourceFilter.ThisSource -> sourceFilter
         }
         val newOnPrevented = onPrevented?.applyTextReplacement(replacer)
         val newRecipientGroup = recipientGroup?.applyTextReplacement(replacer)

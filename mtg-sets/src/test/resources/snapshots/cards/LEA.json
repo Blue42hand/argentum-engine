@@ -9038,6 +9038,74 @@
     ]
 }
 
+// Power Leak
+{
+    "name": "Power Leak",
+    "manaCost": "{1}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant enchantment\nAt the beginning of the upkeep of enchanted enchantment's controller, that player may pay any amount of mana. This Aura deals 2 damage to that player. Prevent X of that damage, where X is the amount of mana that player paid this way.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Power Leak:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Gated",
+                            "gate": "Gate.MayPayX",
+                            "then": {
+                                "type": "PreventDamageShield",
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "TriggeringPlayer"
+                                },
+                                "amount": "XValue",
+                                "sourceFilter": "PreventFromThisSource",
+                                "nextInstanceOnly": true
+                            },
+                            "decisionMaker": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "enchantment"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "artist": "Drew Tucker",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/ccc982b6-35b2-4e33-ace2-86cb79123e4f.jpg?1783948702"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Power Sink
 {
     "name": "Power Sink",

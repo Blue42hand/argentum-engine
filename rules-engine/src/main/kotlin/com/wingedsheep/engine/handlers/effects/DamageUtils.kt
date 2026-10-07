@@ -1638,7 +1638,13 @@ object DamageUtils {
                     // Protection family prevents all of it. Either way this is a *next instance*
                     // shield, so it is consumed even when it prevents nothing (a 1-damage hit
                     // halves to 0 and still spends the Sphere).
-                    remainingDamage = if (mod.halveRoundedDown) remainingDamage - remainingDamage / 2 else 0
+                    // Power Leak caps the instance's prevention at the mana paid; the surplus is
+                    // spent with the shield.
+                    remainingDamage = when {
+                        mod.halveRoundedDown -> remainingDamage - remainingDamage / 2
+                        mod.maxAmount != null -> remainingDamage - minOf(mod.maxAmount, remainingDamage)
+                        else -> 0
+                    }
                     toRemove.add(i)
                 }
             }
