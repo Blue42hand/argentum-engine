@@ -46,6 +46,36 @@ data class DynamicHint(
     }
 }
 
+/**
+ * Presents a [Gate.MayDecide] whose `otherwise` is a real alternative — not "do it / don't" but
+ * "this outcome / that outcome" — as two peer options rather than a Yes/No pair.
+ *
+ * Endure is the case that motivated it: "put N +1/+1 counters on it, or create an N/N Spirit" is a
+ * consent gate in the rules (CR 701.63a), but to the player it is a pick between two results, and a
+ * green "Yes" beside a grey "No" under a two-sentence prompt hides which button makes the Spirit.
+ *
+ * Every string is a template rendered at resolution: `{n}` becomes [amount] evaluated against the
+ * resolving context, and `{s}` becomes `"s"` unless that number is 1 — so "{n} +1/+1 counter{s}"
+ * reads "1 +1/+1 counter" and "3 +1/+1 counters". Without an [amount] both placeholders stay as
+ * written.
+ *
+ * @property prompt The decision's title ("Endure {n}"), shown in place of the effect's oracle text.
+ * @property yes Label for the option that runs [GatedEffect.then].
+ * @property no Label for the option that runs [GatedEffect.otherwise].
+ * @property yesDetail Optional second line under [yes] ("on this creature").
+ * @property noDetail Optional second line under [no].
+ * @property amount The number the templates substitute.
+ */
+@Serializable
+data class ChoiceLabels(
+    val prompt: String,
+    val yes: String,
+    val no: String,
+    val yesDetail: String? = null,
+    val noDetail: String? = null,
+    val amount: DynamicAmount? = null
+)
+
 // =============================================================================
 // Gated effects — one resolution frame for the optional / gated-effect cluster
 // =============================================================================
@@ -182,6 +212,9 @@ sealed interface Gate {
      *   (the no-target analogue of a targeted "may" with no legal targets falling to its else
      *   branch). Lets a "you may sacrifice an artifact. If you don't, …" trigger apply its else
      *   automatically when the controller has no artifact, with no pointless "sacrifice?" prompt.
+     * @property choiceLabels When set, the prompt is shown as a pick between two peer outcomes with
+     *   these labels instead of a Yes/No question ([ChoiceLabels]). Use it only when
+     *   [GatedEffect.otherwise] is an outcome in its own right, never for a plain "you may".
      */
     @SerialName("Gate.MayDecide")
     @Serializable
@@ -191,7 +224,8 @@ sealed interface Gate {
         val dynamicHint: DynamicHint? = null,
         val sourceRequiredZone: Zone? = null,
         val inlineOnTrigger: Boolean = false,
-        val feasibility: FeasibilityCheck? = null
+        val feasibility: FeasibilityCheck? = null,
+        val choiceLabels: ChoiceLabels? = null
     ) : Gate {
         override fun applyTextReplacement(replacer: TextReplacer): Gate = this
     }
