@@ -37,6 +37,16 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body: 'Find an opponent without an invite. Pick casual or ranked and a format on the home screen, then search; ranked pairs you with someone close to your rating. Queues with players already waiting are shown, so you can join one and start at once.',
   },
   {
+    id: 'set-leb',
+    date: '2026-10-08',
+    kind: 'set',
+    setCode: 'LEB',
+    title: 'Limited Edition Beta is complete',
+    body:
+      'The second printing of Magic’s first set, two months after Alpha: the same Power Nine and dual lands, plus the two cards Alpha left out, Circle of Protection: Black and Volcanic Island.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
+  },
+  {
     id: 'set-lea',
     date: '2026-10-07',
     kind: 'set',
