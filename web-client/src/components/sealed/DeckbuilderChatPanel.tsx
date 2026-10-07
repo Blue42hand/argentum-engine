@@ -169,9 +169,10 @@ export function DeckbuilderChatPanel({ state }: { state: DeckBuildingState }) {
           bottom: 12,
           zIndex: 1100,
           padding: '8px 14px',
-          backgroundColor: '#1f3a5f',
-          color: '#cfe7ff',
-          border: '1px solid #3d6fa3',
+          backgroundColor: 'rgba(14, 16, 24, 0.88)',
+          color: '#f6dca8',
+          border: '1px solid rgba(242, 180, 92, 0.45)',
+          backdropFilter: 'blur(10px)',
           borderRadius: 999,
           cursor: 'pointer',
           fontSize: 12,
@@ -215,7 +216,7 @@ export function DeckbuilderChatPanel({ state }: { state: DeckBuildingState }) {
           borderBottom: '1px solid #2c3744',
         }}
       >
-        <span style={{ color: '#cfe7ff', fontSize: 13, fontWeight: 600, letterSpacing: 0.3 }}>
+        <span style={{ color: '#f6dca8', fontSize: 13, fontWeight: 600, letterSpacing: 0.3 }}>
           Deck Advisor
         </span>
         <button
@@ -288,8 +289,8 @@ export function DeckbuilderChatPanel({ state }: { state: DeckBuildingState }) {
           disabled={sending || input.trim().length === 0}
           style={{
             padding: '0 12px',
-            backgroundColor: sending || input.trim().length === 0 ? '#2c3744' : '#3d6fa3',
-            color: 'white',
+            backgroundColor: sending || input.trim().length === 0 ? '#2c3744' : '#f2b45c',
+            color: sending || input.trim().length === 0 ? '#9aa3b8' : '#1d1405',
             border: 'none',
             borderRadius: 6,
             cursor: sending || input.trim().length === 0 ? 'not-allowed' : 'pointer',
@@ -311,9 +312,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       style={{
         alignSelf: isUser ? 'flex-end' : 'flex-start',
         maxWidth: '85%',
-        backgroundColor: isUser ? '#2a4a73' : '#222a33',
+        backgroundColor: isUser ? 'rgba(242, 180, 92, 0.14)' : '#222a33',
         color: '#dde6ee',
-        border: `1px solid ${isUser ? '#3d6fa3' : '#2c3744'}`,
+        border: `1px solid ${isUser ? 'rgba(242, 180, 92, 0.45)' : '#2c3744'}`,
         borderRadius: 8,
         padding: '6px 9px',
         fontSize: 12,

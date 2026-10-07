@@ -249,7 +249,9 @@ export function LifeDisplay({
     >
       <span
         style={{
-          maxWidth: 220,
+          // A tablet has room for the orbs and the step strip but not two 220px names beside them —
+          // a long opponent name ran off the left edge at 768px.
+          maxWidth: responsive.isTablet ? 120 : 220,
           fontSize: 12,
           fontWeight: 700,
           letterSpacing: '0.5px',

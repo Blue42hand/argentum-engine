@@ -30,192 +30,9 @@
   }
 }
 
-.contentBackdrop {
-  position: relative;
-  /* Shrinkable, so the glass card gives ground to the side rail before the two can collide. The
-     max is the old fixed width: 660px of tiers plus the horizontal padding either side. Sized by
-     width rather than flex-basis because the same rule has to survive the stacked column below
-     1120px, where a basis would be read as a height. */
-  flex: 0 1 auto;
-  width: 100%;
-  max-width: var(--screen-card-w);
-  min-width: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
-  padding: var(--space-5) var(--space-8);
-  background:
-    linear-gradient(180deg, rgba(20, 20, 35, 0.78) 0%, rgba(8, 8, 16, 0.82) 100%);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 0 0 1px rgba(0, 0, 0, 0.4),
-    0 24px 60px rgba(0, 0, 0, 0.55),
-    0 4px 16px rgba(79, 195, 247, 0.06);
-  animation: backdropFadeIn 0.45s ease-out;
-}
-
 @keyframes backdropFadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-/*
- * Landing top bar: the viewport controls (fullscreen, help) at the left, the account widget at the
- * right, as one flow row above everything else.
- *
- * The account pills belong in the corner — that is where you look for who you are signed in as — but
- * they are the widest thing on the screen's top edge (five of them on an admin account), and a
- * `position: fixed` corner has no way to know where the glass card's edge is. That is the collision
- * `.landingLayout` below was built to make inexpressible, so the row is in flow too:
- * `space-between` seats both clusters without either being able to reach the card.
- */
-.landingTopBar {
-  flex: none;
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.landingTopBarControls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* Under ~720px the two clusters can't share a line without shrinking each other — the pills start
-   breaking their own labels over two rows. Each takes a full line instead, account below controls,
-   still right-aligned. */
-@media (max-width: 720px) {
-  .landingTopBar {
-    flex-wrap: wrap;
-  }
-
-  .landingTopBar > * {
-    flex: 1 0 100%;
-  }
-}
-
-/*
- * Landing layout: the glass card and the side rail (public lobbies, live games).
- *
- * The rail used to be `position: fixed` in the top-right corner while the card was centred in the
- * *viewport*, so the two were laid out in ignorance of each other. They only missed on a wide
- * monitor: at 1512px (a 14" MacBook Pro) the gap was 1px, and at 1440px the rail sat 35px *over*
- * the card. Both are in flow now, so a collision is not expressible.
- *
- * Three bands, widest first:
- *  - >= 1480px  a mirror gutter is rendered opposite the rail, so the card is back to being exactly
- *               viewport-centred with the rail floating in the right margin.
- *  - 1121px+    no gutter: card and rail are centred as a pair, and the card gives up width first.
- *  - <= 1120px  stacked, rail below the card — a 500px-wide card is worse than a scroll.
- */
-.landingLayout {
-  --landing-rail-w: 320px;
-  margin: auto 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: var(--space-5);
-}
-
-/* Reserves the same width as the rail on the opposite side. Empty on purpose — its only job is to
-   keep the card centred, and it is `display: none` in the bands where that isn't affordable. */
-.landingGutter {
-  display: none;
-  flex: none;
-  width: var(--landing-rail-w);
-}
-
-@media (min-width: 1480px) {
-  .landingGutter {
-    display: block;
-  }
-}
-
-/* Below this the padding is spending width the wizard needs more than the glass does. */
-@media (max-width: 1280px) {
-  .contentBackdrop {
-    padding-left: var(--space-6);
-    padding-right: var(--space-6);
-  }
-}
-
-@media (max-width: 1120px) {
-  .landingLayout {
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-4);
-  }
-}
-
-@media (max-width: 639px) {
-  .contentBackdrop {
-    gap: var(--space-4);
-    padding: var(--space-6) var(--space-4);
-  }
-
-  .landingLayout {
-    gap: var(--space-3);
-  }
-}
-
-/* =========================================================================
- * Set Button Progress (in lobby set selection)
- * ========================================================================= */
-.settingsButtonWithProgress {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  text-align: left;
-  gap: 6px;
-  padding: 7px var(--space-3) 6px;
-}
-
-.setButtonName {
-  white-space: nowrap;
-}
-
-.setButtonFooter {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.setButtonProgressBar {
-  display: block;
-  flex: 1;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.setButtonProgressFill {
-  display: block;
-  height: 100%;
-  background: rgba(130, 160, 255, 0.7);
-  border-radius: 2px;
-}
-
-.settingsButtonActive .setButtonProgressFill {
-  background: rgba(255, 255, 255, 0.55);
-}
-
-.setButtonProgress {
-  font-size: 10px;
-  color: var(--text-disabled);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .setButtonCardCount {
@@ -406,69 +223,6 @@
   text-shadow: 0 1px 18px rgba(120, 170, 255, 0.12);
 }
 
-.commitHash {
-  font-size: 10px;
-  color: var(--text-disabled);
-  font-family: ui-monospace, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.55;
-  margin-top: calc(-1 * var(--space-4));
-  padding: 2px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-/* =========================================================================
- * Error Message
- * ========================================================================= */
-.errorMessage {
-  color: var(--color-error);
-  font-size: var(--font-md);
-}
-
-/* =========================================================================
- * Input Group
- * ========================================================================= */
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  align-items: center;
-  width: 100%;
-  max-width: 480px;
-}
-
-.inputLabel {
-  color: var(--text-muted);
-  font-size: var(--font-md);
-}
-
-.accountNudge {
-  margin: var(--space-1) 0 0;
-  max-width: 340px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: var(--font-sm);
-  line-height: 1.45;
-}
-
-.accountNudgeButton {
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--color-accent);
-  font-size: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.accountNudgeButton:hover {
-  filter: brightness(1.15);
-}
-
 .textInput {
   background-color: var(--bg-surface-5);
   color: var(--text-primary);
@@ -589,29 +343,6 @@
   border: none;
   padding: var(--space-3) var(--space-6);
   font-size: var(--font-lg);
-}
-
-/* =========================================================================
- * Public Tournament List
- * ========================================================================= */
-/* In flow beside the glass card (see `.landingLayout`), not pinned to the viewport corner. Capped in
-   height so a busy server's lobby list scrolls inside the rail instead of stretching the row. */
-.sidePanelStack {
-  flex: none;
-  width: var(--landing-rail-w);
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-height: calc(100vh - 2 * var(--space-6));
-  overflow-y: auto;
-}
-
-@media (max-width: 1120px) {
-  .sidePanelStack {
-    width: min(var(--screen-card-w), 100%);
-    max-height: none;
-  }
 }
 
 .publicTournamentPanel {
@@ -838,56 +569,8 @@
   color: var(--text-primary);
 }
 
-/* =========================================================================
- * Waiting Section
- * ========================================================================= */
-.waitingSection {
-  text-align: center;
-  width: 100%;
-  max-width: 520px;
-}
-
 .waitingTitle {
   font-size: var(--font-md);
-}
-
-.waitingSubtitle {
-  color: var(--text-muted);
-  font-size: var(--font-md);
-}
-
-/* =========================================================================
- * Invite Code Box
- * ========================================================================= */
-.inviteBox {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
-  background-color: var(--bg-panel-light);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-xl);
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: var(--space-3);
-  min-width: 0;
-  width: auto;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-}
-
-@media (max-width: 639px) {
-  .inviteBox {
-    padding: var(--space-2) var(--space-3);
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-.inviteBoxCopied {
-  background-color: rgba(79, 195, 247, 0.08);
-  border-color: rgba(79, 195, 247, 0.3);
 }
 
 .inviteCode {
@@ -904,16 +587,6 @@
   .inviteCode {
     font-size: 14px;
   }
-}
-
-.inviteCopyLabel {
-  color: var(--text-faint);
-  font-size: 12px;
-  transition: color 0.2s;
-}
-
-.inviteCopyLabelCopied {
-  color: var(--color-accent);
 }
 
 /* One role-aware answer to “what do I do now?”, placed between sharing the lobby and the controls
@@ -1373,55 +1046,6 @@
   text-align: right;
   max-width: 360px;
   line-height: 1.35;
-}
-
-/* Draft type picker with descriptions */
-.draftTypeOptions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.draftTypeButton {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 6px var(--space-3);
-  font-size: var(--font-sm);
-  background-color: var(--bg-surface-4);
-  color: var(--text-muted);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  text-align: left;
-  min-width: 140px;
-  flex: 1 1 140px;
-  transition: border-color 0.15s, background-color 0.15s;
-}
-
-.draftTypeButton:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.draftTypeButton.settingsButtonActive {
-  color: var(--text-primary);
-  border-color: var(--color-accent-dark);
-}
-
-.draftTypeButton.settingsButtonActive .draftTypeDesc {
-  opacity: 0.85;
-}
-
-.draftTypeName {
-  font-weight: var(--font-weight-semibold);
-}
-
-.draftTypeDesc {
-  font-size: var(--font-xs);
-  opacity: 0.7;
-  line-height: 1.3;
 }
 
 .settingsSelect {
@@ -2116,23 +1740,6 @@
   font-size: var(--font-sm);
 }
 
-.addAiButton {
-  width: 100%;
-  padding: var(--space-2) var(--space-4);
-  background: transparent;
-  border: 1px dashed rgba(139, 92, 246, 0.5);
-  border-radius: var(--radius-md);
-  color: #a78bfa;
-  font-size: var(--font-sm);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.addAiButton:hover {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.8);
-}
-
 /* =========================================================================
  * Premade Decks — submitted-deck status card
  * ========================================================================= */
@@ -2295,13 +1902,6 @@
   border: 1px solid var(--border-light);
   box-shadow: none;
   cursor: not-allowed;
-}
-
-.waitingHint {
-  color: var(--border-solid-medium);
-  font-size: var(--font-sm);
-  text-align: center;
-  margin: 0;
 }
 
 /* =========================================================================
@@ -2626,24 +2226,6 @@
   color: #fff;
 }
 
-.viewDeckButton {
-  padding: var(--space-2) var(--space-5);
-  font-size: var(--font-md);
-  font-weight: var(--font-weight-medium);
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-xl);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.viewDeckButton:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.22);
-  color: var(--text-secondary);
-}
-
 /* =========================================================================
  * Deck Viewer Modal
  * ========================================================================= */
@@ -2809,33 +2391,6 @@
   flex: 1;
   font-size: 13px;
   color: #a1887f;
-}
-
-.deckViewerLandCount {
-  font-size: 12px;
-  font-weight: var(--font-weight-bold);
-  color: var(--text-muted);
-}
-
-/* =========================================================================
- * Share Link Button
- * ========================================================================= */
-.shareLinkButton {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-sm);
-  font-weight: var(--font-weight-medium);
-  background: transparent;
-  color: var(--text-disabled);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.shareLinkButton:hover {
-  background-color: var(--bg-surface-6);
-  color: var(--text-tertiary);
-  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* =========================================================================
@@ -3188,136 +2743,18 @@
   }
 }
 
-/* =========================================================================
- * Attribution
- * ========================================================================= */
-/*
- * In normal flow at the end of the scrolling overlay, not absolutely pinned. `.landingLayout`'s
- * `margin: auto 0` still centres the card in whatever room is left above it, so on a roomy screen
- * this reads as a pinned footer — but when the content is taller than the viewport the two scroll
- * together instead of the footer sitting on top of the panel.
- */
-.attribution {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  max-width: min(720px, calc(100% - 24px));
-  font-size: 12px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(8, 8, 16, 0.62);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 8px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  pointer-events: auto;
-  text-align: center;
-}
-
-/*
- * Community row: Discord, GitHub + the contributor guide. Sits in the same glass panel as the credits
- * rather than in a second one, divided off by a hairline — it is an invitation, not attribution,
- * so it reads a step brighter than the lines below it. Chips rather than inline links: at 12px in a
- * translucent panel a bare underline is easy to miss, and the icons need a box to sit in.
- */
-.communityLinks {
-  align-self: stretch;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding-bottom: 7px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.communityLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.35;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
-}
-
-.communityLink:hover {
-  background: rgba(159, 213, 255, 0.14);
-  border-color: rgba(159, 213, 255, 0.5);
-  color: #eaf4ff;
-}
-
-.communityLink:focus-visible {
-  outline: 2px solid rgba(159, 213, 255, 0.8);
-  outline-offset: 2px;
-}
-
 .communityIcon {
   width: 14px;
   height: 14px;
   flex: 0 0 auto;
 }
 
-.attributionDisclaimer {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.attributionLink {
-  color: rgba(159, 213, 255, 0.95);
-  text-decoration: underline;
-  text-decoration-color: rgba(159, 213, 255, 0.4);
-  text-underline-offset: 2px;
-}
-
-.attributionLink:hover {
-  color: #cfe7ff;
-  text-decoration-color: rgba(207, 231, 255, 0.9);
-}
-
 /* Full-bleed footer once the overlay's own padding is all the margin there is to spare. */
 @media (max-width: 639px) {
-  .attribution {
-    margin: var(--space-2) auto 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    gap: 2px;
-    font-size: 10px;
-    line-height: 1.35;
-    padding: 7px 12px;
-    border-radius: 10px;
-    background: rgba(8, 8, 16, 0.45);
-    border-color: rgba(255, 255, 255, 0.06);
-  }
-
-  .communityLinks {
-    gap: 6px;
-    padding-bottom: 6px;
-    margin-bottom: 3px;
-  }
-
-  .communityLink {
-    padding: 3px 9px;
-    font-size: 10px;
-  }
 
   .communityIcon {
     width: 12px;
     height: 12px;
-  }
-
-  .attributionDisclaimer {
-    font-size: 9px;
   }
 }
 
@@ -3513,25 +2950,9 @@
     gap: var(--space-4);
   }
 
-  .contentBackdrop {
-    gap: var(--space-4);
-    padding-top: var(--space-4);
-    padding-bottom: var(--space-4);
-  }
-
   .title {
     font-size: var(--font-2xl);
   }
-}
-
-.jumpInPickerEmblem {
-  width: 48px;
-  height: 48px;
-}
-
-.jumpInSetLabel {
-  font-size: var(--font-xs, 0.75rem);
-  color: #efc477;
 }
 
 /* Icon-only fullscreen toggle for the landing and lobby top bars — glass, like the bar's other

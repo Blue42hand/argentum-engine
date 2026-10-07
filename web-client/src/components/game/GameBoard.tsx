@@ -1617,8 +1617,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             zIndex: 100,
             display: 'flex',
             flexDirection: 'column',
-            // On phones the pass button is label-sized, so right-align instead of stretching it.
-            alignItems: responsive.isMobile ? 'flex-end' : 'stretch',
+            // On phones and tablets the pass button is label-sized, so right-align instead of
+            // stretching it.
+            alignItems: responsive.isMobile || responsive.isTablet ? 'flex-end' : 'stretch',
             gap: responsive.isMobile ? 6 : 8,
           }}>
             <div
@@ -1735,8 +1736,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 // On phones the desktop-sized button dwarfs the other
                 // controls and covers the hand — let the label size it.
                 // On desktop it stretches to the column, with 170 as the floor.
-                width: responsive.isMobile ? 'auto' : '100%',
-                minWidth: responsive.isMobile ? 'auto' : 170,
+                // A tablet keeps the desktop height but not the 170 floor: in portrait the hand
+                // fan reaches the right third of the screen, and a desktop-width button sat on it.
+                width: responsive.isMobile || responsive.isTablet ? 'auto' : '100%',
+                minWidth: responsive.isMobile ? 'auto' : responsive.isTablet ? 120 : 170,
                 // A landscape phone keeps the full label but not the full height.
                 height: responsive.isMobile ? 28 : responsive.viewportHeight < 560 ? 34 : 42,
                 padding: responsive.isMobile ? '0 10px' : '0 24px',
@@ -1751,9 +1754,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             >
               {(() => {
                 const label = passEnabled ? getPassButtonLabel() : 'Pass'
-                // "Pass to Attackers" is too wide for a phone — "→ Attackers"
+                // "Pass to Attackers" is too wide for a phone or tablet — "→ Attackers"
                 // carries the same meaning in half the space.
-                return responsive.isMobile ? label.replace(/^Pass to /, '→ ') : label
+                return responsive.isMobile || responsive.isTablet ? label.replace(/^Pass to /, '→ ') : label
               })()}
             </button>
           </div>
