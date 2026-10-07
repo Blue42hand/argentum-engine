@@ -7,7 +7,12 @@ import { ErrorCode } from '@/types'
 import { clearPendingLobby, takePendingLobbyApply } from '../pendingLobbyIntent'
 import type { SetState, GetState } from './types'
 
-type QuickGameLobbyHandlerKeys = 'onQuickGameLobbyState' | 'onQuickGameLobbyClosed'
+type QuickGameLobbyHandlerKeys =
+  | 'onQuickGameLobbyState'
+  | 'onQuickGameLobbyClosed'
+  | 'onMatchmakingStatus'
+  | 'onMatchFound'
+  | 'onMatchmakingQueues'
 
 export function createQuickGameLobbyHandlers(
   set: SetState,
@@ -39,6 +44,23 @@ export function createQuickGameLobbyHandlers(
       // Otherwise surface the reason via the existing global error channel, so the home screen
       // renders it like any other connection-time error message.
       get().setError({ message: msg.reason, code: ErrorCode.INVALID_ACTION, timestamp: Date.now() })
+    },
+
+    // Any status supersedes an open prompt: searching again means it fell through, idle means it
+    // was declined, expired, or confirmed (the lobby state follows a confirmation).
+    onMatchmakingStatus: (msg) => {
+      set({ matchmaking: msg, matchOffer: null })
+    },
+
+    onMatchFound: (msg) => {
+      const current = get().matchOffer
+      // An "accepted" echo of the prompt already on screen keeps its original countdown.
+      const receivedAt = current?.matchId === msg.matchId ? current.receivedAt : Date.now()
+      set({ matchOffer: { ...msg, receivedAt } })
+    },
+
+    onMatchmakingQueues: (msg) => {
+      set({ matchmakingQueues: msg.queues })
     },
   }
 }

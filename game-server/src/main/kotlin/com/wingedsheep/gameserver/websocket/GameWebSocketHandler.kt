@@ -22,6 +22,7 @@ class GameWebSocketHandler(
     private val gamePlayHandler: GamePlayHandler,
     private val lobbyHandler: LobbyHandler,
     private val quickGameLobbyHandler: QuickGameLobbyHandler,
+    private val matchmakingService: com.wingedsheep.gameserver.matchmaking.MatchmakingService,
     private val sender: MessageSender,
     private val llmTournamentService: com.wingedsheep.gameserver.tournament.llm.LlmTournamentService
 ) : TextWebSocketHandler() {
@@ -145,6 +146,10 @@ class GameWebSocketHandler(
                 is ClientMessage.AddQuickGameAi,
                 is ClientMessage.RemoveQuickGameAi,
                 is ClientMessage.SetQuickGameLobbyFormat -> quickGameLobbyHandler.handle(session, clientMessage)
+
+                is ClientMessage.JoinMatchmaking,
+                is ClientMessage.LeaveMatchmaking,
+                is ClientMessage.RespondToMatch -> matchmakingService.handle(session, clientMessage)
             }
         } catch (e: Exception) {
             logger.error("Error handling message from ${session.id}", e)

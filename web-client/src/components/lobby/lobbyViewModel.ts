@@ -15,6 +15,7 @@
  * `useLobbyCommands.ts`.
  */
 import type { LobbyState } from '@/store/slices/types'
+import { labelForFormat } from '@/utils/deckLegality'
 import type { AiDeckSpecView, QuickGameLobbyStateMessage } from '@/types'
 import type { DeckPickerTab } from '../ui/DeckPicker'
 import {
@@ -143,8 +144,13 @@ export function fromQuickGameLobby(
   opts: { deckValid: boolean; deckTab: DeckPickerTab | undefined; aiEnabled: boolean },
 ): UnifiedLobbyView {
   const you = lobby.players.find((p) => p.playerId === lobby.youPlayerId)
+  // The queue fixed a matchmade lobby's settings, so nobody hosts it: no settings panel, no invite
+  // code, no AI seat. Each player just picks a deck and readies up.
+  const matchmade = lobby.matchmade ?? false
+  const hostId = matchmade ? undefined : lobby.players.find((p) => !p.isAi)?.playerId
   // Host is the first non-AI seat — the same convention the server's leave handler uses.
-  const isHost = lobby.players.find((p) => !p.isAi)?.playerId === lobby.youPlayerId
+  const isHost = hostId !== undefined && hostId === lobby.youPlayerId
+  const invitable = !lobby.vsAi && !matchmade
   const isMomir = lobby.momirBasic ?? false
   const youReady = you?.ready ?? false
   const needsDeck = !isMomir && (!opts.deckValid || !you?.deckSelected)
@@ -159,7 +165,7 @@ export function fromQuickGameLobby(
     playerId: p.playerId,
     name: p.playerName,
     isYou: p.playerId === lobby.youPlayerId,
-    isHost: p.playerId === lobby.players.find((q) => !q.isAi)?.playerId,
+    isHost: p.playerId === hostId,
     isAi: p.isAi,
     // Quick lobbies drop disconnected players outright, so anyone listed is connected.
     isConnected: true,
@@ -177,20 +183,20 @@ export function fromQuickGameLobby(
     youReady,
     needsDeck,
     needsAiCommander,
-    invitable: !lobby.vsAi,
+    invitable,
     bringsDeck: axes.cards.kind === 'BRING_A_DECK',
   })
 
   return {
     kind: 'QUICK',
     lobbyId: lobby.lobbyId,
-    title: quickTitle(axes.cards.kind),
-    subtitle: quickSubtitle(axes.cards.kind, lobby.vsAi),
+    title: matchmade ? matchmadeTitle(lobby) : quickTitle(axes.cards.kind),
+    subtitle: matchmade ? matchmadeSubtitle(axes.cards.kind) : quickSubtitle(axes.cards.kind, lobby.vsAi),
     isHost,
     // A quick lobby has no state machine: it is staging right up until the game starts.
     isWaiting: true,
     // An AI fills the only opponent seat. Removing it reopens the same lobby and invite flow.
-    invitable: !lobby.vsAi,
+    invitable,
     axes,
     players,
     you: players.find((p) => p.isYou),
@@ -294,6 +300,19 @@ function quickTitle(cards: CardsKind): string {
     case 'BRING_A_DECK': return 'Constructed'
     default: return '1v1 Lobby'
   }
+}
+
+/** "Ranked Pauper match", "Casual Limited match" — what the queue agreed on. */
+function matchmadeTitle(lobby: QuickGameLobbyStateMessage): string {
+  const format = lobby.format ? labelForFormat(lobby.format) : 'Limited'
+  return `${lobby.ranked ? 'Ranked' : 'Casual'} ${format} match`
+}
+
+function matchmadeSubtitle(cards: CardsKind): string {
+  const prepare = cards === 'RANDOM'
+    ? 'Your sealed deck is built when the game starts.'
+    : 'Pick a deck.'
+  return `Matched by the queue. ${prepare} The game starts when you both ready up.`
 }
 
 /**

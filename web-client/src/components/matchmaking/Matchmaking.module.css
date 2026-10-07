@@ -1,0 +1,231 @@
+/* Matchmaking panel (home rail) and the match-found prompt. Sits inside GameUI's
+   `.publicTournamentPanel` glass, so it borrows that panel's palette: amber for the action, muted
+   greys for supporting text. */
+
+.fieldLabel {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-sm);
+}
+
+.select option {
+  background: #14161f;
+  color: #eef0f6;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.segment {
+  min-height: 32px;
+  border: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  background: transparent;
+  color: var(--text-secondary, #c8c8d0);
+  font: inherit;
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.segment[data-active='true'] {
+  background: rgba(242, 180, 92, 0.18);
+  color: #f6c27a;
+}
+
+.segment:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.primary,
+.secondary {
+  min-height: 40px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--font-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  border: none;
+  background: #f2b45c;
+  color: #1d1405;
+}
+
+.primary:hover {
+  background: #f7c67f;
+}
+
+.secondary {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: #eef0f6;
+}
+
+.secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.segment:focus-visible,
+.chip:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.linkButton {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #f6c27a;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.busy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.busyLabel {
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  background: rgba(46, 204, 113, 0.1);
+  color: var(--text-secondary, #c8c8d0);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: rgba(46, 204, 113, 0.2);
+}
+
+.chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.searching {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.searchingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.searchingText {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.wait {
+  flex: 0 0 auto;
+  color: #f6c27a;
+  font-size: var(--font-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.spinner {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #f2b45c;
+  animation: matchmaking-spin 0.9s linear infinite;
+}
+
+@keyframes matchmaking-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 3s; }
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 8px var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(242, 180, 92, 0.12);
+  border: 1px solid rgba(242, 180, 92, 0.3);
+  color: #f6dcb4;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.noticeDismiss {
+  flex: 0 0 auto;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.countdown {
+  width: 100%;
+  height: 4px;
+  margin: 4px 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.countdownBar {
+  height: 100%;
+  background: #f2b45c;
+  transition: width 0.25s linear;
+}

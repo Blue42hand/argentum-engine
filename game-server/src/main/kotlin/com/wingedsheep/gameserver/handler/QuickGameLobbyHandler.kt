@@ -109,7 +109,7 @@ class QuickGameLobbyHandler(
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "AI opponent is not enabled on this server")
                 return@withLock
             }
-            if (current.twoHeadedGiant || current.players.size != 1) {
+            if (current.twoHeadedGiant || current.matchmade || current.players.size != 1) {
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "The opponent seat is not available")
                 return@withLock
             }
@@ -218,6 +218,10 @@ class QuickGameLobbyHandler(
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "Only the host can change the format")
                 return@withLock
             }
+            if (current.matchmade) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "A matchmade game's format is set by the queue")
+                return@withLock
+            }
             if (current.format == message.format && current.momirBasic == message.momirBasic) return@withLock
             // Momir Basic is a "custom format" entry in the same dropdown: picking it flips the
             // lobby into the deckbuilding-free Vanguard mode (mutually exclusive with a deck-format
@@ -270,6 +274,10 @@ class QuickGameLobbyHandler(
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "Only the host can change visibility")
                 return@withLock
             }
+            if (current.matchmade) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "A matchmade game's visibility is set by the queue")
+                return@withLock
+            }
             // AI lobbies are single-player — there's no second seat to discover.
             val effective = message.isPublic && !current.vsAi
             if (current.isPublic == effective) return@withLock
@@ -290,6 +298,10 @@ class QuickGameLobbyHandler(
             val host = current.players.firstOrNull { !it.isAi }
             if (host?.playerId != playerSession.playerId) {
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "Only the host can change ranked")
+                return@withLock
+            }
+            if (current.matchmade) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "A matchmade game's ranked setting is set by the queue")
                 return@withLock
             }
             // Ranked is only offered for a standard 1v1 human-vs-human lobby.
@@ -379,6 +391,32 @@ class QuickGameLobbyHandler(
         broadcastState(lobby)
     }
 
+    /**
+     * Seat two players the matchmaking queue paired into a fresh lobby running the queue's [format]
+     * and [ranked] setting, and send both the lobby state. From there it is an ordinary quick game:
+     * each picks a deck and readies up. Returns false, creating nothing, when either player is
+     * already in a lobby.
+     */
+    fun createMatchmadeLobby(
+        players: List<Pair<com.wingedsheep.sdk.model.EntityId, String>>,
+        format: DeckFormat?,
+        ranked: Boolean,
+    ): Boolean {
+        if (players.any { (id, _) -> lobbyRepository.findContainingPlayer(id) != null }) return false
+        val lobby = QuickGameLobby(vsAi = false, setCode = null, format = format)
+        lobby.matchmade = true
+        lobby.ranked = ranked && lobby.rankedEligible
+        players.forEach { (id, name) -> lobby.players += QuickGameLobbyPlayer(playerId = id, playerName = name) }
+        lobbyRepository.save(lobby)
+        players.forEach { (id, _) -> markPlayerInLobby(id, lobby.lobbyId) }
+        logger.info(
+            "Matchmade lobby ${lobby.lobbyId}: ${players.joinToString(" vs ") { it.second }} " +
+                "(${format?.displayName ?: "Limited"}, ranked=${lobby.ranked})",
+        )
+        broadcastState(lobby)
+        return true
+    }
+
     private fun handleJoin(session: WebSocketSession, message: ClientMessage.JoinQuickGameLobby) {
         val playerSession = sessionRegistry.getPlayerSession(session.id) ?: run {
             sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected"); return
@@ -405,6 +443,10 @@ class QuickGameLobbyHandler(
                     sender.sendError(session, ErrorCode.INVALID_ACTION, "This is a single-player lobby")
                     return@withLock
                 }
+                if (lobby.matchmade) {
+                    sender.sendError(session, ErrorCode.INVALID_ACTION, "This lobby is a matchmade game")
+                    return@withLock
+                }
                 if (lobby.isFull) {
                     sender.sendError(session, ErrorCode.GAME_FULL, "Lobby is full")
                     return@withLock
@@ -427,7 +469,13 @@ class QuickGameLobbyHandler(
             if (current == null) return@withLock
             // Host (first non-AI player) leaving closes the lobby for everyone.
             val firstHuman = current.players.firstOrNull { !it.isAi }
-            if (firstHuman?.playerId == playerSession.playerId) {
+            if (current.matchmade) {
+                // No host to wait on a replacement opponent: the pairing is over for both.
+                logger.info("${playerSession.playerName} left matchmade lobby ${current.lobbyId}; closing")
+                current.players.forEach { clearPlayerLobbyMembership(it.playerId, current.lobbyId) }
+                broadcastClosed(current, "${playerSession.playerName} left the match")
+                lobbyRepository.remove(current.lobbyId)
+            } else if (firstHuman?.playerId == playerSession.playerId) {
                 logger.info("Host ${playerSession.playerName} left lobby ${current.lobbyId}; closing for all")
                 current.players.forEach { clearPlayerLobbyMembership(it.playerId, current.lobbyId) }
                 broadcastClosed(current, "Host left the lobby")
@@ -803,24 +851,7 @@ class QuickGameLobbyHandler(
             return
         }
         // Send just this player the current snapshot.
-        val msg = ServerMessage.QuickGameLobbyState(
-            lobbyId = lobby.lobbyId,
-            vsAi = lobby.vsAi,
-            setCode = lobby.setCode,
-            players = lobby.players.mapIndexed { i, p -> p.toView(lobby, i) },
-            youPlayerId = playerId,
-            canStart = lobby.allReady(),
-            isPublic = lobby.isPublic,
-            format = lobby.format,
-            rules = lobby.rules.name,
-            momirBasic = lobby.momirBasic,
-            twoHeadedGiant = lobby.twoHeadedGiant,
-            maxPlayers = lobby.maxPlayers,
-            ranked = lobby.ranked,
-            rankedEligible = lobby.rankedEligible,
-            aiDeck = if (lobby.vsAi) AiDeckSpecView.of(lobby.aiDeckSpec) else null,
-        )
-        sender.send(session, msg)
+        sender.send(session, stateFor(lobby, playerId))
     }
 
     /** The signed-in account id behind a lobby seat, or null for a guest. */
@@ -854,26 +885,29 @@ class QuickGameLobbyHandler(
                 .getAllIdentities()
                 .firstOrNull { it.playerId == player.playerId }
                 ?.webSocketSession ?: continue
-            val msg = ServerMessage.QuickGameLobbyState(
-                lobbyId = lobby.lobbyId,
-                vsAi = lobby.vsAi,
-                setCode = lobby.setCode,
-                players = lobby.players.mapIndexed { i, p -> p.toView(lobby, i) },
-                youPlayerId = player.playerId,
-                canStart = lobby.allReady(),
-                isPublic = lobby.isPublic,
-                format = lobby.format,
-                rules = lobby.rules.name,
-                momirBasic = lobby.momirBasic,
-                twoHeadedGiant = lobby.twoHeadedGiant,
-                maxPlayers = lobby.maxPlayers,
-                ranked = lobby.ranked,
-                rankedEligible = lobby.rankedEligible,
-                aiDeck = if (lobby.vsAi) AiDeckSpecView.of(lobby.aiDeckSpec) else null,
-            )
-            sender.send(ws, msg)
+            sender.send(ws, stateFor(lobby, player.playerId))
         }
     }
+
+    private fun stateFor(lobby: QuickGameLobby, playerId: com.wingedsheep.sdk.model.EntityId) =
+        ServerMessage.QuickGameLobbyState(
+            lobbyId = lobby.lobbyId,
+            vsAi = lobby.vsAi,
+            setCode = lobby.setCode,
+            players = lobby.players.mapIndexed { i, p -> p.toView(lobby, i) },
+            youPlayerId = playerId,
+            canStart = lobby.allReady(),
+            isPublic = lobby.isPublic,
+            format = lobby.format,
+            rules = lobby.rules.name,
+            momirBasic = lobby.momirBasic,
+            twoHeadedGiant = lobby.twoHeadedGiant,
+            maxPlayers = lobby.maxPlayers,
+            ranked = lobby.ranked,
+            rankedEligible = lobby.rankedEligible,
+            aiDeck = if (lobby.vsAi) AiDeckSpecView.of(lobby.aiDeckSpec) else null,
+            matchmade = lobby.matchmade,
+        )
 
     /**
      * Subtract one copy of [commander] from [deckList]. Mirrors the web-client's

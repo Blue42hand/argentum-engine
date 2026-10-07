@@ -103,6 +103,14 @@ class QuickGameLobby(
     @Volatile
     var ranked: Boolean = false
 
+    /**
+     * Set when matchmaking paired the two players. Format and [ranked] were the queue they agreed to,
+     * so the host-only settings are locked, and either player leaving closes the lobby — there's no
+     * host to wait for a replacement opponent.
+     */
+    @Volatile
+    var matchmade: Boolean = false
+
     /** Whether this lobby is even allowed to be ranked: standard 1v1, human opponent. */
     val rankedEligible: Boolean get() = !twoHeadedGiant && !vsAi
 

@@ -33,6 +33,7 @@ import { ArgentumMark } from './ArgentumMark'
 import { FullscreenButton } from './FullscreenButton'
 import { PlayHub } from './PlayHub'
 import { SetupRail } from './SetupRail'
+import { FindOpponentPanel } from '../matchmaking/FindOpponentPanel'
 import { useApplyRecipe } from '../lobby/useApplyRecipe'
 import { loadLobbyId, clearLobbyId } from '@/store/slices/shared'
 import styles from './GameUI.module.css'
@@ -429,6 +430,7 @@ export function HomeScreen({
             }
             aside={
               <>
+                <FindOpponentPanel onSignIn={() => setLoginOpen(true)} />
                 {sideLists}
                 <LearnCallout variant="tier" />
                 <AccountBenefitsCallout onCreateAccount={() => setLoginOpen(true)} />

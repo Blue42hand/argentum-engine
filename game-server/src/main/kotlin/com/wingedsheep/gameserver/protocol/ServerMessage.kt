@@ -1225,6 +1225,11 @@ sealed interface ServerMessage {
          * decklist behind a "deck" choice never rides the lobby broadcast. Null in a human lobby.
          */
         val aiDeck: com.wingedsheep.gameserver.lobby.AiDeckSpecView? = null,
+        /**
+         * True when matchmaking made this lobby. Its format and ranked flag were agreed in the queue,
+         * so nobody can change them, and it can't be made public or given an AI seat.
+         */
+        val matchmade: Boolean = false,
     ) : ServerMessage
 
     /**
@@ -1258,6 +1263,51 @@ sealed interface ServerMessage {
     @Serializable
     @SerialName("quickGameLobbyClosed")
     data class QuickGameLobbyClosed(val reason: String) : ServerMessage
+
+    /**
+     * This player's matchmaking state: searching in [format]/[ranked], or idle when [searching] is
+     * false. Sent on every change. [notice] explains a change the player didn't cause (the opponent
+     * didn't accept, they missed the accept window). [searchingSince] is the epoch-millis join time,
+     * kept across a requeue so the client's wait timer doesn't reset.
+     */
+    @Serializable
+    @SerialName("matchmakingStatus")
+    data class MatchmakingStatus(
+        val searching: Boolean,
+        val format: com.wingedsheep.sdk.core.DeckFormat? = null,
+        val ranked: Boolean = false,
+        val searchingSince: Long? = null,
+        val notice: String? = null,
+    ) : ServerMessage
+
+    /**
+     * The queue paired this player with [opponentName]. Answer with [ClientMessage.RespondToMatch]
+     * within [acceptWindowMs]; once both accept, a quick-game lobby is created for the two and its
+     * [QuickGameLobbyState] follows. [opponentRating] is shown for ranked matches only.
+     */
+    @Serializable
+    @SerialName("matchFound")
+    data class MatchFound(
+        val matchId: String,
+        val opponentName: String,
+        val format: com.wingedsheep.sdk.core.DeckFormat? = null,
+        val ranked: Boolean = false,
+        val opponentRating: Int? = null,
+        val acceptWindowMs: Long,
+        val youAccepted: Boolean = false,
+    ) : ServerMessage
+
+    /** How many players are searching in each queue. Broadcast to every connected player on change. */
+    @Serializable
+    @SerialName("matchmakingQueues")
+    data class MatchmakingQueues(val queues: List<MatchmakingQueueCount>) : ServerMessage
+
+    @Serializable
+    data class MatchmakingQueueCount(
+        val format: com.wingedsheep.sdk.core.DeckFormat? = null,
+        val ranked: Boolean,
+        val searching: Int,
+    )
 
     /** Broadcast number of human players currently connected via WebSocket. */
     @Serializable

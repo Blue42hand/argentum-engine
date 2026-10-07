@@ -8,7 +8,14 @@
  * model — every state change comes from the server as a fresh `quickGameLobbyState` message,
  * so we just store and re-render.
  */
-import type { AiDeckSpec, DeckFormat, QuickGameLobbyStateMessage } from '@/types'
+import type {
+  AiDeckSpec,
+  DeckFormat,
+  MatchFoundMessage,
+  MatchmakingQueueCount,
+  MatchmakingStatusMessage,
+  QuickGameLobbyStateMessage,
+} from '@/types'
 import {
   createCreateQuickGameLobbyMessage,
   createJoinQuickGameLobbyMessage,
@@ -22,12 +29,24 @@ import {
   createSetQuickGameAiDeckMessage,
   createAddQuickGameAiMessage,
   createRemoveQuickGameAiMessage,
+  createJoinMatchmakingMessage,
+  createLeaveMatchmakingMessage,
+  createRespondToMatchMessage,
 } from '@/types'
 import type { SliceCreator } from './types'
 import { getWebSocket } from './shared'
 
 export interface QuickGameLobbySliceState {
   quickGameLobbyState: QuickGameLobbyStateMessage | null
+  /**
+   * The server's last word on this player's matchmaking: searching (with format/ranked/since) or
+   * idle, plus a notice when something happened that they didn't do. Null before any.
+   */
+  matchmaking: MatchmakingStatusMessage | null
+  /** An open "match found" prompt, stamped with when it arrived so the countdown can run locally. */
+  matchOffer: (MatchFoundMessage & { readonly receivedAt: number }) | null
+  /** Searching players per queue; null until the first REST fetch or push. */
+  matchmakingQueues: readonly MatchmakingQueueCount[] | null
 }
 
 export interface QuickGameLobbySliceActions {
@@ -55,12 +74,21 @@ export interface QuickGameLobbySliceActions {
   setQuickGameAiDeck: (spec: AiDeckSpec) => void
   addQuickGameAi: () => void
   removeQuickGameAi: () => void
+  /** Search for a stranger to play. `format: null` is Limited (a random sealed pool each). */
+  joinMatchmaking: (format: DeckFormat | null, ranked: boolean) => void
+  /** Stop searching; while a match prompt is open this declines it. */
+  leaveMatchmaking: () => void
+  respondToMatch: (accept: boolean) => void
+  dismissMatchmakingNotice: () => void
 }
 
 export type QuickGameLobbySlice = QuickGameLobbySliceState & QuickGameLobbySliceActions
 
-export const createQuickGameLobbySlice: SliceCreator<QuickGameLobbySlice> = (set) => ({
+export const createQuickGameLobbySlice: SliceCreator<QuickGameLobbySlice> = (set, get) => ({
   quickGameLobbyState: null,
+  matchmaking: null,
+  matchOffer: null,
+  matchmakingQueues: null,
 
   createQuickGameLobby: (vsAi, setCode, isPublic, format, momirBasic, ranked) => {
     getWebSocket()?.send(createCreateQuickGameLobbyMessage(vsAi, setCode, isPublic, format, momirBasic, ranked))
@@ -111,5 +139,26 @@ export const createQuickGameLobbySlice: SliceCreator<QuickGameLobbySlice> = (set
 
   removeQuickGameAi: () => {
     getWebSocket()?.send(createRemoveQuickGameAiMessage())
+  },
+
+  joinMatchmaking: (format, ranked) => {
+    getWebSocket()?.send(createJoinMatchmakingMessage(format, ranked))
+  },
+
+  leaveMatchmaking: () => {
+    getWebSocket()?.send(createLeaveMatchmakingMessage())
+  },
+
+  respondToMatch: (accept) => {
+    const offer = get().matchOffer
+    if (!offer) return
+    getWebSocket()?.send(createRespondToMatchMessage(offer.matchId, accept))
+    // A decline is final on our side; an accept waits for the server's confirmation.
+    if (!accept) set({ matchOffer: null })
+  },
+
+  dismissMatchmakingNotice: () => {
+    const status = get().matchmaking
+    if (status?.notice) set({ matchmaking: { ...status, notice: null } })
   },
 })

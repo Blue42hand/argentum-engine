@@ -78,6 +78,10 @@ export type ServerMessage =
   | QuickGameLobbyClosedMessage
   // Presence
   | OnlinePlayersCountMessage
+  // Matchmaking
+  | MatchmakingStatusMessage
+  | MatchFoundMessage
+  | MatchmakingQueuesMessage
   // Friends
   | FriendPresenceMessage
   | FriendRequestReceivedMessage
@@ -2157,6 +2161,9 @@ export type ClientMessage =
   | AddQuickGameAiMessage
   | RemoveQuickGameAiMessage
   | SetQuickGameLobbyFormatMessage
+  | JoinMatchmakingMessage
+  | LeaveMatchmakingMessage
+  | RespondToMatchMessage
 
 /**
  * Connect to the server with a player name.
@@ -3073,6 +3080,8 @@ export interface QuickGameLobbyStateMessage {
   readonly rankedEligible?: boolean
   /** What the AI seat will play. Present only in a vs-AI lobby. See [AiDeckSpecView]. */
   readonly aiDeck?: AiDeckSpecView | null
+  /** Matchmaking made this lobby: its format and ranked setting are fixed by the queue. */
+  readonly matchmade?: boolean
 }
 
 /**
@@ -3126,6 +3135,46 @@ export interface QuickGameLobbyClosedMessage {
 export interface OnlinePlayersCountMessage {
   readonly type: 'onlinePlayersCount'
   readonly count: number
+}
+
+/**
+ * This player's matchmaking state. `searching: false` means idle; `notice` explains a change the
+ * player didn't cause (the opponent didn't accept, the accept window ran out).
+ */
+export interface MatchmakingStatusMessage {
+  readonly type: 'matchmakingStatus'
+  readonly searching: boolean
+  /** Null = Limited (a random sealed pool each). */
+  readonly format?: DeckFormat | null
+  readonly ranked?: boolean
+  /** Epoch millis the search started; kept across a requeue. */
+  readonly searchingSince?: number | null
+  readonly notice?: string | null
+}
+
+/** The queue found an opponent; answer with `respondToMatch` before the window closes. */
+export interface MatchFoundMessage {
+  readonly type: 'matchFound'
+  readonly matchId: string
+  readonly opponentName: string
+  readonly format?: DeckFormat | null
+  readonly ranked?: boolean
+  /** Shown for ranked matches only. */
+  readonly opponentRating?: number | null
+  readonly acceptWindowMs: number
+  readonly youAccepted?: boolean
+}
+
+export interface MatchmakingQueueCount {
+  readonly format?: DeckFormat | null
+  readonly ranked: boolean
+  readonly searching: number
+}
+
+/** How many players are searching in each queue. Pushed to everyone on change. */
+export interface MatchmakingQueuesMessage {
+  readonly type: 'matchmakingQueues'
+  readonly queues: readonly MatchmakingQueueCount[]
 }
 
 /** A friend's visible online status changed (connected, disconnected, or toggled their visibility). */
@@ -3224,6 +3273,22 @@ export interface SetQuickGameLobbyRankedMessage {
   readonly ranked: boolean
 }
 
+export interface JoinMatchmakingMessage {
+  readonly type: 'joinMatchmaking'
+  readonly format: DeckFormat | null
+  readonly ranked: boolean
+}
+
+export interface LeaveMatchmakingMessage {
+  readonly type: 'leaveMatchmaking'
+}
+
+export interface RespondToMatchMessage {
+  readonly type: 'respondToMatch'
+  readonly matchId: string
+  readonly accept: boolean
+}
+
 export function createCreateQuickGameLobbyMessage(
   vsAi?: boolean,
   setCode?: string,
@@ -3284,6 +3349,15 @@ export function createRemoveQuickGameAiMessage(): RemoveQuickGameAiMessage {
 }
 export function createSetQuickGameLobbyRankedMessage(ranked: boolean): SetQuickGameLobbyRankedMessage {
   return { type: 'setQuickGameLobbyRanked', ranked }
+}
+export function createJoinMatchmakingMessage(format: DeckFormat | null, ranked: boolean): JoinMatchmakingMessage {
+  return { type: 'joinMatchmaking', format, ranked }
+}
+export function createLeaveMatchmakingMessage(): LeaveMatchmakingMessage {
+  return { type: 'leaveMatchmaking' }
+}
+export function createRespondToMatchMessage(matchId: string, accept: boolean): RespondToMatchMessage {
+  return { type: 'respondToMatch', matchId, accept }
 }
 export function createSetQuickGameLobbyFormatMessage(
   format: DeckFormat | null,

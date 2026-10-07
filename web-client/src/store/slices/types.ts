@@ -34,6 +34,9 @@ import type {
   AiDeckSpec,
   DeckFormat,
   YieldKind,
+  MatchmakingStatusMessage,
+  MatchFoundMessage,
+  MatchmakingQueueCount,
 } from '@/types'
 import type { ConnectionStatus } from '@/network/websocket.ts'
 import type { CounterRemovalCreatureInfo, SpectatorCombatState, SpectatorDecisionStatus, UpdateLobbySettingsMessage } from '@/types/messages.ts'
@@ -1047,6 +1050,18 @@ export type GameStore = {
   setQuickGameLobbyFormat: (format: DeckFormat | null, momirBasic?: boolean) => void
   /** Host-only: choose what the AI opponent plays (auto / built from sets / an exact list). */
   setQuickGameAiDeck: (spec: AiDeckSpec) => void
+
+  // Matchmaking (lives in the quick-game slice: a confirmed match becomes a quick-game lobby)
+  /** The server's last matchmaking status for this player; null before any. */
+  matchmaking: MatchmakingStatusMessage | null
+  /** An open "match found" prompt, stamped with its arrival time for the local countdown. */
+  matchOffer: (MatchFoundMessage & { readonly receivedAt: number }) | null
+  /** Searching players per queue; null until first loaded. */
+  matchmakingQueues: readonly MatchmakingQueueCount[] | null
+  joinMatchmaking: (format: DeckFormat | null, ranked: boolean) => void
+  leaveMatchmaking: () => void
+  respondToMatch: (accept: boolean) => void
+  dismissMatchmakingNotice: () => void
 
   // Draft slice
   deckBuildingState: DeckBuildingState | null
