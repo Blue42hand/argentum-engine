@@ -52,7 +52,7 @@
 - [ ] 1 Kindred Summons
 - [x] 1 Path to Exile
 - [ ] 1 Reality Shift
-- [ ] 1 Return of the Wildspeaker
+- [x] 1 Return of the Wildspeaker
 
 ## Sorceries (7)
 
