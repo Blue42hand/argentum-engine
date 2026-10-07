@@ -62,8 +62,6 @@ class JumpstartLobbyTest : FunSpec({
             val player = l.players.getValue(id)
             player.jumpstartOffers.size shouldBe 3
             player.jumpstartSecondOffers.size shouldBe 3
-            // Six themes, so neither row repeats the other.
-            (player.jumpstartOffers + player.jumpstartSecondOffers).map { it.substringBefore(" (") }.distinct().size shouldBe 6
             // Both rows are sent up front, so the pair can be weighed together.
             l.buildLobbyUpdate(id).jumpstart!!.secondOffers.map { it.id } shouldBe player.jumpstartSecondOffers
             val first = player.jumpstartOffers.first()
@@ -161,6 +159,25 @@ class JumpstartLobbyTest : FunSpec({
         l.startJumpstart(host) shouldBe false
         l.state shouldBe LobbyState.WAITING_FOR_PLAYERS
     }
+    test("the two rows share no theme when six are playable, and are drawn independently when not") {
+        // How many themes are playable depends on which cards are implemented, so the assertion
+        // follows the corpus rather than assuming a count.
+        for (set in listOf("JMP", "J22")) {
+            val packs = JumpstartPacks(generator, set)
+            val available = packs.available(emptySet()).map { it.theme }.distinct().size
+            repeat(20) {
+                val (first, second) = packs.offerPair(emptySet())
+                val firstThemes = first.map { it.substringBefore(" (") }
+                val secondThemes = second.map { it.substringBefore(" (") }
+                withClue("$set with $available playable themes: $first / $second") {
+                    firstThemes.distinct().size shouldBe minOf(3, available)
+                    secondThemes.distinct().size shouldBe minOf(3, available)
+                    if (available >= 6) (firstThemes + secondThemes).distinct().size shouldBe 6
+                }
+            }
+        }
+    }
+
     test("J22 has 121 exact published variants spanning 46 themes") {
         JumpstartPacks.listsFor("J22").size shouldBe 121
         JumpstartPacks.listsFor("J22").values.all { it.size == 20 } shouldBe true
