@@ -14,7 +14,7 @@
  * lays the screen out and turns a recipe into lobby-creation messages via `useApplyRecipe`.
  */
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useGameStore } from '@/store/gameStore.ts'
 import type { TournamentFormat } from '@/types'
 import { randomBackground } from '@/utils/background.ts'
@@ -337,10 +337,10 @@ export function HomeScreen({
       >
         <div className={home.artTint} aria-hidden />
         <header className={home.topBar}>
-          <span className={home.brand}>
+          <Link to="/" className={home.brand} aria-label="Argentum — home" onClick={() => setShowReplays(false)}>
             <BrandMark />
             Argentum
-          </span>
+          </Link>
           <nav className={home.nav} aria-label="Main">
             <button
               type="button"
@@ -469,10 +469,10 @@ export function HomeScreen({
     >
       <div className={home.artTint} aria-hidden />
       <header className={home.topBar}>
-        <span className={home.brand}>
+        <Link to="/" className={home.brand} aria-label="Argentum — home">
           <BrandMark />
           Argentum
-        </span>
+        </Link>
         <nav className={home.nav} aria-label="Main">
           <button type="button" className={home.navItem} onClick={() => navigate('/deckbuilder')}>Deckbuilder</button>
           <button type="button" className={home.navItem} onClick={() => navigate('/set-completion')}>Sets</button>

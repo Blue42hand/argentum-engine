@@ -49,7 +49,11 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
 }
+
+.brand:hover { color: #fff; }
+.brand:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 3px; }
 
 .brandMark { flex: none; filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.6)); }
 
