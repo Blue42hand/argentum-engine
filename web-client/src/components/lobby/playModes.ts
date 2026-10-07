@@ -154,6 +154,11 @@ export interface PlayOptions {
   tableCards: TableCards
   /** The set to open or draft, when the cards come from packs. Null = the lobby's default. */
   setCode: string | null
+  /**
+   * The set a rolled deck is built from, when the panel rolls one. Null = any set — the server picks
+   * one (and the AI opponent, on its default, plays the same set either way).
+   */
+  randomSetCode: string | null
   /** The deck to bring. Null = not decided — the panel fills in a default. */
   deck: PanelDeck | null
 }
@@ -168,6 +173,7 @@ export function defaultOptions(mode: ModeId, aiEnabled: boolean): PlayOptions {
     sealedStyle: 'STANDARD',
     tableCards: 'DECKS',
     setCode: null,
+    randomSetCode: null,
     deck: null,
   }
   return { ...base, opponents: opponentRange(base)?.fallback ?? 1 }
@@ -232,6 +238,15 @@ export function needsDeck(options: PlayOptions): boolean {
  */
 export function canRollDeck(options: PlayOptions): boolean {
   return needsDeck(options) && lobbyKindFor(selectionFor(options)) === 'QUICK'
+}
+
+/**
+ * Whether the server rolls your deck — the Random deck mode, or "Random deck" picked as your deck —
+ * so the panel can offer to pin which set it is rolled from.
+ */
+export function rollsDeck(options: PlayOptions): boolean {
+  if (cardsFor(options).kind === 'RANDOM') return true
+  return options.deck?.kind === 'RANDOM' && canRollDeck(options)
 }
 
 /** Whether the cards come out of packs from a set the player should choose. */
@@ -333,7 +348,10 @@ export function recipeForOptions(options: PlayOptions): LobbyRecipe {
     settings.deckFormat = COMMANDER_LEGALITY
   }
 
-  const deck = selection.cards.kind === 'BRING_A_DECK' ? recipeDeckFor(options, base.deck) : base.deck
+  const picked = selection.cards.kind === 'BRING_A_DECK' ? recipeDeckFor(options, base.deck) : base.deck
+  const deck = picked.kind === 'RANDOM' && options.randomSetCode
+    ? { kind: 'RANDOM' as const, setCodes: [options.randomSetCode] }
+    : picked
 
   return {
     ...base,

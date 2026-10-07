@@ -39,7 +39,12 @@ export function useCaptureRecipe(
       view,
       lobbyState,
       quickLobby,
-      deckRefFor(deckTab, savedDeckName, exampleName),
+      deckRefFor(
+        deckTab,
+        savedDeckName,
+        exampleName,
+        quickLobby?.players.find((p) => p.playerId === quickLobby.youPlayerId)?.setCodes ?? [],
+      ),
       cubeByName(
         cubes,
         lobbyState?.settings.cubeName ?? null,
@@ -60,8 +65,12 @@ function deckRefFor(
   tab: DeckPickerTab | undefined,
   savedDeckName: string | null,
   exampleName: string | null,
+  /** The sets your Random tab is rolling from; empty = any set. */
+  randomSetCodes: readonly string[],
 ): RecipeDeck {
-  if (tab === 'random') return { kind: 'RANDOM' }
+  if (tab === 'random') {
+    return randomSetCodes.length > 0 ? { kind: 'RANDOM', setCodes: [...randomSetCodes] } : { kind: 'RANDOM' }
+  }
   if (tab === 'examples' && exampleName) return { kind: 'EXAMPLE', name: exampleName }
   if (savedDeckName) return { kind: 'SAVED', name: savedDeckName }
   return { kind: 'NONE' }

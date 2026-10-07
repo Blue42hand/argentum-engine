@@ -110,8 +110,11 @@ export interface RecipeCube {
 export type RecipeDeck =
   /** Momir, or a pool built inside the event. Nothing to pick. */
   | { readonly kind: 'NONE' }
-  /** The deck picker's Random tab, whose empty list is the server's "roll me one" signal. */
-  | { readonly kind: 'RANDOM' }
+  /**
+   * The deck picker's Random tab, whose empty list is the server's "roll me one" signal. `setCodes`
+   * pins the sets it is rolled from (the tab's own set choice); absent or empty = any set.
+   */
+  | { readonly kind: 'RANDOM'; readonly setCodes?: readonly string[] }
   | { readonly kind: 'SAVED'; readonly name: string }
   /**
    * A server starter deck (`/api/decks/examples`), by name — the same portable-key rule as a saved
@@ -318,7 +321,7 @@ export function validateRecipe(
 
   const notes: string[] = []
   const settings = trimSettings(candidate.settings, ctx.availableSets, notes)
-  const deck = validDeck(candidate.deck)
+  const deck = validDeck(candidate.deck, ctx.availableSets, notes)
   const aiDeck = validAiDeck(candidate.aiDeck)
 
   return {
@@ -366,10 +369,23 @@ function isCardsAxis(raw: unknown): raw is CardsAxis {
   }
 }
 
-function validDeck(raw: unknown): RecipeDeck {
+function validDeck(raw: unknown, availableSets: readonly AvailableSet[], notes: string[]): RecipeDeck {
   if (typeof raw !== 'object' || raw === null) return { kind: 'NONE' }
-  const { kind, name } = raw as { kind?: string; name?: unknown }
-  if (kind === 'RANDOM') return { kind: 'RANDOM' }
+  const { kind, name, setCodes } = raw as { kind?: string; name?: unknown; setCodes?: unknown }
+  if (kind === 'RANDOM') {
+    const stored = Array.isArray(setCodes)
+      ? setCodes.filter((c): c is string => typeof c === 'string' && c.trim() !== '')
+      : []
+    // Same rule as `trimSettings`: an empty catalogue hasn't arrived yet, so trust the stored list.
+    const codes = availableSets.length > 0
+      ? stored.filter((c) => availableSets.some((s) => s.code === c))
+      : stored
+    const dropped = stored.filter((c) => !codes.includes(c))
+    if (dropped.length > 0) {
+      notes.push(`${dropped.join(', ')} ${dropped.length === 1 ? 'is' : 'are'} not on this server, so your random deck can come from any set.`)
+    }
+    return codes.length > 0 ? { kind: 'RANDOM', setCodes: codes } : { kind: 'RANDOM' }
+  }
   if ((kind === 'SAVED' || kind === 'EXAMPLE') && typeof name === 'string' && name.trim() !== '') {
     return { kind, name }
   }
@@ -504,6 +520,11 @@ function settingsTail(recipe: LobbyRecipe, availableSets: readonly AvailableSet[
     tail.push(`${packs} ${recipe.selection.cards.kind === 'DRAFT' ? 'packs' : 'boosters'}`)
   }
   if (recipe.deck.kind === 'SAVED' || recipe.deck.kind === 'EXAMPLE') tail.push(recipe.deck.name)
+  if (recipe.deck.kind === 'RANDOM' && recipe.deck.setCodes && recipe.deck.setCodes.length > 0) {
+    tail.push(`Random deck from ${recipe.deck.setCodes
+      .map((c) => availableSets.find((a) => a.code === c)?.name ?? c)
+      .join(' + ')}`)
+  }
   return tail
 }
 

@@ -95,8 +95,9 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
     })
 
     if (spec.kind === 'QUICK') {
-      // Everything a quick lobby has is a create-message field except the AI's deck, which is keyed
-      // on the lobby existing — so that one waits for the broadcast and the rest ride the create.
+      // Everything a quick lobby has is a create-message field except the AI's deck and your
+      // Random-deck sets, which are keyed on the lobby existing — so those wait for the broadcast
+      // and the rest ride the create.
       s.createQuickGameLobby(
         spec.vsAi,
         undefined,
@@ -106,7 +107,12 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
         settings.ranked ?? false,
       )
       const aiDeck = aiDeckSpecFor(recipe)
-      setPendingLobbyApply({ ...(aiDeck ? { aiDeck } : {}), aiSeats: 0 })
+      const randomSetCodes = recipe.deck.kind === 'RANDOM' ? recipe.deck.setCodes ?? [] : []
+      setPendingLobbyApply({
+        ...(aiDeck ? { aiDeck } : {}),
+        ...(randomSetCodes.length > 0 ? { randomSetCodes: [...randomSetCodes] } : {}),
+        aiSeats: 0,
+      })
       return
     }
 

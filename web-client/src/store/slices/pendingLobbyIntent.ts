@@ -73,6 +73,11 @@ export interface PendingLobbyApply {
   readonly settings?: PendingSettingsUpdate
   /** Quick lobbies take their AI deck as its own message, after the lobby exists. */
   readonly aiDeck?: AiDeckSpec
+  /**
+   * The sets your Random deck is rolled from — a quick-lobby seat setting, so it too waits for the
+   * lobby to exist. Sent before the deck picker's empty "roll me one" submission, which is debounced.
+   */
+  readonly randomSetCodes?: readonly string[]
   /** Added last: switching `gameMode` with AI already seated is rejected outright. */
   readonly aiSeats: number
 }
