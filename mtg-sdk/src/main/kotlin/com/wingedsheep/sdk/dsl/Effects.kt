@@ -94,6 +94,8 @@ import com.wingedsheep.sdk.scripting.effects.CastAnyNumberFromCollectionWithoutP
 import com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
+import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
+import com.wingedsheep.sdk.scripting.effects.ChoiceLabels
 import com.wingedsheep.sdk.scripting.effects.DynamicHint
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.GrantDamageBonusEffect
@@ -4089,7 +4091,8 @@ object Effects {
         hint: String? = null,
         dynamicHint: DynamicHint? = null,
         feasibility: FeasibilityCheck? = null,
-        descriptionOverride: String? = null
+        descriptionOverride: String? = null,
+        choiceLabels: ChoiceLabels? = null
     ): GatedEffect = GatedEffect(
         gate = Gate.MayDecide(
             prompt = prompt,
@@ -4097,7 +4100,8 @@ object Effects {
             dynamicHint = dynamicHint,
             sourceRequiredZone = sourceRequiredZone,
             inlineOnTrigger = inlineOnTrigger,
-            feasibility = feasibility
+            feasibility = feasibility,
+            choiceLabels = choiceLabels
         ),
         then = effect,
         otherwise = otherwise,
@@ -6469,24 +6473,40 @@ object Effects {
     fun Endure(
         amount: DynamicAmount,
         target: EffectTarget = EffectTarget.Self
-    ): Effect = Effects.May(
-        effect = AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
-        otherwise = CreateTokenEffect(
-            count = DynamicAmount.Fixed(1),
-            power = 0,
-            toughness = 0,
-            colors = setOf(Color.WHITE),
-            creatureTypes = setOf("Spirit"),
-            dynamicPower = amount,
-            dynamicToughness = amount
-        ),
-        hint = "Put ${amount.description} +1/+1 counter(s) on ${target.description}? " +
+    ): Effect {
+        val description = "Put ${amount.description} +1/+1 counter(s) on ${target.description}. " +
             "If you don't, create a ${amount.description}/${amount.description} white Spirit " +
-            "creature token.",
-        descriptionOverride = "Put ${amount.description} +1/+1 counter(s) on " +
-            "${target.description}. If you don't, create a " +
-            "${amount.description}/${amount.description} white Spirit creature token."
-    )
+            "creature token."
+        val endure = Effects.May(
+            effect = AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
+            otherwise = CreateTokenEffect(
+                count = DynamicAmount.Fixed(1),
+                power = 0,
+                toughness = 0,
+                colors = setOf(Color.WHITE),
+                creatureTypes = setOf("Spirit"),
+                dynamicPower = amount,
+                dynamicToughness = amount
+            ),
+            choiceLabels = ChoiceLabels(
+                prompt = "Endure {n}",
+                yes = "{n} +1/+1 counter{s}",
+                yesDetail = "on ${target.description}",
+                no = "{n}/{n} Spirit token",
+                noDetail = "a white Spirit creature",
+                amount = amount
+            ),
+            descriptionOverride = description
+        )
+        // CR 701.63b — endure 0 does nothing: no counters, no 0/0 Spirit, no question. Only an
+        // amount that could come out as 0 at resolution ("endures X") needs the guard.
+        if (amount is DynamicAmount.Fixed && amount.amount > 0) return endure
+        return If(
+            Conditions.CompareAmounts(amount, ComparisonOperator.GT, 0),
+            endure,
+            descriptionOverride = description
+        )
+    }
 
     /** Endure N with a fixed [amount] — sugar for `Endure(DynamicAmount.Fixed(amount), target)`. */
     fun Endure(amount: Int, target: EffectTarget = EffectTarget.Self): Effect =

@@ -30,12 +30,32 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
-    id: 'feature-find-an-opponent',
+    id: 'mode-matchmaking',
     date: '2026-10-08',
-    kind: 'feature',
-    title: 'Find an opponent',
+    kind: 'mode',
+    title: 'Matchmaking',
     body:
-      'No invite code needed: search from the home screen and get paired with another player. Queue for a Random deck, Jump In, Momir Basic or a Constructed format — casual, or ranked if you’re signed in.',
+      'Find an opponent without an invite. Pick a mode on the home screen — Random deck, Jump In, Momir Basic or a Constructed format — then search; ranked pairs you with someone close to your rating. Queues with players already waiting are shown, so you can join one and start at once.',
+  },
+  {
+    id: 'set-leb',
+    date: '2026-10-08',
+    kind: 'set',
+    setCode: 'LEB',
+    title: 'Limited Edition Beta is complete',
+    body:
+      'The second printing of Magic’s first set, two months after Alpha: the same Power Nine and dual lands, plus the two cards Alpha left out, Circle of Protection: Black and Volcanic Island.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
+  },
+  {
+    id: 'set-lea',
+    date: '2026-10-07',
+    kind: 'set',
+    setCode: 'LEA',
+    title: 'Limited Edition Alpha is complete',
+    body:
+      'Where Magic began, in 1993: Black Lotus, the original dual lands, Shivan Dragon, Lord of the Pit and Wrath of God. Five colours of raw, unbalanced power from before anyone knew what a fair card looked like.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
   },
   {
     id: 'set-j22',

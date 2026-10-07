@@ -3387,7 +3387,7 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   `RoomDoorResolution`, which raises the door-choice `ChooseOptionDecision` only when more than one door is eligible.
 - `Effects.LockOrUnlockDoor(target = ContextTarget(0))` — **"lock or unlock a door of target Room"**
   (Keys to the House). A resolution-time `ModalEffect.chooseOne(LockDoor, UnlockDoor, countsAsModalSpell = false)`
-  (modeled exactly like `Effects.Endure` — no new modal machinery, not a printed modal spell): the controller
+  (no new modal machinery, not a printed modal spell): the controller
   chooses lock or unlock as it resolves, then the chosen door effect runs against the same outer `target`. Pair
   with a single **"target Room you control"** `TargetObject` (no locked/unlocked restriction — either choice can
   always do something on a Room you control).
@@ -3475,7 +3475,7 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   the effect ever executes (Farrel's Mantle's "its controller may", with the Aura on an opponent's
   creature); `EffectTarget.ControllerOfTriggeringEntity` is the reference that path resolves, and
   anything it can't resolve falls back to the ability's controller. Gates:
-  - `Gate.MayDecide(prompt?, hint?, dynamicHint?, sourceRequiredZone?, inlineOnTrigger?, feasibility?)`
+  - `Gate.MayDecide(prompt?, hint?, dynamicHint?, sourceRequiredZone?, inlineOnTrigger?, feasibility?, choiceLabels?)`
     — pure yes/no
     ("You may [then]."). Replaces `Effects.May` (see the `Effects.May` facade below). `sourceRequiredZone`
     skips the gate silently when the source has left that zone by resolution; `inlineOnTrigger`
@@ -3623,7 +3623,7 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   `Effects.May` (a yes/no), `Effects.MayPay` (a payment, with a `ManaCost` overload), `Effects.MayPayX`
   and `Effects.IfYouDo` (an action's outcome) all build a `GatedEffect`; card code never constructs
   `GatedEffect` or a `Gate` itself.
-- `Effects.May(effect, otherwise?, prompt?, decisionMaker?, sourceRequiredZone?, inlineOnTrigger?, hint?, dynamicHint?, feasibility?, descriptionOverride?)`
+- `Effects.May(effect, otherwise?, prompt?, decisionMaker?, sourceRequiredZone?, inlineOnTrigger?, hint?, dynamicHint?, feasibility?, descriptionOverride?, choiceLabels?)`
   — "You may [effect]." Lowers to `GatedEffect(Gate.MayDecide(...), then = effect, otherwise = otherwise, decisionMaker = decisionMaker)`.
   `prompt` is the yes/no question when it should differ from the effect's text.
   For triggered abilities, targets are chosen when the ability goes on the stack, and the "may"
@@ -3658,6 +3658,14 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
     multi-block puts one mirror trigger on the stack per damaged creature, and "decline down to the
     biggest number" is only a real line of play if the three prompts can be told apart. Pairs
     naturally with `TriggeredAbility.effectOncePerTurn`, which is what makes declining free.
+  - **Peer options — `choiceLabels = ChoiceLabels(prompt, yes, no, yesDetail?, noDetail?, amount?)`.**
+    When `otherwise` is an outcome in its own right rather than a decline, a green "Yes" beside a
+    grey "No" hides which button does what. `ChoiceLabels` replaces the prompt with a short title and
+    the buttons with two equal option tiles (`YesNoDecision.peerOptions`, plus `yesDetail` /
+    `noDetail` second lines). Every string is a template: `{n}` becomes `amount` evaluated at
+    resolution and `{s}` pluralises it ("{n} +1/+1 counter{s}"). Endure is the user — its
+    `ChoiceLabels("Endure {n}", "{n} +1/+1 counter{s}", "{n}/{n} Spirit token", …)` shows "Endure 2"
+    over "2 +1/+1 counters" *or* "2/2 Spirit token". Never use it for a plain "you may".
   - **Per-object prompts name their subject automatically.** The sibling problem to dynamic hints:
     a gate nested inside a `ForEachInGroup` / `ForEachInCollection` body raises one prompt per
     entity, and the sentences are identical. `GatedEffectExecutor` stamps every gate prompt's
@@ -16305,9 +16313,12 @@ Card authors rarely reference these directly; they are created/updated by the ma
   `Effects.EmitBend(bendType)` is the internal marker effect (executor: `EmitBendEventExecutor`); card authors reach a
   bend through the keyword-action facades above, not this effect. `BendPerformedEvent` is internal (dropped from the
   client log).
-- **Endure N** — `Effects.Endure(amount, target = EffectTarget.Self)` composes a `ModalEffect.chooseOne` of
-  AddDynamicCounters (N +1/+1 counters on the enduring permanent) and a single N/N white Spirit `CreateTokenEffect`
-  (no fake keyword — endure is always the effect of a triggered/activated ability, resolved at resolution time). `amount`
+- **Endure N** — `Effects.Endure(amount, target = EffectTarget.Self)` composes an `Effects.May` whose `then` is
+  AddDynamicCounters (N +1/+1 counters on the enduring permanent) and whose `otherwise` is a single N/N white Spirit
+  `CreateTokenEffect` — a consent gate decided at resolution (CR 701.63a), not a modal, presented through
+  `choiceLabels` as two peer options (no fake keyword — endure is always the effect of a triggered/activated ability).
+  An amount that isn't a positive constant is wrapped in `Effects.If(amount > 0, …)`: endure 0 does nothing, with no
+  prompt and no 0/0 Spirit (CR 701.63b). `amount`
   is `DynamicAmount.Fixed` for "endure 2" or any dynamic value for "endure X" (e.g. Warden of the Grove reads
   `EntityProperty(Self, CounterCount(...))`); `target` defaults to `Self` ("it endures") but takes
   `EffectTarget.TriggeringEntity` when a card endures the creature that triggered it.

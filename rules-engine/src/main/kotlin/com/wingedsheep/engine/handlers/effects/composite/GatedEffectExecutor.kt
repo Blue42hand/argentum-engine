@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.CollectEvidenceEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.ChoiceLabels
 import com.wingedsheep.sdk.scripting.effects.DynamicHint
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
@@ -267,18 +268,23 @@ class GatedEffectExecutor(
         // player confirms a number, not a formula.
         val payLabel = (gate as? Gate.MayPay)?.let { computedCostLabel(state, it.cost, context) }
 
+        val labels = (gate as? Gate.MayDecide)?.choiceLabels?.let { renderChoiceLabels(state, it, context) }
+
         val decision = { decisionId: String -> YesNoDecision(
             id = decisionId,
             playerId = playerId,
-            prompt = effect.description,
+            prompt = labels?.prompt ?: effect.description,
             context = decisionContext(
                 context,
                 sourceName,
                 inlineOnTrigger = (gate as? Gate.MayDecide)?.inlineOnTrigger ?: false
             ),
-            yesText = payLabel ?: "Yes",
-            noText = if (payLabel != null) "Don't pay" else "No",
-            hint = hint
+            yesText = labels?.yes ?: payLabel ?: "Yes",
+            noText = labels?.no ?: if (payLabel != null) "Don't pay" else "No",
+            hint = hint,
+            peerOptions = labels != null,
+            yesDetail = labels?.yesDetail,
+            noDetail = labels?.noDetail
         ) }
 
         val continuation = GatedEffectContinuation(
@@ -588,6 +594,19 @@ class GatedEffectExecutor(
      * which number *this* instance carries (CR 603.3d locks targets at trigger time, but the
      * amount is only read here, as the instance resolves).
      */
+    /** Fill a [ChoiceLabels]' `{n}` / `{s}` placeholders with its amount as it resolves now. */
+    private fun renderChoiceLabels(state: GameState, labels: ChoiceLabels, context: EffectContext): ChoiceLabels {
+        val n = labels.amount?.let { dynamicAmountEvaluator.evaluate(state, it, context) } ?: return labels
+        fun fill(template: String) = template.replace("{n}", n.toString()).replace("{s}", if (n == 1) "" else "s")
+        return labels.copy(
+            prompt = fill(labels.prompt),
+            yes = fill(labels.yes),
+            no = fill(labels.no),
+            yesDetail = labels.yesDetail?.let(::fill),
+            noDetail = labels.noDetail?.let(::fill)
+        )
+    }
+
     private fun renderDynamicHint(state: GameState, hint: DynamicHint, context: EffectContext): String {
         val amount = dynamicAmountEvaluator.evaluate(state, hint.amount, context)
         return hint.template.replace(DynamicHint.PLACEHOLDER, amount.toString())
