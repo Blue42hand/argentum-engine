@@ -31,6 +31,8 @@ export interface HoverCardPreviewProps {
    * container (post-rotation) coordinates and is *not* rotated by this prop.
    */
   imageRotateDeg?: 0 | 90 | 180 | 270
+  /** Drawn in place of the image when there is no art to show (an artless ability on the stack). */
+  artFallback?: ReactNode
 }
 
 /**
@@ -45,7 +47,7 @@ export interface HoverCardPreviewProps {
  * also live inside `overflow: hidden` / transformed ancestors (a tapped permanent rotates),
  * which would clip a preview rendered in place.
  */
-export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rulings, children, overlay, hint, extraHeight = 0, imageRotateDeg = 0 }: HoverCardPreviewProps) {
+export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rulings, children, overlay, hint, extraHeight = 0, imageRotateDeg = 0, artFallback }: HoverCardPreviewProps) {
   const [showRulings, setShowRulings] = useState(false)
   const [lastCardName, setLastCardName] = useState<string | null>(null)
 
@@ -155,7 +157,7 @@ export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rul
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.1)',
         }}
       >
-        <img
+        {artFallback ?? <img
           src={imageUrl}
           alt={name}
           style={imageRotateDeg
@@ -170,7 +172,7 @@ export function HoverCardPreview({ name, imageUri, imageSize = 'large', pos, rul
               }
             : { width: '100%', height: '100%', objectFit: 'cover' }
           }
-        />
+        />}
         {overlay}
       </div>
 

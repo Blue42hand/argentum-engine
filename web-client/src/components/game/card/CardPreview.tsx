@@ -4,6 +4,7 @@ import { useGameStore } from '@/store/gameStore.ts'
 import { selectGameState, selectViewingPlayerId, useCardLegalActions } from '@/store/selectors.ts'
 import { AbilityFlagDisplayNames, ZoneType, zoneIdEquals } from '@/types'
 import { getCardImageUrl } from '@/utils/cardImages.ts'
+import { AbilityArtTile, isArtlessAbility } from './AbilityArtTile'
 import { DfcFlipHint } from '@/components/ui/useDfcHoverFlip'
 import { useResponsiveContext, handleImageError, getCounterStatModifier, hasStatCounters, listCardCounters, getTokenFrameGradient, getTokenFrameTextColor, getPTColor } from '../board/shared'
 import { styles } from '../board/styles'
@@ -266,6 +267,9 @@ export function CardPreview() {
       imageRotateDeg={previewImageRotateDeg}
       overlay={previewOverlay}
       hint={isDfc ? <DfcFlipHint flipped={showingBackFace} /> : undefined}
+      artFallback={isArtlessAbility(card)
+        ? <AbilityArtTile name={card.name} typeLine={card.typeLine} width="100%" height="100%" fontSize={18} style={{ borderRadius: 12 }} />
+        : undefined}
     >
       {/* Ways to play, with what each one costs. The badge on the image can only fit the two ends of
           the range; this is where an adventure face, a kicker, a morph, an alternative cost or a
@@ -528,6 +532,8 @@ function MobileCardPreview({ card, dismissible = false }: { card: import('@/type
                 </div>
               )}
             </div>
+          ) : isArtlessAbility(card) ? (
+            <AbilityArtTile name={card.name} typeLine={card.typeLine} width="100%" height="100%" fontSize={18} style={{ borderRadius: 12 }} />
           ) : (
             <img
               src={cardImageUrl}
