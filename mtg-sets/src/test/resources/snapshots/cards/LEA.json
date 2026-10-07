@@ -3987,6 +3987,92 @@
     ]
 }
 
+// Fireball
+{
+    "name": "Fireball",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "This spell costs {1} more to cast for each target beyond the first.\nFireball deals X damage divided evenly, rounded down, among any number of targets.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "StoreNumber",
+                    "name": "share",
+                    "amount": {
+                        "type": "Divide",
+                        "numerator": "XValue",
+                        "denominator": {
+                            "type": "ContextProperty",
+                            "key": "TARGET_COUNT"
+                        },
+                        "roundUp": false
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "VariableReference",
+                            "variableName": "share"
+                        },
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0",
+                "unlimited": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "IncreaseGenericBy",
+                    "source": "ChosenTargetsBeyondTheFirst"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7623c00-144b-4a8f-9c6c-f5e9e4f65ece.jpg?1783948686",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "For example, if you choose three targets and X is 5, Fireball costs {7}{R} to cast. If all three targets are still legal as Fireball resolves, it deals 1 damage to each of them."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "You may cast Fireball with zero targets, regardless of the value you choose for X. If you do, it's not a targeted spell and won't deal any damage."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "Fireball's damage is divided as Fireball resolves, not as it's cast, because there are no choices involved. The division takes into account only targets that are still legal at that time."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "You can choose more targets than X. If the number of legal targets as Fireball resolves is greater than X, none of them are dealt damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Firebreathing
 {
     "name": "Firebreathing",

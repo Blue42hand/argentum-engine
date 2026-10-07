@@ -4873,6 +4873,12 @@ non-object shapes are the `Targets.*` presets.
   `Targets.Any(GameObjectFilter.Any.wasDealtDamageThisTurn())` (Needle Drop) uses damage history,
   including combat damage and damage dealt through counters. Prevented damage and life loss do not
   qualify. History survives removing marked damage, but resets on zone changes and turn cleanup.
+- `Targets.AnyNumber` — "any number of targets" (Fireball): `AnyTarget(unlimited = true)`, zero or more
+  distinct creatures, players, planeswalkers, or battles. A zero-target cast is legal and resolves
+  untargeted. Read the targets uniformly with `Effects.ForEachTarget(…)`; an amount that depends on how
+  many are still legal ("divided evenly") must be frozen with `Effects.StoreNumber(name,
+  DynamicAmounts.xValue() / DynamicAmounts.targetCount())` *before* the loop — the resolver hands the
+  effect only still-legal targets (CR 608.2b), but inside `ForEachTarget` the context holds just one.
 - `Targets.AnyChosenByOpponent` — "any target **of an opponent's choice**" (Cuombajj Witches). A real
   target of *your* spell/ability that an **opponent** selects: announced at the same time as your own
   targets, equally respondable, and with legality (hexproof/protection/shroud) measured relative to
@@ -5049,7 +5055,7 @@ spell {
   `val (first, second) = targets(TargetFilter.Creature, count = 2)`. An ability that treats the
   targets uniformly ignores the handles and reads them with `Effects.ForEachTarget(…)`.
 - **Any other shape** — players, "any target", the mixed "X or Y" shapes — is `target(Targets.X)`:
-  `Targets.Player`, `Targets.Opponent`, `Targets.Any`, `Targets.Any(filter)`, `Targets.AnyChosenByOpponent`,
+  `Targets.Player`, `Targets.Opponent`, `Targets.Any`, `Targets.Any(filter)`, `Targets.AnyNumber`, `Targets.AnyChosenByOpponent`,
   `Targets.AnyOtherThanEnchantedCreature`, `Targets.CreatureOrPlayer`, `Targets.PermanentOrPlayer`,
   `Targets.CreatureOrPlaneswalker`, `Targets.PlayerOrPlaneswalker`, `Targets.OpponentOrPlaneswalker`,
   `Targets.PlayerOrBattle` (`TargetPermanentOrPlayer(permanentFilter = TargetFilter.Battle)` — Onakke
@@ -9273,7 +9279,8 @@ staticAbility {
   appends one copy of `symbols` per unit of `countSource`. Unlike the reduction side there is no
   overflow question — added pips always land. Officious Interrogation's "This spell costs {W}{U}
   more to cast for each target beyond the first" is
-  `SelfCast` + `IncreaseColoredPerUnit("{W}{U}", ChosenTargetsBeyondTheFirst)`),
+  `SelfCast` + `IncreaseColoredPerUnit("{W}{U}", ChosenTargetsBeyondTheFirst)`; Fireball's generic
+  "{1} more … for each target beyond the first" is `IncreaseGenericBy(ChosenTargetsBeyondTheFirst)`),
   `IncreaseGenericPerOtherSpellThisTurn(amountPerSpell)`,
   `IncreaseGenericIfAnyTargetMatches(amount, filter)` (target-gated tax — "{N} more if it targets
   a Dragon", Dragon's Prey; the increase analogue of the `FixedIfAnyTargetMatches` reduction;
