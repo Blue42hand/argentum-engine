@@ -247,8 +247,9 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       { kind: 'p', text: 'When a match is found, both players get a one-minute accept prompt. If the other player declines or does not answer, you go back into the queue at your old place. Your search keeps running while you browse other pages, such as the deckbuilder.' },
       { kind: 'tip', text: 'Queues that already have someone waiting are listed above the search line; press Play on one to be paired at once.' },
       { kind: 'p', text: 'A matched lobby has no host, invite code, AI seats or settings to change, and it closes if either player leaves.' },
+      { kind: 'tip', text: 'Bored of waiting? Press Play the AI while you wait under the search line. You stay in the queue; when a match is found you are asked first, and accepting ends the AI game (it does not count in your stats).' },
     ],
-    related: ['invite-codes', 'ranked', 'home-screen'],
+    related: ['after-the-game', 'invite-codes', 'ranked', 'home-screen'],
   },
   {
     id: 'where-decks-live',
@@ -591,10 +592,28 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         'Requests — accept or decline incoming ones; cancel ones you sent. A red dot on the account menu means a request is waiting.',
         'Your friends — online or offline, a link to their profile, and Unfriend.',
         'Hide my online status — friends will always see you as offline.',
+        'Blocked — players you blocked from a result screen, with Unblock.',
       ] },
+      { kind: 'p', text: 'After a game against someone, you can also add them from the result screen.' },
       { kind: 'p', text: 'To play a friend, send them your lobby’s invite code or link; there is no in-app invite.' },
     ],
-    related: ['roster-friend', 'profile', 'invite-codes'],
+    related: ['roster-friend', 'profile', 'invite-codes', 'after-the-game'],
+  },
+  {
+    id: 'after-the-game',
+    section: 'community',
+    title: 'Rematch, add friend, block',
+    summary:
+      'After a one-on-one game against another person, the result screen shows your opponent with Rematch, Add friend and Block.',
+    body: [
+      { kind: 'ul', items: [
+        'Rematch — when you both ask, a new game starts right away with the same decks and settings. If they asked first, the button reads Accept rematch. Leaving the result screen takes the offer back.',
+        'Add friend — sends them a friend request, or accepts theirs. Both players need to be signed in.',
+        'Block — you will never be matched with them again, you stop seeing their emotes, and neither of you can send the other a rematch or friend request. They are not told; to them it looks like you left. Undo it from the same screen, or later from the Friends page.',
+      ] },
+      { kind: 'p', text: 'A guest can block too; the block lasts until the server restarts.' },
+    ],
+    related: ['matchmaking', 'friends', 'emotes'],
   },
   {
     id: 'axis-limits',
@@ -909,6 +928,23 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       { kind: 'p', text: 'Opponent decisions are shown as they happen — “<name> is choosing…”, with the card that asked.' },
     ],
     related: ['phase-bar', 'card-badges', 'zone-browsers', 'card-preview', 'multiplayer-camera'],
+  },
+  {
+    id: 'emotes',
+    section: 'playing',
+    title: 'Emotes',
+    summary:
+      'The speech-bubble button beside your life total sends your opponent a quick message — a greeting, a reaction, or a bit of table talk.',
+    body: [
+      { kind: 'table', head: ['Group', 'Says'], rows: [
+        ['Hello & goodbye', 'Hello! · Good luck, have fun! · Thanks! · Good game!'],
+        ['Reactions', 'Well played. · Love this deck! · Ooh, nice combo! · Of course you drew that. · Didn’t see that coming! · Ouch.'],
+        ['Table talk', 'Doing the math… · Oops. You saw nothing. · Land. Please. Any land. · Is that all you’ve got?'],
+      ] },
+      { kind: 'p', text: 'Messages appear as a bubble over the sender’s life total for a few seconds. There is no free typing, and a short cooldown keeps it friendly. The AI answers a greeting, and says thanks for a compliment.' },
+      { kind: 'tip', text: 'Not in the mood? Switch off “Show their emotes” at the bottom of the emote menu to mute an opponent for the rest of the game.' },
+    ],
+    related: ['game-table', 'after-the-game'],
   },
   {
     id: 'pass-button',

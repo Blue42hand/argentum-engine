@@ -77,6 +77,18 @@ class MatchmakingQueueTest : FunSpec({
         q.tick(now = 0, everyone).found().shouldBeEmpty()
     }
 
+    test("a blocked pair never meets, and each still pairs with someone else") {
+        val q = queue()
+        q.join(entry("alice", joinedAt = 0))
+        q.join(entry("bob", joinedAt = 10))
+        q.join(entry("carol", joinedAt = 20))
+        val blocked = { a: QueueEntry, b: QueueEntry -> setOf(a.playerName, b.playerName) == setOf("alice", "bob") }
+
+        val found = q.tick(now = 1_000, everyone, blocked).found().single().match
+        found.players.map { it.playerName } shouldContainExactly listOf("alice", "carol")
+        q.entryOf(EntityId("bob")).shouldNotBeNull()
+    }
+
     test("two guests (no account) can pair") {
         val q = queue()
         q.join(entry("guest1", userId = null))
@@ -189,7 +201,7 @@ class MatchmakingQueueTest : FunSpec({
         q.join(entry("c"))
 
         val gone = setOf(EntityId("b"), EntityId("c"))
-        val events = q.tick(now = 1) { it !in gone }
+        val events = q.tick(now = 1, isAvailable = { it !in gone })
         events.filterIsInstance<MatchmakingEvent.Idle>().map { it.playerId }.toSet() shouldBe gone
         q.entryOf(EntityId("a")).shouldNotBeNull()
         q.pendingMatchOf(EntityId("a")).shouldBeNull()

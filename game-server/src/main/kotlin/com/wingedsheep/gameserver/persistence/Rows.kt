@@ -237,6 +237,15 @@ data class FriendshipRow(
 
 enum class FriendshipStatus { PENDING, ACCEPTED }
 
+/** [blockerId] blocked [blockedId]. Effects are mutual; see `V14__user_blocks.sql`. */
+@Table("user_blocks")
+data class UserBlockRow(
+    @Id val id: UUID? = null,
+    val blockerId: UUID,
+    val blockedId: UUID,
+    val createdAt: Instant = Instant.now(),
+)
+
 /**
  * A signed-in account's current ELO rating in one ranked [mode] (RankedMode name). Created lazily on
  * the account's first ranked game in that mode; absence means "unrated" (treated as the starting

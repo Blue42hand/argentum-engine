@@ -11,6 +11,7 @@ import { getWebSocket, clearLobbyId, requestReauth } from '../shared'
 import { keepAttackerPreview, keepBlockerPreview } from './combatPreview'
 import { CLEARED_PIPELINE_SELECTIONS, isActionStillOffered } from '../ui/pipelineSlice'
 import type { SetState, GetState } from './types'
+import { useTableTalkStore } from '@/store/tableTalkStore'
 import type {
   LogEntry,
   DrawAnimation,
@@ -743,6 +744,12 @@ type GameplayHandlerKeys =
 export function createGameplayHandlers(set: SetState, get: GetState): Pick<MessageHandlers, GameplayHandlerKeys> {
   return {
     onGameCreated: (msg) => {
+      // A rematch starts straight from the result screen: drop the finished game first, or its
+      // overlay would sit on top of the new one. The server already closed the post-game.
+      if (get().gameOverState) {
+        useTableTalkStore.getState().resetForNewGame()
+        get().returnToMenu()
+      }
       // Clear any quick-game lobby state — the lobby has done its job (server already removed it).
       set({ sessionId: msg.sessionId, quickGameLobbyState: null })
     },
@@ -756,6 +763,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
 
       // Clear spectating state — active game takes priority. Fresh game, fresh camera.
       set({ spectatingState: null })
+      useTableTalkStore.getState().resetForNewGame()
       get().resetBoardView()
 
       // Two-Headed Giant (CR 810): the seat → team map only arrives here, in the game-start

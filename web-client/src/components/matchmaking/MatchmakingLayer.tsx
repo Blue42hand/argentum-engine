@@ -4,7 +4,9 @@
  * keeps running while the player is in the deckbuilder or the help pages.
  *
  * - The accept prompt shows wherever they are.
- * - Off the home screen, a small pill says the search is still running and offers to stop it.
+ * - Wherever the home panel isn't showing — another page, a lobby, a warm-up game against the AI —
+ *   a small pill says the search is still running and offers to stop it. In a game it moves to the
+ *   top-left, out of the hand's way.
  * - When the pair is seated, a player on another page is taken to `/`, where `App` renders what the
  *   server just sent: the game itself, the Jump In pack choice, or the Constructed lobby.
  */
@@ -25,6 +27,12 @@ export default function MatchmakingLayer() {
   const navigate = useNavigate()
   const status = useGameStore((s) => s.matchmaking)
   const onAppRoute = isAppRoute(location.pathname)
+  const inGame = useGameStore((s) => s.gameState != null || s.mulliganState != null || s.waitingForOpponentMulligan)
+  // `App` shows the home hub — and with it the queue panel — only when nothing else is up.
+  const elsewhereInApp = useGameStore((s) =>
+    s.gameOverState != null || s.quickGameLobbyState != null || s.lobbyState != null || s.spectatingState != null,
+  )
+  const homeVisible = onAppRoute && !inGame && !elsewhereInApp
 
   // Once per seating: the status object is replaced on every server message, so a later visit to
   // another page doesn't bounce the player home again.
@@ -38,17 +46,18 @@ export default function MatchmakingLayer() {
   return (
     <>
       <MatchFoundDialog />
-      {!onAppRoute && status?.searching && (
+      {!homeVisible && status?.searching && (
         <SearchingPill
           label={queueLabel(status.mode, status.format, status.ranked)}
           since={status.searchingSince ?? null}
+          inGame={inGame}
         />
       )}
     </>
   )
 }
 
-function SearchingPill({ label, since }: { label: string; since: number | null }) {
+function SearchingPill({ label, since, inGame }: { label: string; since: number | null; inGame: boolean }) {
   const leave = useGameStore((s) => s.leaveMatchmaking)
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -57,10 +66,17 @@ function SearchingPill({ label, since }: { label: string; since: number | null }
   }, [])
 
   return (
-    <div className={styles.pill} role="status" aria-live="polite" data-testid="matchmaking-pill">
+    <div
+      className={`${styles.pill} ${inGame ? styles.pillInGame : ''}`}
+      role="status"
+      aria-live="polite"
+      data-testid="matchmaking-pill"
+      title={inGame ? 'When a match is found you’ll be asked first — accepting ends this game' : undefined}
+    >
       <span className={styles.spinner} aria-hidden />
       <span className={styles.pillLabel}>Searching {label}</span>
       {since !== null && <span className={styles.wait}>{formatWait(now - since)}</span>}
+      {inGame && <span className={styles.pillHint}>· you’ll be asked first</span>}
       <button type="button" className={styles.pillClose} onClick={leave} aria-label="Stop searching" title="Stop searching">
         ×
       </button>

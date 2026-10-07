@@ -30,6 +30,14 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
+    id: 'feature-social-play',
+    date: '2026-10-08',
+    kind: 'feature',
+    title: 'Rematch, emotes and a warm-up while you queue',
+    body:
+      'After a game against someone you met through Find an opponent, ask for a rematch, add them as a friend, or block them. Wish them luck, groan at a perfect topdeck or own up to a blunder with the emote button beside your life total. And while the queue searches, play the AI — you stay in line and are asked before the game ends.',
+  },
+  {
     id: 'mode-matchmaking',
     date: '2026-10-08',
     kind: 'mode',

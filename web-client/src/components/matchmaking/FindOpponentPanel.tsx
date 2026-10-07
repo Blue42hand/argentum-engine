@@ -10,6 +10,8 @@ import { useGameStore } from '@/store/gameStore.ts'
 import { useAuthStore } from '@/store/authStore'
 import type { MatchmakingMode, MatchmakingQueueCount } from '@/types'
 import styles from './Matchmaking.module.css'
+import { useApplyRecipe } from '../lobby/useApplyRecipe'
+import { practiceCaption, practiceRecipe } from './practice'
 import {
   QUEUE_FORMATS,
   QUEUE_MODES,
@@ -53,6 +55,8 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
   const dismissNotice = useGameStore((s) => s.dismissMatchmakingNotice)
   const accountsEnabled = useAuthStore((s) => s.accountsEnabled)
   const signedIn = useAuthStore((s) => s.status === 'authenticated')
+  const aiEnabled = useGameStore((s) => s.aiEnabled)
+  const applyRecipe = useApplyRecipe()
   const [choice, setChoice] = useState<QueueChoice>(loadChoice)
 
   // First paint; after this the server pushes every change.
@@ -122,16 +126,38 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
       )}
 
       {searching ? (
-        <SearchingRow
-          label={queueLabel(status.mode, status.format, status.ranked)}
-          since={status.searchingSince ?? null}
-          others={Math.max(0, searchingIn(counts, normaliseQueue({
-            mode: status.mode ?? undefined,
-            format: status.format ?? null,
-            ranked: status.ranked ?? false,
-          })) - 1)}
-          onCancel={leaveMatchmaking}
-        />
+        <>
+          <SearchingRow
+            label={queueLabel(status.mode, status.format, status.ranked)}
+            since={status.searchingSince ?? null}
+            others={Math.max(0, searchingIn(counts, normaliseQueue({
+              mode: status.mode ?? undefined,
+              format: status.format ?? null,
+              ranked: status.ranked ?? false,
+            })) - 1)}
+            onCancel={leaveMatchmaking}
+          />
+          {aiEnabled && (
+            <button
+              type="button"
+              className={styles.practice}
+              onClick={() => applyRecipe(practiceRecipe(status.mode ?? null, status.format ?? null))}
+              data-testid="find-opponent-practice"
+            >
+              <span className={styles.practiceIcon} aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="7" width="16" height="12" rx="3" />
+                  <path d="M12 3v4M9 12h.01M15 12h.01M9.5 16h5" />
+                </svg>
+              </span>
+              <span className={styles.practiceText}>
+                <span className={styles.practiceLabel}>Play the AI while you wait</span>
+                <span className={styles.practiceCaption}>{practiceCaption(status.mode ?? null, status.format ?? null)}</span>
+              </span>
+              <span className={styles.practiceArrow} aria-hidden>→</span>
+            </button>
+          )}
+        </>
       ) : (
         <>
           <ModePicker

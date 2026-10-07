@@ -65,6 +65,7 @@ class QuickGameLobbyHandler(
     private val randomDeckResolver: RandomDeckResolver,
     private val boosterGenerator: com.wingedsheep.engine.limited.BoosterGenerator,
     private val gamePlayHandler: GamePlayHandler,
+    private val rematchRecipes: com.wingedsheep.gameserver.social.RematchRecipes,
 ) {
     private val logger = LoggerFactory.getLogger(QuickGameLobbyHandler::class.java)
 
@@ -444,6 +445,42 @@ class QuickGameLobbyHandler(
         return true
     }
 
+    /**
+     * Start a rematch straight away: a fresh lobby with the finished game's settings and both seats'
+     * same deck submissions, already readied, handed to the ordinary [startGame]. Locked like a
+     * matchmade lobby so nobody else can wander in between. Returns false, creating nothing, when
+     * either player is in a lobby again.
+     */
+    fun startRematch(recipe: com.wingedsheep.gameserver.social.RematchRecipe): Boolean {
+        if (recipe.seats.any { lobbyRepository.findContainingPlayer(it.playerId) != null }) return false
+        val lobby = QuickGameLobby(vsAi = false, setCode = recipe.setCode, momirBasic = recipe.momirBasic)
+        lobby.applyFormat(recipe.format)
+        lobby.matchmade = true
+        lobby.ranked = recipe.ranked && lobby.rankedEligible
+        recipe.seats.forEach { lobby.players += it.copy(ready = true) }
+        lobbyRepository.save(lobby)
+        recipe.seats.forEach { markPlayerInLobby(it.playerId, lobby.lobbyId) }
+        logger.info("Rematch lobby ${lobby.lobbyId}: ${recipe.seats.joinToString(" vs ") { it.playerName }}")
+        return lobbyRepository.withLock(lobby.lobbyId) { current ->
+            if (current == null || current.started) return@withLock false
+            current.started = true
+            startGame(current)
+        }
+    }
+
+    /**
+     * Quietly drop [playerId]'s vs-AI lobby — they were warming up while queued and the queue just
+     * found them a real opponent. Only ever touches a single-player lobby, so nobody else is told.
+     */
+    fun dissolvePracticeLobby(playerId: com.wingedsheep.sdk.model.EntityId) {
+        val lobby = lobbyRepository.findContainingPlayer(playerId)?.takeIf { it.vsAi } ?: return
+        lobbyRepository.withLock(lobby.lobbyId) { current ->
+            if (current == null || current.started) return@withLock
+            current.players.forEach { clearPlayerLobbyMembership(it.playerId, current.lobbyId) }
+            lobbyRepository.remove(current.lobbyId)
+        }
+    }
+
     private fun handleJoin(session: WebSocketSession, message: ClientMessage.JoinQuickGameLobby) {
         val playerSession = sessionRegistry.getPlayerSession(session.id) ?: run {
             sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected"); return
@@ -659,13 +696,14 @@ class QuickGameLobbyHandler(
         }
     }
 
-    private fun startGame(lobby: QuickGameLobby) {
+    /** Returns false when the game could not start (the lobby was closed with the reason). */
+    private fun startGame(lobby: QuickGameLobby): Boolean {
         // The one Rules × Table conflict, read from the single statement of it.
         lobby.rulesTableConflict?.let { conflict ->
             logger.warn("Lobby ${lobby.lobbyId}: $conflict")
             broadcastClosed(lobby, conflict)
             lobbyRepository.remove(lobby.lobbyId)
-            return
+            return false
         }
 
         // Ranked play only counts when every human seat is a signed-in account (no guests). A guest may
@@ -771,13 +809,13 @@ class QuickGameLobbyHandler(
                     "${seatWithoutCommander.playerName}'s deck has no commander designated — pick a deck with a commander to play ${lobby.format?.displayName ?: "Commander"}",
                 )
                 lobbyRepository.remove(lobby.lobbyId)
-                return
+                return false
             }
             if (aiDeck != null && aiDeck.commander == null) {
                 logger.error("Lobby ${lobby.lobbyId}: could not build a ${lobby.format?.displayName ?: "Commander"} deck for the AI seat")
                 broadcastClosed(lobby, "Could not build a Commander deck for the AI — pick one for it and try again")
                 lobbyRepository.remove(lobby.lobbyId)
-                return
+                return false
             }
         }
 
@@ -794,7 +832,7 @@ class QuickGameLobbyHandler(
                 logger.error("Lobby ${lobby.lobbyId}: lost session for ${lobbyPlayer.playerName} on game start")
                 broadcastClosed(lobby, "A player disconnected before the game started")
                 lobbyRepository.remove(lobby.lobbyId)
-                return
+                return false
             }
             // Pass the commander only under Commander rules; clear it otherwise so a stale
             // commander on a saved deck doesn't accidentally route into a Standard game. Strip
@@ -857,9 +895,12 @@ class QuickGameLobbyHandler(
 
         gamePlayHandler.startGame(gameSession)
         logger.info("Quick lobby ${lobby.lobbyId} → game ${gameSession.sessionId} started")
+        com.wingedsheep.gameserver.social.RematchRecipe.of(lobby)
+            ?.let { rematchRecipes.record(gameSession.sessionId, it) }
         // The lobby has done its job; remove it so the same player can create another later.
         lobby.players.forEach { clearPlayerLobbyMembership(it.playerId, lobby.lobbyId) }
         lobbyRepository.remove(lobby.lobbyId)
+        return true
     }
 
     /**

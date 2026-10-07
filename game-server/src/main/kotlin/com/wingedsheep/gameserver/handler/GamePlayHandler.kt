@@ -98,6 +98,10 @@ class GamePlayHandler(
     // ignores game ids it doesn't own, so this is safe to fire unconditionally.
     var llmTournamentGameOverCallback: ((String, EntityId?, Int) -> Unit)? = null
 
+    // Callback fired when a game outside any tournament lobby ends, before the session is removed,
+    // so the post-game service can offer a rematch / add friend / block to two human opponents.
+    var postGameCallback: ((GameSession) -> Unit)? = null
+
     fun handle(session: WebSocketSession, message: ClientMessage) {
         when (message) {
             is ClientMessage.CreateGame -> handleCreateGame(session, message)
@@ -674,7 +678,9 @@ class GamePlayHandler(
             ?: events.filterIsInstance<PlayerLostEvent>().firstOrNull()?.message
         val message = ServerMessage.GameOver(winnerId, gameOverReason, customMessage, gameSession.sessionId, winnerIds)
 
-        gameSession.getPlayers().forEach { sender.send(it.webSocketSession, message) }
+        gameSession.getPlayers()
+            .filterNot { it.playerId in gameSession.departedForMatch }
+            .forEach { sender.send(it.webSocketSession, message) }
 
         // Notify spectators that the game has ended and return them to tournament overview
         for (spectator in gameSession.getSpectators()) {
@@ -780,7 +786,8 @@ class GamePlayHandler(
         // are enabled, and only persists games with at least one human seat. We resolve each seat's
         // account/IP via its live identity (null for guests/AI). Only meaningful games count: ones
         // that reached a winner, or had more than a trivial number of actions (>= 10 frames).
-        val meaningful = winnerId != null || frameCount >= 10
+        // A warm-up the queue interrupted is nobody's result: the conceding seat left for a real match.
+        val meaningful = (winnerId != null || frameCount >= 10) && gameSession.departedForMatch.isEmpty()
         if (meaningful) {
             val statsLobby = lobbyId?.let { lobbyRepository.findLobbyById(it) }
             val persistenceInfo = gameSession.getPlayerPersistenceInfo()
@@ -868,9 +875,26 @@ class GamePlayHandler(
             callback(gameSessionId, winnerId, winnerLife)
         }
 
+        if (lobbyId == null) {
+            runCatching { postGameCallback?.invoke(gameSession) }
+                .onFailure { logger.error("Post-game setup failed for game $gameSessionId", it) }
+        }
+
         gameRepository.remove(gameSessionId)
         mulliganBroadcastSent.remove(gameSessionId)
         aiGameManager.cleanupGame(gameSessionId)
+    }
+
+    /**
+     * [playerId] leaves a game against the AI because matchmaking found them a human opponent. The
+     * seat concedes so the game ends cleanly and the AI shuts down, but quietly — see
+     * [GameSession.departedForMatch].
+     */
+    fun leavePracticeGame(gameSession: GameSession, playerId: EntityId) {
+        if (gameSession.isGameOver()) return
+        logger.info("Player ${playerId.value} left practice game ${gameSession.sessionId} for a matchmade game")
+        gameSession.departedForMatch += playerId
+        concedeSeat(gameSession, playerId)
     }
 
     fun broadcastStateUpdate(gameSession: GameSession, events: List<GameEvent>) {

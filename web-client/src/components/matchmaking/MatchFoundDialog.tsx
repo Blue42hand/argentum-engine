@@ -22,6 +22,8 @@ const AFTER_ACCEPT: Record<MatchmakingMode, string> = {
 export function MatchFoundDialog() {
   const offer = useGameStore((s) => s.matchOffer)
   const respond = useGameStore((s) => s.respondToMatch)
+  // Matchmaking keeps you searching through a warm-up against the AI; accepting ends that game.
+  const inWarmUp = useGameStore((s) => s.gameState != null && s.gameOverState == null)
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -63,6 +65,9 @@ export function MatchFoundDialog() {
             ? `Waiting for ${offer.opponentName} to accept… (${seconds}s)`
             : `Accept within ${seconds}s or you leave the queue.`}
         </p>
+        {inWarmUp && !accepted && (
+          <p className={styles.warmUpNote}>Accepting ends your game against the AI.</p>
+        )}
         <div className={overlay.actions}>
           <button type="button" className={overlay.secondary} onClick={() => respond(false)}>
             Decline

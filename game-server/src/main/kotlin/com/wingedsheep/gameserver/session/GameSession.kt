@@ -237,6 +237,13 @@ class GameSession(
     @Volatile
     var rankedMode: com.wingedsheep.gameserver.ranking.RankedMode? = null
 
+    /**
+     * Seats that walked out of this game for a matchmade one — a warm-up against the AI the queue
+     * interrupted. Their concession ends the game as usual, but they get no game-over screen (they
+     * are already in the new lobby) and the game isn't recorded as a loss on their stats.
+     */
+    val departedForMatch: MutableSet<EntityId> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
     /** Player info for persistence (playerId -> (playerName, token)) */
     private val playerPersistenceInfo = mutableMapOf<EntityId, PlayerPersistenceInfo>()
 

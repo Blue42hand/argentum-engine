@@ -23,6 +23,8 @@ class GameWebSocketHandler(
     private val lobbyHandler: LobbyHandler,
     private val quickGameLobbyHandler: QuickGameLobbyHandler,
     private val matchmakingService: com.wingedsheep.gameserver.matchmaking.MatchmakingService,
+    private val postGameService: com.wingedsheep.gameserver.social.PostGameService,
+    private val emoteService: com.wingedsheep.gameserver.social.EmoteService,
     private val sender: MessageSender,
     private val llmTournamentService: com.wingedsheep.gameserver.tournament.llm.LlmTournamentService
 ) : TextWebSocketHandler() {
@@ -39,6 +41,7 @@ class GameWebSocketHandler(
         gamePlayHandler.llmTournamentGameOverCallback = { gameSessionId, winnerId, winnerLife ->
             llmTournamentService.onGameComplete(gameSessionId, winnerId, winnerLife)
         }
+        gamePlayHandler.postGameCallback = { gameSession -> postGameService.onGameOver(gameSession) }
         gamePlayHandler.joinSealedGameCallback = { session, msg -> lobbyHandler.handleJoinSealedGame(session, msg) }
         gamePlayHandler.joinLobbyCallback = { session, msg -> lobbyHandler.handleJoinLobby(session, msg) }
         connectionHandler.handleGameOverCallback = { gameSession, reason -> gamePlayHandler.handleGameOver(gameSession, reason) }
@@ -150,6 +153,13 @@ class GameWebSocketHandler(
                 is ClientMessage.JoinMatchmaking,
                 is ClientMessage.LeaveMatchmaking,
                 is ClientMessage.RespondToMatch -> matchmakingService.handle(session, clientMessage)
+
+                is ClientMessage.SendEmote -> emoteService.handle(session, clientMessage)
+
+                is ClientMessage.PostGameRematch,
+                is ClientMessage.PostGameAddFriend,
+                is ClientMessage.PostGameBlock,
+                is ClientMessage.PostGameLeave -> postGameService.handle(session, clientMessage)
             }
         } catch (e: Exception) {
             logger.error("Error handling message from ${session.id}", e)
