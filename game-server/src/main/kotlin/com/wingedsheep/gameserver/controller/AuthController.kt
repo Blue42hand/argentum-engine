@@ -2,9 +2,11 @@ package com.wingedsheep.gameserver.controller
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.wingedsheep.gameserver.auth.AuthSupport
+import com.wingedsheep.gameserver.auth.EmailService
 import com.wingedsheep.gameserver.auth.InvalidLoginTokenException
 import com.wingedsheep.gameserver.auth.MagicLinkService
 import com.wingedsheep.gameserver.persistence.UserRow
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -28,6 +30,13 @@ import java.util.UUID
  *                                                          has an account)
  *  - POST /api/auth/verify         { token }            → { authToken, user }
  *  - GET  /api/auth/me             (Bearer authToken)   → { user }
+ *
+ * **Dev sign-in.** With no mail configured the link is only logged, which makes signing in locally
+ * a hunt through the server log for a link that points at whichever port `base-url` names. When
+ * `game.dev-endpoints.enabled` is also on, `request-login` returns the link's path as `devLoginPath`
+ * and the login modal offers to follow it directly. Both conditions are required: a server that can
+ * send mail never returns it, and neither does one without dev endpoints — which production never
+ * enables — since handing the link to whoever typed the address would make the email meaningless.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -35,6 +44,8 @@ import java.util.UUID
 class AuthController(
     private val magicLinkService: MagicLinkService,
     private val authSupport: AuthSupport,
+    private val emailService: EmailService,
+    @Value("\${game.dev-endpoints.enabled:false}") private val devEndpointsEnabled: Boolean,
 ) {
     data class RequestLoginBody(val email: String)
     data class VerifyBody(val token: String)
@@ -66,8 +77,12 @@ class AuthController(
     @PostMapping("/request-login")
     fun requestLogin(@RequestBody body: RequestLoginBody): ResponseEntity<Any> {
         return try {
-            magicLinkService.requestLogin(body.email)
-            ResponseEntity.ok(mapOf("status" to "sent"))
+            val path = magicLinkService.requestLogin(body.email)
+            if (devEndpointsEnabled && !emailService.canSend) {
+                ResponseEntity.ok(mapOf("status" to "sent", "devLoginPath" to path))
+            } else {
+                ResponseEntity.ok(mapOf("status" to "sent"))
+            }
         } catch (e: IllegalArgumentException) {
             ResponseEntity.badRequest().body(mapOf("error" to (e.message ?: "Invalid email")))
         }

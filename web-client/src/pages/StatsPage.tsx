@@ -4,7 +4,6 @@
  * dashboard from a single bundled response. Account-gated.
  */
 import { useEffect, useState } from 'react'
-import type React from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   type AccountStats,
@@ -28,6 +27,8 @@ import {
   fetchTournamentHistory,
 } from '@/api/account'
 import { StatsDashboard } from '@/components/profile/StatsDashboard'
+import { AccountPage, MessageCard, accountStyles as a } from '@/components/profile/accountUi'
+import { pageStyles as p } from '@/components/ui/PageShell'
 import { useAuthStore } from '@/store/authStore'
 
 export function StatsPage() {
@@ -69,58 +70,57 @@ export function StatsPage() {
   }, [status])
 
   if (status !== 'authenticated') {
+    const resolving = status === 'idle' || status === 'loading'
     return (
-      <div style={styles.wrap}>
-        <div style={styles.container}>
-          <button type="button" style={styles.link} onClick={() => navigate('/profile')}>
-            ← Profile
-          </button>
-          <h1 style={styles.title}>Your stats</h1>
-          <p style={styles.muted}>
-            {status === 'idle' || status === 'loading' ? 'Loading…' : 'Sign in to see your stats.'}
-          </p>
-        </div>
-      </div>
+      <AccountPage title="Stats" width="wide" plain>
+        <MessageCard>
+          <h1 className={p.h1}>Your stats</h1>
+          <p className={a.muted}>{resolving ? 'Loading…' : 'Sign in to see your record, ratings and the cards you play.'}</p>
+          {!resolving && (
+            <button type="button" className={p.buttonPrimary} onClick={() => navigate('/profile')}>
+              Go to sign in
+            </button>
+          )}
+        </MessageCard>
+      </AccountPage>
     )
   }
 
-  return (
-    <div style={styles.wrap}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <button type="button" style={styles.link} onClick={() => navigate('/profile')}>
-            ← Profile
-          </button>
-          <button type="button" style={styles.link} onClick={() => navigate('/')}>
-            Home
-          </button>
-        </div>
-        <h1 style={styles.title}>Your stats</h1>
-        {(stats?.games ?? 0) === 0 && <p style={styles.muted}>Play some games to start building your stats.</p>}
-        <StatsDashboard
-          stats={stats}
-          ratings={ratings}
-          ratingHistory={ratingHistory}
-          colors={colors}
-          cardTypes={cardTypes}
-          curve={curve}
-          creatureTypes={creatureTypes}
-          modes={modes}
-          sets={sets}
-          topCards={topCards}
-          opponents={opponents}
-          tournaments={tournaments}
-        />
-      </div>
-    </div>
-  )
-}
+  const empty = (stats?.games ?? 0) === 0
 
-const styles: Record<string, React.CSSProperties> = {
-  wrap: { height: '100vh', overflowY: 'auto', backgroundColor: '#0a0a15', padding: '32px 16px' },
-  container: { maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 },
-  header: { display: 'flex', justifyContent: 'space-between' },
-  link: { background: 'none', border: 'none', color: '#8b9bff', cursor: 'pointer', fontSize: 14, padding: 0 },
-  title: { margin: '4px 0 0', color: '#fff', fontSize: 28 },
-  muted: { margin: 0, color: '#888', fontSize: 14 },
+  return (
+    <AccountPage title="Stats" width="wide" plain>
+      <div>
+        <h1 className={p.h1}>Your stats</h1>
+        <p className={p.lede}>
+          {empty ? 'Play some games to start building your stats.' : 'Everything you play, at a glance.'}
+        </p>
+      </div>
+      <StatsDashboard
+        stats={stats}
+        ratings={ratings}
+        ratingHistory={ratingHistory}
+        colors={colors}
+        cardTypes={cardTypes}
+        curve={curve}
+        creatureTypes={creatureTypes}
+        modes={modes}
+        sets={sets}
+        topCards={topCards}
+        opponents={opponents}
+        tournaments={tournaments}
+      />
+      {empty && (
+        <section className={p.panel}>
+          <div className={a.emptyHero}>
+            <h2 className={a.sectionTitle}>Nothing to chart yet</h2>
+            <p className={a.muted}>Finish a game while signed in — colors, curve, ratings and head-to-head fill in from there.</p>
+            <button type="button" className={p.buttonPrimary} onClick={() => navigate('/')}>
+              Find a game
+            </button>
+          </div>
+        </section>
+      )}
+    </AccountPage>
+  )
 }

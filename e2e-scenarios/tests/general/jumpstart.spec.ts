@@ -1,15 +1,11 @@
 import { test, expect, type Page } from '@playwright/test'
-import { enterName } from '../../helpers/homeScreen'
+import { createLobby, enterName, GROUP_SEALED } from '../../helpers/homeScreen'
 
 test.use({ channel: 'chrome' })
 
 async function selectJumpstart(page: Page) {
   await enterName(page, 'Jumpstart Host')
-  await page.getByTestId('wizard-roster-group').click()
-  await page.getByTestId('wizard-cards-sealed').click()
-  await page.getByTestId('wizard-shape-bracket').click()
-  await page.getByTestId('wizard-create').click()
-  await expect(page.getByTestId('invite-code')).toBeVisible()
+  await createLobby(page, GROUP_SEALED)
   await page.getByRole('button', { name: 'Remove Lorwyn Eclipsed', exact: true }).click()
   await page.getByRole('button', { name: 'Choose sets', exact: true }).click()
   await page.getByPlaceholder('Search sets by name or code…').fill('JMP')

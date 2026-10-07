@@ -3,6 +3,7 @@ import { useGameStore, type FfaState } from '@/store/gameStore.ts'
 import { ReplayViewer, type GameSummary } from '../admin/ReplayViewer'
 import type { ReplayData } from '@/replay/reconstructSnapshots.ts'
 import styles from '../ui/GameUI.module.css'
+import { randomBackground } from '@/utils/background'
 
 /**
  * Free-for-All pod overlay — the FFA-mode counterpart of [TournamentOverlay]. Shown between
@@ -66,7 +67,7 @@ export function FreeForAllOverlay({ ffaState }: { ffaState: FfaState }) {
     ?? ffaState.standings?.length ?? 0
 
   return (
-    <div className={styles.tournamentOverlay}>
+    <div className={styles.tournamentOverlay} style={tournamentBackdrop}>
       {/* ── Header ── */}
       <div className={styles.trnHeader}>
         <div className={styles.trnHeaderTop}>
@@ -204,4 +205,9 @@ function ordinal(n: number): string {
     case 3: return `${n}rd`
     default: return `${n}th`
   }
+}
+
+/** The card art behind a tint, as on the landing screen; the tint is darker since this is a table. */
+const tournamentBackdrop = {
+  backgroundImage: `linear-gradient(180deg, rgba(6, 7, 12, 0.7) 0%, rgba(6, 7, 12, 0.6) 45%, rgba(6, 7, 12, 0.82) 100%), url(${randomBackground})`,
 }

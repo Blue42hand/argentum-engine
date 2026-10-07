@@ -45,6 +45,13 @@ export interface PendingLobbyIntent {
   readonly deckName?: string
   /** Ready up / start as soon as the lobby is configured. Only honoured when nobody can join. */
   readonly autoStart?: boolean
+  /**
+   * A tournament lobby the host means to fill with AI only: start it once this many players are
+   * seated. A tournament lobby always has an invite code, so {@link autoStart} alone never starts
+   * one — this count is what says nobody else is coming, and waiting for it keeps the start from
+   * racing the AI seats, which arrive one broadcast at a time.
+   */
+  readonly startWhenSeated?: number
   /** Anything a setup couldn't restore, shown once in the lobby rather than swallowed. */
   readonly notes?: readonly string[]
 }

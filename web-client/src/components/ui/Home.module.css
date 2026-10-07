@@ -1,0 +1,309 @@
+/*
+ * The connected landing screen's frame: top bar, the "jump back in" row, and the page column the
+ * mode catalogue sits in. The catalogue and launch panel themselves are `PlayHub.module.css`.
+ *
+ * The background art is the screen's character, so nothing here paints an opaque surface over it —
+ * a light tint keeps text legible, panels are glass, and the column is capped so the art shows at
+ * the sides of a wide screen.
+ */
+
+.overlay {
+  /* Replaces the base overlay's padding/gap and centring: this layout spaces itself. */
+  background-color: #07080d;
+  gap: 0;
+  padding: 0;
+  align-items: stretch;
+}
+
+/* A light tint over the art, strongest at the bottom where the attribution sits. */
+.artTint {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 7, 12, 0.35) 0%, rgba(6, 7, 12, 0.18) 35%, rgba(6, 7, 12, 0.55) 100%);
+}
+
+/* ── Top bar ───────────────────────────────────────────────────────────── */
+
+.topBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f1f3f9;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+}
+
+.brandMark { flex: none; filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.6)); }
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(10, 12, 20, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.navItem {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #c9cfdc;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.navItem:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.navItem:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
+.topBarEnd {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Page column ───────────────────────────────────────────────────────── */
+
+.main {
+  position: relative;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4px 24px 28px;
+  box-sizing: border-box;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(127, 29, 29, 0.7);
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #fecaca;
+  font-size: 14px;
+}
+
+/* ── Jump back in ──────────────────────────────────────────────────────── */
+
+.quickRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.quickRow:empty { display: none; }
+.quickRow > * { flex: 1 1 420px; min-width: 0; }
+.quickRow > .resume { flex: 0 1 auto; }
+
+.resume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(60, 44, 12, 0.62);
+  border: 1px solid rgba(242, 180, 92, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #f6ead2;
+}
+
+.resumeText { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.resumeLabel { font-size: 11.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #f2b45c; }
+.resumeCode { font-family: var(--font-mono); font-size: 15px; letter-spacing: 0.08em; }
+
+.resumeButton {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  background: #f2b45c;
+  color: #1d1405;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.resumeButton:hover { background: #f7c67f; }
+
+.resumeDismiss {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(246, 234, 210, 0.7);
+  font-size: 18px;
+  cursor: pointer;
+}
+.resumeDismiss:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+.joinCard {
+  flex: 0 1 340px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.joinLabel {
+  padding-left: 6px;
+  font-size: 13px;
+  color: #b4bccd;
+  white-space: nowrap;
+}
+
+.joinInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.3);
+  color: #eef0f6;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+.joinInput::placeholder { font-family: var(--font-sans); letter-spacing: 0; color: #8f98ac; }
+.joinInput:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 1px; }
+
+.joinButton {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #eef0f6;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.joinButton:hover:not(:disabled) { background: rgba(255, 255, 255, 0.18); }
+.joinButton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Footer: lab links (dev builds) and the credits, on one quiet line ──── */
+
+.footer {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 18px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 24px 10px;
+  box-sizing: border-box;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.lab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+}
+
+.labLabel {
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #8f98ac;
+  margin-right: 4px;
+}
+
+.credits {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 0 8px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.footerLink:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.footerLink svg { width: 14px; height: 14px; }
+
+.creditsText { padding-left: 4px; max-width: 760px; text-align: right; line-height: 1.4; }
+.creditsText a { color: rgba(255, 255, 255, 0.85); }
+
+/* ── Fit the viewport on a desktop ───────────────────────────────────────
+ * Wide and tall enough for the two-column hub: the page stops scrolling, the catalogue and the side
+ * column each scroll on their own if a short window needs it. Below either bound the page scrolls. */
+@media (min-width: 901px) and (min-height: 600px) {
+  .overlay { overflow: hidden; }
+  .main { flex: 1 1 auto; min-height: 0; padding-bottom: 10px; }
+}
+
+/* ── Narrow screens ────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .topBar { padding: 12px 14px 8px; }
+  .main { padding: 4px 14px 24px; gap: 14px; }
+  /* The nav takes its own full-width line and scrolls sideways rather than wrapping. */
+  .nav {
+    order: 3;
+    flex: 1 0 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .joinCard { flex: 1 1 100%; }
+}
+
+@media (max-width: 560px) {
+  .brand { font-size: 19px; }
+  .joinLabel { display: none; }
+  .navItem { padding: 0 12px; }
+}

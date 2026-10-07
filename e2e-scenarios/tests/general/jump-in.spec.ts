@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { enterName, createLobby, joinLobby } from '../../helpers/homeScreen'
+import { enterName, createLobby, joinLobby, launchVsAi } from '../../helpers/homeScreen'
 
 test.use({ channel: 'chrome' })
 
@@ -10,10 +10,8 @@ async function choosePack(page: Page, index = 0) {
 test('Jump In creates a J22 lobby, previews packs, reconnects, and plays against AI on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await enterName(page, 'Jump In Host')
-  await createLobby(page, { roster: 'solo', cards: 'jump-in', shape: 'bracket' })
-  await expect(page.getByTestId('lobby-axis-summary')).toContainText('Jump In')
-  await expect(page.getByRole('button', { name: 'Remove Jumpstart 2022', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Start Game', exact: true }).click()
+  // Against the AI there is nobody to wait for: the lobby starts itself once the AI is seated.
+  await launchVsAi(page, 'jump-in')
   await expect(page.getByRole('heading', { name: 'Choose your first theme', exact: true })).toBeVisible()
   await expect(page.locator('article')).toHaveCount(3)
   await page.locator('article').first().getByText('Explore this pack').click()
@@ -37,7 +35,7 @@ test('friends choose privately and the completed deck waits for the other player
   const guest = await context.newPage()
   try {
     await enterName(page, 'Host')
-    const code = await createLobby(page, { roster: 'friend', cards: 'jump-in', shape: 'bracket' })
+    const code = await createLobby(page, { mode: 'jump-in', playWith: 'friends', table: 'one-v-one' })
     await page.getByTestId('axis-choice-sealed').click()
     await expect(page.getByRole('button', { name: 'Traditional sealed', exact: true })).toHaveAttribute('aria-pressed', 'true')
     await page.getByTestId('axis-choice-jump-in').click()

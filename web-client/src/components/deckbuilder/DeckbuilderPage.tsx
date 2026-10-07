@@ -63,7 +63,7 @@ import {
   SHARE_PARAM,
   type SharedDeck,
 } from './shareDeck'
-import { AccountDeckBar } from './AccountDeckBar'
+import { PageShell } from '@/components/ui/PageShell'
 import { getDeck as getAccountDeck, upsertDeckByName } from '@/api/account'
 import { useAuthStore } from '@/store/authStore'
 import { type UnifiedDeck, useUnifiedDecks } from '@/store/useUnifiedDecks'
@@ -1080,6 +1080,10 @@ export function DeckbuilderPage() {
   // ----- Render -----
 
   const totalCards = Object.values(deckCards).reduce((a, b) => a + b, 0)
+
+  // Toolbar overflow menu (compact widths) and, on a phone, which pane of the cards view is showing.
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [mobilePane, setMobilePane] = useState<'cards' | 'filters' | 'deck'>('cards')
   const stats = useMemo(() => computeStats(deckCards, catalogIndex), [deckCards, catalogIndex])
 
   // Lazily fill the art cache for any pinned printing the picker hasn't seen yet.
@@ -1169,19 +1173,17 @@ export function DeckbuilderPage() {
     }
   }, [deckCards, commander, deckHoverName])
 
+  const closeTools = () => setToolsOpen(false)
+  const isEmptyDeck = Object.keys(deckCards).length === 0
+
   return (
-    <div className={`${styles.page} ${viewMode === 'deck' ? styles.pageDeckMode : ''}`}>
-      <header className={styles.topbar}>
-        <button className={styles.iconButton} onClick={() => navigate('/')}>
-          ← Back to menu
-        </button>
-        <h1 className={styles.title}>Deckbuilder</h1>
+    <>
+    <PageShell title="Deckbuilder" fit width="full" plain>
+      <div className={styles.toolbar}>
         <div className={styles.viewToggle} role="group" aria-label="View mode">
           <button
             type="button"
-            className={
-              viewMode === 'cards' ? styles.viewToggleButtonActive : styles.viewToggleButton
-            }
+            className={styles.viewToggleButton}
             onClick={() => setViewMode('cards')}
             aria-pressed={viewMode === 'cards'}
             title="Browse the catalog and click cards to add them"
@@ -1190,9 +1192,7 @@ export function DeckbuilderPage() {
           </button>
           <button
             type="button"
-            className={
-              viewMode === 'deck' ? styles.viewToggleButtonActive : styles.viewToggleButton
-            }
+            className={styles.viewToggleButton}
             onClick={() => setViewMode('deck')}
             aria-pressed={viewMode === 'deck'}
             title="See the deck grouped by type — Moxfield style"
@@ -1200,84 +1200,103 @@ export function DeckbuilderPage() {
             Deck
           </button>
         </div>
-        <div className={styles.topbarSpacer} />
+        <div className={styles.toolbarSpacer} />
+        {toolsOpen && <div className={styles.toolsBackdrop} onClick={closeTools} aria-hidden />}
+        <div className={styles.tools} data-open={toolsOpen}>
+          <button
+            type="button"
+            className={`${styles.toolButton} ${styles.toolButtonCompactOnly}`}
+            onClick={() => {
+              closeTools()
+              reloadUnifiedDecks()
+              setDecksBrowserOpen(true)
+            }}
+            disabled={browserDecks.length === 0}
+          >
+            My decks{browserDecks.length > 0 ? ` (${browserDecks.length})` : ''}
+          </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            onClick={() => {
+              closeTools()
+              setExamplesOpen(true)
+            }}
+            disabled={examples.length === 0}
+            title={examples.length === 0 ? 'Loading examples…' : 'Load a starter deck'}
+          >
+            Examples
+          </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            onClick={() => {
+              closeTools()
+              setImportOpen(true)
+            }}
+          >
+            Import
+          </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            onClick={() => {
+              closeTools()
+              setBulkEditOpen(true)
+            }}
+            disabled={isEmptyDeck}
+            title="Edit the deck as text, or copy it out"
+          >
+            Edit as text
+          </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            onClick={() => {
+              closeTools()
+              void handleShare()
+            }}
+            disabled={isEmptyDeck}
+            title="Copy a shareable link to this deck"
+          >
+            {shareCopied ? 'Link copied!' : 'Share'}
+          </button>
+        </div>
         <button
-          className={styles.iconButton}
-          onClick={() => setExamplesOpen(true)}
-          disabled={examples.length === 0}
-          title={examples.length === 0 ? 'Loading examples…' : 'Load a starter deck'}
+          type="button"
+          className={styles.moreButton}
+          onClick={() => setToolsOpen((v) => !v)}
+          aria-expanded={toolsOpen}
+          aria-haspopup="menu"
         >
-          Examples
+          {shareCopied ? 'Link copied!' : 'More'}
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden focusable="false">
+            <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
-        <button className={styles.iconButton} onClick={() => setImportOpen(true)}>
-          Import deck
-        </button>
-        <button
-          className={styles.iconButton}
-          onClick={() => setBulkEditOpen(true)}
-          disabled={Object.keys(deckCards).length === 0}
-        >
-          Bulk edit / export
-        </button>
-        <button
-          className={styles.iconButton}
-          onClick={handleShare}
-          disabled={Object.keys(deckCards).length === 0}
-          title="Copy a shareable link to this deck"
-        >
-          {shareCopied ? 'Link copied!' : 'Share'}
-        </button>
-        <AccountDeckBar onLoad={(detail) => applySharedDeck(detail.deck)} />
-        <button className={styles.iconButton} onClick={handleNew}>
+        <button type="button" className={styles.newDeckButton} onClick={handleNew}>
           New deck
         </button>
-      </header>
+      </div>
 
-      {importOpen && (
-        <ImportDeckModal
-          catalog={catalog}
-          hasExisting={Object.keys(deckCards).length > 0}
-          onCancel={() => setImportOpen(false)}
-          onImport={handleImport}
-        />
+      {viewMode === 'cards' && (
+        <div className={styles.paneTabs} role="tablist" aria-label="Deckbuilder panes">
+          <button type="button" role="tab" className={styles.paneTab} aria-selected={mobilePane === 'cards'} onClick={() => setMobilePane('cards')}>
+            Cards
+          </button>
+          <button type="button" role="tab" className={styles.paneTab} aria-selected={mobilePane === 'filters'} onClick={() => setMobilePane('filters')}>
+            Filters
+          </button>
+          <button type="button" role="tab" className={styles.paneTab} aria-selected={mobilePane === 'deck'} onClick={() => setMobilePane('deck')}>
+            Deck <span className={styles.paneTabCount}>{totalCards}</span>
+          </button>
+        </div>
       )}
 
-      {bulkEditOpen && (
-        <BulkEditDeckModal
-          deckCards={deckCards}
-          commander={commander}
-          catalog={catalog}
-          catalogIndex={catalogIndex}
-          onClose={() => setBulkEditOpen(false)}
-          onApply={(cards, nextCommander) => {
-            setDeckCards(cards)
-            setCommander(nextCommander)
-            setBulkEditOpen(false)
-          }}
-        />
-      )}
-
-      {decksBrowserOpen && (
-        <SavedDecksBrowser
-          decks={browserDecks}
-          catalog={catalogIndex}
-          activeDeckId={activeDeckId}
-          onClose={() => setDecksBrowserOpen(false)}
-          onLoad={handleLoadSaved}
-          onRename={handleRenameSaved}
-          onDelete={handleDeleteSaved}
-        />
-      )}
-
-      {examplesOpen && (
-        <ExampleDecksModal
-          examples={examples}
-          catalog={catalogIndex}
-          onCancel={() => setExamplesOpen(false)}
-          onLoad={handleLoadExample}
-        />
-      )}
-
+      <div
+        className={`${styles.workspace} ${viewMode === 'deck' ? styles.workspaceDeckMode : ''}`}
+        data-pane={mobilePane}
+      >
       {/* Left rail */}
       <aside className={styles.left}>
         <SavedDecksSummary
@@ -1472,6 +1491,54 @@ export function DeckbuilderPage() {
           />
         </main>
       )}
+      </div>
+    </PageShell>
+
+      {importOpen && (
+        <ImportDeckModal
+          catalog={catalog}
+          hasExisting={Object.keys(deckCards).length > 0}
+          onCancel={() => setImportOpen(false)}
+          onImport={handleImport}
+        />
+      )}
+
+      {bulkEditOpen && (
+        <BulkEditDeckModal
+          deckCards={deckCards}
+          commander={commander}
+          catalog={catalog}
+          catalogIndex={catalogIndex}
+          onClose={() => setBulkEditOpen(false)}
+          onApply={(cards, nextCommander) => {
+            setDeckCards(cards)
+            setCommander(nextCommander)
+            setBulkEditOpen(false)
+          }}
+        />
+      )}
+
+      {decksBrowserOpen && (
+        <SavedDecksBrowser
+          decks={browserDecks}
+          catalog={catalogIndex}
+          activeDeckId={activeDeckId}
+          onClose={() => setDecksBrowserOpen(false)}
+          onLoad={handleLoadSaved}
+          onRename={handleRenameSaved}
+          onDelete={handleDeleteSaved}
+        />
+      )}
+
+      {examplesOpen && (
+        <ExampleDecksModal
+          examples={examples}
+          catalog={catalogIndex}
+          onCancel={() => setExamplesOpen(false)}
+          onLoad={handleLoadExample}
+        />
+      )}
+
       {pickerOpenFor && (
         <PrintingPicker
           cardName={pickerOpenFor.name}
@@ -1487,7 +1554,7 @@ export function DeckbuilderPage() {
           onClose={handleClosePicker}
         />
       )}
-    </div>
+    </>
   )
 }
 
@@ -3276,8 +3343,10 @@ function DeckCentricView({
         className={`${styles.deckCentricEmpty} ${dragActive ? styles.deckListDrop : ''}`}
         {...dropHandlers}
       >
-        Your deck is empty. Type a card name in the search bar above, or switch to{' '}
-        <strong>Cards to add</strong> to browse the catalog.
+        <p className={styles.deckCentricEmptyText}>
+          Your deck is empty. Type a card name in the search bar above, or switch to{' '}
+          <strong>Cards to add</strong> to browse the catalog.
+        </p>
       </div>
     )
   }

@@ -27,6 +27,7 @@ import momirVigUrl from '@/assets/momir-vig.svg'
 import { DeckPicker, type DeckPickerTab } from '../ui/DeckPicker'
 import { DeckPickerModal } from '../ui/DeckPickerModal'
 import { FullscreenButton } from '../ui/FullscreenButton'
+import { ArgentumMark } from '@/components/ui/ArgentumMark'
 import { JoinQrModal } from '../ui/JoinQrModal'
 import { SettingsLabel } from '../ui/SettingsLabel'
 import {
@@ -48,6 +49,7 @@ import {
   eventCaption,
 } from './LobbyAxes'
 import { SettingsGroup } from './SettingsGroup'
+import lobby from './Lobby.module.css'
 import {
   GROUP_IDS,
   groupLabel,
@@ -126,10 +128,17 @@ export function LobbyScreen() {
    * with its notes on screen instead of in a game you didn't mean to start.
    *
    * **Only when nobody can join.** A lobby with an invite code exists so that people can use it;
-   * starting it the instant it opens would slam the door on them.
+   * starting it the instant it opens would slam the door on them. A tournament lobby always has a
+   * code, so one the host asked to fill with AI says so explicitly with `startWhenSeated`, and is
+   * started once that many players — you and every AI seat — are in it.
    */
-  const canAutoStart = intent?.autoStart === true && view !== null && !view.invitable &&
-    view.primaryAction?.kind === 'READY' && !view.primaryAction.disabled
+  const seatedForAutoStart = intent?.startWhenSeated !== undefined && view !== null && view.isHost &&
+    view.primaryAction?.kind === 'START' && !view.primaryAction.disabled &&
+    view.players.length >= intent.startWhenSeated
+  const canAutoStart = intent?.autoStart === true && view !== null && (
+    (!view.invitable && view.primaryAction?.kind === 'READY' && !view.primaryAction.disabled) ||
+    seatedForAutoStart
+  )
   const autoStarted = useRef(false)
   useEffect(() => {
     if (!canAutoStart || autoStarted.current) return
@@ -150,14 +159,25 @@ export function LobbyScreen() {
   const isMomir = view.axes.cards.kind === 'MOMIR'
 
   return (
-    <div className={styles.lobbyOverlay} style={{ backgroundImage: `url(${randomBackground})` }}>
-      <div className={styles.cornerControls}><FullscreenButton /></div>
-      <div className={styles.lobbyContent}>
-        <div className={styles.lobbyHeader}>
-          {isMomir && <MomirCrest />}
-          {view.axes.cards.kind === 'JUMP_IN' && <JumpInEmblem className={styles.jumpInLobbyEmblem} />}
-          <h1 className={styles.lobbyTitle}>{view.title}</h1>
-          <p className={styles.lobbySubtitle}>{view.subtitle}</p>
+    <div className={lobby.overlay} style={{ backgroundImage: `url(${randomBackground})` }}>
+      <div className={lobby.artTint} aria-hidden />
+      <header className={lobby.topBar}>
+        <span className={lobby.brand}>
+          <ArgentumMark size={34} />
+          Argentum
+        </span>
+        <div className={lobby.topBarEnd}><FullscreenButton compact /></div>
+      </header>
+      <div className={lobby.page}>
+      <div className={lobby.layout} data-two-col={showSettings}>
+      <div className={lobby.column}>
+        <div className={lobby.header}>
+          <div className={lobby.headerTop}>
+            {isMomir && <MomirCrest />}
+            {view.axes.cards.kind === 'JUMP_IN' && <JumpInEmblem className={lobby.headerEmblem} />}
+            <h1 className={lobby.title}>{view.title}</h1>
+          </div>
+          <p className={lobby.subtitle}>{view.subtitle}</p>
           <LobbyAxisSummary axes={view.axes} jumpstart={Boolean(lobbyState?.settings.jumpstartActive)} />
           {view.isWaiting && view.isHost && (
             <button
@@ -193,26 +213,19 @@ export function LobbyScreen() {
         )}
 
         {view.invitable && (
-          <div style={{ alignSelf: 'stretch', display: 'flex', alignItems: 'stretch', gap: 8 }}>
+          <div className={lobby.invite}>
             <button
               type="button"
               onClick={copyLobbyId}
-              className={`${styles.inviteBox} ${copied ? styles.inviteBoxCopied : ''}`}
-              style={{ flex: 1, marginBottom: 0, justifyContent: 'space-between' }}
+              className={lobby.inviteButton}
+              data-copied={copied}
               aria-label={copied ? 'Invite code copied' : `Copy invite code ${view.lobbyId}`}
             >
-              <div>
-                <div style={{ color: 'var(--text-disabled)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>
-                  Invite Code
-                </div>
-                <div className={styles.inviteCode} data-testid="invite-code">{view.lobbyId}</div>
-              </div>
-              <span
-                className={`${styles.inviteCopyLabel} ${copied ? styles.inviteCopyLabelCopied : ''}`}
-                style={{ flexShrink: 0, marginLeft: 12 }}
-              >
-                {copied ? 'Copied!' : 'Copy'}
+              <span className={lobby.inviteText}>
+                <span className={lobby.inviteLabel}>Invite code</span>
+                <span className={lobby.inviteCode} data-testid="invite-code">{view.lobbyId}</span>
               </span>
+              <span className={lobby.inviteAction}>{copied ? 'Copied!' : 'Copy'}</span>
             </button>
             <JoinQrModal url={buildJoinUrl(view.lobbyId)} />
           </div>
@@ -351,9 +364,11 @@ export function LobbyScreen() {
           )}
         </div>
 
-        {/* Settings sit below the players and the deck picker, not above them. The lobby overlay is
-            the single scroll container, so every relevant control can remain visible. */}
+      </div>
+
+        {/* Settings sit beside the players on a wide screen and below them on a narrow one. */}
         {showSettings && (
+          <div className={`${lobby.column} ${lobby.settingsColumn}`}>
           <div className={styles.settingsPanel}>
             {GROUP_IDS.map((id) => {
               const axisStrip = {
@@ -407,27 +422,30 @@ export function LobbyScreen() {
               )
             })}
           </div>
+          </div>
         )}
-        <div className={styles.actionsRow}>
-          {view.primaryAction && (
-            <button
-              type="button"
-              onClick={runPrimary}
-              disabled={view.primaryAction.disabled}
-              title={view.primaryAction.reason ?? ''}
-              className={styles.startButton}
-            >
-              {view.primaryAction.label}
-            </button>
-          )}
-          <button onClick={commands.leave} className={styles.leaveButton} type="button">Leave</button>
-          {/* Said, not just hovered: a `title` on a disabled button is the least discoverable place
-              to put the one sentence explaining why it can't be pressed. */}
-          {view.primaryAction?.disabled && view.primaryAction.reason && (
-            <span className={styles.actionsBlockReason}>{view.primaryAction.reason}</span>
-          )}
+      </div>
+        <div className={lobby.actionBar}>
+          <div className={lobby.actionBarInner}>
+            <button onClick={commands.leave} className={lobby.leave} type="button">Leave</button>
+            {/* Said, not just hovered: a `title` on a disabled button is the least discoverable
+                place to put the one sentence explaining why it can't be pressed. */}
+            {view.primaryAction?.disabled && view.primaryAction.reason && (
+              <span className={lobby.blockReason}>{view.primaryAction.reason}</span>
+            )}
+            {view.primaryAction && (
+              <button
+                type="button"
+                onClick={runPrimary}
+                disabled={view.primaryAction.disabled}
+                title={view.primaryAction.reason ?? ''}
+                className={lobby.start}
+              >
+                {view.primaryAction.label}
+              </button>
+            )}
+          </div>
         </div>
-
       </div>
 
       {quickDeckSeat === 'human' && quickLobby && !isMomir && (

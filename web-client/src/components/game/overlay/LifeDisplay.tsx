@@ -171,7 +171,7 @@ export function LifeDisplay({
     }
   }
 
-  const size = responsive.isMobile ? 36 : responsive.isTablet ? 42 : responsive.isShortDesktop ? 40 : 48
+  const size = responsive.isMobile || responsive.viewportHeight < 560 ? 36 : responsive.isTablet ? 42 : responsive.isShortDesktop ? 40 : 48
 
   // Dynamic styling based on targeting state. In multiplayer a seatColor is supplied for *both*
   // roles (it's the player's seat identity, the same color others see), so it takes precedence
@@ -284,7 +284,10 @@ export function LifeDisplay({
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isDistributeTarget ? 4 : 0 }}>
+    // The compact name under the orb can be wider than the orb; on a phone the HUD column beside the
+    // step strip is barely wider than the orb, so let the name run toward the screen edge's side of
+    // the orb — the opponent's to the left, ours to the right — instead of centring it off-screen.
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: compactName ? (isPlayer ? 'flex-start' : 'flex-end') : 'center', gap: isDistributeTarget ? 4 : 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {/* Name on outer side: left of opponent's orb, right of player's orb */}
         {!isPlayer && !compactName && nameLabel}
@@ -355,7 +358,7 @@ export function LifeDisplay({
             maxWidth: 64,
             fontSize: 9,
             fontWeight: 700,
-            letterSpacing: '0.4px',
+            letterSpacing: 0,
             color: seatColor ?? (isPlayer ? '#4a9aea' : '#ff9e46'),
             whiteSpace: 'nowrap',
             overflow: 'hidden',

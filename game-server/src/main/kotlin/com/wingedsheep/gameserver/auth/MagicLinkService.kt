@@ -42,8 +42,13 @@ class MagicLinkService(
 
     private val emailRegex = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
-    /** Upsert the account for [rawEmail] and email it a single-use sign-in link. Idempotent-ish. */
-    fun requestLogin(rawEmail: String, now: Instant = Instant.now()) {
+    /**
+     * Upsert the account for [rawEmail] and email it a single-use sign-in link. Idempotent-ish.
+     *
+     * Returns the link's path (`/login/verify?token=…`) — never sent to the client except by the
+     * dev-only shortcut in `AuthController`, which offers it when no mail can be sent.
+     */
+    fun requestLogin(rawEmail: String, now: Instant = Instant.now()): String {
         val email = rawEmail.trim().lowercase()
         require(emailRegex.matches(email)) { "Invalid email address" }
 
@@ -59,9 +64,11 @@ class MagicLinkService(
             )
         )
 
-        val link = "${props.auth.baseUrl.trimEnd('/')}/login/verify?token=$rawToken"
+        val path = "/login/verify?token=$rawToken"
+        val link = "${props.auth.baseUrl.trimEnd('/')}$path"
         emailService.sendMagicLink(email, link)
         logger.info("Issued magic-link login token for {}", email)
+        return path
     }
 
     /** Validate [rawToken] from a magic link, consume it, and mint an auth token. */

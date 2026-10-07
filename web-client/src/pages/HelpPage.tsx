@@ -8,7 +8,7 @@
  * links existed but there was no way to get one out of the page.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   HELP_SECTIONS,
   topicsInSection,
@@ -20,6 +20,7 @@ import {
   type HelpTopic,
 } from '@/help/topics'
 import { HelpTopicView } from '@/components/help/HelpTopicView'
+import { PageShell, pageStyles } from '@/components/ui/PageShell'
 import styles from './HelpPage.module.css'
 
 const DEFAULT_SECTION: HelpSection = 'getting-started'
@@ -110,61 +111,58 @@ export function HelpPage() {
     pageRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const searchBox = (
+    <div className={styles.searchBox}>
+      <svg className={styles.searchIcon} viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M10.5 10.5 L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+      <input
+        ref={searchRef}
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search the guide"
+        aria-label="Search help topics"
+        className={styles.searchInput}
+      />
+      {trimmed
+        ? (
+          <button
+            type="button"
+            className={styles.searchClear}
+            onClick={() => { setQuery(''); searchRef.current?.focus() }}
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+          )
+        : <kbd className={styles.searchHint}>/</kbd>}
+    </div>
+  )
+
   return (
     <div className={styles.page} ref={pageRef}>
-      <div className={styles.topBar}>
-        <div className={styles.topBarInner}>
-          <button type="button" className={styles.backButton} onClick={() => navigate('/')}>
-            ← Menu
-          </button>
-          <span className={styles.topBarTitle}>Argentum Help</span>
-          <div className={styles.searchBox}>
-            <svg className={styles.searchIcon} viewBox="0 0 16 16" aria-hidden="true">
-              <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M10.5 10.5 L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <input
-              ref={searchRef}
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search the guide"
-              aria-label="Search help topics"
-              className={styles.searchInput}
-            />
-            {trimmed
-              ? (
-                <button
-                  type="button"
-                  className={styles.searchClear}
-                  onClick={() => { setQuery(''); searchRef.current?.focus() }}
-                  aria-label="Clear search"
-                >
-                  ✕
-                </button>
-                )
-              : <kbd className={styles.searchHint}>/</kbd>}
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.body}>
+      <PageShell title="Help" width="normal">
         <header className={styles.header}>
-          <h1 className={styles.title}>Help</h1>
-          <p className={styles.subtitle}>
+          <h1 className={pageStyles.h1}>Help</h1>
+          <p className={pageStyles.lede}>
             For players who know Magic and are new to Argentum. This does not teach the rules — it
-            explains what this app does with them.
+            explains what this app does with them.{' '}
+            <Link to="/learn" className={styles.headerLink}>New to Magic? Learn to play →</Link>
           </p>
         </header>
 
         <div className={styles.layout}>
           <nav className={styles.nav} aria-label="Help sections">
+            {searchBox}
             <div className={styles.navSections}>
               {HELP_SECTIONS.map((s) => (
                 <button
                   key={s.id}
                   type="button"
                   className={`${styles.navItem} ${s.id === section && !results ? styles.navItemActive : ''}`}
+                  aria-current={s.id === section && !results ? 'page' : undefined}
                   onClick={() => goToSection(s.id)}
                 >
                   <span className={styles.navItemHead}>
@@ -195,7 +193,7 @@ export function HelpPage() {
             )}
           </nav>
 
-          <main className={styles.content}>
+          <div className={styles.content}>
             {results
               ? (
                 <div className={styles.sectionIntro}>
@@ -257,9 +255,9 @@ export function HelpPage() {
                 )}
               </div>
             )}
-          </main>
+          </div>
         </div>
-      </div>
+      </PageShell>
     </div>
   )
 }

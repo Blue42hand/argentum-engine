@@ -247,8 +247,11 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     padding: '10px 16px',
-    borderBottom: '1px solid #1a1a25',
-    backgroundColor: '#0d0d15',
+    gap: 12,
+    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(10, 12, 20, 0.92)',
+    backdropFilter: 'var(--chrome-blur)',
+    WebkitBackdropFilter: 'var(--chrome-blur)',
     flexShrink: 0,
     zIndex: 1600,
   },
@@ -256,34 +259,44 @@ const styles: Record<string, React.CSSProperties> = {
   headerCenter: {
     textAlign: 'center',
     flex: 1,
+    minWidth: 0,
   },
 
   spectatingLabel: {
-    color: '#888',
-    fontSize: 12,
+    color: '#f2b45c',
+    fontSize: 11,
+    fontWeight: 600,
     textTransform: 'uppercase',
-    letterSpacing: '0.1em',
+    letterSpacing: '0.12em',
   },
 
   matchupText: {
-    color: '#aaa',
-    fontSize: 14,
-    marginTop: 4,
+    color: '#eef0f6',
+    fontFamily: 'var(--font-display)',
+    fontSize: 17,
+    fontWeight: 600,
+    marginTop: 2,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
 
+  // Balances the back button so the matchup stays centred — but not at a phone's expense.
   headerSpacer: {
-    width: 120,
+    width: 'min(120px, 12vw)',
+    flexShrink: 0,
   },
 
   // Back button used in header and loading view
   backButton: {
     padding: '8px 16px',
     fontSize: 13,
-    backgroundColor: 'transparent',
-    color: '#888',
-    border: '1px solid #333',
-    borderRadius: 6,
+    backgroundColor: 'var(--chrome-bg)',
+    color: 'var(--chrome-text)',
+    border: '1px solid var(--chrome-border)',
+    borderRadius: 'var(--chrome-radius)',
     cursor: 'pointer',
+    flexShrink: 0,
   },
 
   // Container for the GameBoard
@@ -306,20 +319,22 @@ const styles: Record<string, React.CSSProperties> = {
 
   loadingTitle: {
     margin: '16px 0 8px 0',
-    fontSize: 20,
+    fontFamily: 'var(--font-display)',
+    fontSize: 24,
+    fontWeight: 600,
   },
 
   loadingSubtitle: {
-    color: '#666',
+    color: '#9aa3b8',
     margin: 0,
     fontSize: 14,
   },
 
   spinner: {
-    width: 40,
-    height: 40,
-    border: '3px solid #333',
-    borderTopColor: '#888',
+    width: 34,
+    height: 34,
+    border: '3px solid rgba(255, 255, 255, 0.12)',
+    borderTopColor: '#f2b45c',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
   },
@@ -330,10 +345,13 @@ const styles: Record<string, React.CSSProperties> = {
     top: 80,
     left: '50%',
     transform: 'translateX(-50%)',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    border: '1px solid #ffc107',
-    borderRadius: 8,
-    padding: '10px 20px',
+    backgroundColor: 'var(--chrome-panel-bg)',
+    border: '1px solid rgba(242, 180, 92, 0.5)',
+    borderRadius: 12,
+    backdropFilter: 'var(--chrome-blur)',
+    WebkitBackdropFilter: 'var(--chrome-blur)',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.45)',
+    padding: '10px 18px',
     display: 'flex',
     alignItems: 'center',
     gap: 12,
@@ -344,19 +362,19 @@ const styles: Record<string, React.CSSProperties> = {
   decisionSpinner: {
     width: 16,
     height: 16,
-    border: '2px solid #333',
-    borderTopColor: '#ffc107',
+    border: '2px solid rgba(255, 255, 255, 0.12)',
+    borderTopColor: '#f2b45c',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
   },
 
   decisionText: {
-    color: '#ffc107',
+    color: '#f6c27a',
     fontWeight: 500,
   },
 
   decisionSourceText: {
-    color: '#888',
+    color: '#9aa3b8',
     fontSize: '0.85em',
   },
 }

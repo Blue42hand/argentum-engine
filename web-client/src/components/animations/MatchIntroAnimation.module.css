@@ -1,176 +1,156 @@
 /**
- * Match intro animation styles.
- * Full-screen VS overlay shown before mulligan.
+ * Match intro: the one moment the card art gets the whole screen. The background art is shown
+ * full-bleed at near-full brightness with a slow Ken Burns push; the matchup sits compact in a glass
+ * band low on the screen, so the art dominates and the names still read.
  */
 
-/* =========================================================================
- * Backdrop
- * ========================================================================= */
 .backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: var(--z-modal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0);
-  transition: background-color 0.2s ease;
+  overflow: hidden;
+  background: #07080d;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
-.backdropVisible {
-  background-color: rgba(0, 0, 0, 0.92);
-}
+.backdropVisible { opacity: 1; }
 
 .backdropFadeOut {
-  background-color: rgba(0, 0, 0, 0);
-  transition: background-color 0.5s ease;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+/* The art itself, slowly pushing in for the length of the intro. */
+.art {
+  position: absolute;
+  inset: 0;
+  background: center center / cover no-repeat;
+  transform: scale(1.02);
+  animation: kenBurns 4.2s ease-out forwards;
+  will-change: transform;
+}
+
+@keyframes kenBurns {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.1) translate3d(0, -1%, 0); }
+}
+
+/* Only enough shade for the band to sit on: a soft vignette and a darker foot. */
+.shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 40%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.45) 100%),
+    linear-gradient(180deg, rgba(6, 7, 12, 0) 55%, rgba(6, 7, 12, 0.7) 100%);
 }
 
 /* =========================================================================
- * Content layout
+ * Matchup band
  * ========================================================================= */
-.content {
+.band {
+  position: absolute;
+  left: 50%;
+  bottom: max(9vh, 40px);
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  column-gap: 48px;
-  width: 100%;
-  max-width: 900px;
-  padding: 0 var(--space-6);
+  column-gap: 28px;
+  width: min(760px, calc(100vw - 32px));
+  padding: 16px 28px;
+  box-sizing: border-box;
+  border-radius: 18px;
+  background: rgba(10, 12, 20, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: translate(-50%, 16px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
-@media (max-width: 639px) {
-  .content {
-    grid-template-columns: 1fr;
-    row-gap: 24px;
-    padding: 0 var(--space-4);
-  }
+.bandVisible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
-/* =========================================================================
- * Player panels
- * ========================================================================= */
-.playerPanel {
+.bandFadeOut {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.side {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  opacity: 0;
-  transform: translateX(-60px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  gap: 2px;
 }
 
-.opponentPanel {
-  transform: translateX(60px);
-}
+.sidePlayer { align-items: flex-end; text-align: right; }
+.sideOpponent { align-items: flex-start; text-align: left; }
 
-.playerPanelVisible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.playerPanelFadeOut {
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-@media (max-width: 639px) {
-  .playerPanel {
-    transform: translateX(-40px);
-  }
-  .opponentPanel {
-    transform: translateX(40px);
-  }
-}
-
-/* =========================================================================
- * Player name
- * ========================================================================= */
 .playerName {
-  font-size: 36px;
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  text-align: center;
   margin: 0;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-  max-width: 420px;
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: #f4f5f9;
   overflow-wrap: break-word;
   word-break: break-word;
-  hyphens: auto;
-  line-height: 1.15;
 }
 
-@media (max-width: 639px) {
-  .playerName {
-    font-size: 24px;
-    max-width: 280px;
-  }
-}
-
-/* =========================================================================
- * Player record (W-L)
- * ========================================================================= */
 .playerRecord {
-  font-size: var(--font-lg);
-  color: var(--text-muted);
   margin: 0;
-  font-weight: var(--font-weight-medium);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #9aa3b8;
 }
 
-/* =========================================================================
- * VS badge
- * ========================================================================= */
-.vsContainer {
+.vs {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
-  opacity: 0;
-  transform: scale(0.5);
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.vsContainerVisible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.vsContainerFadeOut {
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  gap: 2px;
 }
 
 .vsText {
-  font-size: 56px;
-  font-weight: var(--font-weight-bold);
-  background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none;
-  filter: drop-shadow(0 2px 8px rgba(255, 200, 0, 0.4));
   margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 30px;
+  font-weight: 600;
   line-height: 1;
+  color: #f2b45c;
+  text-shadow: 0 0 18px rgba(242, 180, 92, 0.4);
+}
+
+.roundLabel {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9a46a;
+  white-space: nowrap;
 }
 
 @media (max-width: 639px) {
-  .vsText {
-    font-size: 40px;
+  .band {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+    padding: 14px 18px;
+    bottom: max(7vh, 28px);
   }
+  .sidePlayer, .sideOpponent { align-items: center; text-align: center; }
+  .playerName { font-size: 21px; }
+  .vsText { font-size: 22px; }
 }
 
-/* =========================================================================
- * Round label
- * ========================================================================= */
-.roundLabel {
-  font-size: var(--font-md);
-  color: var(--text-muted);
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-weight: var(--font-weight-semibold);
+@media (prefers-reduced-motion: reduce) {
+  .art { animation: none; transform: none; }
+  .band { transform: translate(-50%, 0); transition: opacity 0.3s ease; }
 }
