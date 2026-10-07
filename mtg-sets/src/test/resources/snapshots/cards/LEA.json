@@ -13591,6 +13591,117 @@
     }
 }
 
+// Word of Command
+{
+    "name": "Word of Command",
+    "manaCost": "{B}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Look at target opponent's hand and choose a card from it. You control that player until Word of Command finishes resolving. The player plays that card if able. While doing so, the player can activate mana abilities only if they're from lands that player controls and only if mana they produce is spent to activate other mana abilities of lands the player controls and/or to play that card. If the chosen card is cast as a spell, you control the player while that spell is resolving.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ControlPlayerDuringResolution",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "storeAs": "gathered2"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered2",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected3",
+                    "prompt": "Choose a card for that player to play",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "WithManaSpendingObligations",
+                    "effect": {
+                        "type": "WithManaAbilitySources",
+                        "effect": {
+                            "type": "ForcePlay",
+                            "from": "selected3",
+                            "player": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "storePlayedTo": "played"
+                        },
+                        "sources": {
+                            "cardPredicates": [
+                                "IsLand"
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        },
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "player": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ControlPlayerDuringResolution",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "resolvingObject": {
+                        "type": "PipelineTarget",
+                        "collectionName": "played"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/96c21429-98d3-416b-be00-6aa9c4c5a006.jpg?1783948689"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Wrath of God
 {
     "name": "Wrath of God",
