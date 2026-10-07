@@ -7,6 +7,8 @@ export interface WebSocketConfig {
   onMessage: (message: ServerMessage) => void
   onStatusChange: (status: ConnectionStatus) => void
   onError: (error: Event) => void
+  /** Whether a tab return should ask the server for a state resync (i.e. a game is on screen). */
+  shouldResyncOnVisible?: () => boolean
   reconnectDelay?: number
 }
 
@@ -242,8 +244,10 @@ export class GameWebSocket {
         this.forceReconnect('tab became visible while disconnected')
         return
       }
-      console.log('[WebSocket] Tab became visible, requesting resync')
-      this.requestResync()
+      if (this.config.shouldResyncOnVisible?.() ?? true) {
+        console.log('[WebSocket] Tab became visible, requesting resync')
+        this.requestResync()
+      }
       this.startLivenessCheck()
     }
     this.onlineHandler = () => {

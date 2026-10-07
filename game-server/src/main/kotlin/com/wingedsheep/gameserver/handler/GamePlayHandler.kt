@@ -1220,7 +1220,11 @@ class GamePlayHandler(
             return
         }
 
-        val gameSession = getGameSession(session, playerSession) ?: return
+        // Resync is a best-effort recovery probe the client fires on every tab return, including
+        // from the game-over screen after the game has been torn down. With no live game there is
+        // nothing to resync, so this is a silent no-op rather than a "Game not found" error.
+        val gameSessionId = playerSession.currentGameSessionId ?: return
+        val gameSession = gameRepository.findById(gameSessionId) ?: return
 
         logger.info("Player ${playerSession.playerName} requested state resync")
         // Clear cached state so the next update sends a full StateUpdate instead of a delta

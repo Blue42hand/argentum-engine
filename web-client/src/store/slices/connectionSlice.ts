@@ -127,6 +127,7 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
           timestamp: Date.now(),
         })
       },
+      shouldResyncOnVisible: () => get().gameState != null && get().gameOverState == null,
     })
 
     setWebSocket(ws)
