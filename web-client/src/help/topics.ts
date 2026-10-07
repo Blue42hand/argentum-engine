@@ -208,8 +208,8 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     section: 'modes',
     title: 'Jump In',
     summary: 'Choose two themed 20-card Jumpstart packs and play their combined deck. Lands are included, so there is nothing to build.',
-    body: [{ kind: 'p', text: 'Start with Jumpstart 2022, or select the original Jumpstart set in the lobby. Each pick offers three different themes, with a published pack variant behind each. Preview the pack list before choosing. After two picks, your exact 40-card deck is submitted automatically. You can play with friends or AI opponents; only complete, implemented packs without banned cards are offered.' }],
-    related: ['roster-solo', 'roster-friend', 'event-round-robin'],
+    body: [{ kind: 'p', text: 'Start with Jumpstart 2022, or select the original Jumpstart set in the lobby. Each pick offers three different themes, with a published pack variant behind each. Explore any pack card by card before choosing. On your second pick your first pack stays on screen, and hovering an offer shows the colors and curve of the deck the two would make — you can still swap your first pack until you choose the second. After two picks, your exact 40-card deck is submitted automatically. Play a bracket with friends or AI opponents, or sit everyone down at one Free-for-All table; only complete, implemented packs without banned cards are offered.' }],
+    related: ['roster-solo', 'roster-friend', 'event-round-robin', 'table-free-for-all'],
   },
   {
     id: 'cards-sealed',

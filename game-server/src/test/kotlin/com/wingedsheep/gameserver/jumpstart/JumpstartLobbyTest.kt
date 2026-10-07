@@ -10,6 +10,7 @@ import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.sdk.core.GameRules
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -64,6 +65,8 @@ class JumpstartLobbyTest : FunSpec({
             l.pickJumpstart(id, first, 1) shouldBe true
             l.players.getValue(id).cardPool.size shouldBe 20
             l.pickJumpstart(id, first, 1) shouldBe false
+            // Pick two shows pick one's full list beside the new offers, as Arena does.
+            l.buildLobbyUpdate(id).jumpstart!!.selected.map { it.id to it.cards.size } shouldBe listOf(first to 20)
             val second = l.players.getValue(id).jumpstartOffers.last()
             l.pickJumpstart(id, second, 2) shouldBe true
             val pool = l.players.getValue(id).cardPool
@@ -77,6 +80,45 @@ class JumpstartLobbyTest : FunSpec({
             l.pickJumpstart(id, second, 3) shouldBe false
         }
         l.allDecksSubmitted() shouldBe true
+    }
+
+    test("the first pack can be put back while the second is undecided, returning the original offers") {
+        val l = lobby()
+        l.startJumpstart(host) shouldBe true
+        val offers = l.players.getValue(host).jumpstartOffers
+        l.undoJumpstartPick(host, 2) shouldBe false
+        l.pickJumpstart(host, offers.first(), 1) shouldBe true
+        val (restored, _) = restoreTournamentLobby(l.toPersistent(), registry, generator)
+        restored.undoJumpstartPick(host, 1) shouldBe false
+        restored.undoJumpstartPick(host, 2) shouldBe true
+        restored.undoJumpstartPick(host, 2) shouldBe false
+        restored.players.getValue(host).let {
+            it.jumpstartSelections shouldBe emptyList()
+            it.cardPool shouldBe emptyList()
+            it.jumpstartOffers shouldBe offers
+        }
+        restored.pickJumpstart(host, offers.last(), 1) shouldBe true
+        restored.pickJumpstart(host, restored.players.getValue(host).jumpstartOffers.first(), 2) shouldBe true
+        restored.undoJumpstartPick(host, 2) shouldBe false
+        restored.players.getValue(host).cardPool.size shouldBe 40
+    }
+
+    test("every published pack makes a submittable deck, including seven Snow-Covered Islands") {
+        for (set in listOf("JMP", "J22")) {
+            val packs = JumpstartPacks(generator, set).packs
+            for (pack in packs) {
+                val l = lobby().apply { updateSets(listOf(set)) }
+                l.startJumpstart(host) shouldBe true
+                for ((pick, id) in listOf(pack.id, packs.first().id).withIndex()) {
+                    l.players[host] = l.players.getValue(host).copy(jumpstartOffers = listOf(id))
+                    l.pickJumpstart(host, id, pick + 1) shouldBe true
+                }
+                val deck = l.players.getValue(host).cardPool.groupingBy { it.name }.eachCount()
+                withClue("$set ${pack.id}") {
+                    l.submitDeck(host, deck).shouldBeInstanceOf<TournamentLobby.DeckSubmissionResult.Success>()
+                }
+            }
+        }
     }
 
     test("private offers and pick progress survive a server restart") {

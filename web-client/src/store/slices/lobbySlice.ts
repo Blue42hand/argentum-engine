@@ -59,6 +59,7 @@ export interface LobbySliceActions {
    * the way through. Splitting a bag across messages would therefore lose fields, not just be slower.
    */
   pickJumpstartPack: (packId: string, pickNumber: number) => void
+  undoJumpstartPick: (pickNumber: number) => void
   updateLobbySettings: (settings: LobbySettingsUpdate) => void
   addAiToLobby: () => void
   removeAiFromLobby: (playerId: string) => void
@@ -145,6 +146,9 @@ export const createLobbySlice: SliceCreator<LobbySlice> = (set, get) => ({
     set({ lobbyState: null, deckBuildingState: null, ffaState: null })
   },
 
+  undoJumpstartPick: (pickNumber) => {
+    getWebSocket()?.send({ type: 'undoJumpstartPick', pickNumber })
+  },
   pickJumpstartPack: (packId, pickNumber) => {
     getWebSocket()?.send({ type: 'pickJumpstartPack', packId, pickNumber })
   },

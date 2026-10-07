@@ -287,6 +287,11 @@ sealed interface ClientMessage {
     @SerialName("pickJumpstartPack")
     data class PickJumpstartPack(val packId: String, val pickNumber: Int) : ClientMessage
 
+    /** Return the first Jumpstart pack and choose again; [pickNumber] is the pick the client is on. */
+    @Serializable
+    @SerialName("undoJumpstartPick")
+    data class UndoJumpstartPick(val pickNumber: Int) : ClientMessage
+
     @Serializable
     @SerialName("updateLobbySettings")
     data class UpdateLobbySettings(

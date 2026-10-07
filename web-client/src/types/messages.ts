@@ -1586,10 +1586,18 @@ export interface LobbyCreatedMessage {
   readonly lobbyId: string
 }
 
+export interface JumpstartOffer {
+  readonly id: string
+  readonly theme: string
+  readonly cards: readonly SealedCardInfo[]
+}
+
 export interface JumpstartState {
   readonly pickNumber: number
   readonly selectedPacks: readonly string[]
-  readonly offers: readonly { id: string; theme: string; cards: readonly SealedCardInfo[] }[]
+  readonly offers: readonly JumpstartOffer[]
+  /** Full contents of the packs already chosen (older servers omit it). */
+  readonly selected?: readonly JumpstartOffer[]
 }
 
 export interface LobbyUpdateMessage {
@@ -2083,6 +2091,7 @@ export interface TournamentPlayerReconnectedMessage {
  */
 export type ClientMessage =
   | { readonly type: 'pickJumpstartPack'; readonly packId: string; readonly pickNumber: number }
+  | { readonly type: 'undoJumpstartPick'; readonly pickNumber: number }
   | ConnectMessage
   | CreateGameMessage
   | JoinGameMessage

@@ -42,7 +42,8 @@ test('choose two exact packs, reconnect between picks, and play against the AI',
   await expect(page.getByRole('heading', { name: 'Choose your first theme', exact: true })).toBeVisible()
   await expect(page.getByText('Explore this pack', { exact: false })).toHaveCount(3)
   await page.getByText('Explore this pack', { exact: false }).first().click()
-  await expect(page.locator('article details[open]').first()).toBeVisible()
+  await expect(page.getByRole('dialog').locator('img')).not.toHaveCount(0)
+  await page.keyboard.press('Escape')
   await page.locator('article').getByRole('button', { name: /^Choose / }).first().click()
   await expect(page.getByRole('heading', { name: 'Choose your second theme', exact: true })).toBeVisible()
   const selected = await page.getByLabel('Chosen themes').textContent() ?? ''
