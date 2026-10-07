@@ -200,14 +200,19 @@ export function RulesAxisBody({ view, commands }: { view: UnifiedLobbyView; comm
   const cards = view.axes.cards
   const legalityOptions = legalityOptionsForRules(view.axes.rules, view.axes.table)
 
+  // Standard rules may leave legality open ("Any deck": 60+ cards, at most four of each nonbasic,
+  // no format list). Commander rules can't — commander legality is what anchors colour identity.
+  const allowsAnyDeck = view.axes.rules === 'STANDARD'
+
   // Rules own deck construction. If the host changes Rules, immediately replace a now-incoherent
   // legality; Commander rules always carry one of the commander-aware formats.
   useEffect(() => {
     if (cards.kind !== 'BRING_A_DECK') return
     if (legalityOptions.length === 0) return
+    if (cards.legality === null && allowsAnyDeck) return
     if (cards.legality && legalityOptions.some((option) => option.value === cards.legality)) return
-    commands.setLegality(view.axes.rules === 'COMMANDER' ? 'COMMANDER' : 'STANDARD')
-  }, [cards, commands, legalityOptions, view.axes.rules])
+    commands.setLegality(view.axes.rules === 'COMMANDER' ? 'COMMANDER' : null)
+  }, [allowsAnyDeck, cards, commands, legalityOptions, view.axes.rules])
 
   return (
     <>
@@ -222,10 +227,11 @@ export function RulesAxisBody({ view, commands }: { view: UnifiedLobbyView; comm
           <span className={styles.settingsLabel}>Deck legality</span>
           <select
             value={cards.legality ?? ''}
-            onChange={(e) => commands.setLegality(e.target.value as never)}
+            onChange={(e) => commands.setLegality((e.target.value || null) as never)}
             className={styles.settingsSelect}
             title="Submitted decks must be legal under the selected rules and constructed format."
           >
+            {allowsAnyDeck && <option value="">Any deck</option>}
             {legalityOptions.map((format) => (
               <option key={format.value} value={format.value}>{format.label}</option>
             ))}
