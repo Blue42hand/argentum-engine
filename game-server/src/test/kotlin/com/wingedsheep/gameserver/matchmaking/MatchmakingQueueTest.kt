@@ -14,8 +14,8 @@ import java.util.UUID
 
 class MatchmakingQueueTest : FunSpec({
 
-    val casualLimited = QueueKey(format = null, ranked = false)
-    val rankedLimited = QueueKey(format = null, ranked = true)
+    val casualLimited = QueueKey(MatchmakingMode.RANDOM_DECK, format = null, ranked = false)
+    val rankedLimited = QueueKey(MatchmakingMode.RANDOM_DECK, format = null, ranked = true)
     val everyone: (EntityId) -> Boolean = { true }
 
     fun entry(
@@ -48,10 +48,24 @@ class MatchmakingQueueTest : FunSpec({
         val q = queue()
         q.join(entry("casual", key = casualLimited))
         q.join(entry("ranked", key = rankedLimited))
-        q.join(entry("standard", key = QueueKey(DeckFormat.STANDARD, ranked = false)))
+        q.join(entry("standard", key = QueueKey(MatchmakingMode.CONSTRUCTED, DeckFormat.STANDARD, ranked = false)))
+        q.join(entry("momir", key = QueueKey(MatchmakingMode.MOMIR_BASIC, format = null, ranked = false)))
+        q.join(entry("jumpin", key = QueueKey(MatchmakingMode.JUMP_IN, format = null, ranked = false)))
 
         q.tick(now = 0, everyone).found().shouldBeEmpty()
-        q.counts().values.sum() shouldBe 3
+        q.counts().values.sum() shouldBe 5
+    }
+
+    test("a join request resolves to one consistent queue key") {
+        QueueKey.of(MatchmakingMode.JUMP_IN, DeckFormat.PAUPER, ranked = false) shouldBe
+            QueueKey.Result.Valid(QueueKey(MatchmakingMode.JUMP_IN, format = null, ranked = false))
+        QueueKey.of(MatchmakingMode.MOMIR_BASIC, null, ranked = true).shouldBeInstanceOf<QueueKey.Result.Invalid>()
+        QueueKey.of(MatchmakingMode.CONSTRUCTED, null, ranked = false).shouldBeInstanceOf<QueueKey.Result.Invalid>()
+        QueueKey.of(MatchmakingMode.RANDOM_DECK, null, ranked = true) shouldBe QueueKey.Result.Valid(rankedLimited)
+        // An older client sends no mode: a format is Constructed, no format the Random deck queue.
+        QueueKey.of(null, DeckFormat.PAUPER, ranked = false) shouldBe
+            QueueKey.Result.Valid(QueueKey(MatchmakingMode.CONSTRUCTED, DeckFormat.PAUPER, ranked = false))
+        QueueKey.of(null, null, ranked = false) shouldBe QueueKey.Result.Valid(casualLimited)
     }
 
     test("the same account in two tabs never plays itself") {

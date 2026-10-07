@@ -295,7 +295,16 @@ data class YesNoDecision(
     /** What "no" means (for UI button text) */
     val noText: String = "No",
     /** Optional hint text shown below the prompt (e.g., keyword reminder text) */
-    val hint: String? = null
+    val hint: String? = null,
+    /**
+     * True when "no" is an outcome in its own right rather than a decline (endure: counters *or* a
+     * Spirit), so the client shows the two answers as peer options, not a confirm/cancel pair.
+     */
+    val peerOptions: Boolean = false,
+    /** Optional second line under [yesText] when [peerOptions] is set ("on this creature"). */
+    val yesDetail: String? = null,
+    /** Optional second line under [noText] when [peerOptions] is set. */
+    val noDetail: String? = null
 ) : PendingDecision
 
 /**

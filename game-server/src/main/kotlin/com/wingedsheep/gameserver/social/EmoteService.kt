@@ -89,7 +89,8 @@ class EmoteService(
             Emote.HELLO to Emote.HELLO,
             Emote.GOOD_LUCK to Emote.GOOD_LUCK,
             Emote.GOOD_GAME to Emote.GOOD_GAME,
-            Emote.NICE_PLAY to Emote.THANKS,
+            Emote.WELL_PLAYED to Emote.THANKS,
+            Emote.NICE_TOPDECK to Emote.THANKS,
         )
     }
 }

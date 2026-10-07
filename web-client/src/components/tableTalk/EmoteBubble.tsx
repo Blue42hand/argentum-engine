@@ -33,6 +33,8 @@ export function EmoteBubble({ playerId, placement }: { playerId: EntityId; place
           key={bubble.id}
           className={styles.bubble}
           data-placement={placement}
+          data-mood={info.mood}
+          data-emote={info.emote}
           style={{
             left: rect.left + rect.width / 2,
             ...(placement === 'above'

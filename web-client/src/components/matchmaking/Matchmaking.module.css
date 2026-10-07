@@ -23,6 +23,64 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* The four modes: one segmented track, the chosen mode raised out of it. */
+.modes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mode {
+  position: relative;
+  min-width: 0;
+  height: 28px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-tertiary, #8a8d98);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.mode:hover {
+  color: var(--text-primary);
+}
+
+.modeSelected,
+.modeSelected:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary, #eef0f6);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Someone is searching in this mode — the same green as the waiting rows, small enough to be a hint. */
+.modeDot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2ecc71;
+}
+
+.blurb {
+  margin: -2px 2px 0;
+  color: var(--text-tertiary, #8a8d98);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
 .controls {
   display: flex;
   align-items: center;
@@ -64,13 +122,19 @@
   flex: 1 1 auto;
 }
 
+/* Beside a format, Search goes back to its own width. */
+.pickFormat ~ .search {
+  flex: 0 0 auto;
+}
+
 .pick option {
   background: #14161f;
   color: #eef0f6;
 }
 
+/* Search takes whatever the row leaves: the whole row when the mode has nothing to choose. */
 .search {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   height: 32px;
   padding: 0 14px;
   border: 1px solid rgba(242, 180, 92, 0.45);
@@ -228,6 +292,7 @@
 }
 
 .pick:focus-visible,
+.mode:focus-visible,
 .search:focus-visible,
 .cancel:focus-visible,
 .play:focus-visible,

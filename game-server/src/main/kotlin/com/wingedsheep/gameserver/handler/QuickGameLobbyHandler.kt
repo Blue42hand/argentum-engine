@@ -14,6 +14,8 @@ import com.wingedsheep.gameserver.lobby.MomirBasicSetup
 import com.wingedsheep.gameserver.lobby.QuickGameLobby
 import com.wingedsheep.gameserver.lobby.QuickGameLobbyPlayer
 import com.wingedsheep.gameserver.lobby.QuickGameLobbyRepository
+import com.wingedsheep.gameserver.matchmaking.MatchmakingMode
+import com.wingedsheep.gameserver.matchmaking.QueueKey
 import com.wingedsheep.gameserver.protocol.ClientMessage
 import com.wingedsheep.gameserver.protocol.ErrorCode
 import com.wingedsheep.gameserver.protocol.ServerMessage
@@ -393,28 +395,53 @@ class QuickGameLobbyHandler(
     }
 
     /**
-     * Seat two players the matchmaking queue paired into a fresh lobby running the queue's [format]
-     * and [ranked] setting, and send both the lobby state. From there it is an ordinary quick game:
-     * each picks a deck and readies up. Returns false, creating nothing, when either player is
-     * already in a lobby.
+     * Seat two players the matchmaking queue paired into a fresh lobby for the queue's [key]. Returns
+     * false, creating nothing, when either player is already in a lobby.
+     *
+     * A Constructed match stays in the lobby, where each player picks a deck and readies up. Random
+     * deck and Momir Basic have nothing to pick — accepting the match was the ready check — so their
+     * game starts here and the lobby is never shown. A Random deck pair opens boosters from one random
+     * set, so both play the same sealed environment.
      */
     fun createMatchmadeLobby(
         players: List<Pair<com.wingedsheep.sdk.model.EntityId, String>>,
-        format: DeckFormat?,
-        ranked: Boolean,
+        key: QueueKey,
     ): Boolean {
         if (players.any { (id, _) -> lobbyRepository.findContainingPlayer(id) != null }) return false
-        val lobby = QuickGameLobby(vsAi = false, setCode = null, format = format)
+        val lobby = QuickGameLobby(
+            vsAi = false,
+            setCode = null,
+            format = key.format,
+            momirBasic = key.mode == MatchmakingMode.MOMIR_BASIC,
+        )
         lobby.matchmade = true
-        lobby.ranked = ranked && lobby.rankedEligible
-        players.forEach { (id, name) -> lobby.players += QuickGameLobbyPlayer(playerId = id, playerName = name) }
+        lobby.ranked = key.ranked && lobby.rankedEligible
+        val sharedSet = if (key.mode == MatchmakingMode.RANDOM_DECK) deckGenerator.randomSetCode() else null
+        players.forEach { (id, name) ->
+            lobby.players += QuickGameLobbyPlayer(
+                playerId = id,
+                playerName = name,
+                // An empty list is "the server builds my deck" — see QuickGameLobbyPlayer.deckList.
+                deckList = if (sharedSet != null) emptyMap() else null,
+                setCode = sharedSet,
+            )
+        }
         lobbyRepository.save(lobby)
         players.forEach { (id, _) -> markPlayerInLobby(id, lobby.lobbyId) }
         logger.info(
             "Matchmade lobby ${lobby.lobbyId}: ${players.joinToString(" vs ") { it.second }} " +
-                "(${format?.displayName ?: "Limited"}, ranked=${lobby.ranked})",
+                "(${key.mode}${key.format?.let { " ${it.displayName}" } ?: ""}, ranked=${lobby.ranked})",
         )
-        broadcastState(lobby)
+        if (key.mode == MatchmakingMode.CONSTRUCTED) {
+            broadcastState(lobby)
+        } else {
+            lobbyRepository.withLock(lobby.lobbyId) { current ->
+                if (current == null || current.started) return@withLock
+                current.players.forEach { it.ready = true }
+                current.started = true
+                startGame(current)
+            }
+        }
         return true
     }
 

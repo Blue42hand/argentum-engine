@@ -35,7 +35,35 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'feature',
     title: 'Rematch, emotes and a warm-up while you queue',
     body:
-      'After a game against someone you met through Find an opponent, ask for a rematch, add them as a friend, or block them. Say hello, good luck or good game with the emote button beside your life total. And while the queue searches, play the AI — you stay in line and are asked before the game ends.',
+      'After a game against someone you met through Find an opponent, ask for a rematch, add them as a friend, or block them. Wish them luck, groan at a perfect topdeck or own up to a misclick with the emote button beside your life total. And while the queue searches, play the AI — you stay in line and are asked before the game ends.',
+  },
+  {
+    id: 'mode-matchmaking',
+    date: '2026-10-08',
+    kind: 'mode',
+    title: 'Matchmaking',
+    body:
+      'Find an opponent without an invite. Pick a mode on the home screen — Random deck, Jump In, Momir Basic or a Constructed format — then search; ranked pairs you with someone close to your rating. Queues with players already waiting are shown, so you can join one and start at once.',
+  },
+  {
+    id: 'set-leb',
+    date: '2026-10-08',
+    kind: 'set',
+    setCode: 'LEB',
+    title: 'Limited Edition Beta is complete',
+    body:
+      'The second printing of Magic’s first set, two months after Alpha: the same Power Nine and dual lands, plus the two cards Alpha left out, Circle of Protection: Black and Volcanic Island.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
+  },
+  {
+    id: 'set-lea',
+    date: '2026-10-07',
+    kind: 'set',
+    setCode: 'LEA',
+    title: 'Limited Edition Alpha is complete',
+    body:
+      'Where Magic began, in 1993: Black Lotus, the original dual lands, Shivan Dragon, Lord of the Pit and Wrath of God. Five colours of raw, unbalanced power from before anyone knew what a fair card looked like.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
   },
   {
     id: 'set-j22',

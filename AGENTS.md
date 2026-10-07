@@ -64,6 +64,18 @@ docs it points at; load those when the work needs them.
 - **Keep [`docs/card-sdk-language-reference.md`](docs/card-sdk-language-reference.md) in sync.** Every SDK
   addition or change — effect, trigger, condition, keyword, dynamic amount, modal shape, replacement
   effect — updates it in the *same* change. It's the canonical catalog; drift makes it useless.
+- **Announce milestones in the "What's new" feed.** The PR that finishes a set (drops
+  `override val incomplete = true`, i.e. `scripts/card-status --set X` reads 100%) or ships a new game
+  mode or site-level feature adds an entry to the top of
+  [`web-client/src/components/whatsNew/announcements.ts`](web-client/src/components/whatsNew/announcements.ts)
+  in the *same* PR. A set entry needs `setCode`, a `body` that pitches what the set is like to play, and
+  `tryIf`; never change a shipped `id`. Card batches, fixes and UI polish don't go in. The file's header
+  comment has the bar.
+- **Document user-facing features in the in-app Help wiki.** A new mode, screen, or change to how
+  players use the site updates [`web-client/src/help/topics.ts`](web-client/src/help/topics.ts) — the
+  single source behind `/help` and the inline `HelpTip` popovers — in the *same* PR: add a topic, or
+  correct the ones the change makes wrong, and link it from `related` on its neighbours. Audience: knows
+  Magic, new to Argentum — explain what the app does, not the rules.
 
 ## Module layout
 

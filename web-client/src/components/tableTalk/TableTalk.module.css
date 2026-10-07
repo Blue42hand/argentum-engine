@@ -50,7 +50,44 @@
 .bubble[data-placement='above']::after { bottom: -5px; }
 .bubble[data-placement='below']::after { top: -5px; }
 
-.bubbleIcon { font-size: 18px; line-height: 1; }
+.bubbleIcon { display: inline-block; font-size: 18px; line-height: 1; animation: icon-pop 0.5s 0.12s ease-out both; }
+
+/* A mood stripe along the bubble's left edge says what kind of thing was said at a glance. */
+.bubble { border-left: 4px solid var(--bubble-accent, transparent); }
+.bubble[data-mood='greet'] { --bubble-accent: #e8a94f; }
+.bubble[data-mood='react'] { --bubble-accent: #e06b6b; }
+.bubble[data-mood='talk'] { --bubble-accent: #6f8fe0; }
+
+/* A few get their own gesture. */
+.bubble[data-emote='HELLO'] .bubbleIcon,
+.bubble[data-emote='GOOD_GAME'] .bubbleIcon { animation: icon-wave 0.9s 0.1s ease-in-out both; transform-origin: 70% 80%; }
+.bubble[data-emote='OUCH'] .bubbleIcon,
+.bubble[data-emote='NO_WAY'] .bubbleIcon { animation: icon-shake 0.5s 0.12s ease-in-out both; }
+.bubble[data-emote='THINKING'] .bubbleIcon { animation: icon-ponder 1.6s 0.1s ease-in-out infinite; }
+
+@keyframes icon-pop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes icon-wave {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(18deg); }
+  40% { transform: rotate(-10deg); }
+  60% { transform: rotate(14deg); }
+  80% { transform: rotate(-4deg); }
+}
+@keyframes icon-shake {
+  0%, 100% { transform: translateX(0) scale(1.1); }
+  20% { transform: translateX(-3px) rotate(-8deg); }
+  40% { transform: translateX(3px) rotate(8deg); }
+  60% { transform: translateX(-2px) rotate(-4deg); }
+  80% { transform: translateX(2px) rotate(4deg); }
+}
+@keyframes icon-ponder {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-10deg) translateY(-1px); }
+}
 .bubbleText { position: relative; z-index: 1; }
 
 @keyframes bubble-in {
@@ -119,7 +156,7 @@
 .picker {
   position: fixed;
   z-index: 1500;
-  width: 316px;
+  width: min(392px, calc(100vw - 16px));
   padding: 8px;
   box-sizing: border-box;
   border-radius: 16px;
@@ -138,6 +175,20 @@
   from { opacity: 0; transform: translateY(6px) scale(0.96); }
   to { opacity: 1; transform: none; }
 }
+
+.group + .group { margin-top: 8px; }
+
+.groupTitle {
+  margin: 0 0 4px 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7d8597;
+}
+.group[data-mood='greet'] .groupTitle { color: #d9a86a; }
+.group[data-mood='react'] .groupTitle { color: #e58f8f; }
+.group[data-mood='talk'] .groupTitle { color: #8fa6e5; }
 
 .grid {
   display: grid;
@@ -168,23 +219,20 @@
   background: rgba(242, 180, 92, 0.14);
   border-color: rgba(242, 180, 92, 0.4);
 }
+.group[data-mood='react'] .emoteOption:hover:not(:disabled) {
+  background: rgba(229, 143, 143, 0.13);
+  border-color: rgba(229, 143, 143, 0.4);
+}
+.group[data-mood='talk'] .emoteOption:hover:not(:disabled) {
+  background: rgba(143, 166, 229, 0.13);
+  border-color: rgba(143, 166, 229, 0.4);
+}
+.emoteOption:hover:not(:disabled) .optionIcon { transform: scale(1.18) rotate(-6deg); }
 .emoteOption:active:not(:disabled) { transform: scale(0.97); }
 .emoteOption:disabled { opacity: 0.45; cursor: default; }
 
-.optionIcon { font-size: 17px; line-height: 1; }
+.optionIcon { font-size: 17px; line-height: 1; transition: transform 0.15s; }
 .optionLabel { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.optionKey {
-  flex: none;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #7d8597;
-  font: inherit;
-  font-size: 10px;
-  line-height: 14px;
-  text-align: center;
-}
 
 .muteList {
   display: flex;
@@ -449,6 +497,7 @@ button.friendChip:hover { background: rgba(255, 255, 255, 0.14); }
 
 @media (prefers-reduced-motion: reduce) {
   .bubble { animation: bubble-fade 3.2s linear forwards; }
+  .bubbleIcon, .bubble .bubbleIcon { animation: none !important; }
   .picker, .rematch[data-state='invited'] { animation: none; }
   .emoteButton[data-cooling]::before { animation: none; display: none; }
 }

@@ -418,6 +418,75 @@
   filter: brightness(1.2);
 }
 
+/* Yes/no whose two answers are peer outcomes (endure): two equal tiles split by "or". */
+.peerOptions {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.peerOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 220px;
+  padding: var(--space-5) var(--space-4);
+  background: linear-gradient(180deg, var(--bg-surface-3), var(--bg-surface-2));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.peerOption:hover,
+.peerOption:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-accent), 0 0 18px rgba(79, 195, 247, 0.25);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.peerOption:active {
+  transform: translateY(0);
+}
+
+.peerOptionLabel {
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.peerOptionDetail {
+  font-size: var(--font-sm);
+  color: var(--text-tertiary);
+}
+
+.peerOptionsOr {
+  align-self: center;
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 639px) {
+  .peerOptions {
+    gap: var(--space-2);
+  }
+
+  .peerOption {
+    width: 150px;
+    padding: var(--space-4) var(--space-3);
+  }
+}
+
 .confirmButton {
   background-color: var(--color-success);
   color: var(--text-primary);

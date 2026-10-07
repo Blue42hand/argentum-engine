@@ -1,13 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useGameStore } from '@/store/gameStore'
+import type { Emote } from '@/types'
 import { EMOTE_COOLDOWN_MS, useTableTalkStore } from '@/store/tableTalkStore'
-import { EMOTES } from './emotes'
+import { EMOTE_GROUPS } from './emotes'
 import styles from './TableTalk.module.css'
 
 /**
- * The emote button beside your life orb and the picker it opens: eight presets, with 1–8 as
- * shortcuts while it's open, and a mute switch per opponent underneath. Sending closes the picker
+ * The emote button beside your life orb and the picker it opens: twelve presets in three groups, and
+ * a mute switch per opponent underneath. Sending closes the picker
  * and starts a short cooldown, drawn as a ring draining around the button.
  *
  * The picker is portalled to the body and pinned to the button's rect: the HUD row the button lives
@@ -34,22 +35,16 @@ export function EmotePicker({ opensUp = true }: { opensUp?: boolean }) {
   const opponents = useMemo(() => players?.filter((p) => p.playerId !== viewerId) ?? [], [players, viewerId])
   const cooling = useCooldown(lastSentAt)
 
-  const send = (index: number) => {
-    const info = EMOTES[index]
-    if (!info || cooling) return
-    sendEmote(info.emote)
+  const send = (emote: Emote) => {
+    if (cooling) return
+    sendEmote(emote)
     setOpen(false)
   }
 
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setOpen(false); return }
-      const n = Number(e.key)
-      if (Number.isInteger(n) && n >= 1 && n <= EMOTES.length) {
-        e.preventDefault()
-        send(n - 1)
-      }
+      if (e.key === 'Escape') setOpen(false)
     }
     const onPointer = (e: PointerEvent) => {
       const target = e.target as Node
@@ -94,29 +89,33 @@ export function EmotePicker({ opensUp = true }: { opensUp?: boolean }) {
           aria-label="Send an emote"
           onClick={(e) => e.stopPropagation()}
           style={{
-            left: Math.max(8, Math.min(anchor.left - 6, window.innerWidth - 324)),
+            left: Math.max(8, Math.min(anchor.left - 6, window.innerWidth - 400)),
             ...(opensUp
               ? { bottom: window.innerHeight - anchor.top + 10 }
               : { top: anchor.bottom + 10 }),
           }}
         >
-          <div className={styles.grid}>
-            {EMOTES.map((info, i) => (
-              <button
-                key={info.emote}
-                type="button"
-                role="menuitem"
-                className={styles.emoteOption}
-                onClick={() => send(i)}
-                disabled={cooling}
-                data-testid={`emote-${info.emote}`}
-              >
-                <span className={styles.optionIcon} aria-hidden>{info.icon}</span>
-                <span className={styles.optionLabel}>{info.label}</span>
-                <kbd className={styles.optionKey} aria-hidden>{i + 1}</kbd>
-              </button>
-            ))}
-          </div>
+          {EMOTE_GROUPS.map((group) => (
+            <div key={group.title} className={styles.group} data-mood={group.mood}>
+              <p className={styles.groupTitle}>{group.title}</p>
+              <div className={styles.grid}>
+                {group.emotes.map((info) => (
+                  <button
+                    key={info.emote}
+                    type="button"
+                    role="menuitem"
+                    className={styles.emoteOption}
+                    onClick={() => send(info.emote)}
+                    disabled={cooling}
+                    data-testid={`emote-${info.emote}`}
+                  >
+                    <span className={styles.optionIcon} aria-hidden>{info.icon}</span>
+                    <span className={styles.optionLabel}>{info.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
           {opponents.length > 0 && (
             <div className={styles.muteList}>
               {opponents.map((p) => (

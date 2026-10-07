@@ -1270,31 +1270,37 @@ sealed interface ServerMessage {
     data class QuickGameLobbyClosed(val reason: String) : ServerMessage
 
     /**
-     * This player's matchmaking state: searching in [format]/[ranked], or idle when [searching] is
-     * false. Sent on every change. [notice] explains a change the player didn't cause (the opponent
+     * This player's matchmaking state: searching in [mode]/[format]/[ranked], or idle when [searching]
+     * is false. Sent on every change. [notice] explains a change the player didn't cause (the opponent
      * didn't accept, they missed the accept window). [searchingSince] is the epoch-millis join time,
-     * kept across a requeue so the client's wait timer doesn't reset.
+     * kept across a requeue so the client's wait timer doesn't reset. [matched] marks the idle status
+     * sent once a confirmed pair has been seated — the client's cue to bring the player to their game.
      */
     @Serializable
     @SerialName("matchmakingStatus")
     data class MatchmakingStatus(
         val searching: Boolean,
+        val mode: com.wingedsheep.gameserver.matchmaking.MatchmakingMode? = null,
         val format: com.wingedsheep.sdk.core.DeckFormat? = null,
         val ranked: Boolean = false,
         val searchingSince: Long? = null,
         val notice: String? = null,
+        val matched: Boolean = false,
     ) : ServerMessage
 
     /**
      * The queue paired this player with [opponentName]. Answer with [ClientMessage.RespondToMatch]
-     * within [acceptWindowMs]; once both accept, a quick-game lobby is created for the two and its
-     * [QuickGameLobbyState] follows. [opponentRating] is shown for ranked matches only.
+     * within [acceptWindowMs]; once both accept they are seated: a Constructed match opens a
+     * quick-game lobby to pick decks in, Jump In a two-seat Jump In lobby on its pack choice, and
+     * Random deck and Momir Basic — which have nothing to prepare — start the game outright.
+     * [opponentRating] is shown for ranked matches only.
      */
     @Serializable
     @SerialName("matchFound")
     data class MatchFound(
         val matchId: String,
         val opponentName: String,
+        val mode: com.wingedsheep.gameserver.matchmaking.MatchmakingMode,
         val format: com.wingedsheep.sdk.core.DeckFormat? = null,
         val ranked: Boolean = false,
         val opponentRating: Int? = null,
@@ -1309,6 +1315,7 @@ sealed interface ServerMessage {
 
     @Serializable
     data class MatchmakingQueueCount(
+        val mode: com.wingedsheep.gameserver.matchmaking.MatchmakingMode,
         val format: com.wingedsheep.sdk.core.DeckFormat? = null,
         val ranked: Boolean,
         val searching: Int,

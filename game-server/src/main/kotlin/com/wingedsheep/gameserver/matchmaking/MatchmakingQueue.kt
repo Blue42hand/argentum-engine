@@ -7,12 +7,61 @@ import java.util.UUID
 import kotlin.math.abs
 
 /**
- * What a player is queueing for: the deck format the matched lobby will run (null = Limited, a random
- * sealed pool each), and whether the game counts toward their rating. Two players only ever pair when
- * their keys are equal, so a casual and a ranked queue for the same format are separate pools.
+ * What kind of game a queue makes. Only [CONSTRUCTED] brings a deck (and names a [QueueKey.format]);
+ * the other three hand every seat its cards, so a matched pair has nothing to prepare.
  */
 @Serializable
-data class QueueKey(val format: DeckFormat?, val ranked: Boolean)
+enum class MatchmakingMode(
+    /** Whether a ranked queue exists for this mode. */
+    val rankable: Boolean,
+) {
+    /** A sealed pool each, opened and built by the server from one random set shared by both. */
+    RANDOM_DECK(rankable = true),
+
+    /** Each player picks two Jumpstart packs and plays the 40 cards they make. */
+    JUMP_IN(rankable = false),
+
+    /** Sixty basics and the Momir Vig avatar, flipping random creatures. */
+    MOMIR_BASIC(rankable = false),
+
+    /** Bring a deck legal in [QueueKey.format]. */
+    CONSTRUCTED(rankable = true),
+}
+
+/**
+ * What a player is queueing for: the [mode], the deck format for a [MatchmakingMode.CONSTRUCTED] queue
+ * (null for every other mode), and whether the game counts toward their rating. Two players only ever
+ * pair when their keys are equal, so a casual and a ranked queue for the same game are separate pools.
+ * Build one through [of], which is what keeps those three fields consistent.
+ */
+@Serializable
+data class QueueKey(val mode: MatchmakingMode, val format: DeckFormat?, val ranked: Boolean) {
+    companion object {
+        /**
+         * The queue a join request names, or why it names none. A request without a [mode] (an older
+         * client) means what it used to: a format is Constructed, no format the random-pool queue.
+         */
+        fun of(mode: MatchmakingMode?, format: DeckFormat?, ranked: Boolean): Result {
+            val resolved = mode ?: if (format != null) MatchmakingMode.CONSTRUCTED else MatchmakingMode.RANDOM_DECK
+            if (resolved == MatchmakingMode.CONSTRUCTED && format == null) return Result.Invalid("Pick a format to search for")
+            if (ranked && !resolved.rankable) return Result.Invalid("${displayName(resolved)} has no ranked queue")
+            val key = QueueKey(resolved, format.takeIf { resolved == MatchmakingMode.CONSTRUCTED }, ranked)
+            return Result.Valid(key)
+        }
+
+        fun displayName(mode: MatchmakingMode): String = when (mode) {
+            MatchmakingMode.RANDOM_DECK -> "Random deck"
+            MatchmakingMode.JUMP_IN -> "Jump In"
+            MatchmakingMode.MOMIR_BASIC -> "Momir Basic"
+            MatchmakingMode.CONSTRUCTED -> "Constructed"
+        }
+    }
+
+    sealed interface Result {
+        data class Valid(val key: QueueKey) : Result
+        data class Invalid(val reason: String) : Result
+    }
+}
 
 /** One searching player. [rating] is the player's rating for the key's mode, snapshotted at join. */
 data class QueueEntry(

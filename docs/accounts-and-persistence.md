@@ -133,9 +133,9 @@ when it is **1v1 between two signed-in accounts** (no guests, no AI):
   lobby — not AI or Two-Headed Giant). Casual by default.
 - **Tournaments:** **ranked by default** for a `TOURNAMENT`-mode bracket (its matches are 1v1); the host
   can uncheck it. Free-for-All / team modes are never ranked.
-- **Matchmaking:** the home screen's **Find an opponent** queue has a casual and a ranked pool per format
-  (see **Matchmaking** below). The ranked pool needs a signed-in account; a matched pair lands in a quick
-  lobby already flagged ranked.
+- **Matchmaking:** the home screen's **Find an opponent** queue has a casual and a ranked pool for Random
+  deck and for each Constructed format (Jump In and Momir Basic are casual only; see **Matchmaking**
+  below). The ranked pool needs a signed-in account; a matched pair's game is already flagged ranked.
 
 If a lobby is flagged ranked but a seat isn't a signed-in human at start time, the game still runs — it
 just plays **unranked** (the flag is dropped, not blocked). The ranked flag + the queue (`RankedMode`,
@@ -146,17 +146,26 @@ match counts.
 ### Matchmaking
 
 `matchmaking/MatchmakingQueue.kt` is a pure state machine, `MatchmakingService` its Spring owner (ticked
-once a second). A queue is a `QueueKey(format, ranked)` — `format = null` is Limited, a random sealed pool
-each — so casual and ranked never mix. **Casual** pairs the two longest waiters. **Ranked** pairs the
+once a second). A queue is a `QueueKey(mode, format, ranked)`, built through `QueueKey.of` so the three
+agree: `mode` is a `MatchmakingMode` — `RANDOM_DECK`, `JUMP_IN`, `MOMIR_BASIC` or `CONSTRUCTED` — and only
+Constructed names a `format`. Only Random deck and Constructed are `rankable`. Casual and ranked never mix. **Casual** pairs the two longest waiters. **Ranked** pairs the
 longest waiter with the closest rating (looked up via `RatingLookup` for the format's `RankedMode`) within
 a band of ±100 that grows by 50 every 10 s and opens fully after two minutes, so a small population still
 finds a game. One account never pairs with itself.
 
 A pair gets a one-minute **accept** prompt (`matchFound` → `respondToMatch`). Whoever declines, times out,
 disconnects or wanders into another lobby/game drops out; whoever accepted goes back in the queue at their
-original join time. When both accept, `QuickGameLobbyHandler.createMatchmadeLobby` seats them in a quick
-lobby with `matchmade = true`: format and ranked are locked, it has no host, invite code or AI seat, and
-either player leaving closes it. From there it is an ordinary quick game — pick a deck, ready up.
+original join time. When both accept they are seated by mode, and each gets an idle `matchmakingStatus`
+with `matched = true` — the client's cue to bring a player on another page home to the game:
+
+- **Constructed** — `QuickGameLobbyHandler.createMatchmadeLobby` seats them in a quick lobby with
+  `matchmade = true`: format and ranked are locked, it has no host, invite code or AI seat, and either
+  player leaving closes it. From there it is an ordinary quick game — pick a deck, ready up.
+- **Random deck** and **Momir Basic** — the same matchmade quick lobby, but with nothing to prepare
+  accepting the match *was* the ready check, so the game starts at once and the lobby is never shown.
+  A Random deck pair opens boosters from one random set, so both play the same sealed environment.
+- **Jump In** — `LobbyHandler.createMatchmadeJumpInLobby` opens a private two-seat Jump In lobby (J22,
+  one game) already on its pack choice; picking the second pack is each player's ready signal.
 
 Searching counts per queue are pushed to every connected player (`matchmakingQueues`) whenever they
 change, and served at `GET /api/matchmaking/queues` for the home screen's first paint.

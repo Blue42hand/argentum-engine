@@ -97,7 +97,7 @@ class SocialPlayTest : GameServerTestBase() {
             }
 
             // Inside the minimum gap: dropped.
-            erin.send(ClientMessage.SendEmote(Emote.OOPS))
+            erin.send(ClientMessage.SendEmote(Emote.MISCLICK))
             delay(500)
             frank.emotes() shouldHaveSize 1
 

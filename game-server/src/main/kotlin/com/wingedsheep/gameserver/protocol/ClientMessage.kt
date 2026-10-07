@@ -666,13 +666,15 @@ sealed interface ClientMessage {
     ) : ClientMessage
 
     /**
-     * Enter the matchmaking queue for [format] (null = Limited: a random sealed pool each). [ranked]
-     * picks the ranked queue for that format, which requires a signed-in account. Joining again
-     * switches queues.
+     * Enter the matchmaking queue for [mode] — and, for a Constructed queue, [format]. [ranked] picks
+     * the ranked queue, which requires a signed-in account and a mode that has one. Joining again
+     * switches queues. A null [mode] (an older client) reads [format] as before: a format is
+     * Constructed, no format the Random deck queue.
      */
     @Serializable
     @SerialName("joinMatchmaking")
     data class JoinMatchmaking(
+        val mode: com.wingedsheep.gameserver.matchmaking.MatchmakingMode? = null,
         val format: com.wingedsheep.sdk.core.DeckFormat? = null,
         val ranked: Boolean = false,
     ) : ClientMessage
@@ -728,17 +730,27 @@ sealed interface ClientMessage {
 }
 
 /**
- * The preset messages a player can send the table. A closed set on purpose: quick, friendly, and
- * nothing to moderate.
+ * The preset messages a player can send the table: the handful of things people actually say across a
+ * Magic table, from "good luck, have fun" to "where are my lands?". A closed set on purpose — quick,
+ * friendly, and nothing to moderate. The wording lives on the client; these are only the names.
  */
 @Serializable
 enum class Emote {
+    // Hello & goodbye
     HELLO,
     GOOD_LUCK,
-    NICE_PLAY,
-    THINKING,
-    OOPS,
-    THANKS,
-    SORRY,
     GOOD_GAME,
+    THANKS,
+
+    // Reactions
+    WELL_PLAYED,
+    NICE_TOPDECK,
+    OUCH,
+    NO_WAY,
+
+    // Table talk
+    THINKING,
+    MISCLICK,
+    MANA_SCREW,
+    MANA_FLOOD,
 }
