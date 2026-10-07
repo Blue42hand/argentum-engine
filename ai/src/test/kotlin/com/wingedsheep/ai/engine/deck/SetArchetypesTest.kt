@@ -7,6 +7,25 @@ import io.kotest.matchers.shouldBe
 
 class SetArchetypesTest : StringSpec({
 
+    "Jumpstart 2022 exposes ten supported color-pair plans" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("j22"))
+
+        synergies.setName shouldBe "Jumpstart 2022"
+        synergies.archetypes.map { it.name } shouldContainExactly listOf(
+            "Blink Value",
+            "Draw and Attrition",
+            "Sacrifice and Raid",
+            "Ferocious Ramp",
+            "Counters and Tokens",
+            "Life Gain and Drain",
+            "Spells and Cycling",
+            "Morbid Recursion",
+            "Equipment Aggro",
+            "Ramp and Big Spells",
+        )
+        synergies.archetypes.map { it.colors.toSet() } shouldContainExactly ALL_COLOR_PAIRS.toList()
+    }
+
     "Wilds of Eldraine exposes all ten limited color-pair archetypes" {
         val woe = SetArchetypes.getForSet("woe")
 
