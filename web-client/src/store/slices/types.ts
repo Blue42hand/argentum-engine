@@ -34,6 +34,7 @@ import type {
   AiDeckSpec,
   DeckFormat,
   YieldKind,
+  MatchmakingMode,
   MatchmakingStatusMessage,
   MatchFoundMessage,
   MatchmakingQueueCount,
@@ -1058,7 +1059,7 @@ export type GameStore = {
   matchOffer: (MatchFoundMessage & { readonly receivedAt: number }) | null
   /** Searching players per queue; null until first loaded. */
   matchmakingQueues: readonly MatchmakingQueueCount[] | null
-  joinMatchmaking: (format: DeckFormat | null, ranked: boolean) => void
+  joinMatchmaking: (mode: MatchmakingMode, format: DeckFormat | null, ranked: boolean) => void
   leaveMatchmaking: () => void
   respondToMatch: (accept: boolean) => void
   dismissMatchmakingNotice: () => void

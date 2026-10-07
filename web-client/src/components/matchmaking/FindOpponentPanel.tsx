@@ -1,20 +1,26 @@
 /**
- * "Find an opponent" — the home hub's way to play someone you don't know. One quiet line: a casual /
- * ranked choice, a format, and a Search button; while searching, the same line becomes the status.
- * The server pairs you with another searcher and {@link MatchFoundDialog} asks both of you to accept.
- * The panel only captures intent and mirrors the server's queue state.
+ * "Find an opponent" — the home hub's way to play someone you don't know. A row of game modes, one
+ * line on what the chosen mode is, and a Search button (with casual / ranked and, for Constructed, a
+ * format beside it); while searching, the whole picker becomes the status line. The server pairs you
+ * with another searcher and {@link MatchFoundDialog} asks both of you to accept. The panel only
+ * captures intent and mirrors the server's queue state.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import { useAuthStore } from '@/store/authStore'
-import type { DeckFormat, MatchmakingQueueCount } from '@/types'
+import type { MatchmakingMode, MatchmakingQueueCount } from '@/types'
 import styles from './Matchmaking.module.css'
 import {
   QUEUE_FORMATS,
+  QUEUE_MODES,
   activeQueues,
   formatWait,
+  normaliseQueue,
   queueLabel,
+  queueMode,
   searchingIn,
+  searchingInMode,
+  type QueueChoice,
 } from './queues'
 
 const STORAGE_KEY = 'argentum-matchmaking-choice'
@@ -22,21 +28,17 @@ const STORAGE_KEY = 'argentum-matchmaking-choice'
 /** Enough to show where the players are without turning the panel into a lobby list. */
 const MAX_WAITING_ROWS = 3
 
-interface QueueChoice {
-  format: DeckFormat | null
-  ranked: boolean
-}
-
 function loadChoice(): QueueChoice {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<QueueChoice>
-      const format = QUEUE_FORMATS.some((o) => o.format === parsed.format) ? parsed.format ?? null : null
-      return { format, ranked: parsed.ranked === true }
+      // A choice saved before modes existed is a format (Constructed) or nothing (Random deck).
+      const mode = parsed.mode ?? (parsed.format ? 'CONSTRUCTED' : undefined)
+      return normaliseQueue({ ...parsed, mode })
     }
   } catch { /* storage unavailable — fall back to the default */ }
-  return { format: null, ranked: false }
+  return normaliseQueue({})
 }
 
 function saveChoice(choice: QueueChoice) {
@@ -65,19 +67,24 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
   }, [counts])
 
   const rankedAvailable = accountsEnabled && signedIn
-  const effective: QueueChoice = { format: choice.format, ranked: choice.ranked && rankedAvailable }
-  const choose = (next: QueueChoice) => {
-    setChoice(next)
-    saveChoice(next)
+  // The stored choice keeps "ranked" while a guest, so signing in brings it back.
+  const effective: QueueChoice = { ...choice, ranked: choice.ranked && rankedAvailable && queueMode(choice.mode).rankable }
+  const mode = queueMode(choice.mode)
+  const choose = (next: Partial<QueueChoice>) => {
+    // Keep the ranked wish across a mode that has no ladder, so switching back restores it.
+    const merged = { ...choice, ...next }
+    const normalised = { ...normaliseQueue(merged), ranked: merged.ranked }
+    setChoice(normalised)
+    saveChoice(normalised)
   }
 
   const searching = status?.searching === true
   // Before you search, everyone counted is someone else — a game you can have right now. Shown
   // first and in green, because joining their queue pairs you at once.
   const waiting = searching ? [] : activeQueues(counts).slice(0, MAX_WAITING_ROWS)
-  const play = (format: DeckFormat | null, ranked: boolean) => {
-    choose({ format, ranked })
-    joinMatchmaking(format, ranked)
+  const play = (queue: QueueChoice) => {
+    choose(queue)
+    joinMatchmaking(queue.mode, queue.format, queue.ranked)
   }
 
   return (
@@ -88,11 +95,12 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
         <ul className={styles.waitingList} aria-label="Players waiting for a game">
           {waiting.map((q) => {
             const needsSignIn = q.ranked && !rankedAvailable
+            const label = queueLabel(q.mode, q.format, q.ranked)
             return (
-              <li key={`${q.format ?? 'LIMITED'}-${q.ranked}`} className={styles.waitingRow} data-testid="waiting-queue">
+              <li key={`${q.mode}-${q.format ?? ''}-${q.ranked}`} className={styles.waitingRow} data-testid="waiting-queue">
                 <span className={styles.waitingDot} aria-hidden />
                 <span className={styles.waitingText}>
-                  <span className={styles.waitingQueue}>{queueLabel(q.format, q.ranked)}</span>
+                  <span className={styles.waitingQueue}>{label}</span>
                   <span className={styles.waitingCount}>
                     {q.searching === 1 ? '1 player waiting' : `${q.searching} players waiting`}
                   </span>
@@ -100,8 +108,10 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
                 <button
                   type="button"
                   className={styles.play}
-                  onClick={() => (needsSignIn ? onSignIn() : play(q.format ?? null, q.ranked))}
-                  title={needsSignIn ? 'Sign in to play ranked' : `Play ${queueLabel(q.format, q.ranked)} now`}
+                  onClick={() => (needsSignIn
+                    ? onSignIn()
+                    : play({ mode: q.mode, format: q.format ?? null, ranked: q.ranked }))}
+                  title={needsSignIn ? 'Sign in to play ranked' : `Play ${label} now`}
                 >
                   {needsSignIn ? 'Sign in' : 'Play'}
                 </button>
@@ -113,53 +123,68 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
 
       {searching ? (
         <SearchingRow
-          label={queueLabel(status.format, status.ranked)}
+          label={queueLabel(status.mode, status.format, status.ranked)}
           since={status.searchingSince ?? null}
-          others={Math.max(0, searchingIn(counts, status.format ?? null, status.ranked ?? false) - 1)}
+          others={Math.max(0, searchingIn(counts, normaliseQueue({
+            mode: status.mode ?? undefined,
+            format: status.format ?? null,
+            ranked: status.ranked ?? false,
+          })) - 1)}
           onCancel={leaveMatchmaking}
         />
       ) : (
-        <div className={styles.controls}>
-          {accountsEnabled && (
-            <select
-              className={`${styles.pick} ${styles.pickMode}`}
-              aria-label="Casual or ranked"
-              value={effective.ranked ? 'ranked' : 'casual'}
-              onChange={(e) => {
-                if (e.target.value === 'signin') { onSignIn(); return }
-                choose({ ...choice, ranked: e.target.value === 'ranked' })
-              }}
+        <>
+          <ModePicker
+            value={choice.mode}
+            counts={counts}
+            onChange={(next) => choose({ mode: next })}
+          />
+          <p className={styles.blurb} id="find-opponent-blurb">{mode.blurb}</p>
+          <div className={styles.controls}>
+            {accountsEnabled && mode.rankable && (
+              <select
+                className={`${styles.pick} ${styles.pickMode}`}
+                aria-label="Casual or ranked"
+                value={effective.ranked ? 'ranked' : 'casual'}
+                onChange={(e) => {
+                  if (e.target.value === 'signin') { onSignIn(); return }
+                  choose({ ranked: e.target.value === 'ranked' })
+                }}
+              >
+                <option value="casual">Casual</option>
+                {rankedAvailable
+                  ? <option value="ranked">Ranked</option>
+                  : <option value="signin">Ranked — sign in</option>}
+              </select>
+            )}
+            {choice.mode === 'CONSTRUCTED' && (
+              <select
+                className={`${styles.pick} ${styles.pickFormat}`}
+                aria-label="Format"
+                value={choice.format ?? ''}
+                onChange={(e) => choose({ format: e.target.value as QueueChoice['format'] })}
+              >
+                {QUEUE_FORMATS.map((o) => {
+                  const n = searchingIn(counts, { mode: 'CONSTRUCTED', format: o.format, ranked: effective.ranked })
+                  return (
+                    <option key={o.format} value={o.format}>
+                      {o.label}{n > 0 ? ` · ${n} waiting` : ''}
+                    </option>
+                  )
+                })}
+              </select>
+            )}
+            <button
+              type="button"
+              className={styles.search}
+              data-testid="find-opponent-search"
+              aria-describedby="find-opponent-blurb"
+              onClick={() => joinMatchmaking(effective.mode, effective.format, effective.ranked)}
             >
-              <option value="casual">Casual</option>
-              {rankedAvailable
-                ? <option value="ranked">Ranked</option>
-                : <option value="signin">Ranked — sign in</option>}
-            </select>
-          )}
-          <select
-            className={`${styles.pick} ${styles.pickFormat}`}
-            aria-label="Format"
-            value={effective.format ?? ''}
-            onChange={(e) => choose({ ...choice, format: (e.target.value || null) as DeckFormat | null })}
-          >
-            {QUEUE_FORMATS.map((o) => {
-              const n = searchingIn(counts, o.format, effective.ranked)
-              return (
-                <option key={o.label} value={o.format ?? ''}>
-                  {o.label}{n > 0 ? ` · ${n} waiting` : ''}
-                </option>
-              )
-            })}
-          </select>
-          <button
-            type="button"
-            className={styles.search}
-            data-testid="find-opponent-search"
-            onClick={() => joinMatchmaking(effective.format, effective.ranked)}
-          >
-            Search
-          </button>
-        </div>
+              Search
+            </button>
+          </div>
+        </>
       )}
 
       {status?.notice ? (
@@ -169,6 +194,57 @@ export function FindOpponentPanel({ onSignIn }: { onSignIn: () => void }) {
         </p>
       ) : null}
     </section>
+  )
+}
+
+/**
+ * The four modes as one segmented control — a radio group, so arrow keys move between them. A green
+ * dot marks a mode someone is already searching in.
+ */
+function ModePicker({
+  value,
+  counts,
+  onChange,
+}: {
+  value: MatchmakingMode
+  counts: readonly MatchmakingQueueCount[] | null
+  onChange: (mode: MatchmakingMode) => void
+}) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([])
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+    if (step === 0) return
+    e.preventDefault()
+    const index = QUEUE_MODES.findIndex((o) => o.mode === value)
+    const next = (index + step + QUEUE_MODES.length) % QUEUE_MODES.length
+    onChange(QUEUE_MODES[next]!.mode)
+    refs.current[next]?.focus()
+  }
+
+  return (
+    <div className={styles.modes} role="radiogroup" aria-label="Game mode" onKeyDown={onKeyDown}>
+      {QUEUE_MODES.map((o, i) => {
+        const selected = o.mode === value
+        const waiting = searchingInMode(counts, o.mode)
+        return (
+          <button
+            key={o.mode}
+            ref={(el) => { refs.current[i] = el }}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            tabIndex={selected ? 0 : -1}
+            className={`${styles.mode} ${selected ? styles.modeSelected : ''}`}
+            onClick={() => onChange(o.mode)}
+            title={waiting > 0 ? `${o.name} · ${waiting} waiting` : o.name}
+            data-testid={`find-opponent-mode-${o.mode}`}
+          >
+            {o.label}
+            {waiting > 0 && <span className={styles.modeDot} aria-label={`${waiting} waiting`} />}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 

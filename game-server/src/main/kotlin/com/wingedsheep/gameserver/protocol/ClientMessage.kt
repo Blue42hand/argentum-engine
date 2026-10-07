@@ -666,13 +666,15 @@ sealed interface ClientMessage {
     ) : ClientMessage
 
     /**
-     * Enter the matchmaking queue for [format] (null = Limited: a random sealed pool each). [ranked]
-     * picks the ranked queue for that format, which requires a signed-in account. Joining again
-     * switches queues.
+     * Enter the matchmaking queue for [mode] — and, for a Constructed queue, [format]. [ranked] picks
+     * the ranked queue, which requires a signed-in account and a mode that has one. Joining again
+     * switches queues. A null [mode] (an older client) reads [format] as before: a format is
+     * Constructed, no format the Random deck queue.
      */
     @Serializable
     @SerialName("joinMatchmaking")
     data class JoinMatchmaking(
+        val mode: com.wingedsheep.gameserver.matchmaking.MatchmakingMode? = null,
         val format: com.wingedsheep.sdk.core.DeckFormat? = null,
         val ranked: Boolean = false,
     ) : ClientMessage

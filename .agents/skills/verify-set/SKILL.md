@@ -219,6 +219,11 @@ Read and update all files in backlogs/sets/<slug>
 Ensure that the Set file is no longer incomplete. 
 `com.wingedsheep.mtg.sets.definitions.<setcode>.<SetName>Set.kt` should not have this: `override val incomplete = true`
 
+Announce it: add a `kind: 'set'` entry to the top of
+`web-client/src/components/whatsNew/announcements.ts` (skip if the set already has one) — `setCode`, a
+`body` that pitches what the set is like to play, and `tryIf`. The PR that drops the flag is the one
+that adds it.
+
 
 ```bash
 git mv backlog/sets/<slug> backlog/archived/sets/<slug>      # dump included

@@ -318,9 +318,12 @@ function quickTitle(cards: CardsKind): string {
   }
 }
 
-/** "Ranked Pauper match", "Casual Limited match" — what the queue agreed on. */
+/**
+ * "Ranked Pauper match" — what the queue agreed on. Only a Constructed match stays in the lobby long
+ * enough to be seen; Random deck and Momir Basic start at once, so the fallback is rarely shown.
+ */
 function matchmadeTitle(lobby: QuickGameLobbyStateMessage): string {
-  const format = lobby.format ? labelForFormat(lobby.format) : 'Limited'
+  const format = lobby.format ? labelForFormat(lobby.format) : lobby.momirBasic ? 'Momir Basic' : 'Random deck'
   return `${lobby.ranked ? 'Ranked' : 'Casual'} ${format} match`
 }
 

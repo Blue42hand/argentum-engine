@@ -40,6 +40,9 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketSession
 
+/** The Jumpstart set a matchmade Jump In game deals from — the home screen's Jump In mode uses it too. */
+private const val MATCHMADE_JUMP_IN_SET = "J22"
+
 @Component
 class LobbyHandler(
     private val sessionRegistry: SessionRegistry,
@@ -453,6 +456,38 @@ class LobbyHandler(
         logger.info("Player ${playerSession.playerName} joined sealed game ${sealedSession.sessionId}")
         sealedSession.generatePools()
         sendSealedPoolToAllPlayers(sealedSession)
+    }
+
+    /**
+     * Seat two players the matchmaking queue paired for Jump In: a private two-seat Jump In lobby on
+     * the same Jumpstart set the home screen's Jump In mode uses, started at once so both land on
+     * their pack choice. Picking the second pack is each player's ready signal, and the one-game
+     * match starts when both have. Returns false, creating nothing, when the lobby can't start.
+     */
+    fun createMatchmadeJumpInLobby(identities: List<PlayerIdentity>): Boolean {
+        if (identities.any { identity -> identity.currentLobbyId?.let { lobbyRepository.findLobbyById(it) } != null }) return false
+        val setCode = MATCHMADE_JUMP_IN_SET
+        val setName = boosterGenerator.getSetConfig(setCode)?.setName ?: return false
+        val lobby = TournamentLobby(
+            setCodes = listOf(setCode),
+            setNames = listOf(setName),
+            boosterGenerator = boosterGenerator,
+            format = TournamentFormat.SEALED,
+            useJumpstart = true,
+            maxPlayers = identities.size,
+            gamesPerMatch = 1,
+            gameMode = LobbyGameMode.TOURNAMENT,
+        )
+        identities.forEach { lobby.addPlayer(it) }
+        val host = identities.first().playerId
+        if (lobby.jumpstartStartError() != null || !lobby.startJumpstart(host)) {
+            identities.forEach { it.currentLobbyId = null }
+            return false
+        }
+        lobbyRepository.saveLobby(lobby)
+        logger.info("Matchmade Jump In lobby ${lobby.lobbyId}: ${identities.joinToString(" vs ") { it.playerName }}")
+        ctx.broadcastLobbyUpdate(lobby)
+        return true
     }
 
     private fun finishAiJumpstartPicks(lobby: TournamentLobby) {

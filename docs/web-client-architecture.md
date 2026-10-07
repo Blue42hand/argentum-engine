@@ -134,7 +134,7 @@ For responsiveness, we may later add:
 | `mulliganComplete` | Mulligan phase finished |
 | `gameOver` | Game ended with winner/reason |
 | `error` | Error with code and message |
-| `matchmakingStatus` | This player's matchmaking state (searching / idle, with a notice when it changed under them) |
+| `matchmakingStatus` | This player's matchmaking state (searching / idle, with a notice when it changed under them; `matched` once seated) |
 | `matchFound` | The queue paired this player; accept before the window closes |
 | `matchmakingQueues` | Searching players per queue, pushed on change |
 
@@ -150,7 +150,7 @@ For responsiveness, we may later add:
 | `mulligan` | Take a mulligan |
 | `chooseBottomCards` | Select cards for library bottom |
 | `concede` | Concede the game |
-| `joinMatchmaking` | Search for an opponent in a format (null = Limited), casual or ranked |
+| `joinMatchmaking` | Search for an opponent: a mode (Random deck, Jump In, Momir Basic, Constructed + format), casual or ranked |
 | `leaveMatchmaking` | Stop searching (declines an open match prompt) |
 | `respondToMatch` | Accept or decline a `matchFound` prompt |
 
