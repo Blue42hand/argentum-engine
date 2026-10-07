@@ -5,10 +5,10 @@
  *
  * - The accept prompt shows wherever they are.
  * - Off the home screen, a small pill says the search is still running and offers to stop it.
- * - When the match is confirmed, a player on another page is taken to `/`, where `App` renders the
- *   matchmade lobby the server just sent.
+ * - When the pair is seated, a player on another page is taken to `/`, where `App` renders what the
+ *   server just sent: the game itself, the Jump In pack choice, or the Constructed lobby.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useGameStore } from '@/store/gameStore.ts'
 import { MatchFoundDialog } from './MatchFoundDialog'
@@ -24,21 +24,23 @@ export default function MatchmakingLayer() {
   const location = useLocation()
   const navigate = useNavigate()
   const status = useGameStore((s) => s.matchmaking)
-  const matchmadeLobbyId = useGameStore((s) =>
-    s.quickGameLobbyState?.matchmade ? s.quickGameLobbyState.lobbyId : null,
-  )
   const onAppRoute = isAppRoute(location.pathname)
 
+  // Once per seating: the status object is replaced on every server message, so a later visit to
+  // another page doesn't bounce the player home again.
+  const handledStatus = useRef<typeof status>(null)
   useEffect(() => {
-    if (matchmadeLobbyId && !onAppRoute) navigate('/')
-  }, [matchmadeLobbyId, onAppRoute, navigate])
+    if (!status?.matched || handledStatus.current === status) return
+    handledStatus.current = status
+    if (!onAppRoute) navigate('/')
+  }, [status, onAppRoute, navigate])
 
   return (
     <>
       <MatchFoundDialog />
       {!onAppRoute && status?.searching && (
         <SearchingPill
-          label={queueLabel(status.format, status.ranked)}
+          label={queueLabel(status.mode, status.format, status.ranked)}
           since={status.searchingSince ?? null}
         />
       )}

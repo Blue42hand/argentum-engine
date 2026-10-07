@@ -34,7 +34,8 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     date: '2026-10-08',
     kind: 'mode',
     title: 'Matchmaking',
-    body: 'Find an opponent without an invite. Pick casual or ranked and a format on the home screen, then search; ranked pairs you with someone close to your rating. Queues with players already waiting are shown, so you can join one and start at once.',
+    body:
+      'Find an opponent without an invite. Pick a mode on the home screen — Random deck, Jump In, Momir Basic or a Constructed format — then search; ranked pairs you with someone close to your rating. Queues with players already waiting are shown, so you can join one and start at once.',
   },
   {
     id: 'set-leb',
