@@ -174,6 +174,14 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
   const [searchText, setSearchText] = useState('')
   const [searchHelpOpen, setSearchHelpOpen] = useState(false)
+  // Simple = plain substring over name / type line / rules text; Scryfall = the query language.
+  // Remembered per browser so a player who prefers one doesn't re-pick it every draft.
+  const [searchMode, setSearchMode] = useState<SearchMode>(loadSearchMode)
+  const changeSearchMode = (mode: SearchMode) => {
+    setSearchMode(mode)
+    if (mode === 'simple') setSearchHelpOpen(false)
+    try { localStorage.setItem(SEARCH_MODE_KEY, mode) } catch { /* storage unavailable */ }
+  }
   // Phones: the sort / filter / search controls fold behind one button so the pool gets the screen.
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [creatureTypeFilter, setCreatureTypeFilter] = useState<string | null>(null)
@@ -381,7 +389,10 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
 
   // The search box speaks the constructed deckbuilder's Scryfall-style query language. Each pool
   // card is adapted to that language's `CardSummary` once per pool, not once per keystroke.
-  const searchQuery = useMemo(() => parseQuery(searchText), [searchText])
+  const searchQuery = useMemo(
+    () => (searchMode === 'scryfall' ? parseQuery(searchText) : EMPTY_QUERY),
+    [searchMode, searchText],
+  )
   const poolSummaries = useMemo(() => {
     const summaries = new Map<string, CardSummary>()
     for (const card of state.cardPool) {
@@ -455,7 +466,9 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
         if (creatureTypeFilter) {
           if (!matchesCreatureTypeFilter(card, creatureTypeFilter)) continue
         }
-        if (searchQuery.ast) {
+        if (searchMode === 'simple') {
+          if (searchText.trim() && !matchesSimpleSearch(card, searchText.trim())) continue
+        } else if (searchQuery.ast) {
           const summary = poolSummaries.get(name)
           if (!summary || !searchQuery.predicate(summary)) continue
         }
@@ -472,7 +485,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
         return getRarityOrder(a.card) - getRarityOrder(b.card) || getCmc(a.card) - getCmc(b.card)
       }
     })
-  }, [state.cardPool, state.deck, state.poolPlay, sortBy, colorFilter, colorMode, typeFilter, creatureTypeFilter, searchQuery, poolSummaries, archetypeFilter, commanderIdentity, restrictToCommanderIdentity])
+  }, [state.cardPool, state.deck, state.poolPlay, sortBy, colorFilter, colorMode, typeFilter, creatureTypeFilter, searchMode, searchText, searchQuery, poolSummaries, archetypeFilter, commanderIdentity, restrictToCommanderIdentity])
 
   // "Cards left to add" is only a meaningful total when the pool is finite. In Pool Play every card
   // is always available, so count distinct cards on offer instead of copies.
@@ -847,19 +860,59 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
 
             <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255, 255, 255, 0.12)', margin: '0 4px' }} />
 
+            <div
+              role="radiogroup"
+              aria-label="Search mode"
+              style={{
+                display: 'flex',
+                borderRadius: 4,
+                border: '1px solid rgba(255, 255, 255, 0.16)',
+                overflow: 'hidden',
+                flexShrink: 0,
+              }}
+            >
+              {SEARCH_MODE_OPTIONS.map(({ mode, label, hint }) => {
+                const active = searchMode === mode
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => changeSearchMode(mode)}
+                    title={hint}
+                    style={{
+                      padding: '3px 8px',
+                      fontSize: 11,
+                      backgroundColor: active ? '#4fc3f7' : 'rgba(255, 255, 255, 0.04)',
+                      color: active ? '#000' : '#aaa',
+                      fontWeight: active ? 600 : 400,
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input
                 type="text"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Search — t:creature cmc<=3 o:flying"
-                title="Scryfall-style search: t:, o:, c:, cmc:, pow:, r:, kw:, is:, or / - / ( ). Click ? for the syntax."
+                placeholder={searchMode === 'scryfall' ? 't:creature cmc<=3 o:flying' : 'Search name, type, or text…'}
+                title={searchMode === 'scryfall'
+                  ? 'Scryfall-style search: t:, o:, c:, cmc:, pow:, r:, kw:, is:, or / - / ( ). Click ? for the syntax.'
+                  : 'Matches card name, type line, or rules text'}
+                aria-label="Search pool"
                 aria-invalid={searchQuery.errors.length > 0}
                 aria-describedby={searchQuery.errors.length > 0 ? 'pool-search-errors' : undefined}
                 style={{
                   padding: '3px 24px 3px 8px',
                   fontSize: 12,
-                  fontFamily: 'var(--font-mono, monospace)',
+                  fontFamily: searchMode === 'scryfall' ? 'var(--font-mono, monospace)' : undefined,
                   backgroundColor: 'rgba(255, 255, 255, 0.08)',
                   color: '#ddd',
                   border: searchQuery.errors.length > 0
@@ -926,7 +979,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
                 </ul>
               )}
             </div>
-            <button
+            {searchMode === 'scryfall' && <button
               onClick={() => setSearchHelpOpen((v) => !v)}
               title="Search syntax"
               aria-label="Show search syntax help"
@@ -947,7 +1000,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
               }}
             >
               ?
-            </button>
+            </button>}
             {searchHelpOpen && (
               <SearchHelp onClose={() => setSearchHelpOpen(false)} onInsert={setSearchText} />
             )}
@@ -2508,6 +2561,34 @@ function suggestLands(
   const result = suggestBasicLands({ entries, availableBasics, minDeckSize: 40 })
 
   for (const land of state.basicLands) setLandCount(land.name, result[land.name] ?? 0)
+}
+
+type SearchMode = 'simple' | 'scryfall'
+
+const SEARCH_MODE_KEY = 'argentum-pool-search-mode'
+
+const SEARCH_MODE_OPTIONS: { mode: SearchMode; label: string; hint: string }[] = [
+  { mode: 'simple', label: 'Simple', hint: 'Plain text: matches name, type line, or rules text' },
+  { mode: 'scryfall', label: 'Scryfall', hint: 'Scryfall query syntax: t:, o:, c:, cmc:, …' },
+]
+
+const EMPTY_QUERY = parseQuery('')
+
+function loadSearchMode(): SearchMode {
+  try {
+    return localStorage.getItem(SEARCH_MODE_KEY) === 'scryfall' ? 'scryfall' : 'simple'
+  } catch {
+    return 'simple'
+  }
+}
+
+function matchesSimpleSearch(card: SealedCardInfo, query: string): boolean {
+  const q = query.toLowerCase()
+  return (
+    card.name.toLowerCase().includes(q) ||
+    card.typeLine.toLowerCase().includes(q) ||
+    (card.oracleText != null && card.oracleText.toLowerCase().includes(q))
+  )
 }
 
 function matchesTypeFilter(card: SealedCardInfo, filter: string): boolean {
