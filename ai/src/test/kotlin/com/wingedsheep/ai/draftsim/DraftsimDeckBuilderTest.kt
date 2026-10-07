@@ -156,4 +156,35 @@ class DraftsimDeckBuilderTest : FunSpec({
         build.colors shouldContainAll listOf("W", "U", "B")
         listOf("W", "U", "B").forEach { c -> (build.basicsNeeded[c] ?: 0) shouldBeGreaterThan 0 }
     }
+    // A thin WU pile in a BG-heavy pool used to be padded with the pool's best off-colour cards: the
+    // creature floor swapped in creatures of any colour, and a castability-relaxed fill topped the
+    // deck up to 23. A WU deck holding a {3}{B}{B}{G} rare is unplayable, so neither may happen —
+    // the shortfall goes to lands instead.
+    test("a pool too thin in the build's colours is filled with lands, never off-colour cards") {
+        val ratings = HashMap<String, Double>()
+        val cards = mutableListOf<DraftsimPoolCard>()
+        var n = 0
+        fun add(card: ScorerCard, rating: Double) {
+            ratings[DraftsimData.nameKey(card.name)] = rating
+            cards += DraftsimPoolCard(card, "id-${n++}")
+        }
+        for (i in 1..6) add(BCard("WhiteSpell$i", "{1}{W}", "Instant", listOf("W")), 2.5)
+        for (i in 1..6) add(BCard("BlueSpell$i", "{2}{U}", "Sorcery", listOf("U")), 2.5)
+        for (i in 1..4) add(BCard("WhiteBear$i", "{1}{W}", "Creature — Human", listOf("W")), 2.5)
+        add(BCard("Aatchik, Emerald Radian", "{3}{B}{B}{G}", "Legendary Creature — Insect Druid", listOf("B", "G")), 4.5)
+        for (i in 1..20) add(BCard("BlackBeast$i", "{2}{B}", "Creature — Beast", listOf("B")), 3.0)
+        for (i in 1..20) add(BCard("GreenBeast$i", "{2}{G}", "Creature — Beast", listOf("G")), 3.0)
+        val builder = DraftsimDeckBuilder(DraftsimSetTables(ratings, HashSet(), emptyMap()))
+        val byId = cards.associateBy { it.instanceId }
+        val forced = setOf("WhiteSpell1", "BlueSpell1").map { name -> cards.first { it.card.name == name }.instanceId }.toSet()
+
+        val build = builder.buildDecks(cards, mode = "sealed", forced = forced).single()
+
+        build.colors.toSet() shouldBe setOf("W", "U")
+        val nonland = build.deckInstanceIds.mapNotNull { byId[it]?.card }.filter { !it.typeLine.contains("Land") }
+        nonland.flatMap { it.colors }.toSet() shouldBe setOf("W", "U")
+        nonland.size shouldBe 16
+        (build.deckInstanceIds.size + build.basicsNeeded.values.sum()) shouldBe 40
+        build.basicsNeeded.keys shouldBe setOf("W", "U")
+    }
 })

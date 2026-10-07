@@ -283,14 +283,11 @@ class DraftsimDeckBuilder(
             if (item.pc.instanceId in st.chosen || !castable(item.pc.card, archColors)) continue
             if ((st.copies[item.pc.card.name] ?: 0) < copyCap(item.pc.card)) st.add(item)
         }
-        // Phase 5 — relax castability + bucket caps.
-        for (item in scored) {
-            if (st.deck.size >= nonlandTarget) break
-            if (item.pc.instanceId in st.chosen) continue
-            if ((st.copies[item.pc.card.name] ?: 0) < copyCap(item.pc.card)) st.add(item)
-        }
+        // No castability-relaxed phase: a pool too thin in these colours leaves the deck short, the
+        // splash pass gets first claim on the room, and [buildManabase] covers the rest with basics.
+        // An uncastable card is a dead draw; an extra land is merely a weak one.
 
-        creatureFloor(st, scored)
+        creatureFloor(st, scored, archColors)
         val splashColor = splashPass(st, scored, poolLands, archColors)
 
         val deckColors = if (splashColor != null) archColors + splashColor else archColors
@@ -302,11 +299,15 @@ class DraftsimDeckBuilder(
         return DraftsimBuild(archName, deckColors, final.score, final.manaBaseScore, includedIds, mana.basicsNeeded)
     }
 
-    /** §1.6 creature floor: swap weakest non-creature non-removal cards for best available creatures. */
-    private fun creatureFloor(st: BuildState, scored: List<Scored>) {
+    /**
+     * §1.6 creature floor: swap weakest non-creature non-removal cards for the best *castable*
+     * creatures. Only on-colour creatures qualify — otherwise a pool short on creatures in [colors]
+     * swaps in the highest-scored off-colour one (a black-green rare in a white-blue deck).
+     */
+    private fun creatureFloor(st: BuildState, scored: List<Scored>, colors: List<String>) {
         if (st.creatures >= shape.creatureFloor) return
         val candidates = scored.filter {
-            ops.isCreature(it.pc.card) && it.pc.instanceId !in st.chosen &&
+            ops.isCreature(it.pc.card) && it.pc.instanceId !in st.chosen && castable(it.pc.card, colors) &&
                 (st.copies[it.pc.card.name] ?: 0) < copyCap(it.pc.card)
         }
         val victims = st.deck.filter { !ops.isCreature(it.pc.card) && !isRemoval(it.pc.card) && it.pc.instanceId !in st.forced }.sortedBy { it.total }
@@ -351,6 +352,9 @@ class DraftsimDeckBuilder(
     )
 
     private fun buildManabase(deckCards: List<DraftsimPoolCard>, poolLands: List<DraftsimPoolCard>, forcedColors: List<String>): Manabase {
+        // A deck the pool couldn't fill with castable spells makes up the shortfall in lands, so it
+        // still reaches the shape's total.
+        val lands = landTarget + max(0, nonlandTarget - deckCards.size)
         // §3.1 allowed set.
         val a: Set<String> = if (forcedColors.isNotEmpty()) forcedColors.toSet() else {
             val pips = HashMap<String, Double>()
@@ -367,12 +371,12 @@ class DraftsimDeckBuilder(
             val fix = ops.archRecord(land.card.name)?.fixing?.takeIf { it.isNotEmpty() }
                 ?: ops.colorsOf(land.card).ifEmpty { land.card.colorIdentity }
             fix.isNotEmpty() && (fix.size >= 4 || fix.all { it in deckColorSet })
-        }.take(landTarget)
-        var basicsCount = max(0, landTarget - usefulLands.size)
+        }.take(lands)
+        var basicsCount = max(0, lands - usefulLands.size)
 
         // Basics only ever fix the deck's committed colors ([deckColorSet]) — never an off-color card
-        // that the castability-relaxed greedy fill dragged in. `pipCounts` always counts plain colored
-        // pips even when they fall outside the allowed set, so a {W} filler in an RU build would
+        // the deck holds anyway (a hybrid, or a card the player locked). `pipCounts` always counts plain
+        // colored pips even when they fall outside the allowed set, so a {W} card in an RU build would
         // otherwise leak White demand and have `splashFloor` fabricate Plains the deck can't use — a
         // manabase whose colors no longer match the build's reported [forcedColors].
         val basicDemand = demand.filterKeys { it in deckColorSet }.ifEmpty { demand }
@@ -382,7 +386,7 @@ class DraftsimDeckBuilder(
         // §3.5 splash floor for demanded colors beyond the top 2.
         splashFloor(basics, basicDemand, deckCards, usefulLands)
         // §3.6 trim to 17 total.
-        trimLands(basics, usefulLands.size)
+        trimLands(basics, usefulLands.size, lands)
 
         return Manabase(usefulLands, basics.filterValues { it > 0 })
     }
@@ -432,8 +436,8 @@ class DraftsimDeckBuilder(
         }
     }
 
-    private fun trimLands(basics: MutableMap<String, Int>, usefulCount: Int) {
-        var excess = usefulCount + basics.values.sum() - landTarget
+    private fun trimLands(basics: MutableMap<String, Int>, usefulCount: Int, lands: Int) {
+        var excess = usefulCount + basics.values.sum() - lands
         while (excess > 0) {
             val biggest = basics.entries.filter { it.value > 0 }.maxByOrNull { it.value } ?: break
             basics[biggest.key] = biggest.value - 1
@@ -539,9 +543,8 @@ class DraftsimDeckBuilder(
         }
         for (item in scored) { if (st.deck.size >= nonlandTarget) break; if (item.pc.instanceId !in st.chosen && castable(item.pc.card, colors) && st.canAdd(item)) st.add(item) }
         for (item in scored) { if (st.deck.size >= nonlandTarget) break; if (item.pc.instanceId !in st.chosen && castable(item.pc.card, colors) && (st.copies[item.pc.card.name] ?: 0) < copyCap(item.pc.card)) st.add(item) }
-        for (item in scored) { if (st.deck.size >= nonlandTarget) break; if (item.pc.instanceId !in st.chosen && (st.copies[item.pc.card.name] ?: 0) < copyCap(item.pc.card)) st.add(item) }
 
-        creatureFloor(st, scored)
+        creatureFloor(st, scored, colors)
 
         val chosenCards = st.deck.map { it.pc }
         val mana = buildManabase(chosenCards, poolLands, colors)
