@@ -86,6 +86,7 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
     setPendingLobbyIntent({
       deckTab: deckTabFor(recipe),
       ...(recipe.deck.kind === 'SAVED' ? { deckName: recipe.deck.name } : {}),
+      ...(recipe.deck.kind === 'EXAMPLE' ? { exampleName: recipe.deck.name } : {}),
       autoStart: recipe.autoStart,
       ...(recipe.autoStart && spec.kind === 'TOURNAMENT' && recipe.selection.roster === 'SOLO'
         ? { startWhenSeated: 1 + recipe.aiSeats }
@@ -144,6 +145,7 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
  */
 function deckTabFor(recipe: LobbyRecipe): DeckPickerTab {
   if (recipe.deck.kind === 'RANDOM') return 'random'
+  if (recipe.deck.kind === 'EXAMPLE') return 'examples'
   return 'saved'
 }
 

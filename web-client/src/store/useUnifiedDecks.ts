@@ -60,6 +60,9 @@ export function useUnifiedDecks() {
 
   const [cloud, setCloud] = useState<DeckDetail[]>([])
   const [loading, setLoading] = useState(false)
+  // Whether the cloud half has answered at least once — so "no decks" can be told apart from
+  // "not loaded yet" by callers that act on an empty library (the deck picker leaves My Decks).
+  const [cloudSettled, setCloudSettled] = useState(false)
 
   useEffect(() => {
     if (!hydrated) hydrate()
@@ -68,13 +71,17 @@ export function useUnifiedDecks() {
   const reload = useCallback(() => {
     if (!isLoggedIn) {
       setCloud([])
+      setCloudSettled(true)
       return
     }
     setLoading(true)
     void listDeckDetails()
       .then(setCloud)
       .catch(() => setCloud([]))
-      .finally(() => setLoading(false))
+      .finally(() => {
+        setLoading(false)
+        setCloudSettled(true)
+      })
   }, [isLoggedIn])
 
   useEffect(() => {
@@ -114,5 +121,8 @@ export function useUnifiedDecks() {
     [renameLocal, reload],
   )
 
-  return { decks, loading, reload, removeDeck, renameDeck, isLoggedIn }
+  /** True once both the browser library and (when signed in) the account's decks have loaded. */
+  const settled = hydrated && cloudSettled && !loading
+
+  return { decks, loading, settled, reload, removeDeck, renameDeck, isLoggedIn }
 }

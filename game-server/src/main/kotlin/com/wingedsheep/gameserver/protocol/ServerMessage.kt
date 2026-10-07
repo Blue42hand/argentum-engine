@@ -1247,6 +1247,11 @@ sealed interface ServerMessage {
         /** All set choices for Random decks; empty = "any set". */
         val setCodes: List<String> = listOfNotNull(setCode),
         /**
+         * True when this seat asked the server to roll its deck (the Random tab). Lets a guest who
+         * joins a "Random deck" game default to the same thing instead of being asked for a deck.
+         */
+        val randomDeck: Boolean = false,
+        /**
          * Team membership in a Two-Headed Giant lobby (CR 810): seats sharing a [teamIndex] are
          * teammates. Derived from the seat's join order (0+1 = team 0, 2+3 = team 1). Null in a
          * non-2HG lobby, so the existing 2-player overlay is unaffected.

@@ -15,7 +15,7 @@
  */
 import type { DeckFormat } from '@/types'
 import type { CardsAxis } from './axes'
-import { type Roster, type Selection, type ShapeId } from './modeMatrix'
+import { lobbyKindFor, type Roster, type Selection, type ShapeId } from './modeMatrix'
 import { recipeFromSelection, type LobbyRecipe, type RecipeSettings } from './lobbyRecipe'
 
 /* ── Vocabulary ─────────────────────────────────────────────────────────── */
@@ -45,6 +45,19 @@ export type TableCards = 'DECKS' | 'JUMP_IN' | 'SEALED' | 'DRAFT'
 /** With people rather than the AI: one opponent, or a bracket anyone can join up to its cap. */
 export type HumanTable = 'ONE_V_ONE' | 'BRACKET'
 
+/**
+ * The deck the launch panel settled on, when the mode brings one.
+ *
+ * Names, not lists — the same portable key a recipe stores. `LOBBY` is the explicit "I'll pick
+ * there"; a starter deck and a rolled one exist so that someone with no decks of their own still
+ * has a deck to name here, and an AI game can go straight to the table.
+ */
+export type PanelDeck =
+  | { readonly kind: 'SAVED'; readonly name: string }
+  | { readonly kind: 'EXAMPLE'; readonly name: string }
+  | { readonly kind: 'RANDOM' }
+  | { readonly kind: 'LOBBY' }
+
 export interface ModeInfo {
   id: ModeId
   group: ModeGroup
@@ -68,8 +81,8 @@ export const MODE_GROUPS: ReadonlyArray<{ id: ModeGroup; label: string; caption:
 export const MODES: readonly ModeInfo[] = [
   {
     id: 'CONSTRUCTED', group: 'NOW', label: 'Constructed', slug: 'constructed', players: '2–8 players',
-    caption: 'Bring one of your own decks.',
-    description: 'Play one of your saved decks — one game, or a bracket with more players.',
+    caption: 'Your own deck, or a starter deck.',
+    description: 'Play a deck of your own or one of ours — one game, or a bracket with more players.',
   },
   {
     id: 'JUMP_IN', group: 'NOW', label: 'Jump In', slug: 'jump-in', players: '2–8 players',
@@ -141,8 +154,8 @@ export interface PlayOptions {
   tableCards: TableCards
   /** The set to open or draft, when the cards come from packs. Null = the lobby's default. */
   setCode: string | null
-  /** A saved deck, by name — the portable key `RecipeDeck` uses. Null = choose in the lobby. */
-  deckName: string | null
+  /** The deck to bring. Null = not decided — the panel fills in a default. */
+  deck: PanelDeck | null
 }
 
 export function defaultOptions(mode: ModeId, aiEnabled: boolean): PlayOptions {
@@ -155,7 +168,7 @@ export function defaultOptions(mode: ModeId, aiEnabled: boolean): PlayOptions {
     sealedStyle: 'STANDARD',
     tableCards: 'DECKS',
     setCode: null,
-    deckName: null,
+    deck: null,
   }
   return { ...base, opponents: opponentRange(base)?.fallback ?? 1 }
 }
@@ -209,6 +222,16 @@ export function hasHumanTableChoice(mode: ModeId): boolean {
 /** Whether the panel should ask for a saved deck. */
 export function needsDeck(options: PlayOptions): boolean {
   return cardsFor(options).kind === 'BRING_A_DECK'
+}
+
+/**
+ * Whether "Random deck" can be offered as your deck.
+ *
+ * A rolled deck is the quick lobby's Random tab; the premade-decks tournament a bracket runs on
+ * takes a submitted list only, so a bracket or a pod never offers it.
+ */
+export function canRollDeck(options: PlayOptions): boolean {
+  return needsDeck(options) && lobbyKindFor(selectionFor(options)) === 'QUICK'
 }
 
 /** Whether the cards come out of packs from a set the player should choose. */
@@ -310,9 +333,7 @@ export function recipeForOptions(options: PlayOptions): LobbyRecipe {
     settings.deckFormat = COMMANDER_LEGALITY
   }
 
-  const deck = selection.cards.kind === 'BRING_A_DECK' && options.deckName
-    ? { kind: 'SAVED' as const, name: options.deckName }
-    : base.deck
+  const deck = selection.cards.kind === 'BRING_A_DECK' ? recipeDeckFor(options, base.deck) : base.deck
 
   return {
     ...base,
@@ -322,6 +343,22 @@ export function recipeForOptions(options: PlayOptions): LobbyRecipe {
     aiSeats: solo && base.aiSeats > 0 ? effectiveOpponents(options) : base.aiSeats,
     autoStart: solo,
   }
+}
+
+function recipeDeckFor(options: PlayOptions, fallback: LobbyRecipe['deck']): LobbyRecipe['deck'] {
+  const deck = options.deck
+  switch (deck?.kind) {
+    case 'SAVED': return { kind: 'SAVED', name: deck.name }
+    case 'EXAMPLE': return { kind: 'EXAMPLE', name: deck.name }
+    case 'RANDOM': return canRollDeck(options) ? { kind: 'RANDOM' } : fallback
+    default: return fallback
+  }
+}
+
+/** Whether these options name a deck, so nothing is left to choose in the lobby. */
+export function hasDeck(options: PlayOptions): boolean {
+  const kind = options.deck?.kind
+  return kind === 'SAVED' || kind === 'EXAMPLE' || (kind === 'RANDOM' && canRollDeck(options))
 }
 
 /** The players at the table, you included — for the seat preview and the Play button. */
@@ -342,7 +379,10 @@ export function stagesFor(options: PlayOptions): string[] {
   if (options.playWith !== 'AI') stages.push('Players join')
   const cards = selection.cards
   switch (cards.kind) {
-    case 'BRING_A_DECK': if (!options.deckName) stages.push('Choose a deck'); break
+    case 'BRING_A_DECK':
+      if (!hasDeck(options)) stages.push('Choose a deck')
+      else if (options.deck?.kind === 'RANDOM') stages.push('Get a deck')
+      break
     case 'RANDOM': stages.push('Get a deck'); break
     case 'MOMIR': break
     case 'JUMP_IN': stages.push('Pick 2 packs'); break

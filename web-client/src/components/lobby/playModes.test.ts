@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   MODES,
+  canRollDeck,
   defaultOptions,
   effectiveOpponents,
   modeFromSlug,
@@ -80,11 +81,28 @@ describe('playModes', () => {
   })
 
   it('plays a 1v1 constructed game against one AI in the quick lobby', () => {
-    const options = { ...defaultOptions('CONSTRUCTED', true), deckName: 'Goblins' }
+    const options = { ...defaultOptions('CONSTRUCTED', true), deck: { kind: 'SAVED', name: 'Goblins' } as const }
     const recipe = recipeForOptions(options)
     expect(lobbyKindFor(recipe.selection)).toBe('QUICK')
     expect(recipe.deck).toEqual({ kind: 'SAVED', name: 'Goblins' })
     expect(recipe.aiSeats).toBe(0)
+  })
+
+  it('carries a starter deck or a rolled deck into the recipe', () => {
+    const constructed = defaultOptions('CONSTRUCTED', true)
+    expect(recipeForOptions({ ...constructed, deck: { kind: 'EXAMPLE', name: 'Boros Mice' } }).deck)
+      .toEqual({ kind: 'EXAMPLE', name: 'Boros Mice' })
+    expect(recipeForOptions({ ...constructed, deck: { kind: 'RANDOM' } }).deck).toEqual({ kind: 'RANDOM' })
+    expect(stagesFor({ ...constructed, deck: { kind: 'EXAMPLE', name: 'Boros Mice' } })).toEqual(['Play'])
+  })
+
+  it('offers a rolled deck only where the quick lobby runs the game', () => {
+    const constructed = defaultOptions('CONSTRUCTED', true)
+    expect(canRollDeck(constructed)).toBe(true)
+    // Three AI is a premade-decks bracket, which takes a submitted list only.
+    expect(canRollDeck({ ...constructed, opponents: 3 })).toBe(false)
+    expect(recipeForOptions({ ...constructed, opponents: 3, deck: { kind: 'RANDOM' } }).deck.kind).not.toBe('RANDOM')
+    expect(canRollDeck(defaultOptions('DRAFT', true))).toBe(false)
   })
 
   it('turns more AI opponents into a bracket with that many AI seats', () => {

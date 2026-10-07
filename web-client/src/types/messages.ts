@@ -3039,6 +3039,8 @@ export interface QuickGameLobbyPlayerView {
   readonly setCode: string | null
   /** All sets used to build a Random deck; empty means any set. */
   readonly setCodes?: readonly string[]
+  /** This seat chose the server-rolled Random deck. Absent on an older server. */
+  readonly randomDeck?: boolean
 }
 
 export type DeckFormat =
