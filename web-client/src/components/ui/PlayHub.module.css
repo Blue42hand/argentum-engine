@@ -622,8 +622,13 @@
 }
 
 /* Large screens (see Home.module.css): the hub takes its content's height so the page column can
-   centre it; everything fits, so nothing needs to scroll on its own. */
+   centre it; everything fits, so nothing needs to scroll on its own.
+   Only the catalogue sizes the hub, though. The side column's height changes with every mode — a
+   Draft panel is half again as tall as Random's — and if it counted, each tile click would re-centre
+   the hub and move the catalogue under the pointer. `contain: size` takes the column out of the
+   row's sizing; it hangs from the catalogue's top edge into the space below. */
 @media (min-width: 1500px) and (min-height: 940px) {
   .hub { flex: 0 0 auto; height: auto; }
-  .catalog, .side { max-height: none; }
+  .catalog { max-height: none; }
+  .side { max-height: none; contain: size; overflow: visible; }
 }
