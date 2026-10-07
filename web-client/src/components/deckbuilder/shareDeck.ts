@@ -84,6 +84,13 @@ export interface SharedDeck {
    * shared by link arrives without its sideboard.
    */
   sideboard?: Record<string, number>
+  /**
+   * Optional owner's note and chosen cover art. Carried by the account save (stored verbatim);
+   * the share-link codec has no field for them and drops them — a shared deck is the list.
+   */
+  note?: string
+  coverCard?: string
+  coverImageUri?: string
 }
 
 /**

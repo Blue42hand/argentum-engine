@@ -26,9 +26,11 @@ import { getCardImageUrl } from '@/utils/cardImages'
 import {
   DeckTile,
   DeckTileActionButton,
-  deckColors,
-  rarestCard,
+  deckCover,
+  deckTileModel,
 } from '@/components/deck/DeckTile'
+import { DeckDetailsDialog } from '@/components/deck/DeckDetailsDialog'
+import { CoverPicker, DeckIdentity } from './DeckIdentity'
 import {
   parseQuery,
   isAdvancedQuery,
@@ -105,6 +107,8 @@ interface ExampleDeck {
   id: string
   name: string
   description: string
+  /** A one-line tip on how to play it — loaded as the deck's note. */
+  note?: string | null
   cards: Record<string, number>
   /** Deck format this example is built for. Null = no format hint. */
   format?: string | null
@@ -203,7 +207,7 @@ export function DeckbuilderPage() {
     decks: browserDecks,
     reload: reloadUnifiedDecks,
     removeDeck: removeUnifiedDeck,
-    renameDeck: renameUnifiedDeck,
+    updateDetails: updateUnifiedDeckDetails,
   } = useUnifiedDecks()
   const hydrate = useDeckLibrary((s) => s.hydrate)
   const hydrated = useDeckLibrary((s) => s.hydrated)
@@ -286,6 +290,11 @@ export function DeckbuilderPage() {
 
   // Working deck state.
   const [deckName, setDeckName] = useState('Untitled deck')
+  // The owner's note and chosen cover card — what the deck galleries show besides the name.
+  // A null cover means automatic (the rarest card); see `deckCover`.
+  const [deckNote, setDeckNote] = useState('')
+  const [coverCard, setCoverCard] = useState<string | null>(null)
+  const [coverPickerOpen, setCoverPickerOpen] = useState(false)
   const [deckCards, setDeckCards] = useState<Record<string, number>>({})
   // Constructed sideboard ("outside the game", CR 100.4a) — cards reachable in-game only by wish
   // effects (Burning Wish, …). Persisted on the saved deck and sent as `sideboard` when playing.
@@ -339,6 +348,8 @@ export function DeckbuilderPage() {
     const existing = getDeck(deckId)
     if (existing) {
       setDeckName(existing.name)
+      setDeckNote(existing.note ?? '')
+      setCoverCard(existing.coverCard ?? null)
       setDeckCards(mergeCommanderIntoCards(existing.cards, existing.commander ?? null))
       setCommander(existing.commander ?? null)
       // Without this a refresh (or a deep link to /deckbuilder/<id>) rehydrates the deck with an
@@ -408,6 +419,8 @@ export function DeckbuilderPage() {
         )
         if (!shared) return
         setDeckName(shared.name || 'Shared deck')
+        setDeckNote(shared.note ?? '')
+        setCoverCard(shared.coverCard ?? null)
         setDeckCards(mergeCommanderIntoCards(shared.cards, shared.commander ?? null))
         setCommander(shared.commander ?? null)
         // Reset rather than leave in place: a deck loaded without one has no sideboard, and a
@@ -815,6 +828,8 @@ export function DeckbuilderPage() {
 
   const handleNew = () => {
     setDeckName('Untitled deck')
+    setDeckNote('')
+    setCoverCard(null)
     setDeckCards({})
     setSideboardCards({})
     setCommander(null)
@@ -822,6 +837,39 @@ export function DeckbuilderPage() {
     setPinnedPrintings({})
     navigate(`/deckbuilder${searchSuffix()}`)
   }
+
+  // The art a card shows in *this* deck: its pinned printing's, else the catalogue default.
+  const deckArtFor = useCallback(
+    (name: string): string | null => pinnedPrintingArt[name]?.imageUri ?? catalogIndex[name]?.imageUri ?? null,
+    [pinnedPrintingArt, catalogIndex],
+  )
+
+  // The cover as it paints right now — chosen (while still in the deck) else automatic.
+  const coverHero = useMemo(() => {
+    const hero = deckCover(
+      {
+        cards: deckCards,
+        commander,
+        coverCard,
+        coverImageUri: coverCard ? deckArtFor(coverCard) : null,
+      },
+      catalogIndex,
+    )
+    return hero ? { ...hero, imageUri: deckArtFor(hero.name) ?? hero.imageUri ?? null } : null
+  }, [deckCards, commander, coverCard, catalogIndex, deckArtFor])
+  const coverChosen = coverCard !== null && (coverCard in deckCards || coverCard === commander)
+
+  // Note + cover as saved. The cover's art is snapshotted so a picker can paint it without the
+  // catalogue; a cover whose card has left the deck isn't saved at all.
+  const deckDetailsForSave = useCallback((): { note?: string; coverCard?: string; coverImageUri?: string } => {
+    const note = deckNote.trim()
+    const art = coverChosen && coverCard ? deckArtFor(coverCard) : null
+    return {
+      ...(note ? { note } : {}),
+      ...(coverChosen && coverCard ? { coverCard } : {}),
+      ...(art ? { coverImageUri: art } : {}),
+    }
+  }, [deckNote, coverChosen, coverCard, deckArtFor])
 
   // Unified Save: when signed in, persist to the account (cloud); otherwise to the local browser
   // library. We dedupe the cloud deck by name (the same rule the sign-in migration prompt uses) so
@@ -862,6 +910,7 @@ export function DeckbuilderPage() {
       ...(commanderPrintingForSave ? { commanderPrinting: commanderPrintingForSave } : {}),
       ...(entries ? { entries } : {}),
       ...(Object.keys(sideboardCards).length > 0 ? { sideboard: sideboardCards } : {}),
+      ...deckDetailsForSave(),
     })
     setDeckName(saved.name)
     setActiveDeckId(saved.id)
@@ -918,10 +967,11 @@ export function DeckbuilderPage() {
       ...(activeFormat ? { format: activeFormat } : {}),
       ...(designated ? { commander: designated } : {}),
       ...(commanderPrinting ? { commanderPrinting } : {}),
-      // Carried for the account save; the v2 share code has no field for it and drops it.
+      // Carried for the account save; the v2 share code has no field for them and drops them.
       ...(Object.keys(sideboardCards).length > 0 ? { sideboard: sideboardCards } : {}),
+      ...deckDetailsForSave(),
     }
-  }, [isCommanderFormat, commander, deckCards, pinnedPrintings, deckName, activeFormat, sideboardCards])
+  }, [isCommanderFormat, commander, deckCards, pinnedPrintings, deckName, activeFormat, sideboardCards, deckDetailsForSave])
 
   // Apply a SharedDeck into the builder (account load / deep link). Mirrors the share-URL decode
   // path: schedules format + commander in one transition so the "clear commander" guard never sees
@@ -940,6 +990,8 @@ export function DeckbuilderPage() {
           { replace: true },
         )
         setDeckName(shared.name || 'Saved deck')
+        setDeckNote(shared.note ?? '')
+        setCoverCard(shared.coverCard ?? null)
         setDeckCards(mergeCommanderIntoCards(shared.cards, shared.commander ?? null))
         setCommander(shared.commander ?? null)
         // Reset rather than leave in place: a deck loaded without one has no sideboard, and a
@@ -995,6 +1047,8 @@ export function DeckbuilderPage() {
       return
     }
     setDeckName(deck.name)
+    setDeckNote(deck.note ?? '')
+    setCoverCard(deck.coverCard ?? null)
     setDeckCards(mergeCommanderIntoCards(deck.cards, deck.commander ?? null))
     setSideboardCards(deck.sideboard ? { ...deck.sideboard } : {})
     setCommander(deck.commander ?? null)
@@ -1013,11 +1067,19 @@ export function DeckbuilderPage() {
     setDecksBrowserOpen(false)
   }
 
-  const handleRenameSaved = (deck: UnifiedDeck) => {
-    const next = window.prompt('Rename deck', deck.name)
-    if (!next || !next.trim()) return
-    void renameUnifiedDeck(deck, next.trim())
-    if (deck.id === activeDeckId) setDeckName(next.trim())
+  // The saved-deck browser's ✎: name and note in one small dialog (the cover is chosen from the
+  // deck's own header, where its cards are).
+  const [detailsFor, setDetailsFor] = useState<UnifiedDeck | null>(null)
+  const handleRenameSaved = (deck: UnifiedDeck) => setDetailsFor(deck)
+  const handleSaveDetails = (details: { name: string; note: string }) => {
+    const deck = detailsFor
+    setDetailsFor(null)
+    if (!deck) return
+    void updateUnifiedDeckDetails(deck, { name: details.name, note: details.note })
+    if (deck.id === activeDeckId || (deck.online && deck.name === deckName)) {
+      setDeckName(details.name)
+      setDeckNote(details.note)
+    }
   }
 
   const handleDeleteSaved = (deck: UnifiedDeck) => {
@@ -1040,6 +1102,7 @@ export function DeckbuilderPage() {
     setCommander(importedCommander)
     setActiveDeckId(null)
     setPinnedPrintings({})
+    setCoverCard(null)
     if (suggestedName) setDeckName(suggestedName)
     navigate(`/deckbuilder${searchSuffix()}`)
     setImportOpen(false)
@@ -1065,6 +1128,8 @@ export function DeckbuilderPage() {
     if (ex.commander && ex.commanderPrinting) initialPins[ex.commander] = ex.commanderPrinting
     setPinnedPrintings(initialPins)
     setDeckName(ex.name)
+    setDeckNote(ex.note ?? '')
+    setCoverCard(null)
     // Stamp the example's format into the URL inside the navigate call (rather than via
     // a separate setActiveFormat) so it lands before render. Without this, the next
     // render still sees the old `activeFormat`, the "clear commander when not a commander
@@ -1370,18 +1435,21 @@ export function DeckbuilderPage() {
           </main>
 
           <aside className={styles.right}>
-            <div className={styles.deckHeader}>
-              <input
-                className={styles.nameInput}
-                value={deckName}
-                onChange={(e) => setDeckName(e.target.value)}
-                placeholder="Deck name"
-              />
+            <DeckIdentity
+              layout="stacked"
+              name={deckName}
+              onNameChange={setDeckName}
+              note={deckNote}
+              onNoteChange={setDeckNote}
+              cover={coverHero}
+              coverChosen={coverChosen}
+              onOpenCoverPicker={() => setCoverPickerOpen(true)}
+            >
               <DeckFormatPicker
                 activeFormat={activeFormat}
                 onChange={setActiveFormat}
               />
-            </div>
+            </DeckIdentity>
 
             <DeckListPanel
               deckCards={deckCards}
@@ -1436,18 +1504,21 @@ export function DeckbuilderPage() {
         </>
       ) : (
         <main className={styles.centerDeck}>
-          <div className={styles.deckHeaderInline}>
-            <input
-              className={styles.nameInput}
-              value={deckName}
-              onChange={(e) => setDeckName(e.target.value)}
-              placeholder="Deck name"
-            />
+          <DeckIdentity
+            layout="inline"
+            name={deckName}
+            onNameChange={setDeckName}
+            note={deckNote}
+            onNoteChange={setDeckNote}
+            cover={coverHero}
+            coverChosen={coverChosen}
+            onOpenCoverPicker={() => setCoverPickerOpen(true)}
+          >
             <DeckFormatPicker
               activeFormat={activeFormat}
               onChange={setActiveFormat}
             />
-          </div>
+          </DeckIdentity>
 
           <AddCardSearch
             catalog={catalog}
@@ -1547,6 +1618,30 @@ export function DeckbuilderPage() {
           catalog={catalogIndex}
           onCancel={() => setExamplesOpen(false)}
           onLoad={handleLoadExample}
+        />
+      )}
+
+      {coverPickerOpen && (
+        <CoverPicker
+          deckCards={deckCards}
+          commander={commander}
+          catalog={catalogIndex}
+          artFor={deckArtFor}
+          chosen={coverChosen ? coverCard : null}
+          onChoose={(name) => {
+            setCoverCard(name)
+            setCoverPickerOpen(false)
+          }}
+          onClose={() => setCoverPickerOpen(false)}
+        />
+      )}
+
+      {detailsFor && (
+        <DeckDetailsDialog
+          name={detailsFor.name}
+          note={detailsFor.note ?? ''}
+          onCancel={() => setDetailsFor(null)}
+          onSave={handleSaveDetails}
         />
       )}
 
@@ -1723,9 +1818,8 @@ function ExampleDecksModal({
                   key={ex.id}
                   name={ex.name}
                   description={ex.description}
-                  total={Object.values(ex.cards).reduce((a, b) => a + b, 0)}
-                  colors={deckColors(ex.cards, catalog)}
-                  hero={rarestCard(ex.cards, catalog, ex.commander ?? null)}
+                  note={ex.note ?? undefined}
+                  {...deckTileModel(ex, catalog)}
                   format={ex.format ?? null}
                   formatTitle={ex.format ? `Built for ${labelForFormat(ex.format)}` : undefined}
                   title={`Load ${ex.name} into the builder`}
@@ -2309,11 +2403,8 @@ function SavedDecksBrowser({
   const enriched = useMemo(
     () =>
       decks.map((d) => {
-        const fullCards = mergeCommanderIntoCards(d.cards, d.commander ?? null)
-        const total = Object.values(fullCards).reduce((a, b) => a + b, 0)
-        const colors = deckColors(fullCards, catalog)
+        const { total, colors, hero } = deckTileModel(d, catalog)
         const legalFormats = legalityMap[d.id] ?? []
-        const hero = rarestCard(fullCards, catalog, d.commander ?? null)
         return { deck: d, total, colors, legalFormats, hero }
       }),
     [decks, catalog, legalityMap]
@@ -2322,7 +2413,11 @@ function SavedDecksBrowser({
   const filtered = useMemo(() => {
     const f = filter.trim().toLowerCase()
     let out = enriched
-    if (f) out = out.filter((e) => e.deck.name.toLowerCase().includes(f))
+    if (f) {
+      out = out.filter(
+        (e) => e.deck.name.toLowerCase().includes(f) || (e.deck.note?.toLowerCase().includes(f) ?? false),
+      )
+    }
     if (colorFilter.size > 0) {
       out = out.filter((e) => {
         const has = (k: string) =>
@@ -2380,7 +2475,7 @@ function SavedDecksBrowser({
             className={styles.browserSearch}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search decks by name…"
+            placeholder="Search decks by name or note…"
             autoFocus
           />
           <select
@@ -2497,6 +2592,7 @@ function DeckCard({
   return (
     <DeckTile
       name={deck.name}
+      note={deck.note}
       total={total}
       colors={colors}
       hero={hero}
@@ -2517,8 +2613,8 @@ function DeckCard({
         <>
           <DeckTileActionButton
             onClick={() => onRename(deck)}
-            title="Rename"
-            ariaLabel={`Rename ${deck.name}`}
+            title="Rename or edit note"
+            ariaLabel={`Edit name and note of ${deck.name}`}
           >
             ✎
           </DeckTileActionButton>

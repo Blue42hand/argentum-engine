@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
  * - `POST /api/decks/validate`        — server-authoritative deck validation (count rules, unknown cards, ≥60).
  * - `POST /api/decks/legal-formats`   — batch legality check for the saved-deck browser.
  * - `GET  /api/decks/formats`         — supported deck formats.
+ * - `POST /api/decks/summaries`       — the at-a-glance [DeckSummaryDTO] for a batch of saved decks.
  *
  * Catalog endpoints (cards / sets) live under their own resources at `/api/cards` and `/api/sets`
  * respectively, since they describe the universe of cards rather than user-authored deck lists.
@@ -40,6 +41,11 @@ class DecksController(
         val id: String,
         val name: String,
         val description: String,
+        /**
+         * A one-line tip on how to play it — the same kind of note a player keeps on their own
+         * deck, and carried into it when the starter is loaded into the deckbuilder.
+         */
+        val note: String? = null,
         val cards: Map<String, Int>,
         /**
          * Deck-construction format this example is built for. Null means "no format hint" —
@@ -75,10 +81,10 @@ class DecksController(
          * that offer a starter deck without the whole card catalog loaded (the landing page's
          * launch panel). Computed once from the registry; null only before enrichment.
          */
-        val summary: ExampleDeckSummaryDTO? = null,
+        val summary: DeckSummaryDTO? = null,
     )
 
-    data class ExampleDeckSummaryDTO(
+    data class DeckSummaryDTO(
         /** WUBRG letters, most-represented first, counted over non-land cards. */
         val colors: List<String>,
         val cardCount: Int,
@@ -88,7 +94,7 @@ class DecksController(
         val lands: Int,
         /** Non-land cards per mana value, index 0..7 (7 = seven or more). */
         val curve: List<Int>,
-        /** The deck's face: the commander, else its rarest non-land card. */
+        /** The deck's face: the owner's chosen cover, else the commander, else its rarest non-land card. */
         val coverCard: String?,
         val coverImageUri: String?,
         /** Up to three standout non-land cards (rarest first), cover included. */
@@ -99,30 +105,43 @@ class DecksController(
         EXAMPLE_DECKS.map { it.copy(summary = summarize(it)) }
     }
 
-    private fun summarize(deck: ExampleDeckDTO): ExampleDeckSummaryDTO {
-        val entries = deck.cards.mapNotNull { (name, n) -> cardRegistry.getCard(name)?.let { it to n } }
+    private fun summarize(deck: ExampleDeckDTO): DeckSummaryDTO =
+        summarize(deck.cards, deck.commander, deck.printings, coverCard = null)
+
+    /**
+     * [cards] includes the commander. A [coverCard] the deck doesn't contain (or that isn't a
+     * known card) is ignored, so a stale choice falls back to the automatic cover.
+     */
+    private fun summarize(
+        cards: Map<String, Int>,
+        commander: String?,
+        printings: Map<String, PrintingRef>?,
+        coverCard: String?,
+    ): DeckSummaryDTO {
+        val entries = cards.mapNotNull { (name, n) -> cardRegistry.getCard(name)?.let { it to n } }
         val nonLand = entries.filter { (card, _) -> !card.typeLine.isLand }
         val colorWeight = mutableMapOf<String, Int>()
         for ((card, n) in nonLand) for (c in card.colors) colorWeight.merge(c.symbol.toString(), n, Int::plus)
         val curve = MutableList(8) { 0 }
         for ((card, n) in nonLand) curve[card.cmc.coerceIn(0, 7)] += n
         val byStandout = nonLand.map { it.first }.distinctBy { it.name }.sortedWith(
-            compareByDescending<CardDefinition> { it.name == deck.commander }
+            compareByDescending<CardDefinition> { it.name == commander }
                 .thenByDescending { RARITY_RANK[it.metadata.rarity] ?: 0 }
                 .thenByDescending { it.cmc }
                 .thenBy { it.name },
         )
-        val cover = byStandout.firstOrNull()
+        val chosen = coverCard?.takeIf { (cards[it] ?: 0) > 0 }?.let { cardRegistry.getCard(it) }
+        val cover = chosen ?: byStandout.firstOrNull()
         val coverImage = cover?.let { card ->
-            deck.printings?.get(card.name)?.let { printingRegistry.getPrinting(it)?.imageUri }
+            printings?.get(card.name)?.let { printingRegistry.getPrinting(it)?.imageUri }
                 ?: printingRegistry.defaultPrinting(card.name)?.imageUri
                 ?: card.metadata.imageUri
         }
-        return ExampleDeckSummaryDTO(
+        return DeckSummaryDTO(
             colors = colorWeight.entries
                 .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { WUBRG.indexOf(it.key) })
                 .map { it.key },
-            cardCount = deck.cards.values.sum(),
+            cardCount = cards.values.sum(),
             creatures = nonLand.filter { (card, _) -> card.typeLine.isCreature }.sumOf { it.second },
             spells = nonLand.filter { (card, _) -> !card.typeLine.isCreature }.sumOf { it.second },
             lands = entries.filter { (card, _) -> card.typeLine.isLand }.sumOf { it.second },
@@ -154,6 +173,28 @@ class DecksController(
 
     @GetMapping("/examples")
     fun getExamples(): List<ExampleDeckDTO> = enrichedExamples
+
+    /** One saved deck to summarize: its full list (commander included) plus what picks its cover. */
+    data class SummaryDeck(
+        val cards: Map<String, Int> = emptyMap(),
+        val commander: String? = null,
+        val printings: Map<String, PrintingRef>? = null,
+        val coverCard: String? = null,
+    )
+
+    data class SummariesRequest(val decks: Map<String, SummaryDeck> = emptyMap())
+
+    /**
+     * The same at-a-glance summary the starter decks carry, for the caller's own decks — so the
+     * landing page's launch panel can show your decks' cover art, colours and curve without
+     * downloading the whole card catalogue. Batched, keyed by the caller's deck ids; capped so a
+     * hostile body can't make the server summarize thousands of lists.
+     */
+    @PostMapping("/summaries")
+    fun summaries(@RequestBody request: SummariesRequest): Map<String, DeckSummaryDTO> =
+        request.decks.entries.take(MAX_SUMMARIES).associate { (id, deck) ->
+            id to summarize(deck.cards.filterValues { it in 1..MAX_COPIES }, deck.commander, deck.printings, deck.coverCard)
+        }
 
     @PostMapping("/validate")
     fun validate(@RequestBody request: ValidateRequest): DeckValidationResult {
@@ -315,6 +356,8 @@ class DecksController(
         // (https://mtgazone.com/midweek-magic-bloomburrow-constructed/). Boros Mice and Orzhov
         // Bats are hand-built tribal lists restricted to Bloomburrow cards in the registry.
         private const val WUBRG = "WUBRG"
+        private const val MAX_SUMMARIES = 200
+        private const val MAX_COPIES = 250
         private val RARITY_RANK = mapOf(
             Rarity.COMMON to 0, Rarity.UNCOMMON to 1, Rarity.RARE to 2, Rarity.MYTHIC to 3,
         )
@@ -324,6 +367,7 @@ class DecksController(
                 id = "boros_mice",
                 name = "Boros Mice",
                 description = "RW Mice aggro from Bloomburrow.",
+                note = "Target your own Mice with tricks to trigger valiant, then swing wide.",
                 cards = mapOf(
                     "Heartfire Hero" to 4,
                     "Flowerfoot Swordmaster" to 4,
@@ -344,6 +388,7 @@ class DecksController(
                 id = "selesnya_rabbits",
                 name = "Selesnya Rabbits",
                 description = "GW Rabbits from Bloomburrow.",
+                note = "Flood the board with Rabbits — Warren Warleader turns every attack into more.",
                 cards = mapOf(
                     "Pawpatch Recruit" to 4,
                     "Warren Elder" to 4,
@@ -363,6 +408,7 @@ class DecksController(
                 id = "rakdos_lizards",
                 name = "Rakdos Lizards",
                 description = "BR Lizards from Bloomburrow.",
+                note = "Make them lose a little life every turn; the Lizards get nastier when they do.",
                 cards = mapOf(
                     "Iridescent Vinelasher" to 4,
                     "Hired Claw" to 4,
@@ -383,6 +429,7 @@ class DecksController(
                 id = "golgari_squirrels",
                 name = "Golgari Squirrels",
                 description = "BG Squirrels from Bloomburrow.",
+                note = "Keep the graveyard stocked — foraging fuels the Squirrels late.",
                 cards = mapOf(
                     "Bonecache Overseer" to 4,
                     "Vinereap Mentor" to 4,
@@ -403,6 +450,7 @@ class DecksController(
                 id = "simic_frogs",
                 name = "Simic Frogs",
                 description = "GU Frogs from Bloomburrow.",
+                note = "Bounce your own creatures to replay what they do when they enter.",
                 cards = mapOf(
                     "Sunshower Druid" to 4,
                     "Valley Mightcaller" to 4,
@@ -423,6 +471,7 @@ class DecksController(
                 id = "orzhov_bats",
                 name = "Orzhov Bats",
                 description = "WB Bats from Bloomburrow.",
+                note = "Gain or lose life every turn — each change powers up the Bats.",
                 cards = mapOf(
                     "Essence Channeler" to 4,
                     "Starscape Cleric" to 4,
@@ -448,6 +497,7 @@ class DecksController(
                 id = "uw_tempo",
                 name = "UW Tempo",
                 description = "Azorius tempo with auras and counterspells.",
+                note = "Cheap threats early, then keep a counterspell up on their turn.",
                 cards = mapOf(
                     "Malcolm, Alluring Scoundrel" to 4,
                     "Skrelv, Defector Mite" to 4,
@@ -472,6 +522,7 @@ class DecksController(
                 id = "standard_monou",
                 name = "Mono-Blue Control",
                 description = "Mono-blue control with Haughty Djinn and Tolarian Terror.",
+                note = "Draw, counter, wait — Djinn and Terror end it fast once the graveyard fills.",
                 cards = mapOf(
                     "Teferi, Temporal Pilgrim" to 1,
                     "Chrome Host Seedshark" to 1,
@@ -496,6 +547,7 @@ class DecksController(
                 id = "standard_monob",
                 name = "Mono-Black Aggro",
                 description = "Mono-black aggro splashing Vampires and Rogues.",
+                note = "Curve out and keep attacking; spend removal on their blockers.",
                 cards = mapOf(
                     "Bloodletter of Aclazotz" to 4,
                     "Cecil, Dark Knight" to 3,
@@ -519,6 +571,7 @@ class DecksController(
                 id = "standard_izzet_spellementals",
                 name = "Izzet Spellementals",
                 description = "Cheap cantrips and burn shrink Hearth Elemental, Eddymurk Crab and Sunderflock.",
+                note = "Cast your cheap spells first so the Elementals come down for almost nothing.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Burst Lightning" to 4,
@@ -544,6 +597,7 @@ class DecksController(
                 id = "standard_mono_green_landfall",
                 name = "Mono-Green Landfall",
                 description = "Extra land drops power up landfall threats and Mightform Harmonizer.",
+                note = "Play an extra land whenever you can — every one grows a threat.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Escape Tunnel" to 4,
@@ -567,6 +621,7 @@ class DecksController(
                 id = "standard_dimir_midrange",
                 name = "Dimir Midrange",
                 description = "Cheap interaction backed by Kaito, Enduring Curiosity and Floodpits Drowner.",
+                note = "Trade one-for-one early and let Kaito and Enduring Curiosity out-card them.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Dream Beavers" to 4,
@@ -600,6 +655,7 @@ class DecksController(
                 id = "standard_boros_dragons",
                 name = "Boros Dragons",
                 description = "Burn early, then a stream of Hellkites, Smaug and Sarkhan.",
+                note = "Burn their early drops and hold the ground until the Dragons arrive.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Burst Lightning" to 4,
@@ -626,6 +682,7 @@ class DecksController(
                 id = "standard_jund_sacrifice",
                 name = "Jund Sacrifice",
                 description = "Sacrifice fodder feeds Rottenmouth Viper and Obsessive Pursuit.",
+                note = "Make small creatures to sacrifice — every death pays you back.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Biotech Specialist" to 4,
@@ -655,6 +712,7 @@ class DecksController(
                 id = "standard_azorius_control",
                 name = "Azorius Control",
                 description = "Counterspells, removal and The Theorist, Jace Beleren.",
+                note = "Answer everything, draw cards, and win late with Jace.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Consult the Star Charts" to 4,
@@ -684,6 +742,7 @@ class DecksController(
                 id = "standard_orzhov_lifegain",
                 name = "Orzhov Lifegain",
                 description = "Lifegain triggers grow Amalia and Hinterland Sanctifier.",
+                note = "Gain a little life every turn — each gain grows Amalia and the Sanctifier.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Amalia Benavides Aguirre" to 4,
@@ -714,6 +773,7 @@ class DecksController(
                 id = "standard_rakdos_aggro",
                 name = "Rakdos Aggro",
                 description = "Low-curve Lizards and burn that punish every stumble.",
+                note = "Spend all your mana every turn; point the burn at their face once they block.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Blazemire Verge" to 4,
@@ -739,6 +799,7 @@ class DecksController(
                 id = "standard_jeskai_control",
                 name = "Jeskai Control",
                 description = "Lessons, card draw and Jeskai Revelation behind Great Hall of the Biblioplex.",
+                note = "Play the long game: trade off with removal, then take over with card advantage.",
                 format = DeckFormat.STANDARD,
                 cards = mapOf(
                     "Abandon Attachments" to 4,
@@ -777,6 +838,7 @@ class DecksController(
                 id = "animated_army",
                 name = "Animated Army",
                 description = "Bloomburrow Commander precon: Bello, Bard of the Brambles (GR).",
+                note = "Ramp into big threats — Bello turns your artifacts and enchantments into an army.",
                 format = DeckFormat.COMMANDER,
                 commander = "Bello, Bard of the Brambles",
                 commanderPrinting = PrintingRef(setCode = "BLC", collectorNumber = "1"),

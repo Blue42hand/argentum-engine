@@ -64,7 +64,47 @@ export interface SavedDeck {
    * server-side, CR 100.4b.)
    */
   sideboard?: Record<string, number>
+  /** Optional — a short line the owner writes about the deck ("aggro, weak to fliers"). */
+  note?: string
+  /**
+   * Optional — the card whose art represents the deck in every deck gallery and picker. When
+   * absent (or no longer in the deck) the tile falls back to the deck's rarest card.
+   */
+  coverCard?: string
+  /**
+   * Optional — the cover card's image URL as chosen (the pinned printing's art, when one is
+   * pinned). Lets a picker paint the cover without loading the card catalogue.
+   */
+  coverImageUri?: string
   updatedAt: number
+}
+
+/** The deck fields a "details" edit touches — none of them change what gets played. */
+export interface DeckDetailsPatch {
+  name?: string
+  note?: string | null
+  coverCard?: string | null
+  coverImageUri?: string | null
+}
+
+/** Longest note a deck can carry: one line in a tile caption, two at most. */
+export const DECK_NOTE_MAX_LENGTH = 120
+
+/** Apply a details patch to a deck, dropping fields cleared to null / blank. */
+export function applyDeckDetails<T extends SavedDeck>(deck: T, patch: DeckDetailsPatch): T {
+  const next: T = { ...deck }
+  if (patch.name !== undefined) next.name = patch.name.trim() || deck.name
+  const assign = (key: 'note' | 'coverCard' | 'coverImageUri', value: string | null | undefined) => {
+    if (value === undefined) return
+    const trimmed = value?.trim()
+    if (trimmed) next[key] = trimmed
+    else delete next[key]
+  }
+  assign('note', patch.note === undefined ? undefined : (patch.note ?? '').slice(0, DECK_NOTE_MAX_LENGTH))
+  assign('coverCard', patch.coverCard)
+  assign('coverImageUri', patch.coverImageUri)
+  if (patch.coverCard === null) delete next.coverImageUri
+  return next
 }
 
 interface DeckLibraryStorageV1 {
@@ -89,7 +129,7 @@ interface DeckLibraryState {
   hydrate: () => void
   saveDeck: (input: Omit<SavedDeck, 'id' | 'updatedAt'> & { id?: string }) => SavedDeck
   deleteDeck: (id: string) => void
-  renameDeck: (id: string, newName: string) => void
+  updateDetails: (id: string, patch: DeckDetailsPatch) => void
   getDeck: (id: string) => SavedDeck | undefined
 }
 
@@ -258,6 +298,9 @@ export const useDeckLibrary = create<DeckLibraryState>((set, get) => ({
       ...(input.sideboard !== undefined && Object.keys(input.sideboard).length > 0
         ? { sideboard: input.sideboard }
         : {}),
+      ...(input.note?.trim() ? { note: input.note.trim().slice(0, DECK_NOTE_MAX_LENGTH) } : {}),
+      ...(input.coverCard ? { coverCard: input.coverCard } : {}),
+      ...(input.coverCard && input.coverImageUri ? { coverImageUri: input.coverImageUri } : {}),
       updatedAt: now,
     }
     const decks = existing
@@ -274,9 +317,9 @@ export const useDeckLibrary = create<DeckLibraryState>((set, get) => ({
     set({ decks })
   },
 
-  renameDeck: (id, newName) => {
+  updateDetails: (id, patch) => {
     const decks = get().decks.map((d) =>
-      d.id === id ? { ...d, name: newName, updatedAt: Date.now() } : d
+      d.id === id ? { ...applyDeckDetails(d, patch), updatedAt: Date.now() } : d
     )
     persist(decks)
     set({ decks })
