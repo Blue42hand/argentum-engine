@@ -49,6 +49,8 @@ export interface DeckTileProps {
   formatTitle?: string | undefined
   /** Optional flavour line under the name — used for example decks' descriptions. */
   description?: string | undefined
+  /** The owner's note on a saved deck, set in italics under the name. */
+  note?: string | undefined
   /** Draws the accent ring: this tile is the current selection. */
   selected?: boolean
   /** Corner ribbon text ("Editing" / "Selected"). Fades on hover so `actions` can take over. */
@@ -71,6 +73,7 @@ export function DeckTile({
   format = null,
   formatTitle,
   description,
+  note,
   selected = false,
   badge,
   storage,
@@ -82,10 +85,7 @@ export function DeckTile({
   // Hero art = the deck's rarest card as a wide Scryfall art crop. Derive it straight
   // from the card's CDN image URL (no rate-limited api.scryfall.com lookup) when we have
   // one, falling back to the by-name API lookup otherwise.
-  const artUrl = useMemo(
-    () => (hero ? (getCdnArtCropUrl(hero.imageUri) ?? getScryfallArtCropUrl(hero.name)) : null),
-    [hero],
-  )
+  const artUrl = useMemo(() => heroArtUrl(hero), [hero])
   const gradient = useMemo(() => deckBannerGradient(colors), [colors])
 
   return (
@@ -111,6 +111,7 @@ export function DeckTile({
             {name}
           </span>
           {description && <span className={styles.description}>{description}</span>}
+          {note && <span className={styles.note}>{note}</span>}
           <span className={styles.metaRow}>
             {format && (
               <span
@@ -188,6 +189,71 @@ export function DeckTileActionButton({
       {children}
     </button>
   )
+}
+
+/** What a deck needs to describe itself as a tile: its list plus the optional chosen cover. */
+export interface DeckTileSource {
+  cards: Record<string, number>
+  commander?: string | null | undefined
+  coverCard?: string | null | undefined
+  coverImageUri?: string | null | undefined
+}
+
+export interface DeckTileModel<T extends DeckTileCard> {
+  /** Total cards, commander included. */
+  total: number
+  colors: string[]
+  /** The card whose art paints the tile — the chosen cover, else the rarest card. */
+  hero: T | null
+}
+
+/**
+ * Everything a {@link DeckTile} shows that is derived from the deck: total, colours and hero.
+ * The one place the cover rule lives — every gallery and picker goes through it so a deck looks
+ * the same wherever it is chosen.
+ *
+ * The chosen cover wins while the card is still in the deck (removing it falls back to the
+ * rarest card rather than to a picture of something you no longer play). Its stored image URL
+ * — the pinned printing's art — overrides the catalogue's default printing.
+ */
+export function deckTileModel<T extends DeckTileCard>(
+  deck: DeckTileSource,
+  catalog: Record<string, T>,
+): DeckTileModel<T> {
+  const full = deck.commander && !deck.cards[deck.commander]
+    ? { ...deck.cards, [deck.commander]: 1 }
+    : deck.cards
+  const total = Object.values(full).reduce((a, b) => a + b, 0)
+  return { total, colors: deckColors(full, catalog), hero: deckCover(deck, catalog) }
+}
+
+/** The deck's cover card: the chosen one while it's still in the deck, else {@link rarestCard}. */
+export function deckCover<T extends DeckTileCard>(
+  deck: DeckTileSource,
+  catalog: Record<string, T>,
+): T | null {
+  const cover = deck.coverCard
+  if (cover && (deck.cards[cover] || deck.commander === cover)) {
+    const known = catalog[cover]
+    if (known) return deck.coverImageUri ? { ...known, imageUri: deck.coverImageUri } : known
+    // Catalogue not loaded (or the card left it): the stored art is still enough to paint it.
+    if (deck.coverImageUri) {
+      return {
+        name: cover, cmc: 0, colors: [], cardTypes: [], basicLand: false, rarity: 'COMMON',
+        imageUri: deck.coverImageUri,
+      } as DeckTileCard as T
+    }
+  }
+  const full = deck.commander && !deck.cards[deck.commander]
+    ? { ...deck.cards, [deck.commander]: 1 }
+    : deck.cards
+  return rarestCard(full, catalog, deck.commander ?? null)
+}
+
+/** The landscape art-crop URL for a hero card, or null when there is none. */
+export function heroArtUrl(hero: DeckTileCard | null): string | null {
+  if (!hero) return null
+  return getCdnArtCropUrl(hero.imageUri) ?? getScryfallArtCropUrl(hero.name)
 }
 
 /** Mana-pip symbol per colour key, matching the deckbuilder's colour token order. */

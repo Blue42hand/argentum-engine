@@ -108,6 +108,12 @@
   margin-top: -2px;
 }
 
+.note {
+  composes: description;
+  font-style: italic;
+  color: rgba(255, 244, 222, 0.82);
+}
+
 .metaRow {
   display: flex;
   align-items: center;
@@ -281,6 +287,7 @@
 @container (max-width: 460px) {
   .tile { aspect-ratio: 5 / 4; }
   .description { display: none; }
+  .note { -webkit-line-clamp: 1; line-clamp: 1; font-size: 0.66rem; }
   .info { gap: 4px; padding: 8px 9px 9px; }
   .name { font-size: 0.88rem; }
   .format { display: none; }

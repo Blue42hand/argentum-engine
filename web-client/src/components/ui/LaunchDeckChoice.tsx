@@ -12,12 +12,17 @@
  * from the summary the server attaches to each starter. Picking a deck you have never seen should
  * not be a guess from its name.
  *
+ * Your own decks get the same treatment, from the same server-side summary (`useDeckSummaries`): the
+ * cover you chose for the deck in the deckbuilder (else its rarest card), its colours, its curve and
+ * the note you wrote on it.
+ *
  * Collapsed it is one row naming the deck (the panel stays short on a phone); "Change" opens the
  * choices inline, grouped by where the deck comes from: yours, the server's starter decks, a rolled
  * one where the lobby can roll it, or the explicit "choose in the lobby".
  */
 import { useId, useState, type ReactNode } from 'react'
 import type { UnifiedDeck } from '@/store/useUnifiedDecks'
+import { useDeckSummaries } from '@/store/useDeckSummaries'
 import { starterDeckSize, type StarterDeck, type StarterDeckSummary } from '@/store/useStarterDecks'
 import { getCdnArtCropUrl, getScryfallArtCropUrl } from '@/utils/cardImages'
 import { ManaSymbol } from './ManaSymbols'
@@ -41,8 +46,12 @@ export function LaunchDeckChoice({
 }) {
   const [open, setOpen] = useState(false)
   const listId = useId()
+  const glances = useDeckSummaries(saved)
   const current = describe(value, saved, starters)
   const starter = value.kind === 'EXAMPLE' ? starters?.find((d) => d.name === value.name) : undefined
+  const savedDeck = value.kind === 'SAVED' ? saved.find((d) => d.name === value.name) : undefined
+  // Whichever kind it is, the chosen deck's summary: a starter's own, or the one fetched for yours.
+  const summary = starter?.summary ?? (savedDeck ? glances[savedDeck.id] : undefined)
 
   const choose = (deck: PanelDeck) => {
     onChange(deck)
@@ -60,33 +69,39 @@ export function LaunchDeckChoice({
           data-testid="launch-deck"
           onClick={() => setOpen((o) => !o)}
         >
-          <DeckThumb kind={value.kind} starter={starter} />
+          <DeckThumb kind={value.kind} summary={summary} />
           <span className={styles.deckChoiceText}>
             <span className={styles.deckChoiceNameRow}>
               <span className={styles.deckChoiceName}>{current.name}</span>
-              {starter?.summary && <Pips colors={starter.summary.colors} />}
+              {summary && <Pips colors={summary.colors} />}
             </span>
-            <span className={styles.deckChoiceMeta}>{current.meta}</span>
+            <span className={styles.deckChoiceMeta} data-note={current.isNote || undefined}>{current.meta}</span>
           </span>
           <span className={styles.setChange}>{open ? 'Close' : 'Change'}</span>
         </button>
-        {!open && starter?.summary && <StarterFacts summary={starter.summary} />}
+        {!open && summary && <StarterFacts summary={summary} />}
       </div>
 
       {open && (
         <div id={listId} className={styles.deckList} role="listbox" aria-label="Your deck">
           {saved.length > 0 && (
             <DeckGroup label="Your decks">
-              {saved.map((d) => (
-                <DeckOption
-                  key={d.id}
-                  thumb={<DeckThumb kind="SAVED" />}
-                  name={d.name}
-                  meta={`${deckSize(d)} cards`}
-                  selected={value.kind === 'SAVED' && value.name === d.name}
-                  onSelect={() => choose({ kind: 'SAVED', name: d.name })}
-                />
-              ))}
+              {saved.map((d) => {
+                const glance = glances[d.id]
+                return (
+                  <DeckOption
+                    key={d.id}
+                    thumb={<DeckThumb kind="SAVED" summary={glance} />}
+                    name={d.name}
+                    pips={glance?.colors}
+                    meta={d.note ?? `${deckSize(d)} cards`}
+                    metaIsNote={!!d.note}
+                    aside={d.note ? `${deckSize(d)}` : undefined}
+                    selected={value.kind === 'SAVED' && value.name === d.name}
+                    onSelect={() => choose({ kind: 'SAVED', name: d.name })}
+                  />
+                )
+              })}
             </DeckGroup>
           )}
           <DeckGroup label="Starter decks">
@@ -97,7 +112,7 @@ export function LaunchDeckChoice({
               return (
                 <DeckOption
                   key={d.id}
-                  thumb={<DeckThumb kind="EXAMPLE" starter={d} />}
+                  thumb={<DeckThumb kind="EXAMPLE" summary={d.summary ?? undefined} />}
                   name={d.name}
                   pips={d.summary?.colors}
                   meta={d.description}
@@ -137,10 +152,11 @@ function describe(
   deck: PanelDeck,
   saved: readonly UnifiedDeck[],
   starters: readonly StarterDeck[] | null,
-): { name: string; meta: string } {
+): { name: string; meta: string; isNote?: boolean } {
   switch (deck.kind) {
     case 'SAVED': {
       const match = saved.find((d) => d.name === deck.name)
+      if (match?.note) return { name: deck.name, meta: match.note, isNote: true }
       return { name: deck.name, meta: match ? `Your deck · ${deckSize(match)} cards` : 'Your deck' }
     }
     case 'EXAMPLE': {
@@ -213,6 +229,7 @@ function DeckOption({
   name,
   pips,
   meta,
+  metaIsNote = false,
   aside,
   selected,
   onSelect,
@@ -221,6 +238,8 @@ function DeckOption({
   name: string
   pips?: readonly string[] | undefined
   meta: string
+  /** The meta line is the owner's note on the deck — set in italics. */
+  metaIsNote?: boolean
   /** A small right-hand figure — a starter's card count. */
   aside?: string | undefined
   selected: boolean
@@ -240,7 +259,7 @@ function DeckOption({
           <span className={styles.deckChoiceName}>{name}</span>
           {pips && <Pips colors={pips} />}
         </span>
-        <span className={styles.deckChoiceMeta}>{meta}</span>
+        <span className={styles.deckChoiceMeta} data-note={metaIsNote || undefined}>{meta}</span>
       </span>
       {selected ? (
         <svg className={styles.deckOptionCheck} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -260,10 +279,13 @@ const GLYPHS: Record<PanelDeck['kind'], string> = {
   LOBBY: 'M4 12h12 M12 6l6 6-6 6',
 }
 
-/** A starter's cover art, cropped; every other kind gets its glyph on a tinted square. */
-function DeckThumb({ kind, starter }: { kind: PanelDeck['kind']; starter?: StarterDeck | undefined }) {
-  const cover = starter?.summary?.coverCard
-  const art = cover ? (getCdnArtCropUrl(starter?.summary?.coverImageUri) ?? getScryfallArtCropUrl(cover)) : null
+/**
+ * A deck's cover art, cropped, from its summary; every other kind (and a deck whose summary hasn't
+ * arrived yet) gets its glyph on a tinted square.
+ */
+function DeckThumb({ kind, summary }: { kind: PanelDeck['kind']; summary?: StarterDeckSummary | undefined }) {
+  const cover = summary?.coverCard
+  const art = cover ? (getCdnArtCropUrl(summary?.coverImageUri) ?? getScryfallArtCropUrl(cover)) : null
   if (art) {
     return (
       <span

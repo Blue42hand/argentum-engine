@@ -559,6 +559,13 @@
   white-space: nowrap;
 }
 
+/* The owner's note on a saved deck stands in for the meta line — italic, so it reads as theirs. */
+.deckChoiceMeta[data-note] {
+  font-style: italic;
+  color: var(--hub-text, inherit);
+  opacity: 0.78;
+}
+
 .deckGlyph {
   display: grid;
   place-items: center;

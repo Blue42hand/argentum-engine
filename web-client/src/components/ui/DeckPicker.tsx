@@ -29,6 +29,7 @@ import {
 } from '@/store/deckLibrary'
 import { type UnifiedDeck, useUnifiedDecks } from '@/store/useUnifiedDecks'
 import { useSaveDeck } from '@/store/useSaveDeck'
+import { useCardIndex } from '@/store/useCardIndex'
 import {
   labelForFormat,
   useDeckLegalFormats,
@@ -41,8 +42,7 @@ import {
 import {
   DeckTile,
   DeckTileActionButton,
-  deckColors,
-  rarestCard,
+  deckTileModel,
 } from '@/components/deck/DeckTile'
 import { formatDeckText, parseDeckText } from './deckPasteText'
 import type { CardSummary } from '../deckbuilder/cardFilter'
@@ -220,7 +220,7 @@ export function DeckPicker({
   const [selectedSavedId, setSelectedSavedId] = useState<string | null>(null)
   const [selectedExampleId, setSelectedExampleId] = useState<string | null>(null)
   const [pendingName, setPendingName] = useState('')
-  const [cards, setCards] = useState<Record<string, CardSummary>>({})
+  const cards = useCardIndex()
   const [examples, setExamples] = useState<ExampleDeck[]>([])
   const [validation, setValidation] = useState<ValidationResult | null>(null)
   const [randomSetCodes, setRandomSetCodes] = useState<readonly string[]>(
@@ -360,18 +360,9 @@ export function DeckPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabs])
 
-  // Fetch card metadata + examples once.
+  // Fetch the examples once (the card index is shared — see useCardIndex).
   useEffect(() => {
     let cancelled = false
-    fetch('/api/cards')
-      .then((r) => (r.ok ? r.json() : []))
-      .then((list: CardSummary[]) => {
-        if (cancelled) return
-        const byName: Record<string, CardSummary> = {}
-        for (const c of list) byName[c.name] = c
-        setCards(byName)
-      })
-      .catch(() => {})
     fetch('/api/decks/examples')
       .then((r) => (r.ok ? r.json() : []))
       .then((list: ExampleDeck[]) => {
@@ -749,20 +740,10 @@ function SavedDecksPanel({
   onBrowse?: (() => void) | undefined
   onPaste?: (() => void) | undefined
 }) {
-  // Tile metadata per deck. The commander is folded back into the card map (saved decks keep
-  // it out of `cards` per `SavedDeck.commander`) so the count and pips match what actually
-  // gets played, and so a commander can win the hero-art tie-break.
+  // Tile metadata per deck: count and pips with the commander folded back in, and the cover the
+  // owner chose (else the rarest card) — see deckTileModel.
   const tiles = useMemo(
-    () =>
-      decks.map((d) => {
-        const fullCards = mergeCommanderIntoCards(d.cards, d.commander ?? null)
-        return {
-          deck: d,
-          total: Object.values(fullCards).reduce((a, b) => a + b, 0),
-          colors: deckColors(fullCards, catalog),
-          hero: rarestCard(fullCards, catalog, d.commander ?? null),
-        }
-      }),
+    () => decks.map((d) => ({ deck: d, ...deckTileModel(d, catalog) })),
     [decks, catalog],
   )
 
@@ -803,6 +784,7 @@ function SavedDecksPanel({
               <DeckTile
                 key={deck.id}
                 name={deck.name}
+                note={deck.note}
                 total={total}
                 colors={colors}
                 hero={hero}
@@ -869,12 +851,7 @@ function ExampleDecksPanel({
 }) {
   const tiles = useMemo(
     () =>
-      examples.map((ex) => ({
-        example: ex,
-        total: Object.values(ex.cards).reduce((a, b) => a + b, 0),
-        colors: deckColors(ex.cards, catalog),
-        hero: rarestCard(ex.cards, catalog, ex.commander ?? null),
-      })),
+      examples.map((ex) => ({ example: ex, ...deckTileModel(ex, catalog) })),
     [examples, catalog],
   )
   if (tiles.length === 0) {

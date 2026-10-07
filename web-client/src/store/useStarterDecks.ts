@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react'
 
-/** What the server says a starter deck is, at a glance (`DecksController.ExampleDeckSummaryDTO`). */
+/** What the server says a starter deck is, at a glance (`DecksController.DeckSummaryDTO`). */
 export interface StarterDeckSummary {
   /** W/U/B/R/G, most-represented first. */
   readonly colors: readonly string[]

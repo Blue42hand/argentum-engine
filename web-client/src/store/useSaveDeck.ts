@@ -33,6 +33,9 @@ export function savedDeckToShared(input: SaveDeckInput): SharedDeck {
     ...(input.sideboard && Object.keys(input.sideboard).length > 0
       ? { sideboard: input.sideboard }
       : {}),
+    ...(input.note ? { note: input.note } : {}),
+    ...(input.coverCard ? { coverCard: input.coverCard } : {}),
+    ...(input.coverCard && input.coverImageUri ? { coverImageUri: input.coverImageUri } : {}),
   }
 }
 
