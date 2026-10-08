@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 142 / 312
+**Implemented:** 145 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -48,7 +48,7 @@
 - [x] Blasphemous Act
 - [x] Bloodroot Apothecary
 - [ ] Body of Knowledge
-- [ ] Bojuka Bog
+- [x] Bojuka Bog
 - [x] Bootleggers' Stash
 - [ ] Boros Signet
 - [ ] Boss's Chauffeur
@@ -198,7 +198,7 @@
 - [ ] Overflowing Basin
 - [x] Path of Ancestry
 - [x] Path of Discovery
-- [ ] Path to Exile
+- [x] Path to Exile
 - [ ] Perch Protection
 - [ ] Perplexing Test
 - [x] Plaguecrafter
@@ -249,7 +249,7 @@
 - [x] Shivan Reef
 - [x] Siege-Gang Commander
 - [x] Simic Ascendancy
-- [ ] Skullclamp
+- [x] Skullclamp
 - [ ] Skyclave Apparition
 - [ ] Skycloud Expanse
 - [ ] Skyfisher Spider

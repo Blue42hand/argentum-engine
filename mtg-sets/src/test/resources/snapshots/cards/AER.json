@@ -364,6 +364,56 @@
     ]
 }
 
+// Heroic Intervention
+{
+    "name": "Heroic Intervention",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Permanents you control gain hexproof and indestructible until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "permanent ctrl:you"
+                }
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "HEXPROOF",
+                        "target": "IterationEntity"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "INDESTRUCTIBLE",
+                        "target": "IterationEntity"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "rarity": "RARE",
+        "artist": "James Ryman",
+        "flavorText": "\"Wherever the strong would harm the weak, I will be there.\"\n—Ajani Goldmane",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f5a620c-fde7-4b72-bf8a-efc4f14560c5.jpg?1783936743",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "The set of permanents affected by Heroic Intervention is determined as the spell resolves. Permanents you begin to control later in the turn won't gain hexproof and indestructible."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Hungry Flames
 {
     "name": "Hungry Flames",
