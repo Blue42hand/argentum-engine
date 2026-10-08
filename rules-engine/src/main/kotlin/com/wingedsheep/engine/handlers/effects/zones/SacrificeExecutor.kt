@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
  * - Scapeshift: "Sacrifice any number of lands..."
  *
  * The sacrifice is mandatory (not optional) - the player must sacrifice if they
- * have valid permanents. If they don't have enough, nothing happens.
+ * have valid permanents. If they don't have enough, they sacrifice all they have (CR 609.3).
  */
 class SacrificeExecutor(
     private val zones: ZoneTransitionService,
@@ -69,14 +69,14 @@ class SacrificeExecutor(
             )
         }
 
-        // Standard sacrifice: must sacrifice exactly `count` permanents
-        if (validPermanents.size < effect.count) {
-            // Not enough valid permanents - effect does nothing (per MTG rules)
-            return EffectResult.success(state)
-        }
-
-        if (validPermanents.size == effect.count) {
-            // Exactly enough - auto-sacrifice without prompting
+        // Standard sacrifice: must sacrifice exactly `count` permanents. With `count` or fewer
+        // candidates there is nothing to choose — sacrifice them all. Too few is not a reason to
+        // sacrifice none: an effect that attempts the impossible does as much as possible
+        // (CR 609.3; Barter in Blood: "If a player controls only one creature, that creature is
+        // sacrificed"). Mirrors ForceSacrificeExecutor. Cost-shaped uses ("you may sacrifice
+        // two …. If you do") never reach here short: GatedEffectExecutor.canAfford and the
+        // trigger/reflexive feasibility checks reject them while fewer than `count` exist.
+        if (validPermanents.size <= effect.count) {
             return sacrificePermanents(state, controllerId, validPermanents)
         }
 
