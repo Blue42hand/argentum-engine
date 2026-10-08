@@ -68,7 +68,7 @@ export function AdminLiveGames({ auth, onBack }: { auth: AdminAuth; onBack: () =
             <StatCard label="Online players" value={overview.onlinePlayers} />
             <StatCard label="Games with players" value={withHumans.length} accent={withHumans.length > 0} />
             <StatCard label="…active in last 5 min" value={activeWithHumans.length} />
-            <StatCard label="AI-only / abandoned" value={aiOnly.length} />
+            <StatCard label="No connected human" value={aiOnly.length} />
             <StatCard label="Running tournaments" value={busyLobbies.length} />
           </div>
 
@@ -85,7 +85,7 @@ export function AdminLiveGames({ auth, onBack }: { auth: AdminAuth; onBack: () =
             {visible.length === 0 ? (
               <p style={cellStyle.muted}>No games with connected players.</p>
             ) : (
-              <Table head={['Players', 'Mode', 'Turn', 'Last action', 'Running for', 'Watching', '']}>
+              <Table head={['Players', 'Mode', 'Turn', 'Last action', 'Running for', 'Watching', '']} leftColumns={5}>
                 {visible.map((g) => (
                   <GameRow key={g.gameSessionId} game={g} now={now} />
                 ))}
@@ -97,7 +97,7 @@ export function AdminLiveGames({ auth, onBack }: { auth: AdminAuth; onBack: () =
             {overview.lobbies.length === 0 ? (
               <p style={cellStyle.muted}>No tournaments in progress.</p>
             ) : (
-              <Table head={['Mode', 'Sets', 'Stage', 'Players online', 'Round']}>
+              <Table head={['Mode', 'Sets', 'Stage', 'Players online', 'Round']} leftColumns={3}>
                 {overview.lobbies.map((l) => (
                   <LobbyRow key={l.lobbyId} lobby={l} />
                 ))}

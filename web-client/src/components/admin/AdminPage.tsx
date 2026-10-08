@@ -37,10 +37,14 @@ export function AdminPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  /** Validate a bootstrap password against an admin endpoint. */
+  /**
+   * Validate a bootstrap password against an admin endpoint. Live games is the one mounted on every
+   * server — the account-backed ones 404 when accounts are off, which is exactly when the password is
+   * the only way in.
+   */
   const validatePassword = useCallback(async (pwd: string): Promise<{ ok: boolean; error?: string }> => {
     try {
-      const res = await fetch('/api/admin/users', { headers: { 'X-Admin-Password': pwd } })
+      const res = await fetch('/api/admin/live-games', { headers: { 'X-Admin-Password': pwd } })
       if (res.status === 401) {
         const data = (await res.json().catch(() => null)) as { error?: string } | null
         return { ok: false, error: data?.error ?? 'Invalid admin password' }
