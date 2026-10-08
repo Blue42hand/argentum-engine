@@ -939,6 +939,73 @@
     ]
 }
 
+// Training Center
+{
+    "name": "Training Center",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {U} or {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Training Center:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Training Center:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "358",
+        "rarity": "RARE",
+        "artist": "Daniel Ljunggren",
+        "flavorText": "Between matches, combatants practice to stay in peak mental and physical form.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b15c58c0-4d42-488e-bb9d-7a550d9ea5e6.jpg?1783928737",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Undergrowth Stadium
 {
     "name": "Undergrowth Stadium",
