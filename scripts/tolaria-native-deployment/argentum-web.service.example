@@ -1,7 +1,7 @@
 [Unit]
 Description=Private Argentum static frontend and native HTTP WebSocket facade
 After=argentum-play.service
-Requires=argentum-play.service
+Wants=argentum-play.service
 ConditionPathExists=/etc/argentum-play/network-approved
 
 [Service]
@@ -13,6 +13,8 @@ RuntimeDirectoryMode=0700
 LogsDirectory=argentum-web
 LogsDirectoryMode=0700
 UMask=0077
+ExecStartPre=/usr/bin/touch /var/log/argentum-web/access.log
+ExecStartPre=/usr/bin/chmod 0600 /var/log/argentum-web/access.log
 ExecStartPre=/usr/sbin/nginx -t -c /etc/argentum-play/nginx.conf
 ExecStart=/usr/sbin/nginx -c /etc/argentum-play/nginx.conf -g 'daemon off;'
 Restart=on-failure
