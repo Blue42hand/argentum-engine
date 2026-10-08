@@ -11711,7 +11711,11 @@ composite abilities).
   synthesizes one enters-with choice per granting lord (`RiotSynthesis.grantedRiotInstanceCount`, honoring each lord's
   `excludeSelf` and its *projected* controller — one instance per grant, CR 702.136b), wired into the spell-resolution
   + token/land entry seams; the choice resumer applies each chosen counter/haste branch directly and re-pauses for the
-  next instance (a granted permanent has none of the printed replacement/static abilities to fall back on).
+  next instance (a granted permanent has none of the printed replacement/static abilities to fall back on). Effect-driven
+  entries (a reanimation's `MoveToZone`, a search's `MoveCollection`) ask the same questions before the move in
+  `EffectEntryChoices` — the lord's filter read under the controller the entrant enters under (CR 614.12) — and apply
+  the answers on arrival (`ZoneEntryOptions.grantedRiotModes`). A counter choice that can't place its counter gives
+  haste instead (Rhythm of the Wild ruling). Rhythm of the Wild: `GrantKeyword(RIOT, Creature.nontoken().youControl())`.
   `GrantCantBeCountered` gained an `includesAbilities` flag (default false) so "spells **and abilities** can't be
   countered" (Spider-Punk) also makes matching abilities uncounterable (e.g. Stifle fizzles); `DamageCantBePrevented`
   is a battlefield replacement scoped by its own `appliesTo` pattern — while one is on the battlefield (or the "damage
