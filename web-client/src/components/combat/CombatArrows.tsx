@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * Functional-update helper that keeps the previous state when the freshly measured value is
@@ -13,6 +13,8 @@ import { selectGameState, selectViewingPlayerId, useViewedOpponent, selectTeamMa
 import type { EntityId } from '@/types'
 import { Step, ZoneType } from '@/types'
 import { defendingPlayerOf, isBattle } from '@/utils/combatTargets'
+import { bandsFromBandIds, computeCombatClique, type CombatClique } from './combatClique'
+import { CliqueCaption, CliqueSpotlight, describeFocus, measureClique } from './CombatFocus'
 
 interface Point {
   x: number
@@ -24,12 +26,15 @@ interface ArrowProps {
   end: Point
   color: string
   dashed?: boolean
+  /** Drawn heavier: an arrow touching the hovered creature while a combat clique is in focus. */
+  emphasized?: boolean
 }
 
 interface ArrowData {
   start: Point
   end: Point
   blockerId: EntityId
+  attackerId: EntityId
   /** 1-based damage order position (1 = first to receive damage). Undefined if not yet ordered. */
   damageOrder?: number
   /** Damage assigned to this blocker. Undefined if not yet assigned. */
@@ -68,7 +73,7 @@ interface AttackIndicatorData {
 /**
  * SVG arrow component with curved path and arrowhead.
  */
-function Arrow({ start, end, color, dashed = false }: ArrowProps) {
+function Arrow({ start, end, color, dashed = false, emphasized = false }: ArrowProps) {
   // Calculate control point for quadratic bezier (arc upward)
   const midX = (start.x + end.x) / 2
   const midY = (start.y + end.y) / 2
@@ -114,8 +119,8 @@ function Arrow({ start, end, color, dashed = false }: ArrowProps) {
         d={pathD}
         fill="none"
         stroke={color}
-        strokeWidth={8}
-        strokeOpacity={0.3}
+        strokeWidth={emphasized ? 12 : 8}
+        strokeOpacity={emphasized ? 0.45 : 0.3}
         strokeLinecap="round"
       />
       {/* Main path */}
@@ -123,8 +128,8 @@ function Arrow({ start, end, color, dashed = false }: ArrowProps) {
         d={pathD}
         fill="none"
         stroke={color}
-        strokeWidth={3}
-        strokeOpacity={0.9}
+        strokeWidth={emphasized ? 4 : 3}
+        strokeOpacity={emphasized ? 1 : 0.9}
         strokeLinecap="round"
         strokeDasharray={dashed ? '8,4' : undefined}
       />
@@ -133,8 +138,8 @@ function Arrow({ start, end, color, dashed = false }: ArrowProps) {
         d={arrowheadD}
         fill="none"
         stroke={color}
-        strokeWidth={3}
-        strokeOpacity={0.9}
+        strokeWidth={emphasized ? 4 : 3}
+        strokeOpacity={emphasized ? 1 : 0.9}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -294,6 +299,19 @@ const COMBAT_STEPS = new Set([
   Step.END_COMBAT,
 ])
 
+// Combat steps after blockers are locked in — an attacker with no blocker here is unblocked.
+const BLOCKS_RESOLVED_STEPS = new Set([
+  Step.FIRST_STRIKE_COMBAT_DAMAGE,
+  Step.COMBAT_DAMAGE,
+  Step.END_COMBAT,
+])
+
+/** Opacity of combat arrows outside the hovered clique. */
+const DIM_OPACITY = 0.1
+/** Hover settle times: a short delay in, a longer grace out so sweeping across cards doesn't flicker. */
+const FOCUS_IN_MS = 70
+const FOCUS_OUT_MS = 120
+
 export function CombatArrows() {
   const combatState = useGameStore((state) => state.combatState)
   const gameState = useGameStore(selectGameState)
@@ -445,6 +463,7 @@ export function CombatArrows() {
                 start: blockerPos,
                 end: attackerPos,
                 blockerId,
+                attackerId,
               })
             }
           }
@@ -472,6 +491,7 @@ export function CombatArrows() {
                 start: blockerPos,
                 end: attackerPos,
                 blockerId,
+                attackerId,
               })
             }
           }
@@ -514,6 +534,7 @@ export function CombatArrows() {
               start: blockerPos,
               end: attackerPos,
               blockerId: blocker.creatureId,
+              attackerId: blocker.blockingAttacker,
             }
             const order = blockerDamageOrder.get(blocker.creatureId)
             if (order != null) arrow.damageOrder = order
@@ -693,6 +714,47 @@ export function CombatArrows() {
     return () => clearInterval(interval)
   }, [combatState, gameStateCombat, opponentAttackerTargets, opponentBlockerAssignments, isDeclaringBlockers, isInCombatPhase, isDeclareAttackersStep, isDeclareBlockersStep, cards, isSpectating, isSelectingDamageOrder, players, teamMap, isMulti, viewedOpponentId, viewingPlayerId])
 
+  // Hover focus: hovering a creature in combat lifts its whole clique (see computeCombatClique)
+  // and dims every other arrow, so one block can be read out of a crowded board.
+  const hoveredCardId = useGameStore((state) => state.hoveredCardId)
+  const isDragging = draggingBlockerId != null || draggingAttackerId != null
+  const [focusId, setFocusId] = useState<EntityId | null>(null)
+  useEffect(() => {
+    const target = isDragging ? null : hoveredCardId
+    // Card to card passes through a null hover; the out-grace swallows it, so focus moves
+    // straight from one clique to the next instead of blinking the scrim off and on.
+    const timer = setTimeout(() => setFocusId(target), target ? FOCUS_IN_MS : FOCUS_OUT_MS)
+    return () => clearTimeout(timer)
+  }, [hoveredCardId, isDragging])
+  const { attackerSet, bands } = useMemo(() => {
+    const attackers = new Set<EntityId>()
+    const bands: EntityId[][] = []
+    if (gameStateCombat) {
+      for (const a of gameStateCombat.attackers) attackers.add(a.creatureId)
+      bands.push(...bandsFromBandIds(gameStateCombat.attackers))
+    }
+    if (combatState?.mode === 'declareAttackers') {
+      combatState.selectedAttackers.forEach((id) => attackers.add(id))
+      bands.push(...combatState.bands.map((band) => [...band]))
+    }
+    if (combatState?.mode === 'declareBlockers') combatState.attackingCreatures.forEach((id) => attackers.add(id))
+    if (opponentAttackerTargets && !gameStateCombat && isDeclareAttackersStep) {
+      opponentAttackerTargets.selectedAttackers.forEach((id) => attackers.add(id))
+    }
+    return { attackerSet: attackers, bands }
+  }, [gameStateCombat, combatState, opponentAttackerTargets, isDeclareAttackersStep])
+  const clique = useMemo<CombatClique | null>(
+    () => (focusId ? computeCombatClique(focusId, arrows, bands, attackerSet) : null),
+    [focusId, arrows, bands, attackerSet],
+  )
+  // The last clique shown, kept so the spotlight can fade out instead of vanishing.
+  const lastFocus = useRef<{ clique: CombatClique; focusId: EntityId } | null>(null)
+  if (clique && focusId) lastFocus.current = { clique, focusId }
+  // Whether "no blockers" is a fact yet: blocks are being declared right now, or have been.
+  const blocksKnown = isDeclaringBlockers ||
+    (opponentBlockerAssignments != null && Object.keys(opponentBlockerAssignments).length > 0 && isDeclareBlockersStep) ||
+    (gameStateCombat != null && (gameStateCombat.blockers.length > 0 || BLOCKS_RESOLVED_STEPS.has(currentStep as Step)))
+
   // Don't render during full-screen overlay decisions
   if (hasOverlayDecision) {
     return null
@@ -723,169 +785,213 @@ export function CombatArrows() {
     return null
   })()
 
+  // Focus mode: arrows outside the clique fade back, clique arrows are drawn last (on top),
+  // and the arrows touching the hovered creature itself are drawn heavier.
+  const focused = clique != null
+  const fade = (inClique: boolean) => ({
+    opacity: !focused || inClique ? 1 : DIM_OPACITY,
+    transition: 'opacity 140ms ease-out',
+  })
+  const focusLast = <T,>(items: readonly T[], inClique: (item: T) => boolean): readonly T[] =>
+    focused ? [...items].sort((a, b) => Number(inClique(a)) - Number(inClique(b))) : items
+  const attackerInClique = (item: { attackerId: EntityId }) => clique?.attackers.has(item.attackerId) ?? false
+  const blockInClique = (item: ArrowData) => clique?.blockers.has(item.blockerId) ?? false
+  const caption = clique && focusId ? describeFocus(focusId, clique, arrows, bands, blocksKnown) : null
+  const spotlight = lastFocus.current
+  const spotlightRects = spotlight ? measureClique(spotlight.clique) : null
+  const focusRect = focusId ? spotlightRects?.get(focusId) : undefined
+
   return (
-    <svg
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        pointerEvents: 'none',
-        zIndex: 2000, // Above spectator container (1500)
-      }}
-    >
-      {/* Attack direction indicators (triangles pointing toward the defender,
-          seat-colored once assigned in multiplayer) */}
-      {attackIndicators.map(({ x, y, direction, attackerId, color }) => (
-        <AttackIndicator
-          key={`indicator-${attackerId}`}
-          x={x}
-          y={y}
-          direction={direction}
-          {...(color ? { color } : {})}
-        />
-      ))}
-
-      {/* Attacker arrows (attackers to the defending player / planeswalker) */}
-      {attackerArrows.map(({ start, end, attackerId, color }) => (
-        <Arrow
-          key={`attacker-${attackerId}`}
-          start={start}
-          end={end}
-          color={color ?? '#ff4444'}
-        />
-      ))}
-
-      {/* Bundled attack arrows to off-screen defenders' rail chips, with a
-          creature-count badge near the chip end */}
-      {bundledArrows.map(({ start, end, color, count, defenderId }) => {
-        // Badge on the bezier at t=0.7 (closer to the chip)
-        const midX = (start.x + end.x) / 2
-        const midY = (start.y + end.y) / 2
-        const dist = Math.hypot(end.x - start.x, end.y - start.y)
-        const controlY = midY - Math.min(dist * 0.2, 60)
-        const t = 0.7
-        const mt = 1 - t
-        const badgeX = mt * mt * start.x + 2 * mt * t * midX + t * t * end.x
-        const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
-        return (
-          <g key={`bundle-${defenderId}`}>
-            <Arrow start={start} end={end} color={color} />
-            <circle cx={badgeX} cy={badgeY} r={12} fill="#000000" fillOpacity={0.85} stroke={color} strokeWidth={1.5} />
-            <text
-              x={badgeX}
-              y={badgeY + 4.5}
-              textAnchor="middle"
-              fill={color}
-              fontSize={13}
-              fontWeight={700}
-              fontFamily="system-ui, sans-serif"
-              style={{ pointerEvents: 'none' }}
-            >
-              {count}
-            </text>
-          </g>
-        )
-      })}
-
-      {/* Blocker assignments */}
-      {arrows.map(({ start, end, blockerId, damageOrder, damageAmount }) => (
-        <g key={`blocker-${blockerId}`}>
-          <Arrow
-            start={start}
-            end={end}
-            color="#4488ff"
+    <>
+      <svg
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 2000, // Above spectator container (1500)
+        }}
+      >
+        {/* Hover spotlight sits under every arrow, so the clique's arrows read over the scrim */}
+        {spotlight && spotlightRects && (
+          <CliqueSpotlight
+            clique={spotlight.clique}
+            rects={spotlightRects}
+            focusId={spotlight.focusId}
+            visible={focused}
           />
-          {/* Damage order and assignment badges near the blocker (creature receiving damage) */}
-          {(damageOrder != null || damageAmount != null) && (() => {
-            const midX = (start.x + end.x) / 2
-            const midY = (start.y + end.y) / 2
-            const dx = end.x - start.x
-            const dy = end.y - start.y
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            const arcHeight = Math.min(dist * 0.2, 60)
-            const controlX = midX
-            const controlY = midY - arcHeight
-            // Position on the bezier curve at t=0.25 (closer to blocker/start)
-            const t = 0.25
-            const mt = 1 - t
-            const badgeX = mt * mt * start.x + 2 * mt * t * controlX + t * t * end.x
-            const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
+        )}
 
-            if (damageAmount != null) {
-              // Show damage assignment: "order: amount" or just "amount"
-              const label = damageOrder != null ? `#${damageOrder}: ${damageAmount} dmg` : `${damageAmount} dmg`
-              const textWidth = label.length * 7 + 12
-              return (
-                <g>
-                  <rect
-                    x={badgeX - textWidth / 2}
-                    y={badgeY - 11}
-                    width={textWidth}
-                    height={22}
-                    rx={11}
-                    fill="#000000"
-                    fillOpacity={0.85}
-                    stroke="#dc2626"
-                    strokeWidth={1.5}
-                  />
-                  <text
-                    x={badgeX}
-                    y={badgeY + 4}
-                    textAnchor="middle"
-                    fill="#f87171"
-                    fontSize={12}
-                    fontWeight={700}
-                    fontFamily="system-ui, sans-serif"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    {label}
-                  </text>
-                </g>
-              )
-            } else if (damageOrder != null) {
-              // Show just the damage order number
-              return (
-                <g>
-                  <circle
-                    cx={badgeX}
-                    cy={badgeY}
-                    r={13}
-                    fill="#000000"
-                    fillOpacity={0.85}
-                    stroke="#f59e0b"
-                    strokeWidth={1.5}
-                  />
-                  <text
-                    x={badgeX}
-                    y={badgeY + 5}
-                    textAnchor="middle"
-                    fill="#fbbf24"
-                    fontSize={14}
-                    fontWeight={700}
-                    fontFamily="system-ui, sans-serif"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    {damageOrder}
-                  </text>
-                </g>
-              )
-            }
-            return null
-          })()}
-        </g>
-      ))}
+        {/* Attack direction indicators (triangles pointing toward the defender,
+            seat-colored once assigned in multiplayer) */}
+        {attackIndicators.map(({ x, y, direction, attackerId, color }) => (
+          <g key={`indicator-${attackerId}`} style={fade(clique?.attackers.has(attackerId) ?? false)}>
+            <AttackIndicator
+              x={x}
+              y={y}
+              direction={direction}
+              {...(color ? { color } : {})}
+            />
+          </g>
+        ))}
 
-      {/* Dragging arrow (blocker or attacker) */}
-      {draggingArrow && (
-        <Arrow
-          start={draggingArrow.start}
-          end={draggingArrow.end}
-          color={draggingArrow.color}
-          dashed
+        {/* Attacker arrows (attackers to the defending player / planeswalker) */}
+        {focusLast(attackerArrows, attackerInClique).map((arrow) => (
+          <g key={`attacker-${arrow.attackerId}`} style={fade(attackerInClique(arrow))}>
+            <Arrow
+              start={arrow.start}
+              end={arrow.end}
+              color={arrow.color ?? '#ff4444'}
+              emphasized={focused && attackerInClique(arrow)}
+            />
+          </g>
+        ))}
+
+        {/* Bundled attack arrows to off-screen defenders' rail chips, with a
+            creature-count badge near the chip end */}
+        {bundledArrows.map(({ start, end, color, count, defenderId }) => {
+          // Badge on the bezier at t=0.7 (closer to the chip)
+          const midX = (start.x + end.x) / 2
+          const midY = (start.y + end.y) / 2
+          const dist = Math.hypot(end.x - start.x, end.y - start.y)
+          const controlY = midY - Math.min(dist * 0.2, 60)
+          const t = 0.7
+          const mt = 1 - t
+          const badgeX = mt * mt * start.x + 2 * mt * t * midX + t * t * end.x
+          const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
+          return (
+            <g key={`bundle-${defenderId}`} style={fade(false)}>
+              <Arrow start={start} end={end} color={color} />
+              <circle cx={badgeX} cy={badgeY} r={12} fill="#000000" fillOpacity={0.85} stroke={color} strokeWidth={1.5} />
+              <text
+                x={badgeX}
+                y={badgeY + 4.5}
+                textAnchor="middle"
+                fill={color}
+                fontSize={13}
+                fontWeight={700}
+                fontFamily="system-ui, sans-serif"
+                style={{ pointerEvents: 'none' }}
+              >
+                {count}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Blocker assignments */}
+        {focusLast(arrows, blockInClique).map((arrow) => {
+          const { start, end, blockerId, attackerId, damageOrder, damageAmount } = arrow
+          return (
+          <g key={`blocker-${blockerId}-${attackerId}`} style={fade(blockInClique(arrow))}>
+            <Arrow
+              start={start}
+              end={end}
+              color="#4488ff"
+              emphasized={focused && (blockerId === focusId || attackerId === focusId)}
+            />
+            {/* Damage order and assignment badges near the blocker (creature receiving damage) */}
+            {(damageOrder != null || damageAmount != null) && (() => {
+              const midX = (start.x + end.x) / 2
+              const midY = (start.y + end.y) / 2
+              const dx = end.x - start.x
+              const dy = end.y - start.y
+              const dist = Math.sqrt(dx * dx + dy * dy)
+              const arcHeight = Math.min(dist * 0.2, 60)
+              const controlX = midX
+              const controlY = midY - arcHeight
+              // Position on the bezier curve at t=0.25 (closer to blocker/start)
+              const t = 0.25
+              const mt = 1 - t
+              const badgeX = mt * mt * start.x + 2 * mt * t * controlX + t * t * end.x
+              const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
+
+              if (damageAmount != null) {
+                // Show damage assignment: "order: amount" or just "amount"
+                const label = damageOrder != null ? `#${damageOrder}: ${damageAmount} dmg` : `${damageAmount} dmg`
+                const textWidth = label.length * 7 + 12
+                return (
+                  <g>
+                    <rect
+                      x={badgeX - textWidth / 2}
+                      y={badgeY - 11}
+                      width={textWidth}
+                      height={22}
+                      rx={11}
+                      fill="#000000"
+                      fillOpacity={0.85}
+                      stroke="#dc2626"
+                      strokeWidth={1.5}
+                    />
+                    <text
+                      x={badgeX}
+                      y={badgeY + 4}
+                      textAnchor="middle"
+                      fill="#f87171"
+                      fontSize={12}
+                      fontWeight={700}
+                      fontFamily="system-ui, sans-serif"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {label}
+                    </text>
+                  </g>
+                )
+              } else if (damageOrder != null) {
+                // Show just the damage order number
+                return (
+                  <g>
+                    <circle
+                      cx={badgeX}
+                      cy={badgeY}
+                      r={13}
+                      fill="#000000"
+                      fillOpacity={0.85}
+                      stroke="#f59e0b"
+                      strokeWidth={1.5}
+                    />
+                    <text
+                      x={badgeX}
+                      y={badgeY + 5}
+                      textAnchor="middle"
+                      fill="#fbbf24"
+                      fontSize={14}
+                      fontWeight={700}
+                      fontFamily="system-ui, sans-serif"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {damageOrder}
+                    </text>
+                  </g>
+                )
+              }
+              return null
+            })()}
+          </g>
+          )
+        })}
+
+        {/* Dragging arrow (blocker or attacker) */}
+        {draggingArrow && (
+          <Arrow
+            start={draggingArrow.start}
+            end={draggingArrow.end}
+            color={draggingArrow.color}
+            dashed
+          />
+        )}
+      </svg>
+      {caption && focusId && focusRect && (
+        <CliqueCaption
+          key={focusId}
+          caption={caption}
+          rect={focusRect}
+          isBlocker={clique?.blockers.has(focusId) ?? false}
+          nameOf={(id) => cards?.[id]?.name ?? 'a creature'}
         />
       )}
-    </svg>
+    </>
   )
 }
