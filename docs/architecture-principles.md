@@ -1122,7 +1122,9 @@ behavior:
 
 - **UNTAP:** Untap all permanents, remove summoning sickness. No priority — recursively advances.
 - **DRAW:** Draw a card, check draw replacement effects, then run state-based actions.
-- **DECLARE_ATTACKERS / DECLARE_BLOCKERS:** Skip entirely if no valid attackers/blockers exist.
+- **DECLARE_ATTACKERS:** Always happens, with priority (CR 508.2). With no creature able to attack,
+  the empty declaration is made as the turn-based action instead of asking the active player.
+- **DECLARE_BLOCKERS / COMBAT_DAMAGE:** Skipped when no creature is attacking (CR 508.8).
 - **COMBAT_DAMAGE:** Apply all combat damage simultaneously, then run state-based actions.
 - **CLEANUP:** Discard to hand size, remove damage, expire end-of-turn effects. Normally no
   priority — but if SBAs or triggers occur during cleanup, a new cleanup step begins with priority.

@@ -524,6 +524,13 @@ class AutoPassManagerTest : FunSpec({
             autoPassManager.shouldAutoPass(state, player2, actions) shouldBe true
         }
 
+        test("Stops mode: STOP during opponent's declare attackers when no attackers, even with nothing to do") {
+            val state = createMockState(player2, player1, Step.DECLARE_ATTACKERS, hasAttackers = false)
+            val actions = listOf(passPriorityAction(player2))
+
+            autoPassManager.shouldAutoPass(state, player2, actions, stopsMode = true) shouldBe false
+        }
+
         test("STOP during declare blockers when instants available even without blockers") {
             val state = createMockState(player2, player1, Step.DECLARE_BLOCKERS)
             val actions = listOf(
@@ -667,6 +674,22 @@ class AutoPassManagerTest : FunSpec({
             )
 
             autoPassManager.shouldAutoPass(state, player1, actions) shouldBe true
+        }
+
+        test("Stops mode: STOP during my declare attackers when no attackers were declared") {
+            // Nothing could attack, so the engine declared no attackers on entering the step
+            val state = createMockState(player1, player1, Step.DECLARE_ATTACKERS)
+            val actions = listOf(passPriorityAction(player1))
+
+            autoPassManager.shouldAutoPass(state, player1, actions) shouldBe true
+            autoPassManager.shouldAutoPass(state, player1, actions, stopsMode = true) shouldBe false
+        }
+
+        test("Stops mode: auto-pass my declare attackers once creatures attack") {
+            val state = createMockState(player1, player1, Step.DECLARE_ATTACKERS, hasAttackers = true)
+            val actions = listOf(passPriorityAction(player1))
+
+            autoPassManager.shouldAutoPass(state, player1, actions, stopsMode = true) shouldBe true
         }
 
         test("STOP during my declare blockers when I have combat tricks") {

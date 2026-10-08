@@ -121,9 +121,8 @@ internal object AmbushWindow {
      * **Their turn: until attackers are declared.** [Step.DECLARE_ATTACKERS] is the moment the
      * ambush stops being a guess, and it is the last window where a blocker can still be deployed in
      * time (CR 509.1 declares blockers in the *next* step). Everything from there on is released,
-     * including [Step.END] — which is the release that matters when they do not attack at all, since
-     * the engine skips the declare-attackers step entirely in that case and a policy that only
-     * released there would hold the card to cleanup.
+     * including [Step.END]. A turn where they cannot attack at all still has its declare-attackers
+     * step (CR 508.8 skips only blockers and damage), so the release lands there too.
      */
     private fun laterWindowIsStillAhead(state: GameState, playerId: EntityId): Boolean =
         if (state.activePlayerId == playerId) true else state.step !in RELEASED_ON_THEIR_TURN

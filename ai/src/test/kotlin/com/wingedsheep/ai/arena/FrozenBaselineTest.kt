@@ -145,7 +145,14 @@ class FrozenBaselineTest : FunSpec({
          * **`LEGACY_V0` did not move.** With `", targetGroupCounts=null"` stripped from the recorded
          * action text, this branch reproduces the previous golden `e42743d277e9ae6d` exactly. Seat 1
          * still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-08 for the declare attackers step no longer being skipped when the
+         * active player has no creature able to attack (#2704; CR 508.8 skips only blockers and
+         * damage). An engine change, not a V0 one: those turns now hold the step's priority window
+         * (CR 508.2), so the stream gains a pass from each player there. With a vanilla deck and
+         * nothing castable at instant speed, a pass is the only legal action in that window. Seat 1
+         * still wins on turn 20 at life -8 / 16.
          */
-        private const val GOLDEN_HASH = "ad0d0b20c33d2434"
+        private const val GOLDEN_HASH = "bc675a46de11e5b2"
     }
 }

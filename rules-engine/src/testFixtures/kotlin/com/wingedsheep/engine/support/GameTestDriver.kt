@@ -292,14 +292,31 @@ class GameTestDriver {
      * @param targetStep The step to advance to
      * @param maxPasses Safety limit to prevent infinite loops (default: 100)
      */
-    fun passPriorityUntil(targetStep: Step, maxPasses: Int = 100) {
+    fun passPriorityUntil(targetStep: Step, maxPasses: Int = 100) =
+        passPriorityWhile("step $targetStep", maxPasses) { state.step != targetStep }
+
+    /**
+     * Pass priority until [activePlayer]'s turn reaches [targetStep], walking through other
+     * players' turns (and through [targetStep] on their turns) on the way. A no-op when already
+     * there.
+     *
+     * Prefer this over [passPriorityUntil] whenever the test cares whose turn it lands on: every
+     * turn has a declare attackers step (CR 508.8 skips only blockers and damage), so
+     * "pass until DECLARE_ATTACKERS" stops on the current turn even when nothing can attack.
+     */
+    fun passPriorityUntil(targetStep: Step, activePlayer: EntityId, maxPasses: Int = 200) =
+        passPriorityWhile("$activePlayer's $targetStep", maxPasses) {
+            state.step != targetStep || state.activePlayerId != activePlayer
+        }
+
+    private fun passPriorityWhile(target: String, maxPasses: Int, notThereYet: () -> Boolean) {
         var passes = 0
         var lastStep = state.step
         var stuckCount = 0
 
-        while (state.step != targetStep && passes < maxPasses) {
+        while (notThereYet() && passes < maxPasses) {
             if (state.gameOver) {
-                throw AssertionError("Game ended while advancing to $targetStep")
+                throw AssertionError("Game ended while advancing to $target")
             }
             if (state.pendingDecision != null) {
                 // Auto-resolve pending decisions (e.g., discard to hand size at cleanup)
@@ -315,7 +332,7 @@ class GameTestDriver {
                 stuckCount++
                 if (stuckCount > 10) {
                     throw AssertionError(
-                        "Stuck at step ${state.step} with no priority while trying to reach $targetStep"
+                        "Stuck at step ${state.step} with no priority while trying to reach $target"
                     )
                 }
             }
@@ -330,7 +347,7 @@ class GameTestDriver {
         }
 
         if (passes >= maxPasses) {
-            throw AssertionError("Failed to reach step $targetStep after $maxPasses passes (current: ${state.step})")
+            throw AssertionError("Failed to reach $target after $maxPasses passes (current: ${state.step})")
         }
     }
 

@@ -970,7 +970,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     section: 'playing',
     title: 'Priority modes: Auto, Stops, Full Control',
     summary:
-      'Auto passes for you whenever you have nothing worth doing. Stops pauses on opponent spells and abilities and on combat damage. Full Control gives you priority at every single step.',
+      'Auto passes for you whenever you have nothing worth doing. Stops pauses on opponent spells and abilities, on combat damage, and in a declare attackers step where nothing attacks. Full Control gives you priority at every single step.',
     body: [
       { kind: 'p', text: 'The button cycles Auto → Stops → Full Control. Auto is right for most games; switch to Full Control when you need a specific window, such as responding in your own upkeep.' },
       { kind: 'p', text: 'Auto never passes when you have a decision that matters — it is a convenience, not a rules shortcut.' },
