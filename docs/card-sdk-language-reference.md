@@ -11675,7 +11675,9 @@ composite abilities).
   keyword; wire it with the `card { riot() }` builder helper, which composes the Khans-Siege
   `EntersWithChoice(ChoiceType.MODE, [counter, haste])` + a mode-gated `EntersWithCounters(count = 1, selfOnly = true,
   condition = SourceChosenModeIs("counter"))` + a mode-gated `ConditionalStaticAbility(GrantKeyword(HASTE,
-  GroupFilter.source()), SourceChosenModeIs("haste"))`. **Grant-aware:** when Riot is *granted* to other permanents
+  GroupFilter.source()), SourceChosenModeIs("haste"))`. If the counter is chosen but can't be placed (a placement
+  modifier cuts it to zero), the entry re-records the mode as `haste`, so the static grants haste instead (CR 702.136a
+  "if you don't, it gains haste"; Rhythm of the Wild's ruling). **Grant-aware:** when Riot is *granted* to other permanents
   (`GrantKeyword(Keyword.RIOT, <group>)`, e.g. Spider-Punk's "Other Spiders you control have riot"), the engine
   synthesizes one enters-with choice per granting lord (`RiotSynthesis.grantedRiotInstanceCount`, honoring each lord's
   `excludeSelf` and its *projected* controller — one instance per grant, CR 702.136b), wired into the spell-resolution
