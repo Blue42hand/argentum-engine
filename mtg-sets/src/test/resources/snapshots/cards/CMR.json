@@ -1006,6 +1006,73 @@
     ]
 }
 
+// Vault of Champions
+{
+    "name": "Vault of Champions",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {W} or {B}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Vault of Champions:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Vault of Champions:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "360",
+        "rarity": "RARE",
+        "artist": "Cliff Childs",
+        "flavorText": "Where victors are commemorated and moments of glory immortalized.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/e/0e144ae1-500d-4485-b476-5783b14380d9.jpg?1783928738",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Wyleth, Soul of Steel
 {
     "name": "Wyleth, Soul of Steel",
