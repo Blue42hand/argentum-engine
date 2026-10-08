@@ -1333,7 +1333,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
         <StepStrip
           phase={gameState.currentPhase}
           step={gameState.currentStep}
-          turnNumber={gameState.turnNumber}
+          // One number per pass around the table, not per seat — older replays predate roundNumber.
+          roundNumber={gameState.roundNumber ?? gameState.turnNumber}
           isActivePlayer={isMyTurn}
           hasPriority={hasPriority}
           priorityMode={priorityMode}

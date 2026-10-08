@@ -81,6 +81,14 @@ data class GameState(
      */
     val turnNumber: Int = 0,
 
+    /**
+     * Display-only round counter: advances once the turn passes back around the table, so both
+     * players' turns in a duel — or every seat's in a pod — share one number. Extra turns (CR 500.7)
+     * stay in the current round. Nothing in the rules reads this; use [turnNumber] for that.
+     * Starts at 0 and becomes 1 with the first turn, like [turnNumber].
+     */
+    val roundNumber: Int = 0,
+
     /** ID of the player whose turn it is */
     val activePlayerId: EntityId? = null,
 

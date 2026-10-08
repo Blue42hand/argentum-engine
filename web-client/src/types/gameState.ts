@@ -30,8 +30,14 @@ export interface ClientGameState {
   /** Who currently has priority */
   readonly priorityPlayerId: EntityId
 
-  /** Turn number */
+  /** Turn number — counts every player turn, so it advances on each seat's turn */
   readonly turnNumber: number
+
+  /**
+   * Round number — advances once the turn passes back around the table, so every seat's turn in
+   * one pass shares a number. Absent on states recorded before it existed; fall back to turnNumber.
+   */
+  readonly roundNumber?: number | undefined
 
   /** Whether the game is over */
   readonly isGameOver: boolean
