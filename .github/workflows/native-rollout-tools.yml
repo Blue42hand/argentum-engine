@@ -1,0 +1,20 @@
+name: Native rollout tools
+on:
+  pull_request:
+    paths:
+      - scripts/tolaria-native-deployment/**
+      - .github/workflows/native-rollout-tools.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/tolaria-native-deployment/**
+      - .github/workflows/native-rollout-tools.yml
+permissions:
+  contents: read
+jobs:
+  offline-safety-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run offline rollout and storage tests
+        run: python3 -m unittest discover -s scripts/tolaria-native-deployment -v

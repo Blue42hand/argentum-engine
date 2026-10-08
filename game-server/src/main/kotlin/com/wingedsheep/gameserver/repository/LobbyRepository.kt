@@ -30,6 +30,10 @@ class InMemoryLobbyRepository : LobbyRepository {
     private val sealedSessions = ConcurrentHashMap<String, SealedSession>()
     private val tournaments = ConcurrentHashMap<String, TournamentManager>()
 
+    fun nativePendingActivities(): Int = sealedSessions.size + sealedLobbies.values.count {
+        it.state != com.wingedsheep.gameserver.lobby.LobbyState.TOURNAMENT_COMPLETE
+    }
+
     override fun saveLobby(lobby: TournamentLobby) {
         sealedLobbies[lobby.lobbyId] = lobby
     }

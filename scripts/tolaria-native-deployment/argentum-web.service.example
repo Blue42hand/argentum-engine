@@ -1,0 +1,30 @@
+[Unit]
+Description=Private Argentum static frontend and native HTTP WebSocket facade
+After=argentum-play.service
+Requires=argentum-play.service
+ConditionPathExists=/etc/argentum-play/network-approved
+
+[Service]
+Type=simple
+User=argentum-web
+Group=argentum-web
+RuntimeDirectory=argentum-web
+RuntimeDirectoryMode=0700
+UMask=0077
+ExecStartPre=/usr/sbin/nginx -t -c /etc/argentum-play/nginx.conf
+ExecStart=/usr/sbin/nginx -c /etc/argentum-play/nginx.conf -g 'daemon off;'
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+InaccessiblePaths=/var/lib/commander-gym /srv/commander-runtime
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=256M
+CPUQuota=50%
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

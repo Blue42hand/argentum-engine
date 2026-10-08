@@ -1,0 +1,28 @@
+[Unit]
+Description=Promote a root-approved matched native Argentum release after drain
+After=argentum-play.service
+ConditionPathExists=/etc/argentum-play/release-approved
+ConditionPathExists=/etc/argentum-play/recording-approved
+ConditionPathExists=/etc/argentum-play/network-approved
+ConditionPathExists=/etc/argentum-play/updater-policy.json
+
+[Service]
+Type=oneshot
+User=root
+StateDirectory=argentum-updater
+StateDirectoryMode=0700
+UMask=0077
+ExecStart=/usr/bin/python3 -I /usr/local/libexec/argentum-native/host_adapter.py update
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ReadWritePaths=/srv/argentum-play
+InaccessiblePaths=/srv/commander-runtime /var/lib/commander-gym/state /var/lib/commander-gym/imports
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=256M
+CPUQuota=50%
+TasksMax=64
+TimeoutStartSec=300
+

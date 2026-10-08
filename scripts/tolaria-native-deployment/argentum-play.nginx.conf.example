@@ -1,0 +1,72 @@
+# DRAFT: listen is loopback only. LAN listeners require separate owner approval.
+# This file belongs in nginx's http context. No public/Funnel/router forwarding.
+map $http_upgrade $argentum_connection_upgrade {
+    default upgrade;
+    '' close;
+}
+log_format argentum_metadata '$time_iso8601 $request_method $status $body_bytes_sent $request_time';
+# Exact owner-approved LAN/HTTPS origins must be added before network deployment.
+# Native f9ba3d07 accepts wildcard WebSocket origins; enforce at this facade.
+map $http_origin $argentum_origin_allowed {
+    default 0;
+    "http://127.0.0.1:8180" 1;
+}
+# Allow only native-play catalog/deck operations verified at engine f9ba3d07.
+# Everything else (including /api/public/replays and /api/stats/admin) stays shut.
+map "$request_method:$uri" $argentum_api_allowed {
+    default 0;
+    ~^GET:/api/config$ 1;
+    ~^GET:/api/cards(/.*)?$ 1;
+    ~^GET:/api/printings$ 1;
+    ~^GET:/api/sets(/.*)?$ 1;
+    ~^GET:/api/decks/(examples|formats)$ 1;
+    ~^POST:/api/decks/(validate|legal-formats)$ 1;
+    ~^GET:/api/quick-games/(public|live)$ 1;
+}
+
+server {
+    listen 127.0.0.1:8180;
+    # Approved LAN/TLS listener goes in a separately reviewed include after consent.
+    server_name _;
+    root /srv/argentum-play/current/web;
+    index index.html;
+    server_tokens off;
+    access_log /var/log/nginx/argentum-access.log argentum_metadata;
+    # nginx error messages can contain complete request URIs/tokens. Use metadata
+    # access logs, systemd startup failures and the private structured app recorder.
+    error_log /dev/null crit;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+    add_header X-Frame-Options DENY always;
+    client_max_body_size 5m;
+
+    location / { try_files $uri $uri/ /index.html; }
+    # Private archive/admin/debug data must never become a LAN training endpoint.
+    # Participant replay routes require a separate ownership/masking audit.
+    location /actuator/ { return 404; }
+    location /api/ {
+        if ($argentum_api_allowed = 0) { return 404; }
+        proxy_pass http://127.0.0.1:18080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        # Do not turn spoofable LAN headers into account identity.
+        proxy_set_header Tailscale-User-Login "";
+        proxy_set_header Tailscale-User-Name "";
+        proxy_set_header Tailscale-App-Capabilities "";
+    }
+    location = /game {
+        if ($argentum_origin_allowed = 0) { return 403; }
+        proxy_pass http://127.0.0.1:18080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $argentum_connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Tailscale-User-Login "";
+        proxy_set_header Tailscale-User-Name "";
+        proxy_set_header Tailscale-App-Capabilities "";
+        proxy_read_timeout 86400;
+    }
+}

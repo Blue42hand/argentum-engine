@@ -1,3 +1,12 @@
+native:
+  lifecycle:
+    enabled: ${NATIVE_LIFECYCLE_ENABLED:false}
+    release-id: ${NATIVE_RELEASE_ID:}
+    gym-sha: ${NATIVE_GYM_SHA:}
+    recording-schema-version: ${NATIVE_RECORDING_SCHEMA_VERSION:1}
+    socket: ${NATIVE_LIFECYCLE_SOCKET:/run/argentum-play/lifecycle.sock}
+    updater-user: ${NATIVE_UPDATER_USER:root}
+
 server:
   port: 8080
   # Gzip HTTP responses. The replay endpoints reconstruct the full snapshot+delta stream on demand,
