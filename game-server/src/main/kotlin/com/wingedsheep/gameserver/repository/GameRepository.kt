@@ -1,6 +1,8 @@
 package com.wingedsheep.gameserver.repository
 
 import com.wingedsheep.gameserver.session.GameSession
+import com.wingedsheep.gameserver.lifecycle.NativeGameAdmission
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
@@ -17,13 +19,18 @@ interface GameRepository {
 
 @Component
 @ConditionalOnProperty(name = ["cache.redis.enabled"], havingValue = "false", matchIfMissing = true)
-class InMemoryGameRepository : GameRepository {
+class InMemoryGameRepository @Autowired constructor(
+    private val nativeAdmission: NativeGameAdmission,
+) : GameRepository {
+    constructor() : this(NativeGameAdmission())
 
     private val gameSessions = ConcurrentHashMap<String, GameSession>()
     private val gameToLobby = ConcurrentHashMap<String, String>()
 
     override fun save(gameSession: GameSession) {
-        gameSessions[gameSession.sessionId] = gameSession
+        nativeAdmission.register({ !gameSessions.containsKey(gameSession.sessionId) }) {
+            gameSessions[gameSession.sessionId] = gameSession
+        }
     }
 
     override fun findById(sessionId: String): GameSession? = gameSessions[sessionId]

@@ -1,0 +1,42 @@
+[Unit]
+Description=Private native Argentum play server
+After=network-online.target
+Wants=network-online.target
+# Installer may create these approvals only after reviewed release/recorder validation.
+ConditionPathExists=/etc/argentum-play/release-approved
+ConditionPathExists=/etc/argentum-play/recording-approved
+
+[Service]
+Type=simple
+User=argentum-play
+Group=argentum-play
+WorkingDirectory=/var/lib/argentum-play
+StateDirectory=argentum-play
+StateDirectoryMode=0700
+RuntimeDirectory=argentum-play
+RuntimeDirectoryMode=0700
+UMask=0077
+# Launcher verifies installed identities and constructs an explicit keyless environment.
+# Recorder must use the Commander Gym authoritative Tolaria store, NOT this
+# service's /var/lib/argentum-play runtime directory as a competing learning store.
+# Exact canonical writer path and targeted ACL/backup-reader grants are pending
+# the recorder task's storage-layout/training-document contract and owner approval.
+# Never put provider keys, private catalogs, or paid sidecar configuration here.
+ExecStart=/usr/bin/python3 -I /usr/local/libexec/argentum-native/native_server.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ReadOnlyPaths=/srv/argentum-play
+InaccessiblePaths=/srv/commander-runtime/.config /var/lib/commander-gym/state /var/lib/commander-gym/imports
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=8G
+CPUQuota=200%
+TasksMax=512
+
+[Install]
+WantedBy=multi-user.target

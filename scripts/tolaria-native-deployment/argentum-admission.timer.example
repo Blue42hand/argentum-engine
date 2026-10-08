@@ -1,0 +1,10 @@
+[Unit]
+Description=Check verified native boot and recorder readiness
+
+[Timer]
+OnBootSec=30s
+OnUnitInactiveSec=1min
+Unit=argentum-admission.service
+
+[Install]
+WantedBy=timers.target

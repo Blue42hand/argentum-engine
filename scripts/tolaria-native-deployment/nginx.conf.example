@@ -1,0 +1,11 @@
+worker_processes 1;
+pid /run/argentum-web/nginx.pid;
+error_log /dev/null crit;
+events { worker_connections 512; }
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    client_body_temp_path /run/argentum-web/client-body;
+    proxy_temp_path /run/argentum-web/proxy;
+    include /etc/argentum-play/argentum-play.nginx.conf;
+}

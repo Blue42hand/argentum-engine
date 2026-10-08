@@ -1,0 +1,11 @@
+[Unit]
+Description=Check for reviewed native Argentum promotions
+
+[Timer]
+OnBootSec=5min
+OnUnitInactiveSec=1h
+RandomizedDelaySec=5min
+Unit=argentum-updater.service
+
+[Install]
+WantedBy=timers.target

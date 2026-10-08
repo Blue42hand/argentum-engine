@@ -8,6 +8,8 @@ import com.wingedsheep.gameserver.handler.LobbyHandler
 import com.wingedsheep.gameserver.handler.MessageSender
 import com.wingedsheep.gameserver.handler.QuickGameAiSeatPresetHandler
 import com.wingedsheep.gameserver.handler.QuickGameLobbyHandler
+import com.wingedsheep.gameserver.lifecycle.NativeGameAdmission
+import com.wingedsheep.gameserver.lifecycle.NativeAdmissionClosed
 import com.wingedsheep.gameserver.protocol.ClientMessage
 import com.wingedsheep.gameserver.protocol.ErrorCode
 import com.wingedsheep.gameserver.protocol.GetAiControllerCatalog
@@ -32,7 +34,8 @@ class GameWebSocketHandler(
     private val quickGameAiSeatPresetHandler: QuickGameAiSeatPresetHandler,
     private val quickGameLobbyHandler: QuickGameLobbyHandler,
     private val sender: MessageSender,
-    private val llmTournamentService: com.wingedsheep.gameserver.tournament.llm.LlmTournamentService
+    private val llmTournamentService: com.wingedsheep.gameserver.tournament.llm.LlmTournamentService,
+    private val nativeAdmission: NativeGameAdmission,
 ) : TextWebSocketHandler() {
 
     private val logger = LoggerFactory.getLogger(GameWebSocketHandler::class.java)
@@ -79,6 +82,7 @@ class GameWebSocketHandler(
             val clientMessage = sender.json.decodeFromString<ClientMessage>(message.payload)
             logger.debug("Received message from ${session.id}: $clientMessage")
 
+            val route = {
             when (clientMessage) {
                 // Liveness probe — answered unconditionally, even before authentication,
                 // so the client can distinguish a half-open socket from a healthy one.
@@ -158,9 +162,20 @@ class GameWebSocketHandler(
                 is ClientMessage.RemoveQuickGameAi,
                 is ClientMessage.SetQuickGameLobbyFormat -> quickGameLobbyHandler.handle(session, clientMessage)
             }
+            }
+            when (clientMessage) {
+                is ClientMessage.CreateGame, is ClientMessage.CreateSealedGame,
+                is ClientMessage.CreateTournamentLobby, is ClientMessage.CreateQuickGameLobby,
+                is ClientMessage.AddExtraRound ->
+                    nativeAdmission.withNewGameAdmission(route)
+                else -> route()
+            }
+        } catch (_: NativeAdmissionClosed) {
+            sender.sendError(session, ErrorCode.INVALID_ACTION, "New games are paused for maintenance")
         } catch (e: Exception) {
-            logger.error("Error handling message from ${session.id}", e)
-            sender.sendError(session, ErrorCode.INTERNAL_ERROR, "Failed to process message: ${e.message}")
+            // Decoder/handler exceptions can embed raw credentials or game payloads.
+            logger.error("WebSocket request failed ({})", e.javaClass.simpleName)
+            sender.sendError(session, ErrorCode.INTERNAL_ERROR, "Failed to process message")
         }
     }
 
