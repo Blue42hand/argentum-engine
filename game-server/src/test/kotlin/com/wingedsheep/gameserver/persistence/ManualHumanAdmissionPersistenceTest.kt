@@ -30,9 +30,12 @@ class ManualHumanAdmissionPersistenceTest : FunSpec({
         persistenceJson.decodeFromString<PersistentGameSession>(old).manualHumanStart shouldBe false
         val session = GameSession(cardRegistry = CardRegistry())
         session.manualHumanStart = true
+        session.setPlayerPersistenceInfo(EntityId("recovered-human"), "Fixture", "fixture-token", isAi = false)
         val encoded = persistenceJson.encodeToString(session.toPersistent(null))
         val stored = persistenceJson.decodeFromString<PersistentGameSession>(encoded)
         val (restored, _) = restoreGameSession(stored, CardRegistry())
         restored.manualHumanStart shouldBe true
+        restored.getPlayers().isEmpty() shouldBe true
+        restored.isManualHumanGame() shouldBe true
     }
 })
