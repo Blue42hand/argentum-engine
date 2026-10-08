@@ -62,7 +62,7 @@ class PrivateGameEvidenceTest : FunSpec({
         val directory = root.resolve("prefix-game")
         val source = directory.resolve("native-000000.ndjson")
         val prefix = Files.readAllBytes(source)
-        writer.append("seat_observation", buildJsonObject { put("secret", "PRIVATE-SENTINEL".repeat(4096)) }, "private-seat")
+        writer.append("seat_observation", buildJsonObject { put("secret", java.util.Base64.getEncoder().encodeToString(kotlin.random.Random(7).nextBytes(12000))) }, "private-seat")
         writer.append("terminal", JsonObject(emptyMap()), null)
         Files.readAllBytes(source).toList() shouldBe prefix.toList()
         val marker = Files.list(directory).use { files ->

@@ -60,8 +60,9 @@ class PrivateGameEvidence private constructor(
                 put("payload", payload)
             }.toString()
             val digest = sha256(body.toByteArray(Charsets.UTF_8))
-            val line = (buildJsonObject { put("body", body); put("sha256", digest) }.toString() + "\n")
+            val logical = (buildJsonObject { put("body", body); put("sha256", digest) }.toString() + "\n")
                 .toByteArray(Charsets.UTF_8)
+            val line = PrivateRecordCodec.encode(logical)
             if (bytes > maxBytes || line.size.toLong() > maxBytes - bytes) {
                 // Safe numeric evidence of this specific guard; never retain the rejected payload.
                 boundFailure = buildJsonObject {
@@ -185,10 +186,11 @@ class PrivateGameEvidence private constructor(
                     "existing native source must be private"
                 }
                 val writer = PrivateGameEvidence(directory, gameId, engineRevision, maxBytes, ownership)
-                Files.newBufferedReader(file).use { reader ->
+                Files.newInputStream(file).buffered().use { reader ->
                     var count = 0L
                     while (true) {
-                        val line = reader.readLine() ?: break
+                        val physical = PrivateRecordCodec.readLine(reader) ?: break
+                        val line = PrivateRecordCodec.decode(physical).toString(Charsets.UTF_8)
                         val wrapper = Json.parseToJsonElement(line).jsonObject
                         val exact = wrapper.getValue("body").jsonPrimitive.content
                         val digest = sha256(exact.toByteArray(Charsets.UTF_8))
@@ -203,7 +205,7 @@ class PrivateGameEvidence private constructor(
                         writer.sequence++
                         writer.previous = digest
                         writer.sealed = body.getValue("kind").jsonPrimitive.content in setOf("terminal", "session_closed")
-                        count += line.toByteArray(Charsets.UTF_8).size + 1
+                        count += physical.size
                     }
                     require(count == Files.size(file) && !writer.sealed) { "partial or terminal source cannot resume" }
                     writer.bytes = count
