@@ -15,7 +15,7 @@
 - [ ] 1 Body of Knowledge
 - [ ] 1 Chasm Skulker
 - [ ] 1 Coiling Oracle
-- [ ] 1 Faeburrow Elder
+- [x] 1 Faeburrow Elder
 - [x] 1 Forgotten Ancient
 - [ ] 1 Jolly Gerbils
 - [ ] 1 Jolrael, Mwonvuli Recluse

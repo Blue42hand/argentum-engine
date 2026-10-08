@@ -57,6 +57,90 @@
     ]
 }
 
+// Deflecting Swat
+{
+    "name": "Deflecting Swat",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nYou may choose new targets for target spell or ability.",
+    "script": {
+        "spellEffect": {
+            "type": "ChangeTriggeringObjectTargets",
+            "spell": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "anyOf": [
+                            {},
+                            {
+                                "cardPredicates": [
+                                    "IsActivatedOrTriggeredAbility"
+                                ]
+                            }
+                        ]
+                    },
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "condition": {
+                "type": "Exists",
+                "player": "You",
+                "zone": "Battlefield",
+                "filter": {
+                    "cardPredicates": [
+                        "IsPermanent"
+                    ],
+                    "statePredicates": [
+                        "IsCommander"
+                    ]
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "Archmage attacks are little more than annoyances to Kalamax.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/4/84f035e1-6c89-457b-b05f-85680a50ed91.jpg?1783931214",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "If the target spell has a variable number of targets, you can't change how many targets it has."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "It doesn't matter whose commander you control. Any one will do. If you have two commanders, you just need to control one of them."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "Once you begin casting this spell, players can't take any other actions until you're done casting it. Notably, they can't try to remove the commander you control to make you pay its cost."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "If the target spell has damage divided as it was cast (like Mythos of Vadrok), the division can't be changed although the targets receiving that damage still can. The same is true of spells that distribute counters."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "If you choose new targets for the target spell, the new targets must be legal."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Fierce Guardianship
 {
     "name": "Fierce Guardianship",
