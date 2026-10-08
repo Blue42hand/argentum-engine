@@ -285,3 +285,74 @@
     ]
 }
 
+// Waterbender's Restoration
+{
+    "name": "Waterbender's Restoration",
+    "manaCost": "{U}{U}",
+    "typeLine": "Instant — Lesson",
+    "oracleText": "As an additional cost to cast this spell, waterbend {X}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nExile X target creatures you control. Return those cards to the battlefield under their owner's control at the beginning of the next end step.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Exile"
+                    },
+                    {
+                        "type": "CreateDelayedTrigger",
+                        "step": "END",
+                        "effect": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
+                            "destination": "Battlefield"
+                        }
+                    }
+                ]
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0",
+                "dynamicMaxCount": "XValue"
+            }
+        ],
+        "spellWaterbend": {
+            "isX": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "99",
+        "rarity": "RARE",
+        "artist": "Phima",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/fe68e08e-8d84-4f87-b2e9-b552788d78e7.jpg?1783904827",
+        "rulings": [
+            {
+                "date": "2025-10-02",
+                "text": "If a waterbend cost is part of the total cost to cast a spell or activate an ability, you may tap an untapped artifact or creature you control rather than pay one generic mana in that total cost any number of times up to a maximum of the amount of generic mana in the waterbend component of that total cost."
+            },
+            {
+                "date": "2025-10-02",
+                "text": "You can tap any untapped creature or artifact you control to pay a waterbend cost, even one you haven't controlled continuously since the beginning of your most recent turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
