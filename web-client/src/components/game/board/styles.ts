@@ -2335,6 +2335,7 @@ const passiveCounterPalette: Record<string, CounterBadgePalette> = {
   STORAGE: { bg: 'rgba(34, 40, 52, 0.95)', border: 'rgba(150, 170, 200, 0.7)', color: '#c8d6ea', glow: 'rgba(150, 170, 200, 0.55)' },
   OIL: { bg: 'rgba(18, 26, 22, 0.95)', border: 'rgba(120, 190, 150, 0.7)', color: '#b8e6c8', glow: 'rgba(120, 190, 150, 0.55)' },
   HUNGER: { bg: 'rgba(48, 26, 26, 0.95)', border: 'rgba(200, 120, 100, 0.7)', color: '#e8b0a0', glow: 'rgba(200, 120, 100, 0.55)' },
+  AGE: { bg: 'rgba(40, 36, 28, 0.95)', border: 'rgba(196, 170, 120, 0.7)', color: '#e6d3a8', glow: 'rgba(196, 170, 120, 0.55)' },
   DOOM: { bg: 'rgba(26, 18, 30, 0.95)', border: 'rgba(150, 100, 170, 0.7)', color: '#c8a0d8', glow: 'rgba(150, 100, 170, 0.55)' },
   FIRE: { bg: 'rgba(58, 24, 12, 0.95)', border: 'rgba(240, 140, 60, 0.75)', color: '#ffb070', glow: 'rgba(240, 140, 60, 0.6)' },
   CONQUEROR: { bg: 'rgba(50, 42, 18, 0.95)', border: 'rgba(220, 190, 100, 0.7)', color: '#eed890', glow: 'rgba(220, 190, 100, 0.55)' },

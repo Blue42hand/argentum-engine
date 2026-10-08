@@ -811,6 +811,8 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   // battle's own defense badge over the printed shield, not in this marker-badge allowlist.
   CounterType.STORAGE,
   CounterType.HUNGER,
+  // Age counters (cumulative upkeep — Mystic Remora): the count *is* next upkeep's bill.
+  CounterType.AGE,
   // Phyrexia: All Will Be One's oil — spent, counted and proliferated by the cards that care.
   CounterType.OIL,
   CounterType.DOOM,

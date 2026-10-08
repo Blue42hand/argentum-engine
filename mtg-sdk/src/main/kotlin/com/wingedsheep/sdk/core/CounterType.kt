@@ -543,6 +543,13 @@ value class CounterType(val name: String) {
         val HUNGER = CounterType("HUNGER")
 
         /**
+         * Age counter (CR 702.24, cumulative upkeep). Each upkeep the cumulative upkeep trigger puts one on
+         * its permanent and then charges the upkeep cost once per age counter; the counter itself has no
+         * rule of its own (CR 702.24b: the counters aren't tied to any one instance of the ability).
+         */
+        val AGE = CounterType("AGE")
+
+        /**
          * Slime counter (VOW — Toxrill, the Corrosive). A pure marker with no inherent rule of its
          * own, like [STORAGE] and [HUNGER]: Toxrill's own static ability is what reads the tally
          * ("creatures you don't control get -1/-1 for each slime counter on them"), and his dies
@@ -780,6 +787,7 @@ value class CounterType(val name: String) {
             HONE,
             STORAGE,
             HUNGER,
+            AGE,
             SLIME,
             OIL,
             JAVELIN,

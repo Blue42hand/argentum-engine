@@ -37,6 +37,7 @@ class CounterTypeTest : DescribeSpec({
             CounterType.CORPSE.printed shouldBe "corpse"
             CounterType.BRICK.printed shouldBe "brick"
             CounterType.VITALITY.printed shouldBe "vitality"
+            CounterType.AGE.printed shouldBe "age"
         }
     }
 
@@ -107,7 +108,7 @@ class CounterTypeTest : DescribeSpec({
         val NEW_KINDS = setOf(CounterType.BLOODLINE, CounterType.INVITATION, CounterType.IMPOSTOR, CounterType.DEVOTION,
             CounterType.THEFT, CounterType.TRAINING, CounterType.MIRE, CounterType.COLLECTION,
             CounterType.REPRIEVE, CounterType.BOUNTY, CounterType.CORPSE, CounterType.BRICK,
-            CounterType.VITALITY)
+            CounterType.VITALITY, CounterType.AGE)
 
         /** The values of the retired `object Counters` string constants, verbatim. */
         val LEGACY_SPELLINGS: Map<CounterType, String> = mapOf(
