@@ -751,7 +751,7 @@ internal class CombatDamageManager(
         val choosers = attackerChoosers + blockerChoosers
 
         // Names here are the real card names; per-viewer face-down masking is applied downstream at
-        // delivery time (DecisionEnricher), since this one decision graph is shown to both choosers.
+        // delivery time (DecisionMasker), since this one decision graph is shown to both choosers.
         val prompt = if (candidates.size == 1) {
             "Assign ${candidates[0].attackerName}'s ${candidates[0].availablePower} combat damage"
         } else {

@@ -235,7 +235,8 @@ internal class PlayerActiveEffectsProjector(
             )
         }
         for (sourceId in preventedFromSources) {
-            val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "a chosen source"
+            val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name
+                ?.let { nameVisibleToAll(state, sourceId, it) } ?: "a chosen source"
             effects.add(
                 ClientPlayerEffect(
                     effectId = "prevent_damage_from_source_${sourceId.value}",
@@ -250,7 +251,8 @@ internal class PlayerActiveEffectsProjector(
         // Listed per shield rather than deduplicated by source — two Circles pointed at the same
         // source are two separate shields, each spent by its own damage instance.
         for ((sourceId, halved) in preventedNextInstanceFromSources) {
-            val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "a chosen source"
+            val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name
+                ?.let { nameVisibleToAll(state, sourceId, it) } ?: "a chosen source"
             effects.add(
                 ClientPlayerEffect(
                     effectId = "prevent_next_damage_instance_from_source_${sourceId.value}" +
@@ -556,7 +558,7 @@ internal class PlayerActiveEffectsProjector(
         container.get<TheRingComponent>()?.let { ring ->
             val bearerName = state.getBattlefield()
                 .firstOrNull { state.getEntity(it)?.get<RingBearerComponent>()?.ownerId == playerId }
-                ?.let { state.getEntity(it)?.get<CardComponent>()?.name }
+                ?.let { id -> state.getEntity(id)?.get<CardComponent>()?.name?.let { nameVisibleToAll(state, id, it) } }
             val bearerLine = bearerName?.let { "Your Ring-bearer is $it." } ?: "You have no Ring-bearer."
             effects.add(
                 ClientPlayerEffect(
