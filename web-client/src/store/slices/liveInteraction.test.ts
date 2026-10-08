@@ -73,6 +73,38 @@ beforeEach(() => {
 })
 
 describe('browser live action origins', () => {
+  it('submits K’rrik life choices together with the remaining mana sources', () => {
+    const sources = [MANA, entityId('island-2'), entityId('island-3'), entityId('island-4')]
+    receive('krrik', false, undefined, [{
+      actionType: 'CastSpell', description: 'Cast K’rrik, Son of Yawgmoth',
+      action: { type: 'CastSpell', playerId: ME, cardId: SPELL }, sourceZone: 'COMMAND',
+      manaCostString: '{4}{B/P}{B/P}{B/P}',
+      availableManaSources: sources.map((entityId) => ({ entityId, name: 'Island', producesColors: ['U'] })),
+    }])
+    useGameStore.getState().startPipeline(useGameStore.getState().legalActions[0]!)
+    expect(useGameStore.getState().manaSelectionState?.validSources).toEqual(sources)
+    for (const index of [1, 2, 3]) useGameStore.getState().togglePhyrexianLifePayment(index)
+    // Life selections must leave the server-supplied mana sources available for generic payment.
+    expect(useGameStore.getState().manaSelectionState?.validSources).toEqual(sources)
+    for (const source of sources) {
+      if (!useGameStore.getState().manaSelectionState!.selectedSources.includes(source)) {
+        useGameStore.getState().toggleManaSource(source)
+      }
+    }
+    const selection = useGameStore.getState().manaSelectionState!
+    useGameStore.getState().confirmManaSelection('krrik', selection, vi.fn())
+    expect(send).toHaveBeenCalledWith({
+      type: 'submitAction', interactionEpoch: 'krrik',
+      action: {
+        type: 'CastSpell', playerId: ME, cardId: SPELL,
+        paymentStrategy: {
+          type: 'Explicit', manaAbilitiesToActivate: sources,
+          phyrexianLifePayments: ['BLACK', 'BLACK', 'BLACK'],
+        },
+      },
+    })
+  })
+
   it('retains an action origin through payment, targeting, and same-timeline delta delivery', () => {
     const actionInfo = useGameStore.getState().legalActions[0]!
     expect(actionInfo.interactionEpoch).toBe('original')

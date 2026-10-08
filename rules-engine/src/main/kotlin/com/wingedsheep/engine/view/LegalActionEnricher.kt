@@ -224,6 +224,8 @@ class LegalActionEnricher(
 
     private fun shouldExposeManaSources(action: LegalAction): Boolean =
         action.autoTapPreview != null ||
+            // A life/mana split can be affordable without a mana-only auto-tap preview.
+            (action.manaCostString?.contains("/P}") == true) ||
             (action.hasXCost && action.manaCostString != null) ||
             action.hasConvoke ||
             action.hasTapForGeneric ||
