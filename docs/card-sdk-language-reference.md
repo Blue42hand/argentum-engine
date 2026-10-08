@@ -3030,6 +3030,8 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   "Sacrifice a creature.": the **ability's controller** sacrifices and no player is named. Distinct
   from `Effects.Sacrifice`, which is the edict and names the player who must sacrifice — writing the
   bare form as `Sacrifice(filter, 1, EffectTarget.Controller)` says the same thing the long way round.
+  Controlling fewer than `count` matches sacrifices all of them (CR 609.3); as a `MayPay` cost it is
+  offered only while `count` are available.
 - `Effects.SacrificeAnyNumber(filter, excludeSource = false)`
   (= `SacrificeEffect(filter, any = true, excludeSource)`) — the *resolving*
   player chooses 0+ of their own permanents matching `filter` to sacrifice. Distinct from

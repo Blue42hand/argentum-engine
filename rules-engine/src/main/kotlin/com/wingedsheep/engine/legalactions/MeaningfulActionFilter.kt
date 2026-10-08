@@ -282,6 +282,14 @@ object MeaningfulActionFilter {
             return AutoPassVerdict(false, "STOP (Stops mode): Combat damage step with attackers")
         }
 
+        // Stops mode keeps the declare attackers step's priority window (CR 508.2) when no
+        // creature attacks, on either side of the table — including the turns where nothing could
+        // attack and the engine declared no attackers itself. Auto passes it below: there is
+        // nothing to respond to.
+        if (stopsMode && state.step == Step.DECLARE_ATTACKERS && !hasAttackers(state)) {
+            return STOP_STOPS_MODE_NO_ATTACKERS
+        }
+
         // Never auto-pass the active player's own main phases.
         if (isMyTurn && (state.step == Step.PRECOMBAT_MAIN || state.step == Step.POSTCOMBAT_MAIN)) {
             return AutoPassVerdict(false, "STOP: My main phase (always stop)")
@@ -553,6 +561,8 @@ object MeaningfulActionFilter {
     private val PASS_OWN_STACK_ITEM = AutoPassVerdict(true, "AUTO-PASS: Own spell/ability on top of stack")
     private val STOP_OWN_STACK_ITEM_BUT_HOLDING =
         AutoPassVerdict(false, "STOP: Own spell/ability on top of stack but player has holdPriority action")
+    private val STOP_STOPS_MODE_NO_ATTACKERS =
+        AutoPassVerdict(false, "STOP (Stops mode): Declare attackers step with no attackers")
     private val STOP_STOPS_MODE_OPPONENT_STACK =
         AutoPassVerdict(false, "STOP (Stops mode): Opponent's spell/ability on stack")
     private val PASS_OPPONENT_PERMANENT_SPELL =

@@ -190,6 +190,9 @@ class AutoPassManager(
             return true
         }
 
+        // Stops mode: the declare attackers window holds even when nothing attacks
+        if (stopsMode && step == Step.DECLARE_ATTACKERS) return true
+
         return if (isMyTurn) {
             !shouldAutoPassOnMyTurnForStep(step, hasMeaningfulActions)
         } else {
