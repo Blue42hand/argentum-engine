@@ -7,6 +7,15 @@ plugins {
     alias(libs.plugins.kover)
 }
 
+val nativeRevision = providers.exec {
+    workingDir(rootProject.projectDir)
+    commandLine("git", "rev-parse", "HEAD")
+}.standardOutput.asText.map { it.trim() }
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    inputs.property("nativeRevision", nativeRevision)
+    manifest.attributes("Argentum-Revision" to nativeRevision.get())
+}
+
 dependencies {
     implementation(project(":rules-engine"))
     implementation(project(":mtg-sdk"))
@@ -30,6 +39,15 @@ dependencies {
     implementation(libs.flywayCore)
     implementation(libs.flywayPostgresql)
     runtimeOnly(libs.postgresql)
+    // Optional external controller artifact, built against this exact server revision.
+    // Spring discovers its AutoConfiguration.imports inside the packaged bootJar.
+    providers.gradleProperty("aiControllerAdapterJar").orNull?.let { path ->
+        val adapter = rootProject.file(path)
+        require(adapter.isFile && adapter.extension == "jar") {
+            "aiControllerAdapterJar must name an existing adapter JAR"
+        }
+        runtimeOnly(files(adapter))
+    }
     implementation(libs.springdocOpenapi)
     implementation(kotlin("reflect"))
 

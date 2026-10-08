@@ -121,6 +121,8 @@ data class AiControllerContext(
     val gameSessionId: String?,
     /** Opaque provider profile selected for this seat, or null for the provider's default behavior. */
     val profileId: String? = null,
+    /** Trusted server seat classification; never inferred from a client or policy request. */
+    val isManualHumanGame: () -> Boolean = { false },
     /** Null until the attached game has started and has a live state. */
     val snapshot: () -> AiRuntimeSnapshot?,
 )
@@ -137,6 +139,9 @@ interface AiControllerProvider {
 
     /** Selectable presets for this provider. IDs are opaque and case-sensitive. */
     val profiles: List<AiControllerProfile> get() = emptyList()
+
+    /** False when an explicit advertised profile is required to create a usable seat. */
+    val supportsDefaultController: Boolean get() = true
 
     fun create(context: AiControllerContext): AiPlayerController
 }
@@ -205,8 +210,11 @@ internal class AiControllerProviderRegistry(providers: List<AiControllerProvider
             return ResolvedAiSeatPreset(spec)
         }
 
-        requireNotNull(providersByMode[mode]) {
+        val provider = requireNotNull(providersByMode[mode]) {
             "Unknown AI controller mode '${spec.mode}'; expected ${supportedModes().sorted().joinToString()}"
+        }
+        require(spec.profileId != null || provider.supportsDefaultController) {
+            "AI controller mode '${spec.mode}' requires an explicit profile"
         }
         val profile = spec.profileId?.let { requireProfile(spec.mode, it) }
         return ResolvedAiSeatPreset(spec, profile?.deckSpec)

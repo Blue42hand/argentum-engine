@@ -255,6 +255,15 @@ class GameSession(
     @Volatile
     var publicSpectate: Boolean = false
 
+    /** Server-owned admission for external policy in a manually started human lobby. */
+    var manualHumanStart: Boolean = false
+        get() = synchronized(stateLock) { field }
+        set(value) = synchronized(stateLock) { field = value }
+
+    fun isManualHumanGame(): Boolean = synchronized(stateLock) {
+        manualHumanStart && players.keys.any { playerPersistenceInfo[it]?.isAi == false }
+    }
+
     private val players = mutableMapOf<EntityId, PlayerSession>()
     private val deckLists = mutableMapOf<EntityId, List<String>>()
     /**
