@@ -250,10 +250,14 @@ class ActivateAbilityHandler(
      * bounds, determine the total cost, and bind X as far as the action already allows.
      */
     private fun announce(state: GameState, action: ActivateAbility): Announcement {
-        val abilityEntityId = EntityId.generate()
         val sourceObject = state.objectRef(action.sourceId)
+        // Keyed by the source's identity, like every other resolution key — never a UUID, so a
+        // replay of the same seed and actions reproduces the state byte for byte. Only a mana
+        // ability resolves under this key: one that uses the stack is re-keyed to its own stack
+        // object (`EffectContext.forAbilityResolution`) when it resolves.
         val activationReferences = ObjectReferenceEnvironment(
-            captured = true, origin = sourceObject, source = sourceObject, resolutionKey = abilityEntityId.value,
+            captured = true, origin = sourceObject, source = sourceObject,
+            resolutionKey = "activation:${action.sourceId.value}:${sourceObject?.generation}",
         )
 
         val container = state.getEntity(action.sourceId)
@@ -309,7 +313,6 @@ class ActivateAbilityHandler(
         return Announcement.Announced(
             Activation(
                 action = action,
-                abilityEntityId = abilityEntityId,
                 activationReferences = activationReferences,
                 container = container,
                 cardComponent = cardComponent,

@@ -19,8 +19,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
  */
 internal data class Activation(
     val action: ActivateAbility,
-    /** The id the ability will have on the stack; also keys its object-reference environment. */
-    val abilityEntityId: EntityId,
     val activationReferences: ObjectReferenceEnvironment,
     val container: ComponentContainer,
     val cardComponent: CardComponent,
