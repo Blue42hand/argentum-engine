@@ -66,6 +66,66 @@
   }
 }
 
+/* Image plus the front/back switch under it, for double-faced cards offering both faces. */
+.cardImageColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.cardImageColumn .cardImageContainer {
+  margin-bottom: var(--space-2);
+}
+
+.faceToggle {
+  display: flex;
+  width: 200px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.faceToggleButton {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 32px;
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  background-color: var(--bg-surface-3);
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.faceToggleButton + .faceToggleButton {
+  border-left: 1px solid var(--border-medium);
+}
+
+.faceToggleButtonActive {
+  background-color: var(--color-accent-dark);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 639px) {
+  .cardImageColumn {
+    margin-bottom: var(--space-2);
+  }
+
+  .faceToggle {
+    width: 160px;
+  }
+
+  .faceToggleButton {
+    min-height: 36px;
+  }
+}
+
 .cardImage {
   width: 100%;
   height: 100%;
@@ -173,7 +233,9 @@
 .actionButtonHint {
   font-size: 10px;
   line-height: 1.2;
-  color: var(--text-muted);
+  /* The button's own text color, dimmed — a fixed muted gray disappears on the green and blue fills. */
+  color: inherit;
+  opacity: 0.75;
 }
 
 /* "printed cost → as low as reduced cost" for casts whose own choices reduce the cost. */
