@@ -17,7 +17,8 @@ import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 
 /**
  * Projects a player — life, poison, zone sizes, mana pool, commander damage, team info — and the
- * badges on them (delegated to [PlayerActiveEffectsProjector]). All of it is public information.
+ * badges on them (delegated to [PlayerActiveEffectsProjector]). All of it is public information,
+ * except that a badge names a face-down object only to a viewer who may look under it.
  */
 internal class PlayerProjector(
     private val cardRegistry: CardRegistry,
@@ -28,7 +29,12 @@ internal class PlayerProjector(
     // hand size via the shared com.wingedsheep.engine.core.MaximumHandSize source of truth.
     private val dynamicAmountEvaluator = conditionEvaluator.amounts
 
-    fun project(state: GameState, playerId: EntityId): ClientPlayer {
+    fun project(
+        state: GameState,
+        playerId: EntityId,
+        viewingPlayerId: EntityId,
+        isSpectator: Boolean = false,
+    ): ClientPlayer {
         val container = state.getEntity(playerId)
         val playerComponent = container?.get<PlayerComponent>()
         // CR 810.9a — a player's displayed life is the team's shared total in Two-Headed Giant.
@@ -69,7 +75,7 @@ internal class PlayerProjector(
             manaPool = container?.get<ManaPoolComponent>()?.let(::manaPool),
             manaPaymentColors = com.wingedsheep.engine.mechanics.mana.ManaSpendingRules.colors(state, playerId)
                 .mapKeys { it.key.symbol.toString() }.mapValues { (_, colors) -> colors.map { it.symbol.toString() } },
-            activeEffects = activeEffects.project(state, playerId, container),
+            activeEffects = activeEffects.project(state, playerId, container, viewingPlayerId, isSpectator),
             commanderDamage = commanderDamage(state, playerId),
             // CR 702.179 — public information, and 0 for the overwhelming majority of games.
             speed = state.speed(playerId),

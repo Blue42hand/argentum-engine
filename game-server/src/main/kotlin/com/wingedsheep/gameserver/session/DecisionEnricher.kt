@@ -3,34 +3,21 @@ package com.wingedsheep.gameserver.session
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.view.DecisionMasker
 import com.wingedsheep.engine.view.Visibility
 import com.wingedsheep.gameserver.protocol.ServerMessage
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
 class DecisionEnricher(private val cardRegistry: CardRegistry) {
     private val visibility = Visibility(cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
 
-    /**
-     * Whether [entityId]'s real name must be hidden from [viewerId]. The engine visibility authority
-     * combines controller access with explicit reveals and effect-granted access; this presenter only
-     * chooses the generic label once that semantic answer is known.
-     */
-    private fun isHiddenFrom(state: GameState, entityId: EntityId, viewerId: EntityId): Boolean =
-        state.getEntity(entityId)?.has<FaceDownComponent>() == true &&
-            !visibility.isCardIdentityVisibleTo(state, Zone.BATTLEFIELD, entityId, viewerId)
+    /** Hides every face-down identity the viewer may not see; the one per-viewer masking point. */
+    private val masker = DecisionMasker(visibility)
 
     /**
-     * The source name to display for [decision] to [viewerId]. The combat board copies the (single)
-     * attacker's real name into [DecisionContext.sourceName]; mask it when the viewer isn't its
-     * controller. The multi-attacker board already uses a generic "Combat damage" label.
-     */
-    /**
-     * The art to display for [entityId].
+     * The art to display for [entityId], or null when [viewerId] may not see what it is.
      *
      * Reads the entity's own [CardComponent.imageUri], which `CardEntityFactory` stamps from the
      * printing the player actually put in their deck. Re-deriving it from the canonical
@@ -39,77 +26,25 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
      * the same card in hand or on the battlefield — both of which read the component. The definition
      * lookup remains only as a fallback for entities with no image stamped.
      */
-    private fun imageUriFor(state: GameState, entityId: EntityId): String? {
+    private fun imageUriFor(state: GameState, entityId: EntityId, viewerId: EntityId): String? {
+        if (visibility.isCardIdentityHiddenFrom(state, entityId, viewerId)) return null
         val cardComponent = state.getEntity(entityId)?.get<CardComponent>() ?: return null
         return cardComponent.imageUri
             ?: cardRegistry.getCard(cardComponent.cardDefinitionId)?.metadata?.imageUri
     }
 
-    private fun maskedSourceName(decision: PendingDecision, state: GameState, viewerId: EntityId): String? {
-        val sourceName = decision.context.sourceName ?: return null
-        if (decision is CombatResolutionDecision) {
-            val single = decision.attackers.singleOrNull() ?: return sourceName
-            if (single.name == sourceName && isHiddenFrom(state, single.id, viewerId)) return FACE_DOWN_DISPLAY_NAME
-        }
-        return sourceName
-    }
+    private fun Map<EntityId, SearchCardInfo>.withImages(state: GameState, viewerId: EntityId) =
+        mapValues { (entityId, cardInfo) -> cardInfo.copy(imageUri = imageUriFor(state, entityId, viewerId)) }
 
     fun enrich(decision: PendingDecision, state: GameState, viewerId: EntityId): PendingDecision {
-        return when (decision) {
-            is SearchLibraryDecision -> decision.copy(
-                cards = decision.cards.mapValues { (entityId, cardInfo) ->
-                    cardInfo.copy(imageUri = imageUriFor(state, entityId))
-                }
-            )
-            is ReorderLibraryDecision -> decision.copy(
-                cardInfo = decision.cardInfo.mapValues { (entityId, cardInfo) ->
-                    cardInfo.copy(imageUri = imageUriFor(state, entityId))
-                }
-            )
-            is SelectCardsDecision -> decision.copy(
-                cardInfo = decision.cardInfo?.mapValues { (entityId, cardInfo) ->
-                    cardInfo.copy(imageUri = imageUriFor(state, entityId))
-                }
-            )
-            is OrderObjectsDecision -> decision.copy(
-                cardInfo = decision.cardInfo?.mapValues { (entityId, cardInfo) ->
-                    // Don't enrich face-down creatures - would leak their identity
-                    if (state.getEntity(entityId)?.has<FaceDownComponent>() == true) cardInfo
-                    else cardInfo.copy(imageUri = imageUriFor(state, entityId))
-                }
-            )
-            is SplitPilesDecision -> decision.copy(
-                cardInfo = decision.cardInfo?.mapValues { (entityId, cardInfo) ->
-                    cardInfo.copy(imageUri = imageUriFor(state, entityId))
-                }
-            )
-            is CombatResolutionDecision -> {
-                // The combat-damage board is shown to every chooser (the attacker assigns its damage,
-                // the defender assigns any blocker damage), so a face-down creature's real name would
-                // leak to the opponent through a shared node. Mask per viewer: the controller keeps
-                // its own creature's name, everyone else sees the generic label.
-                val maskedAttackers = decision.attackers.map {
-                    if (isHiddenFrom(state, it.id, viewerId)) it.copy(name = FACE_DOWN_DISPLAY_NAME) else it
-                }
-                val maskedBlockers = decision.blockers.map {
-                    if (isHiddenFrom(state, it.id, viewerId)) it.copy(name = FACE_DOWN_DISPLAY_NAME) else it
-                }
-                // The single-attacker prompt embeds that attacker's name; mask it in lockstep.
-                val single = decision.attackers.singleOrNull()
-                val maskedPrompt = if (single != null && isHiddenFrom(state, single.id, viewerId)) {
-                    decision.prompt.replaceFirst(single.name, FACE_DOWN_DISPLAY_NAME)
-                } else {
-                    decision.prompt
-                }
-                decision.copy(
-                    attackers = maskedAttackers,
-                    blockers = maskedBlockers,
-                    prompt = maskedPrompt,
-                    context = decision.context.copy(sourceName = maskedSourceName(decision, state, viewerId)),
-                )
-            }
+        return when (val masked = masker.maskFor(decision, state, viewerId)) {
+            is SearchLibraryDecision -> masked.copy(cards = masked.cards.withImages(state, viewerId))
+            is ReorderLibraryDecision -> masked.copy(cardInfo = masked.cardInfo.withImages(state, viewerId))
+            is SelectCardsDecision -> masked.copy(cardInfo = masked.cardInfo?.withImages(state, viewerId))
+            is OrderObjectsDecision -> masked.copy(cardInfo = masked.cardInfo?.withImages(state, viewerId))
+            is SplitPilesDecision -> masked.copy(cardInfo = masked.cardInfo?.withImages(state, viewerId))
             // Other decision types don't have card info to enrich
-            else -> decision
+            else -> masked
         }
     }
 
@@ -143,7 +78,7 @@ class DecisionEnricher(private val cardRegistry: CardRegistry) {
             playerId = decision.playerId.value,
             decisionType = decision::class.simpleName ?: "Unknown",
             displayText = displayText,
-            sourceName = maskedSourceName(decision, state, viewerId),
+            sourceName = masker.maskFor(decision, state, viewerId).context.sourceName,
             sourceId = decision.context.sourceId?.value
         )
     }

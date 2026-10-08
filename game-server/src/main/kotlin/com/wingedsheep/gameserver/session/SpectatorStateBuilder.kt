@@ -1,6 +1,7 @@
 package com.wingedsheep.gameserver.session
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -17,6 +18,8 @@ import com.wingedsheep.engine.state.components.stack.TargetsComponent
 import com.wingedsheep.engine.view.ClientCommanderDamage
 import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.view.ClientStateTransformer
+import com.wingedsheep.engine.view.DecisionMasker
+import com.wingedsheep.engine.view.Visibility
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.sdk.core.Format
 import com.wingedsheep.sdk.core.Phase
@@ -36,6 +39,10 @@ class SpectatorStateBuilder(
     private val cardRegistry: CardRegistry,
     private val stateTransformer: ClientStateTransformer
 ) {
+    private val masker = DecisionMasker(
+        Visibility(cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
+    )
+
     /**
      * Build a spectator view of an N-player game. [seats] is every seated player in turn order;
      * [seatRoster] is the lightweight seat list echoed to the client. The heavy per-player board
@@ -59,7 +66,7 @@ class SpectatorStateBuilder(
         // Build decision status if there's a pending decision
         val decisionStatus = state.pendingDecision?.let { decision ->
             val decidingPlayer = seats.firstOrNull { it.playerId == decision.playerId } ?: p1
-            createDecisionStatus(decision, decidingPlayer.playerName)
+            createDecisionStatus(decision, state, p1.playerId, decidingPlayer.playerName)
         }
 
         return ServerMessage.SpectatorStateUpdate(
@@ -81,7 +88,12 @@ class SpectatorStateBuilder(
         )
     }
 
-    private fun createDecisionStatus(decision: PendingDecision, playerName: String): ServerMessage.SpectatorDecisionStatus {
+    private fun createDecisionStatus(
+        decision: PendingDecision,
+        state: GameState,
+        anySeat: EntityId,
+        playerName: String,
+    ): ServerMessage.SpectatorDecisionStatus {
         val displayText = when (decision) {
             is SelectCardsDecision -> "Selecting cards"
             is com.wingedsheep.engine.core.PlayCardDecision -> "Playing a card"
@@ -108,7 +120,7 @@ class SpectatorStateBuilder(
             playerId = decision.playerId.value,
             decisionType = decision::class.simpleName ?: "Unknown",
             displayText = displayText,
-            sourceName = decision.context.sourceName,
+            sourceName = masker.maskFor(decision, state, anySeat, isSpectator = true).context.sourceName,
             sourceId = decision.context.sourceId?.value
         )
     }
