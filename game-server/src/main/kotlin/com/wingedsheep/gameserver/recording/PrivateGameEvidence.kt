@@ -43,6 +43,7 @@ class PrivateGameEvidence private constructor(
     @Synchronized
     override fun append(kind: String, payload: JsonElement, seatId: String?) {
         if (failed || sealed) return
+        var boundFailure: JsonObject? = null
         try {
             val body = buildJsonObject {
                 put("schemaVersion", 1)
@@ -61,7 +62,17 @@ class PrivateGameEvidence private constructor(
             val digest = sha256(body.toByteArray(Charsets.UTF_8))
             val line = (buildJsonObject { put("body", body); put("sha256", digest) }.toString() + "\n")
                 .toByteArray(Charsets.UTF_8)
-            require(bytes + line.size <= maxBytes) { "native evidence storage bound reached" }
+            if (bytes > maxBytes || line.size.toLong() > maxBytes - bytes) {
+                // Safe numeric evidence of this specific guard; never retain the rejected payload.
+                boundFailure = buildJsonObject {
+                    put("reason", "storage_bound_reached")
+                    put("committedBytes", bytes)
+                    put("maxBytes", maxBytes)
+                    put("attemptedRowBytes", line.size)
+                    put("lastCommittedSequence", sequence)
+                }
+                throw IllegalArgumentException("native evidence storage bound reached")
+            }
             val file = directory.resolve("native-000000.ndjson")
             FileChannel.open(file, CREATE, WRITE, APPEND, NOFOLLOW_LINKS).use { channel ->
                 val buffer = ByteBuffer.wrap(line)
@@ -81,8 +92,11 @@ class PrivateGameEvidence private constructor(
             failed = true
             runCatching { ownership.close() }
             failures.incrementAndGet()
-            logger.error("Private evidence capture failed for game {} ({})", gameId, error.javaClass.simpleName)
-            markGap(directory, gameId, error.javaClass.simpleName)
+            // Exception messages/stacks may contain private transport or payload details.
+            val reason = boundFailure?.getValue("reason")?.jsonPrimitive?.content ?: "append_failed"
+            logger.error("Private evidence capture failed for game {} ({}, reason={})",
+                gameId, error.javaClass.simpleName, reason)
+            markGap(directory, gameId, error.javaClass.simpleName, boundFailure)
         }
     }
 
@@ -99,7 +113,7 @@ class PrivateGameEvidence private constructor(
             .digest(bytes).joinToString("") { "%02x".format(it) }
         private fun sync(path: Path) = FileChannel.open(path, READ).use { it.force(true) }
 
-        private fun markGap(directory: Path, gameId: String, code: String) {
+        private fun markGap(directory: Path, gameId: String, code: String, boundFailure: JsonObject? = null) {
             try {
                 if (!Files.isDirectory(directory, NOFOLLOW_LINKS) || Files.getPosixFilePermissions(directory) != privateDirectory) return
                 if (Files.exists(directory.resolve("manifest.json"), NOFOLLOW_LINKS)) return
@@ -109,6 +123,7 @@ class PrivateGameEvidence private constructor(
                     put("gameId", gameId)
                     put("code", code)
                     put("utc", Instant.now().toString())
+                    boundFailure?.forEach { (key, value) -> put(key, value) }
                 }.toString().toByteArray(Charsets.UTF_8)
                 FileChannel.open(file, setOf(CREATE_NEW, WRITE, NOFOLLOW_LINKS),
                     PosixFilePermissions.asFileAttribute(privateFile)).use {
