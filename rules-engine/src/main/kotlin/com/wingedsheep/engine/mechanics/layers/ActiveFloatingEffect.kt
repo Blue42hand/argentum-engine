@@ -340,13 +340,18 @@ sealed interface SerializableModification {
      * actually prevents ("you gain life equal to the damage prevented this way", Candles' Glow) —
      * once per noncombat damage event, and once per combat damage step for everything the
      * controller's shields prevented in it.
+     *
+     * When [combatOnly] is set, only combat damage is prevented ("prevent the next 1 combat damage
+     * that would be dealt to you this turn", Decorated Griffin); noncombat damage passes through and
+     * leaves the shield untouched.
      */
     @Serializable
     data class PreventNextDamage(
         val remainingAmount: Int,
         /** If set, only prevents damage from this specific source (used for CR 615.7 prevention distribution) */
         val onlyFromSource: EntityId? = null,
-        val controllerGainsLife: Boolean = false
+        val controllerGainsLife: Boolean = false,
+        val combatOnly: Boolean = false
     ) : SerializableModification
 
     /**
