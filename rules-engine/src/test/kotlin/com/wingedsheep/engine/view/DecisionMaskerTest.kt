@@ -75,6 +75,15 @@ class DecisionMaskerTest : FunSpec({
         masked.cardInfo!!.getValue(faceDown).name shouldBe "Centaur Courser"
     }
 
+    test("a spectator sees the face-down label even when rendered from the controller's seat") {
+        val (driver, faceDown, visibility) = setup()
+        val masked = DecisionMasker(visibility)
+            .maskFor(selection(driver.player2, faceDown), driver.state, driver.player2, isSpectator = true)
+            as SelectCardsDecision
+        masked.context.sourceName shouldBe FACE_DOWN_DISPLAY_NAME
+        masked.cardInfo!!.getValue(faceDown).name shouldBe FACE_DOWN_DISPLAY_NAME
+    }
+
     test("a decision with no card info still masks a face-down source name") {
         val (driver, faceDown, visibility) = setup()
         val decision = YesNoDecision(

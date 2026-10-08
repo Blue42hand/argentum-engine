@@ -17,8 +17,10 @@ import com.wingedsheep.sdk.model.EntityId
  * reveal, a "look at face-down creatures" static, or CR 708.5's controller access is honoured
  * exactly as the client state honours it.
  *
- * Masking covers every field that names a card: [com.wingedsheep.engine.core.DecisionContext]
- * `.sourceName` on any decision, the combat board's nodes and prompt, and the `cardInfo` maps.
+ * Masked fields: [com.wingedsheep.engine.core.DecisionContext]`.sourceName` on any decision, the
+ * combat board's nodes and prompt, and the `cardInfo` maps. Other prompts are not rewritten: they
+ * are built for their chooser, who controls the source they name. A new decision that names an
+ * object to a player who may not see it must mask that text here too.
  */
 class DecisionMasker(private val visibility: Visibility) {
 
