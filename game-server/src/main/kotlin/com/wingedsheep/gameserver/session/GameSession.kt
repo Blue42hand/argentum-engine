@@ -710,6 +710,18 @@ class GameSession(
      * Synchronized to prevent lost updates when multiple players act simultaneously.
      */
     fun keepHand(playerId: EntityId): MulliganActionResult = synchronized(stateLock) {
+        capture { evidence("seat_mulligan_submission", buildJsonObject {
+            put("kind", "keepHand")
+        }, playerId) }
+        val result = keepHandRecorded(playerId)
+        capture { evidence("seat_mulligan_submission_result", buildJsonObject {
+            put("kind", result.javaClass.simpleName)
+            if (result is MulliganActionResult.Failure) put("reason", result.reason)
+        }, playerId) }
+        result
+    }
+
+    private fun keepHandRecorded(playerId: EntityId): MulliganActionResult = synchronized(stateLock) {
         val state = gameState ?: return MulliganActionResult.Failure("Game not started")
 
         val action = KeepHand(playerId)
@@ -737,6 +749,18 @@ class GameSession(
      * Synchronized to prevent lost updates when multiple players act simultaneously.
      */
     fun takeMulligan(playerId: EntityId): MulliganActionResult = synchronized(stateLock) {
+        capture { evidence("seat_mulligan_submission", buildJsonObject {
+            put("kind", "takeMulligan")
+        }, playerId) }
+        val result = takeMulliganRecorded(playerId)
+        capture { evidence("seat_mulligan_submission_result", buildJsonObject {
+            put("kind", result.javaClass.simpleName)
+            if (result is MulliganActionResult.Failure) put("reason", result.reason)
+        }, playerId) }
+        result
+    }
+
+    private fun takeMulliganRecorded(playerId: EntityId): MulliganActionResult = synchronized(stateLock) {
         val state = gameState ?: return MulliganActionResult.Failure("Game not started")
 
         val action = TakeMulligan(playerId)
@@ -759,6 +783,19 @@ class GameSession(
      * Synchronized to prevent lost updates when multiple players act simultaneously.
      */
     fun chooseBottomCards(playerId: EntityId, cardIds: List<EntityId>): MulliganActionResult = synchronized(stateLock) {
+        capture { evidence("seat_mulligan_submission", buildJsonObject {
+            put("kind", "chooseBottomCards")
+            put("cardIds", JsonArray(cardIds.map { JsonPrimitive(it.value) }))
+        }, playerId) }
+        val result = chooseBottomCardsRecorded(playerId, cardIds)
+        capture { evidence("seat_mulligan_submission_result", buildJsonObject {
+            put("kind", result.javaClass.simpleName)
+            if (result is MulliganActionResult.Failure) put("reason", result.reason)
+        }, playerId) }
+        result
+    }
+
+    private fun chooseBottomCardsRecorded(playerId: EntityId, cardIds: List<EntityId>): MulliganActionResult = synchronized(stateLock) {
         val state = gameState ?: return MulliganActionResult.Failure("Game not started")
         val engineIds = fromSeat(playerId, cardIds, ListSerializer(EntityId.serializer()))
             ?: return MulliganActionResult.Failure(STALE_CARD_NAME)
@@ -1717,6 +1754,10 @@ class GameSession(
         }) }
     }
 
+    fun evidenceHealthy(): Boolean = synchronized(stateLock) {
+        !evidenceCaptureFailed && (evidenceSink as? PrivateGameEvidence)?.healthy() == true
+    }
+
     /** Repository removal closes optional evidence without inventing a rules outcome. */
     fun closeEvidence() = synchronized(stateLock) {
         capture { evidence("session_closed", buildJsonObject {
@@ -1732,6 +1773,7 @@ class GameSession(
             block()
         } catch (error: Exception) {
             evidenceCaptureFailed = true
+            PrivateGameEvidence.failures.incrementAndGet()
             // Freeze capture without changing rules execution; no terminal certification follows.
             logger.error("Private evidence serialization failed for game {} ({})", sessionId, error.javaClass.simpleName)
         }

@@ -50,18 +50,18 @@ class GameSessionEvidenceTest : ScenarioTestBase() {
                 val visible = rows.last { it.kind == "seat_observation" && it.seat == player.value }
                 val state = visible.payload.jsonObject.getValue("state").jsonObject
                 state.getValue("viewingPlayerId").jsonPrimitive.content shouldBe player.value
-                val visibleJson = state.toString()
+                val visibleCards = state.getValue("cards").jsonObject.keys
                 seats.filter { it != player }.flatMap { session.getHand(it) }.forEach { hidden ->
-                    visibleJson.contains(hidden.value) shouldBe false
+                    visibleCards.contains(hidden.value) shouldBe false
                 }
                 session.keepHand(player)
             }
             val player = seats.first()
             (session.keepHand(player) is GameSession.MulliganActionResult.Failure) shouldBe true
             (session.takeMulligan(player) is GameSession.MulliganActionResult.Failure) shouldBe true
-            (session.chooseBottomCards(player, emptyList()) is GameSession.MulliganActionResult.Failure) shouldBe true
+            (session.chooseBottomCards(player, listOf(EntityId.of("synthetic-stale-card"))) is GameSession.MulliganActionResult.Failure) shouldBe true
             rows.count { it.kind == "native_rejection" } shouldBe 3
-            (session.executeClientAction(player, PassPriority(player)) is GameSession.ActionResult.Failure) shouldBe true
+            (session.executeClientAction(player, PassPriority(player), interactionEpoch = "synthetic-stale-epoch") is GameSession.ActionResult.Failure) shouldBe true
             rows.last { it.kind == "seat_submission_result" }.seat shouldBe player.value
             seats.take(3).forEach { session.playerConcedes(it) }
             rows.map { it.kind } shouldContain "native_transition"

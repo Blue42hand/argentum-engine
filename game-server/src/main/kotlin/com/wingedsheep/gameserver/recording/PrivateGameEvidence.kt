@@ -34,8 +34,9 @@ class PrivateGameEvidence private constructor(
     private var sealed = false
     private val epoch = UUID.randomUUID().toString()
 
+    @Synchronized
     override fun close() {
-        failed = true
+        if (!sealed) failed = true
         ownership.close() // incomplete source stays an intact prefix without a terminal
     }
 
@@ -78,13 +79,19 @@ class PrivateGameEvidence private constructor(
         } catch (error: Exception) {
             // Preserve the prefix and freeze permanently; no later terminal can claim completeness.
             failed = true
-            ownership.close()
+            runCatching { ownership.close() }
+            failures.incrementAndGet()
             logger.error("Private evidence capture failed for game {} ({})", gameId, error.javaClass.simpleName)
             markGap(directory, gameId, error.javaClass.simpleName)
         }
     }
 
+    @Synchronized
+    fun healthy(): Boolean = !failed
+
     companion object {
+        internal val failures = java.util.concurrent.atomic.AtomicLong()
+
         private val logger = LoggerFactory.getLogger(PrivateGameEvidence::class.java)
         private val privateDirectory = PosixFilePermissions.fromString("rwx------")
         private val privateFile = PosixFilePermissions.fromString("rw-------")
@@ -122,6 +129,7 @@ class PrivateGameEvidence private constructor(
                 require(revision.matches(Regex("[0-9a-f]{40}"))) { "engine revision must be a full commit id" }
                 create(Path.of(root), gameId, revision)
             } catch (error: Exception) {
+                failures.incrementAndGet()
                 // Optional telemetry must not make persisted games unrecoverable. Preserve history.
                 logger.error("Private evidence unavailable for game {} ({})", gameId, error.javaClass.simpleName)
                 if (gameId.matches(Regex("[A-Za-z0-9_-]{1,128}"))) {
