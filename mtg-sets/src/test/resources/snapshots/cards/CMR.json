@@ -779,6 +779,73 @@
     ]
 }
 
+// Rejuvenating Springs
+{
+    "name": "Rejuvenating Springs",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {G} or {U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Rejuvenating Springs:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Rejuvenating Springs:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "354",
+        "rarity": "RARE",
+        "artist": "Alayna Danner",
+        "flavorText": "When they're done pummeling each other, the fighters relax companionably in the springs, warming their sore muscles.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/51e69910-0d90-48a0-af29-3cddaeec5151.jpg?1783928741",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
+    ]
+}
+
 // Reshape the Earth
 {
     "name": "Reshape the Earth",
