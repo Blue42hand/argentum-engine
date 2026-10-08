@@ -36,6 +36,8 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.gameserver.recording.GameEvidenceSink
 import com.wingedsheep.gameserver.recording.PrivateGameEvidence
+import com.wingedsheep.gameserver.recording.aiSeatEvidence
+import com.wingedsheep.ai.AiDecisionEvidence
 import com.wingedsheep.gameserver.persistence.persistenceJson
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
@@ -69,6 +71,60 @@ class GameSession(
     val maxPlayers: Int = 2,
     private val evidenceSink: GameEvidenceSink? = PrivateGameEvidence.fromSystemProperties(sessionId),
 ) {
+    private data class PendingAiEvidence(val evidence: AiDecisionEvidence, val seat: EntityId,
+                                         val before: String, val epoch: String)
+    private val pendingAiEvidence = linkedMapOf<String, PendingAiEvidence>()
+    private var applyingAiEvidence: PendingAiEvidence? = null
+
+    /** Recording eligibility never changes rules admission or supplies pilot information. */
+    fun beginAiDecisionEvidence(playerId: EntityId, observed: ClientGameState,
+                                legal: List<LegalActionInfo>, epoch: String?, log: List<String>): AiDecisionEvidence? =
+        synchronized(stateLock) {
+            val state = gameState ?: return null
+            if (evidenceSink == null || evidenceCaptureFailed || state.gameOver || state.pendingDecision != null ||
+                !isCurrentInteraction(epoch) || legal.isEmpty() || pendingAiEvidence.size >= 64) return null
+            var context: AiDecisionEvidence? = null
+            capture {
+                val current = aiStateTransformer.transform(state, playerId)
+                if (current.copy(gameLog = emptyList()) != observed.copy(gameLog = emptyList()) ||
+                    getLegalActions(playerId) != legal) return@capture
+                val created = aiSeatEvidence(observed, legal, playerId.value, log)
+                evidence("ai_decision_input", persistenceJson.encodeToJsonElement(AiDecisionEvidence.serializer(), created), playerId)
+                pendingAiEvidence.entries.removeIf { it.value.seat == playerId }
+                pendingAiEvidence[created.correlationId] = PendingAiEvidence(created, playerId, nativeStateDigest(state), epoch!!)
+                context = created
+            }
+            context
+        }
+
+    fun executeRecordedAiAction(playerId: EntityId, action: GameAction, epoch: String?,
+                                context: AiDecisionEvidence, chosen: GameAction): ActionResult? = synchronized(stateLock) {
+        val pending = pendingAiEvidence.remove(context.correlationId)
+        var eligible = false
+        capture {
+            val state = gameState
+            val offered = pending?.takeIf { it.evidence == context }?.let {
+                Json.parseToJsonElement(it.evidence.observationBody).jsonObject["legalActions"]?.jsonArray
+            }
+            val selected = persistenceJson.encodeToJsonElement(GameAction.serializer(), chosen)
+            val match = offered?.singleOrNull { it.jsonObject["action"] == selected }
+            eligible = pending != null && pending.evidence == context && pending.seat == playerId &&
+                pending.epoch == epoch && state != null && pending.before == nativeStateDigest(state) &&
+                chosen == action && match != null
+        }
+        applyingAiEvidence = pending.takeIf { eligible }
+        try {
+            val result = executeAiAction(playerId, action, epoch)
+            // Terminal sources are sealed. A late/stale callback remains in the Gym diagnostic capture.
+            if (gameState?.gameOver != true && (applyingAiEvidence != null || !eligible)) capture {
+                evidence("ai_decision_disposition", buildJsonObject {
+                    put("correlationId", context.correlationId)
+                    put("status", if (!eligible) "unmatched_or_overridden" else if (result == null) "stale" else "rejected")
+                }, playerId)
+            }
+            result
+        } finally { applyingAiEvidence = null }
+    }
     /** Backward-compatible constructor: wraps a CardRegistry in EngineServices. */
     constructor(
         sessionId: String = UUID.randomUUID().toString(),
@@ -1794,6 +1850,23 @@ class GameSession(
                 put("effectiveStateDigest", nativeStateDigest(gameState!!))
                 put("administrativeStall", stallMessage()?.let(::JsonPrimitive) ?: JsonNull)
             })
+            applyingAiEvidence?.let { pending ->
+                val input = Json.parseToJsonElement(pending.evidence.observationBody).jsonObject
+                val submitted = persistenceJson.encodeToJsonElement(GameAction.serializer(), action)
+                val selected = input.getValue("legalActions").jsonArray.single { it.jsonObject["action"] == submitted }.jsonObject
+                val after = aiSeatEvidence(aiStateTransformer.transform(gameState!!, pending.seat), emptyList(), pending.seat.value)
+                evidence("ai_decision_result", buildJsonObject {
+                    put("version", 1)
+                    put("correlationId", pending.evidence.correlationId)
+                    put("status", if (stallMessage() == null) "accepted" else "administrative_stall")
+                    put("inputStateDigest", pending.evidence.stateDigest)
+                    put("semanticId", selected.getValue("semanticId"))
+                    put("actionId", selected.getValue("actionId"))
+                    put("action", submitted)
+                    put("resultObservation", persistenceJson.encodeToJsonElement(AiDecisionEvidence.serializer(), after))
+                }, pending.seat)
+                applyingAiEvidence = null
+            }
             if (gameState?.gameOver == true) evidence("terminal", buildJsonObject {
                 put("winnerId", gameState?.winnerId?.value?.let(::JsonPrimitive) ?: JsonNull)
                 put("nativeGameOver", true)
