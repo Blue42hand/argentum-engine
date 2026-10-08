@@ -8573,7 +8573,13 @@ staticAbility {
   `CardType.ARTIFACT`)
 - `GrantCardType(cardType, filter)` / `RemoveCardType(cardType, filter)` — Layer 4 type-changing statics that add or
   remove a card type (e.g. `"CREATURE"`). `RemoveCardType` backs Impending's "isn't a creature while it has a time
-  counter" (wrapped in a `ConditionalStaticAbility`); reuse it for any "it's no longer a [type]" effect.
+  counter" (wrapped in a `ConditionalStaticAbility`); reuse it for any "it's no longer a [type]" effect — the Theros
+  gods' "As long as your devotion to green is less than five, Nylea isn't a creature" is `staticAbility { condition =
+  Conditions.CompareAmounts(DynamicAmounts.devotionTo(Color.GREEN), ComparisonOperator.LT, 5); ability =
+  RemoveCardType("CREATURE", GroupFilter.source()) }` (Nylea, God of the Hunt). Removing `"CREATURE"` also strips the
+  object's creature subtypes for as long as the removal lasts unless it is still a creature or kindred (CR 205.1a — a
+  god below its threshold loses the creature type God), and an attacking or blocking creature that stops being a
+  creature is removed from combat by a state-based check (CR 506.4) and doesn't rejoin it.
   `GrantCardType` also takes `includeControlledSpells` / `includeOwnedCardsOutsideBattlefield` (default `false`), the
   card-type twin of `GrantChosenSubtype`'s flags, for "the same is true for permanent spells you control and nonland
   permanent cards you own that aren't on the battlefield" (Encroaching Mycosynth:
