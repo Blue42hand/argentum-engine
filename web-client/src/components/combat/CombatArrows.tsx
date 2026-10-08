@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * Functional-update helper that keeps the previous state when the freshly measured value is
@@ -14,6 +14,7 @@ import type { EntityId } from '@/types'
 import { Step, ZoneType } from '@/types'
 import { defendingPlayerOf, isBattle } from '@/utils/combatTargets'
 import { bandsFromBandIds, computeCombatClique, type CombatClique } from './combatClique'
+import { CliqueCaption, CliqueSpotlight, describeFocus, measureClique } from './CombatFocus'
 
 interface Point {
   x: number
@@ -306,99 +307,10 @@ const BLOCKS_RESOLVED_STEPS = new Set([
 ])
 
 /** Opacity of combat arrows outside the hovered clique. */
-const DIM_OPACITY = 0.14
-const ATTACKER_RING = '#ff5c5c'
-const BLOCKER_RING = '#5ea2ff'
-/** Mirrors HoverCardPreview: its gap from the cursor, and roughly the room it needs beside it. */
-const PREVIEW_CURSOR_GAP = 40
-const PREVIEW_ROOM = 340
-
-/** One-line caption for the hovered creature: who it's blocking, or who's blocking it. */
-function cliqueCaption(
-  focusId: EntityId,
-  clique: CombatClique,
-  arrows: readonly ArrowData[],
-  bands: readonly (readonly EntityId[])[],
-  cards: Readonly<Record<EntityId, { readonly name: string }>> | undefined,
-  blocksKnown: boolean,
-): string | null {
-  const nameOf = (id: EntityId) => cards?.[id]?.name ?? 'a creature'
-  const summarize = (ids: EntityId[], noun: string) =>
-    ids.length === 1 ? nameOf(ids[0]!) : `${ids.length} ${noun}`
-  if (clique.blockers.has(focusId)) {
-    const blocking = arrows.filter((a) => a.blockerId === focusId).map((a) => a.attackerId)
-    return `Blocking ${summarize(blocking, 'attackers')}`
-  }
-  const blockedBy = arrows.filter((a) => a.attackerId === focusId).map((a) => a.blockerId)
-  const bandSize = bands.find((band) => band.includes(focusId))?.length ?? 0
-  const band = bandSize > 1 ? `Band of ${bandSize}` : null
-  const blocks = blockedBy.length > 0
-    ? `Blocked by ${summarize(blockedBy, 'creatures')}`
-    : blocksKnown && clique.blockers.size > 0
-      // Banded: no arrow lands on this one, but a band mate's block blocks it too.
-      ? 'Blocked with its band'
-      : blocksKnown ? 'Unblocked' : null
-  return [blocks, band].filter(Boolean).join(' · ') || null
-}
-
-/**
- * Rings around every creature in the hovered clique, plus a caption pill on the hovered one.
- * The pill sits on the card edge facing away from the screen centre — the centre-facing edge
- * is where attack chevrons and arrows leave the card.
- */
-function CliqueHighlight({ clique, focusId, caption }: { clique: CombatClique; focusId: EntityId; caption: string | null }) {
-  const pad = 5
-  const rings: ReactElement[] = []
-  let pill: ReactElement | null = null
-  for (const id of clique.members) {
-    const el = document.querySelector(`[data-card-id="${id}"]`)
-    if (!el) continue
-    const r = el.getBoundingClientRect()
-    if (!isOnScreen({ x: r.left + r.width / 2, y: r.top })) continue
-    const color = clique.blockers.has(id) ? BLOCKER_RING : ATTACKER_RING
-    const hovered = id === focusId
-    rings.push(
-      <g key={`ring-${id}`} className="combat-clique-ring">
-        <rect x={r.left - pad} y={r.top - pad} width={r.width + pad * 2} height={r.height + pad * 2} rx={12}
-          fill="none" stroke={color} strokeOpacity={0.35} strokeWidth={hovered ? 10 : 8} />
-        <rect x={r.left - pad} y={r.top - pad} width={r.width + pad * 2} height={r.height + pad * 2} rx={12}
-          fill="none" stroke={hovered ? '#ffffff' : color} strokeOpacity={hovered ? 0.95 : 0.9} strokeWidth={hovered ? 2.5 : 2} />
-      </g>,
-    )
-    if (hovered && caption) {
-      const width = caption.length * 6.8 + 22
-      const below = r.top + r.height / 2 > window.innerHeight / 2
-      const cy = below ? r.bottom + pad : r.top - pad
-      // Hang the pill off the card corner away from the hover preview, which opens at least
-      // PREVIEW_CURSOR_GAP to the right of the cursor (or to its left when the right is full).
-      const previewOnRight = r.left + r.width / 2 + PREVIEW_ROOM < window.innerWidth
-      const ideal = previewOnRight
-        ? r.left + PREVIEW_CURSOR_GAP - 4 - width / 2
-        : r.right - PREVIEW_CURSOR_GAP + 4 + width / 2
-      const cx = Math.min(Math.max(ideal, width / 2 + 8), window.innerWidth - width / 2 - 8)
-      pill = (
-        <g key="caption" className="combat-clique-ring">
-          <rect x={cx - width / 2} y={cy - 12} width={width} height={24} rx={12}
-            fill="#0d1017" fillOpacity={0.92} stroke={color} strokeWidth={1.5} />
-          <text x={cx} y={cy + 4.5} textAnchor="middle" fill="#f3f4f6" fontSize={12.5} fontWeight={600}
-            fontFamily="system-ui, sans-serif">
-            {caption}
-          </text>
-        </g>
-      )
-    }
-  }
-  return (
-    <g>
-      <style>{`
-        .combat-clique-ring { animation: combat-clique-in 140ms ease-out; }
-        @keyframes combat-clique-in { from { opacity: 0; } to { opacity: 1; } }
-      `}</style>
-      {rings}
-      {pill}
-    </g>
-  )
-}
+const DIM_OPACITY = 0.1
+/** Hover settle times: a short delay in, a longer grace out so sweeping across cards doesn't flicker. */
+const FOCUS_IN_MS = 70
+const FOCUS_OUT_MS = 120
 
 export function CombatArrows() {
   const combatState = useGameStore((state) => state.combatState)
@@ -805,7 +717,15 @@ export function CombatArrows() {
   // Hover focus: hovering a creature in combat lifts its whole clique (see computeCombatClique)
   // and dims every other arrow, so one block can be read out of a crowded board.
   const hoveredCardId = useGameStore((state) => state.hoveredCardId)
-  const focusId = draggingBlockerId || draggingAttackerId ? null : hoveredCardId
+  const isDragging = draggingBlockerId != null || draggingAttackerId != null
+  const [focusId, setFocusId] = useState<EntityId | null>(null)
+  useEffect(() => {
+    const target = isDragging ? null : hoveredCardId
+    // Card to card passes through a null hover; the out-grace swallows it, so focus moves
+    // straight from one clique to the next instead of blinking the scrim off and on.
+    const timer = setTimeout(() => setFocusId(target), target ? FOCUS_IN_MS : FOCUS_OUT_MS)
+    return () => clearTimeout(timer)
+  }, [hoveredCardId, isDragging])
   const { attackerSet, bands } = useMemo(() => {
     const attackers = new Set<EntityId>()
     const bands: EntityId[][] = []
@@ -827,6 +747,9 @@ export function CombatArrows() {
     () => (focusId ? computeCombatClique(focusId, arrows, bands, attackerSet) : null),
     [focusId, arrows, bands, attackerSet],
   )
+  // The last clique shown, kept so the spotlight can fade out instead of vanishing.
+  const lastFocus = useRef<{ clique: CombatClique; focusId: EntityId } | null>(null)
+  if (clique && focusId) lastFocus.current = { clique, focusId }
   // Whether "no blockers" is a fact yet: blocks are being declared right now, or have been.
   const blocksKnown = isDeclaringBlockers ||
     (opponentBlockerAssignments != null && Object.keys(opponentBlockerAssignments).length > 0 && isDeclareBlockersStep) ||
@@ -873,180 +796,202 @@ export function CombatArrows() {
     focused ? [...items].sort((a, b) => Number(inClique(a)) - Number(inClique(b))) : items
   const attackerInClique = (item: { attackerId: EntityId }) => clique?.attackers.has(item.attackerId) ?? false
   const blockInClique = (item: ArrowData) => clique?.blockers.has(item.blockerId) ?? false
-  const caption = clique && focusId ? cliqueCaption(focusId, clique, arrows, bands, cards, blocksKnown) : null
+  const caption = clique && focusId ? describeFocus(focusId, clique, arrows, bands, blocksKnown) : null
+  const spotlight = lastFocus.current
+  const spotlightRects = spotlight ? measureClique(spotlight.clique) : null
+  const focusRect = focusId ? spotlightRects?.get(focusId) : undefined
 
   return (
-    <svg
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        pointerEvents: 'none',
-        zIndex: 2000, // Above spectator container (1500)
-      }}
-    >
-      {/* Attack direction indicators (triangles pointing toward the defender,
-          seat-colored once assigned in multiplayer) */}
-      {attackIndicators.map(({ x, y, direction, attackerId, color }) => (
-        <g key={`indicator-${attackerId}`} style={fade(clique?.attackers.has(attackerId) ?? false)}>
-          <AttackIndicator
-            x={x}
-            y={y}
-            direction={direction}
-            {...(color ? { color } : {})}
+    <>
+      <svg
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 2000, // Above spectator container (1500)
+        }}
+      >
+        {/* Hover spotlight sits under every arrow, so the clique's arrows read over the scrim */}
+        {spotlight && spotlightRects && (
+          <CliqueSpotlight
+            clique={spotlight.clique}
+            rects={spotlightRects}
+            focusId={spotlight.focusId}
+            visible={focused}
           />
-        </g>
-      ))}
+        )}
 
-      {/* Attacker arrows (attackers to the defending player / planeswalker) */}
-      {focusLast(attackerArrows, attackerInClique).map((arrow) => (
-        <g key={`attacker-${arrow.attackerId}`} style={fade(attackerInClique(arrow))}>
-          <Arrow
-            start={arrow.start}
-            end={arrow.end}
-            color={arrow.color ?? '#ff4444'}
-            emphasized={focused && attackerInClique(arrow)}
-          />
-        </g>
-      ))}
-
-      {/* Bundled attack arrows to off-screen defenders' rail chips, with a
-          creature-count badge near the chip end */}
-      {bundledArrows.map(({ start, end, color, count, defenderId }) => {
-        // Badge on the bezier at t=0.7 (closer to the chip)
-        const midX = (start.x + end.x) / 2
-        const midY = (start.y + end.y) / 2
-        const dist = Math.hypot(end.x - start.x, end.y - start.y)
-        const controlY = midY - Math.min(dist * 0.2, 60)
-        const t = 0.7
-        const mt = 1 - t
-        const badgeX = mt * mt * start.x + 2 * mt * t * midX + t * t * end.x
-        const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
-        return (
-          <g key={`bundle-${defenderId}`} style={fade(false)}>
-            <Arrow start={start} end={end} color={color} />
-            <circle cx={badgeX} cy={badgeY} r={12} fill="#000000" fillOpacity={0.85} stroke={color} strokeWidth={1.5} />
-            <text
-              x={badgeX}
-              y={badgeY + 4.5}
-              textAnchor="middle"
-              fill={color}
-              fontSize={13}
-              fontWeight={700}
-              fontFamily="system-ui, sans-serif"
-              style={{ pointerEvents: 'none' }}
-            >
-              {count}
-            </text>
+        {/* Attack direction indicators (triangles pointing toward the defender,
+            seat-colored once assigned in multiplayer) */}
+        {attackIndicators.map(({ x, y, direction, attackerId, color }) => (
+          <g key={`indicator-${attackerId}`} style={fade(clique?.attackers.has(attackerId) ?? false)}>
+            <AttackIndicator
+              x={x}
+              y={y}
+              direction={direction}
+              {...(color ? { color } : {})}
+            />
           </g>
-        )
-      })}
+        ))}
 
-      {/* Blocker assignments */}
-      {focusLast(arrows, blockInClique).map((arrow) => {
-        const { start, end, blockerId, attackerId, damageOrder, damageAmount } = arrow
-        return (
-        <g key={`blocker-${blockerId}-${attackerId}`} style={fade(blockInClique(arrow))}>
+        {/* Attacker arrows (attackers to the defending player / planeswalker) */}
+        {focusLast(attackerArrows, attackerInClique).map((arrow) => (
+          <g key={`attacker-${arrow.attackerId}`} style={fade(attackerInClique(arrow))}>
+            <Arrow
+              start={arrow.start}
+              end={arrow.end}
+              color={arrow.color ?? '#ff4444'}
+              emphasized={focused && attackerInClique(arrow)}
+            />
+          </g>
+        ))}
+
+        {/* Bundled attack arrows to off-screen defenders' rail chips, with a
+            creature-count badge near the chip end */}
+        {bundledArrows.map(({ start, end, color, count, defenderId }) => {
+          // Badge on the bezier at t=0.7 (closer to the chip)
+          const midX = (start.x + end.x) / 2
+          const midY = (start.y + end.y) / 2
+          const dist = Math.hypot(end.x - start.x, end.y - start.y)
+          const controlY = midY - Math.min(dist * 0.2, 60)
+          const t = 0.7
+          const mt = 1 - t
+          const badgeX = mt * mt * start.x + 2 * mt * t * midX + t * t * end.x
+          const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
+          return (
+            <g key={`bundle-${defenderId}`} style={fade(false)}>
+              <Arrow start={start} end={end} color={color} />
+              <circle cx={badgeX} cy={badgeY} r={12} fill="#000000" fillOpacity={0.85} stroke={color} strokeWidth={1.5} />
+              <text
+                x={badgeX}
+                y={badgeY + 4.5}
+                textAnchor="middle"
+                fill={color}
+                fontSize={13}
+                fontWeight={700}
+                fontFamily="system-ui, sans-serif"
+                style={{ pointerEvents: 'none' }}
+              >
+                {count}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Blocker assignments */}
+        {focusLast(arrows, blockInClique).map((arrow) => {
+          const { start, end, blockerId, attackerId, damageOrder, damageAmount } = arrow
+          return (
+          <g key={`blocker-${blockerId}-${attackerId}`} style={fade(blockInClique(arrow))}>
+            <Arrow
+              start={start}
+              end={end}
+              color="#4488ff"
+              emphasized={focused && (blockerId === focusId || attackerId === focusId)}
+            />
+            {/* Damage order and assignment badges near the blocker (creature receiving damage) */}
+            {(damageOrder != null || damageAmount != null) && (() => {
+              const midX = (start.x + end.x) / 2
+              const midY = (start.y + end.y) / 2
+              const dx = end.x - start.x
+              const dy = end.y - start.y
+              const dist = Math.sqrt(dx * dx + dy * dy)
+              const arcHeight = Math.min(dist * 0.2, 60)
+              const controlX = midX
+              const controlY = midY - arcHeight
+              // Position on the bezier curve at t=0.25 (closer to blocker/start)
+              const t = 0.25
+              const mt = 1 - t
+              const badgeX = mt * mt * start.x + 2 * mt * t * controlX + t * t * end.x
+              const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
+
+              if (damageAmount != null) {
+                // Show damage assignment: "order: amount" or just "amount"
+                const label = damageOrder != null ? `#${damageOrder}: ${damageAmount} dmg` : `${damageAmount} dmg`
+                const textWidth = label.length * 7 + 12
+                return (
+                  <g>
+                    <rect
+                      x={badgeX - textWidth / 2}
+                      y={badgeY - 11}
+                      width={textWidth}
+                      height={22}
+                      rx={11}
+                      fill="#000000"
+                      fillOpacity={0.85}
+                      stroke="#dc2626"
+                      strokeWidth={1.5}
+                    />
+                    <text
+                      x={badgeX}
+                      y={badgeY + 4}
+                      textAnchor="middle"
+                      fill="#f87171"
+                      fontSize={12}
+                      fontWeight={700}
+                      fontFamily="system-ui, sans-serif"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {label}
+                    </text>
+                  </g>
+                )
+              } else if (damageOrder != null) {
+                // Show just the damage order number
+                return (
+                  <g>
+                    <circle
+                      cx={badgeX}
+                      cy={badgeY}
+                      r={13}
+                      fill="#000000"
+                      fillOpacity={0.85}
+                      stroke="#f59e0b"
+                      strokeWidth={1.5}
+                    />
+                    <text
+                      x={badgeX}
+                      y={badgeY + 5}
+                      textAnchor="middle"
+                      fill="#fbbf24"
+                      fontSize={14}
+                      fontWeight={700}
+                      fontFamily="system-ui, sans-serif"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {damageOrder}
+                    </text>
+                  </g>
+                )
+              }
+              return null
+            })()}
+          </g>
+          )
+        })}
+
+        {/* Dragging arrow (blocker or attacker) */}
+        {draggingArrow && (
           <Arrow
-            start={start}
-            end={end}
-            color="#4488ff"
-            emphasized={focused && (blockerId === focusId || attackerId === focusId)}
+            start={draggingArrow.start}
+            end={draggingArrow.end}
+            color={draggingArrow.color}
+            dashed
           />
-          {/* Damage order and assignment badges near the blocker (creature receiving damage) */}
-          {(damageOrder != null || damageAmount != null) && (() => {
-            const midX = (start.x + end.x) / 2
-            const midY = (start.y + end.y) / 2
-            const dx = end.x - start.x
-            const dy = end.y - start.y
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            const arcHeight = Math.min(dist * 0.2, 60)
-            const controlX = midX
-            const controlY = midY - arcHeight
-            // Position on the bezier curve at t=0.25 (closer to blocker/start)
-            const t = 0.25
-            const mt = 1 - t
-            const badgeX = mt * mt * start.x + 2 * mt * t * controlX + t * t * end.x
-            const badgeY = mt * mt * start.y + 2 * mt * t * controlY + t * t * end.y
-
-            if (damageAmount != null) {
-              // Show damage assignment: "order: amount" or just "amount"
-              const label = damageOrder != null ? `#${damageOrder}: ${damageAmount} dmg` : `${damageAmount} dmg`
-              const textWidth = label.length * 7 + 12
-              return (
-                <g>
-                  <rect
-                    x={badgeX - textWidth / 2}
-                    y={badgeY - 11}
-                    width={textWidth}
-                    height={22}
-                    rx={11}
-                    fill="#000000"
-                    fillOpacity={0.85}
-                    stroke="#dc2626"
-                    strokeWidth={1.5}
-                  />
-                  <text
-                    x={badgeX}
-                    y={badgeY + 4}
-                    textAnchor="middle"
-                    fill="#f87171"
-                    fontSize={12}
-                    fontWeight={700}
-                    fontFamily="system-ui, sans-serif"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    {label}
-                  </text>
-                </g>
-              )
-            } else if (damageOrder != null) {
-              // Show just the damage order number
-              return (
-                <g>
-                  <circle
-                    cx={badgeX}
-                    cy={badgeY}
-                    r={13}
-                    fill="#000000"
-                    fillOpacity={0.85}
-                    stroke="#f59e0b"
-                    strokeWidth={1.5}
-                  />
-                  <text
-                    x={badgeX}
-                    y={badgeY + 5}
-                    textAnchor="middle"
-                    fill="#fbbf24"
-                    fontSize={14}
-                    fontWeight={700}
-                    fontFamily="system-ui, sans-serif"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    {damageOrder}
-                  </text>
-                </g>
-              )
-            }
-            return null
-          })()}
-        </g>
-        )
-      })}
-
-      {clique && focusId && <CliqueHighlight clique={clique} focusId={focusId} caption={caption} />}
-
-      {/* Dragging arrow (blocker or attacker) */}
-      {draggingArrow && (
-        <Arrow
-          start={draggingArrow.start}
-          end={draggingArrow.end}
-          color={draggingArrow.color}
-          dashed
+        )}
+      </svg>
+      {caption && focusId && focusRect && (
+        <CliqueCaption
+          key={focusId}
+          caption={caption}
+          rect={focusRect}
+          isBlocker={clique?.blockers.has(focusId) ?? false}
+          nameOf={(id) => cards?.[id]?.name ?? 'a creature'}
         />
       )}
-    </svg>
+    </>
   )
 }
