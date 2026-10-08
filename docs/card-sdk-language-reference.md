@@ -2097,6 +2097,12 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   energy, and rad counters instead live directly on a **player entity**, reusing the same `CountersComponent` —
   no separate component or data model. `AddCountersExecutor` already resolves player-shaped targets (`that
   player gets two poison counters`, Virulent Silencer), so a fixed grant needs no new vocabulary at all.
+  - **Experience counters** (`CounterType.EXPERIENCE`) are the same shape with no rule of their own: "you get an
+    experience counter" = `AddCounters(CounterType.EXPERIENCE, 1, EffectTarget.Controller)`, and "for each experience
+    counter you have" / "where X is the number of experience counters you have" =
+    `DynamicAmounts.playerCounterCount(CounterType.EXPERIENCE)`. Projected to the client as
+    `ClientPlayer.experienceCounters` (an "XP n" badge beside the life total, like energy's ⚡). Aang, Airbending
+    Master; Toph, Earthbending Master.
   - `GetEnergy(amount, target = Controller)` — sugar for `AddCounters(CounterType.ENERGY, amount, target)`. "You get
     {E}{E}{E}" (three energy counters, CR 107.14) = `GetEnergy(3)`.
   - `PayCounters(counterType, player = Player.You, storeAmountAs)` — a player pays any amount of `counterType`

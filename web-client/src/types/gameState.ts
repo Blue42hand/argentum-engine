@@ -709,6 +709,11 @@ export interface ClientPlayer {
    */
   readonly energyCounters?: number
   /**
+   * This player's experience counter total (CR 122.1 — a counter on a player). `0` means no badge
+   * is rendered.
+   */
+  readonly experienceCounters?: number
+  /**
    * Team membership in a team variant (Two-Headed Giant — CR 810; Team vs. Team — CR 808):
    * players sharing a `teamIndex` are teammates. Absent in every non-team game. Carried on the
    * state (not just the game-start seat roster) so a client that joins by reconnecting — hotseat,
