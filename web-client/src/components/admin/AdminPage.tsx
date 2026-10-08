@@ -4,7 +4,7 @@
  *  1. a signed-in account flagged as admin — taken straight in, using its normal auth token, or
  *  2. the bootstrap `X-Admin-Password`, entered once and kept in sessionStorage for the session.
  *
- * Once in, it's a hub that routes to the admin areas (Stats / Activity / Players). The bootstrap
+ * Once in, it's a hub that routes to the admin areas (Stats / Live games / Activity / Players). The bootstrap
  * password is only needed to create the first admin: sign in with it, open Players, and promote an
  * account — that account can then reach the dashboard with its own sign-in.
  */
@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdminDashboard } from './AdminDashboard'
 import { AdminActivity } from './AdminActivity'
+import { AdminLiveGames } from './AdminLiveGames'
 import { AdminPlayers } from './AdminPlayers'
 import { AdminHub, type AdminArea } from './AdminHub'
 import { PageShell, pageStyles } from '@/components/ui/PageShell'
@@ -126,6 +127,9 @@ export function AdminPage() {
 
   if (view === 'stats') {
     return <AdminDashboard auth={auth} onBack={() => setView('hub')} />
+  }
+  if (view === 'live') {
+    return <AdminLiveGames auth={auth} onBack={() => setView('hub')} />
   }
   if (view === 'activity') {
     return <AdminActivity auth={auth} onBack={() => setView('hub')} />

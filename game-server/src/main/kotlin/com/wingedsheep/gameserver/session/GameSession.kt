@@ -311,6 +311,15 @@ class GameSession(
     var replayStartedAt: Instant? = null
         private set
 
+    /**
+     * When the last game action was applied (or the game started / was restored). In memory only — a
+     * restored game counts from its restore. Read by the admin Live Games view to tell a game that is
+     * being played from one whose players have walked away.
+     */
+    @Volatile
+    var lastActionAt: Instant? = null
+        private set
+
     /** Per-player cache of last sent ClientGameState for delta computation */
     private val lastSentState = java.util.concurrent.ConcurrentHashMap<EntityId, ClientGameState>()
 
@@ -504,6 +513,52 @@ class GameSession(
         )
     }
 
+    /** One seat as the admin Live Games view sees it. */
+    data class AdminSeat(
+        val name: String,
+        val isAi: Boolean,
+        val connected: Boolean,
+        val life: Int?,
+    )
+
+    /** A point-in-time summary of this game for the admin Live Games view. */
+    data class AdminSnapshot(
+        val seats: List<AdminSeat>,
+        val started: Boolean,
+        val gameOver: Boolean,
+        val turnNumber: Int?,
+        val activePlayerName: String?,
+        val step: Step?,
+    )
+
+    /**
+     * Read-only summary for the admin Live Games view: seats in turn order with AI/connection flags
+     * and life, plus where the game stands. Reads one [gameState] reference, so it never blocks on
+     * or races the game thread.
+     */
+    fun adminSnapshot(): AdminSnapshot {
+        val state = gameState
+        val seated = getPlayers()
+        val byId = seated.associateBy { it.playerId }
+        val ordered = state?.turnOrder?.mapNotNull { byId[it] }?.takeIf { it.size == seated.size } ?: seated
+        return AdminSnapshot(
+            seats = ordered.map { player ->
+                AdminSeat(
+                    name = player.playerName,
+                    isAi = playerPersistenceInfo[player.playerId]?.isAi == true,
+                    connected = player.isConnected,
+                    life = state?.takeIf { it.getEntity(player.playerId)?.get<LifeTotalComponent>() != null }
+                        ?.lifeTotal(player.playerId),
+                )
+            },
+            started = state != null,
+            gameOver = state?.gameOver == true,
+            turnNumber = state?.turnNumber,
+            activePlayerName = state?.activePlayerId?.let { byId[it]?.playerName },
+            step = state?.step,
+        )
+    }
+
     /**
      * Player names in seat order, for spectator display.
      */
@@ -598,6 +653,7 @@ class GameSession(
         val result = gameInitializer.initializeGame(config)
         gameState = result.state
         replayStartedAt = Instant.now()
+        lastActionAt = replayStartedAt
         // Capture everything needed to reconstruct this game later, including the seed the engine
         // actually used (so the shuffle / turn order / coin flips replay identically) and the seat
         // roster (now that gameState exists, seatInfos() reflects the real turn order).
@@ -1580,6 +1636,7 @@ class GameSession(
      * [enforceProgress].
      */
     private fun recordAction(action: GameAction) {
+        lastActionAt = Instant.now()
         appendToReplayLog(action)
         enforceProgress()
     }
@@ -2092,6 +2149,7 @@ class GameSession(
         // into the log exactly as extending a stale prefix would.
         replayTruncated = record.truncated
         replayStartedAt = runCatching { Instant.parse(record.startedAt) }.getOrNull()
+        lastActionAt = Instant.now()
         return true
     }
 
