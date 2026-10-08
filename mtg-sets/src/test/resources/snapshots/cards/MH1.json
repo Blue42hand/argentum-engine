@@ -3489,6 +3489,94 @@
     ]
 }
 
+// Talisman of Creativity
+{
+    "name": "Talisman of Creativity",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}.\n{T}: Add {U} or {R}. This artifact deals 1 damage to you.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Talisman of Creativity:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Talisman of Creativity:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Talisman of Creativity:3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "UNCOMMON",
+        "artist": "Lindsey Look",
+        "flavorText": "\"Good ideas don't take time. They take a lot of bad ideas first.\"\n—Ral Zarek",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4d9dbadd-c1b6-44fe-92ac-6f69d7178342.jpg?1783933072"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Talisman of Hierarchy
 {
     "name": "Talisman of Hierarchy",
