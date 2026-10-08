@@ -72,7 +72,7 @@
 - [ ] 1 Golgari Signet
 - [ ] 1 Idol of Oblivion
 - [ ] 1 Maskwood Nexus
-- [ ] 1 Skullclamp
+- [x] 1 Skullclamp
 - [x] 1 Sol Ring
 - [ ] 1 Sword of the Squeak
 - [ ] 1 Talisman of Resilience
@@ -90,7 +90,7 @@
 ## Lands (38)
 
 - [x] 1 Barren Moor
-- [ ] 1 Bojuka Bog
+- [x] 1 Bojuka Bog
 - [x] 1 Command Tower
 - [x] 1 Evolving Wilds
 - [x] 1 Exotic Orchard
