@@ -33,7 +33,6 @@ import com.wingedsheep.sdk.scripting.MustBeBlocked
 import com.wingedsheep.sdk.scripting.StaticAbility
 import com.wingedsheep.engine.mechanics.durations.GrantDurationGate
 import com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan
-import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.CantBlockUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnlessCoBlocker
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -399,13 +398,15 @@ internal class BlockPhaseManager(
      */
     fun canCreatureBlockAnyAttacker(state: GameState, blockerId: EntityId, blockingPlayer: EntityId): Boolean {
         val blockerContainer = state.getEntity(blockerId) ?: return false
-        val blockerCard = blockerContainer.get<CardComponent>() ?: return false
+        blockerContainer.get<CardComponent>() ?: return false
 
         val isFaceDown = blockerContainer.has<FaceDownComponent>()
-        if (!isFaceDown && hasCantBlockAbility(blockerCard)) return false
 
         val projected = state.projectedState
 
+        // A creature's own "can't block" reaches the projection as SetCantBlock, which drops out
+        // once the creature loses all abilities (CR 604.2) — so read the projection, never the
+        // card definition.
         if (projected.cantBlock(blockerId)) return false
 
         if (!isFaceDown && hasCantBlockUnlessRestriction(state, blockerId, blockingPlayer, projected)) return false
@@ -648,12 +649,6 @@ internal class BlockPhaseManager(
         }
 
         val isFaceDown = container.has<FaceDownComponent>()
-        if (!isFaceDown) {
-            val cantBlockValidation = validateCantBlock(cardComponent)
-            if (cantBlockValidation != null) {
-                return cantBlockValidation
-            }
-        }
 
         if (projected.cantBlock(blockerId)) {
             return "${cardComponent.name} can't block"
@@ -724,33 +719,6 @@ internal class BlockPhaseManager(
     }
 
     /**
-     * Check if a creature has "can't block" ability (e.g., Craven Giant, Jungle Lion).
-     */
-    private fun validateCantBlock(blockerCard: CardComponent): String? {
-        val cardDef = cardRegistry.getCard(blockerCard.cardDefinitionId) ?: return null
-        val cantBlockAbility = cardDef.staticAbilities.filterIsInstance<CantBlock>().firstOrNull()
-            ?: return null
-
-        if (cantBlockAbility.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self) {
-            return "${blockerCard.name} can't block"
-        }
-
-        return null
-    }
-
-    /**
-     * Check if a creature has "can't block" ability.
-     * Returns true if the creature cannot block.
-     */
-    private fun hasCantBlockAbility(blockerCard: CardComponent): Boolean {
-        val cardDef = cardRegistry.getCard(blockerCard.cardDefinitionId) ?: return false
-        val cantBlockAbility = cardDef.staticAbilities.filterIsInstance<CantBlock>().firstOrNull()
-            ?: return false
-
-        return cantBlockAbility.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self
-    }
-
-    /**
      * Check if a creature can legally block an attacker.
      * Delegates to registered [BlockEvasionRule] instances for evasion checks,
      * plus blocker-level restrictions (can't block, face-down abilities).
@@ -765,12 +733,7 @@ internal class BlockPhaseManager(
         val blockerContainer = state.getEntity(blockerId) ?: return false
         state.getEntity(attackerId) ?: return false
 
-        val blockerCard = blockerContainer.get<CardComponent>() ?: return false
-
-        val isFaceDown = blockerContainer.has<FaceDownComponent>()
-        if (!isFaceDown && hasCantBlockAbility(blockerCard)) {
-            return false
-        }
+        blockerContainer.get<CardComponent>() ?: return false
 
         if (projected.cantBlock(blockerId)) {
             return false
@@ -1384,7 +1347,9 @@ internal class BlockPhaseManager(
         projected: ProjectedState
     ): String? {
         val container = state.getEntity(blockerId) ?: return null
-        if (container.has<FaceDownComponent>()) return null
+        // A face-down creature has no printed abilities (CR 708.2a); one that lost all abilities
+        // no longer has this one either (CR 604.2).
+        if (container.has<FaceDownComponent>() || projected.hasLostAllAbilities(blockerId)) return null
         val cardComponent = container.get<CardComponent>() ?: return null
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: return null
 
@@ -1419,7 +1384,7 @@ internal class BlockPhaseManager(
         projected: ProjectedState
     ): Boolean {
         val container = state.getEntity(blockerId) ?: return false
-        if (container.has<FaceDownComponent>()) return false
+        if (container.has<FaceDownComponent>() || projected.hasLostAllAbilities(blockerId)) return false
         val cardComponent = container.get<CardComponent>() ?: return false
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: return false
 
