@@ -4426,6 +4426,81 @@
     ]
 }
 
+// Reanimate
+{
+    "name": "Reanimate",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Put target creature card from a graveyard onto the battlefield under your control. You lose life equal to that card's mana value.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "StoreNumber",
+                    "name": "mana_value",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "numericProperty": "ManaValue"
+                    }
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield",
+                    "controllerOverride": "Controller",
+                    "fromZone": "Graveyard"
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "VariableReference",
+                        "variableName": "mana_value"
+                    },
+                    "target": "Controller"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature",
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "UNCOMMON",
+        "artist": "Robert Bliss",
+        "flavorText": "\"You will learn to earn death.\"\n—Volrath",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/ae1ef31c-8ca5-444c-8f39-e1d1827318f5.jpg?1783946636",
+        "rulings": [
+            {
+                "date": "2025-09-19",
+                "text": "The amount of life you lose is determined by the mana value of the card in your graveyard, not the creature once it's on the battlefield."
+            },
+            {
+                "date": "2025-09-19",
+                "text": "If a card in a graveyard has {X} in its mana cost, X is 0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Reckless Spite
 {
     "name": "Reckless Spite",
