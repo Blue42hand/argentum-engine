@@ -2161,6 +2161,11 @@ class PredicateEvaluator(
             StatePredicate.IsFaceDown -> container.has<FaceDownComponent>()
             StatePredicate.IsFaceUp -> !container.has<FaceDownComponent>()
 
+            // Commander designation (CR 903.3) — an attribute of the card, carried on the entity
+            // across zones. Tokens and copies never carry it.
+            StatePredicate.IsCommander ->
+                container.has<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
+
             // Transformed permanent (CR 701.27g) — back face up *on the battlefield*. A card cast
             // transformed also carries a back-face `DoubleFacedComponent` while it is a spell, but
             // a spell isn't a permanent; every battlefield permanent has a projection entry and a

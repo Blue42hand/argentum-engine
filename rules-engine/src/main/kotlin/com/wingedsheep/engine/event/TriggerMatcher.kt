@@ -2334,6 +2334,11 @@ class TriggerMatcher(
         }
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasManaAbility ->
             predicateEvaluator.matchesStatePredicate(state, entityId, predicate, projected = state.projectedState)
+        // The commander designation stays on the card across zone changes (CR 903.3), so a live
+        // read is right even after the permanent has left the battlefield.
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsCommander ->
+            state.getEntity(entityId)
+                ?.has<com.wingedsheep.engine.state.components.identity.CommanderComponent>() == true
         // Transformed permanent (CR 701.27g) — the same live read as PredicateEvaluator: back face
         // up and on the battlefield (a projection entry; a back-face-up spell has none).
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsTransformed ->

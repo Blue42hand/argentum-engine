@@ -910,6 +910,9 @@ interface ObjectFilterBuilder<out Self> {
     /** Must be face-up (not face-down) */
     fun faceUp() = withStatePredicate(StatePredicate.IsFaceUp)
 
+    /** Must be a commander — any player's (CR 903.3) — see [StatePredicate.IsCommander] */
+    fun commander() = withStatePredicate(StatePredicate.IsCommander)
+
     /** Must be a transformed permanent (back face up, CR 701.27g) — see [StatePredicate.IsTransformed] */
     fun transformed() = withStatePredicate(StatePredicate.IsTransformed)
 

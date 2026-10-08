@@ -693,6 +693,8 @@ internal class AffectsFilterResolver(
         is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> false
         StatePredicate.IsFaceDown -> isFaceDown
         StatePredicate.IsFaceUp -> !isFaceDown
+        StatePredicate.IsCommander ->
+            container.has<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
         // Transformed permanent (CR 701.27g). Every candidate here comes off the battlefield, so
         // "back face up" is the whole test — PredicateEvaluator adds the zone check it needs.
         StatePredicate.IsTransformed ->

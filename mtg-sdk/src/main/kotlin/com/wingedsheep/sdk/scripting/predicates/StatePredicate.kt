@@ -816,6 +816,23 @@ sealed interface StatePredicate {
         override val description: String = "face-up"
     }
 
+    // =============================================================================
+    // Commander designation (Entity)
+    // =============================================================================
+
+    /**
+     * Is a **commander** — any player's (CR 903.3). Being a commander is "not a characteristic of
+     * the object represented by the card; rather, it is an attribute of the card itself", so it
+     * survives zone changes and face-down status, and a copy of a commander (token or Clone) is
+     * not one. Compose with a zone: "you control a commander" is a battlefield permanent that is a
+     * commander (CR 903.3d) — `Conditions.YouControlACommander`.
+     */
+    @SerialName("IsCommander")
+    @Serializable
+    data object IsCommander : Entity {
+        override val description: String = "commander"
+    }
+
     /**
      * Is a **transformed permanent** (CR 701.27g): a nonmodal double-faced permanent on the
      * battlefield with its back face up — a Siege cast transformed, a werewolf flipped at night, a
