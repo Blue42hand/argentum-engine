@@ -34,7 +34,7 @@ class DrawUpToExecutor(
         effect: DrawUpToEffect,
         context: EffectContext
     ): EffectResult {
-        val playerId = context.resolvePlayerTarget(effect.target)
+        val playerId = context.resolvePlayerTarget(effect.target, state)
             ?: return EffectResult.error(state, "DrawUpTo: could not resolve player target")
 
         val sourceName = context.sourceId?.let { sourceId ->

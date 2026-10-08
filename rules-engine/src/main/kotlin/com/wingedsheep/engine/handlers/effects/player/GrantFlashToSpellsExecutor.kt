@@ -28,7 +28,7 @@ class GrantFlashToSpellsExecutor : EffectExecutor<GrantFlashToSpellsEffect> {
         effect: GrantFlashToSpellsEffect,
         context: EffectContext
     ): EffectResult {
-        val targetId = context.resolvePlayerTarget(effect.target)
+        val targetId = context.resolvePlayerTarget(effect.target, state)
             ?: return EffectResult.error(state, "No valid target for grant-flash-to-spells effect")
 
         if (!state.turnOrder.contains(targetId)) {

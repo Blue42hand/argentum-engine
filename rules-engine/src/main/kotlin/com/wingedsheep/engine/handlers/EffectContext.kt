@@ -485,17 +485,16 @@ data class EffectContext(
         resolveTarget(target, state) ?: error("Cannot resolve target: $target")
 
     /**
-     * Resolve a player reference target (e.g., "target player", "each opponent") to a
-     * single player entity id. Stateless overload — see [resolvePlayerTargets] for
-     * multi-player results.
-     */
-    fun resolvePlayerTarget(target: EffectTarget): EntityId? =
-        TargetResolutionUtils.resolvePlayerTarget(target, this)
-
-    /**
-     * Resolve a player reference target, consulting [state] for relational references
-     * like [com.wingedsheep.sdk.scripting.references.Player.OwnerOf] /
-     * [com.wingedsheep.sdk.scripting.references.Player.ControllerOf].
+     * Resolve a player reference target (e.g., "target player", "its controller") to a single
+     * player entity id, consulting [state] for relational references like
+     * [com.wingedsheep.sdk.scripting.references.Player.OwnerOf] /
+     * [com.wingedsheep.sdk.scripting.references.Player.ControllerOf],
+     * [EffectTarget.TargetController], and a player pinned by [EffectTarget.SpecificEntity] (a
+     * delayed trigger's baked recipient). See [resolvePlayerTargets] for multi-player results.
+     *
+     * There is deliberately no stateless overload: one used to exist, and every executor that
+     * reached for it silently returned `null` for exactly those references (Arcane Denial's
+     * "its controller may draw up to two cards" never drew).
      */
     fun resolvePlayerTarget(target: EffectTarget, state: GameState): EntityId? =
         TargetResolutionUtils.resolvePlayerTarget(target, this, state)

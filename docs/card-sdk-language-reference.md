@@ -1596,7 +1596,9 @@ this path, with blocker filters evaluated against projected state.
 ### Cards (draw / discard)
 
 - `DrawCards(count, target?)` — draw N (default: controller).
-- `DrawUpTo(max, target)` — draw up to N (player picks 0–N).
+- `DrawUpTo(max, target)` — draw up to N (player picks 0–N). The drawing player both chooses and
+  draws; `target` may be any player reference, relational ones included (`TargetController` — "its
+  controller may draw up to two cards").
 - "Draw a card and reveal it; if it isn't a [type], discard it" (Sindbad) is a pipeline composition, not
   an effect type: `GatherCards(TopOfLibrary(1), "toDraw")` → `DrawCards(1)` →
   `FilterCollection("toDraw", Any.currentlyIn(HAND), "drawn")` (skips the branch when the draw was replaced or the
@@ -8262,6 +8264,16 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     the one-shot "at the beginning of the next ..." shape. Pair with
     `expiry = DelayedTriggerExpiry.EndOfTurn` for "at the beginning of each [step] this turn"
     (Full Throttle uses `step = BEGIN_COMBAT`).
+  - **Players named through this resolution are fixed at scheduling.** A `DrawCards` / `DrawUpTo`
+    inside `effect` whose player is a context-bound reference — `TargetController` ("its
+    controller"), `ContextTarget(n)`, a bound variable or pipeline slot, `PlayerRef(TargetPlayer /
+    TargetOpponent / Any / ContextPlayer / ControllerOf / OwnerOf)` — is baked to that player's id
+    when the trigger is created, because the targets (and a countered spell) are gone by the time it
+    fires. `Controller`, `PlayerRef(You / Each / EachOpponent / TriggeringPlayer)` stay symbolic;
+    `TriggeringPlayer` is rebound to `fireOnPlayer` at fire time. **Arcane Denial**: "Its controller
+    may draw up to two cards at the beginning of the next turn's upkeep" is
+    `CreateDelayedTrigger(step = UPKEEP, timing = NEXT_TURN, effect = DrawUpTo(2, TargetController))`,
+    scheduled before the `CounterSpell()` so the caster is read off the spell still on the stack.
 - **Event-based delayed triggers** — pass `trigger = <TriggerSpec>` (instead of `step`) and the
   delayed ability fires whenever a matching *event* occurs, staying resident until `expiry`
   (`DelayedTriggerExpiry.EndOfTurn`) removes it. Supported events include `DealsDamageEvent`,
