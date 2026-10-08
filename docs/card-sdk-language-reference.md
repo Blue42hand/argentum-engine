@@ -1596,7 +1596,9 @@ this path, with blocker filters evaluated against projected state.
 ### Cards (draw / discard)
 
 - `DrawCards(count, target?)` — draw N (default: controller).
-- `DrawUpTo(max, target)` — draw up to N (player picks 0–N).
+- `DrawUpTo(max, target)` — draw up to N (player picks 0–N). The drawing player both chooses and
+  draws; `target` may be any player reference, relational ones included (`TargetController` — "its
+  controller may draw up to two cards").
 - "Draw a card and reveal it; if it isn't a [type], discard it" (Sindbad) is a pipeline composition, not
   an effect type: `GatherCards(TopOfLibrary(1), "toDraw")` → `DrawCards(1)` →
   `FilterCollection("toDraw", Any.currentlyIn(HAND), "drawn")` (skips the branch when the draw was replaced or the
@@ -2537,6 +2539,13 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   once per token. Because the choice is a mid-resolution pause, `CREATED_TOKENS` is **not** populated on the
   Aura path — branch a following step on the copied target instead (Yenna, Redtooth Regent's "if the token
   is an Aura, untap Yenna, then scry 2").
+  **A departed triggering object (CR 608.2h).** `CreateTokenCopyOfTarget(EffectTarget.TriggeringEntity)` —
+  "whenever a creature … enters, create a token that's a copy of that creature" (Molten Echoes, Necroduality) —
+  still makes its token when the creature left the battlefield before the ability resolved: it copies the
+  copiable values frozen into the creature's departure snapshot (`EntitySnapshot.copiableCard`, carried by its
+  `LastKnownPermanentComponent`), so a creature that was itself a copy is copied as what it was copying. A token
+  that left has ceased to exist and leaves nothing to copy; once the departed card changes zones again its
+  snapshot is gone and so is the copy.
   Like `CreateToken`, both `CreateTokenCopyOfTarget` and `CreateTokenCopyOfSource` publish their created token
   entity IDs to the `CREATED_TOKENS` pipeline collection, so a sibling effect in a `CompositeEffect` can address
   the new copy — e.g. Applied Geometry's "Create a token that's a copy … Put six +1/+1 counters on it" composes
@@ -8268,6 +8277,16 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     the one-shot "at the beginning of the next ..." shape. Pair with
     `expiry = DelayedTriggerExpiry.EndOfTurn` for "at the beginning of each [step] this turn"
     (Full Throttle uses `step = BEGIN_COMBAT`).
+  - **Players named through this resolution are fixed at scheduling.** A `DrawCards` / `DrawUpTo`
+    inside `effect` whose player is a context-bound reference — `TargetController` ("its
+    controller"), `ContextTarget(n)`, a bound variable or pipeline slot, `PlayerRef(TargetPlayer /
+    TargetOpponent / Any / ContextPlayer / ControllerOf / OwnerOf)` — is baked to that player's id
+    when the trigger is created, because the targets (and a countered spell) are gone by the time it
+    fires. `Controller`, `PlayerRef(You / Each / EachOpponent / TriggeringPlayer)` stay symbolic;
+    `TriggeringPlayer` is rebound to `fireOnPlayer` at fire time. **Arcane Denial**: "Its controller
+    may draw up to two cards at the beginning of the next turn's upkeep" is
+    `CreateDelayedTrigger(step = UPKEEP, timing = NEXT_TURN, effect = DrawUpTo(2, TargetController))`,
+    scheduled before the `CounterSpell()` so the caster is read off the spell still on the stack.
 - **Event-based delayed triggers** — pass `trigger = <TriggerSpec>` (instead of `step`) and the
   delayed ability fires whenever a matching *event* occurs, staying resident until `expiry`
   (`DelayedTriggerExpiry.EndOfTurn`) removes it. Supported events include `DealsDamageEvent`,
@@ -8579,7 +8598,13 @@ staticAbility {
   `CardType.ARTIFACT`)
 - `GrantCardType(cardType, filter)` / `RemoveCardType(cardType, filter)` — Layer 4 type-changing statics that add or
   remove a card type (e.g. `"CREATURE"`). `RemoveCardType` backs Impending's "isn't a creature while it has a time
-  counter" (wrapped in a `ConditionalStaticAbility`); reuse it for any "it's no longer a [type]" effect.
+  counter" (wrapped in a `ConditionalStaticAbility`); reuse it for any "it's no longer a [type]" effect — the Theros
+  gods' "As long as your devotion to green is less than five, Nylea isn't a creature" is `staticAbility { condition =
+  Conditions.CompareAmounts(DynamicAmounts.devotionTo(Color.GREEN), ComparisonOperator.LT, 5); ability =
+  RemoveCardType("CREATURE", GroupFilter.source()) }` (Nylea, God of the Hunt). Removing `"CREATURE"` also strips the
+  object's creature subtypes for as long as the removal lasts unless it is still a creature or kindred (CR 205.1a — a
+  god below its threshold loses the creature type God), and an attacking or blocking creature that stops being a
+  creature is removed from combat by a state-based check (CR 506.4) and doesn't rejoin it.
   `GrantCardType` also takes `includeControlledSpells` / `includeOwnedCardsOutsideBattlefield` (default `false`), the
   card-type twin of `GrantChosenSubtype`'s flags, for "the same is true for permanent spells you control and nonland
   permanent cards you own that aren't on the battlefield" (Encroaching Mycosynth:
@@ -11641,6 +11666,17 @@ composite abilities).
   counter directly: `StateProjector` projects the `DECAYED` keyword + `cantBlock = true`, and `TriggerDetector`
   schedules the end-of-combat self-sacrifice when a decayed-countered creature is declared as an attacker — no
   per-card static/trigger needed for the counter form.
+- `CumulativeUpkeep` — "Cumulative upkeep [cost] (At the beginning of your upkeep, put an age counter on this
+  permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)" (CR 702.24).
+  Display-only keyword; wire it with the `card { cumulativeUpkeep(ManaCost.parse("{1}")) }` builder helper, which
+  composes one triggered ability per call: `Triggers.you.beginningOf(UPKEEP)` with the CR 702.24a intervening if
+  `Conditions.SourceInZone(BATTLEFIELD)` → `AddCounters(CounterType.AGE, 1, Self)` then `MayPay(PayDynamicMana(
+  countersOn(Self, AGE) × perCounter, color), then = Nothing, otherwise = SacrificeTarget(Self))`. The total is
+  counted at resolution, after the new counter, and paid all-or-nothing; an unaffordable total skips straight to
+  the sacrifice. Multiple calls trigger separately and each counts every age counter (CR 702.24b). **Scope:** a
+  generic cost (`{1}`, `{2}`) or repeated copies of one colored symbol (`{G}`, `{R}{R}`); a mixed mana cost or a
+  non-mana cost ("pay 1 life", "sacrifice a creature") throws at authoring time instead of being approximated.
+  Mystic Remora. Engine test: `CumulativeUpkeepTest`.
 - `Riot` — "Riot (This creature enters with your choice of a +1/+1 counter or haste.)" (CR 702.136). Display-only
   keyword; wire it with the `card { riot() }` builder helper, which composes the Khans-Siege
   `EntersWithChoice(ChoiceType.MODE, [counter, haste])` + a mode-gated `EntersWithCounters(count = 1, selfOnly = true,
@@ -15773,6 +15809,9 @@ are their printed spellings (`CounterType.printed`). Text converts back only thr
   its own pile and acts on the total. Fasting adds one each upkeep
   (`AddCounters(CounterType.HUNGER, 1, Self)`) and destroys itself at five, reading the count back
   through `Conditions.SourceCounterCountAtLeast(CounterType.HUNGER, 5)`.
+- `age` — cumulative upkeep's tally (CR 702.24). The `cumulativeUpkeep(cost)` trigger adds one each upkeep
+  and charges `cost` once per age counter on the permanent; the counter has no rule of its own and isn't tied
+  to any one instance of the ability (CR 702.24b), so a second instance counts the first's counters too.
 - `javelin`, `credit`, `cube`, `tide` — the Fallen Empires named counters, all in the no-inherent-rule
   family above. `javelin` (Icatian Javelineers) is a one-shot resource: the creature enters with one and
   removing it is part of the cost of its ping. `credit` (Icatian Moneychanger) accrues one per upkeep and is
@@ -16296,6 +16335,11 @@ Card authors rarely reference these directly; they are created/updated by the ma
   enumerator (`CastFromZoneEnumerator`) and the cast handler (`CastSpellHandler`) read to *replace* the printed mana cost
   entirely (a 6-drop and a 2-drop both become {2}) — unlike `GrantPlayWithCostIncrease`, which adds on top. The component
   is stripped when the card leaves exile (`StackResolver`), so a recast Airbended permanent doesn't carry a stale cost.
+- **Airbend "that creature"** (untargeted — Monk Gyatso: "Whenever another creature you control becomes the target of a
+  spell or ability, you may airbend that creature.") — `Effects.AirbendTriggeringPermanent(cost = {2})`. The same exile +
+  owner-recast + "whenever you airbend" tail as `Airbend`, gathered from `CardSource.TriggeringEntity` and filtered to
+  `GameObjectFilter.Permanent.onBattlefield()` first: `TriggeringEntity` follows the card into any zone, so a creature
+  bounced or killed in response is a new object (CR 400.7) and nothing is airbent (no bend event either).
 - **Airbend a spell** (the stack branch — Aang, Swift Savior: "airbend up to one other target creature **or spell**").
   The single target is a cross-zone union — `TargetFilter.anyOf(TargetFilter.Creature, TargetFilter.SpellOnStack)` (the
   same union machinery as Sorceress's Schemes). Branch on whether the chosen target is a spell with

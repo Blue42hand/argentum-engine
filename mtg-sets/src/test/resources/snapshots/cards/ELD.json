@@ -464,6 +464,78 @@
     ]
 }
 
+// Faeburrow Elder
+{
+    "name": "Faeburrow Elder",
+    "manaCost": "{1}{G}{W}",
+    "typeLine": "Creature — Treefolk Druid",
+    "oracleText": "Vigilance\nThis creature gets +1/+1 for each color among permanents you control.\n{T}: For each color among permanents you control, add one mana of that color.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Faeburrow Elder:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddOneManaOfEachColorAmong",
+                    "filter": "permanent ctrl:you"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: For each color among permanents you control, add one mana of that color."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "permanent",
+                    "aggregation": "DISTINCT_COLORS"
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "permanent",
+                    "aggregation": "DISTINCT_COLORS"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "190",
+        "rarity": "RARE",
+        "artist": "Raoul Vitale",
+        "flavorText": "Its wide-reaching roots draw more than water.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1ca29912-88b1-413f-ad9d-63d7d1b1ca16.jpg?1783932597",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Faeburrow Elder's middle ability can give it at most +5/+5, that is, +1/+1 each for white, blue, black, red, and green. \"Gold,\" \"multicolor,\" and \"colorless\" aren't colors. Similarly, Faeburrow Elder's last ability can produce at most five mana."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "Since Faeburrow Elder is a green and white permanent, its middle ability usually gives it at least +2/+2 and its last ability usually produces at least {G}{W}."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Faerie Formation
 {
     "name": "Faerie Formation",

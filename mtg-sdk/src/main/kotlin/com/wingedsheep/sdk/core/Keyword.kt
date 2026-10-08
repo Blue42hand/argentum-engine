@@ -771,6 +771,12 @@ enum class Keyword(val displayName: String) {
     VANISHING("Vanishing"),
 
     /**
+     * Cumulative upkeep [cost] (CR 702.24). Display-only; the `cumulativeUpkeep(cost)` DSL helper
+     * composes the upkeep trigger (age counter, then pay the cost per age counter or sacrifice).
+     */
+    CUMULATIVE_UPKEEP("Cumulative upkeep"),
+
+    /**
      * Soulshift N (CR 702.46). Display-only; the `soulshift(n)` DSL helper composes the optional
      * dies trigger that returns a Spirit card with mana value N or less to hand.
      */

@@ -1067,7 +1067,7 @@ class GameSession(
         val engineLegalActions = getLegalActions(playerId)
 
         // Transform raw engine events to client events
-        val engineClientEvents = ClientEventTransformer.transform(events, playerId, state)
+        val engineClientEvents = ClientEventTransformer.transform(events, playerId, state, visibility)
 
         // Include pending decision only for the player who needs to make it — i.e. the
         // actor for the affected player. During a hijacked turn this routes the

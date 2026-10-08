@@ -712,6 +712,82 @@
     ]
 }
 
+// Dryad of the Ilysian Grove
+{
+    "name": "Dryad of the Ilysian Grove",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment Creature — Nymph Dryad",
+    "oracleText": "You may play an additional land on each of your turns.\nLands you control are every basic land type in addition to their other types.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            "GrantAdditionalLandDrop",
+            {
+                "type": "GrantSubtype",
+                "subtype": "Plains",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Island",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Swamp",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Mountain",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Forest",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "169",
+        "rarity": "RARE",
+        "artist": "Scott Murphy",
+        "flavorText": "\"Vine-wreathed, he nurtures life among the dead.\"\n—Psemilla, Meletian poet",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d964876-194b-49f1-8e74-cfe9269f2c62.jpg?1783931541",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "Dryad of the Ilysian Grove’s first ability is cumulative if you control more than one. It’s also cumulative with other effects that let you play additional lands, such as the one from Escape to the Wilds."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Each land you control will have the land types Plains, Island, Swamp, Mountain, and Forest. They’ll also have the mana ability of each basic land type (for example, Forests have “{T}: Add {G}.”). They’ll still have their other subtypes and abilities."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Giving a land additional basic land types doesn’t change its name or whether it’s legendary or basic."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Eat to Extinction
 {
     "name": "Eat to Extinction",
