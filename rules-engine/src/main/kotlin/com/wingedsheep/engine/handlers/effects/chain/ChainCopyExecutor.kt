@@ -96,7 +96,7 @@ class ChainCopyExecutor(
                     ?: state.getEntity(targetId)?.get<CardComponent>()?.ownerId
             }
             CopyRecipient.TARGET_PLAYER -> {
-                context.resolvePlayerTarget(effect.target)
+                context.resolvePlayerTarget(effect.target, state)
             }
             CopyRecipient.AFFECTED_PLAYER -> {
                 val targetId = context.resolveTarget(effect.target, state)

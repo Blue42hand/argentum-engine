@@ -50,7 +50,7 @@ class RepeatWhileExecutor(
         // Resolve the decider ID (for PlayerChooses) once at the start
         val resolvedDeciderId = when (val cond = effect.repeatCondition) {
             is RepeatCondition.PlayerChooses ->
-                context.resolvePlayerTarget(cond.decider)
+                context.resolvePlayerTarget(cond.decider, state)
                     ?: return EffectResult.error(state, "RepeatWhile: could not resolve decider target")
             is RepeatCondition.WhileCondition -> null
         }

@@ -19,6 +19,9 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.effects.DealDamagePerEntityInZoneEffect
+import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
+import com.wingedsheep.sdk.scripting.effects.DrawUpToEffect
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.DestroyAllEquipmentOnTargetEffect
 import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
@@ -85,7 +88,7 @@ class CreateDelayedTriggerExecutor(
         // resolve the chosen recipient (e.g. ContextTarget(0) for the targeted opponent) into a
         // concrete entity id now, while the originating context still knows who it is.
         val watchedRecipientId = effect.watchedRecipient?.let {
-            context.resolvePlayerTarget(it) ?: context.resolveTarget(it)
+            context.resolvePlayerTarget(it, state) ?: context.resolveTarget(it)
         }
 
         // For step-based delayed triggers that restrict to a specific player's turn (e.g.
@@ -358,6 +361,40 @@ class CreateDelayedTriggerExecutor(
         else context.resolveTarget(target)
 
     /**
+     * A player reference that names a player only through *this* resolution's context — a chosen
+     * target, "its controller" ([EffectTarget.TargetController]) of a targeted spell or permanent,
+     * a pipeline slot — fixed to that player now, as a [EffectTarget.SpecificEntity]. Arcane Denial:
+     * "Its controller may draw up to two cards at the beginning of the next turn's upkeep" — by
+     * then the countered spell, and the context that targeted it, are gone.
+     *
+     * References that read the same at fire time stay symbolic: [EffectTarget.Controller] (the
+     * delayed trigger's controller is the creating spell's, CR 603.7d), and `PlayerRef`s such as
+     * `You`, `Each`, `EachOpponent` and `TriggeringPlayer` — the last is rebound to `fireOnPlayer`
+     * when the trigger fires, so freezing it here would be wrong.
+     */
+    private fun bakedPlayer(target: EffectTarget, context: EffectContext, state: GameState): EffectTarget {
+        val contextBound = when (target) {
+            is EffectTarget.TargetController,
+            is EffectTarget.ContextTarget,
+            is EffectTarget.BoundVariable,
+            is EffectTarget.PipelineTarget,
+            is EffectTarget.ControllerOfPipelineTarget,
+            is EffectTarget.ControllerOfTriggeringEntity -> true
+            is EffectTarget.PlayerRef -> when (target.player) {
+                Player.TargetPlayer, Player.TargetOpponent, Player.Any,
+                is Player.ContextPlayer, is Player.BoundVariable,
+                is Player.ControllerOf, is Player.OwnerOf -> true
+                else -> false
+            }
+            else -> false
+        }
+        if (!contextBound) return target
+        val playerId = context.resolvePlayerTarget(target, state)?.takeIf { it in state.turnOrder }
+            ?: return target
+        return EffectTarget.SpecificEntity(playerId)
+    }
+
+    /**
      * Recursively substitute context-dependent target references with concrete SpecificEntity
      * references using the current execution context.
      *
@@ -472,6 +509,16 @@ class CreateDelayedTriggerExecutor(
                     collectionName = null,
                     damageSource = resolvedSource ?: effect.damageSource
                 )
+            }
+            // "Its controller may draw up to two cards at the beginning of the next turn's upkeep"
+            // (Arcane Denial): the drawing player is named through this resolution's targets.
+            is DrawCardsEffect -> {
+                val target = bakedPlayer(effect.target, context, state)
+                if (target !== effect.target) effect.copy(target = target) else effect
+            }
+            is DrawUpToEffect -> {
+                val target = bakedPlayer(effect.target, context, state)
+                if (target !== effect.target) effect.copy(target = target) else effect
             }
             is CompositeEffect -> effect.copy(
                 effects = effect.effects.map { resolveContextTargets(it, context, state) }
