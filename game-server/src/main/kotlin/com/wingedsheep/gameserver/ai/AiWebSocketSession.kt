@@ -78,6 +78,10 @@ class AiWebSocketSession(
      */
     private val actionGate: AiActionGate? = null,
 ) : WebSocketSession {
+    @Volatile internal var onDecisionEvidence:
+        ((ClientGameState, List<LegalActionInfo>, String?, List<String>) -> com.wingedsheep.ai.AiDecisionEvidence?)? = null
+    @Volatile internal var onRecordedActionReady:
+        ((EntityId, GameAction, String?, com.wingedsheep.ai.AiDecisionEvidence, GameAction) -> Unit)? = null
 
     // =========================================================================
     // Draft callbacks — set by LobbyHandler when a draft starts
@@ -457,7 +461,12 @@ class AiWebSocketSession(
 
         delay(thinkingDelayMs)
 
-        val response = controller.chooseAction(state, legalActions, pendingDecision, getRecentGameLog())
+        val recentLog = getRecentGameLog()
+        val evidence = if (controller is com.wingedsheep.ai.RecordedAiPlayerController && pendingDecision == null) {
+            onDecisionEvidence?.invoke(state, legalActions, interactionEpoch, recentLog)
+        } else null
+        val response = if (evidence != null && controller is com.wingedsheep.ai.RecordedAiPlayerController) controller.chooseRecordedAction(state, legalActions, recentLog, evidence)
+            else controller.chooseAction(state, legalActions, pendingDecision, recentLog)
         logger.info("AI chose response: {}", when (response) {
             is ActionResponse.SubmitAction -> "Action(${response.action::class.simpleName})"
             is ActionResponse.SubmitDecision -> "Decision(${response.response::class.simpleName})"
@@ -477,7 +486,10 @@ class AiWebSocketSession(
         }
         // Retain the snapshot epoch through thinking and approval delays; reading a newer epoch
         // here would authorize a response chosen from an obsolete interaction.
-        submitResponse(gated, interactionEpoch)
+        if (evidence != null && response is ActionResponse.SubmitAction && gated is ActionResponse.SubmitAction &&
+            onRecordedActionReady != null) {
+            onRecordedActionReady!!.invoke(aiPlayerId, gated.action, interactionEpoch, evidence, response.action)
+        } else submitResponse(gated, interactionEpoch)
     }
 
     /**

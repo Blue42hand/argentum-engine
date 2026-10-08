@@ -905,6 +905,14 @@ class GamePlayHandler(
 
         try {
             sessionPlayers.forEach { session ->
+                (session.webSocketSession as? AiWebSocketSession)?.let { ai ->
+                    ai.onDecisionEvidence = { state, legal, epoch, log ->
+                        gameSession.beginAiDecisionEvidence(session.playerId, state, legal, epoch, log)
+                    }
+                    ai.onRecordedActionReady = { id, action, epoch, evidence, chosen ->
+                        handleAiAction(gameSession, id, action, epoch, recording = evidence, recordedChoice = chosen)
+                    }
+                }
                 val update = gameSession.createStateUpdate(
                     session.playerId, allEvents,
                     useEngineDecisionIds = usesEngineDecisionIds(session),
@@ -1333,10 +1341,14 @@ class GamePlayHandler(
         interactionEpoch: String?,
         expectedPaymentDecisionId: String? = null,
         expectedPaymentStateRevision: Long? = null,
+        recording: com.wingedsheep.ai.AiDecisionEvidence? = null,
+        recordedChoice: com.wingedsheep.engine.core.GameAction? = null,
     ): PaymentCorrectionOutcome {
         try {
             val result = if (expectedPaymentDecisionId == null) {
-                gameSession.executeAiAction(aiPlayerId, action, interactionEpoch)
+                if (recording != null && recordedChoice != null) {
+                    gameSession.executeRecordedAiAction(aiPlayerId, action, interactionEpoch, recording, recordedChoice)
+                } else gameSession.executeAiAction(aiPlayerId, action, interactionEpoch)
             } else {
                 gameSession.executeAiPaymentCorrection(
                     aiPlayerId, action, interactionEpoch, expectedPaymentDecisionId,
