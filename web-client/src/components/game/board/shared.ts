@@ -391,8 +391,11 @@ export function shouldShowCastModal(
   }
   // A lone alternative play mode still implies a second (possibly-unaffordable) option the
   // menu surfaces as a grayed-out button: "Play land" for lands, "Cast" for everything else.
+  // A modal DFC's back-face land play counts too: dragging out Pinnacle Monk you can't afford
+  // must not silently put Mystic Peak onto the battlefield — the menu shows both faces first.
   return cardLegalActions.some(
     (a) =>
+      (a.action.type === 'PlayLand' && a.action.asBackFace === true) ||
       a.action.type === 'CycleCard' ||
       a.action.type === 'TypecycleCard' ||
       a.action.type === 'PlotCard' ||

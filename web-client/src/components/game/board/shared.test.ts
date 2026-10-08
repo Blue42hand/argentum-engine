@@ -125,6 +125,16 @@ describe('shouldShowCastModal', () => {
     expect(shouldShowCastModal([cycle({ affordable: true })])).toBe(true)
   })
 
+  // Pinnacle Monk // Mystic Peak with the creature unaffordable: the only action is the land
+  // play, and dragging the card out must not silently play Mystic Peak.
+  it('opens the menu for a lone back-face land play', () => {
+    expect(shouldShowCastModal([playLandBackFace()])).toBe(true)
+  })
+
+  it('does not open the menu for a lone ordinary land play', () => {
+    expect(shouldShowCastModal([playLand()])).toBe(false)
+  })
+
   it('opens the menu even when the cycle action itself is unaffordable', () => {
     expect(shouldShowCastModal([cycle({ affordable: false })])).toBe(true)
   })

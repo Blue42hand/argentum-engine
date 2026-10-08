@@ -33,6 +33,17 @@ export function ActionMenu() {
     [cardInfo, cardActions]
   )
 
+  // Which printed face the big image shows. A double-faced card that offers its back face here
+  // (Pinnacle Monk // Mystic Peak) shows the face of the option under the pointer, and otherwise
+  // the face of the first option that can actually be taken — so a menu whose only live choice is
+  // "Play Mystic Peak" opens on Mystic Peak, not on the creature that can't be cast.
+  const [pointedFace, setPointedFace] = useState<'front' | 'back' | null>(null)
+  useEffect(() => setPointedFace(null), [selectedCardId])
+  const defaultFace =
+    actionOptions.find((o) => o.face && o.isAvailable)?.face ?? actionOptions.find((o) => o.face)?.face ?? 'front'
+  const shownFace = pointedFace ?? defaultFace
+  const offersBothFaces = actionOptions.some((o) => o.face === 'back')
+
   // Check if we should show the modal
   // Show modal when there are multiple options OR when there's at least one action
   // (so user can see mana cost and confirm their choice)
@@ -90,8 +101,15 @@ export function ActionMenu() {
 
   // Show floating action panel (subtle, no full overlay)
   if (shouldShowModal) {
-    // Get card image URL
-    const cardImageUrl = cardInfo ? getCardImageUrl(cardInfo.name, cardInfo.imageUri, 'large') : null
+    // Get card image URL — of the face being chosen, when the menu offers both
+    const showBack = offersBothFaces && shownFace === 'back' && cardInfo.backFaceName != null
+    const shownName = showBack ? cardInfo.backFaceName! : cardInfo.name
+    const cardImageUrl = showBack
+      ? getCardImageUrl(shownName, cardInfo.backFaceImageUri ?? null, 'large')
+      : getCardImageUrl(cardInfo.name, cardInfo.imageUri, 'large')
+    const imageRotation = showBack
+      ? (cardInfo.backFaceIsLandscape ? 90 : 0)
+      : (cardInfo.cardFaces?.length === 2 ? 90 : 0)
 
     return (
       <div className={styles.container}>
@@ -100,11 +118,30 @@ export function ActionMenu() {
               Rooms and classic split spells like Pain // Suffering are printed portrait
               with the two halves stacked. */}
           {cardImageUrl && (
-            <CardImage
-              imageUrl={cardImageUrl}
-              cardName={cardInfo?.name ?? 'Card'}
-              rotateDeg={cardInfo?.cardFaces?.length === 2 ? 90 : 0}
-            />
+            <div className={styles.cardImageColumn}>
+              <CardImage
+                imageUrl={cardImageUrl}
+                cardName={shownName}
+                rotateDeg={imageRotation}
+              />
+              {/* Front / back switch: the image is the face the highlighted option plays, and on a
+                  touch screen (no hover) this is how the other face gets read before choosing. */}
+              {offersBothFaces && (
+                <div className={styles.faceToggle} role="group" aria-label="Card face">
+                  {(['front', 'back'] as const).map((face) => (
+                    <button
+                      key={face}
+                      type="button"
+                      aria-pressed={shownFace === face}
+                      className={`${styles.faceToggleButton} ${shownFace === face ? styles.faceToggleButtonActive : ''}`}
+                      onClick={() => setPointedFace(face)}
+                    >
+                      {face === 'front' ? cardInfo.name : cardInfo.backFaceName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Action buttons */}
@@ -113,6 +150,7 @@ export function ActionMenu() {
               <ActionOptionButton
                 key={option.key}
                 option={option}
+                onPoint={option.face ? () => setPointedFace(option.face!) : undefined}
                 onClick={() => {
                   if (option.isAvailable && option.action) {
                     executeAction(option.action)
@@ -250,9 +288,12 @@ function getActionStyleClass(actionType: ActionOption['actionType'], isAvailable
 function ActionOptionButton({
   option,
   onClick,
+  onPoint,
 }: {
   option: ActionOption
   onClick: () => void
+  /** Pointer or keyboard focus landed on this option — the menu shows the face it plays. */
+  onPoint?: (() => void) | undefined
 }) {
   const setAutoTapPreview = useGameStore((state) => state.setAutoTapPreview)
   const startManaSelection = useGameStore((state) => state.startManaSelection)
@@ -286,10 +327,12 @@ function ActionOptionButton({
         className={`${styles.actionButton} ${styleClass}`}
         style={hasManaSelection ? { borderTopRightRadius: 0, borderBottomRightRadius: 0 } : undefined}
         onMouseEnter={() => {
+          onPoint?.()
           if (option.action?.autoTapPreview) {
             setAutoTapPreview(option.action.autoTapPreview)
           }
         }}
+        onFocus={onPoint}
         onMouseLeave={() => {
           setAutoTapPreview(null)
         }}
@@ -446,6 +489,8 @@ function CardImage({
 }) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
+  // The menu swaps faces in place; a failed front image must not blank the back one.
+  useEffect(() => setImageError(false), [imageUrl])
 
   // For sideways-printed layouts (Rooms), swap the container to landscape and absolutely
   // position the image at its original portrait dimensions, rotated to fit. Same approach

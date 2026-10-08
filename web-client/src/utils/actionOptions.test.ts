@@ -201,6 +201,46 @@ describe('buildActionOptions — modal double-faced lands', () => {
   })
 })
 
+describe('buildActionOptions — spell-front // land-back modal DFCs', () => {
+  // Pinnacle Monk {3}{R}{R} // Mystic Peak (MH3): cast the creature, or play the land.
+  const pinnacleMonk = card('{3}{R}{R}', {
+    name: 'Pinnacle Monk',
+    typeLine: 'Creature — Djinn Monk',
+    cardTypes: ['CREATURE'],
+    backFaceName: 'Mystic Peak',
+    backFaceTypeLine: 'Land',
+  } as Partial<ClientCard>)
+  const castMonk = action({ description: 'Cast Pinnacle Monk', manaCostString: '{3}{R}{R}' })
+  const playPeak = action({
+    action: { type: 'PlayLand', asBackFace: true },
+    actionType: 'PlayLand',
+    description: 'Play Mystic Peak',
+  })
+
+  it('names each option after its own face and says which side of the card it is', () => {
+    const options = buildActionOptions(pinnacleMonk, [castMonk, playPeak])
+    expect(options.map((o) => [o.label, o.face, o.hint])).toEqual([
+      ['Cast Pinnacle Monk', 'front', 'Front face — Creature — Djinn Monk'],
+      ['Play Mystic Peak', 'back', 'Back face — Land'],
+    ])
+  })
+
+  it('a lone back-face land play is "Play Mystic Peak", never "Play Pinnacle Monk"', () => {
+    // The front is unaffordable, so the server sends only the land play. It used to borrow the
+    // card's (front) name, which read as playing the creature as a land.
+    const options = buildActionOptions(pinnacleMonk, [playPeak])
+    expect(options.map((o) => [o.label, o.isAvailable, o.face])).toEqual([
+      ['Cast Pinnacle Monk', false, 'front'],
+      ['Play Mystic Peak', true, 'back'],
+    ])
+  })
+
+  it('a card offering no back face gets no face tags', () => {
+    const options = buildActionOptions(pinnacleMonk, [castMonk])
+    expect(options.map((o) => [o.label, o.face, o.hint])).toEqual([['Cast Pinnacle Monk', undefined, undefined]])
+  })
+})
+
 describe('buildActionOptions — casting a single face', () => {
   it('a prepare-spell copy is labelled and priced by the face it casts, not by the creature', () => {
     // The exiled copy of Bloodline Recollector casts its prepare spell (faceIndex 0). The server
