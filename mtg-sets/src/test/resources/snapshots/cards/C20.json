@@ -1,3 +1,119 @@
+// Deadly Rollick
+{
+    "name": "Deadly Rollick",
+    "manaCost": "{3}{B}",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nExile target creature.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Exile"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "condition": {
+                "type": "Exists",
+                "player": "You",
+                "zone": "Battlefield",
+                "filter": {
+                    "cardPredicates": [
+                        "IsPermanent"
+                    ],
+                    "statePredicates": [
+                        "IsCommander"
+                    ]
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "Otrimi was disappointed at how quickly its new friend got tired and stopped playing.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c61fa2c0-63c0-4dc2-9f17-5a00530e3348.jpg?1783931217",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "It doesn't matter whose commander you control. Any one will do. If you have two commanders, you just need to control one of them."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Fierce Guardianship
+{
+    "name": "Fierce Guardianship",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nCounter target noncreature spell.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "noncreature",
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "condition": {
+                "type": "Exists",
+                "player": "You",
+                "zone": "Battlefield",
+                "filter": {
+                    "cardPredicates": [
+                        "IsPermanent"
+                    ],
+                    "statePredicates": [
+                        "IsCommander"
+                    ]
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "RARE",
+        "artist": "Randy Vargas",
+        "flavorText": "\"Hunt somewhere else. This is your only warning.\"\n—Gavi, nest warden",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/c/4c5ffa83-c88d-4f5d-851e-a642b229d596.jpg?1783931220",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "It doesn't matter whose commander you control. Any one will do. If you have two commanders, you just need to control one of them."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "Once you begin casting this spell, players can't take any other actions until you're done casting it. Notably, they can't try to remove the commander you control to make you pay its cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Nesting Grounds
 {
     "name": "Nesting Grounds",
