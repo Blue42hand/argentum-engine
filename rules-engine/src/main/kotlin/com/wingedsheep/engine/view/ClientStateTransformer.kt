@@ -61,8 +61,8 @@ class ClientStateTransformer(
         ),
     )
     private val stackItemProjector = StackItemProjector(cardRegistry, visibility, stackText)
-    private val playerProjector = PlayerProjector(cardRegistry, conditionEvaluator, PlayerActiveEffectsProjector(predicateEvaluator = predicateEvaluator))
-    private val combatProjector = CombatProjector()
+    private val playerProjector = PlayerProjector(cardRegistry, conditionEvaluator, PlayerActiveEffectsProjector(predicateEvaluator = predicateEvaluator, visibility = visibility))
+    private val combatProjector = CombatProjector(visibility)
     private val deckListProjector = DeckListProjector(cardRegistry, visibility)
 
     /**
@@ -194,11 +194,11 @@ class ClientStateTransformer(
 
         // Build player information
         val players = state.turnOrder.map { playerId ->
-            playerProjector.project(state, playerId)
+            playerProjector.project(state, playerId, viewingPlayerId, isSpectator)
         }
 
         // Build combat state if in combat
-        val combat = combatProjector.project(state)
+        val combat = combatProjector.project(state, viewingPlayerId, isSpectator)
 
         // Get active and priority players, defaulting to first player if not set
         val activePlayerId = state.activePlayerId ?: state.turnOrder.firstOrNull() ?: viewingPlayerId

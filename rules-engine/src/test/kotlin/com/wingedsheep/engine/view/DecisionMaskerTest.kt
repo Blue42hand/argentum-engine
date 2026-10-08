@@ -96,17 +96,19 @@ class DecisionMaskerTest : FunSpec({
             .context.sourceName shouldBe FACE_DOWN_DISPLAY_NAME
     }
 
-    test("the Ring badge does not name a face-down Ring-bearer") {
+    test("the Ring badge names a face-down Ring-bearer only to its controller") {
         val (driver, faceDown, _) = setup()
         driver.replaceState(
             driver.state
                 .updateEntity(faceDown) { it.with(RingBearerComponent(driver.player2)) }
                 .updateEntity(driver.player2) { it.with(TheRingComponent(temptCount = 1)) }
         )
-        val view = ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = driver.cardRegistry))
-            .transform(driver.state, driver.player1)
-        val badge = view.players.single { it.playerId == driver.player2 }.activeEffects.single { it.effectId == "the_ring" }
-        badge.description shouldNotContain "Centaur Courser"
-        badge.description shouldContain FACE_DOWN_DISPLAY_NAME
+        val transformer = ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = driver.cardRegistry))
+        fun ringBadge(viewer: EntityId) = transformer.transform(driver.state, viewer)
+            .players.single { it.playerId == driver.player2 }.activeEffects.single { it.effectId == "the_ring" }
+
+        ringBadge(driver.player1).description shouldNotContain "Centaur Courser"
+        ringBadge(driver.player1).description shouldContain FACE_DOWN_DISPLAY_NAME
+        ringBadge(driver.player2).description shouldContain "Centaur Courser"
     }
 })

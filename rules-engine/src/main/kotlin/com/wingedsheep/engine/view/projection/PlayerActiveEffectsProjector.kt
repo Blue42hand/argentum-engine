@@ -11,7 +11,8 @@ import com.wingedsheep.engine.mechanics.targeting.ControllerHexproof
 import com.wingedsheep.engine.mechanics.targeting.ControllerShroud
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.nameVisibleToAll
+import com.wingedsheep.engine.state.faceDownDisplayName
+import com.wingedsheep.engine.view.Visibility
 import com.wingedsheep.engine.state.components.battlefield.*
 import com.wingedsheep.engine.state.components.combat.MustAttackPlayerComponent
 import com.wingedsheep.engine.state.components.identity.*
@@ -43,32 +44,39 @@ import kotlinx.serialization.json.jsonPrimitive
  * the client lists the badges in.
  */
 internal class PlayerActiveEffectsProjector(
-    private val predicateEvaluator: PredicateEvaluator
+    private val predicateEvaluator: PredicateEvaluator,
+    private val visibility: Visibility,
 ) {
 
-    /** Every badge on [playerId], in display order. */
+    /**
+     * Every badge on [playerId], in display order, as [viewingPlayerId] sees them: a badge that
+     * names a face-down object names it only to a viewer who may look under it.
+     */
     fun project(
         state: GameState,
         playerId: EntityId,
-        container: ComponentContainer?
+        container: ComponentContainer?,
+        viewingPlayerId: EntityId,
+        isSpectator: Boolean = false,
     ): List<ClientPlayerEffect> {
         if (container == null) return emptyList()
-        return damagePreventionShields(state, playerId) +
+        val audience = Audience(viewingPlayerId, isSpectator)
+        return damagePreventionShields(state, playerId, audience) +
             damageDoublers(state, playerId) +
             turnSkips(container) +
             targetingAndCastingGrants(state, playerId, container) +
-            designations(state, playerId, container) +
+            designations(state, playerId, container, audience) +
             attackRequirements(container) +
             pendingSpellRiders(state, playerId) +
-            emblemsAndDelayedTriggers(state, playerId, container)
+            emblemsAndDelayedTriggers(state, playerId, container, audience)
     }
 
     /**
      * Damage prevention shields protecting [playerId]: one badge per group shield that includes its
      * controller, then one per kind of shield totalled across every floating effect.
      */
-    private fun damagePreventionShields(state: GameState, playerId: EntityId): List<ClientPlayerEffect> =
-        controllerGroupShieldBadges(state, playerId) + tallyShields(state, playerId).badges(state)
+    private fun damagePreventionShields(state: GameState, playerId: EntityId, audience: Audience): List<ClientPlayerEffect> =
+        controllerGroupShieldBadges(state, playerId) + tallyShields(state, playerId, audience).badges(state, audience)
 
     /** "Prevent all damage to creatures you control and you" shields, one badge per shield. */
     private fun controllerGroupShieldBadges(state: GameState, playerId: EntityId): List<ClientPlayerEffect> =
@@ -108,7 +116,7 @@ internal class PlayerActiveEffectsProjector(
     }
 
     /** Check floating effects for damage prevention shields on this player. */
-    private fun tallyShields(state: GameState, playerId: EntityId): ShieldTally {
+    private fun tallyShields(state: GameState, playerId: EntityId, audience: Audience): ShieldTally {
         val tally = ShieldTally()
         for (floatingEffect in state.floatingEffects) {
             val modification = floatingEffect.effect.modification
@@ -144,7 +152,7 @@ internal class PlayerActiveEffectsProjector(
                     val sourceRef = floatingEffect.referencedObjects.firstOrNull { it.entityId == modification.damageSourceId }
                     val sourceName = if (sourceRef != null && state.isCurrentObject(sourceRef) &&
                         state.logicalZone(modification.damageSourceId)?.zoneType !in setOf(Zone.HAND, Zone.LIBRARY)) {
-                        nameVisibleToAll(state, modification.damageSourceId,
+                        audience.name(state, modification.damageSourceId,
                             state.getEntity(modification.damageSourceId)?.get<CardComponent>()?.name ?: modification.sourceName)
                     } else modification.sourceName
                     val kind = if (modification.combatOnly) "combat damage" else "damage"
@@ -168,7 +176,7 @@ internal class PlayerActiveEffectsProjector(
         return tally
     }
 
-    private fun ShieldTally.badges(state: GameState): List<ClientPlayerEffect> {
+    private fun ShieldTally.badges(state: GameState, audience: Audience): List<ClientPlayerEffect> {
         val effects = leavingAmountShields.toMutableList()
         if (preventsAllDamage) {
             effects.add(
@@ -236,7 +244,7 @@ internal class PlayerActiveEffectsProjector(
         }
         for (sourceId in preventedFromSources) {
             val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name
-                ?.let { nameVisibleToAll(state, sourceId, it) } ?: "a chosen source"
+                ?.let { audience.name(state, sourceId, it) } ?: "a chosen source"
             effects.add(
                 ClientPlayerEffect(
                     effectId = "prevent_damage_from_source_${sourceId.value}",
@@ -252,7 +260,7 @@ internal class PlayerActiveEffectsProjector(
         // source are two separate shields, each spent by its own damage instance.
         for ((sourceId, halved) in preventedNextInstanceFromSources) {
             val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name
-                ?.let { nameVisibleToAll(state, sourceId, it) } ?: "a chosen source"
+                ?.let { audience.name(state, sourceId, it) } ?: "a chosen source"
             effects.add(
                 ClientPlayerEffect(
                     effectId = "prevent_next_damage_instance_from_source_${sourceId.value}" +
@@ -513,7 +521,8 @@ internal class PlayerActiveEffectsProjector(
     private fun designations(
         state: GameState,
         playerId: EntityId,
-        container: ComponentContainer
+        container: ComponentContainer,
+        audience: Audience,
     ): List<ClientPlayerEffect> {
         val effects = mutableListOf<ClientPlayerEffect>()
 
@@ -558,7 +567,7 @@ internal class PlayerActiveEffectsProjector(
         container.get<TheRingComponent>()?.let { ring ->
             val bearerName = state.getBattlefield()
                 .firstOrNull { state.getEntity(it)?.get<RingBearerComponent>()?.ownerId == playerId }
-                ?.let { id -> state.getEntity(id)?.get<CardComponent>()?.name?.let { nameVisibleToAll(state, id, it) } }
+                ?.let { id -> state.getEntity(id)?.get<CardComponent>()?.name?.let { audience.name(state, id, it) } }
             val bearerLine = bearerName?.let { "Your Ring-bearer is $it." } ?: "You have no Ring-bearer."
             effects.add(
                 ClientPlayerEffect(
@@ -685,7 +694,8 @@ internal class PlayerActiveEffectsProjector(
     private fun emblemsAndDelayedTriggers(
         state: GameState,
         playerId: EntityId,
-        container: ComponentContainer
+        container: ComponentContainer,
+        audience: Audience,
     ): List<ClientPlayerEffect> {
         val effects = mutableListOf<ClientPlayerEffect>()
 
@@ -721,7 +731,7 @@ internal class PlayerActiveEffectsProjector(
         val delayedBySource = state.delayedTriggers
             .filter { it.controllerId == playerId && it.trigger != null }
             // A face-down source (a morph granted the ability) shows its face-down name, not its face.
-            .groupBy { Triple(nameVisibleToAll(state, it.sourceId, it.sourceName), it.expiry, it.fireOnce) }
+            .groupBy { Triple(audience.name(state, it.sourceId, it.sourceName), it.expiry, it.fireOnce) }
 
         for ((key, triggers) in delayedBySource) {
             val (sourceName, expiry, fireOnce) = key
@@ -753,9 +763,9 @@ internal class PlayerActiveEffectsProjector(
                 ClientPlayerEffect(
                     effectId = "scheduled_trigger_${scheduled.id}",
                     // Both players see this badge, so a face-down source keeps its face-down name.
-                    name = nameVisibleToAll(state, scheduled.sourceId, scheduled.sourceName),
+                    name = audience.name(state, scheduled.sourceId, scheduled.sourceName),
                     description = "${scheduleText(state, scheduled, step)}: " +
-                        "${scheduledEffectText(state, scheduled.effect).replaceFirstChar { it.uppercase() }}.",
+                        "${scheduledEffectText(state, scheduled.effect, audience).replaceFirstChar { it.uppercase() }}.",
                     icon = "triggered-ability"
                 )
             )
@@ -840,7 +850,7 @@ internal class PlayerActiveEffectsProjector(
      * when every reference reads the same; otherwise the placeholder stays rather than risk
      * naming the wrong card.
      */
-    private fun scheduledEffectText(state: GameState, effect: Effect): String {
+    private fun scheduledEffectText(state: GameState, effect: Effect, audience: Audience): String {
         val text = effect.description
         if (SPECIFIC_ENTITY !in text) return text
         val captured = mutableListOf<EntityId>()
@@ -857,18 +867,32 @@ internal class PlayerActiveEffectsProjector(
             }
         }
         collect(effectJson.encodeToJsonElement<Effect>(effect))
-        val names = captured.map { publicName(state, it) }.distinct()
+        val names = captured.map { publicName(state, it, audience) }.distinct()
         return if (names.size == 1) text.replace(SPECIFIC_ENTITY, names.single()) else text
     }
 
-    /** What every player may call [entityId]: a player's name, a public card's, or a placeholder. */
-    private fun publicName(state: GameState, entityId: EntityId): String {
+    /** What [audience] may call [entityId]: a player's name, a public card's, or a placeholder. */
+    private fun publicName(state: GameState, entityId: EntityId, audience: Audience): String {
         state.getEntity(entityId)?.get<PlayerComponent>()?.let { return it.name }
         val name = state.getEntity(entityId)?.get<CardComponent>()?.name ?: return "a card"
         val hidden = state.zones.any { (key, ids) ->
             key.zoneType in setOf(Zone.HAND, Zone.LIBRARY, Zone.SIDEBOARD) && entityId in ids
         }
-        return if (hidden) "a card" else nameVisibleToAll(state, entityId, name)
+        return if (hidden) "a card" else audience.name(state, entityId, name)
+    }
+
+    /**
+     * The player the badges are rendered for. A face-down object reads as its face-down label
+     * unless [Visibility] lets this viewer look under it; anything else reads as [fallback], the
+     * name the caller already chose (often one recorded when the effect was created).
+     */
+    private inner class Audience(private val viewerId: EntityId, private val isSpectator: Boolean) {
+        fun name(state: GameState, entityId: EntityId, fallback: String): String =
+            if (visibility.isCardIdentityHiddenFrom(state, entityId, viewerId, isSpectator)) {
+                faceDownDisplayName(state, entityId) ?: fallback
+            } else {
+                fallback
+            }
     }
 
     private companion object {
