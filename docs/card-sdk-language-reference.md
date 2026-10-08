@@ -11635,6 +11635,17 @@ composite abilities).
   counter directly: `StateProjector` projects the `DECAYED` keyword + `cantBlock = true`, and `TriggerDetector`
   schedules the end-of-combat self-sacrifice when a decayed-countered creature is declared as an attacker — no
   per-card static/trigger needed for the counter form.
+- `CumulativeUpkeep` — "Cumulative upkeep [cost] (At the beginning of your upkeep, put an age counter on this
+  permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)" (CR 702.24).
+  Display-only keyword; wire it with the `card { cumulativeUpkeep(ManaCost.parse("{1}")) }` builder helper, which
+  composes one triggered ability per call: `Triggers.you.beginningOf(UPKEEP)` with the CR 702.24a intervening if
+  `Conditions.SourceInZone(BATTLEFIELD)` → `AddCounters(CounterType.AGE, 1, Self)` then `MayPay(PayDynamicMana(
+  countersOn(Self, AGE) × perCounter, color), then = Nothing, otherwise = SacrificeTarget(Self))`. The total is
+  counted at resolution, after the new counter, and paid all-or-nothing; an unaffordable total skips straight to
+  the sacrifice. Multiple calls trigger separately and each counts every age counter (CR 702.24b). **Scope:** a
+  generic cost (`{1}`, `{2}`) or repeated copies of one colored symbol (`{G}`, `{R}{R}`); a mixed mana cost or a
+  non-mana cost ("pay 1 life", "sacrifice a creature") throws at authoring time instead of being approximated.
+  Mystic Remora. Engine test: `CumulativeUpkeepTest`.
 - `Riot` — "Riot (This creature enters with your choice of a +1/+1 counter or haste.)" (CR 702.136). Display-only
   keyword; wire it with the `card { riot() }` builder helper, which composes the Khans-Siege
   `EntersWithChoice(ChoiceType.MODE, [counter, haste])` + a mode-gated `EntersWithCounters(count = 1, selfOnly = true,
@@ -15767,6 +15778,9 @@ are their printed spellings (`CounterType.printed`). Text converts back only thr
   its own pile and acts on the total. Fasting adds one each upkeep
   (`AddCounters(CounterType.HUNGER, 1, Self)`) and destroys itself at five, reading the count back
   through `Conditions.SourceCounterCountAtLeast(CounterType.HUNGER, 5)`.
+- `age` — cumulative upkeep's tally (CR 702.24). The `cumulativeUpkeep(cost)` trigger adds one each upkeep
+  and charges `cost` once per age counter on the permanent; the counter has no rule of its own and isn't tied
+  to any one instance of the ability (CR 702.24b), so a second instance counts the first's counters too.
 - `javelin`, `credit`, `cube`, `tide` — the Fallen Empires named counters, all in the no-inherent-rule
   family above. `javelin` (Icatian Javelineers) is a one-shot resource: the creature enters with one and
   removing it is part of the cost of its ping. `credit` (Icatian Moneychanger) accrues one per upkeep and is
