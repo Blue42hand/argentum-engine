@@ -255,6 +255,7 @@ export interface StateDelta {
   readonly activePlayerId?: EntityId | null
   readonly priorityPlayerId?: EntityId | null
   readonly turnNumber?: number | null
+  readonly roundNumber?: number | null
   readonly isGameOver?: boolean | null
   readonly winnerId?: EntityId | null
   /** Day/night designation (CR 731). Null means unchanged — the game never returns to neither. */

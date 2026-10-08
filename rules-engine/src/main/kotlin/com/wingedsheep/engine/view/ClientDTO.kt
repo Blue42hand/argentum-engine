@@ -47,8 +47,11 @@ data class ClientGameState(
     /** Who currently has priority */
     val priorityPlayerId: EntityId,
 
-    /** Turn number */
+    /** Turn number — counts player turns, see [com.wingedsheep.engine.state.GameState.turnNumber] */
     val turnNumber: Int,
+
+    /** Round number for display — one number per pass around the table */
+    val roundNumber: Int = turnNumber,
 
     /** Whether the game is over */
     val isGameOver: Boolean,
