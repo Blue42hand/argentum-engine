@@ -3361,9 +3361,10 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
 - `Effects.TapEachTarget()` — "tap up to N target creatures": taps every object chosen as a target.
   Composes `ForEachTargetEffect` over `Effects.Tap(ContextTarget(0))`, so the count lives only on the
   spell's `TargetCreature`/`TargetPermanent` (`count`, `unlimited`, or `dynamicMaxCount`) — never
-  duplicated on the effect. For "tap X target creatures" use `dynamicMaxCount = DynamicAmount.XValue`
-  on the target (Icy Blast); for a fixed cap use `count = N` (Tidal Surge, Choking Tethers, Eddymurk
-  Crab). Do **not** pass a magic `count = 20` to mean "any number" — use `unlimited`/`dynamicMaxCount`.
+  duplicated on the effect. For "tap X target creatures" (exactly X) declare the target with
+  `targets(TargetFilter.Creature, exactly = DynamicAmounts.xValue())` (Icy Blast); "tap up to X target
+  creatures" is `optional = true, dynamicMaxCount = DynamicAmounts.xValue()` (Crashing Wave); for a
+  fixed cap use `count = N` (Tidal Surge, Choking Tethers, Eddymurk Crab). Do **not** pass a magic `count = 20` to mean "any number" — use `unlimited`/`dynamicMaxCount`.
 - `Effects.UntapEachTarget()` — the untap twin of `TapEachTarget`: untaps every object chosen as a
   target ("untap each of those creatures"). Composes `ForEachTargetEffect` over
   `Effects.Untap(ContextTarget(0))`, with the count owned by the spell's target requirement.
@@ -5071,8 +5072,8 @@ spell {
   preset per combination. `optional = true` is "up to one".
 - **Several object targets under one requirement** — "two target creatures", "up to X target
   creatures", "any number of target cards from a single graveyard" — are
-  `targets(filter, count, minCount, optional, unlimited, dynamicMaxCount, sameController, sameOwner,
-  sameCreatureType, sameCardType, totalManaValueAtMost, differentNames, differentControllers,
+  `targets(filter, count, minCount, optional, unlimited, dynamicMaxCount, exactly, sameController,
+  sameOwner, sameCreatureType, sameCardType, totalManaValueAtMost, differentNames, differentControllers,
   onePerCardType, chooser)`, which returns one handle per slot:
   `val (first, second) = targets(TargetFilter.Creature, count = 2)`. An ability that treats the
   targets uniformly ignores the handles and reads them with `Effects.ForEachTarget(…)`.
@@ -5163,9 +5164,31 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   **triggered abilities** as well as spells — `TargetPlayer(unlimited = true)` on a triggered
   ability sizes the decision's `maxTargets` to the legal-target count (Tinybones Joins Up's
   "any number of target players each discard a card"). For "**X** target
-  creatures" use `dynamicMaxCount = DynamicAmount.XValue` instead — that clamps the count to the chosen X.
-- `dynamicMaxCount: DynamicAmount?` — evaluated when the spell/ability hits the stack; the resolved
-  value becomes the max ("up to X target creatures", X = board state or chosen X).
+  creatures" use `targets(filter, exactly = X)` instead — see the dynamic counts below.
+- **Dynamic target counts — "X target" vs "up to X target".** Two fields, mirroring the static
+  `count` / `minCount` pair, and the Oracle wording says which spelling a card takes:
+  - "**up to** X target creatures" — `targets(filter, optional = true, dynamicMaxCount = X)`
+    (Crashing Wave, Prismabasher, Red Sun's Twilight): zero to X.
+  - "**X** target creatures" — `targets(filter, exactly = X)` (Icy Blast, Builder's Bane, Doppelgang,
+    Foggy Swamp Visions, Lost in the Maze): exactly X. `exactly` sets `dynamicMinCount` and
+    `dynamicMaxCount` to the same amount; it can't be combined with `dynamicMaxCount`, `optional` or
+    `unlimited`. The requirement describes itself as "X target creatures".
+  - `dynamicMaxCount` + `unlimited = true` — "any number of target …" with a cap the effect imposes
+    (Chandra, Flameshaper's divided damage).
+
+  `dynamicMaxCount: DynamicAmount?` is the cap, `dynamicMinCount: DynamicAmount?` the floor. Both are
+  resolved where X is known (CR 601.2b announces X before 601.2c chooses targets): cast and activation
+  validation with the announced X — from mana, from a waterbend {X} additional cost, or from board
+  state — and a trigger's snapshot as it goes on the stack (CR 603.3d), which turns an exact dynamic
+  count into the static "exactly N" shape. Until then the static `effectiveMinCount` is 0, since X may
+  be 0 (zero targets). An X above the number of legal targets is illegal (CR 115.3: one object can't
+  fill two slots of one "target"): the cast is rejected, the legal action caps `maxAffordableX` at the
+  legal-target count, and a trigger with too few legal targets is removed from the stack. The legal
+  action flags the shape (`xConstrainsTargetCount` plus `xConstrainsTargetCountExactly`, per
+  requirement `xConstrainsCount` / `xConstrainsCountExactly`) so the client and the AI require exactly
+  the chosen X picks. `CardLinter` rejects a `dynamicMaxCount` that is neither exact, `optional` nor
+  `unlimited` ("one to X targets" — printed nowhere), and a `dynamicMinCount` without a cap or beside
+  `optional`/`unlimited`.
 - **Distinctness (CR 601.2c) is automatic and needs no flag.** A single requirement that picks more
   than one target ("two / up to two / X target creatures") is one instance of the word "target", so the
   chosen objects/players must all be **different** — enforced both at cast time (`TargetValidator`) and on
