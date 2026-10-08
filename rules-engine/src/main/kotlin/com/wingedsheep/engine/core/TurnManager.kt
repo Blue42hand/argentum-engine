@@ -760,8 +760,21 @@ class TurnManager(
             }
 
             Step.DECLARE_ATTACKERS -> {
+                // The step happens even when nothing can attack: CR 508.8 skips only the declare
+                // blockers and combat damage steps after an empty declaration, so "at the beginning
+                // of the declare attackers step" still triggers and players still get priority here
+                // (CR 508.2). With no creature able to attack, the only legal declaration is the
+                // empty one, so the turn-based action (CR 508.1) makes it instead of asking. The
+                // stamped markers then let the active player pass, and auto-pass carries clients
+                // through the window exactly as after a hand-made empty declaration.
                 if (!hasValidAttackers(newState, activePlayer)) {
-                    return advanceStep(newState.copy(step = Step.DECLARE_ATTACKERS))
+                    val declared = combatManager.declareAttackers(newState, activePlayer, emptyMap())
+                    // An empty declaration has no costs to pause on. Should a requirement still
+                    // reject it, leave the declaration to the player rather than wedge the turn.
+                    if (declared.outcome is Outcome.Done) {
+                        newState = declared.newState
+                        events.addAll(declared.events)
+                    }
                 }
                 newState = newState.withPriority(activePlayer)
             }

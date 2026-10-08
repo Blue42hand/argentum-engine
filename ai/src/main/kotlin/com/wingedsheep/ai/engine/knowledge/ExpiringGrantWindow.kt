@@ -178,10 +178,10 @@ internal object ExpiringGrantWindow {
      * conservative direction: from there on this policy says nothing and the leaf score decides, so
      * it can cost the AI a slightly early activation but can never make it miss the payoff.
      *
-     * A turn where no attackers are declared skips the declare-attackers step entirely, so on the
-     * opponent's turn the floor then stands to cleanup — correctly. With no combat the grant had
-     * nothing to buy in the first place, and paying a card to watch it expire in the end step is the
-     * mistake, not the missed window.
+     * A turn where no attackers are declared still passes through the declare-attackers step, so on
+     * the opponent's turn the floor is released there with nothing attacking — and the leaf score,
+     * not this policy, then decides. With no combat the grant had nothing to buy in the first place,
+     * so the score sees no payoff for paying a card to watch it expire in the end step.
      */
     private fun laterWindowIsStillAhead(state: GameState, playerId: EntityId): Boolean =
         if (state.isActiveTurnFor(playerId)) state.step in BEFORE_OUR_ATTACK
