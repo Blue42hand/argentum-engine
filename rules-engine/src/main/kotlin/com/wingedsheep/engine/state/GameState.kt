@@ -455,7 +455,7 @@ data class GameState(
 
     /**
      * Per-player persistent "yield" preferences keyed by [com.wingedsheep.sdk.scripting.AbilityIdentity]
-     * (MTGO right-click yields — see `backlog/stack-collapse-and-batch-decisions.md` §C). Lives on
+     * (MTGO right-click yields — see `backlog/archived/stack-collapse-and-batch-decisions.md` §C). Lives on
      * [GameState] (not the server session) so it survives serialization, replays deterministically,
      * and is naturally per-player-maskable. The `untilEndOfTurn` slice is cleared at every cleanup
      * step (CR 514); `wholeGame` / `autoAnswer` persist for the whole game. Read by
