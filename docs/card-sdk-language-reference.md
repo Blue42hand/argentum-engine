@@ -16290,6 +16290,11 @@ Card authors rarely reference these directly; they are created/updated by the ma
   enumerator (`CastFromZoneEnumerator`) and the cast handler (`CastSpellHandler`) read to *replace* the printed mana cost
   entirely (a 6-drop and a 2-drop both become {2}) — unlike `GrantPlayWithCostIncrease`, which adds on top. The component
   is stripped when the card leaves exile (`StackResolver`), so a recast Airbended permanent doesn't carry a stale cost.
+- **Airbend "that creature"** (untargeted — Monk Gyatso: "Whenever another creature you control becomes the target of a
+  spell or ability, you may airbend that creature.") — `Effects.AirbendTriggeringPermanent(cost = {2})`. The same exile +
+  owner-recast + "whenever you airbend" tail as `Airbend`, gathered from `CardSource.TriggeringEntity` and filtered to
+  `GameObjectFilter.Permanent.onBattlefield()` first: `TriggeringEntity` follows the card into any zone, so a creature
+  bounced or killed in response is a new object (CR 400.7) and nothing is airbent (no bend event either).
 - **Airbend a spell** (the stack branch — Aang, Swift Savior: "airbend up to one other target creature **or spell**").
   The single target is a cross-zone union — `TargetFilter.anyOf(TargetFilter.Creature, TargetFilter.SpellOnStack)` (the
   same union machinery as Sorceress's Schemes). Branch on whether the chosen target is a spell with
