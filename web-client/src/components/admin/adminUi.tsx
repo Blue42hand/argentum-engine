@@ -91,14 +91,23 @@ export function StatCard({ label, value, accent }: { label: string; value: React
   )
 }
 
-export function Table({ head, children }: { head: React.ReactNode[]; children: React.ReactNode }) {
+/** A table whose first [leftColumns] headers read left-aligned (text); the rest right-aligned (numbers). */
+export function Table({
+  head,
+  children,
+  leftColumns = 1,
+}: {
+  head: React.ReactNode[]
+  children: React.ReactNode
+  leftColumns?: number
+}) {
   return (
     <div style={tableStyle.wrap}>
       <table style={tableStyle.table}>
         <thead>
           <tr>
             {head.map((h, i) => (
-              <th key={i} style={i === 0 ? tableStyle.th : tableStyle.thNum}>
+              <th key={i} style={i < leftColumns ? tableStyle.th : tableStyle.thNum}>
                 {h}
               </th>
             ))}
