@@ -11,7 +11,7 @@ archived until that has run.
 ## Engine and SDK
 
 - [`sdk-consolidation-from-usage-data.md`](sdk-consolidation-from-usage-data.md): type-graph and
-  card-usage findings, with six consolidation proposals.
+  card-usage findings plus code research: why the long tail grows, five consolidation proposals, and bugs found along the way.
 - [`engine-sdk-architecture-review.md`](engine-sdk-architecture-review.md): the 2026-09 review; §5
   largely shipped, §6 (generation) open.
 - [`target-union-with-arms.md`](target-union-with-arms.md): a composable mixed target.
