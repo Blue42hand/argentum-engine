@@ -428,7 +428,7 @@ object DamageUtils {
                 }
             }
 
-            val shieldResult = applyDamagePreventionShields(newState, targetId, effectiveAmount, sourceId = sourceId, predicateEvaluator = zones.predicateEvaluator)
+            val shieldResult = applyDamagePreventionShields(newState, targetId, effectiveAmount, isCombatDamage = isCombatDamage, sourceId = sourceId, predicateEvaluator = zones.predicateEvaluator)
             newState = shieldResult.state
             effectiveAmount = shieldResult.remainingDamage
             // "You gain life equal to the damage prevented this way" (Candles' Glow): this instance
@@ -1578,6 +1578,8 @@ object DamageUtils {
             if (mod is SerializableModification.PreventNextDamage && targetId in effect.effect.affectedEntities) {
                 // Source-specific shields (from CR 615.7 prevention distribution) only match their source
                 if (mod.onlyFromSource != null && mod.onlyFromSource != sourceId) continue
+                // A combat-only shield neither prevents noncombat damage nor is spent by it.
+                if (mod.combatOnly && !isCombatDamage) continue
                 val prevented = minOf(mod.remainingAmount, remainingDamage)
                 remainingDamage -= prevented
                 if (mod.controllerGainsLife && prevented > 0) {

@@ -359,7 +359,8 @@ class PreventDamageExecutor(
             }
 
             // Amount-based prevention (prevent next N damage to target), optionally gaining the
-            // controller life for what it prevents (Candles' Glow).
+            // controller life for what it prevents (Candles' Glow), optionally combat-only
+            // (Decorated Griffin).
             effect.amount != null -> {
                 val targetId = context.resolveTarget(effect.target)
                     ?: return EffectResult.success(state)
@@ -369,7 +370,8 @@ class PreventDamageExecutor(
                 affectedEntities = setOf(targetId)
                 modification = SerializableModification.PreventNextDamage(
                     amount,
-                    controllerGainsLife = effect.gainLifeFromPrevented
+                    controllerGainsLife = effect.gainLifeFromPrevented,
+                    combatOnly = effect.scope == PreventionScope.CombatOnly
                 )
             }
 
