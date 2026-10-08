@@ -151,6 +151,69 @@
     ]
 }
 
+// Luxury Suite
+{
+    "name": "Luxury Suite",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {B} or {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Luxury Suite:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Luxury Suite:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "82",
+        "rarity": "RARE",
+        "artist": "Jonas De Ro",
+        "flavorText": "The view is rivaled only by the decadence of the decor.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/81298b0b-9d47-4777-998e-0c17821ef536.jpg?1783934848",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "If you began the game with two or more opponents but now only have one opponent left, these lands enter the battlefield tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Saltwater Stalwart
 {
     "name": "Saltwater Stalwart",
