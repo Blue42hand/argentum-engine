@@ -54,6 +54,7 @@ class TournamentTerminalCaptureTest : FunSpec({
                 val session = mockk<GameSession>()
                 every { session.sessionId } returns gameId
                 every { session.getStateSnapshot() } returns case.state
+                every { session.closeEvidence() } returns Unit
                 gameRepository.save(session)
             }
 
