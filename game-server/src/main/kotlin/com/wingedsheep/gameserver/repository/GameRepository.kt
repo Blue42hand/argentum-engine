@@ -35,7 +35,7 @@ class InMemoryGameRepository @Autowired constructor(
 
     override fun findById(sessionId: String): GameSession? = gameSessions[sessionId]
 
-    override fun remove(sessionId: String): GameSession? = gameSessions.remove(sessionId)
+    override fun remove(sessionId: String): GameSession? = gameSessions.remove(sessionId)?.also { it.closeEvidence() }
 
     override fun findAll(): Collection<GameSession> = gameSessions.values
 

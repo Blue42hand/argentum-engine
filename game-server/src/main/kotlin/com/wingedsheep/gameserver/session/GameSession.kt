@@ -34,6 +34,11 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardEntry
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.gameserver.recording.GameEvidenceSink
+import com.wingedsheep.gameserver.recording.PrivateGameEvidence
+import com.wingedsheep.gameserver.persistence.persistenceJson
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import org.slf4j.LoggerFactory
@@ -62,6 +67,7 @@ class GameSession(
      * pass 3–4. The engine, sessions, and DTOs are seat-count agnostic; this is the only knob.
      */
     val maxPlayers: Int = 2,
+    private val evidenceSink: GameEvidenceSink? = PrivateGameEvidence.fromSystemProperties(sessionId),
 ) {
     /** Backward-compatible constructor: wraps a CardRegistry in EngineServices. */
     constructor(
@@ -73,7 +79,8 @@ class GameSession(
         printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry? = null,
         maxPlayers: Int = 2,
         tokenArtRegistry: com.wingedsheep.engine.registry.TokenArtRegistry? = null,
-    ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true, predicateEvaluator = PredicateEvaluator(cardRegistry = null)) else stateTransformer, useHandSmoother, maxPlayers)
+        evidenceSink: GameEvidenceSink? = PrivateGameEvidence.fromSystemProperties(sessionId),
+    ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true, predicateEvaluator = PredicateEvaluator(cardRegistry = null)) else stateTransformer, useHandSmoother, maxPlayers, evidenceSink)
 
     private val cardRegistry: CardRegistry get() = services.cardRegistry
     // Debug mode is for a local browser view, never for an AI policy's observation. The latter
@@ -93,9 +100,17 @@ class GameSession(
 
     private fun liveDecisionId(engineId: String): String = "$liveInteractionEpoch:$engineId"
 
+    private var evidenceCaptureFailed = false
+
     @Volatile
     private var gameState: GameState? = null
         set(value) {
+            if (value != null) capture {
+                evidence("state_checkpoint", buildJsonObject {
+                    put("beforeStateDigest", field?.let { nativeStateDigest(it) }?.let(::JsonPrimitive) ?: JsonNull)
+                    put("after", persistenceJson.encodeToJsonElement(GameState.serializer(), value))
+                })
+            }
             field = value
             liveStateRevision.incrementAndGet()
             if (value != null) recordEliminations(value)
@@ -568,7 +583,7 @@ class GameSession(
      * Start the game. Both players must have joined with deck lists.
      * Initializes the game with the new engine - mulligan phase is handled by the engine.
      */
-    fun startGame(): GameState {
+    fun startGame(): GameState = synchronized(stateLock) {
         require(isReady) { "Game session not ready - need $maxPlayers players with deck lists" }
 
         val playerConfigs = players.map { (playerId, session) ->
@@ -622,6 +637,11 @@ class GameSession(
             },
             seatRoster = seatInfos(),
         )
+        capture { evidence("initialization", buildJsonObject {
+            put("setup", persistenceJson.encodeToJsonElement(com.wingedsheep.gameserver.replay.ReplaySetup.serializer(), replaySetup!!))
+            put("events", persistenceJson.encodeToJsonElement(ListSerializer(GameEvent.serializer()), result.events))
+            put("pinnedCards", JsonArray(getPinnedCards().map(::JsonPrimitive)))
+        }) }
         return result.state
     }
 
@@ -694,13 +714,14 @@ class GameSession(
 
         val action = KeepHand(playerId)
         val result = actionProcessor.process(state, action).result
+        recordRejectedAction(action, result)
 
         val error = result.error
         if (error != null) {
             MulliganActionResult.Failure(error)
         } else {
             gameState = result.state
-            recordAction(action)
+            recordAction(action, state, result)
             val mullState = result.state.getEntity(playerId)?.get<MulliganStateComponent>()
             if (mullState?.cardsToBottom ?: 0 > 0) {
                 MulliganActionResult.NeedsBottomCards(mullState!!.cardsToBottom)
@@ -720,13 +741,14 @@ class GameSession(
 
         val action = TakeMulligan(playerId)
         val result = actionProcessor.process(state, action).result
+        recordRejectedAction(action, result)
 
         val error = result.error
         if (error != null) {
             MulliganActionResult.Failure(error)
         } else {
             gameState = result.state
-            recordAction(action)
+            recordAction(action, state, result)
             MulliganActionResult.Success
         }
     }
@@ -743,13 +765,14 @@ class GameSession(
 
         val action = BottomCards(playerId, engineIds)
         val result = actionProcessor.process(state, action).result
+        recordRejectedAction(action, result)
 
         val error = result.error
         if (error != null) {
             MulliganActionResult.Failure(error)
         } else {
             gameState = result.state
-            recordAction(action)
+            recordAction(action, state, result)
             MulliganActionResult.Success
         }
     }
@@ -757,7 +780,7 @@ class GameSession(
     /**
      * Get the mulligan decision message for a player.
      */
-    fun getMulliganDecision(playerId: EntityId): ServerMessage.MulliganDecision {
+    fun getMulliganDecision(playerId: EntityId): ServerMessage.MulliganDecision = synchronized(stateLock) {
         val hand = getHand(playerId)
         val count = getMulliganCount(playerId)
         val state = gameState
@@ -768,28 +791,34 @@ class GameSession(
         // mulligan correctly shows "bottom 0".
         val cardsToPutOnBottom = state?.getEntity(playerId)
             ?.get<MulliganStateComponent>()?.cardsToBottom ?: count
-        return toSeat(playerId, ServerMessage.MulliganDecision(
+        val message = toSeat(playerId, ServerMessage.MulliganDecision(
             hand = hand,
             mulliganCount = count,
             cardsToPutOnBottom = cardsToPutOnBottom,
             cards = cards,
             isOnThePlay = isOnThePlay
         ), ServerMessage.MulliganDecision.serializer())
+        capture { evidence("seat_mulligan_offer",
+            persistenceJson.encodeToJsonElement(ServerMessage.MulliganDecision.serializer(), message), playerId) }
+        return message
     }
 
     /**
      * Get the choose bottom cards message for a player.
      */
-    fun getChooseBottomCardsMessage(playerId: EntityId): ServerMessage.ChooseBottomCards? {
+    fun getChooseBottomCardsMessage(playerId: EntityId): ServerMessage.ChooseBottomCards? = synchronized(stateLock) {
         val count = getCardsToBottom(playerId)
         if (count == 0) return null
         val hand = getHand(playerId)
         val state = gameState
-        return toSeat(playerId, ServerMessage.ChooseBottomCards(
+        val message = toSeat(playerId, ServerMessage.ChooseBottomCards(
             hand = hand,
             cardsToPutOnBottom = count,
             cards = mulliganCardInfo(state, hand)
         ), ServerMessage.ChooseBottomCards.serializer())
+        capture { evidence("seat_bottom_offer",
+            persistenceJson.encodeToJsonElement(ServerMessage.ChooseBottomCards.serializer(), message), playerId) }
+        return message
     }
 
     /**
@@ -840,6 +869,26 @@ class GameSession(
         seatAction: GameAction,
         messageId: String? = null,
         interactionEpoch: String? = null,
+    ): ActionResult = synchronized(stateLock) {
+        capture { evidence("seat_submission", buildJsonObject {
+            put("action", persistenceJson.encodeToJsonElement(GameAction.serializer(), seatAction))
+            put("messageId", messageId?.let(::JsonPrimitive) ?: JsonNull)
+            put("interactionEpoch", interactionEpoch?.let(::JsonPrimitive) ?: JsonNull)
+        }, playerId) }
+        val result = executeClientActionWithOrigin(playerId, seatAction, messageId, interactionEpoch)
+        capture { evidence("seat_submission_result", buildJsonObject {
+            put("kind", result.javaClass.simpleName)
+            if (result is ActionResult.Failure) put("reason", result.reason)
+            put("stateRevision", liveStateRevision.get())
+        }, playerId) }
+        result
+    }
+
+    private fun executeClientActionWithOrigin(
+        playerId: EntityId,
+        seatAction: GameAction,
+        messageId: String?,
+        interactionEpoch: String?,
     ): ActionResult {
         val action = fromSeat(playerId, seatAction, GameAction.serializer())
             ?: return ActionResult.Failure(STALE_CARD_NAME)
@@ -1013,6 +1062,10 @@ class GameSession(
         }
 
         val (result, undoPolicy) = actionProcessor.process(state, action)
+        if (result.error != null) capture { evidence("native_rejection", buildJsonObject {
+            put("action", persistenceJson.encodeToJsonElement(GameAction.serializer(), action))
+            put("result", persistenceJson.encodeToJsonElement(ExecutionResult.serializer(), result))
+        }) }
 
         fun accept() {
             // A rejected action must leave undo bookkeeping untouched. An accepted substantive
@@ -1024,7 +1077,7 @@ class GameSession(
             }
             applyUndoPolicy(undoPolicy, action, state, playerId)
             gameState = result.state
-            recordAction(action)
+            recordAction(action, state, result)
             if (messageId != null) lastProcessedMessageId[playerId] = messageId
         }
 
@@ -1059,7 +1112,7 @@ class GameSession(
         val result = actionProcessor.process(state, action).result
 
         gameState = result.state
-        if (result.error == null) recordAction(action)
+        if (result.error == null) recordAction(action, state, result)
         result.state
     }
 
@@ -1205,6 +1258,15 @@ class GameSession(
         lastSentState[playerId] = stateWithLog
         val version = stateVersions.merge(playerId, 1L) { old, inc -> old + inc }!!
 
+        capture { evidence("seat_observation", buildJsonObject {
+            put("state", persistenceJson.encodeToJsonElement(ClientGameState.serializer(), stateWithLog))
+            put("legalActions", persistenceJson.encodeToJsonElement(legalActionsSerializer, legalActions))
+            put("events", persistenceJson.encodeToJsonElement(clientEventsSerializer, clientEvents))
+            put("pendingDecision", pendingDecision?.let { persistenceJson.encodeToJsonElement(PendingDecision.serializer(), it) } ?: JsonNull)
+            put("version", version)
+            put("interactionEpoch", liveInteractionEpoch)
+            put("engineDecisionIds", useEngineDecisionIds)
+        }, playerId) }
         val interactionEpoch = liveInteractionEpoch
         if (previous != null) {
             // Compute delta and send smaller message
@@ -1525,6 +1587,10 @@ class GameSession(
             else -> PassPriority(playerId)
         }
         val (result, undoPolicy) = actionProcessor.process(state, action)
+        if (result.error != null) capture { evidence("native_rejection", buildJsonObject {
+            put("action", persistenceJson.encodeToJsonElement(GameAction.serializer(), action))
+            put("result", persistenceJson.encodeToJsonElement(ExecutionResult.serializer(), result))
+        }) }
 
         val error = result.error
         if (error != null) {
@@ -1544,7 +1610,7 @@ class GameSession(
         applyUndoPolicy(undoPolicy, action, state, playerId)
 
         gameState = result.state
-        recordAction(action)
+        recordAction(action, state, result)
         val pendingDecision = result.pendingDecision
         return if (pendingDecision != null) {
             ActionResult.PausedForDecision(result.state, pendingDecision, result.events)
@@ -1641,9 +1707,57 @@ class GameSession(
      * Both halves are bounded on purpose, and for different reasons — see [appendToReplayLog] and
      * [enforceProgress].
      */
-    private fun recordAction(action: GameAction) {
+    private fun nativeStateDigest(state: GameState): String = PrivateGameEvidence.sha256(
+        persistenceJson.encodeToString(GameState.serializer(), state).toByteArray(Charsets.UTF_8))
+
+    private fun recordRejectedAction(action: GameAction, result: ExecutionResult) {
+        if (result.error != null) capture { evidence("native_rejection", buildJsonObject {
+            put("action", persistenceJson.encodeToJsonElement(GameAction.serializer(), action))
+            put("result", persistenceJson.encodeToJsonElement(ExecutionResult.serializer(), result))
+        }) }
+    }
+
+    /** Repository removal closes optional evidence without inventing a rules outcome. */
+    fun closeEvidence() = synchronized(stateLock) {
+        capture { evidence("session_closed", buildJsonObject {
+            put("nativeGameOver", gameState?.gameOver == true)
+            put("winnerId", gameState?.winnerId?.value?.let(::JsonPrimitive) ?: JsonNull)
+        }) }
+        (evidenceSink as? AutoCloseable)?.close()
+    }
+
+    private fun capture(block: () -> Unit) {
+        if (evidenceSink == null || evidenceCaptureFailed) return
+        try {
+            block()
+        } catch (error: Exception) {
+            evidenceCaptureFailed = true
+            // Freeze capture without changing rules execution; no terminal certification follows.
+            logger.error("Private evidence serialization failed for game {} ({})", sessionId, error.javaClass.simpleName)
+        }
+    }
+
+    private fun evidence(kind: String, payload: JsonElement, seatId: EntityId? = null) {
+        evidenceSink?.append(kind, payload, seatId?.value)
+    }
+
+    private fun recordAction(action: GameAction, before: GameState, result: ExecutionResult) {
         appendToReplayLog(action)
         enforceProgress()
+        capture {
+            evidence("native_transition", buildJsonObject {
+                put("action", persistenceJson.encodeToJsonElement(GameAction.serializer(), action))
+                put("beforeStateDigest", nativeStateDigest(before))
+                put("result", persistenceJson.encodeToJsonElement(ExecutionResult.serializer(), result))
+                put("effectiveStateDigest", nativeStateDigest(gameState!!))
+                put("administrativeStall", stallMessage()?.let(::JsonPrimitive) ?: JsonNull)
+            })
+            if (gameState?.gameOver == true) evidence("terminal", buildJsonObject {
+                put("winnerId", gameState?.winnerId?.value?.let(::JsonPrimitive) ?: JsonNull)
+                put("nativeGameOver", true)
+                put("administrativeStall", stallMessage()?.let(::JsonPrimitive) ?: JsonNull)
+            })
+        }
     }
 
     /**
