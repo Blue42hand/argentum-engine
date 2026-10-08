@@ -862,14 +862,30 @@ object ClientEventTransformer {
      * @param events The internal events
      * @param viewingPlayerId The player viewing these events (for masking)
      * @param state The state after the events, for masking cards that ended up face down
+     * @param visibility Who may look under which face-down object; without one, a face-down object
+     *   is named only to its controller (no "look at face-down creatures" effects are honoured)
      * @return Client-friendly events
      */
     fun transform(
         events: List<GameEvent>,
         viewingPlayerId: EntityId,
         state: GameState? = null,
+        visibility: Visibility? = null,
     ): List<ClientEvent> {
-        return events.flatMap { event -> transformEventToList(event, viewingPlayerId, state) }
+        val transformed = events.flatMap { event -> transformEventToList(event, viewingPlayerId, state) }
+        if (state == null) return transformed
+        val masker = visibility?.let(::FaceDownEventMasker) ?: controllerOnlyMasker
+        return masker.mask(transformed, state, viewingPlayerId)
+    }
+
+    /** Masks with no card registry, so no static grants anyone a look under a face-down object. */
+    private val controllerOnlyMasker by lazy {
+        FaceDownEventMasker(
+            Visibility(
+                com.wingedsheep.engine.registry.CardRegistry(),
+                conditionEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator(cardRegistry = null).conditions,
+            )
+        )
     }
 
     private fun transformEventToList(

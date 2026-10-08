@@ -35,7 +35,7 @@
 - [ ] 1 Skyfisher Spider
 - [ ] 1 Squirrel Sovereign
 - [ ] 1 The Odd Acorn Gang
-- [ ] 1 Tireless Provisioner
+- [x] 1 Tireless Provisioner
 - [ ] 1 Toski, Bearer of Secrets
 - [ ] 1 Woe Strider
 - [ ] 1 Zulaport Cutthroat

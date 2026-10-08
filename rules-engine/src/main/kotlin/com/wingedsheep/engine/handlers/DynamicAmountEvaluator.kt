@@ -1261,20 +1261,14 @@ class DynamicAmountEvaluator(
                 }
             }.size
             Aggregation.DISTINCT_COLORS -> matchingEntities.flatMapTo(mutableSetOf()) { entityId ->
-                projection.getColors(entityId).ifEmpty {
-                    state.getEntity(entityId)?.get<CardComponent>()?.colors?.map { it.name }?.toSet()
-                        ?: emptySet()
-                }
+                projectedOrPrintedColors(state, projection, entityId)
             }.size
             // "Different color pairs among <group> that are exactly two colors" (Niv-Mizzet,
             // Guildpact). Only an entity whose *projected* colour set is exactly two contributes,
             // and it contributes one unordered pair; the same pair on several permanents counts
             // once. Bounded by the ten pairs of CR 105.2c.
             Aggregation.DISTINCT_COLOR_PAIRS -> matchingEntities.mapNotNullTo(mutableSetOf()) { entityId ->
-                val colors = projection.getColors(entityId).ifEmpty {
-                    state.getEntity(entityId)?.get<CardComponent>()?.colors?.map { it.name }?.toSet()
-                        ?: emptySet()
-                }
+                val colors = projectedOrPrintedColors(state, projection, entityId)
                 if (colors.size == 2) colors.sorted().joinToString("/") else null
             }.size
             Aggregation.DISTINCT_NAMES -> matchingEntities.mapNotNullTo(mutableSetOf()) { entityId ->
@@ -1807,6 +1801,16 @@ class DynamicAmountEvaluator(
      * (base state, layer-independent), so this reads [CountersComponent] directly. A `null`
      * [counterType] sums every kind present.
      */
+    /**
+     * The colours [entityId] has: its projected colours when it has a projection entry, its printed
+     * ones otherwise. An empty projected set is an answer, not a gap — a face-down permanent
+     * (CR 708.2a) or one an effect made colourless has no colour, whatever its card says.
+     */
+    private fun projectedOrPrintedColors(state: GameState, projection: ProjectedState, entityId: EntityId): Set<String> =
+        projection.getProjectedValues(entityId)?.colors
+            ?: state.getEntity(entityId)?.get<CardComponent>()?.colors?.mapTo(mutableSetOf()) { it.name }
+            ?: emptySet()
+
     private fun counterCountOf(state: GameState, entityId: EntityId, counterType: CounterType?): Int {
         val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
         return counterType?.let(counters::getCount) ?: counters.counters.values.sum()

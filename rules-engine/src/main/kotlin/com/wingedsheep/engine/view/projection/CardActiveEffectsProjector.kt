@@ -846,7 +846,10 @@ internal class CardActiveEffectsProjector(
         entityId: EntityId,
         seenDescriptions: MutableSet<String>
     ): List<ClientCardEffect> {
-        val cardDefForRestrictions = state.getEntity(entityId)?.get<CardComponent>()
+        val container = state.getEntity(entityId) ?: return emptyList()
+        // A face-down permanent has no printed abilities (CR 708.2a).
+        if (container.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>()) return emptyList()
+        val cardDefForRestrictions = container.get<CardComponent>()
             ?.let { cardRegistry.getCard(it.cardDefinitionId) }
             ?: return emptyList()
         val restrictionController = state.projectedState.getController(entityId) ?: return emptyList()
