@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 146 / 312
+**Implemented:** 148 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -98,7 +98,7 @@
 - [x] Evolving Wilds
 - [x] Exotic Orchard
 - [x] Explore
-- [ ] Faeburrow Elder
+- [x] Faeburrow Elder
 - [x] Farseek
 - [x] Fellwar Stone
 - [ ] Ferrous Lake
@@ -308,7 +308,7 @@
 - [x] Thriving Heath
 - [x] Thriving Isle
 - [ ] Time Wipe
-- [ ] Tireless Provisioner
+- [x] Tireless Provisioner
 - [ ] Toski, Bearer of Secrets
 - [x] Trailtracker Scout
 - [x] Tranquil Thicket
