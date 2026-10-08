@@ -2531,6 +2531,13 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
   once per token. Because the choice is a mid-resolution pause, `CREATED_TOKENS` is **not** populated on the
   Aura path — branch a following step on the copied target instead (Yenna, Redtooth Regent's "if the token
   is an Aura, untap Yenna, then scry 2").
+  **A departed triggering object (CR 608.2h).** `CreateTokenCopyOfTarget(EffectTarget.TriggeringEntity)` —
+  "whenever a creature … enters, create a token that's a copy of that creature" (Molten Echoes, Necroduality) —
+  still makes its token when the creature left the battlefield before the ability resolved: it copies the
+  copiable values frozen into the creature's departure snapshot (`EntitySnapshot.copiableCard`, carried by its
+  `LastKnownPermanentComponent`), so a creature that was itself a copy is copied as what it was copying. A token
+  that left has ceased to exist and leaves nothing to copy; once the departed card changes zones again its
+  snapshot is gone and so is the copy.
   Like `CreateToken`, both `CreateTokenCopyOfTarget` and `CreateTokenCopyOfSource` publish their created token
   entity IDs to the `CREATED_TOKENS` pipeline collection, so a sibling effect in a `CompositeEffect` can address
   the new copy — e.g. Applied Geometry's "Create a token that's a copy … Put six +1/+1 counters on it" composes
