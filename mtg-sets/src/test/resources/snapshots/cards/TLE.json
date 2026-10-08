@@ -18,6 +18,156 @@
     ]
 }
 
+// Earthshape
+{
+    "name": "Earthshape",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Earthbend 3. Then each creature you control with power less than or equal to that land's power gains hexproof and indestructible until end of turn. You gain hexproof until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "AnimateLand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "power": 0,
+                    "toughness": 0,
+                    "duration": "Permanent"
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "HASTE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "duration": "Permanent"
+                },
+                {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 3,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantTriggeredAbility",
+                    "ability": {
+                        "id": "earthbend_return_tapped",
+                        "trigger": {
+                            "type": "ZoneChangeEvent",
+                            "from": "Battlefield"
+                        },
+                        "effect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "MoveToZone",
+                                    "target": "Self",
+                                    "destination": "Battlefield",
+                                    "placement": "Tapped",
+                                    "fromZone": "Graveyard"
+                                },
+                                {
+                                    "type": "MoveToZone",
+                                    "target": "Self",
+                                    "destination": "Battlefield",
+                                    "placement": "Tapped",
+                                    "fromZone": "Exile"
+                                }
+                            ]
+                        },
+                        "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "duration": "Permanent"
+                },
+                {
+                    "type": "EmitBendEvent",
+                    "bendType": "EARTH"
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "PowerAtMostEntity",
+                                        "reference": {
+                                            "type": "BoundVariable",
+                                            "name": "t0"
+                                        }
+                                    }
+                                ],
+                                "controllerPredicate": "ControlledByYou"
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HEXPROOF",
+                                "target": "IterationEntity"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "INDESTRUCTIBLE",
+                                "target": "IterationEntity"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "GrantEvasionKeyword",
+                    "keyword": "HEXPROOF"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "67",
+        "rarity": "RARE",
+        "artist": "Fahmi Fauzi",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d873c678-c8f2-40f0-ab03-a2fdf5187aea.jpg?1783904839",
+        "rulings": [
+            {
+                "date": "2025-10-02",
+                "text": "If the targeted land becomes an illegal target before the spell or ability that includes earthbend resolves, earthbend does nothing. If the spell or ability didn't have other targets, it won't resolve."
+            },
+            {
+                "date": "2025-10-02",
+                "text": "You may target a land that is already a creature, perhaps because of a previous earthbend ability. The land will get the +1/+1 counters, gain haste, and have its base power and toughness set to 0/0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Kyoshi Warrior Guard
 {
     "name": "Kyoshi Warrior Guard",
