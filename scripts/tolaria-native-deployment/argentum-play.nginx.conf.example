@@ -22,6 +22,7 @@ map "$request_method:$uri" $argentum_api_allowed {
     ~^GET:/api/decks/(examples|formats)$ 1;
     ~^POST:/api/decks/(validate|legal-formats)$ 1;
     ~^GET:/api/quick-games/(public|live)$ 1;
+    ~^GET:/api/tournaments/(public|live)$ 1;
 }
 
 server {
