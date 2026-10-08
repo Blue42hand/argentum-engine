@@ -16435,7 +16435,7 @@ snapshot, so retaining “this ability” never depends on a grant still existin
 identities onto `ActivatedAbilityOnStackComponent` and `DecisionContext`, so persistent yields can remember a per-ability
 answer across all copies. The triggered-ability path still derives a provisional key from the current source card definition;
 typed ownership provenance for granted and synthesized triggers remains an explicit follow-up in
-`backlog/stack-collapse-and-batch-decisions.md` §4. See that backlog's §C.2 for the original identity contract.
+`backlog/archived/stack-collapse-and-batch-decisions.md` §4. See that backlog's §C.2 for the original identity contract.
 
 **Where the `AbilityId` half comes from.** `card(name) { … }` runs its block inside `AbilityIdScope.within(name)`, and
 every ability built while it runs — `activatedAbility { }`, `triggeredAbility { }`, a raw `ActivatedAbility(...)` or
