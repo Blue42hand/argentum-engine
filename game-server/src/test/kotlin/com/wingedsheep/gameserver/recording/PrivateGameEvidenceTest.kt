@@ -41,6 +41,42 @@ class PrivateGameEvidenceTest : FunSpec({
         writer.append("initialization", JsonObject(emptyMap()), null)
         writer.append("terminal", JsonObject(emptyMap()), null)
         Files.size(root.resolve("bounded-game/native-000000.ndjson")) shouldBe 0L
+        val directory = root.resolve("bounded-game")
+        val marker = Files.list(directory).use { files ->
+            files.filter { it.fileName.toString().startsWith("native-gap-") }.toList().single()
+        }
+        val gap = Json.parseToJsonElement(Files.readString(marker)).jsonObject
+        gap.getValue("code").jsonPrimitive.content shouldBe "IllegalArgumentException"
+        gap.getValue("reason").jsonPrimitive.content shouldBe "storage_bound_reached"
+        gap.getValue("committedBytes").jsonPrimitive.long shouldBe 0L
+        gap.getValue("maxBytes").jsonPrimitive.long shouldBe 1L
+        gap.getValue("lastCommittedSequence").jsonPrimitive.long shouldBe 0L
+        (gap.getValue("attemptedRowBytes").jsonPrimitive.long > 1L) shouldBe true
+        Files.getPosixFilePermissions(marker) shouldBe PosixFilePermissions.fromString("rw-------")
+        writer.healthy() shouldBe false
+    }
+    test("bound diagnostics retain only numeric rejected-row metadata and preserve existing bytes") {
+        val root = root()
+        val writer = PrivateGameEvidence.create(root, "prefix-game", "a".repeat(40), maxBytes = 4096)
+        writer.append("initialization", JsonObject(emptyMap()), null)
+        val directory = root.resolve("prefix-game")
+        val source = directory.resolve("native-000000.ndjson")
+        val prefix = Files.readAllBytes(source)
+        writer.append("seat_observation", buildJsonObject { put("secret", "PRIVATE-SENTINEL".repeat(4096)) }, "private-seat")
+        writer.append("terminal", JsonObject(emptyMap()), null)
+        Files.readAllBytes(source).toList() shouldBe prefix.toList()
+        val marker = Files.list(directory).use { files ->
+            files.filter { it.fileName.toString().startsWith("native-gap-") }.toList().single()
+        }
+        val gap = Json.parseToJsonElement(Files.readString(marker)).jsonObject
+        gap.keys shouldBe setOf("schemaVersion", "gameId", "code", "utc", "reason", "committedBytes",
+            "maxBytes", "attemptedRowBytes", "lastCommittedSequence")
+        gap.getValue("committedBytes").jsonPrimitive.long shouldBe prefix.size.toLong()
+        gap.getValue("maxBytes").jsonPrimitive.long shouldBe 4096L
+        gap.getValue("lastCommittedSequence").jsonPrimitive.long shouldBe 1L
+        (gap.getValue("attemptedRowBytes").jsonPrimitive.long > 4096L - prefix.size) shouldBe true
+        Files.exists(directory.resolve("manifest.json")) shouldBe false
+        writer.healthy() shouldBe false
     }
     test("public root and traversal identity are rejected without permission changes") {
         val root = root()
