@@ -2770,6 +2770,37 @@ class ManaSolver(
     }
 
     /**
+     * X ceiling for a cost with life-payable pips. Mana value still counts those pips, so
+     * subtracting it from available mana misses legal life/mana splits. Use it only as an
+     * upper bound, then ask the same solver that validates payment about the shared life budget.
+     */
+    fun maxAffordableXWithLife(
+        state: GameState,
+        playerId: EntityId,
+        cost: ManaCost,
+        precomputedSources: List<ManaSource>? = null,
+        spellContext: SpellPaymentContext? = null,
+        xManaRestriction: Set<Color> = emptySet()
+    ): Int {
+        val availableMana = getAvailableManaCount(state, playerId, precomputedSources, spellContext)
+        val life = if (state.isLifeLossLocked(playerId)) 0 else state.lifeTotal(playerId).coerceAtLeast(0)
+        val lifePips = minOf(cost.phyrexianSymbols.size, life / 2)
+        var low = 0
+        val minimumFixedMana = cost.symbols.sumOf {
+            if (it is ManaSymbol.MonocolorHybrid) minOf(1, it.generic) else it.cmc
+        }
+        var high = ((availableMana.toLong() + lifePips - minimumFixedMana)
+            .coerceAtLeast(0) / cost.xCount.coerceAtLeast(1)).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+        while (low < high) {
+            val candidate = low + ((high.toLong() - low + 1) / 2).toInt()
+            val payable = canPay(state, playerId, cost, candidate, spellContext = spellContext,
+                precomputedSources = precomputedSources, xManaRestriction = xManaRestriction)
+            if (payable) low = candidate else high = candidate - 1
+        }
+        return low
+    }
+
+    /**
      * Gets the total available mana for a player (floating mana + untapped sources).
      *
      * When [spellContext] is provided, floating restricted mana whose restriction the context

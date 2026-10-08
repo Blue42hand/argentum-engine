@@ -598,8 +598,17 @@ class CastSpellEnumerator(
                 } else 0
                 val fixedCost = effectiveCost.cmc  // X contributes 0 to CMC
                 val xSymbolCount = effectiveCost.xCount.coerceAtLeast(1)
-                ((availableSources + delveAvailable + waterbendAvailable + convokeAvailable + improviseAvailable - fixedCost) / xSymbolCount)
-                    .coerceAtLeast(0)
+                val genericCredit = delveAvailable + waterbendAvailable + convokeAvailable + improviseAvailable
+                // The ordinary mana/life path uses exact affordability. Alternate-payment
+                // paths retain their existing resource bound: convoke can also pay colored pips.
+                if (effectiveCost.phyrexianSymbols.isNotEmpty() && !hasConvoke && !hasDelve &&
+                    !hasImprovise && spellWaterbend == null) {
+                    context.manaSolver.maxAffordableXWithLife(state, playerId, effectiveCost,
+                        precomputedSources = cachedSources, spellContext = spellContext,
+                        xManaRestriction = cardDef.script.xManaRestriction)
+                } else {
+                    ((availableSources + genericCredit - fixedCost) / xSymbolCount).coerceAtLeast(0)
+                }
             } else null
 
             val maxAffordableX = listOfNotNull(manaMaxX, counterMaxX).minOrNull()
