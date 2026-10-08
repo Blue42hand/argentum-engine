@@ -988,6 +988,41 @@ class StateProjector {
             }
         }
 
+        // 3. Static abilities a permanent gained from a resolved effect ("target creature gains
+        // 'This creature can't block' until end of turn"). Once gained, the ability is the
+        // holder's own, so it lowers exactly as a printed one does — sourced from the holder,
+        // filters resolved relative to it, and suppressed by the same lose-all-abilities rules
+        // (fromStaticAbility). CR 613.7a: its timestamp is the later of the holder's and the grant's.
+        for ((index, grant) in state.grantedStaticAbilities.withIndex()) {
+            val grantTimestamp = grant.layerTimestamp ?: continue
+            val holderId = grant.entityId
+            if (!state.getBattlefield().contains(holderId)) continue
+            if (!com.wingedsheep.engine.mechanics.durations.GrantDurationGate.holds(
+                    state, holderId, grant.sourceId, grant.duration)) continue
+            val holderTimestamp = state.getEntity(holderId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.TimestampComponent>()?.timestamp
+                ?: grantTimestamp
+            for (data in StaticAbilityHandler.lower(listOf(grant.ability))) {
+                // Attack-as-though-hasty grants keep their dedicated post-layer pass in [project]:
+                // that pass is the one that knows a face-down holder keeps an externally granted
+                // permission, which the printed-static path deliberately drops.
+                if (data.modification is Modification.CanAttackAsThoughHasty) continue
+                effects.add(
+                    ContinuousEffect(
+                        sourceId = holderId,
+                        timestamp = maxOf(holderTimestamp, grantTimestamp),
+                        modification = data.modification,
+                        affectedEntities = filterResolver.resolveAffectedEntities(state, holderId, data.affectsFilter, projectedValues),
+                        sourceCondition = data.sourceCondition,
+                        affectsFilter = data.affectsFilter,
+                        // Namespaced so a multi-layer grant can't share a CR 613.6 lock with one of
+                        // the holder's printed groups (both are keyed by the holder's id).
+                        groupId = data.groupId?.let { "grant$index-$it" }
+                    )
+                )
+            }
+        }
+
         return effects
     }
 
