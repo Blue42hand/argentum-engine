@@ -174,9 +174,13 @@ class LinuxHost:
 
     def stage_and_verify(self, candidate):
         verify_installed_release(ROOT / "releases" / candidate["releaseId"], candidate)
-        receipt = read_json(CONFIG / "backup-health.json")
         status = self.status()
         volume = os.statvfs("/var/lib/commander-gym")
+        if volume.f_bavail * volume.f_frsize < self.policy["minFreeBytes"]:
+            self.drain(status["bootId"])
+            self.alert("pause_new_admission_low_storage")
+            raise RuntimeError("low storage admission held")
+        receipt = read_json(CONFIG / "backup-health.json")
         decision = storage_decision(dict(receipt, canonicalRoot="/var/lib/commander-gym",
             freeBytes=volume.f_bavail * volume.f_frsize, durableBytes=status.get("durableBytes"),
             pendingRecordWrites=status.get("pendingRecordWrites"), recordingHealthy=status.get("recordingHealthy")),
@@ -326,12 +330,15 @@ def main():
             host.assert_no_unfinished_transaction()
             current = host.current_manifest()
             host.verify_promotion(current)
+            host.stage_and_verify(current)
             state = host.status()
+            if state.get("drainAcknowledged") is True:
+                print("admission_held_acknowledged_drain")
+                return
             if (state.get("acceptingNewGames") is True and state.get("releaseId") == current["releaseId"]
                 and state.get("engineSha") == current["engineSha"] and state.get("gymSha") == current["gymSha"]):
                 print("already_serving")
                 return
-            host.stage_and_verify(current)
             host.smoke_closed(current)
             if not host.health(current): raise RuntimeError("closed boot is not healthy")
             host.record("admission_intent", current, current)
@@ -350,7 +357,12 @@ def main():
         raise ValueError("ambiguous promotion order")
     newer = [item for item in candidates if item["promotionSequence"] > current["promotionSequence"]]
     if not newer:
-        print("already_current")
+        with host.exclusive_lock():
+            host.assert_no_unfinished_transaction()
+            current = host.current_manifest()
+            host.verify_promotion(current)
+            host.stage_and_verify(current)
+            print("already_current")
         return
     candidate = max(newer, key=lambda item: item["promotionSequence"])
     print(Rollout(host, time.time).attempt(candidate))

@@ -59,6 +59,7 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(environment["GAME_AI_MODE"], "engine")
         self.assertEqual(environment["NATIVE_LIFECYCLE_ENABLED"], "true")
         self.assertEqual(environment["NATIVE_GYM_SHA"], manifest["gymSha"])
+        self.assertIn("-Dlogging.level.com.wingedsheep.gameserver.session.ZombieSessionSweeper=WARN", arguments)
 
     def test_trusted_json_still_rejects_duplicate_keys(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -76,6 +77,45 @@ class ManifestTests(unittest.TestCase):
 
 
 class HostTests(unittest.TestCase):
+    def test_periodic_admission_checks_storage_even_while_serving(self):
+        current = dict(releaseId="a", engineSha="b", gymSha="c")
+        events = []
+        host = SimpleNamespace(exclusive_lock=contextlib.nullcontext,
+            assert_no_unfinished_transaction=lambda: None,
+            current_manifest=lambda: current, verify_promotion=lambda value: None,
+            stage_and_verify=lambda value: events.append("storage"),
+            status=lambda: dict(current, acceptingNewGames=True))
+        with patch.object(module, "LinuxHost", return_value=host), patch.object(sys, "argv", ["host_adapter", "admit-current"]):
+            module.main()
+        self.assertEqual(events, ["storage"])
+
+    def test_admission_timer_preserves_acknowledged_update_drain(self):
+        events = []
+        host = SimpleNamespace(exclusive_lock=contextlib.nullcontext,
+            assert_no_unfinished_transaction=lambda: None,
+            current_manifest=lambda: {}, verify_promotion=lambda value: None,
+            stage_and_verify=lambda value: events.append("storage"),
+            status=lambda: dict(acceptingNewGames=False, drainAcknowledged=True),
+            resume=lambda value: events.append("resume"))
+        with patch.object(module, "LinuxHost", return_value=host), patch.object(sys, "argv", ["host_adapter", "admit-current"]):
+            module.main()
+        self.assertEqual(events, ["storage"])
+
+    def test_unchanged_update_still_checks_storage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp)
+            (config / "promotions").mkdir()
+            events = []
+            host = SimpleNamespace(exclusive_lock=contextlib.nullcontext,
+                assert_no_unfinished_transaction=lambda: None,
+                current_manifest=lambda: dict(promotionSequence=1),
+                verify_promotion=lambda value: None,
+                stage_and_verify=lambda value: events.append("storage"))
+            with patch.object(module, "CONFIG", config), patch.object(module, "protected"), \
+                patch.object(module, "LinuxHost", return_value=host), patch.object(sys, "argv", ["host_adapter", "update"]):
+                module.main()
+            self.assertEqual(events, ["storage"])
+
     def test_atomic_pair_switch_stops_both_units_before_link_change(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

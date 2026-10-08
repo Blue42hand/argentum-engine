@@ -31,7 +31,7 @@ server {
     root /srv/argentum-play/current/web;
     index index.html;
     server_tokens off;
-    access_log /var/log/nginx/argentum-access.log argentum_metadata;
+    access_log /var/log/argentum-web/access.log argentum_metadata;
     # nginx error messages can contain complete request URIs/tokens. Use metadata
     # access logs, systemd startup failures and the private structured app recorder.
     error_log /dev/null crit;

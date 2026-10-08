@@ -13,7 +13,7 @@ immutable release pair. No builds, Git commands or Vite daemon run at boot.
 ## Native lifecycle protocol 1
 
 Set `NATIVE_LIFECYCLE_ENABLED=true`, exact `APP_VERSION`, `NATIVE_RELEASE_ID` and
-`NATIVE_GYM_SHA` through the protected launcher. Opt-in requires in-memory native
+`NATIVE_GYM_SHA` and `NATIVE_RECORDING_SCHEMA_VERSION` through the protected launcher. Opt-in requires in-memory native
 repositories; existing deployments retain the disabled default. Admission starts
 closed on every boot. The private Unix socket is
 `/run/argentum-play/lifecycle.sock`, mode 0600 in a native-owned 0700 directory.
@@ -42,8 +42,9 @@ Drain serializes against new-game registration. Start commands reserve admission
 before altering player/lobby state; reservations remain counted until handling
 finishes. Existing saves, moves and reconnects continue. Status counts nonterminal
 sessions, idle/pregame sessions, reserved starts and pending quick/sealed/tournament
-activities. No AI-callback or public lobby-idle inference is used. Players can
-leave/stop idle lobbies explicitly; updates impose no game timeout or forced loss.
+activities. Already admitted lobbies can finish their queued matches during drain;
+players can also leave/stop idle lobbies explicitly. No AI-callback or public
+lobby-idle inference is used, and updates impose no game timeout or forced loss.
 
 Every drain has a fresh `drainId`. The recorder acknowledges that exact drain only
 after required finalization and queued writes are durable. Native
@@ -94,7 +95,10 @@ rolled-back transaction prevents automatic retry/reopening. No forced game drain
 `admit-current` supports ordinary boot/restart readiness. It verifies protected
 promotion, qualification, storage and recording evidence before opening the current
 release. It cannot override an unfinished update; both operations share a lock and
-journal. It never switches versions or starts games. Private operational metadata
+journal. An acknowledged drain stays closed until the updater completes or an
+operator resolves it; the admission timer cannot cancel an update drain. Both
+periodic operations check storage even when the release is unchanged. It never
+switches versions or starts games. Private operational metadata
 lives under `/var/lib/argentum-updater`, which is not a learning archive.
 
 ## Canonical recording, storage and backup

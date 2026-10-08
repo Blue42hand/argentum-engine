@@ -23,6 +23,7 @@ def launch_spec(path, manifest):
     }
     arguments = ["/usr/bin/java", "-Xms512m", "-Xmx6g",
         "-Dlogging.level.com.wingedsheep.gameserver.handler.ConnectionHandler=WARN",
+        "-Dlogging.level.com.wingedsheep.gameserver.session.ZombieSessionSweeper=WARN",
         "-Dlogging.level.com.wingedsheep.gameserver.websocket.GameWebSocketHandler=INFO",
         "-Dlogging.level.com.wingedsheep.gameserver.persistence.SessionRecoveryService=WARN",
         "-jar", str(path / "game-server.jar")]
