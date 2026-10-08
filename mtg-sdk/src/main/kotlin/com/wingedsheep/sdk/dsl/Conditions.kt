@@ -310,6 +310,13 @@ object Conditions {
         Exists(Player.You, Zone.BATTLEFIELD, filter, negate = negate, excludeSelf = excludeSelf)
 
     /**
+     * "If you control a commander" — a permanent on the battlefield that is a commander (CR 903.3d).
+     * Whose commander doesn't matter; any one will do (Fierce Guardianship ruling, 2020-04-17).
+     * Usually the gate on a free-cast `selfAlternativeCost` (Fierce Guardianship, Deadly Rollick).
+     */
+    val YouControlACommander: ConditionInterface = YouControl(GameObjectFilter.Permanent.commander())
+
+    /**
      * If **an** opponent controls at least one permanent matching [filter] — the opponent-side
      * mirror of [YouControl], generalizing [OpponentControlsCreature] to any filter.
      *

@@ -6006,6 +6006,7 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   Power Sink composes a payer-rebinding player loop and optional payment gate; its decline
   branch counters, taps `Land.withManaAbility()`, and loses the payer's unspent mana.
 - `.faceDown()` — face-down state.
+- `.commander()` — `StatePredicate.IsCommander`: the object **is a commander**, any player's (CR 903.3). The designation is an attribute of the card, not a characteristic: it follows the card across zones and stays on a face-down commander, and a copy (token or Clone) is never one. Compose with a zone: "you control a commander" is a battlefield permanent (CR 903.3d) — `Conditions.YouControlACommander`.
 - `.transformed()` — a **transformed permanent** (CR 701.27g): back face up on the battlefield. "Each transformed permanent you control" (Mutagen Connoisseur), "other transformed permanents you control have …" (Gargantuan Slabhorn). Not `Filters.DoubleFaced` — that is the *card*, true in every zone and of a front-face werewolf too.
 - `.withMorph()` — has a morph *procedure*: the printed keyword (`HasMorphAbilityComponent`, any
   zone) **or** a turn-up procedure whose mechanic is morph. "Creature with a morph ability"
@@ -12297,6 +12298,10 @@ answer it and would silently return `false`.
 - `YouControl(filter, negate = false, excludeSelf = false)` — you control ≥1 matching permanent.
   Set `excludeSelf = true` for "another …" wording, which excludes the resolving source from the
   search (e.g. Splitskin Doll's "another creature with power 2 or less").
+- `YouControlACommander` — "if you control a commander": `YouControl(Permanent.commander())`. Any
+  player's commander counts (Fierce Guardianship ruling); a commander off the battlefield doesn't
+  (CR 903.3d). The gate on the `{0}` free-cast `selfAlternativeCost` of Fierce Guardianship and
+  Deadly Rollick.
 - `YouControlAtLeast(count, filter)` — you control `count` or more matching permanents (the
   filtered-count generalization of `ControlCreaturesAtLeast`/`ControlLandsAtLeast`; e.g.
   `YouControlAtLeast(3, GameObjectFilter.Creature.attacking())` for Stormbeacon Blade).
