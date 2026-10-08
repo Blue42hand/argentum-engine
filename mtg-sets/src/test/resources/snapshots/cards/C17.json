@@ -573,3 +573,74 @@
         "GREEN"
     ]
 }
+
+// Teferi's Protection
+{
+    "name": "Teferi's Protection",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Until your next turn, your life total can't change and you gain protection from everything. All permanents you control phase out. (While they're phased out, they're treated as though they don't exist. They phase in before you untap during your untap step.)\nExile Teferi's Protection.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "LockLifeGain",
+                    "target": "Controller",
+                    "duration": "UntilYourNextTurn"
+                },
+                {
+                    "type": "LockLifeLoss",
+                    "target": "Controller",
+                    "duration": "UntilYourNextTurn"
+                },
+                "GrantPlayerProtection",
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "permanent ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "PhaseOut",
+                        "target": "IterationEntity"
+                    }
+                }
+            ]
+        },
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "RARE",
+        "artist": "Chase Stone",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/77f130c7-0138-4a1a-9f67-62d2c302dc48.jpg?1783935950",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Gaining protection from everything causes a spell or ability on the stack to have an illegal target if it targets you."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "Spells and abilities that would normally cause you to gain or lose life still resolve while your life total can't change, but the life-gain or life-loss part simply has no effect."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "You can't pay a cost that includes the payment of any amount of life other than 0 life."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "Phasing out doesn't cause any \"leaves the battlefield\" abilities to trigger. Similarly, phasing in won't cause any \"enters\" abilities to trigger."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If a token is phased out, it will phase in as your next untap step begins. This is a change from previous rules."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
