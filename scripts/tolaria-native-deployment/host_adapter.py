@@ -6,6 +6,7 @@ release reader/installer, not to the runtime/build identities or this updater.
 """
 import contextlib
 import fcntl
+import errno
 import hashlib
 import json
 import os
@@ -119,6 +120,10 @@ def verify_installed_release(path, manifest):
         raise ValueError("installed artifact checksum mismatch")
 
 
+class UpdaterLockBusy(RuntimeError):
+    """Only contention at the protected nonblocking updater flock."""
+
+
 class LinuxHost:
     def __init__(self):
         if sys.platform != "linux" or os.geteuid() != 0:
@@ -140,7 +145,12 @@ class LinuxHost:
             info = os.fstat(descriptor)
             if info.st_uid != 0 or not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077:
                 raise ValueError("untrusted updater lock")
-            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                if error.errno in (errno.EAGAIN, errno.EWOULDBLOCK):
+                    raise UpdaterLockBusy("protected updater lock busy") from None
+                raise
             yield
         finally:
             os.close(descriptor)
@@ -370,6 +380,8 @@ def main():
 
 if __name__ == "__main__":
     try: main()
+    except UpdaterLockBusy:
+        print("native_update_deferred_lock_busy")
     except Exception:
         # Fixed metadata only. Exception text can include private paths or transport details.
         print("native_update_held_operator_review", file=sys.stderr)
