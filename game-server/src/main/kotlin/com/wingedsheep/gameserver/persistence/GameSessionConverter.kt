@@ -36,6 +36,7 @@ fun GameSession.toPersistent(
             )
         },
         lobbyId = lobbyId,
+        manualHumanStart = manualHumanStart,
     )
 }
 
@@ -65,6 +66,7 @@ fun restoreGameSession(
     )
 
     logger.info("Restoring game ${persistent.sessionId}: gameState=${if (persistent.gameState != null) "present" else "NULL"}, players=${persistent.playerInfos.size}")
+    session.manualHumanStart = persistent.manualHumanStart
 
     // Convert persisted data back to EntityId-keyed maps
     val deckLists = persistent.deckLists.mapKeys { EntityId(it.key) }

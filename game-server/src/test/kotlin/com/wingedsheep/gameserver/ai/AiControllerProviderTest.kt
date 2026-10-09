@@ -27,6 +27,17 @@ import io.mockk.every
 import io.mockk.mockk
 
 class AiControllerProviderTest : FunSpec({
+    test("a provider requiring a profile cannot expose an unusable default selection") {
+        val provider = object : AiControllerProvider {
+            override val mode = "profile-only"
+            override val supportsDefaultController = false
+            override val profiles = listOf(AiControllerProfile("fixture", "Fixture"))
+            override fun create(context: AiControllerContext): AiPlayerController = error("not a gameplay test")
+        }
+        val registry = AiControllerProviderRegistry(listOf(provider))
+        shouldThrow<IllegalArgumentException> { registry.resolveSeatPreset(AiControllerSpec(provider.mode)) }
+        registry.resolveSeatPreset(AiControllerSpec(provider.mode, "fixture")).controllerSpec.profileId shouldBe "fixture"
+    }
     test("provider modes are resolved case-insensitively after trimming") {
         val provider = StubProvider(" Search-Teacher ")
         val registry = AiControllerProviderRegistry(listOf(provider))
@@ -156,6 +167,12 @@ class AiControllerProviderTest : FunSpec({
         provider.contexts.single().gameSessionId shouldBe "game-1"
         provider.contexts.single().profileId shouldBe null
         provider.contexts.single().snapshot() shouldBe expected
+        val context = provider.contexts.single()
+        context.isManualHumanGame() shouldBe false
+        every { game.isManualHumanGame() } returns true
+        context.isManualHumanGame() shouldBe true
+        every { game.isManualHumanGame() } returns false
+        context.isManualHumanGame() shouldBe false
         provider.controller.lastDeck shouldBe mapOf("Mountain" to 40)
         sessions.destroy()
     }

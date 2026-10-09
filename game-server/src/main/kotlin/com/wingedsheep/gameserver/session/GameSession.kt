@@ -255,6 +255,15 @@ class GameSession(
     @Volatile
     var publicSpectate: Boolean = false
 
+    /** Server-owned admission for external policy in a manually started human lobby. */
+    var manualHumanStart: Boolean = false
+        get() = synchronized(stateLock) { field }
+        set(value) = synchronized(stateLock) { field = value }
+
+    fun isManualHumanGame(): Boolean = synchronized(stateLock) {
+        manualHumanStart && playerPersistenceInfo.values.any { !it.isAi }
+    }
+
     private val players = mutableMapOf<EntityId, PlayerSession>()
     private val deckLists = mutableMapOf<EntityId, List<String>>()
     /**
@@ -2409,19 +2418,21 @@ class GameSession(
         token: String,
         isAi: Boolean = false,
         aiModelOverride: String? = null
-    ) {
+    ) = synchronized(stateLock) {
         playerPersistenceInfo[playerId] = PlayerPersistenceInfo(playerName, token, isAi, aiModelOverride)
     }
 
     /**
      * Get all stored player info for persistence.
      */
-    fun getPlayerPersistenceInfo(): Map<EntityId, PlayerPersistenceInfo> = playerPersistenceInfo.toMap()
+    fun getPlayerPersistenceInfo(): Map<EntityId, PlayerPersistenceInfo> = synchronized(stateLock) {
+        playerPersistenceInfo.toMap()
+    }
 
     /**
      * Restore player info from persistence.
      */
-    internal fun restorePlayerPersistenceInfo(info: Map<EntityId, PlayerPersistenceInfo>) {
+    internal fun restorePlayerPersistenceInfo(info: Map<EntityId, PlayerPersistenceInfo>) = synchronized(stateLock) {
         playerPersistenceInfo.clear()
         playerPersistenceInfo.putAll(info)
     }

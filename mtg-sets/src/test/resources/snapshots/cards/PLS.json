@@ -459,27 +459,26 @@
                     "type": "GatherCards",
                     "source": {
                         "type": "FromZone",
-                        "zone": "Library",
-                        "filter": "creature"
+                        "zone": "Library"
                     },
-                    "storeAs": "searchable",
+                    "storeAs": "gathered0",
                     "search": true
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "searchable",
+                    "from": "gathered0",
                     "selection": {
-                        "type": "ChooseUpTo",
+                        "type": "ChooseExactly",
                         "count": {
                             "type": "Fixed",
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "selected1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "found",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
