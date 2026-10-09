@@ -1,4 +1,5 @@
 import contextlib
+import errno
 import hashlib
 import json
 import os
@@ -196,6 +197,66 @@ class HostTests(unittest.TestCase):
                     self.assertEqual(host.rpc("status")["activeGames"], 0)
                 worker.join(5)
                 self.assertFalse(worker.is_alive())
+
+
+
+
+
+class LockBoundaryTests(unittest.TestCase):
+    def host(self): return object.__new__(module.LinuxHost)
+
+    def test_only_busy_flock_is_classified_and_descriptor_always_closed(self):
+        for code in {errno.EAGAIN, errno.EWOULDBLOCK, errno.EACCES, errno.EIO}:
+            with self.subTest(errno=code), patch.object(module.os, 'open', return_value=51), patch.object(module.os, 'fstat', return_value=SimpleNamespace(st_uid=0, st_mode=stat.S_IFREG | 0o600)), patch.object(module.os, 'close') as close, patch.object(module.fcntl, 'flock', side_effect=OSError(code, 'fixture')):
+                expected = module.UpdaterLockBusy if code in (errno.EAGAIN, errno.EWOULDBLOCK) else OSError
+                with self.assertRaises(expected):
+                    with self.host().exclusive_lock(): self.fail('busy lock entered')
+                close.assert_called_once_with(51)
+
+    def test_open_and_fstat_failures_are_not_busy(self):
+        error = BlockingIOError(errno.EAGAIN, 'fixture')
+        with patch.object(module.os, 'open', side_effect=error):
+            with self.assertRaises(BlockingIOError):
+                with self.host().exclusive_lock(): self.fail('open failed')
+        with patch.object(module.os, 'open', return_value=51), patch.object(module.os, 'fstat', side_effect=error), patch.object(module.os, 'close') as close:
+            with self.assertRaises(BlockingIOError):
+                with self.host().exclusive_lock(): self.fail('stat failed')
+            close.assert_called_once_with(51)
+
+    def test_body_failure_keeps_original_exception_and_closes_descriptor(self):
+        error = BlockingIOError(errno.EAGAIN, 'body fixture')
+        with patch.object(module.os, 'open', return_value=51), patch.object(module.os, 'fstat', return_value=SimpleNamespace(st_uid=0, st_mode=stat.S_IFREG | 0o600)), patch.object(module.os, 'close') as close, patch.object(module.fcntl, 'flock') as flock:
+            with self.assertRaises(BlockingIOError) as caught:
+                with self.host().exclusive_lock(): raise error
+            self.assertIs(caught.exception, error)
+            flock.assert_called_once_with(51, module.fcntl.LOCK_EX | module.fcntl.LOCK_NB)
+            close.assert_called_once_with(51)
+
+    def test_untrusted_lock_never_calls_flock(self):
+        with patch.object(module.os, 'open', return_value=51), patch.object(module.os, 'fstat', return_value=SimpleNamespace(st_uid=999, st_mode=stat.S_IFREG | 0o600)), patch.object(module.os, 'close'), patch.object(module.fcntl, 'flock') as flock:
+            with self.assertRaises(ValueError):
+                with self.host().exclusive_lock(): self.fail('untrusted lock entered')
+            flock.assert_not_called()
+
+
+class RealFlockTests(unittest.TestCase):
+    def test_another_descriptor_defers_then_release_allows_entry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'updater.lock'
+            fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+            module.fcntl.flock(fd, module.fcntl.LOCK_EX | module.fcntl.LOCK_NB)
+            original_fstat = os.fstat
+            def root_stat(descriptor):
+                info = original_fstat(descriptor)
+                return SimpleNamespace(st_uid=0, st_mode=info.st_mode)
+            host = object.__new__(module.LinuxHost)
+            try:
+                with patch.object(module, 'STATE', Path(tmp)), patch.object(module.os, 'fstat', side_effect=root_stat):
+                    with self.assertRaises(module.UpdaterLockBusy):
+                        with host.exclusive_lock(): self.fail('contended lock entered')
+                    module.fcntl.flock(fd, module.fcntl.LOCK_UN)
+                    with host.exclusive_lock(): pass
+            finally: os.close(fd)
 
 
 if __name__ == "__main__": unittest.main()
