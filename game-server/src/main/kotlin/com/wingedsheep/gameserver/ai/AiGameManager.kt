@@ -165,6 +165,9 @@ class AiGameManager(
                     playerId = aiPlayerId,
                     gameSessionId = gameSession?.sessionId,
                     profileId = controllerSpec.profileId,
+                    isManualHumanGame = {
+                        gameSession?.isManualHumanGame() == true
+                    },
                     snapshot = { gameSession?.getAiRuntimeSnapshot() },
                 )
             )
@@ -176,6 +179,9 @@ class AiGameManager(
                 AiControllerContext(
                     playerId = aiPlayerId,
                     gameSessionId = gameSession?.sessionId,
+                    isManualHumanGame = {
+                        gameSession?.isManualHumanGame() == true
+                    },
                     snapshot = { gameSession?.getAiRuntimeSnapshot() },
                 )
             )
@@ -253,7 +259,7 @@ class AiGameManager(
             }
             else -> {
                 requireExternalProvider(mode)
-                controllerSpec.profileId?.let { controllerProviders.requireProfile(mode, it) }
+                controllerProviders.resolveSeatPreset(controllerSpec)
             }
         }
     }

@@ -5,6 +5,11 @@
 default:
     @just --list
 
+# Arbitrary build tasks still use the shared build semaphore.
+[group: 'build']
+gradle *ARGS:
+    scripts/gradle-locked {{ARGS}}
+
 # Build the entire project
 [group: 'build']
 build:

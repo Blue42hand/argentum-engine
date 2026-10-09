@@ -682,6 +682,7 @@ class QuickGameLobbyHandler(
             maxPlayers = lobby.maxPlayers,
         )
         // A validated ranked lobby: this game adjusts both players' ELO for the derived mode.
+        gameSession.manualHumanStart = lobby.players.any { !it.isAi }
         if (lobby.ranked) {
             gameSession.ranked = true
             gameSession.rankedMode = com.wingedsheep.gameserver.ranking.Ranked
