@@ -1,0 +1,69 @@
+{
+  "player1Name": "Asmodeus pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "hand": [
+      "Asmodeus the Archfiend"
+    ],
+    "battlefield": [
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      }
+    ],
+    "library": [
+      "Ancestral Recall",
+      "Dark Ritual",
+      "Lightning Bolt",
+      "Giant Growth",
+      "Counterspell",
+      "Doom Blade",
+      "Opt",
+      "Forest"
+    ]
+  },
+  "player2": {
+    "hand": [
+      "Unsummon",
+      "Island"
+    ],
+    "battlefield": [
+      {
+        "name": "Island"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
