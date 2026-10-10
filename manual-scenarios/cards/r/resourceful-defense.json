@@ -1,0 +1,62 @@
+{
+  "player1Name": "Defense pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "hand": [
+      "Resourceful Defense",
+      "Unsummon"
+    ],
+    "battlefield": [
+      {
+        "name": "Grizzly Bears",
+        "counters": {
+          "PLUS_ONE_PLUS_ONE": 2,
+          "CHARGE": 1
+        }
+      },
+      {
+        "name": "Llanowar Elves"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Island"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "player2": {
+    "library": [
+      "Swamp",
+      "Plains"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}

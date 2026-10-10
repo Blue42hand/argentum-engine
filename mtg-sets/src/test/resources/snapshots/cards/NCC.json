@@ -206,3 +206,92 @@
         "RED"
     ]
 }
+
+// Resourceful Defense
+{
+    "name": "Resourceful Defense",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a permanent you control leaves the battlefield, if it had counters on it, put those counters on target permanent you control.\n{4}{W}: Move any number of counters from target permanent you control onto a second target permanent you control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Resourceful Defense:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent ctrl:you",
+                    "from": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "permanent ctrl:you"
+                    },
+                    "id": "t0"
+                },
+                "interveningIf": "TriggeringEntityHadCounters"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Resourceful Defense:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveChosenCountersToTarget",
+                    "source": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    },
+                    "destination": {
+                        "type": "BoundVariable",
+                        "name": "t2"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent ctrl:you"
+                        },
+                        "id": "t1"
+                    },
+                    {
+                        "type": "TargetOther",
+                        "baseRequirement": {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "permanent ctrl:you"
+                            }
+                        },
+                        "id": "t2",
+                        "excludeSource": false
+                    }
+                ],
+                "descriptionOverride": "Move any number of counters between two permanents you control"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "RARE",
+        "artist": "Francis Tneh",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/1/91f4dfc0-7478-4e47-89b4-685b72197ef0.jpg?1783923374"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
