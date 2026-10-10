@@ -35,6 +35,7 @@ class NativeControlSocket(
     @Value("\${native.lifecycle.updater-user:root}") private val updaterUser: String,
     private val lobbies: InMemoryLobbyRepository,
     private val quickLobbies: QuickGameLobbyRepository,
+    private val qaCallbackAdmission: com.wingedsheep.gameserver.ai.QaCallbackAdmission = com.wingedsheep.gameserver.ai.QaCallbackAdmission(),
 ) : AutoCloseable {
     private var server: ServerSocketChannel? = null
     private var worker: Thread? = null
@@ -102,6 +103,18 @@ class NativeControlSocket(
                 require(peer == updaterUser && request.keys == common + setOf("bootId", "releaseId"))
                 admission.resume(request.getValue("bootId").jsonPrimitive.content, request.getValue("releaseId").jsonPrimitive.content)
             }
+            "qa-callback-pause" -> {
+                require(peer == updaterUser && qaCallbackAdmission.enabled && request.keys == common + "bootId")
+                require(request.getValue("bootId").jsonPrimitive.content == admission.bootId)
+                qaCallbackAdmission.pause()
+            }
+            "qa-callback-resume" -> {
+                require(peer == updaterUser && qaCallbackAdmission.enabled && request.keys == common + setOf("bootId", "generation"))
+                require(request.getValue("bootId").jsonPrimitive.content == admission.bootId)
+                val generation = request.getValue("generation").jsonPrimitive
+                require(!generation.isString && generation.longOrNull != null)
+                qaCallbackAdmission.resume(generation.long)
+            }
             "recording" -> {
                 val fields = setOf("bootId", "releaseId", "recoveryComplete", "recordingHealthy",
                     "producerCoverageComplete", "pendingRecordWrites", "recordingSchemaVersion", "durableBytes", "drainId", "drainComplete", "gymSha")
@@ -129,7 +142,7 @@ class NativeControlSocket(
             else -> error("Unknown private control operation")
         }
         return buildJsonObject {
-            admission.status(repository).forEach { (key, value) ->
+            (admission.status(repository) + if (qaCallbackAdmission.enabled) qaCallbackAdmission.snapshot() else emptyMap()).forEach { (key, value) ->
                 put(key, when (value) {
                     null -> JsonNull
                     is Boolean -> JsonPrimitive(value)

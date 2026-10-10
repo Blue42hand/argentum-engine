@@ -39,6 +39,7 @@ class AiGameManager(
     private val llmCostTracker: com.wingedsheep.gameserver.tournament.llm.LlmCostTracker,
     private val aiInsightService: AiInsightService,
     controllerProviders: List<AiControllerProvider> = emptyList(),
+    private val qaCallbackAdmission: QaCallbackAdmission = QaCallbackAdmission(),
 ) {
     private val controllerProviders = AiControllerProviderRegistry(controllerProviders)
     /**
@@ -315,6 +316,7 @@ class AiGameManager(
         onBottomCards = onBottomCards,
         allowActionsOnlyFallback = controller is EngineAiPlayerController || controller is LlmAiPlayerController || controller is JevAiPlayerController,
         actionGate = gameSession?.let { aiInsightService.gateFor(it.sessionId) },
+        qaCallbackAdmission = qaCallbackAdmission,
     )
 
     private fun registerAiSession(
