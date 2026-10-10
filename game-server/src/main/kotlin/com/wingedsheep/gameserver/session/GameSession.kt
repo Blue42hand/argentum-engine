@@ -37,6 +37,9 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.gameserver.recording.GameEvidenceSink
 import com.wingedsheep.gameserver.recording.PrivateGameEvidence
 import com.wingedsheep.gameserver.recording.aiSeatEvidence
+import com.wingedsheep.gameserver.recording.*
+import com.wingedsheep.ai.RecordedAiChoice
+import com.wingedsheep.ai.ActionResponse
 import com.wingedsheep.ai.AiDecisionEvidence
 import com.wingedsheep.gameserver.persistence.persistenceJson
 import kotlinx.serialization.encodeToString
@@ -75,6 +78,179 @@ class GameSession(
                                          val before: String, val epoch: String)
     private val pendingAiEvidence = linkedMapOf<String, PendingAiEvidence>()
     private var applyingAiEvidence: PendingAiEvidence? = null
+    private data class PendingCallback(val context: AiDecisionEvidence, val seat: EntityId,
+                                       val epoch: String?, val before: String,
+                                       val offer: JsonObject? = null)
+    private val pendingCallbacks = linkedMapOf<String, PendingCallback>()
+    private data class ApplyingCallback(val pending: PendingCallback, val choice: JsonObject, val action: GameAction)
+    private var applyingCallback: ApplyingCallback? = null
+
+    private fun registerCallback(context: AiDecisionEvidence, seat: EntityId, epoch: String?, offer: JsonObject? = null): AiDecisionEvidence {
+        val superseded = pendingCallbacks.values.filter { it.seat == seat }.map { it.context }
+        superseded.forEach { disposeAiCallback(seat, it, "superseded") }
+        evidence("ai_callback_input", persistenceJson.encodeToJsonElement(AiDecisionEvidence.serializer(), context), seat)
+        pendingCallbacks[context.correlationId] = PendingCallback(context, seat, epoch, nativeStateDigest(gameState!!), offer)
+        return context
+    }
+
+    fun beginAiCallbackEvidence(seat: EntityId, observed: ClientGameState, legal: List<LegalActionInfo>,
+        pending: PendingDecision?, epoch: String?, log: List<String>, paymentError: String? = null): AiDecisionEvidence? = synchronized(stateLock) {
+        val state = gameState ?: return null
+        if (evidenceSink == null || evidenceCaptureFailed || state.gameOver || !isCurrentInteraction(epoch) ||
+            pendingCallbacks.size >= 64 || (legal.isEmpty() && pending == null)) return null
+        var created: AiDecisionEvidence? = null
+        capture {
+            val current = aiStateTransformer.transform(state, seat)
+            val currentPending = state.pendingDecision?.takeIf { state.actorFor(it.playerId) == seat }
+                ?.let { decisionEnricher.enrich(it, state, seat) }
+            if (current.copy(gameLog = emptyList()) != observed.copy(gameLog = emptyList()) ||
+                getLegalActions(seat) != legal || currentPending != pending) return@capture
+            created = registerCallback(actionCallbackEvidence(observed, legal, pending, seat.value, log,
+                if (paymentError == null) "chooseAction" else "paymentCorrection", paymentError), seat, epoch)
+        }
+        created
+    }
+
+    private fun currentCallbackOffer(seat: EntityId, kind: String): JsonObject? = when (kind) {
+        "decideMulligan" -> if (isMulliganPhase && !hasMulliganComplete(seat) && !isAwaitingBottomCards(seat))
+            mulliganPayload(getMulliganDecision(seat)) else null
+        "chooseBottomCards" -> getChooseBottomCardsMessage(seat)?.let(::bottomPayload)
+        else -> null
+    }
+
+    fun beginAiMulliganEvidence(seat: EntityId, message: ServerMessage.MulliganDecision): AiDecisionEvidence? = synchronized(stateLock) {
+        if (evidenceSink == null || evidenceCaptureFailed || gameState?.gameOver != false || pendingCallbacks.size >= 64) return null
+        val offer = mulliganPayload(message)
+        if (currentCallbackOffer(seat, "decideMulligan") != offer) return null
+        var created: AiDecisionEvidence? = null
+        capture { created = registerCallback(mulliganCallbackEvidence(message, seat.value), seat, null, offer) }
+        created
+    }
+
+    fun beginAiBottomEvidence(seat: EntityId, message: ServerMessage.ChooseBottomCards): AiDecisionEvidence? = synchronized(stateLock) {
+        if (evidenceSink == null || evidenceCaptureFailed || gameState?.gameOver != false || pendingCallbacks.size >= 64) return null
+        val offer = bottomPayload(message)
+        if (currentCallbackOffer(seat, "chooseBottomCards") != offer) return null
+        var created: AiDecisionEvidence? = null
+        capture { created = registerCallback(bottomCallbackEvidence(message, seat.value), seat, null, offer) }
+        created
+    }
+
+    fun disposeAiCallback(seat: EntityId, context: AiDecisionEvidence, status: String) = synchronized(stateLock) {
+        val pending = pendingCallbacks[context.correlationId]
+        if (pending?.seat != seat || pending.context != context) return@synchronized
+        pendingCallbacks.remove(context.correlationId)
+        if (gameState?.gameOver != true) capture { evidence("ai_callback_disposition", buildJsonObject {
+            put("version", 2); put("correlationId", context.correlationId); put("status", status)
+        }, seat) }
+    }
+
+    private fun consumeCallback(seat: EntityId, context: AiDecisionEvidence, epoch: String?, expectedKind: String): PendingCallback? {
+        val pending = pendingCallbacks[context.correlationId] ?: return null
+        if (pending.seat != seat || pending.context != context || gameState?.gameOver != false) return null
+        val kind = Json.parseToJsonElement(context.observationBody).jsonObject.getValue("callbackKind").jsonPrimitive.content
+        val current = kind == expectedKind && if (pending.offer != null) currentCallbackOffer(seat, kind) == pending.offer
+               else pending.epoch == epoch && isCurrentInteraction(epoch) && pending.before == nativeStateDigest(gameState!!)
+        if (!current) {
+            disposeAiCallback(seat, context, "stale")
+            return null
+        }
+        return pending
+    }
+
+    fun executeRecordedAiCallback(seat: EntityId, action: GameAction, epoch: String?, context: AiDecisionEvidence,
+        chosen: RecordedAiChoice, paymentDecisionId: String? = null, paymentRevision: Long? = null): ActionResult? = synchronized(stateLock) {
+        var pending: PendingCallback? = null
+        var selection: JsonObject? = null
+        capture {
+            pending = consumeCallback(seat, context, epoch, if (paymentDecisionId == null) "chooseAction" else "paymentCorrection")
+            if (pending == null) return@capture
+            val input = Json.parseToJsonElement(context.observationBody).jsonObject
+            selection = runCatching { when (val response = chosen.response) {
+                is ActionResponse.SubmitAction -> {
+                    val index = chosen.actionId ?: error("Missing recorded template index")
+                    val params = chosen.params ?: error("Missing recorded parameters")
+                    val offered = getLegalActions(seat).getOrNull(index) ?: error("Recorded template is unavailable")
+                    val expected = if (params.isEmpty()) offered.action else
+                        ActionParameterizer.apply(offered, persistenceJson.decodeFromJsonElement(ActionParams.serializer(), params), gameState!!)
+                    val nativeOffer = input.getValue("legalActions").jsonArray.getOrNull(index)?.jsonObject
+                    if (pending == null || expected != action || response.action != action ||
+                        nativeOffer?.get("action") != persistenceJson.encodeToJsonElement(GameAction.serializer(), offered.action)) null
+                    else buildJsonObject {
+                        put("channel", "action"); put("semanticId", nativeOffer.getValue("semanticId"))
+                        put("actionId", index); put("params", params)
+                    }
+                }
+                is ActionResponse.SubmitDecision -> {
+                    val nativePending = input["pendingDecision"] as? JsonObject
+                    if (pending == null || chosen.actionId != null || chosen.params != null ||
+                        action != SubmitDecision(response.playerId, response.response) ||
+                        response.playerId != gameState?.pendingDecision?.playerId ||
+                        response.response.decisionId != gameState?.pendingDecision?.id || nativePending == null) null
+                    else buildJsonObject {
+                        put("channel", "decision"); put("semanticId", nativePending.getValue("semanticId"))
+                        put("response", JsonObject(persistenceJson.encodeToJsonElement(DecisionResponse.serializer(), response.response).jsonObject - "decisionId"))
+                    }
+                }
+            } }.getOrNull()
+        }
+        if (pending != null && selection == null) disposeAiCallback(seat, context, "unmatched_or_overridden")
+        if (pending != null && selection != null) pendingCallbacks.remove(context.correlationId)
+        applyingCallback = if (pending != null && selection != null) ApplyingCallback(pending!!, selection!!, action) else null
+        try {
+            val result = if (paymentDecisionId == null) executeAiAction(seat, action, epoch)
+                else executeAiPaymentCorrection(seat, action, epoch, paymentDecisionId, requireNotNull(paymentRevision))
+            if (applyingCallback != null) callbackDisposition(seat, context,
+                if (result == null) "stale" else if (selection == null) "unmatched_or_overridden" else "rejected")
+            result
+        } finally { applyingCallback = null }
+    }
+
+    private fun callbackDisposition(seat: EntityId, context: AiDecisionEvidence, status: String) {
+        if (gameState?.gameOver != true) capture { evidence("ai_callback_disposition", buildJsonObject {
+            put("version", 2); put("correlationId", context.correlationId); put("status", status)
+        }, seat) }
+    }
+
+    fun executeRecordedMulligan(seat: EntityId, context: AiDecisionEvidence, keep: Boolean): MulliganActionResult = synchronized(stateLock) {
+        val action = if (keep) KeepHand(seat) else TakeMulligan(seat)
+        var pending: PendingCallback? = null
+        capture {
+            pending = consumeCallback(seat, context, null, "decideMulligan")
+            if (pending == null) return@capture
+            pendingCallbacks.remove(context.correlationId)
+            val input = Json.parseToJsonElement(context.observationBody).jsonObject
+            val selected = input.getValue("legalActions").jsonArray[if (keep) 0 else 1].jsonObject
+            val choice = buildJsonObject { put("channel", "action"); put("semanticId", selected.getValue("semanticId"))
+                put("actionId", if (keep) 0 else 1); put("params", buildJsonObject {}) }
+            applyingCallback = pending?.let { ApplyingCallback(it, choice, action) }
+        }
+        try {
+            val result = if (keep) keepHand(seat) else takeMulligan(seat)
+            if (applyingCallback != null) callbackDisposition(seat, context, if (pending == null) "stale" else "rejected")
+            result
+        } finally { applyingCallback = null }
+    }
+
+    fun executeRecordedBottom(seat: EntityId, context: AiDecisionEvidence, cards: List<EntityId>): MulliganActionResult = synchronized(stateLock) {
+        val engineCards = fromSeat(seat, cards, ListSerializer(EntityId.serializer()))
+        var pending: PendingCallback? = null
+        capture {
+            pending = consumeCallback(seat, context, null, "chooseBottomCards")
+            if (pending == null) return@capture
+            if (engineCards == null) { disposeAiCallback(seat, context, "unmatched_or_overridden"); return@capture }
+            pendingCallbacks.remove(context.correlationId)
+            val input = Json.parseToJsonElement(context.observationBody).jsonObject.getValue("pendingDecision").jsonObject
+            val choice = buildJsonObject { put("channel", "decision"); put("semanticId", input.getValue("semanticId"))
+                put("response", buildJsonObject { put("type", "CardsSelectedResponse"); put("selectedCards", JsonArray(cards.map { JsonPrimitive(it.value) })) }) }
+            applyingCallback = if (pending != null && engineCards != null) ApplyingCallback(pending!!, choice, BottomCards(seat, engineCards)) else null
+        }
+        try {
+            val result = chooseBottomCards(seat, cards)
+            if (applyingCallback != null) callbackDisposition(seat, context, if (pending == null) "stale" else "rejected")
+            result
+        } finally { applyingCallback = null }
+    }
 
     /** Recording eligibility never changes rules admission or supplies pilot information. */
     fun beginAiDecisionEvidence(playerId: EntityId, observed: ClientGameState,
@@ -703,6 +879,8 @@ class GameSession(
             seatRoster = seatInfos(),
         )
         capture { evidence("initialization", buildJsonObject {
+            put("callbackEvidenceVersion", 2)
+            put("initialStateDigest", nativeStateDigest(result.state))
             put("setup", persistenceJson.encodeToJsonElement(com.wingedsheep.gameserver.replay.ReplaySetup.serializer(), replaySetup!!))
             put("events", persistenceJson.encodeToJsonElement(ListSerializer(GameEvent.serializer()), result.events))
             put("pinnedCards", JsonArray(getPinnedCards().map(::JsonPrimitive)))
@@ -1825,6 +2003,7 @@ class GameSession(
 
     /** Repository removal closes optional evidence without inventing a rules outcome. */
     fun closeEvidence() = synchronized(stateLock) {
+        pendingCallbacks.values.toList().forEach { pending -> disposeAiCallback(pending.seat, pending.context, "session_closed") }
         capture { evidence("session_closed", buildJsonObject {
             put("nativeGameOver", gameState?.gameOver == true)
             put("winnerId", gameState?.winnerId?.value?.let(::JsonPrimitive) ?: JsonNull)
@@ -1875,6 +2054,30 @@ class GameSession(
                     put("resultObservation", persistenceJson.encodeToJsonElement(AiDecisionEvidence.serializer(), after))
                 }, pending.seat)
                 applyingAiEvidence = null
+            }
+            applyingCallback?.let { applying ->
+                if (applying.action == action) {
+                    val after = actionCallbackEvidence(aiStateTransformer.transform(gameState!!, applying.pending.seat),
+                        emptyList(), null, applying.pending.seat.value, emptyList(), "result")
+                    evidence("ai_callback_result", buildJsonObject {
+                        put("version", 2); put("correlationId", applying.pending.context.correlationId)
+                        put("status", if (stallMessage() == null) "accepted" else "administrative_stall")
+                        put("inputStateDigest", applying.pending.context.stateDigest)
+                        put("choice", applying.choice)
+                        put("action", persistenceJson.encodeToJsonElement(GameAction.serializer(), action))
+                        put("resultObservation", persistenceJson.encodeToJsonElement(AiDecisionEvidence.serializer(), after))
+                    }, applying.pending.seat)
+                    applyingCallback = null
+                }
+            }
+            if (gameState?.gameOver == true) {
+                // Dispositions precede the sealed terminal, including other seats still thinking.
+                pendingCallbacks.values.toList().forEach { pending ->
+                    evidence("ai_callback_disposition", buildJsonObject {
+                        put("version", 2); put("correlationId", pending.context.correlationId); put("status", "cancelled_at_terminal")
+                    }, pending.seat)
+                }
+                pendingCallbacks.clear()
             }
             if (gameState?.gameOver == true) evidence("terminal", buildJsonObject {
                 put("winnerId", gameState?.winnerId?.value?.let(::JsonPrimitive) ?: JsonNull)
@@ -2336,6 +2539,10 @@ class GameSession(
             seatIdentities.clear()
             seatNames.forEach { (seat, names) -> seatIdentities[seat] = SeatIdentities.fromPersistent(names) }
             lastSentState.clear()
+            capture { gameState?.let { restored -> evidence("callback_resume_state", buildJsonObject {
+                put("version", 2)
+                put("restoredStateDigest", nativeStateDigest(restored))
+            }) } }
         }
     }
 
