@@ -1,0 +1,41 @@
+{
+  "player1Name": "Necromancer pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "hand": [],
+    "battlefield": [
+      {
+        "name": "Apprentice Necromancer",
+        "summoningSickness": false
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      }
+    ],
+    "graveyard": [
+      "Grizzly Bears"
+    ],
+    "library": [
+      "Swamp",
+      "Forest"
+    ]
+  },
+  "player2": {
+    "hand": [
+      "Forest"
+    ],
+    "library": [
+      "Island",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
