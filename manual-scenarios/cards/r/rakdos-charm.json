@@ -1,0 +1,75 @@
+{
+  "name": "Rakdos Charm \u2014 all three modes",
+  "description": "Cast one copy for each mode. Select a player to exile only that graveyard, target Sol Ring for artifact removal, and choose the untargeted damage mode to see each creature damage its own controller. Verify prompts, public zones, stack and life totals from both seats. The opponent has Counterspell to hold response priority.",
+  "player1Name": "Rakdos caster",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [
+      "Rakdos Charm",
+      "Rakdos Charm",
+      "Rakdos Charm"
+    ],
+    "battlefield": [
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Grizzly Bears"
+      }
+    ],
+    "graveyard": [
+      "Vampire Nighthawk"
+    ],
+    "library": [
+      "Forest",
+      "Plains"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [
+      "Counterspell"
+    ],
+    "battlefield": [
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Sol Ring"
+      },
+      {
+        "name": "Hill Giant"
+      }
+    ],
+    "graveyard": [
+      "Llanowar Elves",
+      "Grizzly Bears"
+    ],
+    "library": [
+      "Mountain",
+      "Swamp"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
