@@ -1,0 +1,22 @@
+{
+  "name": "Reconnaissance — withdraw an attacker or untap after damage",
+  "description": "Attack with Grizzly Bears. Block with Hill Giant and activate Reconnaissance before damage to save both creatures; alternatively declare no blocks, pass to end of combat, then activate after the defender takes 2 damage. Select only your attacking creature. Inspect the stack, combat arrows and untapped creature from both seats. Stifle lets the defender hold response priority.",
+  "player1Name": "Attacker",
+  "player2Name": "Defender",
+  "player1": {
+    "lifeTotal": 20,
+    "battlefield": [{ "name": "Reconnaissance" }, { "name": "Grizzly Bears", "summoningSickness": false }],
+    "library": ["Forest", "Plains"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": ["Stifle"],
+    "battlefield": [{ "name": "Hill Giant" }, { "name": "Island" }],
+    "library": ["Mountain", "Swamp"]
+  },
+  "phase": "COMBAT",
+  "step": "DECLARE_ATTACKERS",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "player1StopAtSteps": ["DECLARE_BLOCKERS", "END_COMBAT"]
+}
