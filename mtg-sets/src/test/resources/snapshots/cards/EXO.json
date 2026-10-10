@@ -325,6 +325,91 @@
     ]
 }
 
+// Mindless Automaton
+{
+    "name": "Mindless Automaton",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "This creature enters with two +1/+1 counters on it.\n{1}, Discard a card: Put a +1/+1 counter on this creature.\nRemove two +1/+1 counters from this creature: Draw a card.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Mindless Automaton:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Discard a card: Put a +1/+1 counter on this creature."
+            },
+            {
+                "id": "Mindless Automaton:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomRemoveCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "self": true
+                    }
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Remove two +1/+1 counters: Draw a card."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 2,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "135",
+        "rarity": "RARE",
+        "artist": "Brian Snõddy",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6ddfc5ab-b11b-4ad7-ab46-8ee60d938a5b.jpg?1783946500",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If removing two +1/+1 counters from Mindless Automaton causes the amount of damage already marked on Mindless Automaton to be equal to or greater than its toughness, it will be put into its owner's graveyard as a state-based action before the ability can be activated again and before the card is drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Mirri, Cat Warrior
 {
     "name": "Mirri, Cat Warrior",
