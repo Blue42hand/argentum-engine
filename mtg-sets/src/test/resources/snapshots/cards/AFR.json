@@ -1,3 +1,146 @@
+// Asmodeus the Archfiend
+{
+    "name": "Asmodeus the Archfiend",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Legendary Creature — Devil God",
+    "oracleText": "Binding Contract — If you would draw a card, exile the top card of your library face down instead.\n{B}{B}{B}: Draw seven cards.\n{B}: Return all cards exiled with Asmodeus to their owner's hand and you lose that much life.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Asmodeus the Archfiend:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{B}{B}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                },
+                "descriptionOverride": "Draw seven cards"
+            },
+            {
+                "id": "Asmodeus the Archfiend:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{B}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "storeMovedAs": "moved1"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "moved1",
+                            "filter": {
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Hand"
+                                    }
+                                ]
+                            },
+                            "storeMatching": "matching2"
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "VariableReference",
+                                "variableName": "matching2_count"
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Return all cards exiled with Asmodeus to their owner's hand and you lose that much life"
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "ReplaceDrawWith",
+                "replacementEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0",
+                            "lookAudience": "None"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "linkToSource": true,
+                            "faceDown": "HIDDEN"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "RARE",
+        "artist": "Aleksi Briclot",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/5/a5e6b864-58e7-43b9-9d79-1d0361340960.jpg?1783926501",
+        "rulings": [
+            {
+                "date": "2021-07-23",
+                "text": "If a card is exiled face-down and no player has been given permission to look at it, no player is allowed to look at it as long as it remains exiled face-down."
+            },
+            {
+                "date": "2021-07-23",
+                "text": "If your library is empty, no cards will be exiled but you won't lose the game due to drawing from an empty library."
+            },
+            {
+                "date": "2021-07-23",
+                "text": "If Asmodeus the Archfiend leaves the battlefield before you activate its last ability, any cards exiled by its replacement effect remain exiled face down for the rest of the game. If you somehow return the same Asmodeus the Archfiend card to the battlefield, it will be a different object with no connection to those face-down cards."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Battle Cry Goblin
 {
     "name": "Battle Cry Goblin",
