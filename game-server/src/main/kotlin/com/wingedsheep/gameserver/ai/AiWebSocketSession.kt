@@ -80,6 +80,7 @@ class AiWebSocketSession(
      * (see [AiInsightService]). Null in normal play, where the AI's own pick goes straight through.
      */
     private val actionGate: AiActionGate? = null,
+    private val qaCallbackAdmission: QaCallbackAdmission = QaCallbackAdmission(),
 ) : WebSocketSession {
     @Volatile internal var onDecisionEvidence:
         ((ClientGameState, List<LegalActionInfo>, String?, List<String>) -> com.wingedsheep.ai.AiDecisionEvidence?)? = null
@@ -187,6 +188,10 @@ class AiWebSocketSession(
             paymentRetryInFlight = true
         }
         scope.launch {
+          var admissionEntered = false
+          try {
+            qaCallbackAdmission.admitted {
+            admissionEntered = true
             var allowQueuedRetry = false
             var staleExit = false
             var evidence: AiDecisionEvidence? = null
@@ -194,7 +199,7 @@ class AiWebSocketSession(
                 delay(thinkingDelayMs)
                 if (!open.get() || !isCurrent()) {
                     staleExit = true
-                    return@launch
+                    return@admitted
                 }
                 val recentLog = getRecentGameLog()
                 evidence = if (controller is RecordedAiCallbackController) track(onCallbackEvidence?.invoke(
@@ -214,7 +219,7 @@ class AiWebSocketSession(
                         logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
                             "controller declined correction"))
                     else staleExit = true
-                    return@launch
+                    return@admitted
                 }
                 if (correction is ActionResponse.SubmitDecision &&
                     (correction.playerId != snapshot.pendingDecision.playerId ||
@@ -223,7 +228,7 @@ class AiWebSocketSession(
                         logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
                             "addressed another decision"))
                     else staleExit = true
-                    return@launch
+                    return@admitted
                 }
                 val gated = if (correction is ActionResponse.SubmitAction && actionGate != null) {
                     ActionResponse.SubmitAction(actionGate.approve(aiPlayerId, correction.action))
@@ -237,11 +242,11 @@ class AiWebSocketSession(
                         logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
                             "callback is unavailable"))
                     else staleExit = true
-                    return@launch
+                    return@admitted
                 }
                 if (!open.get() || !isCurrent()) {
                     staleExit = true
-                    return@launch
+                    return@admitted
                 }
                 val outcome = if (recorded != null && evidence != null && onRecordedCallbackReady != null)
                     onRecordedCallbackReady!!.invoke(aiPlayerId, action, snapshot.interactionEpoch, evidence!!,
@@ -276,6 +281,13 @@ class AiWebSocketSession(
                     }
                 }
             }
+            }
+          } finally {
+            if (!admissionEntered) synchronized(paymentRetryLock) {
+                paymentRetryInFlight = false
+                pendingPaymentRetry = null
+            }
+          }
         }
         return PaymentRetryAdmission.SCHEDULED
     }
@@ -300,7 +312,9 @@ class AiWebSocketSession(
         scope.launch {
             try {
                 val serverMessage = json.decodeFromString<ServerMessage>(text)
-                handleServerMessage(serverMessage)
+                qaCallbackAdmission.admitted {
+                    if (open.get()) handleServerMessage(serverMessage)
+                }
             } catch (e: Exception) {
                 logger.error("AI failed to process server message: ${e.message}", e)
             }
