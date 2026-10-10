@@ -1474,6 +1474,119 @@
     ]
 }
 
+// Lagomos, Hand of Hatred
+{
+    "name": "Lagomos, Hand of Hatred",
+    "manaCost": "{1}{B}{R}",
+    "typeLine": "Legendary Creature — Human Shaman",
+    "oracleText": "At the beginning of combat on your turn, create a 2/1 red Elemental creature token with trample and haste. Sacrifice it at the beginning of the next end step.\n{T}: Search your library for a card, put it into your hand, then shuffle. Activate only if five or more creatures died this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Lagomos, Hand of Hatred:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Elemental"
+                    ],
+                    "keywords": [
+                        "TRAMPLE",
+                        "HASTE"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/c/6/c6b2ff6f-d55a-4fa2-86be-e2e012267de4.jpg?1783921129",
+                    "sacrificeAtStep": "END"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Lagomos, Hand of Hatred:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library"
+                            },
+                            "storeAs": "gathered0",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Search your library for a card"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "TurnTracking",
+                                "player": "Each",
+                                "tracker": "CREATURES_DIED"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 5
+                            }
+                        }
+                    }
+                ],
+                "descriptionOverride": "Search your library for a card (five creatures died this turn)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "205",
+        "rarity": "UNCOMMON",
+        "artist": "Tuan Duong Chu",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/a/1a6bb0c2-1e3c-48cd-8f10-49f047e0514c.jpg?1783921281"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Leaf-Crowned Visionary
 {
     "name": "Leaf-Crowned Visionary",
