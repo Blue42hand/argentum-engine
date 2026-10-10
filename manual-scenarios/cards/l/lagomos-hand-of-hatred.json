@@ -1,0 +1,77 @@
+{
+  "name": "Lagomos \u2014 combat token and five-death search",
+  "description": "Cast Pyroclasm to kill five creatures while Lagomos survives, activate the tap ability and choose one card from the library. Advance to combat to create its hasty trampling Elemental, then verify sacrifice at the next end step. Opponent can bounce Lagomos.",
+  "player1": {
+    "hand": [
+      "Pyroclasm"
+    ],
+    "battlefield": [
+      {
+        "name": "Lagomos, Hand of Hatred"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Grizzly Bears"
+      },
+      {
+        "name": "Silvercoat Lion"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Plains",
+      "Swamp"
+    ]
+  },
+  "player2": {
+    "hand": [
+
+      "Unsummon"
+    ],
+    "battlefield": [
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Island"
+      },
+      {
+        "name": "Runeclaw Bear"
+      },
+      {
+        "name": "Goblin Piker"
+      },
+      {
+        "name": "Elite Vanguard"
+      }
+    ],
+    "library": [
+      "Island",
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
