@@ -23,7 +23,8 @@ class SessionRecoveryService(
     private val redisGameRepository: RedisGameRepository,
     private val redisLobbyRepository: RedisLobbyRepository,
     private val sessionRegistry: SessionRegistry,
-    private val aiGameManager: AiGameManager
+    private val aiGameManager: AiGameManager,
+    private val qaPersistence: QaRedisPersistence = QaRedisPersistence(),
 ) {
     private val logger = LoggerFactory.getLogger(SessionRecoveryService::class.java)
 
@@ -35,6 +36,8 @@ class SessionRecoveryService(
         var lobbiesRecovered = 0
         var tournamentsRecovered = 0
         var playersRecovered = 0
+
+        redisGameRepository.validateQaRecoveryInventory()
 
         // Recover game sessions
         val gameSessions = redisGameRepository.loadAllFromRedis()
@@ -67,6 +70,8 @@ class SessionRecoveryService(
         sessionRegistry.getAllIdentities().filter { it.isAi }.forEach { identity ->
             aiGameManager.rehydrateAiIdentity(identity)
         }
+
+        if (qaPersistence.enabled) qaPersistence.recovered()
 
         logger.info(
             "Session recovery complete: " +

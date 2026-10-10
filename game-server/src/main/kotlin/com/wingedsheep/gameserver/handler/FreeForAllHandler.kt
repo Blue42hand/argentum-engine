@@ -155,7 +155,7 @@ class FreeForAllHandler(
             )
             gameSession.setPlayerPersistenceInfo(
                 playerSession.playerId, playerSession.playerName, identity.token,
-                isAi = identity.isAi, aiModelOverride = identity.aiModelOverride
+                isAi = identity.isAi, aiModelOverride = identity.aiModelOverride, aiControllerSpec = identity.aiControllerSpec
             )
         }
 

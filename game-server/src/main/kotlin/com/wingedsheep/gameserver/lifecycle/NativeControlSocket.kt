@@ -33,7 +33,7 @@ class NativeControlSocket(
     private val repository: GameRepository,
     @Value("\${native.lifecycle.socket:/run/argentum-play/lifecycle.sock}") private val socketPath: String,
     @Value("\${native.lifecycle.updater-user:root}") private val updaterUser: String,
-    private val lobbies: InMemoryLobbyRepository,
+    private val lobbies: com.wingedsheep.gameserver.repository.LobbyRepository,
     private val quickLobbies: QuickGameLobbyRepository,
     private val qaCallbackAdmission: com.wingedsheep.gameserver.ai.QaCallbackAdmission = com.wingedsheep.gameserver.ai.QaCallbackAdmission(),
 ) : AutoCloseable {
@@ -45,7 +45,8 @@ class NativeControlSocket(
 
     @EventListener(ApplicationReadyEvent::class)
     fun start() {
-        check(admission.enabled && repository is InMemoryGameRepository) { "Unsupported native lifecycle repository" }
+        check(admission.enabled && (repository is InMemoryGameRepository ||
+            (repository is com.wingedsheep.gameserver.repository.RedisGameRepository && repository.qaLifecycleEnabled()))) { "Unsupported native lifecycle repository" }
         check(server == null)
         val parent = path.parent
         check(Files.isDirectory(parent, NOFOLLOW_LINKS) && parent.toRealPath() == parent)
@@ -114,6 +115,19 @@ class NativeControlSocket(
                 val generation = request.getValue("generation").jsonPrimitive
                 require(!generation.isString && generation.longOrNull != null)
                 qaCallbackAdmission.resume(generation.long)
+            }
+            "qa-redis-snapshot" -> {
+                require(peer == updaterUser && request.keys == common + setOf("bootId", "releaseId", "gameId"))
+                require(request.getValue("bootId").jsonPrimitive.content == admission.bootId &&
+                    request.getValue("releaseId").jsonPrimitive.content == admission.releaseId)
+                val redis = repository as? com.wingedsheep.gameserver.repository.RedisGameRepository ?: error("QA Redis unavailable")
+                val callbackStatus = qaCallbackAdmission.snapshot()
+                check(callbackStatus["qaCallbackAdmissionDrained"] == true && callbackStatus["qaCallbackWaitingHandlers"] == 0)
+                return buildJsonObject {
+                    put("protocol", 1); put("ok", true); put("bootId", admission.bootId); put("releaseId", admission.releaseId)
+                    put("engineSha", admission.engineSha); put("gymSha", admission.expectedGymSha)
+                    put("snapshot", redis.qaSnapshot(request.getValue("gameId").jsonPrimitive.content))
+                }
             }
             "recording" -> {
                 val fields = setOf("bootId", "releaseId", "recoveryComplete", "recordingHealthy",

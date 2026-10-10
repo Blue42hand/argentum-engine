@@ -32,7 +32,8 @@ fun GameSession.toPersistent(
                 playerName = info.playerName,
                 token = info.token,
                 isAi = info.isAi,
-                aiModelOverride = info.aiModelOverride
+                aiModelOverride = info.aiModelOverride,
+            aiControllerSpec = info.aiControllerSpec
             )
         },
         lobbyId = lobbyId,
@@ -94,7 +95,8 @@ fun restoreGameSession(
             playerName = info.playerName,
             token = info.token,
             isAi = info.isAi,
-            aiModelOverride = info.aiModelOverride
+            aiModelOverride = info.aiModelOverride,
+            aiControllerSpec = info.aiControllerSpec
         )
     }
     session.restorePlayerPersistenceInfo(playerInfo)
@@ -106,7 +108,8 @@ fun restoreGameSession(
             playerId = EntityId(info.playerId),
             playerName = info.playerName,
             isAi = info.isAi,
-            aiModelOverride = info.aiModelOverride
+            aiModelOverride = info.aiModelOverride,
+            aiControllerSpec = info.aiControllerSpec
         ).also {
             it.currentGameSessionId = persistent.sessionId
             it.currentLobbyId = persistent.lobbyId

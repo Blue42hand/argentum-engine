@@ -85,6 +85,16 @@ class PrivateGameEvidenceTest : FunSpec({
         shouldThrow<IllegalArgumentException> { PrivateGameEvidence.create(root, "safe", "a".repeat(40)) }
         Files.getPosixFilePermissions(root) shouldBe PosixFilePermissions.fromString("rwxr-xr-x")
     }
+    test("a different engine pin cannot append to the same nonterminal prefix") {
+        val root = root()
+        val writer = PrivateGameEvidence.create(root, "synthetic-pin", "a".repeat(40))
+        writer.append("initialization", buildJsonObject { put("seed", 1) }, null)
+        writer.close()
+        val file = root.resolve("synthetic-pin/native-000000.ndjson")
+        val prior = Files.readAllBytes(file).toList()
+        shouldThrow<IllegalArgumentException> { PrivateGameEvidence.create(root, "synthetic-pin", "b".repeat(40)) }
+        Files.readAllBytes(file).toList() shouldBe prior
+    }
     test("a recovered game resumes an intact prefix with an explicit new clock epoch") {
         val root = root()
         val first = PrivateGameEvidence.create(root, "recovered", "a".repeat(40))

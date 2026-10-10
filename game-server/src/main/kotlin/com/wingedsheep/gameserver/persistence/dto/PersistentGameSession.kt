@@ -55,5 +55,6 @@ data class PersistentPlayerInfo(
     val playerName: String,
     val token: String,
     val isAi: Boolean = false,
-    val aiModelOverride: String? = null
+    val aiModelOverride: String? = null,
+    val aiControllerSpec: com.wingedsheep.gameserver.ai.AiControllerSpec? = null
 )

@@ -413,7 +413,7 @@ class GamePlayHandler(
         gameSession.addPlayer(identity.toPlayerSession(), deck)
         gameSession.setPlayerPersistenceInfo(
             aiPlayerId, identity.playerName, identity.token,
-            isAi = true, aiModelOverride = identity.aiModelOverride
+            isAi = true, aiModelOverride = identity.aiModelOverride, aiControllerSpec = identity.aiControllerSpec
         )
 
         aiGameManager.wireAiForGame(

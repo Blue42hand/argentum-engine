@@ -400,7 +400,7 @@ class AiGameManager(
             ?: if (setCode != null) deckGenerator.generate(setCode) else deckGenerator.generate()
         gameSession.addPlayer(playerSession, aiDeck, commanderCardName = commanderCardName)
         controller.setDeckList(aiDeck)
-        gameSession.setPlayerPersistenceInfo(aiPlayerId, aiName, identity.token, isAi = true)
+        gameSession.setPlayerPersistenceInfo(aiPlayerId, aiName, identity.token, isAi = true, aiControllerSpec = identity.aiControllerSpec)
 
         logger.info("Created AI opponent ({}) for game {} [mode={}, profile={}]",
             aiPlayerId.value, gameSession.sessionId, effectiveMode, controllerSpec?.profileId)

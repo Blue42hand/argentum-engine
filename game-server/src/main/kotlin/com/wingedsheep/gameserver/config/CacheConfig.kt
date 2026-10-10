@@ -24,7 +24,8 @@ data class RedisProperties(
 @EnableConfigurationProperties(RedisProperties::class)
 @ConditionalOnProperty(name = ["cache.redis.enabled"], havingValue = "true")
 class CacheConfig(
-    private val redisProperties: RedisProperties
+    private val redisProperties: RedisProperties,
+    private val qaPersistence: com.wingedsheep.gameserver.persistence.QaRedisPersistence,
 ) {
     private val logger = org.slf4j.LoggerFactory.getLogger(CacheConfig::class.java)
 
@@ -35,7 +36,10 @@ class CacheConfig(
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
         val config = RedisStandaloneConfiguration(redisProperties.host, redisProperties.port)
-        return LettuceConnectionFactory(config)
+        return if (qaPersistence.enabled) LettuceConnectionFactory(config,
+            org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration.builder()
+                .commandTimeout(java.time.Duration.ofSeconds(2)).shutdownTimeout(java.time.Duration.ofSeconds(2)).build())
+        else LettuceConnectionFactory(config)
     }
 
     @Bean

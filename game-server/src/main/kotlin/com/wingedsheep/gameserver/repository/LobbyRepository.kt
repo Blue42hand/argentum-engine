@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 
 interface LobbyRepository {
+    fun nativePendingActivities(): Int
     fun saveLobby(lobby: TournamentLobby)
     fun findLobbyById(lobbyId: String): TournamentLobby?
     fun removeLobby(lobbyId: String): TournamentLobby?
@@ -30,7 +31,7 @@ class InMemoryLobbyRepository : LobbyRepository {
     private val sealedSessions = ConcurrentHashMap<String, SealedSession>()
     private val tournaments = ConcurrentHashMap<String, TournamentManager>()
 
-    fun nativePendingActivities(): Int = sealedSessions.size + sealedLobbies.values.count {
+    override fun nativePendingActivities(): Int = sealedSessions.size + sealedLobbies.values.count {
         it.state != com.wingedsheep.gameserver.lobby.LobbyState.TOURNAMENT_COMPLETE
     }
 

@@ -821,11 +821,11 @@ class TournamentMatchHandler(
         // treated as a human, never re-wired, and the match froze with the AI unable to act.
         gameSession.setPlayerPersistenceInfo(
             ps1.playerId, ps1.playerName, player1State.identity.token,
-            isAi = player1State.identity.isAi, aiModelOverride = player1State.identity.aiModelOverride
+            isAi = player1State.identity.isAi, aiModelOverride = player1State.identity.aiModelOverride, aiControllerSpec = player1State.identity.aiControllerSpec
         )
         gameSession.setPlayerPersistenceInfo(
             ps2.playerId, ps2.playerName, player2State.identity.token,
-            isAi = player2State.identity.isAi, aiModelOverride = player2State.identity.aiModelOverride
+            isAi = player2State.identity.isAi, aiModelOverride = player2State.identity.aiModelOverride, aiControllerSpec = player2State.identity.aiControllerSpec
         )
 
         gameRepository.save(gameSession)

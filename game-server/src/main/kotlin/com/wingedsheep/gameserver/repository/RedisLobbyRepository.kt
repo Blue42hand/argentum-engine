@@ -40,7 +40,8 @@ class RedisLobbyRepository(
     private val redisTemplate: RedisTemplate<String, String>,
     private val cardRegistry: CardRegistry,
     private val redisProperties: RedisProperties,
-    private val boosterGenerator: BoosterGenerator
+    private val boosterGenerator: BoosterGenerator,
+    private val qaPersistence: com.wingedsheep.gameserver.persistence.QaRedisPersistence = com.wingedsheep.gameserver.persistence.QaRedisPersistence(),
 ) : LobbyRepository {
 
     private val logger = LoggerFactory.getLogger(RedisLobbyRepository::class.java)
@@ -49,6 +50,10 @@ class RedisLobbyRepository(
     private val lobbyCache = ConcurrentHashMap<String, TournamentLobby>()
     private val sealedSessionCache = ConcurrentHashMap<String, SealedSession>()
     private val tournamentCache = ConcurrentHashMap<String, TournamentManager>()
+
+    override fun nativePendingActivities(): Int = sealedSessionCache.size + lobbyCache.values.count {
+        it.state != com.wingedsheep.gameserver.lobby.LobbyState.TOURNAMENT_COMPLETE
+    }
 
     private val keyPrefix = redisProperties.keyPrefix
 
@@ -74,6 +79,7 @@ class RedisLobbyRepository(
             )
             logger.debug("Persisted lobby ${lobby.lobbyId} to Redis")
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to persist lobby ${lobby.lobbyId}", e)
         }
     }
@@ -90,6 +96,7 @@ class RedisLobbyRepository(
             logger.debug("Loaded lobby $lobbyId from Redis")
             lobby
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to load lobby $lobbyId from Redis", e)
             null
         }
@@ -102,6 +109,7 @@ class RedisLobbyRepository(
             redisTemplate.delete(lobbyKey(lobbyId))
             logger.debug("Removed lobby $lobbyId from Redis")
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to remove lobby $lobbyId from Redis", e)
         }
 
@@ -130,6 +138,7 @@ class RedisLobbyRepository(
             )
             logger.debug("Persisted sealed session ${session.sessionId} to Redis")
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to persist sealed session ${session.sessionId}", e)
         }
     }
@@ -146,6 +155,7 @@ class RedisLobbyRepository(
             logger.debug("Found sealed session $sessionId in Redis (not fully restored)")
             null
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to load sealed session $sessionId from Redis", e)
             null
         }
@@ -158,6 +168,7 @@ class RedisLobbyRepository(
             redisTemplate.delete(sealedKey(sessionId))
             logger.debug("Removed sealed session $sessionId from Redis")
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to remove sealed session $sessionId from Redis", e)
         }
 
@@ -182,6 +193,7 @@ class RedisLobbyRepository(
             )
             logger.debug("Persisted tournament for lobby $lobbyId to Redis")
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to persist tournament for lobby $lobbyId", e)
         }
     }
@@ -198,6 +210,7 @@ class RedisLobbyRepository(
             logger.debug("Loaded tournament for lobby $lobbyId from Redis")
             tournament
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to load tournament for lobby $lobbyId from Redis", e)
             null
         }
@@ -210,6 +223,7 @@ class RedisLobbyRepository(
             redisTemplate.delete(tournamentKey(lobbyId))
             logger.debug("Removed tournament for lobby $lobbyId from Redis")
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to remove tournament for lobby $lobbyId from Redis", e)
         }
 
@@ -229,11 +243,13 @@ class RedisLobbyRepository(
         val results = mutableListOf<Pair<TournamentLobby, List<PlayerIdentity>>>()
 
         try {
-            val keys = redisTemplate.keys("${keyPrefix}lobby:*") ?: return results
+            val keys = redisTemplate.keys("${keyPrefix}lobby:*") ?: if (qaPersistence.enabled) error("Missing QA Redis inventory") else return results
 
+            qaPersistence.recoveryKeys(keys.size)
             for (key in keys) {
                 try {
-                    val json = redisTemplate.opsForValue().get(key) ?: continue
+                    val json = redisTemplate.opsForValue().get(key) ?: if (qaPersistence.enabled) error("QA Redis record disappeared") else continue
+                    qaPersistence.recoveryValue(json)
                     val persistent = persistenceJson.decodeFromString(PersistentTournamentLobby.serializer(), json)
                     val (lobby, identities) = restoreTournamentLobby(persistent, cardRegistry, boosterGenerator)
 
@@ -241,10 +257,12 @@ class RedisLobbyRepository(
                     results.add(lobby to identities)
                     logger.info("Restored lobby ${lobby.lobbyId} from Redis")
                 } catch (e: Exception) {
+                    qaPersistence.fail()
                     logger.error("Failed to restore lobby from key $key", e)
                 }
             }
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to enumerate lobbies from Redis", e)
         }
 
@@ -260,11 +278,13 @@ class RedisLobbyRepository(
         val results = mutableMapOf<String, TournamentManager>()
 
         try {
-            val keys = redisTemplate.keys("${keyPrefix}tournament:*") ?: return results
+            val keys = redisTemplate.keys("${keyPrefix}tournament:*") ?: if (qaPersistence.enabled) error("Missing QA Redis inventory") else return results
 
+            qaPersistence.recoveryKeys(keys.size)
             for (key in keys) {
                 try {
-                    val json = redisTemplate.opsForValue().get(key) ?: continue
+                    val json = redisTemplate.opsForValue().get(key) ?: if (qaPersistence.enabled) error("QA Redis record disappeared") else continue
+                    qaPersistence.recoveryValue(json)
                     val persistent = persistenceJson.decodeFromString(PersistentTournament.serializer(), json)
                     val tournament = restoreTournamentManager(persistent)
 
@@ -272,10 +292,12 @@ class RedisLobbyRepository(
                     results[persistent.lobbyId] = tournament
                     logger.info("Restored tournament for lobby ${persistent.lobbyId} from Redis")
                 } catch (e: Exception) {
+                    qaPersistence.fail()
                     logger.error("Failed to restore tournament from key $key", e)
                 }
             }
         } catch (e: Exception) {
+            qaPersistence.fail()
             logger.error("Failed to enumerate tournaments from Redis", e)
         }
 
