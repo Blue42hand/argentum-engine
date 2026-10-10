@@ -1,0 +1,25 @@
+{
+  "name": "Relic of Legends — two immediate mana abilities",
+  "description": "Tap Relic for a chosen color, then use its other ability while Relic is tapped: select the summoning-sick Krenko and choose another color. Grizzly Bears, tapped Talrand and the opponent's legendary creature are ineligible costs. Both abilities produce mana immediately without using the stack. Inspect creature selection, color choices, taps, mana and log from both seats.",
+  "player1Name": "Mana maker",
+  "player2Name": "Observer",
+  "player1": {
+    "lifeTotal": 20,
+    "battlefield": [
+      {"name": "Relic of Legends"},
+      {"name": "Krenko, Mob Boss", "summoningSickness": true},
+      {"name": "Talrand, Sky Summoner", "tapped": true},
+      {"name": "Grizzly Bears"}
+    ],
+    "library": ["Forest", "Plains"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "battlefield": [{"name": "Lathril, Blade of the Elves"}],
+    "library": ["Mountain", "Swamp"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
