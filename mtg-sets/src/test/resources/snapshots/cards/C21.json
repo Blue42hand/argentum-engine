@@ -1,3 +1,159 @@
+// Alibou, Ancient Witness
+{
+    "name": "Alibou, Ancient Witness",
+    "manaCost": "{3}{R}{W}",
+    "typeLine": "Legendary Artifact Creature — Golem",
+    "oracleText": "Other artifact creatures you control have haste.\nWhenever one or more artifact creatures you control attack, Alibou deals X damage to any target and you scry X, where X is the number of tapped artifacts you control.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Alibou, Ancient Witness:1",
+                "trigger": {
+                    "type": "YouAttackEvent",
+                    "attackerFilter": {
+                        "cardPredicates": [
+                            "IsArtifact",
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "StoreNumber",
+                            "name": "alibou_x",
+                            "amount": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact tapped"
+                            }
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "VariableReference",
+                                "variableName": "alibou_x"
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "VariableReference",
+                                            "variableName": "alibou_x"
+                                        },
+                                        "isScry": true
+                                    },
+                                    "storeAs": "scried"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "scried",
+                                    "selection": "ChooseAnyNumber",
+                                    "storeSelected": "toBottom",
+                                    "storeRemainder": "toTop",
+                                    "selectedLabel": "Put on bottom",
+                                    "remainderLabel": "Put on top"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "toBottom",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Library",
+                                        "placement": "Bottom"
+                                    }
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "toTop",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Library",
+                                        "placement": "Top"
+                                    },
+                                    "order": "ControllerChooses"
+                                },
+                                {
+                                    "type": "Gated",
+                                    "gate": {
+                                        "type": "Gate.WhenCondition",
+                                        "condition": {
+                                            "type": "Compare",
+                                            "left": {
+                                                "type": "VariableReference",
+                                                "variableName": "alibou_x"
+                                            },
+                                            "operator": "GT",
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 0
+                                            }
+                                        }
+                                    },
+                                    "then": "EmitScriedEvent"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HASTE",
+                "filter": {
+                    "baseFilter": "artifact creature ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "MYTHIC",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/d/fd2fc2d4-c4fb-4dcb-93fa-aaf8c1182f15.jpg?1783927611",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "If Alibou leaves the battlefield, artifact creatures you control lose haste. If they haven't been under your control since the turn began and don't otherwise have haste, they can't attack that turn. If they've already attacked, losing haste won't remove them from combat and they'll remain attackers."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "You choose a target as Alibou's triggered ability is put on the stack. If that target isn't legal as the triggered ability tries to resolve, it doesn't resolve and you don't scry."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If you control no tapped artifacts when the triggered ability resolves (perhaps because they were destroyed or had vigilance), no damage will be dealt and you won't scry."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Angel of the Ruins
 {
     "name": "Angel of the Ruins",
