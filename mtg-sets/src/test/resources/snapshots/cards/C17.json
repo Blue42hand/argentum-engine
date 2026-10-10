@@ -97,6 +97,107 @@
     ]
 }
 
+// Hammer of Nazahn
+{
+    "name": "Hammer of Nazahn",
+    "manaCost": "{4}",
+    "typeLine": "Legendary Artifact — Equipment",
+    "oracleText": "Whenever Hammer of Nazahn or another Equipment you control enters, you may attach that Equipment to target creature you control.\nEquipped creature gets +2/+0 and has indestructible.\nEquip {4}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hammer of Nazahn:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "artifact Equipment ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "AttachTargetEquipmentToCreature",
+                        "equipmentTarget": "TriggeringEntity",
+                        "creatureTarget": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "descriptionOverride": "You may attach the entering Equipment to target creature you control"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "You may attach the entering Equipment to target creature you control"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Hammer of Nazahn:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 0
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "INDESTRUCTIBLE"
+            }
+        ]
+    },
+    "equipCost": "{4}",
+    "metadata": {
+        "collectorNumber": "51",
+        "rarity": "RARE",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/a/fa055f1f-be94-4682-8e4f-f022c95e6d58.jpg?1783935932",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "If Hammer of Nazahn enters the battlefield at the same time as other Equipment you control, its ability will trigger for each of those Equipment."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Moving Hammer to another creature can make damage already marked on the formerly equipped creature lethal."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Herald's Horn
 {
     "name": "Herald's Horn",
