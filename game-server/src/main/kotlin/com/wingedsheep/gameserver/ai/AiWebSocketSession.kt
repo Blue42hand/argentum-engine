@@ -2,6 +2,9 @@ package com.wingedsheep.gameserver.ai
 
 import com.wingedsheep.ai.AiPlayerController
 import com.wingedsheep.ai.ActionResponse
+import com.wingedsheep.ai.AiDecisionEvidence
+import com.wingedsheep.ai.RecordedAiCallbackController
+import com.wingedsheep.ai.RecordedAiChoice
 import com.wingedsheep.ai.llm.BottomCardsInfo
 import com.wingedsheep.ai.llm.CardRuling
 import com.wingedsheep.ai.llm.CardSummary
@@ -82,6 +85,32 @@ class AiWebSocketSession(
         ((ClientGameState, List<LegalActionInfo>, String?, List<String>) -> com.wingedsheep.ai.AiDecisionEvidence?)? = null
     @Volatile internal var onRecordedActionReady:
         ((EntityId, GameAction, String?, com.wingedsheep.ai.AiDecisionEvidence, GameAction) -> Unit)? = null
+    @Volatile internal var onCallbackEvidence:
+        ((ClientGameState, List<LegalActionInfo>, PendingDecision?, String?, List<String>, String?) -> AiDecisionEvidence?)? = null
+    @Volatile internal var onRecordedCallbackReady:
+        ((EntityId, GameAction, String?, AiDecisionEvidence, RecordedAiChoice, String?, Long?) -> PaymentCorrectionOutcome)? = null
+    @Volatile internal var onMulliganEvidence: ((ServerMessage.MulliganDecision) -> AiDecisionEvidence?)? = null
+    @Volatile internal var onBottomEvidence: ((ServerMessage.ChooseBottomCards) -> AiDecisionEvidence?)? = null
+    @Volatile internal var onRecordedMulliganReady: ((EntityId, Boolean, AiDecisionEvidence) -> Unit)? = null
+    @Volatile internal var onRecordedBottomReady: ((EntityId, List<EntityId>, AiDecisionEvidence) -> Unit)? = null
+    @Volatile internal var onCallbackDisposition: ((EntityId, AiDecisionEvidence, String) -> Unit)? = null
+    private val activeCallbacks = java.util.concurrent.ConcurrentHashMap<String, AiDecisionEvidence>()
+    private fun track(context: AiDecisionEvidence?): AiDecisionEvidence? {
+        context?.let {
+            activeCallbacks[it.correlationId] = it
+            if (!open.get()) {
+                endCallback(it)
+                throw CancellationException("Callback cancelled before controller invocation")
+            }
+        }
+        return context
+    }
+    private fun endCallback(context: AiDecisionEvidence?) {
+        context?.let {
+            if (activeCallbacks.remove(it.correlationId) != null)
+                onCallbackDisposition?.invoke(aiPlayerId, it, "failed_or_cancelled")
+        }
+    }
 
     // =========================================================================
     // Draft callbacks — set by LobbyHandler when a draft starts
@@ -160,13 +189,21 @@ class AiWebSocketSession(
         scope.launch {
             var allowQueuedRetry = false
             var staleExit = false
+            var evidence: AiDecisionEvidence? = null
             try {
                 delay(thinkingDelayMs)
                 if (!open.get() || !isCurrent()) {
                     staleExit = true
                     return@launch
                 }
-                val correction = controller.chooseActionAfterRejectedPayment(
+                val recentLog = getRecentGameLog()
+                evidence = if (controller is RecordedAiCallbackController) track(onCallbackEvidence?.invoke(
+                    snapshot.state, snapshot.legalActions, snapshot.pendingDecision, snapshot.interactionEpoch,
+                    recentLog, nativePaymentError)) else null
+                val recorded = if (evidence != null && controller is RecordedAiCallbackController)
+                    controller.chooseRecordedCallback(snapshot.state, snapshot.legalActions, snapshot.pendingDecision,
+                        recentLog, evidence!!, nativePaymentError) else null
+                val correction = recorded?.response ?: controller.chooseActionAfterRejectedPayment(
                     snapshot.state,
                     snapshot.legalActions,
                     snapshot.pendingDecision,
@@ -206,8 +243,11 @@ class AiWebSocketSession(
                     staleExit = true
                     return@launch
                 }
-                val outcome = deliver(aiPlayerId, action, snapshot.interactionEpoch,
-                    snapshot.pendingDecision.id, snapshot.stateRevision)
+                val outcome = if (recorded != null && evidence != null && onRecordedCallbackReady != null)
+                    onRecordedCallbackReady!!.invoke(aiPlayerId, action, snapshot.interactionEpoch, evidence!!,
+                        recorded, snapshot.pendingDecision.id, snapshot.stateRevision)
+                    else deliver(aiPlayerId, action, snapshot.interactionEpoch,
+                        snapshot.pendingDecision.id, snapshot.stateRevision)
                 allowQueuedRetry = outcome != PaymentCorrectionOutcome.FATAL
             } catch (_: CancellationException) {
                 // Game shutdown cancels outstanding thinking; it is not a rejected action.
@@ -217,6 +257,7 @@ class AiWebSocketSession(
                         "provider failed"))
                 else staleExit = true
             } finally {
+                endCallback(evidence)
                 val pending = synchronized(paymentRetryLock) {
                     paymentRetryInFlight = false
                     // A stale older observation may be followed by a valid newer one for the
@@ -308,21 +349,39 @@ class AiWebSocketSession(
                 logger.info("AI received MulliganDecision: mulliganCount={}, hand={} cards, onThePlay={}",
                     message.mulliganCount, message.hand.size, message.isOnThePlay)
                 delay(thinkingDelayMs)
-                val keep = controller.decideMulligan(message.toMulliganInfo())
+                val evidence = if (controller is RecordedAiCallbackController) track(onMulliganEvidence?.invoke(message)) else null
+                try {
+                val keep = if (evidence != null && controller is RecordedAiCallbackController)
+                    controller.decideRecordedMulligan(message.toMulliganInfo(), evidence)
+                    else controller.decideMulligan(message.toMulliganInfo())
                 logger.info("AI mulligan result: {}", if (keep) "KEEP" else "MULLIGAN")
-                if (keep) {
+                if (evidence != null && onRecordedMulliganReady != null) {
+                    currentCoroutineContext().ensureActive()
+                    if (!open.get()) return
+                    onRecordedMulliganReady!!.invoke(aiPlayerId, keep, evidence)
+                } else if (keep) {
                     onMulliganKeep(aiPlayerId)
                 } else {
                     onMulliganTake(aiPlayerId)
                 }
+                } finally { endCallback(evidence) }
             }
 
             is ServerMessage.ChooseBottomCards -> {
                 logger.info("AI received ChooseBottomCards: hand={}, bottomCount={}", message.hand.size, message.cardsToPutOnBottom)
                 delay(thinkingDelayMs)
-                val bottomCards = controller.chooseBottomCards(message.toBottomCardsInfo())
+                val evidence = if (controller is RecordedAiCallbackController) track(onBottomEvidence?.invoke(message)) else null
+                try {
+                val bottomCards = if (evidence != null && controller is RecordedAiCallbackController)
+                    controller.chooseRecordedBottomCards(message.toBottomCardsInfo(), evidence)
+                    else controller.chooseBottomCards(message.toBottomCardsInfo())
                 logger.info("AI chose bottom cards: {}", bottomCards)
-                onBottomCards(aiPlayerId, bottomCards)
+                currentCoroutineContext().ensureActive()
+                if (!open.get()) return
+                if (evidence != null && onRecordedBottomReady != null)
+                    onRecordedBottomReady!!.invoke(aiPlayerId, bottomCards, evidence)
+                else onBottomCards(aiPlayerId, bottomCards)
+                } finally { endCallback(evidence) }
             }
 
             is ServerMessage.GameStarted -> {
@@ -462,10 +521,15 @@ class AiWebSocketSession(
         delay(thinkingDelayMs)
 
         val recentLog = getRecentGameLog()
-        val evidence = if (controller is com.wingedsheep.ai.RecordedAiPlayerController && pendingDecision == null) {
+        val callbackEvidence = if (controller is RecordedAiCallbackController)
+            track(onCallbackEvidence?.invoke(state, legalActions, pendingDecision, interactionEpoch, recentLog, null)) else null
+        try {
+        val evidence = if (callbackEvidence == null && controller is com.wingedsheep.ai.RecordedAiPlayerController && pendingDecision == null) {
             onDecisionEvidence?.invoke(state, legalActions, interactionEpoch, recentLog)
         } else null
-        val response = if (evidence != null && controller is com.wingedsheep.ai.RecordedAiPlayerController) controller.chooseRecordedAction(state, legalActions, recentLog, evidence)
+        val recorded = if (callbackEvidence != null && controller is RecordedAiCallbackController)
+            controller.chooseRecordedCallback(state, legalActions, pendingDecision, recentLog, callbackEvidence) else null
+        val response = recorded?.response ?: if (evidence != null && controller is com.wingedsheep.ai.RecordedAiPlayerController) controller.chooseRecordedAction(state, legalActions, recentLog, evidence)
             else controller.chooseAction(state, legalActions, pendingDecision, recentLog)
         logger.info("AI chose response: {}", when (response) {
             is ActionResponse.SubmitAction -> "Action(${response.action::class.simpleName})"
@@ -486,10 +550,19 @@ class AiWebSocketSession(
         }
         // Retain the snapshot epoch through thinking and approval delays; reading a newer epoch
         // here would authorize a response chosen from an obsolete interaction.
-        if (evidence != null && response is ActionResponse.SubmitAction && gated is ActionResponse.SubmitAction &&
+        if (recorded != null && callbackEvidence != null && onRecordedCallbackReady != null) {
+            val action = when (gated) {
+                is ActionResponse.SubmitAction -> gated.action
+                is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
+            }
+            currentCoroutineContext().ensureActive()
+            if (!open.get()) return
+            onRecordedCallbackReady!!.invoke(aiPlayerId, action, interactionEpoch, callbackEvidence, recorded, null, null)
+        } else if (evidence != null && response is ActionResponse.SubmitAction && gated is ActionResponse.SubmitAction &&
             onRecordedActionReady != null) {
             onRecordedActionReady!!.invoke(aiPlayerId, gated.action, interactionEpoch, evidence, response.action)
         } else submitResponse(gated, interactionEpoch)
+        } finally { endCallback(callbackEvidence) }
     }
 
     /**
@@ -727,6 +800,10 @@ class AiWebSocketSession(
 
     fun shutdown() {
         open.set(false)
+        activeCallbacks.values.toList().forEach { context ->
+            if (activeCallbacks.remove(context.correlationId) != null)
+                onCallbackDisposition?.invoke(aiPlayerId, context, "cancelled")
+        }
         scope.cancel()
     }
 

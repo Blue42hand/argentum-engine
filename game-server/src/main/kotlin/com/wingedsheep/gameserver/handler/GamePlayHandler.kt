@@ -344,8 +344,26 @@ class GamePlayHandler(
     }
 
     private fun sendMulliganDecision(gameSession: GameSession, playerSession: PlayerSession) {
+        (playerSession.webSocketSession as? AiWebSocketSession)?.let { bindCallbackRecording(gameSession, playerSession.playerId, it) }
         val decision = gameSession.getMulliganDecision(playerSession.playerId)
         sender.send(playerSession.webSocketSession, decision)
+    }
+
+    private fun bindCallbackRecording(gameSession: GameSession, seat: EntityId, ai: AiWebSocketSession) {
+        ai.onCallbackEvidence = { state, legal, pending, epoch, log, paymentError ->
+            gameSession.beginAiCallbackEvidence(seat, state, legal, pending, epoch, log, paymentError)
+        }
+        ai.onRecordedCallbackReady = { id, action, epoch, context, choice, decisionId, revision ->
+            handleAiAction(gameSession, id, action, epoch, decisionId, revision,
+                recording = context, callbackChoice = choice)
+        }
+        ai.onMulliganEvidence = { message -> gameSession.beginAiMulliganEvidence(seat, message) }
+        ai.onBottomEvidence = { message -> gameSession.beginAiBottomEvidence(seat, message) }
+        ai.onRecordedMulliganReady = { id, keep, context ->
+            if (keep) handleAiMulliganKeep(gameSession, id, context) else handleAiMulliganTake(gameSession, id, context)
+        }
+        ai.onRecordedBottomReady = { id, cards, context -> handleAiBottomCards(gameSession, id, cards, context) }
+        ai.onCallbackDisposition = { id, context, status -> gameSession.disposeAiCallback(id, context, status) }
     }
 
     /**
@@ -906,6 +924,7 @@ class GamePlayHandler(
         try {
             sessionPlayers.forEach { session ->
                 (session.webSocketSession as? AiWebSocketSession)?.let { ai ->
+                    bindCallbackRecording(gameSession, session.playerId, ai)
                     ai.onDecisionEvidence = { state, legal, epoch, log ->
                         gameSession.beginAiDecisionEvidence(session.playerId, state, legal, epoch, log)
                     }
@@ -1283,6 +1302,7 @@ class GamePlayHandler(
                 // Nudge the AI with the message it would have received before the crash,
                 // so it doesn't sit idle waiting for its next prompt.
                 if (gameSession.isStarted) {
+                    (newWs as? AiWebSocketSession)?.let { bindCallbackRecording(gameSession, aiPlayerId, it) }
                     when {
                         gameSession.isAwaitingBottomCards(aiPlayerId) -> {
                             gameSession.getChooseBottomCardsMessage(aiPlayerId)?.let {
@@ -1343,9 +1363,13 @@ class GamePlayHandler(
         expectedPaymentStateRevision: Long? = null,
         recording: com.wingedsheep.ai.AiDecisionEvidence? = null,
         recordedChoice: com.wingedsheep.engine.core.GameAction? = null,
+        callbackChoice: com.wingedsheep.ai.RecordedAiChoice? = null,
     ): PaymentCorrectionOutcome {
         try {
-            val result = if (expectedPaymentDecisionId == null) {
+            val result = (if (recording?.version == 2 && callbackChoice != null) {
+                gameSession.executeRecordedAiCallback(aiPlayerId, action, interactionEpoch, recording,
+                    callbackChoice, expectedPaymentDecisionId, expectedPaymentStateRevision)
+            } else if (expectedPaymentDecisionId == null) {
                 if (recording != null && recordedChoice != null) {
                     gameSession.executeRecordedAiAction(aiPlayerId, action, interactionEpoch, recording, recordedChoice)
                 } else gameSession.executeAiAction(aiPlayerId, action, interactionEpoch)
@@ -1353,7 +1377,7 @@ class GamePlayHandler(
                 gameSession.executeAiPaymentCorrection(
                     aiPlayerId, action, interactionEpoch, expectedPaymentDecisionId,
                     requireNotNull(expectedPaymentStateRevision))
-            } ?: return PaymentCorrectionOutcome.OBSOLETE
+            }) ?: return PaymentCorrectionOutcome.OBSOLETE
             when (result) {
                 is GameSession.ActionResult.Success -> {
                     logger.debug("AI action executed successfully")
@@ -1542,9 +1566,10 @@ class GamePlayHandler(
         }
     }
 
-    fun handleAiMulliganKeep(gameSession: GameSession, aiPlayerId: EntityId) {
+    fun handleAiMulliganKeep(gameSession: GameSession, aiPlayerId: EntityId, recording: com.wingedsheep.ai.AiDecisionEvidence? = null) {
         try {
-            val result = gameSession.keepHand(aiPlayerId)
+            val result = if (recording != null) gameSession.executeRecordedMulligan(aiPlayerId, recording, true)
+                         else gameSession.keepHand(aiPlayerId)
             when (result) {
                 is GameSession.MulliganActionResult.Success -> {
                     logger.info("AI kept hand")
@@ -1568,9 +1593,10 @@ class GamePlayHandler(
         }
     }
 
-    fun handleAiMulliganTake(gameSession: GameSession, aiPlayerId: EntityId) {
+    fun handleAiMulliganTake(gameSession: GameSession, aiPlayerId: EntityId, recording: com.wingedsheep.ai.AiDecisionEvidence? = null) {
         try {
-            val result = gameSession.takeMulligan(aiPlayerId)
+            val result = if (recording != null) gameSession.executeRecordedMulligan(aiPlayerId, recording, false)
+                         else gameSession.takeMulligan(aiPlayerId)
             when (result) {
                 is GameSession.MulliganActionResult.Success -> {
                     logger.info("AI took mulligan")
@@ -1596,9 +1622,10 @@ class GamePlayHandler(
         }
     }
 
-    fun handleAiBottomCards(gameSession: GameSession, aiPlayerId: EntityId, cardIds: List<EntityId>) {
+    fun handleAiBottomCards(gameSession: GameSession, aiPlayerId: EntityId, cardIds: List<EntityId>, recording: com.wingedsheep.ai.AiDecisionEvidence? = null) {
         try {
-            val result = gameSession.chooseBottomCards(aiPlayerId, cardIds)
+            val result = if (recording != null) gameSession.executeRecordedBottom(aiPlayerId, recording, cardIds)
+                         else gameSession.chooseBottomCards(aiPlayerId, cardIds)
             when (result) {
                 is GameSession.MulliganActionResult.Success -> {
                     logger.info("AI chose bottom cards")
