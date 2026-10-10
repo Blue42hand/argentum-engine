@@ -1,0 +1,23 @@
+{
+  "name": "Metalwork Colossus — cost reduction and graveyard recovery",
+  "description": "Cast the 10/10 for no mana while tapped Dreamstone Hedron and Gilded Lotus contribute eleven mana value. Use the graveyard copy's action and sacrifice those two artifacts to return it to hand. The opponent can exile the graveyard with Tormod's Crypt in response; verify the sacrifices remain paid and the exiled copy does not return.",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Metalwork Colossus"],
+    "graveyard": ["Metalwork Colossus"],
+    "battlefield": [
+      {"name": "Dreamstone Hedron", "tapped": true},
+      {"name": "Gilded Lotus", "tapped": true}
+    ],
+    "library": ["Forest", "Plains", "Swamp"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": ["Island"],
+    "battlefield": [{"name": "Tormod's Crypt"}],
+    "library": ["Mountain", "Island", "Swamp"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}

@@ -3344,6 +3344,91 @@
     ]
 }
 
+// Metalwork Colossus
+{
+    "name": "Metalwork Colossus",
+    "manaCost": "{11}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "This spell costs {X} less to cast, where X is the total mana value of noncreature artifacts you control.\nSacrifice two artifacts: Return this card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 10,
+        "toughness": 10
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Metalwork Colossus:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "artifact",
+                        "count": 2
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand",
+                    "fromZone": "Graveyard"
+                },
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Return this card from your graveyard to your hand"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "TotalPropertyAmongPermanentsYouControl",
+                        "property": "ManaValue",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsArtifact",
+                                {
+                                    "type": "Not",
+                                    "predicate": "IsCreature"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "222",
+        "rarity": "RARE",
+        "artist": "Jaime Jones",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/474480b5-c60b-4c7f-9d3e-751bca43d074.jpg?1783937152",
+        "rulings": [
+            {
+                "date": "2016-09-20",
+                "text": "If a permanent has {X} in its mana cost, X is considered to be 0."
+            },
+            {
+                "date": "2016-09-20",
+                "text": "The total cost to cast Metalwork Colossus is locked in before you pay that cost. For example, if you control three noncreature artifacts each with mana value 2, including one you can sacrifice to add {C} , the total cost of Metalwork Colossus is {5}. Then you can sacrifice the artifact when you activate mana abilities just before paying the cost."
+            },
+            {
+                "date": "2016-09-20",
+                "text": "If the total mana value of noncreature artifacts you control is 11 or greater, Metalwork Colossus costs {0} to cast."
+            },
+            {
+                "date": "2016-09-20",
+                "text": "Once a player has announced that they are casting Metalwork Colossus, no player may take actions to try to change the number of artifacts its controller controls before that spell's cost is locked in."
+            },
+            {
+                "date": "2016-09-20",
+                "text": "Metalwork Colossus's last ability can be activated only if it is in your graveyard."
+            }
+        ]
+    }
+}
+
 // Narnam Cobra
 {
     "name": "Narnam Cobra",
