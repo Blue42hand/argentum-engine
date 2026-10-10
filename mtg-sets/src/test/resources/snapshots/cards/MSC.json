@@ -18,6 +18,93 @@
     ]
 }
 
+// Dora Milaje Elite
+{
+    "name": "Dora Milaje Elite",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Warrior",
+    "oracleText": "First strike\nWhen this creature enters, if an opponent controls more lands than you, create a tapped Vibranium token. (It's an artifact with indestructible and \"{T}: Add {C}. This mana can't be spent to cast a nonartifact spell.\")\nSacrifice this creature: Legendary permanents you control gain indestructible until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Dora Milaje Elite:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Vibranium",
+                    "tapped": true,
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9e9b3a-c515-449a-95da-ee3f5175b74f.jpg?1783902811"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "GreatestAmongPlayers",
+                        "players": "EachOpponent",
+                        "inner": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "land"
+                        }
+                    },
+                    "operator": "GT",
+                    "right": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "land"
+                    }
+                },
+                "descriptionOverride": "If an opponent controls more lands than you, create a tapped Vibranium token"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Dora Milaje Elite:2",
+                "cost": "CostSacrificeSelf",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsPermanent",
+                                    "IsLegendary"
+                                ],
+                                "controllerPredicate": "ControlledByYou"
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "GrantKeyword",
+                        "keyword": "INDESTRUCTIBLE",
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Legendary permanents you control gain indestructible until end of turn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "12",
+        "rarity": "RARE",
+        "artist": "Mateus Manhanini",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/d/1d1e00e3-7f3c-4a49-859b-398283c38e61.jpg?1783903300"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Happy Hogan, Dauntless Driver
 {
     "name": "Happy Hogan, Dauntless Driver",
