@@ -1,0 +1,77 @@
+{
+  "name": "Hammer of Nazahn \u2014 enter, attach and move",
+  "description": "Cast Hammer, accept its attachment to Grizzly Bears, then cast Bonesplitter and attach the entering Equipment. Equip Hammer to Centaur Courser and compare stats and indestructible. The opponent can respond with Lightning Bolt or Disenchant.",
+  "player1": {
+    "hand": [
+      "Hammer of Nazahn",
+      "Bonesplitter"
+    ],
+    "battlefield": [
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Grizzly Bears"
+      },
+      {
+        "name": "Centaur Courser"
+      }
+    ],
+    "library": [
+      "Island",
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "player2": {
+    "hand": [
+      "Lightning Bolt",
+      "Disenchant"
+    ],
+    "battlefield": [
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
