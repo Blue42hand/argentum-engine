@@ -1,0 +1,59 @@
+{
+  "name": "Dora Milaje Elite \u2014 catch up and protect legends",
+  "description": "Cast Dora while behind on lands, inspect the tapped Vibranium token, then sacrifice her in response to Wrath of God to protect your legendary permanents.",
+  "player1": {
+    "hand": [
+      "Dora Milaje Elite"
+    ],
+    "battlefield": [
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Krenko, Mob Boss"
+      },
+      {
+        "name": "Mox Opal"
+      },
+      {
+        "name": "Grizzly Bears"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "player2": {
+    "hand": [
+      "Wrath of God"
+    ],
+    "battlefield": [
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Grizzly Bears"
+      }
+    ],
+    "library": [
+      "Island",
+      "Swamp"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
