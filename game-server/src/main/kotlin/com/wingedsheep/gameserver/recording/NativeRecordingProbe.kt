@@ -42,7 +42,9 @@ class NativeRecordingProbe(private val repository: GameRepository, private val a
             require(Files.getPosixFilePermissions(root) == PosixFilePermissions.fromString("rwx------"))
             val sessions = repository.findAll().toList()
             val connected = sessions.count { it.evidenceHealthy() }
-            val healthy = repository is InMemoryGameRepository && System.getProperty("game.recording.engine-revision") == admission.engineSha &&
+            val repositoryHealthy = repository is InMemoryGameRepository ||
+                (repository is com.wingedsheep.gameserver.repository.RedisGameRepository && repository.qaPersistenceHealthy())
+            val healthy = repositoryHealthy && System.getProperty("game.recording.engine-revision") == admission.engineSha &&
                 PrivateGameEvidence.failures.get() == 0L && connected == sessions.size
             val data = buildJsonObject {
                 put("schemaVersion", 1); put("bootId", admission.bootId); put("releaseId", admission.releaseId)

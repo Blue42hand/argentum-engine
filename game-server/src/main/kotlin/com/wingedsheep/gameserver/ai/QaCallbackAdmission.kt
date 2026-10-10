@@ -10,13 +10,15 @@ import org.springframework.stereotype.Component
 @Component
 class QaCallbackAdmission(
     @Value("\${native.qa.callback-gate-enabled:false}") val enabled: Boolean = false,
+    @Value("\${native.qa.callback-initially-paused:false}") initiallyPaused: Boolean = false,
 ) {
     private val lock = Any()
-    private var paused = false
+    init { require(!initiallyPaused || enabled) }
+    private var paused = initiallyPaused
     private var active = 0
     private var waiting = 0
     private var failures = 0
-    private var generation = 0L
+    private var generation = if (initiallyPaused) 1L else 0L
 
     fun pause() = synchronized(lock) {
         check(enabled)

@@ -506,7 +506,8 @@ class GameSession(
         val playerName: String,
         val token: String,
         val isAi: Boolean = false,
-        val aiModelOverride: String? = null
+        val aiModelOverride: String? = null,
+        val aiControllerSpec: com.wingedsheep.gameserver.ai.AiControllerSpec? = null
     )
 
     /**
@@ -2482,6 +2483,8 @@ class GameSession(
     /**
      * Get the current game state for persistence.
      */
+    internal fun <T> withPersistenceLock(block: () -> T): T = synchronized(stateLock) { block() }
+
     internal fun getStateForPersistence(): GameState? = gameState
 
     /**
@@ -2624,9 +2627,10 @@ class GameSession(
         playerName: String,
         token: String,
         isAi: Boolean = false,
-        aiModelOverride: String? = null
+        aiModelOverride: String? = null,
+        aiControllerSpec: com.wingedsheep.gameserver.ai.AiControllerSpec? = null
     ) = synchronized(stateLock) {
-        playerPersistenceInfo[playerId] = PlayerPersistenceInfo(playerName, token, isAi, aiModelOverride)
+        playerPersistenceInfo[playerId] = PlayerPersistenceInfo(playerName, token, isAi, aiModelOverride, aiControllerSpec)
     }
 
     /**

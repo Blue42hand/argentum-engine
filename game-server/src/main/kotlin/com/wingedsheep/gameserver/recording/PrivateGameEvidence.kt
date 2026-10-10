@@ -198,6 +198,7 @@ class PrivateGameEvidence private constructor(
                         require(wrapper.getValue("sha256").jsonPrimitive.content == digest &&
                             body.getValue("schemaVersion").jsonPrimitive.int == 1 &&
                             body.getValue("gameId").jsonPrimitive.content == gameId &&
+                            body.getValue("engineRevision").jsonPrimitive.content == engineRevision &&
                             body.getValue("sequence").jsonPrimitive.long == writer.sequence + 1 &&
                             body.getValue("previousSha256").jsonPrimitive.content == writer.previous && !writer.sealed) {
                             "uncertain native source cannot resume"
