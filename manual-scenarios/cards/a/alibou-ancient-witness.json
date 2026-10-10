@@ -1,0 +1,56 @@
+{
+  "player1Name": "Alibou pilot",
+  "player2Name": "Opponent",
+  "player1": {
+    "hand": [
+      "Alibou, Ancient Witness"
+    ],
+    "battlefield": [
+      {
+        "name": "Memnite",
+        "summoningSickness": true
+      },
+      {
+        "name": "Ornithopter",
+        "summoningSickness": true
+      },
+      {
+        "name": "Sol Ring",
+        "tapped": true
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Swamp",
+      "Island",
+      "Plains"
+    ]
+  },
+  "player2": {
+    "hand": [
+      "Island"
+    ],
+    "library": [
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
