@@ -14,6 +14,7 @@ import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ObjectRef
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CantBeTargetedByOpponentAbilitiesComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -58,6 +59,11 @@ internal class ResolutionTargetValidator(
          * back in the meantime is a different object and no longer a legal target (CR 400.7).
          */
         targetEntryStamps: Map<EntityId, Long> = emptyMap(),
+        /**
+         * Card targets must still be the objects chosen, even after leaving and returning to
+         * the same zone. Legacy records without a captured reference retain their zone check.
+         */
+        targetObjectRefs: Map<EntityId, ObjectRef> = emptyMap(),
         /**
          * Pipeline collections available at resolution time (e.g. the amassed Army under
          * `EffectTarget.AmassedArmy`, from a `ReflexiveTriggerEffect`'s carried pipeline) — the
@@ -107,9 +113,10 @@ internal class ResolutionTargetValidator(
                     )
 
                     is ChosenTarget.Card -> {
-                        // Card is valid if in expected zone
+                        // Returning to the expected zone does not restore the original target.
                         val zoneKey = ZoneKey(target.ownerId, target.zone)
-                        target.cardId in state.getZone(zoneKey)
+                        targetObjectRefs[target.cardId]?.let(state::isCurrentObject) != false &&
+                            target.cardId in state.getZone(zoneKey)
                     }
 
                     is ChosenTarget.Spell -> {

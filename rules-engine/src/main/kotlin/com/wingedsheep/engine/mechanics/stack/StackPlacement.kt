@@ -180,7 +180,14 @@ internal object StackPlacement {
 
         var container = ComponentContainer.of(copiedCardComp, copiedSpellComp)
         if (effectiveTargets.isNotEmpty()) {
-            container = container.with(TargetsComponent.capture(state, effectiveTargets, effectiveRequirements))
+            // Inheriting targets also inherits their identity; only a new choice captures
+            // the current objects. Otherwise copying could revive a now-illegal target.
+            val copyTargets = if (targets.isEmpty() && modeTargetsOrdered == null && sourceTargets != null) {
+                sourceTargets.copy(targets = effectiveTargets, targetRequirements = effectiveRequirements)
+            } else {
+                TargetsComponent.capture(state, effectiveTargets, effectiveRequirements)
+            }
+            container = container.with(copyTargets)
         }
         container = container.with(
             CopyOfComponent(
