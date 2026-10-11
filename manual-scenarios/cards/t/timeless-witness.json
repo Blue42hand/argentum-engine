@@ -1,0 +1,28 @@
+{
+  "name": "Timeless Witness — mandatory return and eternalize",
+  "description": "Cast the hand copy using four Forests, then choose Mind Stone in your own graveyard for its mandatory enters trigger; a noncreature card is legal, while the opponent's graveyard is not. The second copy in your graveyard has a sorcery-speed Eternalize action. Seven remaining Forests pay its cost; that copy is exiled immediately, and the resulting black 4/4 Zombie Human Shaman token copies the enters trigger to return Grizzly Bears. The opponent can respond to the ability with Stifle, but cannot undo the exile paid as a cost.",
+  "player1Name": "Witness controller",
+  "player2Name": "Responder",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Timeless Witness"],
+    "graveyard": ["Timeless Witness", "Mind Stone", "Grizzly Bears"],
+    "battlefield": [
+      {"name": "Forest"}, {"name": "Forest"}, {"name": "Forest"}, {"name": "Forest"},
+      {"name": "Forest"}, {"name": "Forest"}, {"name": "Forest"}, {"name": "Forest"},
+      {"name": "Forest"}, {"name": "Forest"}, {"name": "Forest"}
+    ],
+    "library": ["Plains", "Island", "Mountain"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": ["Stifle"],
+    "graveyard": ["Hill Giant"],
+    "battlefield": [{"name": "Island"}],
+    "library": ["Swamp", "Plains", "Mountain"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}

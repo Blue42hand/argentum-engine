@@ -234,6 +234,8 @@ data class EffectContext(
      * Null when the cost did not sacrifice/exile the source.
      */
     val lastKnownSourceSnapshot: EntitySnapshot? = null,
+    /** Copiable values read from the ability's own source if its cost-exiled object departed. */
+    val departedCopiableSource: com.wingedsheep.engine.state.components.stack.CopiableSourceSnapshot? = null,
     /**
      * Entity ids of the permanents (Equipment/Auras) that were attached to the source the moment a
      * self-sacrifice / self-exile cost moved it off the battlefield (CR 113.7a). Captured before the

@@ -74,15 +74,31 @@ class CreateTokenCopyOfTargetExecutor(
         CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry)
     }
 
+    /** Self is a value read for a copy, not an instruction that acts on the departed card. */
+    private fun copySource(
+        state: GameState,
+        effect: CreateTokenCopyOfTargetEffect,
+        context: EffectContext,
+    ): ComponentContainer? {
+        context.resolveTarget(effect.target, state)?.let { targetId ->
+            return state.getEntity(targetId)
+        }
+        if (effect.target != EffectTarget.Self) return null
+        val snapshot = context.departedCopiableSource ?: return null
+        val sourceRef = context.objectReferences.source ?: return null
+        if (snapshot.objectRef.entityId != context.sourceId ||
+            context.objectReferences.followed(sourceRef) != snapshot.objectRef ||
+            context.objectReferences.permittedMoves.none { it.newObject == snapshot.objectRef }
+        ) return null
+        return snapshot.asContainer()
+    }
+
     override fun execute(
         state: GameState,
         effect: CreateTokenCopyOfTargetEffect,
         context: EffectContext
     ): EffectResult {
-        val targetId = context.resolveTarget(effect.target, state)
-            ?: return EffectResult.success(state)
-
-        val targetContainer = state.getEntity(targetId)
+        val targetContainer = copySource(state, effect, context)
             ?: return EffectResult.success(state)
 
         val targetCard = targetContainer.copiableCardComponent()
@@ -169,9 +185,7 @@ class CreateTokenCopyOfTargetExecutor(
         auraHostId: EntityId?,
         prescribedHostId: EntityId? = null,
     ): EffectResult {
-        val targetId = context.resolveTarget(effect.target, state)
-            ?: return EffectResult.success(state)
-        val targetContainer = state.getEntity(targetId)
+        val targetContainer = copySource(state, effect, context)
             ?: return EffectResult.success(state)
         val targetCard = targetContainer.copiableCardComponent()
             ?: return EffectResult.success(state)

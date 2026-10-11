@@ -218,6 +218,7 @@ internal class AbilityResolver(
             countersRemovedAsCost = abilityComponent.countersRemovedAsCost,
             lastKnownSourceCounters = abilityComponent.lastKnownSourceCounters,
             lastKnownSourceSnapshot = abilityComponent.lastKnownSourceSnapshot,
+            departedCopiableSource = abilityComponent.departedCopiableSource,
             lastKnownSourceAttachments = abilityComponent.lastKnownSourceAttachments,
             damageDistribution = abilityComponent.damageDistribution,
             pipeline = PipelineState(
