@@ -1,0 +1,64 @@
+{
+  "name": "Yahenni \u2014 sacrifice, indestructible and death counters",
+  "description": "Activate Yahenni by sacrificing your Grizzly Bears; Yahenni itself and your Swamps are not eligible. The opponent can cast Murder after the ability resolves: indestructible prevents destruction. On a fresh scenario, cast your Murder on the opponent\u2019s Hill Giant to grow Yahenni with a +1/+1 counter. Haste lets Yahenni attack immediately. Restart to compare the branches; indestructible ends at the end of the turn.",
+  "player1Name": "Yahenni controller",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [
+      "Murder"
+    ],
+    "battlefield": [
+      {
+        "name": "Yahenni, Undying Partisan",
+        "summoningSickness": true
+      },
+      {
+        "name": "Grizzly Bears"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Swamp",
+      "Mountain"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [
+      "Murder"
+    ],
+    "battlefield": [
+      {
+        "name": "Hill Giant"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      }
+    ],
+    "library": [
+      "Island",
+      "Swamp",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
