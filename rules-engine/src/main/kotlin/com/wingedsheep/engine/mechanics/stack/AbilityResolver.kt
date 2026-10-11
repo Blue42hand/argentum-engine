@@ -86,6 +86,7 @@ internal class AbilityResolver(
                 triggeringEntityId = abilityComponent.triggerContext?.triggeringEntityId,
                 triggeringPlayerId = abilityComponent.triggerContext?.triggeringPlayerId,
                 targetEntryStamps = targetsComponent.targetEntryStamps,
+                targetObjectRefs = targetsComponent.targetObjectRefs,
                 storedCollections = abilityComponent.carriedPipeline?.storedCollections ?: emptyMap(),
                 resolution = context,
             )
@@ -154,6 +155,7 @@ internal class AbilityResolver(
                 xValue = abilityComponent.xValue,
                 targetingSourceType = TargetingSourceType.ACTIVATED_ABILITY,
                 targetEntryStamps = targetsComponent.targetEntryStamps,
+                targetObjectRefs = targetsComponent.targetObjectRefs,
                 sourceBattlefieldTimestamp = abilityComponent.sourceBattlefieldTimestamp,
                 objectReferences = abilityComponent.objectReferences,
                 lastKnownSourceSnapshot = abilityComponent.lastKnownSourceSnapshot,

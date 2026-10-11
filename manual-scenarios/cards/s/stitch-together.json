@@ -1,0 +1,57 @@
+{
+  "name": "Stitch Together \u2014 threshold checked at resolution",
+  "description": "Cast Stitch Together targeting your Grizzly Bears. With seven cards in your graveyard it returns to the battlefield. The opponent may respond with Coffin Purge: exile a Swamp to lower the count to six and return the Bears to your hand instead, or exile the Bears to make the spell fail. Restart the scenario for each branch. The returning card counts toward threshold; Stitch Together on the stack does not.",
+  "player1Name": "Stitch caster",
+  "player2Name": "Responder",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [
+      "Stitch Together"
+    ],
+    "graveyard": [
+      "Grizzly Bears",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp"
+    ],
+    "battlefield": [
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Plains",
+      "Mountain"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [
+      "Coffin Purge"
+    ],
+    "battlefield": [
+      {
+        "name": "Swamp"
+      }
+    ],
+    "graveyard": [
+      "Hill Giant"
+    ],
+    "library": [
+      "Island",
+      "Forest",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}

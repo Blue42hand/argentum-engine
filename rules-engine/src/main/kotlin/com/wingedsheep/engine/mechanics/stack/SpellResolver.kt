@@ -72,7 +72,8 @@ internal class SpellResolver(
                 sourceId = spellId,
                 targetingSourceType = TargetingSourceType.SPELL,
                 xValue = spellComponent.xValue,
-                targetEntryStamps = targetsComponent.targetEntryStamps
+                targetEntryStamps = targetsComponent.targetEntryStamps,
+                targetObjectRefs = targetsComponent.targetObjectRefs,
             )
             if (validTargets.isEmpty()) {
                 if (container.has<com.wingedsheep.engine.mechanics.BestowedComponent>()) {
