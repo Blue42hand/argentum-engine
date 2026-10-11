@@ -266,6 +266,7 @@ class TriggerDetector(
     ): List<PendingTrigger> {
         val index = buildTriggerIndex(state)
         val triggers = mutableListOf<PendingTrigger>()
+        val departures = events.filterIsInstance<ZoneChangeEvent>()
 
         for ((eventIndex, event) in events.withIndex()) {
             // DrawEvent firing counts are derived from CardsDrawnThisTurnComponent, which `state`
@@ -279,8 +280,12 @@ class TriggerDetector(
                     .filter { it.playerId == event.playerId }
                     .sumOf { it.count }
             } else 0
-            val detected = detectTriggersForEvent(state, event, index, samePlayerDrawsLaterInBatch)
+            val detected = detectTriggersForEvent(state, event, index, samePlayerDrawsLaterInBatch).toMutableList()
+            if (event is ZoneChangeEvent) {
+                attachmentDetector.detectAttachmentDepartureTriggers(state, event, departures, detected, index)
+            }
             triggers.addAll(detected.map { pending ->
+                if (pending.objectReferences.captured) return@map pending
                 val selfZoneEvent = event is ZoneChangeEvent && event.entityId == pending.sourceId
                 val attachedDeparture = selfZoneEvent && pending.ability.binding == TriggerBinding.ATTACHED &&
                     pending.triggerContext.triggeringEntityId != pending.sourceId
@@ -1792,9 +1797,6 @@ class TriggerDetector(
             deathAndLeaveDetector.detectDeathTriggers(state, index.statics, event, triggers)
             // Handle "whenever a creature dealt damage by this creature this turn dies" triggers
             deathAndLeaveDetector.detectCreatureDealtDamageBySourceDiesTriggers(state, event, triggers, projected, index)
-            // Handle ATTACHED zone-change triggers on auras that went to graveyard with their creature
-            // (detected on the AURA's zone change event using lastKnownAttachedTo)
-            deathAndLeaveDetector.detectDeadAuraAttachmentTriggers(state, index.statics, event, triggers)
             // Handle persist (CR 702.79) — nontoken creature with persist dies with no -1/-1 counter
             deathAndLeaveDetector.detectPersistTriggers(state, event, triggers)
             // Handle undying (CR 702.93) — permanent with undying dies with no +1/+1 counter

@@ -149,7 +149,7 @@ class UnattachedAurasCheck(
                             newState, entityId, cardComponent,
                             lastKnownAttachedTo = hostLeft.lastKnownHostId
                         )
-                        newState = result.newState
+                        newState = followOrphanedAuraSource(result, hostLeft.lastKnownHostId)
                         events.addAll(result.events)
                     } else {
                         // CR 704.5n: an Equipment whose host left becomes unattached but stays on
@@ -194,7 +194,7 @@ class UnattachedAurasCheck(
                             newState, entityId, cardComponent,
                             lastKnownAttachedTo = attachedTo.targetId
                         )
-                        newState = result.newState
+                        newState = followOrphanedAuraSource(result, attachedTo.targetId)
                         events.addAll(result.events)
                     } else {
                         // Equipment's target gone - just detach, stays on battlefield
@@ -261,6 +261,28 @@ class UnattachedAurasCheck(
         }
 
         return ExecutionResult.success(newState, events)
+    }
+
+    /** Keep only the immediate orphan-Aura graveyard object accessible to its queued ability. */
+    private fun followOrphanedAuraSource(result: ExecutionResult, hostId: EntityId): GameState {
+        val departure = result.events.filterIsInstance<com.wingedsheep.engine.core.ZoneChangeEvent>()
+            .firstOrNull {
+                it.fromZone == com.wingedsheep.sdk.core.Zone.BATTLEFIELD &&
+                    it.toZone == com.wingedsheep.sdk.core.Zone.GRAVEYARD &&
+                    it.transitionCause == com.wingedsheep.engine.core.ZoneTransitionCause.PRIMARY &&
+                    it.lastKnown?.attachedTo == hostId
+            } ?: return result.state
+        val oldObject = departure.oldObject ?: return result.state
+        val newObject = departure.newObject ?: return result.state
+        return result.state.copy(pendingTriggers = result.state.pendingTriggers.map { pending ->
+            val refs = pending.objectReferences
+            if (pending.sourceId == departure.entityId &&
+                pending.ability.binding == com.wingedsheep.sdk.scripting.TriggerBinding.ATTACHED &&
+                pending.ability.trigger is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent &&
+                pending.triggerContext.triggeringOrigin?.entityId == hostId &&
+                refs.captured && refs.origin == oldObject && refs.source == oldObject
+            ) pending.copy(objectReferences = refs.copy(source = newObject)) else pending
+        })
     }
 
     /**

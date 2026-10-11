@@ -39,8 +39,10 @@ import kotlinx.serialization.Serializable
 data class LookBackGrants(
     val conditionalSelfGrantIds: List<AbilityId> = emptyList(),
     val attachmentGrantedTriggers: List<TriggeredAbility> = emptyList(),
+    /** Frozen host relationship for the attachments' own leaves-the-battlefield abilities. */
+    val attachmentIds: List<EntityId> = emptyList(),
 ) {
-    val isEmpty: Boolean get() = conditionalSelfGrantIds.isEmpty() && attachmentGrantedTriggers.isEmpty()
+    val isEmpty: Boolean get() = conditionalSelfGrantIds.isEmpty() && attachmentGrantedTriggers.isEmpty() && attachmentIds.isEmpty()
 
     companion object {
         /** The look-back grants of [entityId] as it stands in [state]. */
@@ -50,6 +52,7 @@ data class LookBackGrants(
             cardRegistry: CardRegistry,
             conditionEvaluator: ConditionEvaluator,
         ): LookBackGrants = LookBackGrants(
+            attachmentIds = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds.orEmpty(),
             conditionalSelfGrantIds = ConditionalSelfGrants.activeIds(state, entityId, cardRegistry, conditionEvaluator),
             attachmentGrantedTriggers = AttachmentGrantedTriggers.of(
                 state,

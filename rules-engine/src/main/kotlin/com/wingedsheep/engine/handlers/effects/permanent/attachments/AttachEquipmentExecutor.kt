@@ -7,6 +7,7 @@ import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlin.reflect.KClass
 
 /**
@@ -35,6 +36,11 @@ class AttachEquipmentExecutor(
     ): EffectResult {
         val equipmentId = context.sourceId
             ?: return EffectResult.error(state, "No source for attach equipment")
+
+        if (equipmentId !in state.getBattlefield() ||
+            context.isUnavailableBattlefieldSource(EffectTarget.Self, state)) {
+            return EffectResult.success(state)
+        }
 
         val targetId = context.resolveTarget(effect.target, state)
             ?: return EffectResult.error(state, "No valid target for attach equipment")
