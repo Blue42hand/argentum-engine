@@ -1,0 +1,49 @@
+{
+  "name": "Sticky Fingers \u2014 menace, Treasure and death draw",
+  "description": "Cast Sticky Fingers on Grizzly Bears, attack, and inspect menace from both seats. Leave it unblocked to create a Treasure for the creature controller, then use Shock to kill the enchanted Bears and resolve the Aura draw trigger.",
+  "player1Name": "Aura owner",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [
+      "Sticky Fingers",
+      "Shock"
+    ],
+    "battlefield": [
+      {
+        "name": "Grizzly Bears"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Mountain",
+      "Plains"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "battlefield": [
+      {
+        "name": "Runeclaw Bear"
+      },
+      {
+        "name": "Hill Giant"
+      }
+    ],
+    "library": [
+      "Island",
+      "Swamp",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
