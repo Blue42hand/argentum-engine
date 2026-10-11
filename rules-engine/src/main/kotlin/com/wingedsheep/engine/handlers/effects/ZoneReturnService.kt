@@ -30,6 +30,7 @@ object ZoneReturnService {
             if (container.has<TokenComponent>()) continue
             val owner = container.get<CardComponent>()?.ownerId ?: continue
             val origin = newState.logicalZone(id)
+            val beforeEntry = newState
             val result = zones.moveToZone(
                 newState, id, entry.previousZone, ZoneEntryOptions(controllerId = owner)
             )
@@ -41,7 +42,8 @@ object ZoneReturnService {
             if (result.actualDestination == Zone.BATTLEFIELD) {
                 val (entered, entryEvents) = EntersWithReplacements.applyOnEntry(
                     newState, id, owner, zones.cardRegistry,
-                    predicateEvaluator = zones.predicateEvaluator, preEntryZone = origin
+                    predicateEvaluator = zones.predicateEvaluator, preEntryZone = origin,
+                    replacementSourceState = beforeEntry
                 )
                 newState = entered
                 events.addAll(entryEvents)

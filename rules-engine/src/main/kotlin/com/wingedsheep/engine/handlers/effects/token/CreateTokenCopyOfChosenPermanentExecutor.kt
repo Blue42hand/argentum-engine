@@ -153,16 +153,16 @@ class CreateTokenCopyOfChosenPermanentExecutor(
             // A token copy honors global "[filter] enter tapped" replacements (Authority of the
             // Consuls taps an opponent's token copy of a creature).
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-                .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator)
+                .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
 
             // As-enters "enters with counters" (CR 614.1c): the copied card's own EntersWithCounters
             // (a copy of a creature that "enters with a +1/+1 counter") plus global grants from other
             // permanents (Gev, Scaled Scorch). Fall back to the global-only path when no registry is
             // available (the token's own definition can't be resolved without it).
             val (stateWithCounters, counterEvents) = if (cardRegistry != null) {
-                EntersWithReplacements.applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator)
+                EntersWithReplacements.applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
             } else {
-                EntersWithReplacements.applyGlobal(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator)
+                EntersWithReplacements.applyGlobal(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
             }
             newState = stateWithCounters
 
@@ -210,7 +210,7 @@ class CreateTokenCopyOfChosenPermanentExecutor(
             // arrival. No-op for non-planeswalkers.
             val (loyaltyState, loyaltyEvents) = cardRegistry?.let { registry ->
                 com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                    .applyIntrinsicEntryCountersIfNeeded(sagaState, tokenId, controllerId, registry, predicateEvaluator = predicateEvaluator)
+                    .applyIntrinsicEntryCountersIfNeeded(sagaState, tokenId, controllerId, registry, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
             } ?: (sagaState to emptyList())
 
             return EffectResult.success(

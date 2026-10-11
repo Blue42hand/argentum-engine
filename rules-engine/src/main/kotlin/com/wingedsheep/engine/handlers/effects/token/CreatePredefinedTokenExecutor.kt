@@ -202,7 +202,7 @@ class CreatePredefinedTokenExecutor(
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                 .applyCreatedTokenEntryTap(
                     newState, tokenId, tokenControllerId, definedTapped = effect.tapped,
-                    predicateEvaluator = amountEvaluator.predicates
+                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state
                 )
         }
 

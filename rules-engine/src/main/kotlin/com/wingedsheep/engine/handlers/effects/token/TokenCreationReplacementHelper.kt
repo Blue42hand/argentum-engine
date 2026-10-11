@@ -248,7 +248,7 @@ object TokenCreationReplacementHelper {
                 newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                     .applyCreatedTokenEntryTap(
                         newState, tokenId, tokenControllerId, definedTapped = tapped,
-                        predicateEvaluator = predicateEvaluator
+                        predicateEvaluator = predicateEvaluator, replacementSourceState = state
                     )
 
                 events.add(
@@ -467,14 +467,14 @@ object TokenCreationReplacementHelper {
                 .place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
             // Honor global "[filter] enter tapped" replacements on the copy too.
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-                .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator)
+                .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
 
             // Apply the attached permanent's printed enters-with-counters replacement
             // effects (and any global ones from other permanents).
             if (cardRegistry != null) {
                 val (afterCounters, counterEvents) = EntersWithReplacements.applyOnEntry(
                     newState, tokenId, controllerId, cardRegistry,
-                    predicateEvaluator = predicateEvaluator
+                    predicateEvaluator = predicateEvaluator, replacementSourceState = state
                 )
                 newState = afterCounters
                 events.addAll(counterEvents)
@@ -485,7 +485,7 @@ object TokenCreationReplacementHelper {
                 val (afterLoyalty, loyaltyEvents) = com.wingedsheep.engine.handlers.effects
                     .ZoneMovementUtils.applyIntrinsicEntryCountersIfNeeded(
                         newState, tokenId, controllerId, cardRegistry,
-                        predicateEvaluator = predicateEvaluator
+                        predicateEvaluator = predicateEvaluator, replacementSourceState = state
                     )
                 newState = afterLoyalty
                 events.addAll(loyaltyEvents)

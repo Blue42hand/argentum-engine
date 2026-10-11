@@ -172,13 +172,13 @@ object TokenFromDefinition {
         // enters-tapped result lets an "enters untapped" replacement override it per CR 614.
         newState = EnterTappedReplacements.applyCreatedTokenEntryTap(
             newState, tokenId, controllerId, definedTapped = enteredTapped,
-            predicateEvaluator = predicateEvaluator
+            predicateEvaluator = predicateEvaluator, replacementSourceState = state
         )
 
         // As-enters: the token's own + global "enters with counters" (CR 614).
         val (stateWithCounters, entersWithEvents) = EntersWithReplacements.applyOnEntry(
             newState, tokenId, controllerId, cardRegistry,
-            predicateEvaluator = predicateEvaluator
+            predicateEvaluator = predicateEvaluator, replacementSourceState = state
         )
         newState = stateWithCounters
         val counterEvents = entersWithEvents.toMutableList()
@@ -189,7 +189,7 @@ object TokenFromDefinition {
         if (devour != null && devourCounters != null && devourCounters > 0) {
             val (devourState, devourEvents) = EntersWithReplacements.placeEntryCounters(
                 newState, tokenId, devour.counterType, devourCounters, controllerId, cardDef.name,
-                predicateEvaluator = predicateEvaluator
+                predicateEvaluator = predicateEvaluator, replacementSourceState = state
             )
             newState = devourState
             counterEvents.addAll(devourEvents)
@@ -233,7 +233,7 @@ object TokenFromDefinition {
         // or state-based actions (CR 704.5i) bin it on arrival. No-op for non-planeswalkers.
         val (entryCounterState, entryCounterEvents) = ZoneMovementUtils.applyIntrinsicEntryCountersIfNeeded(
             newState, tokenId, controllerId, cardRegistry,
-            predicateEvaluator = predicateEvaluator
+            predicateEvaluator = predicateEvaluator, replacementSourceState = state
         )
         newState = entryCounterState
 

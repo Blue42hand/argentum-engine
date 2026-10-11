@@ -276,7 +276,7 @@ class CreateTokenCopyOfTargetExecutor(
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                 .applyCreatedTokenEntryTap(
                     newState, tokenId, controllerId, definedTapped = effect.tapped,
-                    predicateEvaluator = amountEvaluator.predicates
+                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state
                 )
             // The host the token enters attached to: the one its controller chose for an Aura copy
             // (CR 303.4f), or the effect's prescribed host when the token could legally be attached
@@ -324,10 +324,10 @@ class CreateTokenCopyOfTargetExecutor(
             // this setup, so apply it here the way the standard entry pipeline does. Non-pausing.
             val (afterCounters, counterEvents) = if (cardRegistry != null) {
                 com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates)
+                    .applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state)
             } else {
                 com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyGlobal(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates)
+                    .applyGlobal(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state)
             }
             newState = afterCounters
             events.addAll(counterEvents)
@@ -440,7 +440,7 @@ class CreateTokenCopyOfTargetExecutor(
             // bin the token the instant it enters. No-op for non-planeswalkers.
             cardRegistry?.let { registry ->
                 val (loyaltyState, loyaltyEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                    .applyIntrinsicEntryCountersIfNeeded(newState, tokenId, controllerId, registry, predicateEvaluator = amountEvaluator.predicates)
+                    .applyIntrinsicEntryCountersIfNeeded(newState, tokenId, controllerId, registry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state)
                 newState = loyaltyState
                 events.addAll(loyaltyEvents)
             }

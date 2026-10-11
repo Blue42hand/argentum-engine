@@ -238,7 +238,11 @@ class ConditionEvaluator(
         condition: Condition,
         context: EffectContext,
         projected: ProjectedState? = null,
-    ): Boolean = evaluate(state, condition, Resolution(context, projected))
+        entryViews: EntryEvaluationViews? = null,
+    ): Boolean = evaluate(entryViews?.worldBeforeEvent ?: state, condition,
+        Resolution(context,
+            if (entryViews == null || state === entryViews.worldBeforeEvent) projected else null,
+            entryViews))
 
     /**
      * The count-shaped reading of [condition] — how many things it counts right now against how
@@ -413,9 +417,16 @@ class ConditionEvaluator(
         condition: Condition,
         ctx: ConditionEvaluationContext
     ): Boolean {
+        if (ctx is Resolution && ctx.entryViews != null && state !== ctx.entryViews.worldBeforeEvent) {
+            return evaluate(ctx.entryViews.worldBeforeEvent, condition, ctx.copy(projected = null))
+        }
         // Helper: dispatch a resolution-only branch, returning false when running under projection.
         fun ifResolution(fn: (EffectContext) -> Boolean): Boolean =
             (ctx as? Resolution)?.let { fn(it.effectContext) } ?: false
+        // Source-characteristic and cast markers belong to the entrant as it would exist;
+        // board, history, and candidate reads below continue to use the original [state].
+        val sourceState = (ctx as? Resolution)?.entryViews
+            ?.takeIf { it.entrantId == ctx.sourceId }?.entrantAsWouldExist ?: state
 
         return when (condition) {
             // ============================================================
@@ -426,7 +437,7 @@ class ConditionEvaluator(
             is Exists -> evaluateExistsCtx(state, condition, ctx)
 
             // Pure zone-membership lookup, so it reads the same in both modes.
-            is SourceInZone -> evaluateSourceInZone(state, condition, ctx)
+            is SourceInZone -> evaluateSourceInZone(sourceState, condition, ctx)
 
             // CR 805 — "your turn" is the active team's turn for every member of that team.
             is IsYourTurn -> ctx.controllerId?.let { state.isActiveTurnFor(it) } ?: false
@@ -501,13 +512,13 @@ class ConditionEvaluator(
 
             is SourcePlottedOnPriorTurn -> {
                 val sourceId = ctx.sourceId
-                val plotted = sourceId?.let { state.getEntity(it)?.get<PlottedComponent>() }
+                val plotted = sourceId?.let { sourceState.getEntity(it)?.get<PlottedComponent>() }
                 plotted != null && plotted.turnPlotted < state.turnNumber
             }
 
             is SourceForetoldOnPriorTurn -> {
                 val sourceId = ctx.sourceId
-                val foretold = sourceId?.let { state.getEntity(it)?.get<ForetoldComponent>() }
+                val foretold = sourceId?.let { sourceState.getEntity(it)?.get<ForetoldComponent>() }
                 foretold != null && foretold.turnForetold < state.turnNumber
             }
 
@@ -525,13 +536,13 @@ class ConditionEvaluator(
 
             is SourceCastForImpending -> {
                 val sourceId = ctx.sourceId
-                sourceId != null && state.getEntity(sourceId)?.has<CastForImpendingComponent>() == true
+                sourceId != null && sourceState.getEntity(sourceId)?.has<CastForImpendingComponent>() == true
             }
 
             is SourceReturnedAsEnchantment -> {
                 val sourceId = ctx.sourceId
                 sourceId != null &&
-                    state.getEntity(sourceId)
+                    sourceState.getEntity(sourceId)
                         ?.has<com.wingedsheep.engine.state.components.battlefield.EnduringReturnComponent>() == true
             }
 
@@ -546,10 +557,11 @@ class ConditionEvaluator(
             is SourceIsRingBearer -> {
                 val sourceId = ctx.sourceId
                 val controllerId = ctx.controllerId
-                val bearer = sourceId?.let { state.getEntity(it)?.get<RingBearerComponent>() }
+                val bearer = sourceId?.let { sourceState.getEntity(it)?.get<RingBearerComponent>() }
                 bearer != null && controllerId != null &&
                     bearer.ownerId == controllerId &&
-                    ctx.projectedStateFor(state).getController(sourceId) == controllerId
+                    (if (sourceState === state) ctx.projectedStateFor(state) else sourceState.projectedState)
+                        .getController(sourceId) == controllerId
             }
 
             // CR 701.54a: intervening-if for "Whenever the Ring tempts you" payoffs that only
@@ -574,7 +586,7 @@ class ConditionEvaluator(
 
             // Aura-controller-aware modified check (CR 700.4) — distinct enough from the
             // generic StatePredicate.IsModified to warrant its own branch.
-            is SourceIsModified -> evaluateSourceIsModifiedCtx(state, ctx)
+            is SourceIsModified -> evaluateSourceIsModifiedCtx(state, sourceState, ctx)
 
             // The source's per-recipient damage memory, stamped with the turn of its latest damage
             // to each player; stripped on a zone change, so a returned permanent has no history.
@@ -582,12 +594,13 @@ class ConditionEvaluator(
                 val playerId = resolvePlayer(state, condition.player, ctx)
                 val sourceId = ctx.sourceId
                 playerId != null && sourceId != null &&
-                    state.getEntity(sourceId)
+                    sourceState.getEntity(sourceId)
                         ?.get<com.wingedsheep.engine.state.components.battlefield.DealtDamageToThisGameComponent>()
                         ?.dealtDamageToOnTurn(playerId, state.turnNumber) == true
             }
 
-            is SourceIsBlockingOrBlockedBySubtype -> evaluateSourceIsBlockingOrBlockedBySubtypeCtx(state, condition, ctx)
+            is SourceIsBlockingOrBlockedBySubtype ->
+                evaluateSourceIsBlockingOrBlockedBySubtypeCtx(state, sourceState, condition, ctx)
 
             is EnchantedCreatureHasSubtype -> evaluateEnchantedCreatureHasSubtypeCtx(state, condition, ctx)
             is EnchantedCreatureIsLegendary -> evaluateEnchantedCreatureIsLegendaryCtx(state, ctx)
@@ -797,18 +810,18 @@ class ConditionEvaluator(
             // ============================================================
             is APlayerControlsMostOfSubtype -> ifResolution { evaluateAPlayerControlsMostOfSubtype(state, condition) }
             is YouControlMostOfChosenType -> ifResolution { evaluateYouControlMostOfChosenType(state, condition, it) }
-            is YouControlSource -> ifResolution { evaluateYouControlSource(state, it) }
-            is WasCast -> ifResolution { evaluateWasCast(state, it) }
-            is WasCastFromHand -> ifResolution { evaluateWasCastFromHand(state, it) }
-            is WasCastFromZone -> ifResolution { evaluateWasCastFromZone(state, condition, it) }
-            is WasKicked -> ifResolution { evaluateWasKicked(state, it) }
-            is SneakCostWasPaid -> ifResolution { evaluateSneakCostWasPaid(state, it) }
-            is WebSlungCostWasPaid -> ifResolution { evaluateWebSlungCostWasPaid(state, it) }
-            is MayhemCostWasPaid -> ifResolution { evaluateMayhemCostWasPaid(state, it) }
+            is YouControlSource -> ifResolution { evaluateYouControlSource(sourceState, it) }
+            is WasCast -> ifResolution { evaluateWasCast(sourceState, it) }
+            is WasCastFromHand -> ifResolution { evaluateWasCastFromHand(sourceState, it) }
+            is WasCastFromZone -> ifResolution { evaluateWasCastFromZone(sourceState, condition, it) }
+            is WasKicked -> ifResolution { evaluateWasKicked(sourceState, it) }
+            is SneakCostWasPaid -> ifResolution { evaluateSneakCostWasPaid(sourceState, it) }
+            is WebSlungCostWasPaid -> ifResolution { evaluateWebSlungCostWasPaid(sourceState, it) }
+            is MayhemCostWasPaid -> ifResolution { evaluateMayhemCostWasPaid(sourceState, it) }
             is BlightWasPaid -> ifResolution { it.wasBlightPaid }
-            is WaterbendWasPaid -> ifResolution { evaluateWaterbendWasPaid(state, it) }
-            is ManaSpentToCastIncludes -> ifResolution { evaluateManaSpentToCastIncludes(state, condition, it) }
-            is NoManaSpentToCast -> ifResolution { evaluateNoManaSpentToCast(state, it) }
+            is WaterbendWasPaid -> ifResolution { evaluateWaterbendWasPaid(sourceState, it) }
+            is ManaSpentToCastIncludes -> ifResolution { evaluateManaSpentToCastIncludes(sourceState, condition, it) }
+            is NoManaSpentToCast -> ifResolution { evaluateNoManaSpentToCast(sourceState, it) }
             is NoManaSpentToCastEntered -> ifResolution { evaluateNoManaSpentToCastEntered(state, it) }
             is AnyEnteredOrWasCastFromExile -> ifResolution { evaluateAnyEnteredOrWasCastFromExile(state, it) }
             // Escape (CR 702.138b): dual-mode so an "escapes with [ability]" static (CR 702.138d)
@@ -816,7 +829,7 @@ class ConditionEvaluator(
             // permanent carries the durable flag; a spell still on the stack answers from the
             // alternative cost it was cast for.
             Escaped -> {
-                val source = ctx.sourceId?.let { state.getEntity(it) }
+                val source = ctx.sourceId?.let { sourceState.getEntity(it) }
                 source != null && (
                     source.get<CastChoicesComponent>()?.chosen?.containsKey(ChoiceSlot.ESCAPED) == true ||
                         source.get<SpellOnStackComponent>()
@@ -830,7 +843,7 @@ class ConditionEvaluator(
                 // Frostcliff/Windcrag Sieges' lord and static modes).
                 val sourceId = ctx.sourceId
                 sourceId != null &&
-                    state.getEntity(sourceId)?.chosenModeId() == condition.modeId
+                    sourceState.getEntity(sourceId)?.chosenModeId() == condition.modeId
             }
             is CastChoiceMade -> {
                 // Generic "was this choice made" guard over the durable cast-choices bag; works at
@@ -846,7 +859,7 @@ class ConditionEvaluator(
                     ?.takeIf { it.triggeringEntityId == sourceId }?.selfCastAdditionalCostChoices
                 if (branchSnapshot != null && (condition.slot == ChoiceSlot.ADDITIONAL_COST_BRANCH || condition.slot in branchSnapshot)) {
                     condition.slot in branchSnapshot
-                } else if (sourceId?.let { state.getEntity(it) }?.get<com.wingedsheep.engine.state.components.stack.SpellOnStackComponent>()
+                } else if (sourceId?.let { sourceState.getEntity(it) }?.get<com.wingedsheep.engine.state.components.stack.SpellOnStackComponent>()
                     ?.additionalCostChoices?.containsKey(condition.slot) == true) {
                     true
                 } else if (selfCastChoice != null) {
@@ -855,7 +868,7 @@ class ConditionEvaluator(
                     true
                 } else {
                     sourceId != null &&
-                        state.getEntity(sourceId)?.get<CastChoicesComponent>()
+                        sourceState.getEntity(sourceId)?.get<CastChoicesComponent>()
                             ?.chosen?.containsKey(condition.slot) == true
                 }
             }
@@ -866,7 +879,7 @@ class ConditionEvaluator(
                 if (snapshot != null && (condition.slot == ChoiceSlot.ADDITIONAL_COST_BRANCH || condition.slot in snapshot)) {
                     snapshot[condition.slot]?.toString() == condition.value
                 } else {
-                    sourceId != null && castChoiceMatches(state.getEntity(sourceId), condition.slot, condition.value)
+                    sourceId != null && castChoiceMatches(sourceState.getEntity(sourceId), condition.slot, condition.value)
                 }
             }
             is CastTimeFlagSet -> {
@@ -876,14 +889,14 @@ class ConditionEvaluator(
                 // hand→stack boundary, so the resolving effect's sourceId locates it.
                 val sourceId = ctx.sourceId
                 sourceId != null &&
-                    state.getEntity(sourceId)
+                    sourceState.getEntity(sourceId)
                         ?.get<com.wingedsheep.engine.state.components.stack.SpellOnStackComponent>()
                         ?.castTimeFlags?.contains(condition.flag) == true
             }
             is SacrificedPermanentHadSubtype -> ifResolution { evaluateSacrificedPermanentHadSubtype(condition, it) }
             is ExiledAsCostHadSubtype -> ifResolution { evaluateExiledAsCostHadSubtype(state, condition, it) }
             is ThisAbilityActivatedThisTurnAtLeast ->
-                ifResolution { evaluateThisAbilityActivatedThisTurnAtLeast(state, condition, it) }
+                ifResolution { evaluateThisAbilityActivatedThisTurnAtLeast(sourceState, condition, it) }
             is SacrificedPermanentWasLegendary -> ifResolution { evaluateSacrificedPermanentWasLegendary(it) }
             is SacrificedPermanentWasSuspected -> ifResolution { evaluateSacrificedPermanentWasSuspected(it) }
             is YouSacrificedPermanentThisWay -> ifResolution { evaluateYouSacrificedPermanentThisWay(it) }
@@ -934,7 +947,7 @@ class ConditionEvaluator(
             is YouWereAttackedThisStep -> ifResolution { evaluateYouWereAttackedThisStep(state, it) }
             is IsFirstSpellPaidWithTreasureManaCastThisTurn ->
                 ifResolution { evaluateFirstSpellPaidWithTreasureMana(state, it) }
-            is SourceAbilityResolvedNTimesThisTurn -> ifResolution { evaluateSourceAbilityResolvedNTimes(state, condition, it) }
+            is SourceAbilityResolvedNTimesThisTurn -> ifResolution { evaluateSourceAbilityResolvedNTimes(sourceState, condition, it) }
             is OpponentSpellOnStack -> ifResolution { evaluateOpponentSpellOnStack(state, it) }
             is CollectionContainsMatch -> ifResolution { evaluateCollectionContainsMatch(state, condition, it) }
             is CollectionSharesCardType -> ifResolution { evaluateCollectionSharesCardType(state, condition, it) }
@@ -967,8 +980,8 @@ class ConditionEvaluator(
             is Projection -> syntheticEffectContext(state, ctx) ?: return false
         }
         val projected = (ctx as? Resolution)?.projected
-        val left = amounts.evaluate(state, condition.left, effectCtx, projected)
-        val right = amounts.evaluate(state, condition.right, effectCtx, projected)
+        val left = amounts.evaluate(state, condition.left, effectCtx, projected, (ctx as? Resolution)?.entryViews)
+        val right = amounts.evaluate(state, condition.right, effectCtx, projected, (ctx as? Resolution)?.entryViews)
         return compareAmounts(left, condition.operator, right)
     }
 
@@ -987,7 +1000,7 @@ class ConditionEvaluator(
             is Resolution -> ctx.effectContext
             is Projection -> syntheticEffectContext(state, ctx) ?: return false
         }
-        val value = amounts.evaluate(state, condition.amount, effectCtx, (ctx as? Resolution)?.projected)
+        val value = amounts.evaluate(state, condition.amount, effectCtx, (ctx as? Resolution)?.projected, (ctx as? Resolution)?.entryViews)
         return when (val property = condition.property) {
             NumberProperty.Prime -> isPrime(value)
             NumberProperty.Even -> value % 2 == 0
@@ -1065,7 +1078,7 @@ class ConditionEvaluator(
                         state.projectedState,
                         triggeringId,
                         condition.filter,
-                        PredicateContext.fromEffectContext(it.effectContext)
+                        PredicateContext.fromEffectContext(it.effectContext, it.entryViews)
                     )
                 } else if (triggeringId != null &&
                     state.getEntity(triggeringId)?.has<LastKnownPermanentComponent>() == true
@@ -1081,7 +1094,7 @@ class ConditionEvaluator(
                         state.projectedState,
                         triggeringId,
                         condition.filter,
-                        PredicateContext.fromEffectContext(it.effectContext)
+                        PredicateContext.fromEffectContext(it.effectContext, it.entryViews)
                     )
                 } else {
                     // Stack / non-battlefield triggering object (the spell-cast case): match the
@@ -1098,7 +1111,7 @@ class ConditionEvaluator(
                 val cardId = it.effectContext.revealedAsCostSnapshots.getOrNull(entity.index)?.entityId
                 cardId != null && predicates.matches(
                     state, state.projectedState, cardId, condition.filter,
-                    PredicateContext.fromEffectContext(it.effectContext),
+                    PredicateContext.fromEffectContext(it.effectContext, it.entryViews),
                 )
             } ?: false
         is EffectTarget.LibraryTop -> {
@@ -1126,7 +1139,7 @@ class ConditionEvaluator(
                     .resolveEntity(EffectTarget.IterationEntity, it.effectContext, state)
                 iterationId != null && predicates.matches(
                     state, state.projectedState, iterationId, condition.filter,
-                    PredicateContext.fromEffectContext(it.effectContext)
+                    PredicateContext.fromEffectContext(it.effectContext, it.entryViews)
                 )
             } ?: false
         // Unsupported roles; the CardLinter rejects them at load. Listed rather than folded into
@@ -1174,7 +1187,7 @@ class ConditionEvaluator(
         val sourceId = ctx.sourceId ?: return false
         val exiledId = LinkedExileLookup.exiledCard(state, sourceId, index) ?: return false
         val predicateContext = when (ctx) {
-            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             is Projection -> ctx.controllerId?.let { PredicateContext(controllerId = it, sourceId = sourceId) }
                 ?: PredicateContext(controllerId = sourceId, sourceId = sourceId)
         }
@@ -1208,13 +1221,15 @@ class ConditionEvaluator(
         ctx: ConditionEvaluationContext
     ): Boolean {
         val sourceId = ctx.sourceId ?: return false
-        val projected = ctx.projectedStateFor(state)
+        val sourceState = (ctx as? Resolution)?.entryViews?.takeIf { it.entrantId == sourceId }
+            ?.entrantAsWouldExist ?: state
+        val projected = if (sourceState === state) ctx.projectedStateFor(state) else sourceState.projectedState
         val predicateContext = when (ctx) {
-            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             is Projection -> ctx.controllerId?.let { PredicateContext(controllerId = it) }
                 ?: PredicateContext(controllerId = sourceId)
         }
-        return predicates.matches(state, projected, sourceId, filter, predicateContext)
+        return predicates.matches(sourceState, projected, sourceId, filter, predicateContext)
     }
 
     private fun evaluateExistsCtx(
@@ -1242,7 +1257,7 @@ class ConditionEvaluator(
         val controllerId = ctx.controllerId
         val projected = ctx.projectedStateFor(state)
         val predicateContext = when (ctx) {
-            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             is Projection -> controllerId?.let {
                 // Pass `sourceId` through so source-reading predicates (e.g.
                 // `sharingChosenColorWithSource`) can find the source's
@@ -1260,7 +1275,9 @@ class ConditionEvaluator(
             is Player.Any -> state.activePlayers
             is Player.Candidate -> listOfNotNull((ctx as? Resolution)?.effectContext?.candidatePlayerId)
             is Player.ChosenOpponent -> listOfNotNull(
-                ctx.sourceId?.let { state.getEntity(it)?.chosenOpponent() }
+                ctx.sourceId?.let { sourceId ->
+                    playerReferenceState(state, Player.ControllerOfSource, ctx).getEntity(sourceId)?.chosenOpponent()
+                }
             )
             // Defender-relative conditions (CantAttackUnless "defending player controls…"):
             // the defender is bound into the EffectContext by the attack legality check, or
@@ -1279,7 +1296,7 @@ class ConditionEvaluator(
             else -> when (ctx) {
                 is Resolution -> TargetResolutionUtils.resolvePlayerTargets(
                     EffectTarget.PlayerRef(condition.player),
-                    state,
+                    playerReferenceState(state, condition.player, ctx),
                     ctx.effectContext
                 )
                 is Projection -> controllerId?.let { listOf(it) } ?: emptyList()
@@ -1324,7 +1341,7 @@ class ConditionEvaluator(
         val playerId = resolvePlayer(state, condition.player, ctx) ?: return false
         val projected = ctx.projectedStateFor(state)
         val predicateContext = when (ctx) {
-            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             is Projection -> PredicateContext(controllerId = playerId, sourceId = ctx.sourceId)
         }
 
@@ -1339,9 +1356,13 @@ class ConditionEvaluator(
         return state.turnOrder.all { (counts[it] ?: 0) <= mine }
     }
 
-    private fun evaluateSourceIsModifiedCtx(state: GameState, ctx: ConditionEvaluationContext): Boolean {
+    private fun evaluateSourceIsModifiedCtx(
+        state: GameState,
+        sourceState: GameState,
+        ctx: ConditionEvaluationContext,
+    ): Boolean {
         val sourceId = ctx.sourceId ?: return false
-        val entity = state.getEntity(sourceId) ?: return false
+        val entity = sourceState.getEntity(sourceId) ?: return false
         val controllerId = ctx.controllerId
 
         val counters = entity.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
@@ -1380,16 +1401,17 @@ class ConditionEvaluator(
      */
     private fun evaluateSourceIsBlockingOrBlockedBySubtypeCtx(
         state: GameState,
+        sourceState: GameState,
         condition: SourceIsBlockingOrBlockedBySubtype,
         ctx: ConditionEvaluationContext
     ): Boolean {
         val sourceId = ctx.sourceId ?: return false
-        val attached = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId
+        val attached = sourceState.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId
         val creatureId = attached ?: when (ctx) {
             is Resolution -> sourceId  // granted-ability / creature-source scope
             is Projection -> sourceId
         }
-        val creature = state.getEntity(creatureId) ?: return false
+        val creature = (if (creatureId == sourceId) sourceState else state).getEntity(creatureId) ?: return false
 
         val partners = buildSet {
             creature.get<BlockingComponent>()?.blockedAttackerIds?.let { addAll(it) }
@@ -1443,7 +1465,7 @@ class ConditionEvaluator(
         }
         val projected = ctx.projectedStateFor(state)
         val predicateContext = when (ctx) {
-            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             is Projection -> {
                 // "You" (for any controller predicate in [filter]) is the Aura's controller.
                 // Fall back to the source's projected controller rather than miscasting the
@@ -1464,8 +1486,8 @@ class ConditionEvaluator(
      *   in turn order — sufficient for per-player tracker reads where each player has
      *   its own bucket.
      * - [Player.TriggeringPlayer]: only resolvable in resolution mode.
-     * - Other relational forms are not currently supported by the player-relative
-     *   conditions and return `null`.
+     * - Explicit source/affected-entity controller and source owner roles use the prepared entrant
+     *   during entry replacement evaluation; other unsupported relational forms return `null`.
      */
     private fun resolvePlayer(state: GameState, player: Player, ctx: ConditionEvaluationContext): EntityId? {
         return when (player) {
@@ -1484,10 +1506,25 @@ class ConditionEvaluator(
             }
             is Player.Candidate -> (ctx as? Resolution)?.effectContext?.candidatePlayerId
             is Player.ChosenOpponent -> ctx.sourceId?.let { sourceId ->
-                state.getEntity(sourceId)?.chosenOpponent()
+                playerReferenceState(state, Player.ControllerOfSource, ctx).getEntity(sourceId)?.chosenOpponent()
             }
+            is Player.ControllerOfSource, is Player.OwnerOfSource, is Player.ControllerOfAffectedEntity ->
+                (ctx as? Resolution)?.effectContext?.let {
+                    TargetResolutionUtils.resolvePlayerRef(player, it, playerReferenceState(state, player, ctx))
+                }
             else -> null
         }
+    }
+
+    /** Select the prepared entrant only for a player reference that explicitly names that role. */
+    private fun playerReferenceState(state: GameState, player: Player, ctx: ConditionEvaluationContext): GameState {
+        val resolution = ctx as? Resolution ?: return state
+        val views = resolution.entryViews ?: return state
+        val sourceRole = player == Player.ControllerOfSource || player == Player.OwnerOfSource
+        val affectedRole = player == Player.ControllerOfAffectedEntity
+        return if ((sourceRole && resolution.effectContext.sourceId == views.entrantId) ||
+            (affectedRole && resolution.effectContext.affectedEntityId == views.entrantId)
+        ) views.entrantAsWouldExist else state
     }
 
     private fun evaluateAttackedWithCreaturesCtx(
@@ -1535,7 +1572,7 @@ class ConditionEvaluator(
         }
         if (attackerIds.isEmpty()) return 0
         val predicateContext = when (ctx) {
-            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             // The filter's own "you control" clauses are relative to the ability's controller,
             // not to whichever player's attack record is being scanned.
             is Projection -> PredicateContext(
@@ -1595,7 +1632,7 @@ class ConditionEvaluator(
         // chosen values. Only a Resolution context has a pipeline; a static/projection evaluation
         // passes null and those predicates match nothing, as before.
         val predicateContext = (ctx as? Resolution)
-            ?.let { PredicateContext.fromEffectContext(it.effectContext) }
+            ?.let { PredicateContext.fromEffectContext(it.effectContext, it.entryViews) }
         var matches = 0
         for (record in records) {
             // The zone qualifier is checked independently of the filter: a face-down (morph) spell
