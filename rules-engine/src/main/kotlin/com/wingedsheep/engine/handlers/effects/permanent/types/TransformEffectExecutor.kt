@@ -475,7 +475,8 @@ internal fun returnDfcFace(
         prepared,
         entityId,
         Zone.BATTLEFIELD,
-        options = ZoneEntryOptions(controllerId = ownerId, tapped = tapped)
+        options = ZoneEntryOptions(controllerId = ownerId, tapped = tapped),
+        replacementSourceState = state
     )
     if (moved.actualDestination != Zone.BATTLEFIELD) return moved
     // The returned face's own enters-with replacements (CR 614.1c) — and any global ones — apply
@@ -483,7 +484,8 @@ internal fun returnDfcFace(
     // with an additional loyalty counter … for each instant and sorcery spell you've cast this turn".
     val (entered, entryEvents) = EntersWithReplacements.applyOnEntry(
         moved.state, entityId, ownerId, cardRegistry,
-        predicateEvaluator = zones.predicateEvaluator, preEntryZone = origin
+        predicateEvaluator = zones.predicateEvaluator, preEntryZone = origin,
+        replacementSourceState = state
     )
     return moved.copy(state = entered, events = moved.events + entryEvents)
 }

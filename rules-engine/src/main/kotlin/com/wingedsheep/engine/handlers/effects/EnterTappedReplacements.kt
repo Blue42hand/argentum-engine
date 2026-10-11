@@ -40,23 +40,24 @@ object EnterTappedReplacements {
         state: GameState,
         enteringEntityId: EntityId,
         enteringControllerId: EntityId,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state
     ): Boolean {
-        for (sourceId in state.getBattlefield()) {
+        for (sourceId in replacementSourceState.getBattlefield()) {
             if (sourceId == enteringEntityId) continue
-            val container = state.getEntity(sourceId) ?: continue
+            val container = replacementSourceState.getEntity(sourceId) ?: continue
             val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
-            val sourceControllerId = container.get<ControllerComponent>()?.playerId ?: continue
+            val sourceControllerId = replacementSourceState.projectedState.getController(sourceId) ?: continue
             for (effect in replacementComponent.replacementEffects) {
                 if (effect !is PermanentsEnterTapped) continue
-                if (!matchesEnterFilter(effect.appliesTo, enteringEntityId, sourceId, sourceControllerId, state, predicateEvaluator = predicateEvaluator)) continue
+                if (!matchesEnterFilter(effect.appliesTo, enteringEntityId, sourceId, sourceControllerId, state, predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState, enteringControllerId = enteringControllerId)) continue
                 // Optional gate evaluated against the replacement *source*, mirroring
                 // RedirectDamage.condition — e.g. Ashling's Prerogative's tap clause applies only
                 // while the mode it chose as it entered is the one this effect was written for.
                 val gate = effect.condition
                 if (gate != null) {
                     val gateContext = EffectContext(sourceId = sourceId, controllerId = sourceControllerId)
-                    if (!predicateEvaluator.conditions.evaluate(state, gate, gateContext)) continue
+                    if (!predicateEvaluator.conditions.evaluate(replacementSourceState, gate, gateContext)) continue
                 }
                 return true
             }
@@ -87,14 +88,15 @@ object EnterTappedReplacements {
         controllerId: EntityId,
         definedTapped: Boolean = false,
         attacking: Boolean = false,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state
     ): GameState {
-        val entersUntapped = EnterUntappedReplacements.entersUntapped(state, tokenId, controllerId, predicateEvaluator = predicateEvaluator)
+        val entersUntapped = EnterUntappedReplacements.entersUntapped(state, tokenId, controllerId, predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState)
         return when {
             definedTapped && !attacking && entersUntapped ->
                 state.updateEntity(tokenId) { it.without<TappedComponent>() }
             !definedTapped && !entersUntapped &&
-                entersTapped(state, tokenId, controllerId, predicateEvaluator = predicateEvaluator) ->
+                entersTapped(state, tokenId, controllerId, predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState) ->
                 state.updateEntity(tokenId) { it.with(TappedComponent) }
             else -> state
         }
@@ -113,7 +115,9 @@ object EnterTappedReplacements {
         replacementSourceId: EntityId,
         sourceControllerId: EntityId,
         state: GameState,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state,
+        enteringControllerId: EntityId,
     ): Boolean {
         if (event !is EventPattern.ZoneChangeEvent) return false
         if (event.to != Zone.BATTLEFIELD) return false
@@ -121,8 +125,10 @@ object EnterTappedReplacements {
             sourceId = replacementSourceId,
             controllerId = sourceControllerId,
         )
+        val views = entryEvaluationViews(state, enteringEntityId, enteringControllerId, replacementSourceState)
         return predicateEvaluator.matches(
-            state, state.projectedState, enteringEntityId, event.filter, predicateContext
+            views.entrantAsWouldExist, views.entrantAsWouldExist.projectedState, enteringEntityId,
+            event.filter, predicateContext.copy(entryViews = views)
         )
     }
 }

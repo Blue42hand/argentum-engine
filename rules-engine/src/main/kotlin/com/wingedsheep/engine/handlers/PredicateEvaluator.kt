@@ -1064,7 +1064,7 @@ class PredicateEvaluator(
                         container.get<CountersComponent>()?.counters?.values?.sum() ?: 0
                 }
                 val effectContext = context?.toEffectContext() ?: return false
-                val amount = amounts.evaluate(state, predicate.amount, effectContext, projected)
+                val amount = amounts.evaluate(state, predicate.amount, effectContext, projected, context?.entryViews)
                 compareAmounts(value, predicate.operator, amount)
             }
 
@@ -1112,7 +1112,7 @@ class PredicateEvaluator(
             // Source-relative predicates
             CardPredicate.NotOfSourceChosenType -> {
                 val sourceId = context?.sourceId ?: return true
-                val chosenType = state.getEntity(sourceId)
+                val chosenType = (context.entryViews?.takeIf { it.entrantId == sourceId }?.entrantAsWouldExist ?: state).getEntity(sourceId)
                     ?.chosenCreatureType()
                     ?: return true
                 val hasSubtype = projectedValues?.subtypes?.any { it.equals(chosenType, ignoreCase = true) }
@@ -1139,8 +1139,10 @@ class PredicateEvaluator(
                 val sourceId = context?.sourceId ?: return false
                 // Source may be a spell on the stack (e.g., Amplify resolution-time reveal) —
                 // projection only covers the battlefield, so fall back to base CardComponent.
-                val sourceSubtypes = projected.getSubtypes(sourceId).ifEmpty {
-                    state.getEntity(sourceId)?.get<CardComponent>()?.typeLine?.subtypes?.map { it.value }?.toSet()
+                val sourceState = context.entryViews?.takeIf { it.entrantId == sourceId }?.entrantAsWouldExist ?: state
+                val sourceProjection = if (sourceState === state) projected else sourceState.projectedState
+                val sourceSubtypes = sourceProjection.getSubtypes(sourceId).ifEmpty {
+                    sourceState.getEntity(sourceId)?.get<CardComponent>()?.typeLine?.subtypes?.map { it.value }?.toSet()
                         ?: emptySet()
                 }
                 if (sourceSubtypes.isEmpty()) return false
@@ -1166,7 +1168,7 @@ class PredicateEvaluator(
 
             CardPredicate.HasChosenSubtype -> {
                 val sourceId = context?.sourceId ?: return false
-                val chosenType = state.getEntity(sourceId)
+                val chosenType = (context.entryViews?.takeIf { it.entrantId == sourceId }?.entrantAsWouldExist ?: state).getEntity(sourceId)
                     ?.chosenCreatureType()
                     ?: return false
                 val entitySubtypes = effectiveSubtypes(state, projected, entityId, card, projectedValues)
@@ -1178,8 +1180,11 @@ class PredicateEvaluator(
 
             is CardPredicate.SharesCreatureTypeWith -> {
                 val referenceId = resolveEntity(state, predicate.entity, context, projected) ?: return false
-                val referenceSubtypes = projected.getSubtypes(referenceId).ifEmpty {
-                    state.getEntity(referenceId)?.get<CardComponent>()?.typeLine?.subtypes?.map { it.value }?.toSet()
+                val referenceState = if (predicate.entity == EffectTarget.Self || predicate.entity == EffectTarget.AffectedEntity)
+                    context?.entryViews?.takeIf { it.entrantId == referenceId }?.entrantAsWouldExist ?: state else state
+                val referenceProjection = if (referenceState === state) projected else referenceState.projectedState
+                val referenceSubtypes = referenceProjection.getSubtypes(referenceId).ifEmpty {
+                    referenceState.getEntity(referenceId)?.get<CardComponent>()?.typeLine?.subtypes?.map { it.value }?.toSet()
                         ?: emptySet()
                 }
                 if (referenceSubtypes.isEmpty()) return false
@@ -1631,7 +1636,7 @@ class PredicateEvaluator(
         context: PredicateContext?,
     ): Int? {
         context ?: return null
-        return amounts.evaluate(state, amount, context.toEffectContext())
+        return amounts.evaluate(state, amount, context.toEffectContext(), entryViews = context.entryViews)
     }
 
     /**
@@ -1657,6 +1662,7 @@ class PredicateEvaluator(
             DynamicAmount.EntityProperty(reference, EntityNumericProperty.Power),
             effectContext,
             projected,
+            context.entryViews,
         )
     }
 
@@ -1672,8 +1678,12 @@ class PredicateEvaluator(
         context: PredicateContext?,
         projected: ProjectedState
     ): EntityId? = context?.let {
+        val usesEntrant = (reference == EffectTarget.Self && it.sourceId == it.entryViews?.entrantId) ||
+            (reference == EffectTarget.AffectedEntity && it.affectedEntityId == it.entryViews?.entrantId)
+        val referenceState = if (usesEntrant) it.entryViews!!.entrantAsWouldExist else state
+        val referenceProjection = if (referenceState === state) projected else referenceState.projectedState
         com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
-            .resolveEntity(reference, it.toEffectContext(), state, projected)
+            .resolveEntity(reference, it.toEffectContext(), referenceState, referenceProjection)
     }
 
     /**
@@ -2736,6 +2746,8 @@ data class PredicateContext(
      * only the fields mirrored here. Null for a context built directly (targeting, projection).
      */
     val resolution: EffectContext? = null,
+    /** Transient entry evaluation views; never added to the serializable effect context. */
+    val entryViews: EntryEvaluationViews? = null,
 ) {
     /**
      * The entity an enclosing `ForEachInGroup` is currently iterating over, carried in
@@ -2807,7 +2819,7 @@ data class PredicateContext(
         /**
          * Create from EffectContext for compatibility.
          */
-        fun fromEffectContext(context: EffectContext): PredicateContext {
+        fun fromEffectContext(context: EffectContext, entryViews: EntryEvaluationViews? = null): PredicateContext {
             // "Target opponent" / "target player" predicates read the concretely chosen
             // player target — never a turn-order-derived opponent.
             val chosenPlayerTarget = context.targets.firstNotNullOfOrNull { target ->
@@ -2834,6 +2846,7 @@ data class PredicateContext(
                 chosenColor = context.chosenColor,
                 lastKnownSourceSnapshot = context.lastKnownSourceSnapshot,
                 resolution = context,
+                entryViews = entryViews,
             )
         }
     }

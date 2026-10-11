@@ -1,0 +1,28 @@
+{
+  "name": "Wake the Past — own artifact return and haste",
+  "description": "Cast Wake the Past with seven lands. Your Steel Overseer and Sol Ring return from your graveyard together and gain haste until end of turn. The Grizzly Bears stays in your graveyard, the opponent's Mind Stone stays in theirs, and your already-present Ornithopter does not gain haste. You can activate the returned Steel Overseer's tap ability immediately, then advance to the next turn to confirm haste expires.",
+  "player1Name": "Artifact reanimator",
+  "player2Name": "Other graveyard owner",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Wake the Past"],
+    "graveyard": ["Steel Overseer", "Sol Ring", "Grizzly Bears"],
+    "battlefield": [
+      {"name": "Ornithopter"},
+      {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"},
+      {"name": "Plains"}, {"name": "Plains"}, {"name": "Plains"},
+      {"name": "Mountain"}
+    ],
+    "library": ["Forest", "Island", "Swamp"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "graveyard": ["Mind Stone"],
+    "battlefield": [{"name": "Hill Giant"}],
+    "library": ["Mountain", "Forest", "Plains"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}

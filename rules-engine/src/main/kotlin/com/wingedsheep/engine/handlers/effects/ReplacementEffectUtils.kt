@@ -1,11 +1,11 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.handlers.EntryEvaluationViews
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.state.components.player.CountersLockedThisTurnComponent
@@ -50,6 +50,8 @@ object ReplacementEffectUtils {
      * @param placerId The player placing the counters — used to gate effects that only
      *                 apply when "you" are the one placing them (e.g., Innkeeper's Talent
      *                 Level 3). When null, placer-gated effects do not apply.
+     * @param replacementSourceState External sources before a simultaneous entry event; recipient
+     *                 characteristics still read [state], including its prepared entry choices.
      * @return The modified counter count
      */
     fun applyCounterPlacementModifiers(
@@ -58,7 +60,9 @@ object ReplacementEffectUtils {
         counterType: CounterType,
         count: Int,
         placerId: EntityId? = null,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state,
+        entryViews: EntryEvaluationViews? = null
     ): Int {
         if (count <= 0) return count
         // A capped recipient can't get more of this kind this turn: the placement doesn't happen.
@@ -67,10 +71,10 @@ object ReplacementEffectUtils {
         var modifiedCount = count
 
         // 1. Static battlefield replacement effects (Hardened Scales, Doubling Season, …).
-        for (entityId in state.getBattlefield()) {
-            val container = state.getEntity(entityId) ?: continue
+        for (entityId in replacementSourceState.getBattlefield()) {
+            val container = replacementSourceState.getEntity(entityId) ?: continue
             val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
-            val sourceControllerId = container.get<ControllerComponent>()?.playerId ?: continue
+            val sourceControllerId = replacementSourceState.projectedState.getController(entityId) ?: continue
 
             for (effect in replacementComponent.replacementEffects) {
                 val counterEvent = when (effect) {
@@ -92,7 +96,7 @@ object ReplacementEffectUtils {
                 // Check recipient filter
                 val recipientMatches = matchesRecipient(
                     counterEvent.recipient, state, targetId, entityId, sourceControllerId,
-                    predicateEvaluator = predicateEvaluator
+                    predicateEvaluator = predicateEvaluator, entryViews = entryViews
                 )
                 if (!recipientMatches) continue
 
@@ -115,7 +119,7 @@ object ReplacementEffectUtils {
             // Recipient.Self can't spuriously match, and the controller as controllerId.
             val recipientMatches = matchesRecipient(
                 modifier.recipient, state, targetId, modifier.controllerId, modifier.controllerId,
-                predicateEvaluator = predicateEvaluator
+                predicateEvaluator = predicateEvaluator, entryViews = entryViews
             )
             if (!recipientMatches) continue
             modifiedCount += modifier.modifier
@@ -123,7 +127,7 @@ object ReplacementEffectUtils {
 
         // 3. Caps apply last — the order the affected player would pick (Melira's ruling), so a
         //    doubler or an additive modifier can't push a capped placement past the cap.
-        val cap = counterPlacementCap(state, targetId, counterType, predicateEvaluator)
+        val cap = counterPlacementCap(state, targetId, counterType, predicateEvaluator, replacementSourceState, entryViews)
         if (cap != null) modifiedCount = minOf(modifiedCount, cap)
 
         return modifiedCount.coerceAtLeast(0)
@@ -160,14 +164,16 @@ object ReplacementEffectUtils {
         state: GameState,
         targetId: EntityId,
         counterType: CounterType,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state,
+        entryViews: EntryEvaluationViews? = null
     ): Int? {
         var cap: Int? = null
-        for (entityId in state.getBattlefield()) {
-            val container = state.getEntity(entityId) ?: continue
+        for (entityId in replacementSourceState.getBattlefield()) {
+            val container = replacementSourceState.getEntity(entityId) ?: continue
             val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
             // "You" is the source's current (projected) controller — a stolen Melira protects its thief.
-            val sourceControllerId = state.projectedState.getController(entityId) ?: continue
+            val sourceControllerId = replacementSourceState.projectedState.getController(entityId) ?: continue
             for (effect in replacementComponent.replacementEffects) {
                 if (effect !is CapCounterPlacementThisTurn) continue
                 val counterEvent = effect.appliesTo as? com.wingedsheep.sdk.scripting.EventPattern.CounterPlacementEvent
@@ -175,7 +181,7 @@ object ReplacementEffectUtils {
                 if (counterEvent.counterType != null && counterEvent.counterType != counterType) continue
                 if (!matchesRecipient(
                         counterEvent.recipient, state, targetId, entityId, sourceControllerId,
-                        predicateEvaluator = predicateEvaluator
+                        predicateEvaluator = predicateEvaluator, entryViews = entryViews
                     )
                 ) continue
                 cap = minOf(cap ?: effect.amount, effect.amount)
@@ -195,9 +201,13 @@ object ReplacementEffectUtils {
         targetId: EntityId,
         sourceEntityId: EntityId,
         sourceControllerId: EntityId,
-        predicateEvaluator: PredicateEvaluator
-    ): Boolean = predicateEvaluator.matchesRecipient(
-        state, state.projectedState, targetId, recipient,
-        PredicateContext(controllerId = sourceControllerId, sourceId = sourceEntityId),
-    )
+        predicateEvaluator: PredicateEvaluator,
+        entryViews: EntryEvaluationViews? = null
+    ): Boolean {
+        val recipientState = entryViews?.entrantAsWouldExist ?: state
+        return predicateEvaluator.matchesRecipient(
+            recipientState, recipientState.projectedState, targetId, recipient,
+            PredicateContext(controllerId = sourceControllerId, sourceId = sourceEntityId, entryViews = entryViews),
+        )
+    }
 }

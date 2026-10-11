@@ -186,7 +186,8 @@ object ZoneMovementUtils {
         entityId: EntityId,
         controllerId: EntityId,
         cardRegistry: CardRegistry,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state
     ): Pair<GameState, List<EngineGameEvent>> {
         val container = state.getEntity(entityId) ?: return state to emptyList()
         if (container.has<FaceDownComponent>()) return state to emptyList()
@@ -202,7 +203,7 @@ object ZoneMovementUtils {
 
         return EntersWithReplacements.placeEntryCounters(
             state, entityId, counterType, amount, controllerId, cardComponent.name,
-            predicateEvaluator = predicateEvaluator
+            predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState
         )
     }
 

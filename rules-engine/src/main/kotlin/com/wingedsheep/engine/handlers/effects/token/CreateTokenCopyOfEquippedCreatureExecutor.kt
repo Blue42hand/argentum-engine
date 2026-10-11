@@ -124,13 +124,13 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
         // A token copy honors global "[filter] enter tapped" replacements (Authority of the
         // Consuls / Dauntless Dismantler on an opponent's token copy).
         newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-            .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator)
+            .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
 
         // As-enters "enters with counters" (CR 614.1c): the copied creature's own EntersWithCounters
         // (a copy of a creature that "enters with a +1/+1 counter") plus global grants from other
         // permanents (Gev, Scaled Scorch). BattlefieldEntry.place skips this, so apply it here.
         val (afterCounters, counterEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-            .applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator)
+            .applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
         newState = afterCounters
 
         // As-enters "choose X as this enters" (CR 614.12) + granted riot (CR 702.136): pause for the
@@ -178,7 +178,7 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
         // values, CR 707.2) but not the animation, so it needs its loyalty counters or state-based
         // actions (CR 704.5i) bin it on arrival. No-op for non-planeswalkers.
         val (loyaltyState, loyaltyEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-            .applyIntrinsicEntryCountersIfNeeded(sagaState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator)
+            .applyIntrinsicEntryCountersIfNeeded(sagaState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = state)
 
         return EffectResult.success(loyaltyState, events + sagaEvents + loyaltyEvents)
     }

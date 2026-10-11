@@ -977,7 +977,8 @@ class MoveCollectionExecutor(
             // Delegate to ZoneTransitionService for full cleanup + entry
             val fromZoneKey = if (fromZone != null) ZoneKey(ownerId, fromZone) else null
             val transitionResult = zones.moveToZone(
-                newState, cardId, chosenZone, entryOptions.copy(libraryMoverId = if (moveType == MoveType.Discard) destPlayerId else context.controllerId), fromZoneKey
+                newState, cardId, chosenZone, entryOptions.copy(libraryMoverId = if (moveType == MoveType.Discard) destPlayerId else context.controllerId), fromZoneKey,
+                replacementSourceState = state
             )
             newState = transitionResult.state
             events.addAll(transitionResult.events)
@@ -997,17 +998,24 @@ class MoveCollectionExecutor(
             // needs more than the two-line call: this is a loop, the replacement can pause for a
             // decision, and pausing mid-loop requires a continuation that resumes the remaining
             // cards. See docs/card-sdk-language-reference.md, OnEnterRun "Scope today".
-            if (destZone == Zone.BATTLEFIELD && faceDown == null) {
+            // A blocked entry has no primary move. A replacement's extra move cannot impersonate
+            // this return, and simultaneous entrants cannot supply replacements to one another.
+            val primaryArrival = transitionResult.transitions.firstOrNull {
+                it.cause == com.wingedsheep.engine.core.ZoneTransitionCause.PRIMARY &&
+                    it.newObject?.entityId == cardId && it.requestedDestination == chosenZone
+            }
+            if (primaryArrival?.toZone == Zone.BATTLEFIELD && faceDown == null) {
                 val (counterState, counterEvents) = EntersWithReplacements.applyOnEntry(
                     newState, cardId, actualDestPlayerId, cardRegistry,
-                    predicateEvaluator = predicateEvaluator, preEntryZone = fromZoneKey
+                    predicateEvaluator = predicateEvaluator, preEntryZone = fromZoneKey,
+                    replacementSourceState = state
                 )
                 newState = counterState
                 events.addAll(counterEvents)
             }
 
-            movedIds.add(cardId)
-            if (destZone == Zone.LIBRARY) {
+            if (primaryArrival?.toZone == chosenZone) movedIds.add(cardId)
+            if (primaryArrival?.toZone == Zone.LIBRARY) {
                 librariesReceivingCards.add(actualDestPlayerId)
             }
         }

@@ -167,7 +167,8 @@ class MoveToZoneEffectExecutor(
         if (actualDestZone == Zone.BATTLEFIELD && effect.faceDown == null) {
             val (counterState, counterEvents) = EntersWithReplacements.applyOnEntry(
                 resultState, targetId, controllerId, cardRegistry,
-                predicateEvaluator = zones.predicateEvaluator, preEntryZone = currentZone
+                predicateEvaluator = zones.predicateEvaluator, preEntryZone = currentZone,
+                replacementSourceState = state
             )
             resultState = counterState
             extraEvents.addAll(counterEvents)

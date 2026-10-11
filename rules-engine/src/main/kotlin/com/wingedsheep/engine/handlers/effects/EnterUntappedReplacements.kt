@@ -37,16 +37,17 @@ object EnterUntappedReplacements {
         state: GameState,
         enteringEntityId: EntityId,
         enteringControllerId: EntityId,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state
     ): Boolean {
-        for (sourceId in state.getBattlefield()) {
+        for (sourceId in replacementSourceState.getBattlefield()) {
             if (sourceId == enteringEntityId) continue
-            val container = state.getEntity(sourceId) ?: continue
+            val container = replacementSourceState.getEntity(sourceId) ?: continue
             val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
-            val sourceControllerId = container.get<ControllerComponent>()?.playerId ?: continue
+            val sourceControllerId = replacementSourceState.projectedState.getController(sourceId) ?: continue
             for (effect in replacementComponent.replacementEffects) {
                 if (effect !is EntersUntapped) continue
-                if (matchesEnterFilter(effect.appliesTo, enteringEntityId, sourceId, sourceControllerId, state, predicateEvaluator = predicateEvaluator)) {
+                if (matchesEnterFilter(effect.appliesTo, enteringEntityId, sourceId, sourceControllerId, state, predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState, enteringControllerId = enteringControllerId)) {
                     return true
                 }
             }
@@ -67,7 +68,9 @@ object EnterUntappedReplacements {
         replacementSourceId: EntityId,
         sourceControllerId: EntityId,
         state: GameState,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state,
+        enteringControllerId: EntityId,
     ): Boolean {
         if (event !is EventPattern.ZoneChangeEvent) return false
         if (event.to != Zone.BATTLEFIELD) return false
@@ -75,8 +78,10 @@ object EnterUntappedReplacements {
             sourceId = replacementSourceId,
             controllerId = sourceControllerId,
         )
+        val views = entryEvaluationViews(state, enteringEntityId, enteringControllerId, replacementSourceState)
         return predicateEvaluator.matches(
-            state, state.projectedState, enteringEntityId, event.filter, predicateContext
+            views.entrantAsWouldExist, views.entrantAsWouldExist.projectedState, enteringEntityId,
+            event.filter, predicateContext.copy(entryViews = views)
         )
     }
 }

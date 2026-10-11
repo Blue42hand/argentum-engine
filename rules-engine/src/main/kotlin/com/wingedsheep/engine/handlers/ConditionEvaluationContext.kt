@@ -42,6 +42,7 @@ internal sealed interface ConditionEvaluationContext {
     data class Resolution(
         val effectContext: EffectContext,
         val projected: ProjectedState? = null,
+        val entryViews: EntryEvaluationViews? = null,
     ) : ConditionEvaluationContext {
         override val sourceId: EntityId? get() = effectContext.sourceId
         override val controllerId: EntityId get() = effectContext.controllerId

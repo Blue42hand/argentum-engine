@@ -237,7 +237,8 @@ class ZoneTransitionService(
         entityId: EntityId,
         destinationZone: Zone,
         options: ZoneEntryOptions = ZoneEntryOptions(),
-        fromZoneKey: ZoneKey? = null
+        fromZoneKey: ZoneKey? = null,
+        replacementSourceState: GameState = state
     ): ZoneTransitionResult {
         // 1. Look up entity info
         val container = state.getEntity(entityId)
@@ -341,7 +342,9 @@ class ZoneTransitionService(
 
         // 3. Check zone change redirect (unless skipped)
         val redirectResult = if (!options.skipZoneChangeRedirect) {
-            ZoneMovementUtils.checkZoneChangeRedirect(state, entityId, fromZone, destinationZone, predicateEvaluator = predicateEvaluator)
+            ZoneMovementUtils.checkZoneChangeRedirect(state, entityId, fromZone, destinationZone,
+                battlefieldSourceState = if (destinationZone == Zone.BATTLEFIELD) replacementSourceState else state,
+                predicateEvaluator = predicateEvaluator)
         } else {
             ZoneChangeRedirectResult(destinationZone)
         }
@@ -352,7 +355,7 @@ class ZoneTransitionService(
         // (CR 304.4). Checked after the redirect, so it judges the zone the card would really enter.
         if (actualDestZone == Zone.BATTLEFIELD &&
             EntryLocks.cantEnter(
-                state, entityId, fromZone, cardRegistry, predicateEvaluator
+                state, entityId, fromZone, cardRegistry, predicateEvaluator, replacementSourceState
             )
         ) {
             return ZoneTransitionResult(state, emptyList(), redirectResult, actualDestination = fromZone)
@@ -778,7 +781,8 @@ class ZoneTransitionService(
                 newState = applyBattlefieldEntry(
                     newState, entityId, cardComponent, destControllerId,
                     options.copy(tapped = options.tapped ||
-                        (options.entryCopy?.copiedCard != null && options.entryCopy.replacement.tappedIfCopied)), fromZone
+                        (options.entryCopy?.copiedCard != null && options.entryCopy.replacement.tappedIfCopied)), fromZone,
+                    replacementSourceState
                 )
                 if (!options.faceDown && options.entryChoices.isNotEmpty()) {
                     newState = newState.updateEntity(entityId) { c ->
@@ -812,18 +816,19 @@ class ZoneTransitionService(
                 // defense (CR 708.2a).
                 val (entryCounterState, entryCounterEvents) = ZoneMovementUtils.applyIntrinsicEntryCountersIfNeeded(
                     newState, entityId, destControllerId, cardRegistry,
-                    predicateEvaluator = predicateEvaluator
+                    predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState
                 )
                 newState = entryCounterState
                 events.addAll(entryCounterEvents)
                 val entryCopy = options.entryCopy?.takeIf { it.copiedCard != null && !options.faceDown }
                 entryCopy?.replacement?.additionalCounters?.let { amount ->
-                    val count = predicateEvaluator.amounts.evaluate(newState, amount,
-                        com.wingedsheep.engine.handlers.EffectContext(entityId, destControllerId))
+                    val views = entryEvaluationViews(newState, entityId, destControllerId, replacementSourceState, currentZoneKey)
+                    val count = predicateEvaluator.amounts.evaluate(views.worldBeforeEvent, amount,
+                        com.wingedsheep.engine.handlers.EffectContext(entityId, destControllerId), entryViews = views)
                     val (afterCounters, counterEvents) = EntersWithReplacements.placeEntryCounters(
                         newState, entityId, com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
                         count, destControllerId, newState.getEntity(entityId)?.get<CardComponent>()?.name ?: "",
-                        predicateEvaluator = predicateEvaluator)
+                        predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState)
                     newState = afterCounters
                     events.addAll(counterEvents)
                 }
@@ -1366,7 +1371,8 @@ class ZoneTransitionService(
         cardComponent: CardComponent,
         controllerId: EntityId,
         options: ZoneEntryOptions,
-        fromZone: Zone? = null
+        fromZone: Zone? = null,
+        replacementSourceState: GameState = state
     ): GameState {
         val withEntity = state.updateEntity(entityId) { c ->
             var updated = c.with(ControllerComponent(controllerId))
@@ -1479,7 +1485,7 @@ class ZoneTransitionService(
             withDayboundEntry,
             entityId,
             controllerId,
-            predicateEvaluator = predicateEvaluator
+            predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState
         )
         // The entering card's OWN printed "this permanent enters tapped" clause. The cast path
         // (StackResolver) and the land-play path (PlayLandHandler) read it themselves because
@@ -1487,7 +1493,7 @@ class ZoneTransitionService(
         // return from exile, a search-library move — arrives here, and until this call each of
         // them entered untapped no matter what the card said.
         val selfEntersTapped = !options.faceDown &&
-            selfEntersTapped(withDayboundEntry, entityId, controllerId)
+            selfEntersTapped(withDayboundEntry, entityId, controllerId, replacementSourceState)
         val withTapResolved = when {
             // A tapped entry — asked for by the effect (ramp/fetch) or printed on the card itself
             // — overridden by "enters untapped" (The Wandering Minstrel). Two applicable entry
@@ -1502,7 +1508,8 @@ class ZoneTransitionService(
             !options.tapped && !entersUntapped &&
                 (
                     selfEntersTapped ||
-                        EnterTappedReplacements.entersTapped(withDayboundEntry, entityId, controllerId, predicateEvaluator = predicateEvaluator)
+                        EnterTappedReplacements.entersTapped(withDayboundEntry, entityId, controllerId,
+                            predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState)
                     ) ->
                 withDayboundEntry.updateEntity(entityId) { it.with(TappedComponent) }
             else -> withDayboundEntry
@@ -1546,6 +1553,7 @@ class ZoneTransitionService(
         state: GameState,
         entityId: EntityId,
         controllerId: EntityId,
+        replacementSourceState: GameState,
     ): Boolean {
         val cardDefinitionId = state.getEntity(entityId)?.get<CardComponent>()?.cardDefinitionId
             ?: return false
@@ -1555,10 +1563,10 @@ class ZoneTransitionService(
             .firstOrNull()
             ?: return false
         val unlessCondition = entersTapped.unlessCondition ?: return true
+        val views = entryEvaluationViews(state, entityId, controllerId, replacementSourceState)
         return !conditionEvaluator.evaluate(
-            state,
-            unlessCondition,
-            EffectContext(sourceId = entityId, controllerId = controllerId)
+            views.worldBeforeEvent, unlessCondition,
+            EffectContext(sourceId = entityId, controllerId = controllerId), entryViews = views
         )
     }
 

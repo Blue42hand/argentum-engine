@@ -34,12 +34,13 @@ object EntryLocks {
         entityId: EntityId,
         fromZone: Zone,
         cardRegistry: CardRegistry,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        replacementSourceState: GameState = state
     ): Boolean {
         // A move that starts on the battlefield (a same-zone instruction) isn't an entry.
         if (fromZone == Zone.BATTLEFIELD) return false
-        for (sourceId in state.getBattlefield()) {
-            val container = state.getEntity(sourceId) ?: continue
+        for (sourceId in replacementSourceState.getBattlefield()) {
+            val container = replacementSourceState.getEntity(sourceId) ?: continue
             if (container.has<FaceDownComponent>()) continue
             val card = container.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
@@ -48,17 +49,17 @@ object EntryLocks {
                     is CantEnterTheBattlefield -> ability
                     is ConditionalStaticAbility -> {
                         val inner = ability.ability as? CantEnterTheBattlefield ?: continue
-                        val controller = state.projectedState.getController(sourceId) ?: continue
+                        val controller = replacementSourceState.projectedState.getController(sourceId) ?: continue
                         val context = EffectContext(sourceId = sourceId, controllerId = controller)
-                        if (!predicateEvaluator.conditions.evaluate(state, ability.condition, context)) continue
+                        if (!predicateEvaluator.conditions.evaluate(replacementSourceState, ability.condition, context)) continue
                         inner
                     }
                     else -> continue
                 }
                 if (lock.fromZones?.contains(fromZone) == false) continue
-                val controller = state.projectedState.getController(sourceId) ?: continue
+                val controller = replacementSourceState.projectedState.getController(sourceId) ?: continue
                 if (predicateEvaluator.matches(
-                        state, state.projectedState, entityId, lock.filter,
+                        replacementSourceState, replacementSourceState.projectedState, entityId, lock.filter,
                         PredicateContext(controllerId = controller, sourceId = sourceId)
                     )
                 ) return true

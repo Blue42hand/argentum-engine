@@ -325,7 +325,7 @@ class CreateTokenExecutor(
             newState = EnterTappedReplacements.applyCreatedTokenEntryTap(
                 newState, tokenId, tokenControllerId,
                 definedTapped = effect.tapped, attacking = effect.attacking,
-                predicateEvaluator = amountEvaluator.predicates
+                predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state
             )
         }
 
@@ -335,7 +335,7 @@ class CreateTokenExecutor(
         for (tokenId in createdTokens) {
             val (nextState, events) = EntersWithReplacements.applyGlobal(
                 newState, tokenId, tokenControllerId, cardRegistry,
-                predicateEvaluator = amountEvaluator.predicates
+                predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state
             )
             newState = nextState
             counterEvents.addAll(events)

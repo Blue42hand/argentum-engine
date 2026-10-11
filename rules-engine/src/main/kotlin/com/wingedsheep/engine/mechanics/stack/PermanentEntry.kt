@@ -124,7 +124,8 @@ internal class PermanentEntry(
         }
 
         newState = applyEntryCounterReplacements(
-            newState, spellId, spellComponent, cardComponent, cardDef, controllerId, graveyardCastRider, counterEvents
+            newState, spellId, spellComponent, cardComponent, cardDef, controllerId, graveyardCastRider, counterEvents,
+            replacementSourceState = state
         )
         newState = applyEntryDesignations(newState, spellId, spellComponent, cardDef)
 
@@ -662,7 +663,8 @@ internal class PermanentEntry(
         cardDef: com.wingedsheep.sdk.model.CardDefinition?,
         controllerId: EntityId,
         graveyardCastRider: com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent?,
-        counterEvents: MutableList<GameEvent>
+        counterEvents: MutableList<GameEvent>,
+        replacementSourceState: GameState = state
     ): GameState {
         var newState = state
         if (cardDef != null && !spellComponent.castFaceDown) {
@@ -670,7 +672,8 @@ internal class PermanentEntry(
                 spellComponent.manaSpentBlack + spellComponent.manaSpentRed +
                 spellComponent.manaSpentGreen + spellComponent.manaSpentColorless
             val (counterState, events) = applyEntersWithReplacements(
-                newState, spellId, cardDef, controllerId, spellComponent.xValue, totalManaSpent
+                newState, spellId, cardDef, controllerId, spellComponent.xValue, totalManaSpent,
+                replacementSourceState = replacementSourceState
             )
             newState = counterState
             counterEvents.addAll(events)
@@ -699,7 +702,7 @@ internal class PermanentEntry(
                 newState, spellId,
                 boughtCounters.counterType, boughtCounters.count,
                 controllerId, cardComponent?.name ?: "",
-                predicateEvaluator = conditionEvaluator.predicates
+                predicateEvaluator = conditionEvaluator.predicates, replacementSourceState = replacementSourceState
             )
             newState = boughtState
             counterEvents.addAll(boughtEvents)
@@ -728,7 +731,7 @@ internal class PermanentEntry(
             val (entryCounterState, entryCounterEvents) = EntersWithReplacements.placeEntryCounters(
                 newState, spellId, intrinsicEntryCounters.first, intrinsicEntryCounters.second,
                 controllerId, cardComponent?.name ?: "",
-                predicateEvaluator = conditionEvaluator.predicates
+                predicateEvaluator = conditionEvaluator.predicates, replacementSourceState = replacementSourceState
             )
             newState = entryCounterState
             counterEvents.addAll(entryCounterEvents)
@@ -1002,21 +1005,22 @@ internal class PermanentEntry(
         cardDef: com.wingedsheep.sdk.model.CardDefinition,
         controllerId: EntityId,
         xValue: Int? = null,
-        totalManaSpent: Int = 0
+        totalManaSpent: Int = 0,
+        replacementSourceState: GameState = state
     ): Pair<GameState, List<GameEvent>> {
         var newState = state
         val events = mutableListOf<GameEvent>()
 
         val (ownState, ownEvents) = EntersWithReplacements.applyFromDefinition(
             newState, entityId, cardDef, controllerId, xValue, totalManaSpent,
-            predicateEvaluator = conditionEvaluator.predicates
+            predicateEvaluator = conditionEvaluator.predicates, replacementSourceState = replacementSourceState
         )
         newState = ownState
         events.addAll(ownEvents)
 
         val (globalState, globalEvents) = EntersWithReplacements.applyGlobal(
             newState, entityId, controllerId, cardRegistry,
-            predicateEvaluator = conditionEvaluator.predicates
+            predicateEvaluator = conditionEvaluator.predicates, replacementSourceState = replacementSourceState
         )
         newState = globalState
         events.addAll(globalEvents)
