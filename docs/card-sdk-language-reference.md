@@ -10528,7 +10528,7 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
 > **Where set-mechanic helpers live.** The `card { … }` keyword helpers below for *set-specific*
 > mechanics — `mayBeginGameOnBattlefield()`, `flurry { }`, `mobilize(…)`, `firebending(n)`, `sneak(cost)`, `webSlinging(cost)`, `mayhem(cost)`, `madness(cost)`, `decayed()`,
 > `vividEtb { }` / `vividCostReduction()`, `convergeEntersWithCounters(counterType?)`,
-> `impending(time, cost)`, `renew(cost) { }`, `embalm(cost)`, `enduring()`,
+> `impending(time, cost)`, `renew(cost) { }`, `embalm(cost)`, `eternalize(cost)`, `enduring()`,
 > `craft(filter, cost)`, `station()`, `jobSelect()`, `forMirrodin()`, `gift(kind)` — are `CardBuilder` **extension functions** in
 > `mtg-sdk/.../dsl/mechanics/` (one file per mechanic), not methods on the core `CardBuilder`. They
 > stay in package `com.wingedsheep.sdk.dsl`, so the call syntax is unchanged, but a card file that
@@ -11905,6 +11905,15 @@ composite abilities).
   rather than an alternative way to cast, the grant rides the plain `GrantedActivatedAbility` channel — not the
   `GrantedKeywordAbility` record `GrantHarmonize`/`GrantFlashback` need — and `ZoneActivatedAbilityEnumerator` surfaces
   printed **and** granted zone abilities alike.
+- `Eternalize(cost)` — `card { eternalize(cost) }` builder helper (CR 702.129a). A graveyard-activated
+  ability composed from `AbilityCost.Composite(Mana(cost), ExileSelf)`, `activateFromZone = GRAVEYARD`,
+  and `timing = SorcerySpeed`. It creates a token copy of `EffectTarget.Self` with
+  `CopyExceptions(overrideColors = {BLACK}, powerOverride = 4, toughnessOverride = 4,
+  addedSubtypes = {Zombie}, noManaCost = true)`. The card is exiled immediately as a cost; the copy
+  reads its printed characteristics in exile rather than its previous battlefield modifications.
+  The black color, 4/4 base stats, added Zombie subtype and missing mana cost are copiable values.
+  Other printed types and abilities remain. Declares `Keyword.ETERNALIZE` for client display.
+  No new effect or engine subsystem is involved.
 - `station()` — `card { station() }` builder helper (CR 702.184, Edge of Eternities; Spacecraft and Planet cards).
   Emits the fixed station keyword ability (CR 702.184a): "Tap another untapped creature you control: Put a number of
   charge counters on this permanent equal to the tapped creature's power. Activate only as a sorcery." The ability is

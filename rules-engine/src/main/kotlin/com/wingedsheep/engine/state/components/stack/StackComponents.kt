@@ -402,6 +402,8 @@ data class ActivatedAbilityOnStackComponent(
      * the same battlefield object.
      */
     val lastKnownSourceSnapshot: EntitySnapshot? = null,
+    /** Copiable values of this ability's cost-exiled source if that exact exile object later leaves. */
+    val departedCopiableSource: CopiableSourceSnapshot? = null,
     /**
      * Entity ids of the Equipment/Auras that were attached to the source when a self-sacrifice /
      * self-exile cost was paid (CR 113.7a). Captured before the cost wipes the source's

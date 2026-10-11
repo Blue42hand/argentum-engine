@@ -572,6 +572,9 @@ enum class Keyword(val displayName: String) {
      */
     EMBALM("Embalm"),
 
+    /** Eternalize (CR 702.129): graveyard activation authored by the eternalize(cost) helper. */
+    ETERNALIZE("Eternalize"),
+
     /**
      * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
      * enters, if you control ten or more permanents, you get the city's blessing

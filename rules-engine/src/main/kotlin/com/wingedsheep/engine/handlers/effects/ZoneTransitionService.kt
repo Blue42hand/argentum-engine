@@ -508,6 +508,32 @@ class ZoneTransitionService(
         var newState = state
         val events = mutableListOf<EngineGameEvent>()
 
+        // A graveyard ability's self-exile cost leaves a public source object in exile. If that
+        // exact object moves again before a Self-copy effect resolves, its copiable values must
+        // come from the object as it last existed in exile (CR 608.2h). Capture before the
+        // exile-exit cleanup can strip characteristics; never authorize this later move as an
+        // actionable Self target, and never attach the snapshot to an unrelated activation.
+        if (fromZone == Zone.EXILE && oldObject != null) {
+            val copySnapshot = com.wingedsheep.engine.state.components.stack.CopiableSourceSnapshot
+                .capture(oldObject, container)
+            if (copySnapshot != null) {
+                for (stackId in newState.stack) {
+                    val stacked = newState.getEntity(stackId) ?: continue
+                    val ability = stacked.get<ActivatedAbilityOnStackComponent>() ?: continue
+                    val sourceRef = ability.objectReferences.source ?: continue
+                    if (ability.sourceId != entityId || ability.departedCopiableSource != null ||
+                        ability.objectReferences.followed(sourceRef) != oldObject ||
+                        ability.objectReferences.permittedMoves.none { it.newObject == oldObject } ||
+                        (ability.effect as? com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect)
+                            ?.target != com.wingedsheep.sdk.scripting.targets.EffectTarget.Self
+                    ) continue
+                    newState = newState.updateEntity(stackId) {
+                        it.with(ability.copy(departedCopiableSource = copySnapshot))
+                    }
+                }
+            }
+        }
+
         // 4. EXIT CLEANUP if leaving battlefield
         if (leavingBattlefield) {
             // An attached Aura/Equipment that leaves the battlefield becomes unattached from its
