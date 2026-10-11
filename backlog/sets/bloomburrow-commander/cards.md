@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 156 / 312
+**Implemented:** 157 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -280,7 +280,7 @@
 - [x] Swords to Plowshares
 - [x] Tainted Wood
 - [x] Talisman of Impulse
-- [ ] Talisman of Resilience
+- [x] Talisman of Resilience
 - [x] Tamiyo, Field Researcher
 - [x] Tear Asunder
 - [ ] Teferi, Time Raveler
