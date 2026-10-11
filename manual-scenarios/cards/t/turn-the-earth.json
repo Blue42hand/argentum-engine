@@ -1,0 +1,22 @@
+{
+  "name": "Turn the Earth — choose graveyard cards or gain life alone",
+  "description": "Cast Turn the Earth from hand. Choose no targets to gain 2 life without shuffling, or restart and choose up to three cards across both graveyards; each affected owner shuffles their chosen cards into their own library once. You can also restart and cast the graveyard copy for its flashback cost using the two Forests, then check that the spell is exiled after resolution.",
+  "player1Name": "Earth caster",
+  "player2Name": "Other graveyard owner",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": ["Turn the Earth"],
+    "graveyard": ["Grizzly Bears", "Swamp", "Turn the Earth"],
+    "battlefield": [{"name": "Forest"}, {"name": "Forest"}],
+    "library": ["Island", "Mountain", "Plains"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "graveyard": ["Hill Giant", "Mountain"],
+    "library": ["Island", "Forest", "Plains"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
