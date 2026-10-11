@@ -251,22 +251,19 @@ class CopyTriggeredExceptionsTest : FunSpec({
             toZone = Zone.GRAVEYARD, ownerId = d.player1,
             lastKnown = com.wingedsheep.engine.state.components.stack.EntitySnapshot(
                 entityId = aura, cardDefinitionId = copier.name, attachedTo = host,
+                typeLine = TypeLine.parse("Enchantment — Aura"), controllerId = d.player1,
                 copyTriggeredAbilities = listOf(ability)
             )
         )
-        val evaluator = com.wingedsheep.engine.handlers.PredicateEvaluator(cardRegistry = d.cardRegistry)
-        val resolver = com.wingedsheep.engine.event.TriggerAbilityResolver(
-            d.cardRegistry, com.wingedsheep.engine.event.AbilityRegistry(), evaluator
+        val hostEvent = com.wingedsheep.engine.core.ZoneChangeEvent(
+            entityId = host, entityName = "Grizzly Bears", fromZone = Zone.BATTLEFIELD,
+            toZone = Zone.GRAVEYARD, ownerId = d.player1,
+            lastKnown = com.wingedsheep.engine.state.components.stack.EntitySnapshot(
+                entityId = host, attachmentIds = listOf(aura)
+            )
         )
-        val detector = com.wingedsheep.engine.event.DeathAndLeaveTriggerDetector(
-            resolver, com.wingedsheep.engine.event.TriggerMatcher(evaluator, evaluator.conditions)
-        )
-        val triggers = mutableListOf<com.wingedsheep.engine.event.PendingTrigger>()
-        detector.detectDeadAuraAttachmentTriggers(
-            d.state,
-            com.wingedsheep.engine.event.BattlefieldStaticsIndex.build(d.state, d.cardRegistry, predicateEvaluator = evaluator),
-            event, triggers
-        )
+        val triggers = d.services.triggerDetector.detectTriggers(d.state, listOf(hostEvent, event))
+            .filter { it.sourceId == aura }
         triggers.size shouldBe 1
         triggers.single().ability shouldBe ability
         triggers.single().sourceName shouldBe "Copied Aura"

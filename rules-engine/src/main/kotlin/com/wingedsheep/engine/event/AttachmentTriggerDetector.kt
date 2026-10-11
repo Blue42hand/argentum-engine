@@ -50,12 +50,9 @@ class AttachmentTriggerDetector(
             for (entry in entries) {
                 for (ability in entry.abilities) {
                     if (ability.binding != TriggerBinding.ATTACHED) continue
-                    // For zone-change events on the attached creature (e.g., creature dies),
-                    // skip auras — they go to graveyard with the creature and are handled by
-                    // DeathAndLeaveTriggerDetector.detectDeadAuraAttachmentTriggers via the
-                    // aura's own ZoneChangeEvent. Only equipment stays on the battlefield.
-                    if (isZoneChange && ability.trigger is EventPattern.ZoneChangeEvent &&
-                        !entry.cardComponent.typeLine.isEquipment) continue
+                    // Attachment departures are matched from the host's frozen attachments below,
+                    // rather than from a link that may already refer to a new battlefield visit.
+                    if (isZoneChange && ability.trigger is EventPattern.ZoneChangeEvent) continue
                     if (matchesAttachedTrigger(ability.trigger, event, entityId, entry.controllerId, entry.entityId, state)) {
                         triggers.add(
                             PendingTrigger(
@@ -68,6 +65,60 @@ class AttachmentTriggerDetector(
                         )
                     }
                 }
+            }
+        }
+    }
+
+    /** Match attachment abilities against the host's actual departure, even after a token vanished. */
+    fun detectAttachmentDepartureTriggers(
+        state: GameState,
+        event: ZoneChangeEvent,
+        departures: List<ZoneChangeEvent>,
+        triggers: MutableList<PendingTrigger>,
+        index: TriggerIndex,
+    ) {
+        if (event.fromZone != Zone.BATTLEFIELD) return
+        val eventIndex = departures.indexOf(event)
+        for (attachmentId in event.lastKnown?.attachmentIds.orEmpty()) {
+            val priorMove = departures.take(eventIndex).lastOrNull { it.entityId == attachmentId }
+            val attachmentDeparture = (priorMove?.takeIf { it.fromZone == Zone.BATTLEFIELD }
+                ?: departures.drop(eventIndex + 1).firstOrNull {
+                    it.entityId == attachmentId && it.fromZone == Zone.BATTLEFIELD
+                })?.takeIf { it.lastKnown?.attachedTo == event.entityId }
+            val live = state.getEntity(attachmentId)
+            val liveCard = live?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
+            val snapshot = attachmentDeparture?.lastKnown
+            val definitionId = snapshot?.cardDefinitionId ?: liveCard?.cardDefinitionId ?: continue
+            val typeLine = snapshot?.typeLine ?: liveCard?.typeLine ?: continue
+            val controller = snapshot?.controllerId
+                ?: state.projectedState.getController(attachmentId) ?: continue
+            val abilities = if (attachmentDeparture != null) {
+                abilityResolver.getDepartedTriggeredAbilities(attachmentDeparture, definitionId, state, index.statics)
+            } else {
+                if (attachmentId !in state.getBattlefield() ||
+                    live?.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>() == true ||
+                    state.projectedState.hasLostAllAbilities(attachmentId)) continue
+                abilityResolver.getTriggeredAbilities(attachmentId, definitionId, state, index.statics)
+            }
+            for (ability in abilities) {
+                if (ability.binding != TriggerBinding.ATTACHED || Zone.BATTLEFIELD !in ability.activeZones) continue
+                val pattern = ability.trigger as? EventPattern.ZoneChangeEvent ?: continue
+                if (!matchesAttachedTrigger(pattern, event, event.entityId, controller, attachmentId, state)) continue
+                triggers.add(PendingTrigger(
+                    ability = ability,
+                    sourceId = attachmentId,
+                    sourceName = attachmentDeparture?.entityName ?: liveCard!!.name,
+                    controllerId = controller,
+                    triggerContext = TriggerContext.fromEvent(event),
+                    objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(
+                        captured = true,
+                        origin = if (attachmentDeparture != null) attachmentDeparture.oldObject else state.objectRef(attachmentId),
+                        source = if (attachmentDeparture == null) state.objectRef(attachmentId)
+                            else if (typeLine.isAura && attachmentDeparture.toZone == Zone.GRAVEYARD) attachmentDeparture.newObject
+                            else attachmentDeparture.oldObject,
+                        triggering = TriggerContext.fromEvent(event).triggeringObject,
+                    ),
+                ))
             }
         }
     }
@@ -85,9 +136,8 @@ class AttachmentTriggerDetector(
      * creature dies" would fire on removal but silently no-op on combat damage — the far more
      * common way a creature actually dies.
      *
-     * Only Equipment is reconstructed: an Aura goes to the graveyard along with its host and is
-     * handled from its own [ZoneChangeEvent] by
-     * [DeathAndLeaveTriggerDetector.detectDeadAuraAttachmentTriggers].
+     * This path reconstructs only surviving Equipment. Zone departures use the host's frozen
+     * attachment relationship in [detectAttachmentDepartureTriggers].
      *
      * The same SBA pass strands a damage trigger: an equipped creature that dies to the very combat
      * damage it dealt (or was dealt) is unattached before detection, yet the ability triggered when

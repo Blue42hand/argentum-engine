@@ -447,7 +447,7 @@ class ZoneTransitionService(
         // down by the exit cleanup below (CR 704.5m/n), so "modified/equipped/enchanted creature
         // leaves the battlefield" triggers must freeze it here as last-known information (CR 608.2h).
         val lastKnownAttachmentIds = if (leavingBattlefield) {
-            state.getEntity(entityId)
+            options.lookBackGrants?.attachmentIds ?: state.getEntity(entityId)
                 ?.get<com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent>()
                 ?.attachedIds
                 ?: emptyList()

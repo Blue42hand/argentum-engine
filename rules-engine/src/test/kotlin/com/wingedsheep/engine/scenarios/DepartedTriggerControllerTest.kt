@@ -5,6 +5,7 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
+import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -57,6 +58,7 @@ class DepartedTriggerControllerTest : FunSpec({
         ZoneChangeEvent(entityId = id, entityName = name, fromZone = Zone.BATTLEFIELD,
             toZone = destination, ownerId = owner, lastKnown = EntitySnapshot.fromProjection(id, state).copy(
                 attachedTo = state.getEntity(id)?.get<AttachedToComponent>()?.targetId,
+                attachmentIds = state.getEntity(id)?.get<AttachmentsComponent>()?.attachedIds.orEmpty(),
                 cardDefinitionId = state.getEntity(id)?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.cardDefinitionId,
             ))
     fun depart(state: GameState, id: EntityId, owner: EntityId, destination: Zone = Zone.GRAVEYARD) =
@@ -111,6 +113,7 @@ class DepartedTriggerControllerTest : FunSpec({
         val host = d.putCreatureOnBattlefield(d.player1, "Centaur Courser")
         val enchanted = d.putPermanentOnBattlefield(d.player1, aura.name)
         d.addComponent(enchanted, AttachedToComponent(host))
+        d.addComponent(host, AttachmentsComponent(listOf(enchanted)))
         val stolen = steal(d, d.state, enchanted)
         val events = listOf(event(stolen, host, "Centaur Courser", d.player1), event(stolen, enchanted, aura.name, d.player1))
         events.last().lastKnown!!.attachedTo shouldBe host
