@@ -1,0 +1,46 @@
+{
+  "name": "Sword of the Animist \u2014 equip and attack search",
+  "description": "Cast and equip Sword of the Animist to Grizzly Bears. Attack to choose whether to search, select a basic land, and inspect its tapped entry and the boosted attacker from both seats. The opponent must not see the library search contents.",
+  "player1Name": "Sword controller",
+  "player2Name": "Defender",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [
+      "Sword of the Animist"
+    ],
+    "battlefield": [
+      {
+        "name": "Grizzly Bears"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      },
+      {
+        "name": "Mountain"
+      }
+    ],
+    "library": [
+      "Forest",
+      "Plains",
+      "Lightning Bolt"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "library": [
+      "Island",
+      "Swamp",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
