@@ -1,0 +1,19 @@
+{
+  "name": "Talisman of Resilience — three mana choices",
+  "description": "Activate the Talisman and restart this scenario for each of its three tap abilities. The colorless choice adds {C} without changing life. The black and green choices each add their named mana and deal 1 damage to the Talisman's controller, reducing life from 20 to 19. All three abilities add mana immediately without using the stack, and each taps the Talisman.",
+  "player1Name": "Talisman controller",
+  "player2Name": "Observer",
+  "player1": {
+    "lifeTotal": 20,
+    "battlefield": [{"name": "Talisman of Resilience"}],
+    "library": ["Forest", "Swamp", "Island"]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "library": ["Mountain", "Plains", "Island"]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "step": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}
