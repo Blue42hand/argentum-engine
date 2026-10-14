@@ -23,7 +23,7 @@ val BidentOfThassa = card("Bident of Thassa") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature.opponentControls()), Effects.MarkMustAttackThisTurn(EffectTarget.IterationEntity))
+        effect = Effects.GrantStaticAbility(MustAttack(GroupFilter(GameObjectFilter.Creature.opponentControls())), EffectTarget.Controller, Duration.EndOfTurn)
     }
 
     metadata {
