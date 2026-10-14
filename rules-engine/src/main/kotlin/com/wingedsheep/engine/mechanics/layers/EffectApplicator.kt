@@ -144,7 +144,9 @@ internal class EffectApplicator(
                     values.name = mod.name
                 }
                 is Modification.GrantKeyword -> {
-                    addKeyword(values.keywords, mod.keyword)
+                    if (values.cantHaveKeywords.none { mod.keyword == it || mod.keyword.startsWith(it + "_") }) {
+                        addKeyword(values.keywords, mod.keyword)
+                    }
                     // Changeling grants all creature types (Rule 702.73)
                     if (mod.keyword == Keyword.CHANGELING.name) {
                         values.subtypes.addAll(com.wingedsheep.sdk.core.Subtype.ALL_CREATURE_TYPES)
@@ -154,6 +156,9 @@ internal class EffectApplicator(
                     values.enchantmentRestrictions.add(ActiveEnchantmentRestriction(
                         effect.sourceId, mod.auras, mod.exceptSource, restrictionSurvivesSourceAbilityRemoval
                     ))
+                }
+                is Modification.CantHaveKeywords -> {
+                    values.cantHaveKeywords.addAll(mod.keywords)
                 }
                 is Modification.RemoveKeyword -> {
                     values.keywords.remove(mod.keyword)

@@ -148,6 +148,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ResolutionControlEvent::class)
         subclass(HandRevealedEvent::class)
         subclass(KeywordGrantedEvent::class)
+        subclass(KeywordsProhibitedEvent::class)
         subclass(CitysBlessingGainedEvent::class)
         subclass(EnduringStoryGainedEvent::class)
         subclass(SpeedChangedEvent::class)

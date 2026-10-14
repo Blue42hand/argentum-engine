@@ -68,6 +68,20 @@ data class GrantKeywordEffect(
  * The [keyword] field stores the enum name (e.g., "FLYING")
  * which the engine uses for string-based keyword checks in projected state.
  */
+/** A duration-scoped prohibition: existing keywords are lost and later grants cannot apply. */
+@SerialName("CantHaveKeywords")
+@Serializable
+data class CantHaveKeywordsEffect(
+    val keywords: Set<Keyword>,
+    val target: EffectTarget,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    init { require(keywords.isNotEmpty()) }
+    override val description: String = "${target.description} can't have " +
+        keywords.joinToString(" or ") { it.name.lowercase().replace('_', ' ') } +
+        if (duration.description.isEmpty()) "" else " ${duration.description}"
+}
+
 @SerialName("RemoveKeyword")
 @Serializable
 data class RemoveKeywordEffect(

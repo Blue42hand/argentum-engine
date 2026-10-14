@@ -21,6 +21,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.abilities.IncrementAbil
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.MarkEnduringReturnExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.LevelUpClassExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.RemoveAllAbilitiesExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.abilities.CantHaveKeywordsExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.RemoveKeywordExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachEquipmentExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachTargetEquipmentToCreatureExecutor
@@ -226,6 +227,7 @@ class PermanentExecutors(
         GrantStaticAbilityExecutor(),
         GrantReplacementEffectExecutor(),
         RemoveKeywordExecutor(),
+        CantHaveKeywordsExecutor(),
         GrantToEnchantedCreatureTypeGroupExecutor(),
         GrantStateTriggeredAbilityExecutor(),
         GrantTriggeredAbilityExecutor(),
