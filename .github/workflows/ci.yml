@@ -131,7 +131,7 @@ jobs:
   # (min 0); main-only keeps PR feedback fast while still tracking the trend on the default branch.
   coverage:
     # The sealed manual release gate requires an exact-head coverage result before deployment.
-    if: github.ref == 'refs/heads/main' || github.head_ref == 'codex/human-luna-release'
+    if: github.ref == 'refs/heads/main' || github.head_ref == 'codex/human-luna-release' || github.head_ref == 'codex/reliable-release-bindings'
     runs-on: ubuntu-latest
     env:
       GRADLE_BUILD_CACHE_DIR: ${{ github.workspace }}/.gradle/build-cache
