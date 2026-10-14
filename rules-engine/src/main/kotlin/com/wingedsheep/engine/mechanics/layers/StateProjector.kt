@@ -315,6 +315,17 @@ class StateProjector {
                 effect.copy(affectedEntities = lockAffected(effect, resolved))
             }
 
+        // A "can't have" prohibition is independent of the timestamp of an ability grant.
+        // Applying the restrictions first also lets later layer-6 filters see the loss.
+        for (effect in postTypeEffects) {
+            if (effect.modification is Modification.CantHaveKeywords) {
+                effectApplicator.applyEffect(effect, state, projectedValues)
+            }
+        }
+        for (values in projectedValues.values) {
+            values.keywords.removeAll { keyword -> values.cantHaveKeywords.any { keyword == it || keyword.startsWith(it + "_") } }
+        }
+
         // === Layers 5-6 (Color + Ability) ===
         for (effect in postTypeEffects) {
             if (effect.modification is Modification.CanAttackAsThoughHasty) continue
@@ -347,6 +358,11 @@ class StateProjector {
                 values.keywords.add(Keyword.DECAYED.name)
                 values.cantBlock = true
             }
+        }
+
+        // Keyword counters and static grants cannot restore a prohibited ability.
+        for (values in projectedValues.values) {
+            values.keywords.removeAll { keyword -> values.cantHaveKeywords.any { keyword == it || keyword.startsWith(it + "_") } }
         }
 
         // Resolve CDAs (Layer 7a) - evaluate dynamic power/toughness
@@ -500,6 +516,7 @@ class StateProjector {
                 baseToughness = v.baseToughness,
                 name = v.name,
                 keywords = v.keywords,
+                cantHaveKeywords = v.cantHaveKeywords,
                 enchantmentRestrictions = v.enchantmentRestrictions.toList(),
                 colors = v.colors,
                 types = v.types,

@@ -483,6 +483,10 @@ sealed interface Modification {
         override val layer get() = Layer.ABILITY
     }
     @Serializable
+    data class CantHaveKeywords(val keywords: Set<String>) : Modification {
+        override val layer get() = Layer.ABILITY
+    }
+    @Serializable
     data class RemoveKeyword(val keyword: String) : Modification {
         override val layer get() = Layer.ABILITY
     }
@@ -783,6 +787,7 @@ internal data class MutableProjectedValues(
     var baseToughness: Int? = null,
     var name: String? = null,
     val keywords: MutableSet<String> = mutableSetOf(),
+    val cantHaveKeywords: MutableSet<String> = mutableSetOf(),
     val enchantmentRestrictions: MutableList<ActiveEnchantmentRestriction> = mutableListOf(),
     val colors: MutableSet<String> = mutableSetOf(),
     val types: MutableSet<String> = mutableSetOf(),
