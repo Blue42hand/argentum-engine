@@ -89,6 +89,27 @@ object CombatTaxes {
             }
         }
 
+        // A duration-scoped rule may be held by the defended player (e.g. a Saga chapter),
+        // or by one of their permanents. Read the existing grant store at the same price point
+        // used by declarations and AI/legal-action previews; do not snapshot future attackers.
+        for (grant in state.grantedStaticAbilities) {
+            val ability = grant.ability as? AttackTax ?: continue
+            val defenderId = if (grant.entityId in state.turnOrder) grant.entityId else {
+                if (grant.entityId !in state.getBattlefield() || projected.hasLostAllAbilities(grant.entityId)) continue
+                projected.getController(grant.entityId) ?: continue
+            }
+            if (!com.wingedsheep.engine.mechanics.durations.GrantDurationGate.holds(
+                    state, grant.entityId, grant.sourceId, grant.duration)) continue
+            val attackerCount = (attackersAtPlayer[defenderId] ?: 0) +
+                if (ability.coversPlaneswalkers) attackersAtPlaneswalkers[defenderId] ?: 0 else 0
+            if (attackerCount == 0) continue
+            val context = EffectContext(sourceId = grant.entityId, controllerId = defenderId)
+            val condition = ability.condition
+            if (condition != null && !predicateEvaluator.conditions.evaluate(state, condition, context)) continue
+            val perAttacker = maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amountPerAttacker, context, projected))
+            totalGenericTax += perAttacker * attackerCount
+        }
+
         return totalGenericTax + perCreatureTax(state, attackers.keys, projected) +
             selfTax(state, cardRegistry, attackers.keys, projected, taxingBlockers = false, predicateEvaluator = predicateEvaluator)
     }
