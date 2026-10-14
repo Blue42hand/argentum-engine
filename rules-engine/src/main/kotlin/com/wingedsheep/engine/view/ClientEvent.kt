@@ -1468,6 +1468,7 @@ is PermanentsSacrificedEvent -> {
             is GraveyardOrderedEvent,
             is LibraryReorderedEvent,
             is KeywordGrantedEvent,
+            is KeywordsProhibitedEvent,
             is CitysBlessingGainedEvent,
             is EnduringStoryGainedEvent,
             is MaximumHandSizeRemovedEvent,

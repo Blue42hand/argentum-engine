@@ -237,6 +237,7 @@ internal class CardActiveEffectsProjector(
         is SerializableModification.SetPowerToughness -> "base ${modification.power}/${modification.toughness}"
         is SerializableModification.SwitchPowerToughness -> "power and toughness switched"
         is SerializableModification.GrantKeyword -> keywordName(modification.keyword)
+        is SerializableModification.CantHaveKeywords -> "can't have " + modification.keywords.joinToString(" or ") { keywordName(it) }
         is SerializableModification.RemoveKeyword -> "loses ${keywordName(modification.keyword)}"
         else -> null
     }

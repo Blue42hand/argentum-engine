@@ -58,6 +58,7 @@ data class ProjectedValues(
     val baseToughness: Int? = null,
     val name: String? = null,
     val keywords: Set<String> = emptySet(),
+    val cantHaveKeywords: Set<String> = emptySet(),
     val enchantmentRestrictions: List<ActiveEnchantmentRestriction> = emptyList(),
     val colors: Set<String> = emptySet(),
     val types: Set<String> = emptySet(),
@@ -168,6 +169,9 @@ class ProjectedState(
      * such effect is active; callers should fall back to [com.wingedsheep.engine.state.components.identity.CardComponent.name].
      */
     fun getName(entityId: EntityId): String? = projectedValues[entityId]?.name
+
+    fun cantHaveKeyword(entityId: EntityId, keyword: String): Boolean =
+        projectedValues[entityId]?.cantHaveKeywords.orEmpty().any { keyword == it || keyword.startsWith(it + "_") }
 
     fun getKeywords(entityId: EntityId): Set<String> = projectedValues[entityId]?.keywords ?: emptySet()
 
@@ -301,6 +305,7 @@ internal fun buildIntermediateProjectedState(
             basePower = v.basePower,
             baseToughness = v.baseToughness,
             keywords = v.keywords.toSet(),
+            cantHaveKeywords = v.cantHaveKeywords.toSet(),
             enchantmentRestrictions = v.enchantmentRestrictions.toList(),
             colors = v.colors.toSet(),
             types = v.types.toSet(),
