@@ -350,17 +350,14 @@
                     ]
                 },
                 "effect": {
-                    "type": "ForEach",
-                    "space": {
-                        "type": "IterationSpace.Group",
+                    "type": "GrantStaticAbility",
+                    "ability": {
+                        "type": "MustAttack",
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
                         }
                     },
-                    "body": {
-                        "type": "MarkMustAttackThisTurn",
-                        "target": "IterationEntity"
-                    }
+                    "target": "Controller"
                 }
             }
         ]

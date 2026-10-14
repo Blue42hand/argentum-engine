@@ -325,7 +325,8 @@ internal class AffectsFilterResolver(
                 val controllerMatches = pred.evaluateWith { leaf ->
                     when (leaf) {
                         ControllerPredicate.ControlledByYou -> entityController == controller
-                        ControllerPredicate.ControlledByOpponent -> entityController != controller
+                        ControllerPredicate.ControlledByOpponent ->
+                            entityController != null && controller != null && state.isOpponentOf(entityController, controller)
                         ControllerPredicate.ControlledByAny -> true
                         // Turn-scoped floating restrictions (Sandswirl Wanderglyph's "they can't
                         // attack ... this turn" via a CantAttackGroup over the active player's
@@ -1112,5 +1113,6 @@ internal class AffectsFilterResolver(
     ): EntityId? {
         return projectedValues[entityId]?.controllerId
             ?: state.getEntity(entityId)?.get<ControllerComponent>()?.playerId
+            ?: entityId.takeIf { it in state.turnOrder }
     }
 }

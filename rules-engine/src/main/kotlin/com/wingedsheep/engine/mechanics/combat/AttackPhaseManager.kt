@@ -983,11 +983,7 @@ internal class AttackPhaseManager(
      * they must be consulted here at the point of use, alongside the projected value.
      */
     private fun mustAttackThisCombat(state: GameState, attackerId: EntityId): Boolean {
-        if (state.projectedState.mustAttack(attackerId)) return true
-        return state.grantedStaticAbilities.any {
-            it.entityId == attackerId && it.ability is MustAttack &&
-                it.ability.filter.scope is Scope.Self
-        }
+        return state.projectedState.mustAttack(attackerId)
     }
 
     /**
@@ -997,11 +993,7 @@ internal class AttackPhaseManager(
      * combat if able").
      */
     private fun mustAttackAPlayer(state: GameState, attackerId: EntityId): Boolean {
-        if (state.projectedState.mustAttackPlayer(attackerId)) return true
-        return state.grantedStaticAbilities.any {
-            it.entityId == attackerId && it.ability is MustAttack &&
-                it.ability.playersOnly && it.ability.filter.scope is Scope.Self
-        }
+        return state.projectedState.mustAttackPlayer(attackerId)
     }
 
     /**

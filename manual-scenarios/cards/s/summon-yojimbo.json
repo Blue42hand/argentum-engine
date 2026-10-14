@@ -1,0 +1,81 @@
+{
+  "player1Name": "Yojimbo",
+  "player2Name": "Attacking opponent",
+  "player1": {
+    "lifeTotal": 20,
+    "hand": [
+      "Summon: Yojimbo"
+    ],
+    "battlefield": [
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      },
+      {
+        "name": "Plains"
+      }
+    ],
+    "graveyard": [],
+    "library": [
+      "Plains",
+      "Island",
+      "Forest",
+      "Swamp",
+      "Mountain"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 20,
+    "hand": [
+      "Doom Blade"
+    ],
+    "battlefield": [
+      {
+        "name": "Sol Ring"
+      },
+      {
+        "name": "Air Elemental"
+      },
+      {
+        "name": "Craw Wurm"
+      },
+      {
+        "name": "Forest"
+      },
+      {
+        "name": "Swamp"
+      },
+      {
+        "name": "Swamp"
+      }
+    ],
+    "graveyard": [],
+    "library": [
+      "Plains",
+      "Island",
+      "Forest",
+      "Swamp",
+      "Mountain"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1,
+  "player1StopAtSteps": [
+    "PRECOMBAT_MAIN",
+    "END"
+  ],
+  "player2StopAtSteps": [
+    "PRECOMBAT_MAIN",
+    "DECLARE_ATTACKERS"
+  ],
+  "player1OpponentStopAtSteps": [
+    "DECLARE_ATTACKERS"
+  ],
+  "player2OpponentStopAtSteps": []
+}
