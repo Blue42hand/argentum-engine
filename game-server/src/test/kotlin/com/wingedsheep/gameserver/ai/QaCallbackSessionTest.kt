@@ -35,6 +35,23 @@ class QaCallbackSessionTest : FunSpec({
         qaCallbackAdmission=gate)
     fun evidence() = mockk<AiDecisionEvidence>().also { every { it.correlationId } returns "qa-callback" }
 
+    test("exhausted external callback reports once and duplicate state never repeats provider work") {
+        val controller = mockk<AiPlayerController>()
+        every { controller.chooseAction(any(), any(), any(), any()) } throws java.util.concurrent.TimeoutException()
+        val session = socket(QaCallbackAdmission(), controller)
+        val failures = AtomicInteger()
+        session.onControllerFailure = { failures.incrementAndGet() }
+        val message: ServerMessage = ServerMessage.StateUpdate(state, emptyList(), actions, interactionEpoch="current")
+        try {
+            session.sendMessage(TextMessage(json.encodeToString(message)))
+            eventually(5.seconds) { failures.get() shouldBe 1 }
+            repeat(3) { session.sendMessage(TextMessage(json.encodeToString(message))) }
+            delay(100)
+            verify(exactly=1) { controller.chooseAction(any(), any(), any(), any()) }
+            failures.get() shouldBe 1
+        } finally { session.close() }
+    }
+
     test("actual async socket pauses before evidence and drains through application and disposition hooks") {
         val gate=QaCallbackAdmission(true);gate.pause()
         val controller=mockk<RecordedAiCallbackController>()

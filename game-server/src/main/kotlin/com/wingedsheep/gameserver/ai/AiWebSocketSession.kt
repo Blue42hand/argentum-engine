@@ -95,6 +95,8 @@ class AiWebSocketSession(
     @Volatile internal var onRecordedMulliganReady: ((EntityId, Boolean, AiDecisionEvidence) -> Unit)? = null
     @Volatile internal var onRecordedBottomReady: ((EntityId, List<EntityId>, AiDecisionEvidence) -> Unit)? = null
     @Volatile internal var onCallbackDisposition: ((EntityId, AiDecisionEvidence, String) -> Unit)? = null
+    @Volatile internal var onControllerFailure: (() -> Unit)? = null
+    private val externalControllerFailed = java.util.concurrent.atomic.AtomicBoolean(false)
     private val activeCallbacks = java.util.concurrent.ConcurrentHashMap<String, AiDecisionEvidence>()
     private fun track(context: AiDecisionEvidence?): AiDecisionEvidence? {
         context?.let {
@@ -305,7 +307,7 @@ class AiWebSocketSession(
      * asynchronously.
      */
     override fun sendMessage(message: WebSocketMessage<*>) {
-        if (!open.get()) return
+        if (!open.get() || externalControllerFailed.get()) return
 
         val text = message.payload.toString()
 
@@ -313,9 +315,16 @@ class AiWebSocketSession(
             try {
                 val serverMessage = json.decodeFromString<ServerMessage>(text)
                 qaCallbackAdmission.admitted {
-                    if (open.get()) handleServerMessage(serverMessage)
+                    if (open.get() && !externalControllerFailed.get()) handleServerMessage(serverMessage)
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                if (!allowActionsOnlyFallback && externalControllerFailed.compareAndSet(false, true)) {
+                    // A transport failure may follow a durable provider decision. Do not
+                    // invoke the provider again on a reconnect or duplicate state message.
+                    onControllerFailure?.invoke()
+                }
                 logger.error("AI failed to process server message: ${e.message}", e)
             }
         }
