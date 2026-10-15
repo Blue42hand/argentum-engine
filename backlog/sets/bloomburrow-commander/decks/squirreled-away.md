@@ -37,7 +37,7 @@
 - [ ] 1 The Odd Acorn Gang
 - [x] 1 Tireless Provisioner
 - [ ] 1 Toski, Bearer of Secrets
-- [ ] 1 Woe Strider
+- [x] 1 Woe Strider
 - [ ] 1 Zulaport Cutthroat
 
 ## Planeswalkers (1)
