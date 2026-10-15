@@ -322,6 +322,13 @@ sealed interface CardSource {
         override val description: String = "cards used to craft this permanent"
     }
 
+    /** Gather one entity named by an existing reference, without targeting it again. */
+    @SerialName("ReferencedEntity")
+    @Serializable
+    data class ReferencedEntity(val target: EffectTarget) : CardSource {
+        override val description: String = target.description
+    }
+
     /**
      * The ability's own source card ([com.wingedsheep.sdk.scripting.references] sourceId).
      *

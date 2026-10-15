@@ -403,7 +403,7 @@ object ZoneMovementUtils {
     }
 
     /**
-     * Mark every Aura/Equipment attached to a permanent that is leaving the battlefield so the
+     * Mark every Aura/Equipment attached to an object that is leaving its zone so the
      * unattached-permanents state-based action ([UnattachedAurasCheck]) detaches/graveyards it
      * afterwards (CR 400.7 new object; 704.5n unattaches Equipment, 704.5m graveyards Auras).
      *

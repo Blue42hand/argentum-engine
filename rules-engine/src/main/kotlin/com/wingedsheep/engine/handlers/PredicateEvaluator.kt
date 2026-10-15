@@ -1083,7 +1083,9 @@ class PredicateEvaluator(
                 val registry = cardRegistry ?: return false
                 com.wingedsheep.engine.handlers.predicates.EnchantRestriction.couldAttach(
                     state, projected, this, registry, entityId, card, hostId,
-                    controllerId = context?.controllerId ?: return false
+                    controllerId = context?.controllerId ?: return false,
+                    lastKnownHost = if (hostId !in state.getBattlefield()) state.getEntity(hostId)
+                        ?.get<com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentComponent>()?.snapshot else null
                 )
             }
 
