@@ -452,6 +452,15 @@ sealed interface ClientMessage {
     @SerialName("setPriorityMode")
     data class SetPriorityMode(val mode: String) : ClientMessage
 
+    /** Explicit, cancellable yield of optional priority responses for this live game. */
+    @Serializable
+    @SerialName("setPriorityYield")
+    data class SetPriorityYield(
+        val mode: String?,
+        val interactionEpoch: String?,
+        val stateVersion: Long,
+    ) : ClientMessage
+
     /**
      * Set per-step stop overrides for the current game.
      * When a stop is set for a step, auto-pass will not skip that step (even if it normally would).

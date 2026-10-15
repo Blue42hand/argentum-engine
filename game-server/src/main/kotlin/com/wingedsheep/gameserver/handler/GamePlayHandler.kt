@@ -113,6 +113,7 @@ class GamePlayHandler(
             is ClientMessage.UpdateBlockerAssignments -> handleUpdateBlockerAssignments(session, message)
             is ClientMessage.SetFullControl -> handleSetFullControl(session, message)
             is ClientMessage.SetPriorityMode -> handleSetPriorityMode(session, message)
+            is ClientMessage.SetPriorityYield -> handleSetPriorityYield(session, message)
             is ClientMessage.SetStopOverrides -> handleSetStopOverrides(session, message)
             is ClientMessage.SetAbilityYield -> handleSetAbilityYield(session, message)
             is ClientMessage.ClearAbilityYield -> handleClearAbilityYield(session, message)
@@ -689,7 +690,7 @@ class GamePlayHandler(
         }
     }
 
-    fun handleGameOver(gameSession: GameSession, reason: GameOverReason? = null, events: List<GameEvent> = emptyList()) {
+    fun handleGameOver(gameSession: GameSession, reason: GameOverReason? = null, events: List<GameEvent> = emptyList()) = gameSession.finalizeDeliveryOnce {
         val winnerId = gameSession.getWinnerId()
         val winnerIds = gameSession.getWinnerIds()
         val gameOverReason = reason ?: gameSession.getGameOverReason() ?: GameOverReason.LIFE_ZERO
@@ -901,83 +902,87 @@ class GamePlayHandler(
 
     fun broadcastStateUpdate(gameSession: GameSession, events: List<GameEvent>) {
         val allEvents = processAutoPassLoop(gameSession, events)
+        var activeLobbyToNotify: String? = null
+        gameSession.deliverWhileOpen {
+            val sessionPlayers = gameSession.getPlayers()
 
-        val sessionPlayers = gameSession.getPlayers()
-
-        // AI players must always receive full StateUpdate (never deltas) because
-        // they don't reconstruct state from diffs — they need the complete picture.
-        if (aiGameManager.hasAiPlayer(gameSession.sessionId)) {
-            sessionPlayers.forEach { session ->
-                if (session.webSocketSession is AiWebSocketSession) {
-                    gameSession.clearLastSentState(session.playerId)
-                }
-            }
-        }
-
-        // Log what the AI will receive at combat steps
-        if (aiGameManager.hasAiPlayer(gameSession.sessionId)) {
-            val state = gameSession.getStateForTesting()
-            if (state != null && (state.step == com.wingedsheep.sdk.core.Step.DECLARE_ATTACKERS || state.step == com.wingedsheep.sdk.core.Step.DECLARE_BLOCKERS)) {
-                val aiPlayer = sessionPlayers.find { it.webSocketSession is AiWebSocketSession }
-                if (aiPlayer != null) {
-                    val aiLegalActions = gameSession.getLegalActions(aiPlayer.playerId)
-                    logger.info("AI combat state: step={}, priorityPlayer={}, aiPlayer={}, legalActions={}",
-                        state.step, state.priorityPlayerId?.value, aiPlayer.playerId.value,
-                        aiLegalActions.map { "${it.actionType}(${it.description})" })
-                }
-            }
-        }
-
-        try {
-            sessionPlayers.forEach { session ->
-                (session.webSocketSession as? AiWebSocketSession)?.let { ai ->
-                    bindCallbackRecording(gameSession, session.playerId, ai)
-                    ai.onDecisionEvidence = { state, legal, epoch, log ->
-                        gameSession.beginAiDecisionEvidence(session.playerId, state, legal, epoch, log)
-                    }
-                    ai.onRecordedActionReady = { id, action, epoch, evidence, chosen ->
-                        handleAiAction(gameSession, id, action, epoch, recording = evidence, recordedChoice = chosen)
-                    }
-                }
-                val update = gameSession.createStateUpdate(
-                    session.playerId, allEvents,
-                    useEngineDecisionIds = usesEngineDecisionIds(session),
-                )
-                if (update != null) sender.send(session.webSocketSession, update)
-                else logger.warn("createStateUpdate returned null for player ${session.playerId.value}")
-            }
-
-            // After the state (so a client's roster already shows the seat as lost, and its board
-            // has re-seated behind the overlay) but before the spectator feed.
-            notifyEliminatedSeats(gameSession)
-
-            // Update spectators. (Replay recording no longer happens here — the compact replay
-            // records the input stream as actions are applied, and reconstructs snapshots on demand.)
-            val spectatorState = gameSession.buildSpectatorState()
-            if (spectatorState != null) {
-                for (spectator in gameSession.getSpectators()) {
-                    if (spectator.webSocketSession.isOpen) {
-                        sender.send(spectator.webSocketSession, spectatorState)
+            // AI players must always receive full StateUpdate (never deltas) because
+            // they don't reconstruct state from diffs — they need the complete picture.
+            if (aiGameManager.hasAiPlayer(gameSession.sessionId)) {
+                sessionPlayers.forEach { session ->
+                    if (session.webSocketSession is AiWebSocketSession) {
+                        gameSession.clearLastSentState(session.playerId)
                     }
                 }
             }
 
-            // Persist state after every update
-            gameRepository.save(gameSession)
-
-            // Update tournament overview life totals for waiting players (throttled)
-            val lobbyId = gameRepository.getLobbyForGame(gameSession.sessionId)
-            if (lobbyId != null) {
-                val now = System.currentTimeMillis()
-                val lastBroadcast = lastActiveMatchBroadcast[lobbyId] ?: 0L
-                if (now - lastBroadcast >= activeMatchBroadcastIntervalMs) {
-                    lastActiveMatchBroadcast[lobbyId] = now
-                    broadcastActiveMatchesCallback?.invoke(lobbyId)
+            // Log what the AI will receive at combat steps
+            if (aiGameManager.hasAiPlayer(gameSession.sessionId)) {
+                val state = gameSession.getStateForTesting()
+                if (state != null && (state.step == com.wingedsheep.sdk.core.Step.DECLARE_ATTACKERS || state.step == com.wingedsheep.sdk.core.Step.DECLARE_BLOCKERS)) {
+                    val aiPlayer = sessionPlayers.find { it.webSocketSession is AiWebSocketSession }
+                    if (aiPlayer != null) {
+                        val aiLegalActions = gameSession.getLegalActions(aiPlayer.playerId)
+                        logger.info("AI combat state: step={}, priorityPlayer={}, aiPlayer={}, legalActions={}",
+                            state.step, state.priorityPlayerId?.value, aiPlayer.playerId.value,
+                            aiLegalActions.map { "${it.actionType}(${it.description})" })
+                    }
                 }
             }
-        } catch (e: Exception) {
-            logger.error("Error broadcasting state update", e)
+
+            try {
+                sessionPlayers.forEach { session ->
+                    (session.webSocketSession as? AiWebSocketSession)?.let { ai ->
+                        bindCallbackRecording(gameSession, session.playerId, ai)
+                        ai.onDecisionEvidence = { state, legal, epoch, log ->
+                            gameSession.beginAiDecisionEvidence(session.playerId, state, legal, epoch, log)
+                        }
+                        ai.onRecordedActionReady = { id, action, epoch, evidence, chosen ->
+                            handleAiAction(gameSession, id, action, epoch, recording = evidence, recordedChoice = chosen)
+                        }
+                    }
+                    val update = gameSession.createStateUpdate(
+                        session.playerId, allEvents,
+                        useEngineDecisionIds = usesEngineDecisionIds(session),
+                    )
+                    if (update != null) sender.send(session.webSocketSession, update)
+                    else logger.warn("createStateUpdate returned null for player ${session.playerId.value}")
+                }
+
+                // After the state (so a client's roster already shows the seat as lost, and its board
+                // has re-seated behind the overlay) but before the spectator feed.
+                notifyEliminatedSeats(gameSession)
+
+                // Update spectators. (Replay recording no longer happens here — the compact replay
+                // records the input stream as actions are applied, and reconstructs snapshots on demand.)
+                val spectatorState = gameSession.buildSpectatorState()
+                if (spectatorState != null) {
+                    for (spectator in gameSession.getSpectators()) {
+                        if (spectator.webSocketSession.isOpen) {
+                            sender.send(spectator.webSocketSession, spectatorState)
+                        }
+                    }
+                }
+
+                // Persist state after every update
+                gameRepository.save(gameSession)
+
+                // Update tournament overview life totals for waiting players (throttled)
+                val lobbyId = gameRepository.getLobbyForGame(gameSession.sessionId)
+                if (lobbyId != null) {
+                    val now = System.currentTimeMillis()
+                    val lastBroadcast = lastActiveMatchBroadcast[lobbyId] ?: 0L
+                    if (now - lastBroadcast >= activeMatchBroadcastIntervalMs) {
+                        lastActiveMatchBroadcast[lobbyId] = now
+                        activeLobbyToNotify = lobbyId
+                    }
+                }
+            } catch (e: Exception) {
+                logger.error("Error broadcasting state update", e)
+            }
         }
+        // Lobby callbacks can acquire other game/lobby locks; invoke after ordered delivery.
+        activeLobbyToNotify?.let { broadcastActiveMatchesCallback?.invoke(it) }
     }
 
     private fun processAutoPassLoop(gameSession: GameSession, initialEvents: List<GameEvent>): List<GameEvent> {
@@ -986,8 +991,9 @@ class GamePlayHandler(
         val maxLoops = 100
 
         while (loopCount < maxLoops) {
-            if (gameSession.isGameOver()) break
-            val autoPassPlayer = gameSession.getAutoPassPlayer() ?: break
+            if (gameSession.deliveryClosed || gameSession.isGameOver()) break
+            val intent = gameSession.getAutoPassIntent() ?: break
+            val autoPassPlayer = intent.playerId
 
             // Never auto-pass combat declarations for AI players — the AI controller
             // needs to decide which creatures to attack/block with. executeAutoPass would
@@ -1002,7 +1008,7 @@ class GamePlayHandler(
 
             logger.debug("Auto-passing for player: ${autoPassPlayer.value}")
 
-            val result = gameSession.executeAutoPass(autoPassPlayer)
+            val result = gameSession.executeAutoPassIfCurrent(intent)
             when (result) {
                 is GameSession.ActionResult.Success -> allEvents.addAll(result.events)
                 is GameSession.ActionResult.PausedForDecision -> {
@@ -1122,6 +1128,7 @@ class GamePlayHandler(
         val gameSession = getGameSession(session, playerSession) ?: return
 
         val mode = when (message.mode) {
+            "forcedOnly" -> GameSession.PriorityMode.FORCED_ONLY
             "auto" -> GameSession.PriorityMode.AUTO
             "stops" -> GameSession.PriorityMode.STOPS
             "fullControl" -> GameSession.PriorityMode.FULL_CONTROL
@@ -1136,6 +1143,57 @@ class GamePlayHandler(
 
         // Broadcast state update so the UI reflects the change
         broadcastStateUpdate(gameSession, emptyList())
+    }
+
+    private class PriorityYieldWork(var requested: Boolean = true)
+    private val priorityYieldWork = mutableMapOf<String, PriorityYieldWork>()
+
+    /** One transient continuation per game; repeated controls coalesce instead of spawning workers. */
+    private fun continuePriorityYield(game: GameSession) {
+        val work = synchronized(priorityYieldWork) {
+            priorityYieldWork[game.sessionId]?.let { it.requested = true; return }
+            PriorityYieldWork().also { priorityYieldWork[game.sessionId] = it }
+        }
+        Thread.ofVirtual().name("priority-yield-${game.sessionId}").start {
+            try {
+                while (true) {
+                    synchronized(priorityYieldWork) { work.requested = false }
+                    broadcastStateUpdate(game, emptyList())
+                    if (game.isGameOver()) {
+                        handleGameOver(game)
+                        return@start
+                    }
+                    synchronized(priorityYieldWork) {
+                        if (!work.requested) {
+                            priorityYieldWork.remove(game.sessionId, work)
+                            return@start
+                        }
+                    }
+                }
+            } catch (error: Exception) {
+                logger.error("Priority yield continuation failed for game {}", game.sessionId, error)
+            } finally {
+                synchronized(priorityYieldWork) { priorityYieldWork.remove(game.sessionId, work) }
+            }
+        }
+    }
+
+    private fun handleSetPriorityYield(session: WebSocketSession, message: ClientMessage.SetPriorityYield) {
+        val player = sessionRegistry.getPlayerSession(session.id) ?: return
+        val game = getGameSession(session, player) ?: return
+        if (!game.setPriorityYield(player.playerId, message.mode, message.interactionEpoch, message.stateVersion)) {
+            sender.sendError(session, ErrorCode.INVALID_ACTION, "Priority yield is stale or unavailable")
+            game.deliverWhileOpen { game.createStateUpdate(player.playerId, emptyList())?.let { sender.send(session, it) } }
+            return
+        }
+        // Show the active control before advancing. Let this socket consume Cancel while the
+        // existing loop works; every pass revalidates the native state and control revision.
+        game.deliverWhileOpen { game.createStateUpdate(player.playerId, emptyList())?.let { sender.send(session, it) } }
+        if (message.mode != null) {
+            continuePriorityYield(game)
+        } else {
+            broadcastStateUpdate(game, emptyList())
+        }
     }
 
     private fun handleSetStopOverrides(session: WebSocketSession, message: ClientMessage.SetStopOverrides) {
@@ -1236,14 +1294,16 @@ class GamePlayHandler(
         val gameSession = getGameSession(session, playerSession) ?: return
 
         logger.info("Player ${playerSession.playerName} requested state resync")
-        // Clear cached state so the next update sends a full StateUpdate instead of a delta
-        gameSession.clearLastSentState(playerSession.playerId)
-        val update = gameSession.createStateUpdate(
-            playerSession.playerId, emptyList(),
-            useEngineDecisionIds = usesEngineDecisionIds(playerSession),
-        )
-        if (update != null) {
-            sender.send(session, update)
+        gameSession.deliverWhileOpen {
+            // Clear cached state so the next update sends a full StateUpdate instead of a delta
+            gameSession.clearLastSentState(playerSession.playerId)
+            val update = gameSession.createStateUpdate(
+                playerSession.playerId, emptyList(),
+                useEngineDecisionIds = usesEngineDecisionIds(playerSession),
+            )
+            if (update != null) {
+                sender.send(session, update)
+            }
         }
     }
 

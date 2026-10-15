@@ -196,6 +196,8 @@ export const createLobbySlice: SliceCreator<LobbySlice> = (set, get) => ({
       sessionId: null,
       opponentName: null,
       gameState: null,
+      priorityYield: null,
+      stateVersion: null,
       legalActions: [],
       pendingDecision: null,
       mulliganState: null,

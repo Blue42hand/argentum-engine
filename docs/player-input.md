@@ -43,6 +43,48 @@ the opaque question token; ordinary browser actions send it in their envelope. A
 IDs for simulations and sends the epoch separately. Neither adapter supplies a newer epoch at
 response time. See [data contracts](data-contracts.md) for transport compatibility and recovery.
 
+External AI sessions resolve a sole native empty blocker declaration without a controller call or
+artificial thinking delay. Both `validBlockers` and `validBlockTargets` must be explicitly empty;
+missing data, mandatory assignments, a pending decision, or another action keeps the ordinary
+controller path. In particular, randomized blocker piles have absent pairwise targets and still
+reach the controller. The fast path retains the originating interaction epoch, cancellation checks,
+and any QA approval hold, then submits through the normal live-action boundary. It declares blockers
+only; subsequent priority and opponent response windows remain unchanged. Built-in AI pacing and
+external decisions with choices retain their configured delay.
+
+`AiMechanicalCallbackTest` measures zero scheduled milliseconds for this path versus 2,500 ms for
+the ordinary blocker callback at `thinkingDelayMs = 500` (initial delay plus four additional delays).
+Its synthetic JSON round-trip measurement excludes providers, network transit, and a live game;
+neither test establishes provider latency or whole-game wall-time savings.
+
+## Human priority controls
+
+New human sessions default to **Forced Only** (`forcedOnly`). The complete native action enumerator
+must offer exactly one affordable action, `PassPriority`, before the server passes it. Mana abilities
+and all other executable actions keep the human window open. Pending decisions and combat declarations
+are never converted into passes. Existing explicit **Auto** and **Stops** modes retain their earlier
+heuristics; AI seats keep their existing Auto default. This changes no provider or reasoning settings.
+
+The GUI also offers **Pass until end of turn** and **Pass until your next turn**. These are explicit
+voluntary yields of optional priority responses, so they can pass a window with playable alternatives.
+The first expires when the current native turn ends; the second expires before the player's next
+actual turn, including consecutive extra turns and skipped-turn scheduling. Neither answers required
+questions, targets, mana payments, mulligans, or combat declarations. Phase stops and Full Control
+remain authoritative. Cancel and expiry stop at the next human window until an explicit action,
+mode change, or new yield. Reconnect, undo, reset, elimination, and game end revoke temporary intent.
+
+The client arms `setPriorityYield` with the latest `interactionEpoch` and `stateVersion`; the server
+also checks the native state revision behind that snapshot. Cancel accepts older versions within the
+same live epoch so a racing update cannot swallow it. State and delta updates echo `priorityYield`.
+Each automatic pass revalidates its state, priority owner, epoch, and control revision under the
+session lock. A bounded continuation keeps Cancel available on the receiving socket, ordered state
+delivery prevents an older active indicator overtaking cancellation, and terminal delivery closes
+once before finalization callbacks. These controls are session-only and do not survive restoration.
+
+Offline tests establish action/callback behavior and concurrency safety. They do not establish a
+provider-latency reduction or measured live-game wall-time savings. Activation requires a coordinated
+source release; merging this implementation does not change an already running server.
+
 ## Saved states
 
 Snapshots serialize question and answer together. The companion legacy reader pairs an old
