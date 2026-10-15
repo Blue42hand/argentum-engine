@@ -373,6 +373,8 @@ data class NativeCostChoiceView(
     val exileWeightUnit: String = "",
     val exileCardTypes: Map<EntityId, List<String>> = emptyMap(),
     val exileWeightPerTarget: Map<EntityId, Int> = emptyMap(),
+    val validBounceTargets: List<EntityId> = emptyList(),
+    val bounceCount: Int = 0,
 )
 
 /**
