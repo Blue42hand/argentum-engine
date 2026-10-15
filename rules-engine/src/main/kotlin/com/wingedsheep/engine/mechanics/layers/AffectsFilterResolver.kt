@@ -180,7 +180,8 @@ internal class AffectsFilterResolver(
             is AffectsFilter.AttachedPermanent -> {
                 val attachedTo = state.getEntity(sourceId)
                     ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-                if (attachedTo != null) setOf(attachedTo.targetId) else emptySet()
+                // An attached permanent scope cannot affect a card in a graveyard.
+                if (attachedTo != null && attachedTo.targetId in state.getBattlefield()) setOf(attachedTo.targetId) else emptySet()
             }
             // CR 702.95b: "both creatures" of a soulbond pair. Empty while unpaired, so a payoff
             // static's "as long as this creature is paired" clause needs no separate gate.

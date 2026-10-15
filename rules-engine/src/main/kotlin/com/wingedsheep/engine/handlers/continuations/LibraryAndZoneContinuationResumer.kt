@@ -405,10 +405,15 @@ class LibraryAndZoneContinuationResumer(
         }
         val hostId = hostIds.first()
 
-        // Host must still be on the battlefield.
-        if (!state.getBattlefield().contains(hostId)) {
-            return checkForMore(state, emptyList())
-        }
+        // Recheck the enchant restriction in its zone, including an Aura's graveyard card host.
+        val card = state.getEntity(continuation.cardId)?.get<CardComponent>()
+            ?: return checkForMore(state, emptyList())
+        val legalHost = if (card.typeLine.isAura) {
+            hostId in com.wingedsheep.engine.handlers.effects.copy.CopyAuraEntry.legalHosts(
+                state, continuation.cardId, card, continuation.controllerId,
+                services.cardRegistry, services.targetFinder, services.predicateEvaluator)
+        } else hostId in state.getBattlefield()
+        if (!legalHost) return checkForMore(state, emptyList())
 
         val executor = com.wingedsheep.engine.handlers.effects.library.MoveCollectionExecutor(
             services.zones,

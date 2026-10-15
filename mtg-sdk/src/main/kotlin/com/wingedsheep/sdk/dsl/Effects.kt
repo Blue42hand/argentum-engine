@@ -4278,6 +4278,26 @@ object Effects {
         timing, targetRequirement, additionalTargetRequirements, fireOnPlayer, carryCollections
     )
 
+    /** Delayed trigger carrying typed pipeline collections across resolutions. */
+    fun CreateDelayedTrigger(
+        effect: Effect,
+        step: com.wingedsheep.sdk.core.Step? = null,
+        trigger: TriggerSpec? = null,
+        watchedTarget: EffectTarget? = null,
+        watchedRecipient: EffectTarget? = null,
+        expiry: com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry = com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry.EndOfTurn,
+        fireOnce: Boolean = false,
+        repeatAtEachMatchingStep: Boolean = false,
+        timing: com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming = com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
+        targetRequirement: TargetRequirement? = null,
+        additionalTargetRequirements: List<TargetRequirement> = emptyList(),
+        fireOnPlayer: EffectTarget? = null,
+        carryCollections: Collection<CollectionSlot>
+    ): Effect = com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
+        step, effect, trigger, watchedTarget, watchedRecipient, expiry, fireOnce, repeatAtEachMatchingStep,
+        timing, targetRequirement, additionalTargetRequirements, fireOnPlayer, carryCollections.map { it.key }
+    )
+
     /**
      * [CreateDelayedTrigger] whose effect declares its own targets, chosen when the delayed
      * trigger fires ("at the beginning of the next combat, target creature you control …").
@@ -6153,6 +6173,10 @@ object Effects {
      * Attach this equipment to a target creature.
      * Detaches from the currently equipped creature first.
      */
+    /** Attach to a specified permanent. Both objects must still be legal; this does not target again. */
+    fun AttachToPermanent(attachment: EffectTarget, host: EffectTarget): Effect =
+        com.wingedsheep.sdk.scripting.effects.AttachToPermanentEffect(attachment, host)
+
     fun AttachEquipment(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect(target)
 

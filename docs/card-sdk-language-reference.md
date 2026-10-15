@@ -114,6 +114,20 @@ section; do not let SDK additions land without a corresponding doc update.
   every type the Aura's *own* effects can turn its host into, exactly as the printed card does — Imprisoned
   in the Moon makes its host a land and so enchants "creature, land, or planeswalker"; an Aura that turns a
   creature into a land while enchanting only `TargetObject(filter = TargetFilter.Creature)` would destroy itself on resolution.
+- `EnchantRestrictionOverride(requirement, recordedHostKey?)` — replaces an Aura's enchant
+  restriction through the existing duration-scoped static-grant store. A record key additionally
+  limits hosts to still-current battlefield objects recorded by this Aura's own visit
+  (`Effects.RecordSourceObjects`). Casting still uses the printed restriction; attachment legality
+  and state-based actions read the active replacement. Graveyard-card enchant restrictions are
+  supported on resolving Aura spells and while attached.
+- `Effects.AttachToPermanent(attachment, host)` — attach the named Aura or Equipment to an explicit
+  legal permanent, without targeting again or asking for a new choice. Uses the shared attachment
+  legality and event path; shroud/hexproof do not prevent attachment, protection does.
+- `CardSource.ReferencedEntity(target)` — gather the entity named by any existing effect reference,
+  including an enchanted card in a graveyard, into a normal pipeline collection. Zone movement,
+  tracked results, source records and delayed triggers then compose normally.
+  `Effects.CreateDelayedTrigger(carryCollections = listOf(slot), …)` accepts typed collection handles.
+
 - `auraCastTarget: TargetRequirement?` — a narrower requirement the Aura *spell's* target must meet
   only while it is cast (Dream Leash: "You can't choose an untapped permanent as this spell's target as
   you cast it" → `TargetObject(filter = TargetFilter.Permanent.tapped())`). Legal-action enumeration

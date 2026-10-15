@@ -29,6 +29,16 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
  * CR 303.4f).
  */
 object EnchantRestriction {
+    private fun overrideFor(state: GameState, auraId: EntityId) =
+        state.grantedStaticAbilities.asReversed().firstOrNull { grant ->
+            grant.entityId == auraId && grant.ability is com.wingedsheep.sdk.scripting.EnchantRestrictionOverride &&
+                com.wingedsheep.engine.mechanics.durations.GrantDurationGate.holds(
+                    state, grant.entityId, grant.sourceId, grant.duration)
+        }?.ability as? com.wingedsheep.sdk.scripting.EnchantRestrictionOverride
+
+    fun requirementFor(state: GameState, cards: CardRegistry, auraId: EntityId, card: CardComponent): TargetRequirement? =
+        overrideFor(state, auraId)?.requirement ?: cards.getCard(card.cardDefinitionId)?.script?.auraTarget
+
 
     /**
      * The battlefield filter behind an Aura's `auraTarget`, or null when the requirement isn't one
@@ -58,16 +68,23 @@ object EnchantRestriction {
         auraId: EntityId,
         auraCard: CardComponent,
         hostId: EntityId,
-        controllerId: EntityId
+        controllerId: EntityId,
+        lastKnownHost: com.wingedsheep.engine.state.components.stack.EntitySnapshot? = null
     ): Boolean {
         if (!hostAllowsAura(state, projected, predicateEvaluator, auraId, hostId)) return false
         val requirement = if (state.getEntity(auraId)?.has<com.wingedsheep.engine.mechanics.BestowedComponent>() == true) {
             if (!projected.hasKeyword(auraId, com.wingedsheep.engine.mechanics.BestowCasts.ENCHANT_CREATURE)) return false
             com.wingedsheep.engine.mechanics.BestowCasts.enchantCreature
-        } else cardRegistry.getCard(auraCard.cardDefinitionId)?.script?.auraTarget ?: return false
-        if (hostSatisfies(state, projected, predicateEvaluator, requirement, hostId, controllerId, auraId) != true) {
-            return false
-        }
+        } else requirementFor(state, cardRegistry, auraId, auraCard) ?: return false
+        // A "could enchant it" search may ask about a departed permanent. Actual attachment
+        // and the enchant SBA instead judge the host in its current zone.
+        val satisfies = if (lastKnownHost != null) {
+            filterOf(requirement)?.clauses()?.filter { it.zone == Zone.BATTLEFIELD }?.any {
+                predicateEvaluator.matchesSnapshot(state, lastKnownHost, it.baseFilter,
+                    PredicateContext(controllerId = controllerId, sourceId = auraId))
+            } == true
+        } else hostSatisfies(state, projected, predicateEvaluator, requirement, hostId, controllerId, auraId) == true
+        if (!satisfies) return false
         return !hostProtectedFromAttachment(state, projected, cardRegistry, auraId, auraCard, hostId)
     }
 
@@ -91,6 +108,12 @@ object EnchantRestriction {
         auraId: EntityId,
         hostId: EntityId
     ): Boolean {
+        val key = overrideFor(state, auraId)?.recordedHostKey
+        if (key != null) {
+            val source = state.objectRef(auraId) ?: return false
+            val record = state.sourceObjectRecords["${source.entityId}:${source.generation}"]
+            if (record?.slots?.get(key).orEmpty().none { it.entityId == hostId && state.isCurrentObject(it) }) return false
+        }
         return projected.getProjectedValues(hostId)?.enchantmentRestrictions.orEmpty().none { restriction ->
             if (!restriction.survivesSourceAbilityRemoval && projected.hasLostAllAbilities(restriction.sourceId)) false
             else if (restriction.exceptSource && restriction.sourceId == auraId) false
@@ -169,12 +192,12 @@ object EnchantRestriction {
         auraId: EntityId?
     ): Boolean? {
         val filter = filterOf(requirement) ?: return null
-        // A cross-zone union requirement is satisfied by any one clause; only battlefield clauses
-        // can describe a permanent host.
-        val battlefieldClauses = filter.clauses().filter { it.zone == Zone.BATTLEFIELD }
-        if (battlefieldClauses.isEmpty()) return null
+        // Match the host in its current zone; a graveyard Aura has a card host.
+        val hostZone = state.logicalZone(hostId)?.zoneType ?: return false
+        val zoneClauses = filter.clauses().filter { it.zone == hostZone }
+        if (zoneClauses.isEmpty()) return false
         val context = PredicateContext(controllerId = controllerId, sourceId = auraId)
-        return battlefieldClauses.any {
+        return zoneClauses.any {
             predicateEvaluator.matches(state, projected, hostId, it.baseFilter, context)
         }
     }

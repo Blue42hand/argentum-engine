@@ -508,6 +508,12 @@ class ZoneTransitionService(
         var newState = state
         val events = mutableListOf<EngineGameEvent>()
 
+        // A card can host an Aura outside the battlefield. A zone round trip still makes
+        // a new object, so its attachments must not follow the reused entity identifier.
+        if (fromZone != Zone.BATTLEFIELD) {
+            newState = ZoneMovementUtils.markAttachmentsHostLeft(newState, entityId)
+        }
+
         // A graveyard ability's self-exile cost leaves a public source object in exile. If that
         // exact object moves again before a Self-copy effect resolves, its copiable values must
         // come from the object as it last existed in exile (CR 608.2h). Capture before the

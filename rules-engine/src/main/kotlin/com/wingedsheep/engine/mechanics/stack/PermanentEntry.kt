@@ -85,6 +85,7 @@ internal class PermanentEntry(
                 when (target) {
                     is ChosenTarget.Permanent -> target.entityId
                     is ChosenTarget.Player -> target.playerId
+                    is ChosenTarget.Card -> target.cardId
                     else -> null
                 }
             }

@@ -186,7 +186,8 @@ class UnattachedAurasCheck(
                 continue
             } else {
                 // Check if attached target still exists on battlefield
-                if (attachedTo.targetId !in state.getBattlefield()) {
+                if (attachedTo.targetId !in state.getBattlefield() &&
+                    !(isAura && legalNonBattlefieldHost(state, projected, entityId, cardComponent, attachedTo.targetId))) {
                     if (isAura) {
                         // Aura's target gone - goes to graveyard
                         val result = SbaZoneMovementHelper.putPermanentInGraveyard(
@@ -298,6 +299,19 @@ class UnattachedAurasCheck(
      * attached rather than destroyed, because a wrong verdict here silently removes a card from
      * the game.
      */
+    private fun legalNonBattlefieldHost(
+        state: GameState, projected: ProjectedState, auraId: EntityId, auraCard: CardComponent, hostId: EntityId
+    ): Boolean {
+        if (state.logicalZone(hostId)?.zoneType == com.wingedsheep.sdk.core.Zone.BATTLEFIELD) return false
+        val requirement = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.requirementFor(
+            state, cardRegistry, auraId, auraCard) ?: return false
+        val controller = projected.getController(auraId) ?: return false
+        return com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
+            state, projected, predicateEvaluator, requirement, hostId, controller, auraId) == true &&
+            com.wingedsheep.engine.handlers.predicates.EnchantRestriction.sourceRestrictionsAllowAura(
+                state, projected, predicateEvaluator, auraId, hostId)
+    }
+
     private fun hostFailsEnchantRestriction(
         state: GameState,
         projected: ProjectedState,
@@ -307,7 +321,8 @@ class UnattachedAurasCheck(
     ): Boolean {
         if (!com.wingedsheep.engine.handlers.predicates.EnchantRestriction.sourceRestrictionsAllowAura(
                 state, projected, predicateEvaluator, auraId, hostId)) return true
-        val requirement = cardRegistry.getCard(auraCard.cardDefinitionId)?.script?.auraTarget ?: return false
+        val requirement = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.requirementFor(
+            state, cardRegistry, auraId, auraCard) ?: return false
         // "you" in "Enchant creature you control" is the Aura's controller, read from the
         // projection so a control-changing effect on the Aura itself is honored.
         val controllerId = projected.getController(auraId) ?: return false

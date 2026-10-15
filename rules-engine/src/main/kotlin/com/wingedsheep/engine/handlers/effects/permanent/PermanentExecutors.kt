@@ -208,6 +208,7 @@ class PermanentExecutors(
         RevealFaceDownPermanentExecutor(),
         // attachments
         AttachEquipmentExecutor(zones.predicateEvaluator, cardRegistry),
+        com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachToPermanentExecutor(zones.predicateEvaluator, cardRegistry),
         AttachTargetEquipmentToCreatureExecutor(zones.predicateEvaluator, cardRegistry),
         AttachToChosenHostExecutor(zones.predicateEvaluator, cardRegistry),
         UnattachEquipmentExecutor(),

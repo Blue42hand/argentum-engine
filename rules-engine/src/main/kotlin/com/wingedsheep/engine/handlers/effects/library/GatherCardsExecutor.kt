@@ -291,6 +291,10 @@ class GatherCardsExecutor(
                 }
             }
 
+            is CardSource.ReferencedEntity -> {
+                val id = context.resolveTarget(source.target, state)
+                if (id != null && state.getEntity(id) != null) listOf(id) else emptyList()
+            }
             is CardSource.Self -> {
                 val sourceId = context.resolveTarget(com.wingedsheep.sdk.scripting.targets.EffectTarget.Self, state)
                 if (sourceId != null && state.getEntity(sourceId) != null) listOf(sourceId) else emptyList()

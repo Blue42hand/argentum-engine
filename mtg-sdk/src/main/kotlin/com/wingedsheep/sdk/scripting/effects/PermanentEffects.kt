@@ -704,3 +704,13 @@ data class PairWithSourceEffect(
 ) : Effect {
     override val description: String = "pair this creature with the chosen creature"
 }
+
+/** Attach an Aura or Equipment to an explicitly named permanent, without a new choice or target. */
+@Serializable
+@SerialName("AttachToPermanent")
+data class AttachToPermanentEffect(
+    val attachment: EffectTarget,
+    val host: EffectTarget,
+) : Effect {
+    override val description: String = "Attach " + attachment.description + " to " + host.description
+}
