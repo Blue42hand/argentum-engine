@@ -365,6 +365,13 @@ class GamePlayHandler(
         }
         ai.onRecordedBottomReady = { id, cards, context -> handleAiBottomCards(gameSession, id, cards, context) }
         ai.onCallbackDisposition = { id, context, status -> gameSession.disposeAiCallback(id, context, status) }
+        ai.onControllerFailure = {
+            gameSession.getPlayers().filter { it.webSocketSession !is AiWebSocketSession }.forEach { player ->
+                sender.sendError(player.webSocketSession, ErrorCode.INTERNAL_ERROR,
+                    "The AI controller failed and this game is paused. No replacement move was played. " +
+                        "Reconnecting will not retry an uncertain decision; retain this game for diagnosis.")
+            }
+        }
     }
 
     /**

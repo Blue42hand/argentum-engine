@@ -21,6 +21,8 @@ import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
 import org.slf4j.LoggerFactory
@@ -95,6 +97,9 @@ class AiWebSocketSession(
     @Volatile internal var onRecordedMulliganReady: ((EntityId, Boolean, AiDecisionEvidence) -> Unit)? = null
     @Volatile internal var onRecordedBottomReady: ((EntityId, List<EntityId>, AiDecisionEvidence) -> Unit)? = null
     @Volatile internal var onCallbackDisposition: ((EntityId, AiDecisionEvidence, String) -> Unit)? = null
+    @Volatile internal var onControllerFailure: (() -> Unit)? = null
+    private val externalControllerFailed = AtomicBoolean(false)
+    private val externalMessageMutex = Mutex()
     private val activeCallbacks = java.util.concurrent.ConcurrentHashMap<String, AiDecisionEvidence>()
     private fun track(context: AiDecisionEvidence?): AiDecisionEvidence? {
         context?.let {
@@ -310,14 +315,31 @@ class AiWebSocketSession(
         val text = message.payload.toString()
 
         scope.launch {
-            try {
-                val serverMessage = json.decodeFromString<ServerMessage>(text)
-                qaCallbackAdmission.admitted {
-                    if (open.get()) handleServerMessage(serverMessage)
-                }
-            } catch (e: Exception) {
-                logger.error("AI failed to process server message: ${e.message}", e)
+            val serverMessage = try { json.decodeFromString<ServerMessage>(text) }
+            catch (error: Exception) {
+                logger.error("AI failed to decode server message", error)
+                return@launch
             }
+            suspend fun process() {
+                try {
+                    qaCallbackAdmission.admitted {
+                        if (open.get() && (!externalControllerFailed.get() || serverMessage is ServerMessage.GameOver ||
+                            serverMessage is ServerMessage.GameCancelled)) handleServerMessage(serverMessage)
+                    }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    if (!allowActionsOnlyFallback && externalControllerFailed.compareAndSet(false, true)) {
+                        onControllerFailure?.invoke()
+                    }
+                    logger.error("AI failed to process server message: ${error.message}", error)
+                }
+            }
+            // Cancellation must not wait behind a blocking provider call. All other external
+            // messages serialize through failure latching, so queued frames cannot retry it.
+            if (allowActionsOnlyFallback || serverMessage is ServerMessage.GameOver ||
+                serverMessage is ServerMessage.GameCancelled) process()
+            else externalMessageMutex.withLock { process() }
         }
     }
 
