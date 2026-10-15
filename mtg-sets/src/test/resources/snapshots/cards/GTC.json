@@ -545,6 +545,133 @@
     ]
 }
 
+// Gyre Sage
+{
+    "name": "Gyre Sage",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "Evolve (Whenever a creature you control enters, if that creature has greater power or toughness than this creature, put a +1/+1 counter on this creature.)\n{T}: Add {G} for each +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "EVOLVE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Gyre Sage:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "interveningIf": {
+                    "type": "Any",
+                    "conditions": [
+                        {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "TriggeringEntity",
+                                "numericProperty": "Power"
+                            },
+                            "operator": "GT",
+                            "right": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": "Power"
+                            }
+                        },
+                        {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "TriggeringEntity",
+                                "numericProperty": "Toughness"
+                            },
+                            "operator": "GT",
+                            "right": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": "Toughness"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Evolve (Whenever a creature you control enters, if that creature has greater power or toughness than this creature, put a +1/+1 counter on this creature.)"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Gyre Sage:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": "PLUS_ONE_PLUS_ONE"
+                        }
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "RARE",
+        "artist": "Tyler Jacobson",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/6345376a-3d2d-4fff-9430-5e90a96e2f0f.jpg?1783940117",
+        "rulings": [
+            {
+                "date": "2013-04-15",
+                "text": "Whenever a creature enters the battlefield under your control, check its power and toughness against the power and toughness of the creature with evolve. If neither stat of the new creature is greater, evolve won't trigger at all."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "When comparing the stats as the evolve ability resolves, it's possible that the stat that's greater changes from power to toughness or vice versa. If this happens, the ability will still resolve and you'll put a +1/+1 counter on the creature with evolve. For example, if you control a 2/2 creature with evolve and a 1/3 creature enters the battlefield under your control, it toughness is greater so evolve will trigger. In response, the 1/3 creature gets +2/-2. When the evolve trigger tries to resolve, its power is greater. You'll put a +1/+1 counter on the creature with evolve."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If evolve triggers, the stat comparison will happen again when the ability tries to resolve. If neither stat of the new creature is greater, the ability will do nothing. If the creature that entered the battlefield leaves the battlefield before evolve tries to resolve, use its last known power and toughness to compare the stats."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "When comparing the stats of the two creatures for evolve, you always compare power to power and toughness to toughness."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If a creature enters the battlefield with +1/+1 counters on it, consider those counters when determining if evolve will trigger. For example, a 1/1 creature that enters the battlefield with two +1/+1 counters on it will cause the evolve ability of a 2/2 creature to trigger."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If multiple creatures enter the battlefield at the same time, evolve may trigger multiple times, although the stat comparison will take place each time one of those abilities tries to resolve. For example, if you control a 2/2 creature with evolve and two 3/3 creatures enter the battlefield, evolve will trigger twice. The first ability will resolve and put a +1/+1 counter on the creature with evolve. When the second ability tries to resolve, neither the power nor the toughness of the new creature is greater than that of the creature with evolve, so that ability does nothing."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "Gyre Sage's last ability is a mana ability. It doesn't use the stack and can't be responded to."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // High Priest of Penance
 {
     "name": "High Priest of Penance",

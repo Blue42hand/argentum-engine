@@ -2685,6 +2685,87 @@
     }
 }
 
+// Professional Face-Breaker
+{
+    "name": "Professional Face-Breaker",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Warrior",
+    "oracleText": "Menace\nWhenever one or more creatures you control deal combat damage to a player, create a Treasure token.\nSacrifice a Treasure: Exile the top card of your library. You may play that card this turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Professional Face-Breaker:1",
+                "trigger": {
+                    "type": "OneOrMoreDealCombatDamageToPlayerEvent",
+                    "sourceFilter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Professional Face-Breaker:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "Treasure"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "impulseExiled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "impulseExiled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "impulseExiled"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Sacrifice a Treasure: Exile your top card; you may play it this turn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "rarity": "RARE",
+        "artist": "Dan Murayama Scott",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/42acbf52-b137-44f0-a815-2817fe8d2da2.jpg?1783923119"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Racers' Ring
 {
     "name": "Racers' Ring",
