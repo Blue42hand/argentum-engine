@@ -75,7 +75,7 @@ class CreatePredefinedTokenExecutor(
         val tokenCount = com.wingedsheep.engine.core.GameLimits.cappedTokenCount(
             TokenCreationReplacementHelper.applyCountReplacements(
                 state, tokenControllerId, baseTokenCount,
-                predicateEvaluator = amountEvaluator.predicates
+                predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled
             ),
             "predefined tokens"
         )
@@ -100,7 +100,7 @@ class CreatePredefinedTokenExecutor(
             colors = cardDef.colorIdentityOverride ?: cardDef.colors,
             ownerId = tokenControllerId
         )
-        TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
+        TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled)
             ?.let { substitute ->
                 return substituteExecutor.createSubstituteTokens(
                     state, substitute, context,
@@ -224,7 +224,7 @@ class CreatePredefinedTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokenIds, effect.tapped,
-                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId, handled = context.tokenCreationReplacementsHandled
             )
         newState = afterAdditional
         events.addAll(additionalEvents)

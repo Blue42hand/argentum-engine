@@ -141,7 +141,7 @@ class CreateTokenExecutor(
         // and per-N modifiers) before downstream replacements get a look.
         val requestedCount = if (substituted) baseCount else TokenCreationReplacementHelper.applyCountReplacements(
             state, tokenControllerId, baseCount,
-            predicateEvaluator = amountEvaluator.predicates
+            predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled
         )
         if (requestedCount <= 0) return EffectResult.success(state)
 
@@ -201,7 +201,7 @@ class CreateTokenExecutor(
                 colors = effectiveColors,
                 ownerId = tokenControllerId
             )
-            TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
+            TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled)
                 ?.let { return createSubstituteTokens(state, it, context, count, tokenControllerId) }
         }
 
@@ -491,7 +491,7 @@ class CreateTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokens, effect.tapped,
-                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId, handled = context.tokenCreationReplacementsHandled
             )
         newState = afterAdditional
 

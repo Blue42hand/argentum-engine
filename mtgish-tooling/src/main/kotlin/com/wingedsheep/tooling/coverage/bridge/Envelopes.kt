@@ -103,6 +103,7 @@ internal fun BridgeBuilder.structuralEnvelopes() {
     // "The first time you would create one or more tokens each turn, you may instead create that many
     // copies of [attached] permanent" (Mirrormind Crown, Moonlit Meditation) — the engine's
     // ReplaceTokenCreationWithAttachedCopy replacement effect, driven by the source's AttachedToComponent.
+    supported("ReplaceAPlayerWouldCreateAToken", "replace each matching token with multiple predefined tokens (ReplaceTokenCreationWithTokens)")
     supported("ReplaceAPlayerWouldCreateTokens", "replace token creation with copies of attached permanent (ReplaceTokenCreationWithAttachedCopy)")
     envelope("PermanentLayerEffect", "envelope: host continuous effect (capability is the _StaticLayerEffect)")
     // A static "each/other matching permanent gets …" lord (Crusade, Goblin King) — the capability is

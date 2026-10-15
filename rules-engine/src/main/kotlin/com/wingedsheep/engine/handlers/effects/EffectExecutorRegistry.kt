@@ -73,7 +73,7 @@ class EffectExecutorRegistry(
         registerModule(DamageExecutors(zones, amountEvaluator, decisionHandler))
         registerModule(PermanentExecutors(::recurse, zones, decisionHandler, amountEvaluator, cardRegistry))
         registerModule(ManaExecutors(amountEvaluator, cardRegistry))
-        registerModule(TokenExecutors(zones, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry, targetFinder = targetFinder))
+        registerModule(TokenExecutors(zones, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry, targetFinder = targetFinder, executeEffect = ::recurse))
         registerModule(
             LibraryExecutors(::recurse, zones, cardRegistry, castSpellHandler, playLandHandler, targetFinder, legalActionEnumerator)
         )
@@ -107,7 +107,7 @@ class EffectExecutorRegistry(
      * correct under the AI's parallel state evaluation.
      */
     private fun recurse(state: GameState, effect: Effect, context: EffectContext): EffectResult =
-        execute(state, effect, context.copy(resolutionDepth = context.resolutionDepth + 1))
+        execute(state, effect, context.copy(resolutionDepth = context.resolutionDepth + 1, tokenCreationReplacementsHandled = false))
 
     /**
      * Register all executors from a module.
@@ -159,7 +159,9 @@ class EffectExecutorRegistry(
                     "(EffectExecutorCoverageTest guards this at build time)."
             )
         val instructionContext = context.withCurrentObjectReferences(state)
-        val executed = executor.execute(state, effect, instructionContext)
+        val executed = com.wingedsheep.engine.handlers.effects.token.TokenBundleReplacements(
+            cardRegistry, amountEvaluator, targetFinder, ::execute
+        ).intercept(state, effect, instructionContext) ?: executor.execute(state, effect, instructionContext)
         val result = if (effect is com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect ||
             effect is com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect) {
             executed.copy(updatedCollections = EffectDiscardDestinations.propagateUnknown(
@@ -186,7 +188,7 @@ class EffectExecutorRegistry(
     private fun runReplacementRiders(result: EffectResult, context: EffectContext): EffectResult {
         if (result.state.pendingReplacementRiders.isEmpty() || result.outcome !is Outcome.Done) return result
         val drained = com.wingedsheep.engine.replacement.ReplacementRiders.drain(result.state) { s, e, c ->
-            execute(s, e, c.copy(resolutionDepth = context.resolutionDepth + 1))
+            execute(s, e, c.copy(resolutionDepth = context.resolutionDepth + 1, tokenCreationReplacementsHandled = false))
         }
         return result.copy(state = drained.state, events = result.events + drained.events, outcome = drained.outcome)
     }

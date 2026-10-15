@@ -1,0 +1,61 @@
+{
+  "player1Name": "Manufactor",
+  "player2Name": "Opponent",
+  "player1": {
+    "lifeTotal": 40,
+    "hand": [
+      "Academy Manufactor",
+      "Brandywine Farmer"
+    ],
+    "battlefield": [
+      {
+        "name": "Academy Manufactor"
+      },
+      {
+        "name": "Peregrin Took"
+      },
+      {
+        "name": "Forest"
+      },
+      {
+        "name": "Forest"
+      },
+      {
+        "name": "Forest"
+      },
+      {
+        "name": "Forest"
+      },
+      {
+        "name": "Forest"
+      },
+      {
+        "name": "Forest"
+      }
+    ],
+    "graveyard": [],
+    "library": [
+      "Forest",
+      "Forest",
+      "Forest"
+    ]
+  },
+  "player2": {
+    "lifeTotal": 40,
+    "hand": [],
+    "battlefield": [
+      {
+        "name": "Forest"
+      }
+    ],
+    "graveyard": [],
+    "library": [
+      "Forest",
+      "Forest",
+      "Forest"
+    ]
+  },
+  "phase": "PRECOMBAT_MAIN",
+  "activePlayer": 1,
+  "priorityPlayer": 1
+}

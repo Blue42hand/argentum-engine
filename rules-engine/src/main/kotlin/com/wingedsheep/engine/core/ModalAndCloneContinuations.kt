@@ -600,6 +600,7 @@ data class CreateTokenCopyOfChosenContinuation(
     val sourceId: EntityId?,
     val sourceName: String?,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val effectContext: com.wingedsheep.engine.handlers.EffectContext? = null,
 ) : AnswerContinuation
 
 /**
