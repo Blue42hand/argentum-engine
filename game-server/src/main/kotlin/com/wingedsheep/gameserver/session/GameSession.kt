@@ -321,6 +321,24 @@ class GameSession(
     // Lock for synchronizing state modifications to prevent lost updates
     private val stateLock = Any()
 
+    // Snapshot creation and delivery share one order across the socket receiver and temporary
+    // yield continuation. Never hold stateLock while waiting for this delivery lock.
+    private val deliveryLock = Any()
+    @Volatile internal var deliveryClosed = false
+        private set
+
+    internal fun deliverWhileOpen(block: () -> Unit) = synchronized(deliveryLock) {
+        if (!deliveryClosed) block()
+    }
+
+    internal fun finalizeDeliveryOnce(block: () -> Unit) {
+        val first = synchronized(deliveryLock) {
+            if (deliveryClosed) false else { deliveryClosed = true; true }
+        }
+        // Final callbacks can acquire lobby locks; never hold deliveryLock across those calls.
+        if (first) block()
+    }
+
     /**
      * Live response freshness, separate from replayable engine routing. Undo starts a new
      * generation even when it restores an identical engine counter. A recovered session gets
@@ -345,6 +363,7 @@ class GameSession(
             }
             field = value
             liveStateRevision.incrementAndGet()
+            priorityYields.keys.toList().forEach { getPriorityYield(it) }
             if (value != null) recordEliminations(value)
         }
 
@@ -538,7 +557,7 @@ class GameSession(
     /** Accumulated game log per player (player-specific due to masking) */
     private val gameLogs = java.util.concurrent.ConcurrentHashMap<EntityId, MutableList<ClientEvent>>()
 
-    /** Per-player priority mode setting (AUTO = smart auto-pass, STOPS = stop on opponent stack + combat damage, FULL_CONTROL = never auto-pass) */
+    /** Human seats default to native forced-only passing; explicit legacy modes remain available. */
     private val priorityModes = java.util.concurrent.ConcurrentHashMap<EntityId, PriorityMode>()
     private val stopOverrides = java.util.concurrent.ConcurrentHashMap<EntityId, StopOverrideSettings>()
 
@@ -586,6 +605,7 @@ class GameSession(
     )
 
     enum class PriorityMode {
+        FORCED_ONLY,
         AUTO,
         STOPS,
         FULL_CONTROL
@@ -667,7 +687,8 @@ class GameSession(
      * re-seat" is a tempting way to swap in a reconnecting player's new socket — see [associatePlayer],
      * which does that in one step without disturbing the seat at all.
      */
-    fun removePlayer(playerId: EntityId) {
+    fun removePlayer(playerId: EntityId) = synchronized(stateLock) {
+        if (priorityYields.containsKey(playerId)) cancelPriorityYield(playerId, stop = true)
         players[playerId]?.currentGameSessionId = null
         players.remove(playerId)
         if (!isStarted) {
@@ -1349,6 +1370,7 @@ class GameSession(
         }) }
 
         fun accept() {
+            priorityYieldStops.remove(playerId)
             // A rejected action must leave undo bookkeeping untouched. An accepted substantive
             // opponent action invalidates the checkpoint; passing priority is still benign.
             if (undoCheckpoint != null && undoCheckpointOwner != null
@@ -1506,7 +1528,7 @@ class GameSession(
         // "Can this connection act in the current priority window?" — the baton holder's seat, or
         // (CR 805.5) any seat on the baton holder's team under shared team turns.
         val isActorForPriority = state.priorityTeam.any { CombatDeclarationControl.inputActorFor(state, it) == playerId }
-        val nextStopPoint = if (isActorForPriority && playerMode != PriorityMode.FULL_CONTROL) {
+        val nextStopPoint = if (isActorForPriority && playerMode != PriorityMode.FULL_CONTROL && playerMode != PriorityMode.FORCED_ONLY) {
             // The same notion of "meaningful" the stop decision itself uses — otherwise the
             // button can promise a stop (say, at the opponent's end step for a spell we can't
             // actually pay for) that never arrives.
@@ -1529,6 +1551,7 @@ class GameSession(
             null
         }
         val priorityModeStr = when (playerMode) {
+            PriorityMode.FORCED_ONLY -> "forcedOnly"
             PriorityMode.AUTO -> "auto"
             PriorityMode.STOPS -> "stops"
             PriorityMode.FULL_CONTROL -> "fullControl"
@@ -1538,6 +1561,8 @@ class GameSession(
         val previous = lastSentState[playerId]
         lastSentState[playerId] = stateWithLog
         val version = stateVersions.merge(playerId, 1L) { old, inc -> old + inc }!!
+        lastSentInteractionRevisions[playerId] = liveStateRevision.get()
+        val activeYield = getPriorityYield(playerId)
 
         capture { evidence("seat_observation", buildJsonObject {
             put("state", persistenceJson.encodeToJsonElement(ClientGameState.serializer(), stateWithLog))
@@ -1552,11 +1577,11 @@ class GameSession(
         if (previous != null) {
             // Compute delta and send smaller message
             val delta = StateDiffCalculator.computeDelta(previous, stateWithLog)
-            return ServerMessage.StateDeltaUpdate(delta, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch)
+            return ServerMessage.StateDeltaUpdate(delta, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch, activeYield)
         }
 
         // First update — send full state
-        return ServerMessage.StateUpdate(stateWithLog, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch)
+        return ServerMessage.StateUpdate(stateWithLog, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch, activeYield)
     }
 
     /** [value] with every card id in [playerId]'s own names; unchanged for a seat that has none. */
@@ -1577,9 +1602,10 @@ class GameSession(
      * Clear the last sent state for a player, forcing the next update to be a full state.
      * Called on reconnect to ensure the client gets a complete state.
      */
-    fun clearLastSentState(playerId: EntityId) {
+    fun clearLastSentState(playerId: EntityId) = synchronized(stateLock) {
         lastSentState.remove(playerId)
         stateVersions.remove(playerId)
+        lastSentInteractionRevisions.remove(playerId)
     }
 
     // =========================================================================
@@ -1588,11 +1614,14 @@ class GameSession(
 
     /**
      * Set priority mode for a player.
+     * FORCED_ONLY = pass only when the native complete menu has no other executable action
      * AUTO = Arena-style smart auto-passing
      * STOPS = Stop on opponent stack items + combat damage
      * FULL_CONTROL = Never auto-pass
      */
-    fun setPriorityMode(playerId: EntityId, mode: PriorityMode) {
+    fun setPriorityMode(playerId: EntityId, mode: PriorityMode) = synchronized(stateLock) {
+        cancelPriorityYield(playerId)
+        priorityYieldStops.remove(playerId)
         priorityModes[playerId] = mode
         logger.info("Player $playerId set priority mode to $mode")
     }
@@ -1601,7 +1630,8 @@ class GameSession(
      * Get priority mode for a player.
      */
     fun getPriorityMode(playerId: EntityId): PriorityMode {
-        return priorityModes[playerId] ?: PriorityMode.AUTO
+        return priorityModes[playerId] ?: if (players[playerId]?.webSocketSession is com.wingedsheep.gameserver.ai.AiWebSocketSession ||
+            playerPersistenceInfo[playerId]?.isAi == true) PriorityMode.AUTO else PriorityMode.FORCED_ONLY
     }
 
     /**
@@ -1609,7 +1639,7 @@ class GameSession(
      * When enabled, auto-pass is disabled and the player receives priority at every possible point.
      */
     fun setFullControl(playerId: EntityId, enabled: Boolean) {
-        setPriorityMode(playerId, if (enabled) PriorityMode.FULL_CONTROL else PriorityMode.AUTO)
+        setPriorityMode(playerId, if (enabled) PriorityMode.FULL_CONTROL else PriorityMode.FORCED_ONLY)
     }
 
     /**
@@ -1627,7 +1657,8 @@ class GameSession(
      * Set per-step stop overrides for a player.
      * When a stop is set for a step, auto-pass will not skip that step.
      */
-    fun setStopOverrides(playerId: EntityId, myTurnStops: Set<Step>, opponentTurnStops: Set<Step>) {
+    fun setStopOverrides(playerId: EntityId, myTurnStops: Set<Step>, opponentTurnStops: Set<Step>) = synchronized(stateLock) {
+        cancelPriorityYield(playerId)
         stopOverrides[playerId] = StopOverrideSettings(myTurnStops, opponentTurnStops)
         logger.info("Player $playerId set stop overrides: myTurn=$myTurnStops, opponentTurn=$opponentTurnStops")
     }
@@ -1676,6 +1707,76 @@ class GameSession(
         recordYield(com.wingedsheep.gameserver.replay.ReplayYieldOp.CLEAR_ALL, playerId, null, null)
     }
 
+    private data class PriorityYield(val mode: String, val startingTurn: Int)
+    private val priorityYields = mutableMapOf<EntityId, PriorityYield>()
+    // Cancellation/expiry must leave a real window even if Forced Only could otherwise pass it.
+    private val priorityYieldStops = mutableSetOf<EntityId>()
+    private val lastSentInteractionRevisions = mutableMapOf<EntityId, Long>()
+    private var priorityControlRevision = 0L
+
+    private fun cancelPriorityYield(playerId: EntityId, stop: Boolean = false) {
+        priorityYields.remove(playerId)
+        if (stop) priorityYieldStops.add(playerId)
+        priorityControlRevision++
+    }
+
+    /** Arm only from a current seat snapshot; cancellation is always accepted in this epoch. */
+    fun setPriorityYield(playerId: EntityId, mode: String?, epoch: String?, stateVersion: Long): Boolean = synchronized(stateLock) {
+        if (!isCurrentInteraction(epoch) || deliveryClosed) return false
+        if (mode == null) {
+            cancelPriorityYield(playerId, stop = true)
+            return true
+        }
+        val state = gameState ?: return false
+        if (mode !in setOf("endOfTurn", "nextTurn") || state.gameOver || state.pendingDecision != null ||
+            state.actorFor(playerId) != playerId || playerId !in state.activePlayers ||
+            getPriorityMode(playerId) == PriorityMode.FULL_CONTROL ||
+            stateVersions[playerId] != stateVersion || lastSentInteractionRevisions[playerId] != liveStateRevision.get()) return false
+        priorityYieldStops.remove(playerId)
+        priorityYields[playerId] = PriorityYield(mode, state.turnNumber)
+        priorityControlRevision++
+        return true
+    }
+
+    fun getPriorityYield(playerId: EntityId): String? = synchronized(stateLock) {
+        val intent = priorityYields[playerId] ?: return null
+        val state = gameState
+        if (state == null || state.gameOver || playerId !in state.activePlayers ||
+            state.actorFor(playerId) != playerId || state.pendingDecision != null ||
+            state.turnNumber < intent.startingTurn ||
+            (intent.mode == "endOfTurn" && state.turnNumber != intent.startingTurn) ||
+            (intent.mode == "nextTurn" && state.turnNumber != intent.startingTurn && state.isActiveTurnFor(playerId))) {
+            cancelPriorityYield(playerId, stop = true)
+            return null
+        }
+        return intent.mode
+    }
+
+    /** A one-use authorization tied to both native state and human control settings. */
+    class AutoPassIntent internal constructor(
+        val playerId: EntityId, internal val epoch: String,
+        internal val revision: Long, internal val controls: Long, internal val priorityOnly: Boolean,
+    )
+
+    fun getAutoPassIntent(): AutoPassIntent? = synchronized(stateLock) {
+        val player = getAutoPassPlayer() ?: return null
+        val actor = CombatDeclarationControl.inputActorFor(gameState!!, player)
+        val priorityOnly = getPriorityMode(actor) == PriorityMode.FORCED_ONLY || getPriorityYield(actor) != null
+        AutoPassIntent(player, liveInteractionEpoch, liveStateRevision.get(), priorityControlRevision, priorityOnly)
+    }
+
+    fun executeAutoPassIfCurrent(intent: AutoPassIntent): ActionResult = synchronized(stateLock) {
+        if (intent.epoch != liveInteractionEpoch || intent.revision != liveStateRevision.get() ||
+            intent.controls != priorityControlRevision || getAutoPassPlayer() != intent.playerId) {
+            return ActionResult.Failure("Auto-pass cancelled or stale")
+        }
+        if (intent.priorityOnly) {
+            executeAction(gameState!!.actorFor(intent.playerId), PassPriority(intent.playerId))
+        } else {
+            executeAutoPass(intent.playerId)
+        }
+    }
+
     // =========================================================================
     // Auto-Pass Management
     // =========================================================================
@@ -1684,9 +1785,10 @@ class GameSession(
      * Check if the player with priority should automatically pass.
      * Returns the player ID that should auto-pass, or null if no auto-pass should occur.
      *
-     * This implements Arena-style smart priority passing.
+     * Forced-only and voluntary passing are distinct from the explicit legacy heuristic modes.
      */
     fun getAutoPassPlayer(): EntityId? = synchronized(stateLock) {
+        if (deliveryClosed) return null
         val state = gameState ?: return null
 
         // Can't auto-pass if game is over
@@ -1704,6 +1806,7 @@ class GameSession(
         // the controller during a hijacked turn. Auto-pass settings track per-seat,
         // so consult the actor's preferences and the actor's legal-actions view.
         val actorPlayer = CombatDeclarationControl.inputActorFor(state, priorityPlayer)
+        if (actorPlayer in priorityYieldStops) return null
 
         // Check if player has full control enabled - never auto-pass
         val playerMode = getPriorityMode(actorPlayer)
@@ -1711,11 +1814,28 @@ class GameSession(
             return null
         }
 
-        // Get legal actions for the actor (returns priority player's actions)
+        val overrides = getStopOverrides(actorPlayer)
+        val stops = if (state.isActiveTurnFor(priorityPlayer)) overrides.myTurnStops else overrides.opponentTurnStops
+        if (state.step in stops) {
+            cancelPriorityYield(actorPlayer)
+            return null
+        }
+
+        // An explicit yield spends only this seat's optional priority. Never turn a combat
+        // declaration, payment, target or other required decision into an empty response.
+        if (actorPlayer == priorityPlayer && getPriorityYield(actorPlayer) != null) {
+            val offers = legalActionEnumerator.enumerate(state, priorityPlayer, com.wingedsheep.engine.legalactions.EnumerationMode.ACTIONS_ONLY)
+            if (offers.any { it.affordable && it.action is PassPriority }) return priorityPlayer
+            cancelPriorityYield(actorPlayer)
+            return null
+        }
+        if (playerMode == PriorityMode.FORCED_ONLY) {
+            return legalActionEnumerator.forcedPriorityPass(state, priorityPlayer)?.playerId
+        }
+
+        // Legacy explicit Auto / Stops retain their existing heuristic behavior.
         val legalActions = getLegalActions(actorPlayer)
 
-        // Check if they should auto-pass
-        val overrides = getStopOverrides(actorPlayer)
 
         // Check for legal activated abilities from non-battlefield zones (e.g., graveyard).
         // These are often step-locked (like Undead Gladiator's upkeep-only ability) and the
@@ -1768,6 +1888,9 @@ class GameSession(
 
         gameState = checkpoint
         liveInteractionEpoch = UUID.randomUUID().toString()
+        priorityYields.clear()
+        priorityYieldStops.clear()
+        priorityControlRevision++
         // Roll the replay log back to the actions that produced the restored state, so a later
         // reconstruction replays exactly this history. Yields recorded after the rollback point are
         // dropped too — they were set against actions that no longer exist.
@@ -2425,6 +2548,10 @@ class GameSession(
      */
     fun resetStateForDevScenario(state: GameState) {
         synchronized(stateLock) {
+            priorityYields.clear()
+            priorityYieldStops.clear()
+            priorityControlRevision++
+            liveInteractionEpoch = UUID.randomUUID().toString()
             gameState = state.initializeObjectIdentities()
             undoCheckpoint = null
             gameLogs.clear()
@@ -2613,7 +2740,8 @@ class GameSession(
      * leaves everything that describes the seat (deck, sideboard, commander, per-player log) alone.
      * It is the whole reconnect operation on its own: don't call [removePlayer] first.
      */
-    fun associatePlayer(playerSession: PlayerSession) {
+    fun associatePlayer(playerSession: PlayerSession) = synchronized(stateLock) {
+        if (priorityYields.containsKey(playerSession.playerId)) cancelPriorityYield(playerSession.playerId, stop = true)
         players[playerSession.playerId] = playerSession
         playerSession.currentGameSessionId = sessionId
     }

@@ -307,6 +307,7 @@ export type {
   // Game Settings types
   SetFullControlMessage,
   SetPriorityModeMessage,
+  SetPriorityYieldMessage,
   SetStopOverridesMessage,
   SetAbilityYieldMessage,
   ClearAbilityYieldMessage,
@@ -314,6 +315,7 @@ export type {
   YieldKind,
   StopOverrideInfo,
   PriorityModeValue,
+  PriorityYieldMode,
   // Quick Game Lobby types
   QuickGameLobbyPlayerView,
   QuickGameLobbyStateMessage,
@@ -427,6 +429,7 @@ export {
   // Game Settings factories
   createSetFullControlMessage,
   createSetPriorityModeMessage,
+  createSetPriorityYieldMessage,
   createSetStopOverridesMessage,
   createSetAbilityYieldMessage,
   createClearAbilityYieldMessage,

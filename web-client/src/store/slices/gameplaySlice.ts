@@ -15,6 +15,7 @@ import {
   createCancelGameMessage,
   createSetFullControlMessage,
   createSetPriorityModeMessage,
+  createSetPriorityYieldMessage,
   createSetStopOverridesMessage,
   createSetAbilityYieldMessage,
   createClearAbilityYieldMessage,
@@ -22,7 +23,7 @@ import {
   createRequestUndoMessage,
 
 } from '@/types'
-import type { Step, PriorityModeValue, YieldKind } from '@/types'
+import type { Step, PriorityModeValue, PriorityYieldMode, YieldKind } from '@/types'
 import { trackEvent } from '@/utils/analytics.ts'
 import { getWebSocket } from './shared'
 
@@ -34,6 +35,7 @@ let errorDismissTimer: ReturnType<typeof setTimeout> | null = null
 export interface GameplaySliceState {
   gameState: ClientGameState | null
   interactionEpoch: string | null
+  stateVersion: number | null
   legalActions: readonly LegalActionInfo[]
   pendingDecision: PendingDecision | null
   opponentDecisionStatus: OpponentDecisionStatus | null
@@ -44,6 +46,7 @@ export interface GameplaySliceState {
   lastError: ErrorState | null
   fullControl: boolean
   priorityMode: PriorityModeValue
+  priorityYield: PriorityYieldMode | null
   stopOverrides: { myTurnStops: Step[]; opponentTurnStops: Step[] }
   nextStopPoint: string | null
   opponentName: string | null
@@ -92,6 +95,7 @@ export interface GameplaySliceActions {
   cancelGame: () => void
   setFullControl: (enabled: boolean) => void
   cyclePriorityMode: () => void
+  setPriorityYield: (mode: PriorityYieldMode | null, interactionEpoch: string | null, stateVersion: number | null) => void
   toggleStopOverride: (step: Step, isMyTurn: boolean) => void
   setAbilityYield: (cardDefinitionId: string, abilityId: string, kind: YieldKind) => void
   clearAbilityYield: (cardDefinitionId: string, abilityId: string) => void
@@ -114,6 +118,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   // Initial state
   gameState: null,
   interactionEpoch: null,
+  stateVersion: null,
   legalActions: [],
   pendingDecision: null,
   opponentDecisionStatus: null,
@@ -123,7 +128,8 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   gameOverState: null,
   lastError: null,
   fullControl: false,
-  priorityMode: 'auto' as PriorityModeValue,
+  priorityMode: 'forcedOnly' as PriorityModeValue,
+  priorityYield: null,
   stopOverrides: { myTurnStops: [], opponentTurnStops: [] },
   nextStopPoint: null,
   opponentName: null,
@@ -542,11 +548,25 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   cyclePriorityMode: () => {
     const { priorityMode } = get()
     const nextMode: PriorityModeValue =
-      priorityMode === 'auto' ? 'stops' :
+      priorityMode === 'auto' ? 'forcedOnly' :
+      priorityMode === 'forcedOnly' ? 'stops' :
       priorityMode === 'stops' ? 'fullControl' :
       'auto'
     getWebSocket()?.send(createSetPriorityModeMessage(nextMode))
     set({ priorityMode: nextMode, fullControl: nextMode === 'fullControl' })
+  },
+
+  setPriorityYield: (mode, interactionEpoch, stateVersion) => {
+    const state = get()
+    if (!interactionEpoch || interactionEpoch !== state.interactionEpoch ||
+        !state.sessionId || !state.gameState || state.gameState.isGameOver || state.gameOverState) return
+    if (mode !== null && (state.fullControl || state.priorityMode === 'fullControl')) return
+    // Arming belongs to the exact rendered offer. Cancellation remains valid across
+    // broadcasts in the same timeline, so a racing update cannot swallow Cancel.
+    const submittedVersion = mode === null ? state.stateVersion : stateVersion
+    if (submittedVersion == null || (mode !== null && submittedVersion !== state.stateVersion)) return
+    getWebSocket()?.send(createSetPriorityYieldMessage(mode, interactionEpoch, submittedVersion))
+    // Active state is acknowledged by the server, including cancellation and expiry.
   },
 
   toggleStopOverride: (step, isMyTurn) => {
@@ -588,6 +608,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
       opponentName: null,
       gameState: null,
       interactionEpoch: null,
+      stateVersion: null,
       legalActions: [],
       pendingDecision: null,
       mulliganState: null,
@@ -609,7 +630,8 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
       revealedHandCardIds: null,
       revealedCardsInfo: null,
       fullControl: false,
-      priorityMode: 'auto' as PriorityModeValue,
+      priorityMode: 'forcedOnly' as PriorityModeValue,
+      priorityYield: null,
       undoAvailable: false,
       stopOverrides: { myTurnStops: [], opponentTurnStops: [] },
       nextStopPoint: null,
