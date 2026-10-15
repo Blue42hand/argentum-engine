@@ -43,6 +43,7 @@ import kotlinx.serialization.Serializable
  * @property sacrificedPermanents Permanents chosen to sacrifice as a cost.
  * @property discardedCards Cards chosen to discard as a cost.
  * @property exiledCards Cards chosen to exile as a cost.
+ * @property bouncedPermanents Permanents chosen to return to hand as a cost.
  * @property delvedCards Graveyard cards chosen to exile to pay generic mana with delve.
  */
 @Serializable
@@ -56,6 +57,7 @@ data class ActionParams(
     val sacrificedPermanents: List<EntityId> = emptyList(),
     val discardedCards: List<EntityId> = emptyList(),
     val exiledCards: List<EntityId> = emptyList(),
+    val bouncedPermanents: List<EntityId> = emptyList(),
     val delvedCards: List<EntityId> = emptyList(),
 ) {
     val isEmpty: Boolean
@@ -73,6 +75,7 @@ data class ActionParams(
             if (sacrificedPermanents.isNotEmpty()) add("sacrificedPermanents")
             if (discardedCards.isNotEmpty()) add("discardedCards")
             if (exiledCards.isNotEmpty()) add("exiledCards")
+            if (bouncedPermanents.isNotEmpty()) add("bouncedPermanents")
             if (delvedCards.isNotEmpty()) add("delvedCards")
         }
 
@@ -130,6 +133,7 @@ object ActionParameterizer {
             if (cost?.validSacrificeTargets.isNullOrEmpty()) fields.remove("sacrificedPermanents")
             if (cost?.validDiscardTargets.isNullOrEmpty()) fields.remove("discardedCards")
             if (cost?.validExileTargets.isNullOrEmpty()) fields.remove("exiledCards")
+            if (cost?.validBounceTargets.isNullOrEmpty()) fields.remove("bouncedPermanents")
         }
         if (legalAction.action is CastSpell &&
             (!legalAction.hasDelve || legalAction.hasXCost || legalAction.delveCards.isNullOrEmpty())
@@ -144,7 +148,7 @@ object ActionParameterizer {
         params.requireBlockTargets(legalAction.validBlockTargets)
         legalAction.additionalCostInfo?.let { cost ->
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
-                cost.validDiscardTargets, cost.validExileTargets)
+                cost.validDiscardTargets, cost.validExileTargets, cost.validBounceTargets)
         }
         params.requireDelveCandidates(legalAction.delveCards?.map { it.entityId }.orEmpty())
         return apply(legalAction.action, params, state)
@@ -157,14 +161,15 @@ object ActionParameterizer {
         params.requireBlockTargets(info.validBlockTargets)
         info.additionalCostInfo?.let { cost ->
             params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
-                cost.validDiscardTargets, cost.validExileTargets)
+                cost.validDiscardTargets, cost.validExileTargets, cost.validBounceTargets)
         }
         params.requireDelveCandidates(info.validDelveCards?.map { it.entityId }.orEmpty())
         return apply(info.action, params, state)
     }
 
     private fun ActionParams.requireCostCandidates(
-        tap: List<EntityId>, sacrifice: List<EntityId>, discard: List<EntityId>, exile: List<EntityId>
+        tap: List<EntityId>, sacrifice: List<EntityId>, discard: List<EntityId>, exile: List<EntityId>,
+        bounce: List<EntityId>
     ) {
         fun check(field: String, selected: List<EntityId>, candidates: List<EntityId>) {
             require(selected.all { it in candidates }) { "$field contains an entity not offered for this action" }
@@ -173,6 +178,7 @@ object ActionParameterizer {
         check("sacrificedPermanents", sacrificedPermanents, sacrifice)
         check("discardedCards", discardedCards, discard)
         check("exiledCards", exiledCards, exile)
+        check("bouncedPermanents", bouncedPermanents, bounce)
     }
 
     private fun ActionParams.requireBlockTargets(targets: Map<EntityId, List<EntityId>>?) {
@@ -219,6 +225,7 @@ object ActionParameterizer {
                 "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "delvedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
@@ -230,6 +237,7 @@ object ActionParameterizer {
                 "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
         else -> ActionParameterSpec.EMPTY
@@ -280,7 +288,7 @@ object ActionParameterizer {
     /** Keep template payment fields that this native step did not replace. */
     private fun ActionParams.withCostChoices(existing: AdditionalCostPayment?): AdditionalCostPayment? {
         if (tappedPermanents.isEmpty() && sacrificedPermanents.isEmpty() &&
-            discardedCards.isEmpty() && exiledCards.isEmpty()
+            discardedCards.isEmpty() && exiledCards.isEmpty() && bouncedPermanents.isEmpty()
         ) return existing
         val base = existing ?: AdditionalCostPayment.NONE
         return base.copy(
@@ -288,6 +296,7 @@ object ActionParameterizer {
             sacrificedPermanents = sacrificedPermanents.ifEmpty { base.sacrificedPermanents },
             discardedCards = discardedCards.ifEmpty { base.discardedCards },
             exiledCards = exiledCards.ifEmpty { base.exiledCards },
+            bouncedPermanents = bouncedPermanents.ifEmpty { base.bouncedPermanents },
         )
     }
 

@@ -33,11 +33,12 @@ class ActionParameterSpecTest : FunSpec({
             "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "delvedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
         )
     }
 
-    test("ability templates expose the four common nonmana payment choices") {
+    test("ability templates expose common nonmana payment choices") {
         ActionParameterizer.spec(
             ActivateAbility(playerId = player, sourceId = EntityId("source"),
                 abilityId = com.wingedsheep.sdk.scripting.AbilityId("ability"))
@@ -48,6 +49,7 @@ class ActionParameterSpecTest : FunSpec({
             "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "discardedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
         )
     }
 

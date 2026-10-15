@@ -131,7 +131,7 @@ curl -s -X POST localhost:8081/envs/$ENV/step -H 'Content-Type: application/json
 | `blockers` | blocker id → `[attacker id, …]` | `validBlockers`, `validBlockTargets`, `blockerMaxBlockCounts`, `mandatoryBlockerAssignments` on the action |
 | `targets` | `[entity id, …]`, in requirement order | `targetEntityIds`, `minTargets`, `maxTargets` |
 | `xValue` | int | `hasXCost`, `maxAffordableX` |
-| `tappedPermanents`, `sacrificedPermanents`, `discardedCards`, `exiledCards` | `[entity id, …]` | `parameterSpec`, `costChoices` |
+| `tappedPermanents`, `sacrificedPermanents`, `discardedCards`, `exiledCards`, `bouncedPermanents` | `[entity id, …]` | `parameterSpec`, `costChoices` |
 | `delvedCards` (non-X delve spells) | `[graveyard card id, …]` | `parameterSpec`, `validDelveCards`, `minDelveNeeded` |
 
 The declaration constraints are not advisory — a declaration that disobeys one is illegal, and the
