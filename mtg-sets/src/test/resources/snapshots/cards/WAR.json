@@ -2010,6 +2010,88 @@
     }
 }
 
+// Kaya's Ghostform
+{
+    "name": "Kaya's Ghostform",
+    "manaCost": "{B}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature or planeswalker you control\nWhen enchanted permanent dies or is put into exile, return that card to the battlefield under your control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kaya's Ghostform:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "ZoneChangeEvent",
+                            "from": "Battlefield",
+                            "to": "Graveyard"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "from": "Battlefield",
+                            "to": "Exile"
+                        }
+                    ]
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "TriggeringEntity",
+                    "destination": "Battlefield",
+                    "controllerOverride": "Controller"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature|planeswalker ctrl:you"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "94",
+        "artist": "Johan Grenier",
+        "flavorText": "The Eternals found some sparks to be quite slippery.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/98f3be88-24e2-433f-9138-f0cb59d09a0f.jpg?1783933444",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "Kaya’s Ghostform can enchant a token, but its last ability won’t return the token to the battlefield."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "Kaya’s Ghostform is put into your graveyard once the enchanted permanent leaves the battlefield. It doesn’t return to the battlefield with that permanent."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If an effect exiles the enchanted permanent and immediately returns it to the battlefield, the last ability of Kaya’s Ghostform triggers but will have no effect. If an effect exiles the enchanted permanent and would return it to the battlefield at a later time, Kaya’s Ghostform will return that card to the battlefield and it won’t be returned later."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If another player gains control of the enchanted permanent, Kaya’s Ghostform will be put into your graveyard."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If the enchanted permanent is put into a graveyard or exile but leaves that zone before the last ability of Kaya’s Ghostform resolves, that card stays in its new zone, even if that zone is also a graveyard or exile. You don’t return it to the battlefield."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If Kaya’s Ghostform and the enchanted permanent are both put into graveyards and/or exiled at the same time, the enchanted permanent will be returned to the battlefield."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If Kaya’s Ghostform enchants a permanent you control but don’t own, that permanent will return to the battlefield under your control when it dies or is exiled. In a multiplayer game, if a player leaves the game, all cards that player owns leave as well. If you leave the game, any creatures you control from Kaya’s Ghostform’s effect are exiled."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Kraul Stinger
 {
     "name": "Kraul Stinger",

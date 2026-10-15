@@ -211,6 +211,9 @@ sealed interface SerializableModification {
     data class GrantKeyword(val keyword: String) : SerializableModification
 
     @Serializable
+    data class CantHaveKeywords(val keywords: Set<String>) : SerializableModification
+
+    @Serializable
     data class RemoveKeyword(val keyword: String) : SerializableModification
 
     @Serializable
@@ -818,6 +821,7 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.ModifyPowerToughness -> Modification.ModifyPowerToughness(powerMod, toughnessMod)
     is SerializableModification.SwitchPowerToughness -> Modification.SwitchPowerToughness(EntityId(""))
     is SerializableModification.GrantKeyword -> Modification.GrantKeyword(keyword)
+    is SerializableModification.CantHaveKeywords -> Modification.CantHaveKeywords(keywords)
     is SerializableModification.RemoveKeyword -> Modification.RemoveKeyword(keyword)
     is SerializableModification.ChangeColor -> Modification.ChangeColor(colors)
     is SerializableModification.AddColor -> Modification.AddColor(colors)

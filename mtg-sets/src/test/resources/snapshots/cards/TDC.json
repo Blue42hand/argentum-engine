@@ -1,0 +1,68 @@
+// Tempest Technique
+{
+    "name": "Tempest Technique",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Storm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies. Copies become tokens.)\nEnchant creature you control\nEnchanted creature gets +1/+1 for each enchantment you control.",
+    "keywords": [
+        "STORM"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "enchantment"
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "enchantment"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "rarity": "RARE",
+        "artist": "Nino Vecia",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d5ee7cc-4854-4b52-ba9b-64d5a401fca1.jpg?1783907183",
+        "rulings": [
+            {
+                "date": "2025-04-04",
+                "text": "The copies are put directly onto the stack. They aren’t cast and won’t be counted by other spells with storm cast later in the turn."
+            },
+            {
+                "date": "2025-04-04",
+                "text": "Spells cast from zones other than a player’s hand and spells that were countered or otherwise failed to resolve are counted by the storm ability."
+            },
+            {
+                "date": "2025-04-04",
+                "text": "A copy of a spell can be countered like any other spell, but it must be countered individually. Countering a spell with storm won’t affect the copies."
+            },
+            {
+                "date": "2025-04-04",
+                "text": "The triggered ability that creates the copies can itself be countered by anything that can counter a triggered ability. If it is countered, no copies will be put onto the stack."
+            },
+            {
+                "date": "2025-04-04",
+                "text": "A resolving copy of a permanent spell becomes a token. That token isn’t “created” and won’t interact with abilities that care about tokens being created."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

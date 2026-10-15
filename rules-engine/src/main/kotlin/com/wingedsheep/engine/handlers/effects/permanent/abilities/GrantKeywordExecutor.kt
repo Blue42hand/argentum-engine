@@ -57,6 +57,10 @@ class GrantKeywordExecutor : EffectExecutor<GrantKeywordEffect> {
             return EffectResult.error(state, "Target is no longer on the battlefield or stack")
         }
 
+        // A resolving ability does not create the prohibited part of its continuous effect.
+        // In particular, a permanent grant attempted now must not reappear after the ban expires.
+        if (state.projectedState.cantHaveKeyword(targetId, effect.keyword)) return EffectResult.success(state)
+
         // Create a floating effect for the keyword grant. An optional [GrantKeywordEffect.condition]
         // rides along as the floating effect's source condition, so the keyword is live only while
         // the condition holds — the durational form of a printed "as long as …" clause, and how a
