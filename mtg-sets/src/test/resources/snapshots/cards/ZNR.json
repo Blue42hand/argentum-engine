@@ -993,6 +993,188 @@
     ]
 }
 
+// Malakir Rebirth
+{
+    "name": "Malakir Rebirth",
+    "manaCost": "{B}",
+    "typeLine": "Instant",
+    "oracleText": "Choose target creature. You lose 2 life. Until end of turn, that creature gains \"When this creature dies, return it to the battlefield tapped under its owner's control.\"",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "Controller"
+                },
+                {
+                    "type": "GrantTriggeredAbility",
+                    "ability": {
+                        "id": "Malakir Rebirth:1",
+                        "trigger": {
+                            "type": "ZoneChangeEvent",
+                            "from": "Battlefield",
+                            "to": "Graveyard"
+                        },
+                        "effect": {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Battlefield",
+                            "placement": "Tapped",
+                            "fromZone": "Graveyard"
+                        }
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Malakir Mire",
+        "manaCost": "",
+        "typeLine": "Land",
+        "oracleText": "This land enters tapped.\n{T}: Add {B}.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "Malakir Mire:1",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "BLACK"
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                }
+            ],
+            "replacementEffects": [
+                "EntersTapped"
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "111",
+            "rarity": "UNCOMMON",
+            "artist": "Marta Nael",
+            "flavorText": "\"Getting into Malakir isn't difficult. It's getting out that's the hard part.\"\n—Doros, expedition guide",
+            "imageUri": "https://cards.scryfall.io/normal/back/6/0/609d3ecf-f88d-4268-a8d3-4bf2bcf5df60.jpg?1783929378",
+            "rulings": [
+                {
+                    "date": "2020-09-25",
+                    "text": "If the target creature is an illegal target by the time Malakir Rebirth tries to resolve, the spell doesn't resolve. You don't lose 2 life."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "Malakir Rebirth's effect works only once. If the targeted creature dies and is then returned to the battlefield, it's considered to be a new creature. If that new creature dies, it won't come back."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "To determine whether it is legal to play a modal double-faced card, consider only the characteristics of the face you're playing and ignore the other face's characteristics."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "If an effect allows you to play a specific modal double-faced card, you may cast it as a spell or play it as a land, as determined by which face you choose to play. If an effect allows you to cast (rather than \"play\") a specific modal double-faced card, you can't play it as a land."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "If an effect allows you to play a land or cast a spell from among a group of cards, you may play or cast a modal double-faced card with any face that fits the criteria of that effect."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "The mana value of a modal double-faced card is based on the characteristics of the face that's being considered. On the stack and battlefield, consider whichever face is up. In all other zones, consider only the front face. This is different than how the mana value of a transforming double-faced card is determined."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "A modal double-faced card can't be transformed or be put onto the battlefield transformed. Ignore any instruction to transform a modal double-faced card or to put one onto the battlefield transformed."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "If an effect puts a double-faced card onto the battlefield, it enters with its front face up. If that front face can't be put onto the battlefield, it doesn't enter the battlefield."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "If an effect instructs a player to choose a card name, the name of either face may be chosen. If that effect or a linked ability refers to a spell with the chosen name being cast and/or a land with the chosen name being played, it considers only the chosen name, not the other face's name."
+                },
+                {
+                    "date": "2020-09-25",
+                    "text": "In the Commander variant, a double-faced card's color identity is determined by the mana costs and mana symbols in the rules text of both faces combined. If either face has a color indicator or basic land type, those are also considered."
+                }
+            ]
+        },
+        "colorIdentityOverride": [
+            "BLACK"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "UNCOMMON",
+        "artist": "Marta Nael",
+        "flavorText": "\"Those who fail to escape Malakir become part of the city's defense.\"\n—Doros, expedition guide",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/0/609d3ecf-f88d-4268-a8d3-4bf2bcf5df60.jpg?1783929378",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "If the target creature is an illegal target by the time Malakir Rebirth tries to resolve, the spell doesn't resolve. You don't lose 2 life."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Malakir Rebirth's effect works only once. If the targeted creature dies and is then returned to the battlefield, it's considered to be a new creature. If that new creature dies, it won't come back."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "To determine whether it is legal to play a modal double-faced card, consider only the characteristics of the face you're playing and ignore the other face's characteristics."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If an effect allows you to play a specific modal double-faced card, you may cast it as a spell or play it as a land, as determined by which face you choose to play. If an effect allows you to cast (rather than \"play\") a specific modal double-faced card, you can't play it as a land."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If an effect allows you to play a land or cast a spell from among a group of cards, you may play or cast a modal double-faced card with any face that fits the criteria of that effect."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "The mana value of a modal double-faced card is based on the characteristics of the face that's being considered. On the stack and battlefield, consider whichever face is up. In all other zones, consider only the front face. This is different than how the mana value of a transforming double-faced card is determined."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "A modal double-faced card can't be transformed or be put onto the battlefield transformed. Ignore any instruction to transform a modal double-faced card or to put one onto the battlefield transformed."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If an effect puts a double-faced card onto the battlefield, it enters with its front face up. If that front face can't be put onto the battlefield, it doesn't enter the battlefield."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If an effect instructs a player to choose a card name, the name of either face may be chosen. If that effect or a linked ability refers to a spell with the chosen name being cast and/or a land with the chosen name being played, it considers only the chosen name, not the other face's name."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "In the Commander variant, a double-faced card's color identity is determined by the mana costs and mana symbols in the rules text of both faces combined. If either face has a color indicator or basic land type, those are also considered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ],
+    "layout": "MODAL_DFC"
+}
+
 // Marauding Blight-Priest
 {
     "name": "Marauding Blight-Priest",
