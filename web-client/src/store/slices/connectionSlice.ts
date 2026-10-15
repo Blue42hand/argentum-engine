@@ -163,6 +163,8 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
       pendingSpectateGameId: null,
       opponentName: null,
       gameState: null,
+      priorityYield: null,
+      stateVersion: null,
       legalActions: [],
       pendingDecision: null,
       mulliganState: null,

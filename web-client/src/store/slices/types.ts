@@ -930,6 +930,7 @@ export type GameStore = {
 
   // Gameplay slice
   gameState: ClientGameState | null
+  stateVersion: number | null
   interactionEpoch: string | null
   legalActions: readonly LegalActionInfo[]
   pendingDecision: PendingDecision | null
@@ -941,6 +942,7 @@ export type GameStore = {
   lastError: ErrorState | null
   fullControl: boolean
   priorityMode: import('../../types').PriorityModeValue
+  priorityYield: import('../../types').PriorityYieldMode | null
   stopOverrides: { myTurnStops: Step[]; opponentTurnStops: Step[] }
   nextStopPoint: string | null
   opponentName: string | null
@@ -989,6 +991,7 @@ export type GameStore = {
   cancelGame: () => void
   setFullControl: (enabled: boolean) => void
   cyclePriorityMode: () => void
+  setPriorityYield: (mode: import('../../types').PriorityYieldMode | null, interactionEpoch: string | null, stateVersion: number | null) => void
   toggleStopOverride: (step: Step, isMyTurn: boolean) => void
   setAbilityYield: (cardDefinitionId: string, abilityId: string, kind: YieldKind) => void
   clearAbilityYield: (cardDefinitionId: string, abilityId: string) => void

@@ -207,8 +207,10 @@ export interface StateUpdateMessage {
   readonly stopOverrides?: StopOverrideInfo | null
   /** Whether the player can undo their last action */
   readonly undoAvailable?: boolean
-  /** Current priority mode for this player (auto, stops, fullControl) */
+  /** Current priority mode for this player (auto, forcedOnly, stops, fullControl) */
   readonly priorityMode?: PriorityModeValue | null
+  /** Temporary priority yield acknowledged by the server for this seat. */
+  readonly priorityYield?: PriorityYieldMode | null
   /** Monotonically increasing version — used to detect missed messages */
   readonly stateVersion?: number
   /** Live timeline on which actions in this snapshot originate. */
@@ -284,6 +286,8 @@ export interface StateDeltaUpdateMessage {
   readonly stopOverrides?: StopOverrideInfo | null
   readonly undoAvailable?: boolean
   readonly priorityMode?: PriorityModeValue | null
+  /** Temporary priority yield acknowledged by the server for this seat. */
+  readonly priorityYield?: PriorityYieldMode | null
   /** Monotonically increasing version — used to detect missed messages */
   readonly stateVersion?: number
   /** Live timeline on which actions in this snapshot originate. */
@@ -2112,6 +2116,7 @@ export type ClientMessage =
   // Game Settings Messages
   | SetFullControlMessage
   | SetPriorityModeMessage
+  | SetPriorityYieldMessage
   | SetStopOverridesMessage
   | SetAbilityYieldMessage
   | ClearAbilityYieldMessage
@@ -2644,14 +2649,23 @@ export interface SetFullControlMessage {
 
 /**
  * Set priority mode for the current game.
- * Values: "auto", "stops", "fullControl"
+ * Values: "auto", "forcedOnly", "stops", "fullControl"
  */
 export interface SetPriorityModeMessage {
   readonly type: 'setPriorityMode'
   readonly mode: PriorityModeValue
 }
 
-export type PriorityModeValue = 'auto' | 'stops' | 'fullControl'
+export type PriorityModeValue = 'auto' | 'forcedOnly' | 'stops' | 'fullControl'
+
+export type PriorityYieldMode = 'endOfTurn' | 'nextTurn'
+
+export interface SetPriorityYieldMessage {
+  readonly type: 'setPriorityYield'
+  readonly stateVersion: number
+  readonly mode: PriorityYieldMode | null
+  readonly interactionEpoch: string
+}
 
 /**
  * Set per-step stop overrides for the current game.
@@ -3273,4 +3287,8 @@ export function isQuickGameLobbyStateMessage(msg: ServerMessage): msg is QuickGa
 }
 export function isQuickGameLobbyClosedMessage(msg: ServerMessage): msg is QuickGameLobbyClosedMessage {
   return msg.type === 'quickGameLobbyClosed'
+}
+
+export function createSetPriorityYieldMessage(mode: PriorityYieldMode | null, interactionEpoch: string, stateVersion: number): SetPriorityYieldMessage {
+  return { type: 'setPriorityYield', mode, interactionEpoch, stateVersion }
 }

@@ -447,12 +447,12 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   {
     id: 'priority-modes',
     section: 'playing',
-    title: 'Priority modes: Auto, Stops, Full Control',
+    title: 'Priority modes: Forced Only, Auto, Stops, Full Control',
     summary:
-      'Auto passes for you whenever you have nothing worth doing. Stops pauses on opponent spells and abilities and on combat damage. Full Control gives you priority at every single step.',
+      'Forced Only passes only when the engine confirms passing is your sole action. Auto uses broader automatic passing. Stops pauses on opponent spells and abilities and on combat damage. Full Control gives you every priority window.',
     body: [
-      { kind: 'p', text: 'The button cycles Auto → Stops → Full Control. Auto is right for most games; switch to Full Control when you need a specific window, such as responding in your own upkeep.' },
-      { kind: 'p', text: 'Auto never passes when you have a decision that matters — it is a convenience, not a rules shortcut.' },
+      { kind: 'p', text: 'New games start in Forced Only. The button cycles Forced Only → Stops → Full Control → Auto. Forced Only keeps real choices, including mana abilities, available to you. Your phase stops still apply.' },
+      { kind: 'p', text: 'For a temporary yield, choose Pass until end of turn or Pass until your next turn. The active indicator includes Cancel. Decisions, phase stops, and Full Control interrupt the yield; it does not carry into another game.' },
     ],
     related: ['stops', 'yields'],
   },
