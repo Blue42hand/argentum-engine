@@ -1,0 +1,72 @@
+// Ninja Pizza
+{
+    "name": "Ninja Pizza",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Foods you control have \"{T}, Sacrifice this artifact: Add one mana of any color.\"\nAt the beginning of your second main phase, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ninja Pizza:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "POSTCOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantActivatedAbility",
+                "ability": {
+                    "id": "Ninja Pizza:1",
+                    "cost": {
+                        "type": "CostComposite",
+                        "costs": [
+                            "CostTap",
+                            "CostSacrificeSelf"
+                        ]
+                    },
+                    "effect": "AddManaOfChoice",
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                },
+                "filter": {
+                    "baseFilter": "Food ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "rarity": "RARE",
+        "artist": "Brian Yuen",
+        "flavorText": "The pizza that vanishes quickly without a trace.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/4/74c24ff9-d3d2-4ffb-bf8b-dba803481a99.jpg?1783904164",
+        "rulings": [
+            {
+                "date": "2026-01-27",
+                "text": "Food is an artifact type. Even though it appears on some creatures, it's never a creature type."
+            },
+            {
+                "date": "2026-01-27",
+                "text": "Some spells and abilities that create Food tokens may require targets. If each target chosen is an illegal target as that spell or ability tries to resolve, it won't resolve. You won't create any Food tokens."
+            },
+            {
+                "date": "2026-01-27",
+                "text": "Whatever you do, don't eat the cards. (Also, don't make the pizzas pictured on the cards. You don't have the digestive system of a Ninja Turtle.)"
+            },
+            {
+                "date": "2026-01-27",
+                "text": "If an effect refers to a Food, it means any Food artifact, not just a Food artifact token. For example, you can sacrifice Pizza Face (a Legendary Artifact Creature — Food Mutant) to activate Maraleaf Rider's ability (an ability with \"Sacrifice a Food\" in its cost). You can't sacrifice a Food to pay multiple costs. For example, you can't sacrifice a Food token to activate its own ability and also to activate Maraleaf Rider's ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
