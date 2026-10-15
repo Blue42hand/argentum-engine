@@ -200,6 +200,10 @@ class BreOfClanStoutarmEndStepPriorityScenarioTest : ScenarioTestBase() {
                 game.player2Id to PlayerSession(ws2, game.player2Id, "Player2")
             )
         )
+        // This regression exercises the explicit legacy Auto heuristics. Human sessions now
+        // default to Forced Only, which correctly preserves the fixture's mana abilities.
+        session.setPriorityMode(game.player1Id, GameSession.PriorityMode.AUTO)
+        session.setPriorityMode(game.player2Id, GameSession.PriorityMode.AUTO)
         return session
     }
 }
