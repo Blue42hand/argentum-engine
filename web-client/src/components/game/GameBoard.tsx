@@ -1,5 +1,5 @@
 import { PlayerActionBar } from './overlay/PlayerActionBar'
-import { useMemo, useCallback, useRef, useEffect } from 'react'
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import { useInteraction } from '@/hooks/useInteraction'
 import { useViewingPlayer, useOpponent, useOpponents, useViewedOpponent, useStackCards, selectPriorityMode, useGhostCards, useBattlefieldCards, selectTeamMap, useIdentityColor, useViewerTeamIndex, useIsAlly, identitySeatColor, selectViewingPlayerId, useEliminatedBottomSeatId, useViewerEliminated, useIsSharedLifeTeamGame, useTeamLabelFor, useTeammateNames, useTeamHasPriority, useIsMyTeamTurn, useIsSharedTurnTeamGame, turnQueueHintFor } from '@/store/selectors'
@@ -257,12 +257,30 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     if (!store.overviewMode) store.toggleOverviewMode()
   }, [isMulti, responsive.isMobile, overviewDefaultKey])
 
+  // The floating controls can be taller than the hand on a phone. Reserve their
+  // measured height in the existing bottom grid row so lands and zone piles stay
+  // clickable. Observe only the fixed panel, whose height is independent of the grid.
+  const [priorityControlsHeight, setPriorityControlsHeight] = useState(0)
+  const measurePriorityControls = useCallback((element: HTMLDivElement | null) => {
+    if (!element) return
+    const measure = () => setPriorityControlsHeight(Math.ceil(element.getBoundingClientRect().height))
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => {
+      observer.disconnect()
+      setPriorityControlsHeight(0)
+    }
+  }, [])
+
   // Grid row 1: keeps the battlefield clear of the fixed/absolute opponent hand.
   const oppHandReservation =
     responsive.smallCardHeight + effectiveTopOffset + responsive.opponentHandBattlefieldGap
   // Grid row 5: keeps the battlefield clear of the fixed player hand.
-  const playerHandReservation =
-    (spectatorMode ? responsive.smallCardHeight : responsive.cardHeight) + responsive.handBattlefieldGap
+  const playerHandReservation = Math.max(
+    (spectatorMode ? responsive.smallCardHeight : responsive.cardHeight) + responsive.handBattlefieldGap,
+    priorityControlsHeight > 0 ? priorityControlsHeight + 16 + 8 : 0,
+  )
 
   // Two-player battlefield sizing, solved for both players together: one card
   // width, and each battlefield the slot height its rows need (a lands-only
@@ -1610,7 +1628,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
         const yieldBlockedByFullControl = fullControl || serverPriorityMode === 'fullControl'
         const canArmYield = passEnabled && !yieldBlockedByFullControl && !!interactionEpoch && stateVersion != null
         return (
-          <div style={{
+          <div ref={measurePriorityControls} data-priority-controls style={{
             position: 'fixed',
             bottom: 16,
             right: 16,
