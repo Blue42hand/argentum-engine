@@ -130,11 +130,10 @@ jobs:
           fi
           echo "All backend test groups passed."
 
-  # Coverage runs only on main, off the PR critical path (Kover instruments the 3 covered modules'
-  # test runs, and report generation + the PR comment add serial steps). Coverage is non-gating
-  # (min 0); main-only keeps PR feedback fast while still tracking the trend on the default branch.
+  # Keep coverage off ordinary PRs; run it for main and explicit release qualification.
   coverage:
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/exact-source-ci' || startsWith(github.head_ref, 'codex/reconcile-tolaria-')
+    # Release qualification needs coverage from the same exact source checkout.
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/exact-source-ci' || startsWith(github.head_ref, 'codex/reconcile-tolaria-') || github.head_ref == 'codex/human-luna-release' || github.head_ref == 'codex/reliable-release-bindings' || github.head_ref == 'codex/tolaria-alela-release' || github.head_ref == 'codex/tolaria-walltime-release'
     runs-on: ubuntu-latest
     env:
       GRADLE_BUILD_CACHE_DIR: ${{ github.workspace }}/.gradle/build-cache

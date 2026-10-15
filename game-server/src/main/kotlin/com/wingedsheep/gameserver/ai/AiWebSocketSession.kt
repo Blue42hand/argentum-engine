@@ -21,6 +21,8 @@ import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
 import org.slf4j.LoggerFactory
@@ -95,6 +97,27 @@ class AiWebSocketSession(
     @Volatile internal var onRecordedMulliganReady: ((EntityId, Boolean, AiDecisionEvidence) -> Unit)? = null
     @Volatile internal var onRecordedBottomReady: ((EntityId, List<EntityId>, AiDecisionEvidence) -> Unit)? = null
     @Volatile internal var onCallbackDisposition: ((EntityId, AiDecisionEvidence, String) -> Unit)? = null
+    @Volatile internal var onControllerFailure: (() -> Unit)? = null
+    private val externalControllerFailed = AtomicBoolean(false)
+    private val externalMessageMutex = Mutex()
+    private fun controllerAvailable(): Boolean =
+        open.get() && (allowActionsOnlyFallback || !externalControllerFailed.get())
+
+    private fun failExternalController() {
+        if (!allowActionsOnlyFallback && open.get() && externalControllerFailed.compareAndSet(false, true)) {
+            onControllerFailure?.invoke()
+        }
+    }
+
+    private suspend fun withControllerCallback(block: suspend () -> Unit) {
+        if (allowActionsOnlyFallback) block()
+        else externalMessageMutex.withLock { if (controllerAvailable()) block() }
+    }
+
+    private suspend fun ensureControllerAvailable() {
+        currentCoroutineContext().ensureActive()
+        if (!controllerAvailable()) throw CancellationException("Controller session closed or failed")
+    }
     private val activeCallbacks = java.util.concurrent.ConcurrentHashMap<String, AiDecisionEvidence>()
     private fun track(context: AiDecisionEvidence?): AiDecisionEvidence? {
         context?.let {
@@ -168,10 +191,10 @@ class AiWebSocketSession(
         isCurrent: () -> Boolean,
         gameId: String,
     ): PaymentRetryAdmission {
-        if (!open.get() || allowActionsOnlyFallback || !isCurrent()) return PaymentRetryAdmission.OBSOLETE
+        if (!controllerAvailable() || allowActionsOnlyFallback || !isCurrent()) return PaymentRetryAdmission.OBSOLETE
         val key = snapshot.interactionEpoch to snapshot.pendingDecision.id
         synchronized(paymentRetryLock) {
-            if (!open.get() || !isCurrent()) return PaymentRetryAdmission.OBSOLETE
+            if (!controllerAvailable() || !isCurrent()) return PaymentRetryAdmission.OBSOLETE
             if (paymentRetryKey != key) {
                 paymentRetryKey = key
                 paymentRetryCount = 0
@@ -188,106 +211,108 @@ class AiWebSocketSession(
             paymentRetryInFlight = true
         }
         scope.launch {
-          var admissionEntered = false
-          try {
-            qaCallbackAdmission.admitted {
-            admissionEntered = true
-            var allowQueuedRetry = false
-            var staleExit = false
-            var evidence: AiDecisionEvidence? = null
+            var admissionEntered = false
             try {
-                delay(thinkingDelayMs)
-                if (!open.get() || !isCurrent()) {
-                    staleExit = true
-                    return@admitted
-                }
-                val recentLog = getRecentGameLog()
-                evidence = if (controller is RecordedAiCallbackController) track(onCallbackEvidence?.invoke(
-                    snapshot.state, snapshot.legalActions, snapshot.pendingDecision, snapshot.interactionEpoch,
-                    recentLog, nativePaymentError)) else null
-                val recorded = if (evidence != null && controller is RecordedAiCallbackController)
-                    controller.chooseRecordedCallback(snapshot.state, snapshot.legalActions, snapshot.pendingDecision,
-                        recentLog, evidence!!, nativePaymentError) else null
-                val correction = recorded?.response ?: controller.chooseActionAfterRejectedPayment(
-                    snapshot.state,
-                    snapshot.legalActions,
-                    snapshot.pendingDecision,
-                    getRecentGameLog(),
-                    nativePaymentError,
-                ) ?: run {
-                    if (open.get() && isCurrent())
-                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                            "controller declined correction"))
-                    else staleExit = true
-                    return@admitted
-                }
-                if (correction is ActionResponse.SubmitDecision &&
-                    (correction.playerId != snapshot.pendingDecision.playerId ||
-                        correction.response.decisionId != snapshot.pendingDecision.id)) {
-                    if (open.get() && isCurrent())
-                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                            "addressed another decision"))
-                    else staleExit = true
-                    return@admitted
-                }
-                val gated = if (correction is ActionResponse.SubmitAction && actionGate != null) {
-                    ActionResponse.SubmitAction(actionGate.approve(aiPlayerId, correction.action))
-                } else correction
-                val action = when (gated) {
-                    is ActionResponse.SubmitAction -> gated.action
-                    is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
-                }
-                val deliver = onPaymentCorrectionReady ?: run {
-                    if (open.get() && isCurrent())
-                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                            "callback is unavailable"))
-                    else staleExit = true
-                    return@admitted
-                }
-                if (!open.get() || !isCurrent()) {
-                    staleExit = true
-                    return@admitted
-                }
-                val outcome = if (recorded != null && evidence != null && onRecordedCallbackReady != null)
-                    onRecordedCallbackReady!!.invoke(aiPlayerId, action, snapshot.interactionEpoch, evidence!!,
-                        recorded, snapshot.pendingDecision.id, snapshot.stateRevision)
-                    else deliver(aiPlayerId, action, snapshot.interactionEpoch,
-                        snapshot.pendingDecision.id, snapshot.stateRevision)
-                allowQueuedRetry = outcome != PaymentCorrectionOutcome.FATAL
-            } catch (_: CancellationException) {
-                // Game shutdown cancels outstanding thinking; it is not a rejected action.
-            } catch (_: Exception) {
-                if (open.get() && isCurrent())
-                    logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId,
-                        "provider failed"))
-                else staleExit = true
-            } finally {
-                endCallback(evidence)
-                val pending = synchronized(paymentRetryLock) {
-                    paymentRetryInFlight = false
-                    // A stale older observation may be followed by a valid newer one for the
-                    // same engine decision ID. Provider failure still ends correction.
-                    val next = if (allowQueuedRetry || staleExit) pendingPaymentRetry else null
-                    pendingPaymentRetry = null
-                    next
-                }
-                if (pending != null && open.get() && pending.isCurrent()) {
-                    when (retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent,
-                        pending.gameId)) {
-                        PaymentRetryAdmission.EXHAUSTED -> if (open.get() && pending.isCurrent())
-                            logger.error(paymentCorrectionFatalLine(aiPlayerId.value, pending.gameId,
-                                "attempt limit reached"))
-                        PaymentRetryAdmission.SCHEDULED, PaymentRetryAdmission.OBSOLETE -> Unit
+                // Scheduling is nonblocking even when the rejecting callback owns this mutex.
+                withControllerCallback {
+                    qaCallbackAdmission.admitted {
+                        admissionEntered = true
+                        var allowQueuedRetry = false
+                        var staleExit = false
+                        var evidence: AiDecisionEvidence? = null
+                        fun failed(reason: String) {
+                            if (controllerAvailable() && isCurrent()) {
+                                logger.error(paymentCorrectionFatalLine(aiPlayerId.value, gameId, reason))
+                                failExternalController()
+                            } else staleExit = true
+                        }
+                        try {
+                            delay(thinkingDelayMs)
+                            if (!controllerAvailable() || !isCurrent()) {
+                                staleExit = true
+                                return@admitted
+                            }
+                            val recentLog = getRecentGameLog()
+                            evidence = if (controller is RecordedAiCallbackController) track(onCallbackEvidence?.invoke(
+                                snapshot.state, snapshot.legalActions, snapshot.pendingDecision, snapshot.interactionEpoch,
+                                recentLog, nativePaymentError)) else null
+                            ensureControllerAvailable()
+                            val recorded = if (evidence != null && controller is RecordedAiCallbackController)
+                                controller.chooseRecordedCallback(snapshot.state, snapshot.legalActions, snapshot.pendingDecision,
+                                    recentLog, evidence!!, nativePaymentError) else null
+                            val correction = recorded?.response ?: controller.chooseActionAfterRejectedPayment(
+                                snapshot.state,
+                                snapshot.legalActions,
+                                snapshot.pendingDecision,
+                                getRecentGameLog(),
+                                nativePaymentError,
+                            ) ?: run {
+                                failed("controller declined correction")
+                                return@admitted
+                            }
+                            if (correction is ActionResponse.SubmitDecision &&
+                                (correction.playerId != snapshot.pendingDecision.playerId ||
+                                    correction.response.decisionId != snapshot.pendingDecision.id)) {
+                                failed("addressed another decision")
+                                return@admitted
+                            }
+                            val gated = if (correction is ActionResponse.SubmitAction && actionGate != null) {
+                                ActionResponse.SubmitAction(actionGate.approve(aiPlayerId, correction.action))
+                            } else correction
+                            val action = when (gated) {
+                                is ActionResponse.SubmitAction -> gated.action
+                                is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
+                            }
+                            val deliver = onPaymentCorrectionReady ?: run {
+                                failed("callback is unavailable")
+                                return@admitted
+                            }
+                            ensureControllerAvailable()
+                            if (!isCurrent()) {
+                                staleExit = true
+                                return@admitted
+                            }
+                            val outcome = if (recorded != null && evidence != null && onRecordedCallbackReady != null)
+                                onRecordedCallbackReady!!.invoke(aiPlayerId, action, snapshot.interactionEpoch, evidence!!,
+                                    recorded, snapshot.pendingDecision.id, snapshot.stateRevision)
+                                else deliver(aiPlayerId, action, snapshot.interactionEpoch,
+                                    snapshot.pendingDecision.id, snapshot.stateRevision)
+                            allowQueuedRetry = outcome != PaymentCorrectionOutcome.FATAL
+                            if (outcome == PaymentCorrectionOutcome.FATAL) failExternalController()
+                        } catch (_: CancellationException) {
+                            // Game shutdown cancels outstanding thinking; it is not a rejected action.
+                        } catch (_: Exception) {
+                            failed("provider failed")
+                        } finally {
+                            endCallback(evidence)
+                            val pending = synchronized(paymentRetryLock) {
+                                paymentRetryInFlight = false
+                                // A stale older observation may be followed by a valid newer one for the
+                                // same engine decision ID. Provider failure still ends correction.
+                                val next = if (allowQueuedRetry || staleExit) pendingPaymentRetry else null
+                                pendingPaymentRetry = null
+                                next
+                            }
+                            if (pending != null && controllerAvailable() && pending.isCurrent()) {
+                                when (retryRejectedPayment(pending.snapshot, pending.error, pending.isCurrent,
+                                    pending.gameId)) {
+                                    PaymentRetryAdmission.EXHAUSTED -> if (controllerAvailable() && pending.isCurrent()) {
+                                        logger.error(paymentCorrectionFatalLine(aiPlayerId.value, pending.gameId,
+                                            "attempt limit reached"))
+                                        failExternalController()
+                                    }
+                                    PaymentRetryAdmission.SCHEDULED, PaymentRetryAdmission.OBSOLETE -> Unit
+                                }
+                            }
+                        }
                     }
                 }
+            } finally {
+                if (!admissionEntered) synchronized(paymentRetryLock) {
+                    paymentRetryInFlight = false
+                    pendingPaymentRetry = null
+                }
             }
-            }
-          } finally {
-            if (!admissionEntered) synchronized(paymentRetryLock) {
-                paymentRetryInFlight = false
-                pendingPaymentRetry = null
-            }
-          }
         }
         return PaymentRetryAdmission.SCHEDULED
     }
@@ -310,14 +335,31 @@ class AiWebSocketSession(
         val text = message.payload.toString()
 
         scope.launch {
-            try {
-                val serverMessage = json.decodeFromString<ServerMessage>(text)
-                qaCallbackAdmission.admitted {
-                    if (open.get()) handleServerMessage(serverMessage)
-                }
-            } catch (e: Exception) {
-                logger.error("AI failed to process server message: ${e.message}", e)
+            val serverMessage = try { json.decodeFromString<ServerMessage>(text) }
+            catch (error: Exception) {
+                logger.error("AI failed to decode server message", error)
+                return@launch
             }
+            // Shutdown must also bypass a paused QA admission or a blocked correction.
+            if (serverMessage is ServerMessage.GameOver || serverMessage is ServerMessage.GameCancelled) {
+                handleServerMessage(serverMessage)
+                return@launch
+            }
+            suspend fun process() {
+                try {
+                    qaCallbackAdmission.admitted {
+                        if (controllerAvailable()) handleServerMessage(serverMessage)
+                    }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    failExternalController()
+                    logger.error("AI failed to process server message: ${error.message}", error)
+                }
+            }
+            // Cancellation must not wait behind a blocking provider call. All other external
+            // messages serialize through failure latching, so queued frames cannot retry it.
+            withControllerCallback { process() }
         }
     }
 
@@ -365,9 +407,11 @@ class AiWebSocketSession(
                 delay(thinkingDelayMs)
                 val evidence = if (controller is RecordedAiCallbackController) track(onMulliganEvidence?.invoke(message)) else null
                 try {
+                ensureControllerAvailable()
                 val keep = if (evidence != null && controller is RecordedAiCallbackController)
                     controller.decideRecordedMulligan(message.toMulliganInfo(), evidence)
                     else controller.decideMulligan(message.toMulliganInfo())
+                ensureControllerAvailable()
                 logger.info("AI mulligan result: {}", if (keep) "KEEP" else "MULLIGAN")
                 if (evidence != null && onRecordedMulliganReady != null) {
                     currentCoroutineContext().ensureActive()
@@ -386,12 +430,12 @@ class AiWebSocketSession(
                 delay(thinkingDelayMs)
                 val evidence = if (controller is RecordedAiCallbackController) track(onBottomEvidence?.invoke(message)) else null
                 try {
+                ensureControllerAvailable()
                 val bottomCards = if (evidence != null && controller is RecordedAiCallbackController)
                     controller.chooseRecordedBottomCards(message.toBottomCardsInfo(), evidence)
                     else controller.chooseBottomCards(message.toBottomCardsInfo())
                 logger.info("AI chose bottom cards: {}", bottomCards)
-                currentCoroutineContext().ensureActive()
-                if (!open.get()) return
+                ensureControllerAvailable()
                 if (evidence != null && onRecordedBottomReady != null)
                     onRecordedBottomReady!!.invoke(aiPlayerId, bottomCards, evidence)
                 else onBottomCards(aiPlayerId, bottomCards)
@@ -405,8 +449,7 @@ class AiWebSocketSession(
 
             is ServerMessage.GameOver -> {
                 logger.info("AI game over. Winner: {}", message.winnerId)
-                open.set(false)
-                scope.cancel()
+                shutdown()
             }
 
             is ServerMessage.WaitingForOpponentMulligan -> {
@@ -423,8 +466,7 @@ class AiWebSocketSession(
 
             is ServerMessage.GameCancelled -> {
                 logger.info("AI game cancelled")
-                open.set(false)
-                scope.cancel()
+                shutdown()
             }
 
             // =================================================================
@@ -565,6 +607,7 @@ class AiWebSocketSession(
         val callbackEvidence = if (controller is RecordedAiCallbackController)
             track(onCallbackEvidence?.invoke(state, legalActions, pendingDecision, interactionEpoch, recentLog, null)) else null
         try {
+        ensureControllerAvailable()
         val evidence = if (callbackEvidence == null && controller is com.wingedsheep.ai.RecordedAiPlayerController && pendingDecision == null) {
             onDecisionEvidence?.invoke(state, legalActions, interactionEpoch, recentLog)
         } else null
@@ -589,6 +632,7 @@ class AiWebSocketSession(
         } else {
             response
         }
+        ensureControllerAvailable()
         // Retain the snapshot epoch through thinking and approval delays; reading a newer epoch
         // here would authorize a response chosen from an obsolete interaction.
         if (recorded != null && callbackEvidence != null && onRecordedCallbackReady != null) {
@@ -597,8 +641,9 @@ class AiWebSocketSession(
                 is ActionResponse.SubmitDecision -> SubmitDecision(gated.playerId, gated.response)
             }
             currentCoroutineContext().ensureActive()
-            if (!open.get()) return
-            onRecordedCallbackReady!!.invoke(aiPlayerId, action, interactionEpoch, callbackEvidence, recorded, null, null)
+            if (!controllerAvailable()) return
+            val outcome = onRecordedCallbackReady!!.invoke(aiPlayerId, action, interactionEpoch, callbackEvidence, recorded, null, null)
+            if (outcome == PaymentCorrectionOutcome.FATAL) failExternalController()
         } else if (evidence != null && response is ActionResponse.SubmitAction && gated is ActionResponse.SubmitAction &&
             onRecordedActionReady != null) {
             onRecordedActionReady!!.invoke(aiPlayerId, gated.action, interactionEpoch, evidence, response.action)
@@ -711,6 +756,7 @@ class AiWebSocketSession(
 
         delay(thinkingDelayMs)
 
+        ensureControllerAvailable()
         val picks = controller.chooseDraftPick(
             pack = message.cards.map { it.toCardSummary() },
             pickedSoFar = message.pickedCards.map { it.toCardSummary() },
@@ -719,6 +765,7 @@ class AiWebSocketSession(
             picksRequired = message.picksPerRound,
             passDirection = message.passDirection
         )
+        ensureControllerAvailable()
         logger.info("AI draft pick: {}", picks.joinToString(", "))
         callback(aiPlayerId, picks)
     }
@@ -732,6 +779,7 @@ class AiWebSocketSession(
 
         delay(thinkingDelayMs)
 
+        ensureControllerAvailable()
         val take = controller.chooseWinstonAction(
             pileCards = pileCards.map { it.toCardSummary() },
             pileIndex = message.currentPileIndex,
@@ -739,6 +787,7 @@ class AiWebSocketSession(
             pickedSoFar = message.pickedCards.map { it.toCardSummary() }
         )
 
+        ensureControllerAvailable()
         if (take) {
             val callback = onWinstonTakePile
             if (callback != null) {
@@ -767,16 +816,19 @@ class AiWebSocketSession(
 
         delay(thinkingDelayMs)
 
+        ensureControllerAvailable()
         val selection = controller.chooseGridDraftPick(
             grid = message.grid.map { it?.toCardSummary() },
             availableSelections = message.availableSelections,
             pickedSoFar = message.pickedCards.map { it.toCardSummary() }
         )
+        ensureControllerAvailable()
         logger.info("AI grid draft pick: {}", selection)
         callback(aiPlayerId, selection)
     }
 
     private fun submitResponse(response: ActionResponse, interactionEpoch: String?) {
+        if (!controllerAvailable()) return
         when (response) {
             is ActionResponse.SubmitAction -> {
                 onActionReady(aiPlayerId, response.action, interactionEpoch)
