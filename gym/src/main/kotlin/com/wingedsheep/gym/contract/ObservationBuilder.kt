@@ -453,6 +453,8 @@ class ObservationBuilder(
                     exileWeightUnit = cost.exileWeightUnit,
                     exileCardTypes = cost.exileCardTypes,
                     exileWeightPerTarget = cost.exileWeightPerTarget,
+                    validBounceTargets = cost.validBounceTargets,
+                    bounceCount = cost.bounceCount,
                 )
             },
             // Combat candidates. The enumerator offers one DeclareAttackers / DeclareBlockers action
