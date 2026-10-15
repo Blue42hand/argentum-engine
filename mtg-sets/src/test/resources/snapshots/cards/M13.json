@@ -244,6 +244,113 @@
     ]
 }
 
+// Disciple of Bolas
+{
+    "name": "Disciple of Bolas",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, sacrifice another creature. You gain X life and draw X cards, where X is that creature's power.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Disciple of Bolas:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature",
+                                "player": "You",
+                                "excludeSelf": true
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Sacrifice another creature",
+                            "selectedLabel": "Sacrifice",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "selected1",
+                            "ifNotEmpty": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Sacrifice"
+                                    },
+                                    {
+                                        "type": "GainLife",
+                                        "amount": {
+                                            "type": "EntityProperty",
+                                            "entity": "SacrificedAsCost",
+                                            "numericProperty": "Power"
+                                        }
+                                    },
+                                    {
+                                        "type": "DrawCards",
+                                        "count": {
+                                            "type": "EntityProperty",
+                                            "entity": "SacrificedAsCost",
+                                            "numericProperty": "Power"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "RARE",
+        "artist": "Slawomir Maniak",
+        "flavorText": "\"Lord Bolas has shown me how each miserable little life holds untold resources.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/4/c4dd57f8-27bc-4ad9-a79e-48a68af33b02.jpg?1783940496",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "If you control at least one other creature when the ability resolves, you must sacrifice one. If you don't control any other creatures at that time, the ability won't do anything."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "The creature's power as it last existed on the battlefield is the amount of life you gain and the number of cards you draw."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dragon Hatchling
 {
     "name": "Dragon Hatchling",
