@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Test launchd plist/provenance rendering
         run: python3 -m unittest scripts/test_gym_server_launchd.py
       - name: Check service runner shell syntax
