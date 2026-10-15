@@ -210,13 +210,13 @@ class CantBeBlockedByRule(
             .filter { it.entityId == ctx.attackerId }
             .map { it.ability }
             .filterIsInstance<CantBeBlockedBy>()
-        val restrictions = printed + granted + hostScopedRestrictions(ctx)
+        val attackerController = ctx.projected.getController(ctx.attackerId) ?: return null
+        val attackerContext = PredicateContext(controllerId = attackerController, sourceId = ctx.attackerId)
+        val ownRestrictions = (printed + granted).map { it to attackerContext }
+        val restrictions = ownRestrictions + hostScopedRestrictions(ctx)
         if (restrictions.isEmpty()) return null
 
-        val attackerController = ctx.projected.getController(ctx.attackerId) ?: return null
-        val predicateContext = PredicateContext(controllerId = attackerController, sourceId = ctx.attackerId)
-
-        for (restriction in restrictions) {
+        for ((restriction, predicateContext) in restrictions) {
             if (predicateEvaluator.matches(
                     ctx.state, ctx.projected, ctx.blockerId, restriction.blockerFilter, predicateContext
                 )
@@ -244,11 +244,11 @@ class CantBeBlockedByRule(
      * attacker's own printed read above already covers it, and `excludeSelf` on the group filter
      * is honored so an "other creatures you control …" clause still leaves the host out.
      */
-    private fun hostScopedRestrictions(ctx: BlockCheckContext): List<CantBeBlockedBy> {
-        val result = mutableListOf<CantBeBlockedBy>()
+    private fun hostScopedRestrictions(ctx: BlockCheckContext): List<Pair<CantBeBlockedBy, PredicateContext>> {
+        val result = mutableListOf<Pair<CantBeBlockedBy, PredicateContext>>()
         for (hostId in ctx.state.getBattlefield()) {
             val container = ctx.state.getEntity(hostId) ?: continue
-            if (container.has<FaceDownComponent>()) continue
+            if (container.has<FaceDownComponent>() || ctx.projected.hasLostAllAbilities(hostId)) continue
             val hostCard = container.get<CardComponent>() ?: continue
             val statics = ctx.cardRegistry.getCard(hostCard.cardDefinitionId)?.staticAbilities.orEmpty()
             for (ability in statics.filterIsInstance<CantBeBlockedBy>()) {
@@ -268,7 +268,9 @@ class CantBeBlockedByRule(
                     ctx.state, ctx.projected, ctx.attackerId, ability.filter.baseFilter,
                     PredicateContext(sourceId = hostId, controllerId = hostController)
                 )
-                if (baseMatches) result.add(ability)
+                // "This creature" in the blocker filter refers to the permanent carrying
+                // the restriction, even when the attacker is a different creature.
+                if (baseMatches) result.add(ability to PredicateContext(sourceId = hostId, controllerId = hostController))
             }
         }
         return result
