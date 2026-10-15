@@ -28,18 +28,26 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
         val board = scenario().withPlayers("A", "B").withActivePlayer(1)
             .withLandsOnBattlefield(1, "Forest", 1).withLandsOnBattlefield(2, "Forest", 1)
             .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN).build()
-        fun player(id: com.wingedsheep.sdk.model.EntityId) = PlayerSession(
-            mockk<WebSocketSession>(relaxed = true) { every { this@mockk.id } returns "socket-$id" }, id, "$id")
+        fun player(playerId: com.wingedsheep.sdk.model.EntityId): PlayerSession {
+            val socketId = "socket-${playerId.value}"
+            val socket = mockk<WebSocketSession>(relaxed = true) { every { id } returns socketId }
+            return PlayerSession(socket, playerId, playerId.value)
+        }
         val p1 = player(board.player1Id)
         val p2 = player(board.player2Id)
+        p1.webSocketSession.id shouldBe "socket-${board.player1Id.value}"
+        p2.webSocketSession.id shouldBe "socket-${board.player2Id.value}"
         val game = GameSession(cardRegistry = cardRegistry)
         game.injectStateForTesting(board.state, mapOf(p1.playerId to p1, p2.playerId to p2))
-        val registry = mockk<SessionRegistry>(relaxed = true)
+        val registry = SessionRegistry()
         val repository = mockk<GameRepository>(relaxed = true)
-        every { registry.getPlayerSession(p1.webSocketSession.id) } returns p1
+        registry.setPlayerSession(p1.webSocketSession.id, p1)
         every { repository.findById(game.sessionId) } returns game
         every { repository.getLobbyForGame(game.sessionId) } returns null
+        (registry.getPlayerSession(p1.webSocketSession.id) === p1) shouldBe true
+        (repository.findById(p1.currentGameSessionId!!) === game) shouldBe true
         val sender = mockk<MessageSender>(relaxed = true)
+        every { sender.sendError(any(), any(), any()) } answers { error("Unexpected protocol error: ${thirdArg<String>()}") }
         val handler = GamePlayHandler(
             sessionRegistry = registry, gameRepository = repository, lobbyRepository = mockk(relaxed = true),
             sender = sender, cardRegistry = cardRegistry, printingRegistry = mockk(relaxed = true),
@@ -55,7 +63,7 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
     private fun origin(f: Fixture) = f.game.createStateUpdate(f.player.playerId, emptyList())
         .shouldBeInstanceOf<ServerMessage.StateUpdate>()
 
-    private fun await(latch: CountDownLatch) { check(latch.await(10, TimeUnit.SECONDS)) }
+    private fun await(latch: CountDownLatch, stage: String) { check(latch.await(10, TimeUnit.SECONDS)) { "Timed out: $stage" } }
     private fun awaitCondition(condition: () -> Boolean) {
         val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
         while (!condition() && System.nanoTime() < deadline) Thread.sleep(5)
@@ -75,7 +83,7 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
                 val message = secondArg<ServerMessage>()
                 if (Thread.currentThread().name.startsWith("priority-yield-") && once.compareAndSet(false, true)) {
                     blocked.countDown()
-                    await(release)
+                    await(release, "release worker delivery")
                 }
                 when (message) {
                     is ServerMessage.StateUpdate -> delivered.add(message.stateVersion to message.priorityYield)
@@ -86,7 +94,8 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
             }
             try {
                 f.handler.handle(f.player.webSocketSession, ClientMessage.SetPriorityYield("nextTurn", before.interactionEpoch, before.stateVersion))
-                await(blocked)
+                f.game.getPriorityYield(f.player.playerId) shouldBe "nextTurn"
+                await(blocked, "worker entered delivery")
                 Thread.ofVirtual().start {
                     try { f.handler.handle(f.player.webSocketSession, ClientMessage.SetPriorityYield(null, before.interactionEpoch, before.stateVersion)) }
                     finally { cancelled.countDown() }
@@ -94,7 +103,7 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
                 // Mutation is independent of the blocked send. Delivery waits for its proper order.
                 awaitCondition { f.game.getPriorityYield(f.player.playerId) == null }
                 release.countDown()
-                await(cancelled)
+                await(cancelled, "cancel handler completed")
                 val versions = delivered.map { it.first }
                 versions shouldBe versions.sorted()
                 delivered.last().second shouldBe null
@@ -115,20 +124,21 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
             every { f.sender.send(f.player.webSocketSession, any()) } answers {
                 if (Thread.currentThread().name.startsWith("priority-yield-") && once.compareAndSet(false, true)) {
                     blocked.countDown()
-                    await(release)
+                    await(release, "release worker delivery")
                 }
             }
             try {
                 f.handler.handle(f.player.webSocketSession, ClientMessage.SetPriorityYield("nextTurn", before.interactionEpoch, before.stateVersion))
-                await(blocked)
+                f.game.getPriorityYield(f.player.playerId) shouldBe "nextTurn"
+                await(blocked, "worker entered delivery")
                 Thread.ofVirtual().start {
                     try { f.handler.concedeSeat(f.game, f.player.playerId) }
                     finally { conceded.countDown() }
                 }
                 awaitCondition { f.game.isGameOver() }
                 release.countDown()
-                await(conceded)
-                await(removed)
+                await(conceded, "concession completed")
+                await(removed, "repository removed")
                 // Invoke both late paths explicitly after teardown: neither may save or finalize.
                 f.handler.broadcastStateUpdate(f.game, emptyList())
                 f.handler.handleGameOver(f.game)

@@ -28,11 +28,14 @@ class PriorityYieldDispatchTest : ScenarioTestBase() {
             val player = PlayerSession(ws, board.player1Id, "A")
             val game = GameSession(cardRegistry = cardRegistry)
             game.injectStateForTesting(board.state, mapOf(player.playerId to player))
-            val registry = mockk<SessionRegistry>(relaxed = true)
+            val registry = SessionRegistry()
             val repository = mockk<GameRepository>(relaxed = true)
-            every { registry.getPlayerSession(ws.id) } returns player
+            registry.setPlayerSession(ws.id, player)
             every { repository.findById(game.sessionId) } returns game
+            (registry.getPlayerSession(ws.id) === player) shouldBe true
+            (repository.findById(player.currentGameSessionId!!) === game) shouldBe true
             val sender = mockk<MessageSender>(relaxed = true)
+            every { sender.sendError(any(), any(), any()) } answers { error("Unexpected protocol error: ${thirdArg<String>()}") }
             val handler = spyk(GamePlayHandler(
                 sessionRegistry = registry, gameRepository = repository, lobbyRepository = mockk(relaxed = true),
                 sender = sender, cardRegistry = cardRegistry, printingRegistry = mockk(relaxed = true),
@@ -64,7 +67,8 @@ class PriorityYieldDispatchTest : ScenarioTestBase() {
             val first = origin()
             try {
                 handler.handle(ws, ClientMessage.SetPriorityYield("nextTurn", first.interactionEpoch, first.stateVersion))
-                check(entered.await(5, TimeUnit.SECONDS))
+                game.getPriorityYield(player.playerId) shouldBe "nextTurn"
+                check(entered.await(5, TimeUnit.SECONDS)) { "Worker did not start" }
                 repeat(3) {
                     val fresh = origin()
                     handler.handle(ws, ClientMessage.SetPriorityYield("nextTurn", fresh.interactionEpoch, fresh.stateVersion))
@@ -77,7 +81,7 @@ class PriorityYieldDispatchTest : ScenarioTestBase() {
                 maximum.get() shouldBe 1
             } finally {
                 release.countDown()
-                check(finished.await(5, TimeUnit.SECONDS))
+                if (entered.count == 0L) check(finished.await(5, TimeUnit.SECONDS)) { "Worker did not finish" }
             }
         }
     }
