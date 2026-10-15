@@ -315,6 +315,17 @@ class StateProjector {
                 effect.copy(affectedEntities = lockAffected(effect, resolved))
             }
 
+        // A "can't have" prohibition is independent of the timestamp of an ability grant.
+        // Applying the restrictions first also lets later layer-6 filters see the loss.
+        for (effect in postTypeEffects) {
+            if (effect.modification is Modification.CantHaveKeywords) {
+                effectApplicator.applyEffect(effect, state, projectedValues)
+            }
+        }
+        for (values in projectedValues.values) {
+            values.keywords.removeAll { keyword -> values.cantHaveKeywords.any { keyword == it || keyword.startsWith(it + "_") } }
+        }
+
         // === Layers 5-6 (Color + Ability) ===
         for (effect in postTypeEffects) {
             if (effect.modification is Modification.CanAttackAsThoughHasty) continue
@@ -347,6 +358,11 @@ class StateProjector {
                 values.keywords.add(Keyword.DECAYED.name)
                 values.cantBlock = true
             }
+        }
+
+        // Keyword counters and static grants cannot restore a prohibited ability.
+        for (values in projectedValues.values) {
+            values.keywords.removeAll { keyword -> values.cantHaveKeywords.any { keyword == it || keyword.startsWith(it + "_") } }
         }
 
         // Resolve CDAs (Layer 7a) - evaluate dynamic power/toughness
@@ -470,6 +486,21 @@ class StateProjector {
                         projectedValues[id]?.canAttackAsThoughHasty = true
                     }
                 }
+                is com.wingedsheep.sdk.scripting.MustAttack -> {
+                    val filter = when (val scope = ability.filter.scope) {
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self -> AffectsFilter.Self
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.AttachedTo -> AffectsFilter.AttachedPermanent
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.SoulbondPair -> AffectsFilter.SoulbondPair
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.Specific -> AffectsFilter.SpecificEntities(setOf(scope.entityId))
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield -> AffectsFilter.Generic(ability.filter)
+                    }
+                    for (id in filterResolver.resolveAffectedEntities(state, holder, filter, projectedValues)) {
+                        projectedValues[id]?.let {
+                            it.mustAttack = true
+                            if (ability.playersOnly) it.mustAttackPlayer = true
+                        }
+                    }
+                }
                 is com.wingedsheep.sdk.scripting.ConditionalStaticAbility -> {
                     val context = com.wingedsheep.engine.handlers.ConditionEvaluationContext.Projection(
                         holder, projectedValues[holder], projectedValues)
@@ -483,8 +514,9 @@ class StateProjector {
             }
         }
         for (grant in state.grantedStaticAbilities) {
-            val holder = projectedValues[grant.entityId] ?: continue
-            if (holder.lostAllAbilities) continue
+            val holder = projectedValues[grant.entityId]
+            if (holder == null && grant.entityId !in state.turnOrder) continue
+            if (holder?.lostAllAbilities == true) continue
             if (!com.wingedsheep.engine.mechanics.durations.GrantDurationGate.holds(
                     state, grant.entityId, grant.sourceId, grant.duration)) continue
             applyGrantedAttackPermission(grant.ability, grant.entityId)
@@ -500,6 +532,7 @@ class StateProjector {
                 baseToughness = v.baseToughness,
                 name = v.name,
                 keywords = v.keywords,
+                cantHaveKeywords = v.cantHaveKeywords,
                 enchantmentRestrictions = v.enchantmentRestrictions.toList(),
                 colors = v.colors,
                 types = v.types,

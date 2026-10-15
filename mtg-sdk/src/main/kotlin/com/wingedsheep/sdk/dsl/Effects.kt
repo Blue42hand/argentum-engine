@@ -2023,6 +2023,9 @@ object Effects {
      * Remove a keyword from a single target.
      * "It loses defender."
      */
+    fun CantHaveKeywords(keywords: Set<Keyword>, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
+        com.wingedsheep.sdk.scripting.effects.CantHaveKeywordsEffect(keywords, target, duration)
+
     fun RemoveKeyword(keyword: Keyword, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         RemoveKeywordEffect(keyword.name, target, duration)
 

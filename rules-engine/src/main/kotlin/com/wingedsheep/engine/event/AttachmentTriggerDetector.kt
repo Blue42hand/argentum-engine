@@ -52,7 +52,7 @@ class AttachmentTriggerDetector(
                     if (ability.binding != TriggerBinding.ATTACHED) continue
                     // Attachment departures are matched from the host's frozen attachments below,
                     // rather than from a link that may already refer to a new battlefield visit.
-                    if (isZoneChange && ability.trigger is EventPattern.ZoneChangeEvent) continue
+                    if (isZoneChange && hasZoneChangePattern(ability.trigger)) continue
                     if (matchesAttachedTrigger(ability.trigger, event, entityId, entry.controllerId, entry.entityId, state)) {
                         triggers.add(
                             PendingTrigger(
@@ -102,8 +102,8 @@ class AttachmentTriggerDetector(
             }
             for (ability in abilities) {
                 if (ability.binding != TriggerBinding.ATTACHED || Zone.BATTLEFIELD !in ability.activeZones) continue
-                val pattern = ability.trigger as? EventPattern.ZoneChangeEvent ?: continue
-                if (!matchesAttachedTrigger(pattern, event, event.entityId, controller, attachmentId, state)) continue
+                if (!hasZoneChangePattern(ability.trigger)) continue
+                if (!matchesAttachedTrigger(ability.trigger, event, event.entityId, controller, attachmentId, state)) continue
                 triggers.add(PendingTrigger(
                     ability = ability,
                     sourceId = attachmentId,
@@ -235,6 +235,12 @@ class AttachmentTriggerDetector(
      * Check whether an ATTACHED trigger's event type matches the given engine event
      * for a specific attached entity.
      */
+    private fun hasZoneChangePattern(pattern: EventPattern): Boolean = when (pattern) {
+        is EventPattern.ZoneChangeEvent -> true
+        is EventPattern.AnyOf -> pattern.events.any(::hasZoneChangePattern)
+        else -> false
+    }
+
     private fun matchesAttachedTrigger(
         trigger: EventPattern,
         event: EngineGameEvent,
@@ -244,6 +250,9 @@ class AttachmentTriggerDetector(
         state: GameState
     ): Boolean {
         return when (trigger) {
+            is EventPattern.AnyOf -> trigger.events.any {
+                matchesAttachedTrigger(it, event, attachedEntityId, auraControllerId, auraId, state)
+            }
             is EventPattern.DamageReceivedEvent -> {
                 event is DamageDealtEvent && event.targetId == attachedEntityId
             }

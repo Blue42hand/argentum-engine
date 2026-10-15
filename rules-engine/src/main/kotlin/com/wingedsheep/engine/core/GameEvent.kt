@@ -285,6 +285,12 @@ data class KeywordGrantedEvent(
     val sourceName: String
 ) : GameEvent
 
+/** A permanent became unable to have the named keyword abilities for a duration. */
+@Serializable
+@SerialName("KeywordsProhibitedEvent")
+data class KeywordsProhibitedEvent(val targetId: EntityId, val keywords: Set<String>) : GameEvent
+
+
 /**
  * A player gained the city's blessing (CR 702.131).
  *
