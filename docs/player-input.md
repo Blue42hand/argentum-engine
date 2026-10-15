@@ -43,6 +43,20 @@ the opaque question token; ordinary browser actions send it in their envelope. A
 IDs for simulations and sends the epoch separately. Neither adapter supplies a newer epoch at
 response time. See [data contracts](data-contracts.md) for transport compatibility and recovery.
 
+External AI sessions resolve a sole native empty blocker declaration without a controller call or
+artificial thinking delay. Both `validBlockers` and `validBlockTargets` must be explicitly empty;
+missing data, mandatory assignments, a pending decision, or another action keeps the ordinary
+controller path. In particular, randomized blocker piles have absent pairwise targets and still
+reach the controller. The fast path retains the originating interaction epoch, cancellation checks,
+and any QA approval hold, then submits through the normal live-action boundary. It declares blockers
+only; subsequent priority and opponent response windows remain unchanged. Built-in AI pacing and
+external decisions with choices retain their configured delay.
+
+`AiMechanicalCallbackTest` measures zero scheduled milliseconds for this path versus 2,500 ms for
+the ordinary blocker callback at `thinkingDelayMs = 500` (initial delay plus four additional delays).
+Its synthetic JSON round-trip measurement excludes providers, network transit, and a live game;
+neither test establishes provider latency or whole-game wall-time savings.
+
 ## Saved states
 
 Snapshots serialize question and answer together. The companion legacy reader pairs an old

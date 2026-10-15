@@ -546,6 +546,33 @@ class AiWebSocketSession(
             return
         }
 
+        // CombatEnumerator supplies both lists for an ordinary blocker declaration. An empty
+        // blocker list alone is NOT proof: randomized blocker piles use that shape while still
+        // requiring a choice, but deliberately leave validBlockTargets null. Consume only the
+        // complete native no-choice offer, and keep the original epoch through any QA hold.
+        val mechanical = if (!allowActionsOnlyFallback && pendingDecision == null &&
+            !state.isGameOver && state.viewingPlayerId == aiPlayerId &&
+            state.priorityPlayerId == aiPlayerId && !interactionEpoch.isNullOrBlank()) {
+            legalActions.singleOrNull()?.let { offer ->
+                (offer.action as? DeclareBlockers)?.takeIf { action ->
+                    offer.actionType == "DeclareBlockers" && action.playerId == aiPlayerId &&
+                        action.blockers.isEmpty() && offer.validBlockers == emptyList<EntityId>() &&
+                        offer.validBlockTargets == emptyMap<EntityId, List<EntityId>>() &&
+                        offer.mandatoryBlockerAssignments.isNullOrEmpty()
+                }
+            }
+        } else null
+        if (mechanical != null) {
+            currentCoroutineContext().ensureActive()
+            if (!open.get()) return
+            val approved = actionGate?.approve(aiPlayerId, mechanical) ?: mechanical
+            currentCoroutineContext().ensureActive()
+            if (!open.get()) return
+            logger.info("AI native no-choice blocker declaration — skipping external callback and pacing")
+            submitResponse(ActionResponse.SubmitAction(approved), interactionEpoch)
+            return
+        }
+
         if (legalActions.isNotEmpty()) {
             logger.info("AI has {} legal actions: {}", legalActions.size,
                 legalActions.joinToString(", ") { "${it.actionType}${if (it.description.isNotBlank()) "(${it.description})" else ""}" })
