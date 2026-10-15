@@ -60,6 +60,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   const playerId = useGameStore((state) => state.playerId)
   const submitAction = useGameStore((state) => state.submitAction)
   const interactionEpoch = useGameStore((state) => state.interactionEpoch)
+  const stateVersion = useGameStore((state) => state.stateVersion)
+  const priorityYield = useGameStore((state) => state.priorityYield)
+  const setPriorityYield = useGameStore((state) => state.setPriorityYield)
   const combatState = useGameStore((state) => state.combatState)
   const confirmCombat = useGameStore((state) => state.confirmCombat)
   const clearAttackers = useGameStore((state) => state.clearAttackers)
@@ -68,6 +71,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   const priorityMode = useGameStore(selectPriorityMode)
   const nextStopPoint = useGameStore((state) => state.nextStopPoint)
   const serverPriorityMode = useGameStore((state) => state.priorityMode)
+  const fullControl = useGameStore((state) => state.fullControl)
   const cyclePriorityMode = useGameStore((state) => state.cyclePriorityMode)
   const opponentDecisionStatus = useGameStore((state) => state.opponentDecisionStatus)
   const stopOverrides = useGameStore((state) => state.stopOverrides)
@@ -1603,6 +1607,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           width wins whenever the priority-mode label ("Full Control") makes it the wider of the two. */}
       {!spectatorMode && !isEliminatedSpectator && viewingPlayer && !isInManaSelectionMode && !isInCounterDistMode && (() => {
         const passEnabled = canAct && !isHijacked && !isInCombatMode && !isInDistributeMode && !isInCounterDistMode && !isInManaSelectionMode && !delveSelectionState && !tapForPowerSelectionState && !targetingState && !pipelineState
+        const yieldBlockedByFullControl = fullControl || serverPriorityMode === 'fullControl'
+        const canArmYield = passEnabled && !yieldBlockedByFullControl && !!interactionEpoch && stateVersion != null
         return (
           <div style={{
             position: 'fixed',
@@ -1670,7 +1676,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                     ? 'Full Control: You receive priority at every step. Click to switch to Auto.'
                     : serverPriorityMode === 'stops'
                     ? 'Stops: Pauses on opponent spells/abilities and combat damage. Click to switch to Full Control.'
-                    : 'Auto: Smart auto-passing. Click to switch to Stops.'
+                    : serverPriorityMode === 'forcedOnly'
+                    ? 'Forced Only: Pass automatically only when the native engine proves there is no other action. Click to switch to Stops.'
+                    : 'Auto: Smart auto-passing. Click to switch to Forced Only.'
                 }
                 style={{
                   ...styles.floatingBarButton,
@@ -1694,6 +1702,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
               >
                 {serverPriorityMode === 'fullControl' ? 'Full Control' :
                  serverPriorityMode === 'stops' ? 'Stops' :
+                 serverPriorityMode === 'forcedOnly' ? 'Forced Only' :
                  'Auto'}
               </button>
               {/* The in-game help entry. Opens a drawer rather than navigating — leaving `/` would
@@ -1749,6 +1758,32 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 return responsive.isMobile ? label.replace(/^Pass to /, '→ ') : label
               })()}
             </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'stretch' }}>
+              {priorityYield ? (
+                <div role="status" style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '6px 8px', background: 'rgba(35, 54, 65, 0.96)', border: '1px solid #4fc3f7', borderRadius: 4, color: '#b4e7ff', fontSize: 12 }}>
+                  <span>{priorityYield === 'endOfTurn' ? 'Passing until end of turn' : 'Passing until your next turn'}</span>
+                  <button
+                    onClick={() => setPriorityYield(null, interactionEpoch, stateVersion)}
+                    disabled={!interactionEpoch || stateVersion == null}
+                    style={{ ...styles.floatingBarButton, width: 'auto', padding: '0 8px', color: '#fff', cursor: 'pointer' }}
+                  >Cancel</button>
+                </div>
+              ) : (
+                <>
+                  {(['endOfTurn', 'nextTurn'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => setPriorityYield(mode, interactionEpoch, stateVersion)}
+                      disabled={!canArmYield}
+                      title={yieldBlockedByFullControl
+                        ? 'Switch from Full Control to another priority mode to use temporary passing.'
+                        : 'Temporarily pass your priority. Decisions and configured stops still pause play. Cancel at any time.'}
+                      style={{ ...styles.floatingBarButton, width: 'auto', padding: '4px 8px', fontSize: 11, color: '#ddd', opacity: canArmYield ? 1 : 0.4, cursor: canArmYield ? 'pointer' : 'default' }}
+                    >{mode === 'endOfTurn' ? 'Pass until end of turn' : 'Pass until your next turn'}</button>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         )
       })()}

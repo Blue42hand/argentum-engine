@@ -147,6 +147,8 @@ sealed interface ServerMessage {
         val stateVersion: Long = 0,
         /** Originating live timeline for browser and asynchronous AI action submissions. */
         val interactionEpoch: String? = null,
+        /** Active voluntary priority yield; null means inactive. */
+        val priorityYield: String? = null,
     ) : ServerMessage
 
     /**
@@ -175,6 +177,8 @@ sealed interface ServerMessage {
         val stateVersion: Long = 0,
         /** Originating live timeline for browser and asynchronous AI action submissions. */
         val interactionEpoch: String? = null,
+        /** Active voluntary priority yield; null means inactive. */
+        val priorityYield: String? = null,
     ) : ServerMessage
 
     /**
