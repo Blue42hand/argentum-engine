@@ -4,7 +4,7 @@
 import type { MessageHandlers } from '@/network/messageHandlers.ts'
 import { ErrorCode, ZoneType } from '@/types'
 import type { EntityId } from '@/types'
-import type { ClientGameState, ClientEvent, LegalActionInfo, PendingDecision, OpponentDecisionStatus, PriorityModeValue, Step } from '@/types'
+import type { ClientGameState, ClientEvent, LegalActionInfo, PendingDecision, OpponentDecisionStatus, PriorityModeValue, PriorityYieldMode, Step } from '@/types'
 import { trackEvent, setInGame } from '@/utils/analytics.ts'
 import { applyStateDelta } from '@/network/deltaApplicator.ts'
 import { getWebSocket, clearLobbyId, requestReauth } from '../shared'
@@ -194,6 +194,7 @@ export function battlefieldIdsAlreadyPublic(
  * Common state update fields shared by both full and delta update messages.
  */
 interface StateUpdateEnvelope {
+  readonly stateVersion?: number
   readonly interactionEpoch?: string | null
   readonly events: readonly ClientEvent[]
   readonly legalActions: readonly LegalActionInfo[]
@@ -203,6 +204,7 @@ interface StateUpdateEnvelope {
   readonly stopOverrides?: { readonly myTurnStops: readonly string[]; readonly opponentTurnStops: readonly string[] } | null
   readonly undoAvailable?: boolean
   readonly priorityMode?: PriorityModeValue | null
+  readonly priorityYield?: PriorityYieldMode | null
 }
 
 /** A replaced timeline invalidates every partially built action in the same store update. */
@@ -631,7 +633,9 @@ function processStateUpdate(
 
   set((state) => ({
     gameState: resolvedState,
+    priorityYield: resolvedState.isGameOver || state.gameOverState ? null : msg.priorityYield ?? null,
     interactionEpoch: msg.interactionEpoch ?? null,
+    stateVersion: msg.stateVersion ?? null,
     legalActions: msg.legalActions.map((action) => ({ ...action, interactionEpoch: msg.interactionEpoch ?? null })),
     pendingDecision: msg.pendingDecision ?? null,
     opponentDecisionStatus: msg.opponentDecisionStatus ?? null,
@@ -742,7 +746,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
   return {
     onGameCreated: (msg) => {
       // Clear any quick-game lobby state — the lobby has done its job (server already removed it).
-      set({ sessionId: msg.sessionId, quickGameLobbyState: null })
+      set({ sessionId: msg.sessionId, quickGameLobbyState: null, priorityYield: null, interactionEpoch: null, stateVersion: null })
     },
 
     onGameStarted: (msg) => {
@@ -753,7 +757,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
       setInGame(true)
 
       // Clear spectating state — active game takes priority. Fresh game, fresh camera.
-      set({ spectatingState: null })
+      set({ spectatingState: null, priorityYield: null, interactionEpoch: null, stateVersion: null })
       get().resetBoardView()
 
       // Two-Headed Giant (CR 810): the seat → team map only arrives here, in the game-start
@@ -833,7 +837,9 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
         sessionId: null,
         opponentName: null,
         gameState: null,
+        priorityYield: null,
         interactionEpoch: null,
+        stateVersion: null,
         legalActions: [],
         mulliganState: null,
         deckBuildingState: null,
@@ -919,6 +925,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
       trackEvent('game_over', { result, reason: msg.reason })
       setInGame(false)
       set({
+        priorityYield: null,
         gameOverState: {
           winnerId: msg.winnerId,
           reason: msg.reason,
@@ -937,6 +944,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
       trackEvent('game_over', { result: 'lose', reason: msg.reason, eliminated: true })
       setInGame(false)
       set({
+        priorityYield: null,
         gameOverState: {
           winnerId: null,
           reason: msg.reason,

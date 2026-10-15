@@ -113,6 +113,18 @@ class LegalActionEnumerator(
     }
 
     /**
+     * Prove that passing is the only executable priority action in this exact native state.
+     * Unlike meaningful-action heuristics, mana abilities and every other affordable action
+     * veto the certificate. A combat declaration or pending decision is never a priority pass.
+     */
+    fun forcedPriorityPass(state: GameState, playerId: EntityId): com.wingedsheep.engine.core.PassPriority? {
+        if (state.gameOver || state.pendingDecision != null || state.priorityPlayerId != playerId) return null
+        val only = enumerate(state, playerId, EnumerationMode.ACTIONS_ONLY)
+            .filter { it.affordable }.singleOrNull() ?: return null
+        return (only.action as? com.wingedsheep.engine.core.PassPriority)?.takeIf { it.playerId == playerId }
+    }
+
+    /**
      * Enumerate only [playerId]'s mana abilities, ignoring priority.
      *
      * This is the CR 605.3a surface: while a rule or effect is asking a player for a mana payment

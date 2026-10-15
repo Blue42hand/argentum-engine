@@ -34,6 +34,8 @@ export function createConnectionHandlers(set: SetState, get: GetState): Pick<Mes
           sessionId: null,
           opponentName: null,
           gameState: null,
+          priorityYield: null,
+          stateVersion: null,
           legalActions: [],
           pendingDecision: null,
           mulliganState: null,
