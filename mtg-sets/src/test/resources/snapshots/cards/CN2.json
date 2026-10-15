@@ -1,3 +1,138 @@
+// Grenzo, Havoc Raiser
+{
+    "name": "Grenzo, Havoc Raiser",
+    "manaCost": "{R}{R}",
+    "typeLine": "Legendary Creature — Goblin Rogue",
+    "oracleText": "Whenever a creature you control deals combat damage to a player, choose one —\n• Goad target creature that player controls.\n• Exile the top card of that player's library. Until end of turn, you may cast that card and you may spend mana as though it were mana of any color to cast that spell.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Grenzo, Havoc Raiser:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
+                    "sourceFilter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "Goad",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:triggering-player"
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "Goad target creature that player controls"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "TopOfLibrary",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            },
+                                            "player": "TriggeringPlayer"
+                                        },
+                                        "storeAs": "gathered0"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "gathered0",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        }
+                                    },
+                                    {
+                                        "type": "GrantMayPlayFromExile",
+                                        "from": "gathered0",
+                                        "withAnyManaType": true,
+                                        "nonLandOnly": true
+                                    }
+                                ]
+                            },
+                            "description": "Exile that player's top card; you may cast it this turn"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "RARE",
+        "artist": "Svetlin Velinov",
+        "flavorText": "\"You burn. I'll pillage.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/075cd558-2557-409a-8244-2de65664be53.jpg?1783937349",
+        "rulings": [
+            {
+                "date": "2023-06-30",
+                "text": "If a creature you control has been goaded by multiple opponents, it must attack one of your opponents that hasn't goaded it, as that fulfills the maximum number of goad requirements. If a creature you control has been goaded by each of your opponents, the creature must attack an opponent (rather than a planeswalker or battle), but you choose which opponent it attacks."
+            },
+            {
+                "date": "2023-06-30",
+                "text": "If, during a player's declare attackers step, a creature that player controls that's been goaded is tapped, is affected by a spell or ability that says it can't attack, or hasn't been under that player's control continuously since the turn began (and doesn't have haste), then it doesn't attack. If there's a cost associated with having a creature attack a player, its controller isn't forced to pay that cost, so it doesn't have to attack that player."
+            },
+            {
+                "date": "2023-06-30",
+                "text": "If the creature doesn't meet any of the above exceptions and can attack, it must attack a player other than the controller of the spell or ability that goaded it if able. If the creature can't attack any of those players but could otherwise attack, it must attack a planeswalker an opponent controls, a battle an opponent controls, or a player who goaded it."
+            },
+            {
+                "date": "2023-06-30",
+                "text": "Being goaded isn't an ability the creature has. Once it's been goaded, it must attack as detailed above even if it loses all abilities."
+            },
+            {
+                "date": "2023-06-30",
+                "text": "Attacking with a goaded creature doesn't cause it to stop being goaded. If there is an additional combat phase that turn, or if another player gains control of it before it stops being goaded, it must attack again if able."
+            },
+            {
+                "date": "2016-08-23",
+                "text": "If you exile a land card this way, you can't play it."
+            },
+            {
+                "date": "2016-08-23",
+                "text": "Casting the exiled card follows the normal rules for casting that card. You must pay its costs, and you must follow all applicable timing rules. For example, if you exile a creature card this way, you must wait until your main phase to cast it."
+            },
+            {
+                "date": "2016-08-23",
+                "text": "If you don't cast the card, it will remain in exile."
+            },
+            {
+                "date": "2016-08-23",
+                "text": "The card exiled by the second mode is exiled face up."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Recruiter of the Guard
 {
     "name": "Recruiter of the Guard",
