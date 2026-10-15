@@ -17,17 +17,37 @@ test.describe('Native human priority controls', () => {
   test('defaults to Forced Only and acknowledges temporary yield activation and cancellation', async ({ createGame }, testInfo) => {
     const { player1, player2 } = await createGame(position)
     const page = player1.page
+    const checkControlClearance = async (state: string) => {
+      for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+        await page.setViewportSize(viewport)
+        const panel = page.locator('[data-priority-controls]')
+        for (const target of [page.locator('img[alt="Island"]'), page.locator(`[data-exile-id="${player1.playerId}"]`)]) {
+          await expect.poll(async () => {
+            const controls = await panel.boundingBox()
+            const card = await target.boundingBox()
+            return controls && card ? controls.y - (card.y + card.height) : -1
+          }).toBeGreaterThanOrEqual(0)
+        }
+        const bounds = await panel.boundingBox()
+        expect(bounds).not.toBeNull()
+        expect(bounds!.x).toBeGreaterThanOrEqual(0)
+        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width)
+        expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height)
+        await testInfo.attach(`priority-controls-${state}-${viewport.width}`, { body: await page.screenshot(), contentType: 'image/png' })
+      }
+      await page.setViewportSize({ width: 1440, height: 900 })
+    }
     await expect(page.getByRole('button', { name: 'Forced Only', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Pass until end of turn', exact: true })).toBeEnabled()
     const nextTurn = page.getByRole('button', { name: 'Pass until your next turn', exact: true })
     await expect(nextTurn).toBeEnabled()
-    await testInfo.attach('priority-controls-default', { body: await page.screenshot(), contentType: 'image/png' })
+    await checkControlClearance('default')
 
     await nextTurn.click()
     await expect(page.getByText('Passing until your next turn', { exact: true })).toBeVisible()
     // The other seat can still act; the first seat's yield never dismisses that window.
     await expect(player2.page.getByRole('button', { name: 'Pass until end of turn', exact: true })).toBeEnabled()
-    await testInfo.attach('priority-controls-active', { body: await page.screenshot(), contentType: 'image/png' })
+    await checkControlClearance('active')
     await page.getByRole('button', { name: 'Cancel', exact: true }).click()
     await expect(page.getByText('Passing until your next turn', { exact: true })).toHaveCount(0)
     await expect(nextTurn).toBeVisible()
