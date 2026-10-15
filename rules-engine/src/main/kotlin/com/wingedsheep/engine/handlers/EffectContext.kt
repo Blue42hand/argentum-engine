@@ -364,6 +364,8 @@ data class EffectContext(
     /** A single group-move instruction orders its arrivals after every member has moved. */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val deferGraveyardOrdering: Boolean = false,
+    /** This instruction's token event was replaced before materialization. Child instructions reset it. */
+    val tokenCreationReplacementsHandled: Boolean = false,
 ) {
     val activatedAbilityId: com.wingedsheep.sdk.scripting.AbilityId?
         get() = activatedAbility?.id

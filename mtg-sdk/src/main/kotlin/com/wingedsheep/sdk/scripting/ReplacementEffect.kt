@@ -2681,3 +2681,31 @@ data class ReplaceTokenCreationWithAttachedCopy(
 // =============================================================================
 // Generic Replacement Effect
 // =============================================================================
+
+/**
+ * Replace each matching token with one token of each predefined type.
+ *
+ * The replacement acts on the creation event before any tokens enter. Each instance
+ * applies at most once to that event; other replacement effects may still modify
+ * the resulting bundle. Counts are per replaced token, unlike CreateAdditionalToken,
+ * whose addition happens once per creation event.
+ */
+@Serializable
+@SerialName("ReplaceTokenCreationWithTokens")
+data class ReplaceTokenCreationWithTokens(
+    val tokenTypes: List<String>,
+    override val appliesTo: EventPattern = EventPattern.TokenCreationEvent()
+) : ReplacementEffect {
+    init {
+        require(tokenTypes.isNotEmpty()) { "A token substitution must specify at least one token type" }
+        require(tokenTypes.all { it.isNotBlank() }) { "Token types must be nonblank" }
+    }
+
+    override val description: String =
+        "If ${appliesTo.description}, instead create one of each: ${tokenTypes.joinToString()}"
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val replaced = appliesTo.applyTextReplacement(replacer)
+        return if (replaced === appliesTo) this else copy(appliesTo = replaced)
+    }
+}

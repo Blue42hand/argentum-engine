@@ -22,7 +22,8 @@ class TokenExecutors(
     private val staticAbilityHandler: StaticAbilityHandler? = null,
     private val cardRegistry: CardRegistry,
     private val tokenArtRegistry: TokenArtRegistry? = null,
-    private val targetFinder: TargetFinder
+    private val targetFinder: TargetFinder,
+    private val executeEffect: ((com.wingedsheep.engine.state.GameState, com.wingedsheep.sdk.scripting.effects.Effect, com.wingedsheep.engine.handlers.EffectContext) -> com.wingedsheep.engine.core.EffectResult)? = null
 ) : ExecutorModule {
     override fun executors(): List<EffectExecutor<*>> {
         val createPredefinedToken = CreatePredefinedTokenExecutor(
@@ -31,13 +32,13 @@ class TokenExecutors(
         return listOf(
             CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, tokenArtRegistry),
             createPredefinedToken,
-            InvestigateExecutor(createPredefinedToken, amountEvaluator),
+            InvestigateExecutor(createPredefinedToken, amountEvaluator, executeEffect),
             CreateRoleTokenExecutor(zones, cardRegistry, staticAbilityHandler),
             CreateTokenCopyOfSourceExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
             CreateTokenCopyOfEquippedCreatureExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
-            CreateTokenCopyOfChosenPermanentExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
+            CreateTokenCopyOfChosenPermanentExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator, executeEffect = executeEffect),
             CreateTokenCopyOfTargetExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, targetFinder = targetFinder),
-            CreateRandomCreatureTokenWithManaValueExecutor(amountEvaluator, staticAbilityHandler, cardRegistry)
+            CreateRandomCreatureTokenWithManaValueExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, executeEffect, targetFinder)
         )
     }
 }

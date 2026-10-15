@@ -285,3 +285,35 @@ private fun attachmentVerb(card: JsonObject): String? {
         else -> null
     }
 }
+
+/** A per-token substitution with an exact artifact-subtype filter and predefined outputs. */
+internal fun EmitCtx.replaceEachTokenCreationBlock(rule: JsonObject): List<Stmt>? {
+    fun decline(): List<Stmt>? { reasons.add("ReplaceAPlayerWouldCreateAToken"); return null }
+    val args = rule.field("args").asArr ?: return decline()
+    val event = args.getOrNull(0) as? JsonObject ?: return decline()
+    if (event.strField("_ReplacableEventAPlayerWouldCreateAToken") != "APlayerWouldCreateAToken") return decline()
+    val eventArgs = event.field("args").asArr ?: return decline()
+    val player = eventArgs.getOrNull(0) ?: return decline()
+    if (!jsonContains(player, "_Players", "SinglePlayer") || !jsonContains(player, "_Player", "You")) return decline()
+    val filter = eventArgs.getOrNull(1) as? JsonObject ?: return decline()
+    val alternatives = if (filter.strField("_Permanents") == "Or") filter.field("args").asArr?.toList()
+        ?: return decline() else listOf(filter)
+    val subtypes = alternatives.map {
+        val term = it as? JsonObject ?: return decline()
+        if (term.strField("_Permanents") != "IsArtifactType") return decline()
+        term.field("args").asStr() ?: return decline()
+    }
+    val action = args.getOrNull(1)?.asArr?.singleOrNull() as? JsonObject ?: return decline()
+    if (action.strField("_ReplacementActionAPlayerWouldCreateAToken") != "CreateTokensInstead") return decline()
+    val outputs = action.field("args").asArr?.map {
+        val token = (it as? JsonObject)?.strField("_CreatableToken") ?: return decline()
+        if (token !in setOf("ClueToken", "FoodToken", "TreasureToken")) return decline()
+        token.removeSuffix("Token")
+    } ?: return decline()
+    if (outputs.isEmpty() || subtypes.isEmpty() || subtypes.any { it !in setOf("Clue", "Food", "Treasure") }) return decline()
+    fun quoted(items: List<String>) = items.joinToString(", ") { "\"$it\"" }
+    val effect = call("ReplaceTokenCreationWithTokens",
+        arg("tokenTypes", "listOf(${quoted(outputs)})"),
+        arg("appliesTo", "EventPattern.TokenCreationEvent(tokenFilter = GameObjectFilter.Any.withAnySubtype(${quoted(subtypes)}))"))
+    return listOf(Eval(call("replacementEffect", arg(effect))))
+}

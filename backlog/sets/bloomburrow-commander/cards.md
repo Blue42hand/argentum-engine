@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 158 / 312
+**Implemented:** 159 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -17,7 +17,7 @@
 ---
 
 - [x] Abrade
-- [ ] Academy Manufactor
+- [x] Academy Manufactor
 - [x] Adarkar Wastes
 - [ ] Aether Channeler
 - [x] Aetherize

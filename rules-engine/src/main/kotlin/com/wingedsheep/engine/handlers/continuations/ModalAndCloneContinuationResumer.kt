@@ -1458,6 +1458,15 @@ class ModalAndCloneContinuationResumer(
         }
 
         val chosenId = response.selectedCards.first()
+        val context = continuation.effectContext
+            ?: com.wingedsheep.engine.handlers.EffectContext(continuation.sourceId, continuation.controllerId)
+        if (com.wingedsheep.engine.handlers.effects.token.TokenBundleReplacements.enabled(state, context)) {
+            val created = services.effectExecutorRegistry.execute(state,
+                com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect(
+                    com.wingedsheep.sdk.scripting.targets.EffectTarget.SpecificEntity(chosenId)), context)
+            if (created.outcome !is Outcome.Done) return created.toExecutionResult()
+            return checkForMore(exposeCollectionsToNextFrame(created.state, created.updatedCollections), created.events)
+        }
         val staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry)
         val result = com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfChosenPermanentExecutor.createTokenCopy(
             state, chosenId, continuation.controllerId,

@@ -75,7 +75,7 @@ class CreateTokenCopyOfTargetExecutor(
     }
 
     /** Self is a value read for a copy, not an instruction that acts on the departed card. */
-    private fun copySource(
+    internal fun copySource(
         state: GameState,
         effect: CreateTokenCopyOfTargetEffect,
         context: EffectContext,
@@ -128,7 +128,7 @@ class CreateTokenCopyOfTargetExecutor(
         // The copy's characteristics are the copiable values plus this effect's exceptions.
         val prospective = CopyExceptionApplier.apply(targetCard, effect.copyExceptions)
             .copy(ownerId = controllerId, isDoubleFaced = false)
-        TokenCreationReplacementHelper.findTokenSubstitution(state, controllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
+        TokenCreationReplacementHelper.findTokenSubstitution(state, controllerId, prospective, predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled)
             ?.let { substitute ->
                 return substituteExecutor.createSubstituteTokens(
                     state, substitute, context,
