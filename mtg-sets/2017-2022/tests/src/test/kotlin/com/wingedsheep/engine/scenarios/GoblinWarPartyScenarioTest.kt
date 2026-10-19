@@ -25,6 +25,8 @@ class GoblinWarPartyScenarioTest : ScenarioTestBase() {
             var builder = scenario()
                 .withPlayers("Caster", "Opponent")
                 .withCardInHand(1, "Goblin War Party")
+                .withCardInLibrary(1, "Mountain")
+                .withCardInLibrary(2, "Mountain")
                 .withLandsOnBattlefield(1, "Mountain", mountains)
                 .withActivePlayer(1)
                 .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -73,6 +75,47 @@ class GoblinWarPartyScenarioTest : ScenarioTestBase() {
                     game.state.projectedState.hasKeyword(bear, Keyword.HASTE) shouldBe true
                 }
                 game.findPermanents("Goblin Token").size shouldBe 0
+            }
+        }
+
+        context("Goblin War Party — effect boundaries") {
+            test("buff and haste expire during cleanup") {
+                val game = board(mountains = 4, withBear = true)
+                val bear = game.findPermanent("Grizzly Bears")!!
+                cast(game, listOf(1)).error shouldBe null
+                game.resolveStack()
+                game.state.projectedState.getPower(bear) shouldBe 3
+
+                game.passUntilPhase(Phase.ENDING, Step.CLEANUP)
+                game.passUntilPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+
+                game.state.projectedState.getPower(bear) shouldBe 2
+                game.state.projectedState.getToughness(bear) shouldBe 2
+                game.state.projectedState.hasKeyword(bear, Keyword.HASTE) shouldBe false
+            }
+
+            test("creatures entering later in the turn do not receive the buff") {
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardInHand(1, "Goblin War Party")
+                    .withCardInHand(1, "Grizzly Bears")
+                    .withCardOnBattlefield(2, "Grizzly Bears")
+                    .withLandsOnBattlefield(1, "Mountain", 4)
+                    .withLandsOnBattlefield(1, "Forest", 2)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+                cast(game, listOf(1)).error shouldBe null
+                game.resolveStack()
+                game.castSpell(1, "Grizzly Bears").error shouldBe null
+                game.resolveStack()
+
+                game.findPermanents("Grizzly Bears").size shouldBe 2
+                game.findPermanents("Grizzly Bears").forEach { bear ->
+                    game.state.projectedState.getPower(bear) shouldBe 2
+                    game.state.projectedState.getToughness(bear) shouldBe 2
+                    game.state.projectedState.hasKeyword(bear, Keyword.HASTE) shouldBe false
+                }
             }
         }
 

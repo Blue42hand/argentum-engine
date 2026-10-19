@@ -14,9 +14,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Entwine uses the existing cast-time modal extra-mode mana cost, not a
  * resolution-time choice. Printed mode order is preserved by ModalEffectExecutor.
- *
- * PRE-FLIGHT: exact MH1 printing image / token image, Assay, scenarios,
- * snapshot, manual UX, build and CI still require qualification.
  */
 val GoblinWarParty = card("Goblin War Party") {
     manaCost = "{3}{R}"
@@ -40,7 +37,8 @@ val GoblinWarParty = card("Goblin War Party") {
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.RED),
-                    creatureTypes = setOf("Goblin")
+                    creatureTypes = setOf("Goblin"),
+                    imageUri = "https://cards.scryfall.io/normal/front/c/5/c5522b39-802a-4508-a671-2f73b0633032.jpg?1783933225"
                 )
             )
             mode(
@@ -60,6 +58,7 @@ val GoblinWarParty = card("Goblin War Party") {
         rarity = Rarity.COMMON
         collectorNumber = "131"
         artist = "Deruchenko Alexander"
+        imageUri = "https://cards.scryfall.io/normal/front/2/b/2b4155d1-0a87-4d2c-a1a0-06b2553eaae4.jpg?1783933111"
         ruling(
             "2019-06-14",
             "Goblin War Party’s second mode affects only creatures you control at the time the spell resolves. Creatures you begin to control later in the turn won’t get +1/+1 or gain haste."
