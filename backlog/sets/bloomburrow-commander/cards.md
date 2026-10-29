@@ -17,7 +17,7 @@
 ---
 
 - [x] Abrade
-- [ ] Academy Manufactor
+- [x] Academy Manufactor
 - [x] Adarkar Wastes
 - [ ] Aether Channeler
 - [x] Aetherize

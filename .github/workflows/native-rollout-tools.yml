@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Run offline rollout and storage tests
         run: python3 -m unittest discover -s scripts/tolaria-native-deployment -v
       - name: Run offline source candidate tests

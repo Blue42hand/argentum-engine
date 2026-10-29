@@ -23,7 +23,7 @@ class TokenExecutors(
     private val staticAbilityHandler: StaticAbilityHandler? = null,
     private val cardRegistry: CardRegistry,
     private val tokenArtRegistry: TokenArtRegistry? = null,
-    private val targetFinder: TargetFinder
+    private val targetFinder: TargetFinder,
 ) : ExecutorModule {
     override fun executors(): List<EffectExecutor<*>> {
         val createPredefinedToken = CreatePredefinedTokenExecutor(
@@ -33,13 +33,13 @@ class TokenExecutors(
             CreateTokenBatchExecutor(executeEffect, amountEvaluator, cardRegistry, staticAbilityHandler ?: StaticAbilityHandler(cardRegistry)),
             CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, tokenArtRegistry),
             createPredefinedToken,
-            InvestigateExecutor(createPredefinedToken, amountEvaluator),
+            InvestigateExecutor(createPredefinedToken, amountEvaluator, executeEffect),
             CreateRoleTokenExecutor(zones, cardRegistry, staticAbilityHandler),
             CreateTokenCopyOfSourceExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
             CreateTokenCopyOfEquippedCreatureExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
-            CreateTokenCopyOfChosenPermanentExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
+            CreateTokenCopyOfChosenPermanentExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator, executeEffect = executeEffect),
             CreateTokenCopyOfTargetExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, targetFinder = targetFinder),
-            CreateRandomCreatureTokenWithManaValueExecutor(amountEvaluator, staticAbilityHandler, cardRegistry)
+            CreateRandomCreatureTokenWithManaValueExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, executeEffect, targetFinder)
         ).map { simultaneous(it) }
     }
 

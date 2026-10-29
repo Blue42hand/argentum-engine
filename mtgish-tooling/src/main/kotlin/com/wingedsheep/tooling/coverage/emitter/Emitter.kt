@@ -224,6 +224,7 @@ object Emitter {
                 rname == "EnchantPermanent" -> block = ctx.auraTargetBlock(rule)
                 rname == "PermanentLayerEffect" -> block = ctx.staticHostBlock(rule)
                 rname == "AsPermanentEnters" -> block = ctx.asEntersBlock(rule)
+                rname == "ReplaceAPlayerWouldCreateAToken" -> block = ctx.replaceEachTokenCreationBlock(rule)
                 rname == "ReplaceAPlayerWouldCreateTokens" -> block = ctx.replaceTokenCreationBlock(card, rule)
                 rname == "EachPermanentLayerEffect" -> block = ctx.staticLordBlock(rule)
                 rname == "AbilitiesTriggerAnAdditionalTime" -> block = ctx.additionalSourceTriggersBlock(rule)

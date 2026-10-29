@@ -154,7 +154,7 @@ class CreateTokenExecutor(
         // and per-N modifiers) before downstream replacements get a look.
         val requestedCount = if (substituted || TokenCreationBatch.active(context)) baseCount else TokenCreationReplacementHelper.applyCountReplacements(
             state, tokenControllerId, baseCount,
-            predicateEvaluator = amountEvaluator.predicates
+            predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled
         )
         if (requestedCount <= 0) return EffectResult.success(state)
 
@@ -219,6 +219,7 @@ class CreateTokenExecutor(
             predicateEvaluator = amountEvaluator.predicates,
             alreadyApplied = appliedSubstitutions,
             eligibleSources = TokenCreationBatch.sources(context),
+            handled = context.tokenCreationReplacementsHandled,
         )?.let { return createSubstituteTokens(state, it, context, count, tokenControllerId, appliedSubstitutions) }
 
         // Art: an explicit per-card override wins, then the art printed by the set the creating
@@ -523,7 +524,7 @@ class CreateTokenExecutor(
         val (afterAdditional, additionalEvents) = if (TokenCreationBatch.active(context)) newState to emptyList() else TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokens, effect.tapped,
-                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = tokenControllerId
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = tokenControllerId, handled = context.tokenCreationReplacementsHandled
             )
         newState = afterAdditional
 

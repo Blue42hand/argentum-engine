@@ -4302,7 +4302,21 @@
         "rarity": "UNCOMMON",
         "artist": "Seb McKinnon",
         "flavorText": "Beauty is in the eye of the exploder.",
-        "imageUri": "https://cards.scryfall.io/normal/front/5/9/5925c559-3e3c-481b-ba95-20a405cbffce.jpg?1783940352"
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/5925c559-3e3c-481b-ba95-20a405cbffce.jpg?1783940352",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "Because a spell with overload doesn't target when its overload cost is paid, it may affect permanents with hexproof or with protection from the appropriate color."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "If you are instructed to cast a spell with overload \"without paying its mana cost,\" you can't choose to pay its overload cost instead."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "If you don't pay the overload cost of a spell with overload, that spell will have a single target. If you pay the overload cost, the spell won't have any targets."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "RED"

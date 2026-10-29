@@ -204,7 +204,7 @@ class CostCalculator(
         }
 
         // Commander tax (CR 903.8).
-        totalIncrease += calculateCommanderTax(state, card, casterId, fromZone)
+        totalIncrease += calculateCommanderTax(state, card.name, casterId, fromZone)
 
         // CR 601.2f: the total cost is the base cost plus all cost increases, then minus all cost
         // reductions; the mana component is floored at {0} (it can't be reduced below {0}). Apply
@@ -279,9 +279,10 @@ class CostCalculator(
         chosenTargets: List<EntityId> = emptyList(),
         fromZone: Zone? = null,
         declaredCostSlot: ChoiceSlot? = null,
+        baseCost: ManaCost = face.manaCost,
     ): ManaCost = calculateEffectiveCost(
         state, faceCharacteristics(cardDef, face), casterId, chosenTargets, fromZone, declaredCostSlot,
-        card = cardDef,
+        baseCost = baseCost, card = cardDef,
     )
 
     /** [cardDef] seen with only [face]'s characteristics, as the spell is while on the stack. */
@@ -309,7 +310,7 @@ class CostCalculator(
      */
     private fun calculateCommanderTax(
         state: GameState,
-        cardDef: CardDefinition,
+        commanderCardName: String,
         casterId: EntityId,
         fromZone: Zone?,
     ): Int {
@@ -322,7 +323,7 @@ class CostCalculator(
             val card = container.get<CardComponent>() ?: return@firstNotNullOfOrNull null
             val commander = container.get<CommanderComponent>() ?: return@firstNotNullOfOrNull null
             if (commander.ownerId != casterId) return@firstNotNullOfOrNull null
-            if (card.name != cardDef.name) return@firstNotNullOfOrNull null
+            if (card.name != commanderCardName) return@firstNotNullOfOrNull null
             commander
         } ?: return 0
         return 2 * match.castsFromCommandZone
@@ -993,7 +994,9 @@ class CostCalculator(
         state: GameState,
         cardDef: CardDefinition,
         casterId: EntityId,
-        spellId: EntityId
+        spellId: EntityId,
+        baseCost: ManaCost = cardDef.manaCost,
+        declaredCostSlot: ChoiceSlot? = null,
     ): ManaCost {
         val optimisticTargets = mutableListOf<EntityId>()
         var legalTargets: List<EntityId>? = null
@@ -1012,7 +1015,7 @@ class CostCalculator(
                 if (match != null) optimisticTargets += match
             }
         }
-        return calculateEffectiveCost(state, cardDef, casterId, optimisticTargets)
+        return calculateEffectiveCost(state, cardDef, casterId, optimisticTargets, declaredCostSlot = declaredCostSlot, baseCost = baseCost)
     }
 
     /** Every legal target of any of the spell's declared target requirements, in any zone. */
@@ -1670,8 +1673,8 @@ class CostCalculator(
      * The base cost is {3}, reduced by any [ModifySpellCost] with target
      * [SpellCostTarget.FaceDownYouCast] on permanents the caster controls.
      */
-    fun calculateFaceDownCost(state: GameState, casterId: EntityId): ManaCost {
-        val baseMorphCost = ManaCost.parse("{3}")
+    fun calculateFaceDownCost(state: GameState, casterId: EntityId, additionalMana: ManaCost = ManaCost.ZERO): ManaCost {
+        val baseMorphCost = ManaCost.parse("{3}") + additionalMana
         var totalReduction = 0
 
         for ((sourceId, ability) in scanModifySpellCost(state)) {
@@ -2037,13 +2040,15 @@ class CostCalculator(
         return oncePerTurnCandidate
     }
 
-    /** Price an alternative mana cost with the same increases and reductions as a normal cast. */
+    /** Alternative costs replace the base, not the increases or reductions applied to it. */
     fun calculateEffectiveCostWithAlternativeBase(
         state: GameState,
         cardDef: CardDefinition,
         alternativeCost: ManaCost,
         casterId: EntityId,
-    ): ManaCost = calculateEffectiveCost(state, cardDef, casterId, baseCost = alternativeCost)
+        fromZone: Zone? = null,
+    ): ManaCost = calculateEffectiveCost(state, cardDef, casterId, fromZone = fromZone, baseCost = alternativeCost)
+
 
     /**
      * Calculate the additional life [casterId] must pay as part of casting a spell with

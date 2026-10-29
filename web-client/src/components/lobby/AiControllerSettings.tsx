@@ -37,6 +37,10 @@ export function AiControllerSettings({
   useEffect(() => {
     if (!visible) return
     requestCatalog(view.lobbyId)
+    const refresh = window.setInterval(() => {
+      if (document.visibilityState === 'visible') requestCatalog(view.lobbyId)
+    }, 5000)
+    return () => window.clearInterval(refresh)
   }, [visible, view.lobbyId, seatKey, requestCatalog])
 
   if (!visible) return null

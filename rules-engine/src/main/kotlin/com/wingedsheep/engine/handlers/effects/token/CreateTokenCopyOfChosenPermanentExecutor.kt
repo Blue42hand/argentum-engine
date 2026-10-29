@@ -35,7 +35,8 @@ class CreateTokenCopyOfChosenPermanentExecutor(
     private val cardRegistry: CardRegistry,
     private val staticAbilityHandler: StaticAbilityHandler? = null,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val predicateEvaluator: PredicateEvaluator
+    private val predicateEvaluator: PredicateEvaluator,
+    private val executeEffect: ((GameState, com.wingedsheep.sdk.scripting.effects.Effect, EffectContext) -> EffectResult)? = null
 ) : EffectExecutor<CreateTokenCopyOfChosenPermanentEffect> {
 
     override val effectType: KClass<CreateTokenCopyOfChosenPermanentEffect> =
@@ -62,6 +63,11 @@ class CreateTokenCopyOfChosenPermanentExecutor(
         }
 
         if (candidates.size == 1) {
+            if (executeEffect != null && TokenBundleReplacements.enabled(state, context)) {
+                return executeEffect(state,
+                    com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect(
+                        com.wingedsheep.sdk.scripting.targets.EffectTarget.SpecificEntity(candidates.first())), context)
+            }
             // Auto-select the only option
             return createTokenCopy(state, candidates.first(), controllerId, staticAbilityHandler, cardRegistry, predicateEvaluator = predicateEvaluator)
         }
@@ -70,7 +76,8 @@ class CreateTokenCopyOfChosenPermanentExecutor(
         val continuation = CreateTokenCopyOfChosenContinuation(
             controllerId = controllerId,
             sourceId = sourceId,
-            sourceName = sourceName
+            sourceName = sourceName,
+            effectContext = context
         )
 
         val decisionResult = decisionHandler.createCardSelectionDecision(

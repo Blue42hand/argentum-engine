@@ -42,7 +42,9 @@ import kotlin.reflect.KClass
 class CreateRandomCreatureTokenWithManaValueExecutor(
     private val amountEvaluator: DynamicAmountEvaluator,
     private val staticAbilityHandler: StaticAbilityHandler? = null,
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val executeEffect: ((GameState, com.wingedsheep.sdk.scripting.effects.Effect, EffectContext) -> EffectResult)? = null,
+    private val targetFinder: com.wingedsheep.engine.handlers.TargetFinder? = null
 ) : EffectExecutor<CreateRandomCreatureTokenWithManaValueEffect> {
 
     override val effectType: KClass<CreateRandomCreatureTokenWithManaValueEffect> =
@@ -70,6 +72,11 @@ class CreateRandomCreatureTokenWithManaValueExecutor(
         }
 
         val (chosen, stateAfterPick) = state.nextRandom { pick(candidates) }
+
+        if (executeEffect != null && targetFinder != null && TokenBundleReplacements.enabled(stateAfterPick, context)) {
+            return TokenBundleReplacements(cardRegistry, amountEvaluator, targetFinder, executeEffect)
+                .fromDefinition(stateAfterPick, chosen.name, context)
+        }
 
         return TokenFromDefinition.mint(
             state = stateAfterPick,

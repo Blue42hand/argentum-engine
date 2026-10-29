@@ -114,7 +114,7 @@ class CreateTokenCopyOfTargetExecutor(
         // The copy's characteristics are the copiable values plus this effect's exceptions.
         val prospective = CopyExceptionApplier.apply(targetCard, resolvedExceptions(state, effect, context))
             .copy(ownerId = controllerId, isDoubleFaced = false)
-        TokenCreationReplacementHelper.findTokenSubstitution(state, controllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
+        TokenCreationReplacementHelper.findTokenSubstitution(state, controllerId, prospective, predicateEvaluator = amountEvaluator.predicates, handled = context.tokenCreationReplacementsHandled)
             ?.let { substitute ->
                 return substituteExecutor.createSubstituteTokens(
                     state, substitute, context,
@@ -173,7 +173,7 @@ class CreateTokenCopyOfTargetExecutor(
      * on the card's next zone change, so it only ever describes the departed battlefield object.
      * A token that left has ceased to exist (CR 704.5d) and leaves nothing to copy.
      */
-    private fun copySource(
+    internal fun copySource(
         state: GameState,
         effect: CreateTokenCopyOfTargetEffect,
         context: EffectContext,

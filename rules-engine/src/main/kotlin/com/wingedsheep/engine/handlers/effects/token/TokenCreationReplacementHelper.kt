@@ -68,7 +68,7 @@ object TokenCreationReplacementHelper {
      * and additional-token read paths so a printed ability and a durational grant are dispatched
      * identically.
      */
-    private fun controllerMatches(
+    internal fun controllerMatches(
         player: Player,
         state: GameState,
         sourceControllerId: EntityId,
@@ -106,8 +106,10 @@ object TokenCreationReplacementHelper {
         state: GameState,
         tokenControllerId: EntityId,
         baseCount: Int,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        handled: Boolean = false
     ): Int {
+        if (handled) return baseCount
         return applyBatchCountReplacements(state, tokenControllerId, listOf(baseCount), predicateEvaluator).single()
     }
 
@@ -201,7 +203,9 @@ object TokenCreationReplacementHelper {
         predicateEvaluator: PredicateEvaluator,
         tokenCreatorId: EntityId = tokenControllerId,
         eligibleSources: Set<EntityId>? = null,
+        handled: Boolean = false,
     ): Pair<GameState, List<com.wingedsheep.engine.core.GameEvent>> {
+        if (handled) return state to emptyList()
         if (createdTokenIds.isEmpty() || cardRegistry == null) return state to emptyList()
         val conditionEvaluator = predicateEvaluator.conditions
 
@@ -364,8 +368,10 @@ object TokenCreationReplacementHelper {
         predicateEvaluator: PredicateEvaluator,
         conditionEvaluator: ConditionEvaluator = predicateEvaluator.conditions,
         alreadyApplied: Set<ActiveReplacement> = emptySet(),
-        eligibleSources: Set<EntityId>? = null
+        eligibleSources: Set<EntityId>? = null,
+        handled: Boolean = false
     ): TokenSubstitution? {
+        if (handled) return null
         val candidates = ActiveReplacements.all(state)
             .filter { it.effect is ReplaceTokenCreationWithToken && it !in alreadyApplied && (eligibleSources == null || it.sourceId in eligibleSources) }
         if (candidates.isEmpty()) return null
@@ -417,7 +423,7 @@ object TokenCreationReplacementHelper {
         staticAbilityHandler: StaticAbilityHandler? = null,
         predicateEvaluator: PredicateEvaluator
     ): EffectResult? {
-        if (tokenCount <= 0) return null
+        if (context.tokenCreationReplacementsHandled || tokenCount <= 0) return null
 
         val controllerId = tokenControllerId
 

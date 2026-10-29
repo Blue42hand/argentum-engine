@@ -16430,6 +16430,25 @@ The priority groups are (CR 616.1a–f):
   unfiltered `MultiplyTokenCreation` scopes to creature tokens in practice. `tokenFilter` on the
   event is not yet honored by the count path (filtered events are skipped), so express "creature
   tokens" via the default rather than `tokenFilter = Creature`.
+- `ReplaceTokenCreationWithTokens(tokenTypes, appliesTo)` — substitutes each matching prospective
+  token with one of **every** named predefined token. Names are registry keys; the nonempty list is data,
+  not a card-name dispatch. Academy Manufactor uses `listOf("Clue", "Food", "Treasure")` with
+  `TokenCreationEvent(You, GameObjectFilter.Any.withAnySubtype("Clue", "Food", "Treasure"))`.
+  While this replacement is active, the engine keeps the complete creation event pending as coalesced
+  homogeneous batches. The affected player orders applicable multipliers, additions, single-kind
+  substitutions, multi-kind substitutions and optional attached copies. Each source/index identity
+  applies at most once to the entire event, and filters are rechecked after every replacement.
+  Thus Took before Manufactor on two Treasures yields three of each; Manufactor before Took yields
+  two Clues, three Foods and two Treasures. Two Manufactors yield three of each per original token;
+  eighteen yield 129140163 of each, represented as three counts until materialization.
+  Native predefined/custom/copy/Role factories materialize only after replacements finish. Chosen
+  copies and random-definition copies enter this path after their choice. Explicit recipients retain
+  the original creator. Substituted token characteristics replace the original characteristics; entry instructions (tapped, attacking, counters, and delayed sacrifice/exile) remain attached to the creating event.
+  Zero-token events skip replacements. `CREATED_TOKENS` is republished across order/optional/entry
+  decisions. Each investigation creates its own Clue event, then emits one `InvestigatedEvent`;
+  extra Clues created by substitution are not investigations. Saved continuations serialize the
+  pending bundle and applied identities. Existing option/yes-no client decisions render the choices.
+  The legacy token path remains in use when no multi-kind substitution is active.
 - `ReplaceTokenCreationWithAttachedCopy(optional, oncePerTurn, attachmentVerb, appliesTo)` —
   "the first time you would create one or more tokens each turn, you may instead create that
   many tokens that are copies of [attached] permanent." Works for both Equipment and Auras —
@@ -16487,7 +16506,7 @@ The priority groups are (CR 616.1a–f):
   Fisher's Talent's level 2 ("if you would create a Fish token, create a 3/3 blue Shark creature token
   instead") and level 3 ("… a Shark token, … an 8/8 blue Octopus …") turn a Fish into an Octopus, while
   a second Draconic Visitor never re-replaces the first one's Dragons. Printed
-  or granted (`ActiveReplacements`). Not yet ordered against `CreateAdditionalToken` by the affected
+  or granted (`ActiveReplacements`). Outside the multi-kind bundle path above, not yet ordered against `CreateAdditionalToken` by the affected
   player (CR 616.1): the substitution runs first and `CreateAdditionalToken` then judges only the
   substitutes, so Worldwalker Helm adds no Map for a Treasure that became a Dragon.
 Copy effects read the public copiable values of a face-down source: an unnamed colorless 2/2

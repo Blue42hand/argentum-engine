@@ -131,7 +131,7 @@ curl -s -X POST localhost:8081/envs/$ENV/step -H 'Content-Type: application/json
 | `blockers` | blocker id → `[attacker id, …]` | `validBlockers`, `validBlockTargets`, `blockerMaxBlockCounts`, `mandatoryBlockerAssignments` on the action |
 | `targets` | `[entity id, …]`, in requirement order | `targetEntityIds`, `minTargets`, `maxTargets` |
 | `xValue` | int | `hasXCost`, `maxAffordableX` |
-| `tappedPermanents`, `sacrificedPermanents`, `discardedCards`, `exiledCards` | `[entity id, …]` | `parameterSpec`, `costChoices` |
+| `tappedPermanents`, `sacrificedPermanents`, `discardedCards`, `exiledCards`, `bouncedPermanents` | `[entity id, …]` | `parameterSpec`, `costChoices` |
 | `delvedCards` (non-X delve spells) | `[graveyard card id, …]` | `parameterSpec`, `validDelveCards`, `minDelveNeeded` |
 
 The declaration constraints are not advisory — a declaration that disobeys one is illegal, and the
@@ -273,3 +273,10 @@ A self-play bug is only worth as much as its reproduction. Once you isolate one:
    another self-play run — see [`add-card`](../.claude/skills) conventions and existing
    `rules-engine` scenario tests.
 3. Fix the card/engine, and leave the scenario test behind so it can't regress.
+
+Return-to-hand costs use `bouncedPermanents`, independently of spell/ability `targets`.
+When the native offer exposes this field, select exactly `costChoices.bounceCount` distinct
+IDs from `costChoices.validBounceTargets` (server callbacks call this `additionalCostInfo`).
+The native parameterizer rejects missing, duplicate, extra, and unoffered selections;
+normal cost payment revalidates the current battlefield and filter. The existing guarded
+callback epoch and observation digest still determine whether a choice is current.
