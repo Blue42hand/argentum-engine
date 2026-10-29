@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -45,6 +46,27 @@ class VandalblastScenarioTest : ScenarioTestBase() {
         .build()
 
     init {
+
+        test("overload benefits from battlefield cost reductions") {
+            val game = scenario()
+                .withPlayers("Caster", "Opponent")
+                .withCardInHand(1, "Vandalblast")
+                .withCardInLibrary(1, "Mountain")
+                .withCardInLibrary(2, "Mountain")
+                .withLandsOnBattlefield(1, "Mountain", 4)
+                .withCardOnBattlefield(1, "Ruby Medallion")
+                .withCardOnBattlefield(2, "Sol Ring")
+                .withActivePlayer(1)
+                .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                .build()
+
+            withClue("Ruby Medallion reduces the overload alternative cost to {3}{R}") {
+                game.castSpellWithOverload(1, "Vandalblast").error shouldBe null
+            }
+            game.resolveStack()
+            game.isInGraveyard(2, "Sol Ring") shouldBe true
+        }
+
         listOf(ownArtifact, otherArtifact, secondArtifact, hexproofArtifact, indestructibleArtifact)
             .forEach { cardRegistry.register(it) }
 

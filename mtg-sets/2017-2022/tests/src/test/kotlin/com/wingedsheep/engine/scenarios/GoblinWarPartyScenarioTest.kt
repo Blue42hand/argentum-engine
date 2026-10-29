@@ -120,6 +120,29 @@ class GoblinWarPartyScenarioTest : ScenarioTestBase() {
         }
 
         context("Goblin War Party — entwine") {
+
+            test("entwine cost reductions apply to the total including the surcharge") {
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardInHand(1, "Goblin War Party")
+                    .withCardInLibrary(1, "Mountain")
+                    .withCardInLibrary(2, "Mountain")
+                    .withLandsOnBattlefield(1, "Mountain", 3)
+                    .withCardOnBattlefield(1, "Ruby Medallion")
+                    .withCardOnBattlefield(1, "Ruby Medallion")
+                    .withCardOnBattlefield(1, "Ruby Medallion")
+                    .withCardOnBattlefield(1, "Ruby Medallion")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                withClue("The combined {5}{R}{R} cost is reduced to {1}{R}{R}") {
+                    cast(game, listOf(0, 1)).error shouldBe null
+                }
+                game.resolveStack()
+                game.findPermanents("Goblin Token").size shouldBe 3
+            }
+
             test("seven mana selects both and buffs the Goblins created by mode one") {
                 val game = board(mountains = 7, withBear = true)
                 val bear = game.findPermanent("Grizzly Bears")!!
