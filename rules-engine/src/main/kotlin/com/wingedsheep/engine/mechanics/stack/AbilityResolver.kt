@@ -204,6 +204,10 @@ internal class AbilityResolver(
             granterId = abilityComponent.granterId,
             abilityIdentity = abilityComponent.abilityIdentity,
             activatedAbility = abilityComponent.activatedAbility,
+            chosenModes = abilityComponent.chosenModes,
+            modeTargetsOrdered = abilityComponent.modeTargetsOrdered,
+            modeTargetRequirementsOrdered = abilityComponent.modeTargetRequirementsOrdered,
+            modeTargetRequirements = abilityComponent.modeTargetRequirements,
             sourceFaceChanges = abilityComponent.sourceFaceChanges,
             sourceBattlefieldTimestamp = abilityComponent.sourceBattlefieldTimestamp,
             objectReferences = abilityComponent.objectReferences,
@@ -211,9 +215,11 @@ internal class AbilityResolver(
             alignedTargets = alignedActivatedTargets,
             sacrificedPermanents = abilityComponent.sacrificedPermanents,
             xValue = abilityComponent.xValue,
+            manaSpent = abilityComponent.manaSpent,
             tappedPermanents = abilityComponent.tappedPermanents,
             tappedEntitySnapshots = abilityComponent.tappedEntitySnapshots,
             exiledAsCostCards = abilityComponent.exiledAsCostCards,
+            exiledAsCostSnapshots = abilityComponent.exiledAsCostSnapshots,
             discardedAsCostCards = abilityComponent.discardedAsCostCards,
             countersRemovedAsCost = abilityComponent.countersRemovedAsCost,
             lastKnownSourceCounters = abilityComponent.lastKnownSourceCounters,
@@ -222,6 +228,7 @@ internal class AbilityResolver(
             lastKnownSourceAttachments = abilityComponent.lastKnownSourceAttachments,
             damageDistribution = abilityComponent.damageDistribution,
             pipeline = PipelineState(
+                declaredTargetNames = activatedReqs.mapNotNull { it.id }.toSet(),
                 namedTargets = EffectContext.buildNamedTargets(activatedReqs, alignedActivatedTargets),
                 // A "Reveal the creature type you chose" cost hands its type to the effect under the
                 // same key a mid-pipeline ChooseOption write uses, so CardPredicate

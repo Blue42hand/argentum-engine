@@ -17,6 +17,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.battlefield.CrewSaddleContributorsComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.SagaComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
@@ -79,7 +80,9 @@ internal class PermanentEntry(
 
         // For Auras: get the target before removing TargetsComponent. The target is usually a
         // permanent, but "enchant player" Auras (Grievous Wound) attach to a player — both are
-        // entities, so AttachedToComponent holds either id (CR 303.4).
+        // entities, so AttachedToComponent holds either id (CR 303.4) — and an Aura whose enchant
+        // ability names a card in a graveyard (Animate Dead) enters attached to that card
+        // (CR 303.4a/608.3c); the enchant state-based action keeps it there while the card matches.
         val auraTargetId = if (cardComponent?.isAura == true) {
             state.getEntity(spellId)?.get<TargetsComponent>()?.targets?.firstOrNull()?.let { target ->
                 when (target) {
@@ -162,6 +165,17 @@ internal class PermanentEntry(
             })
         }
 
+        // The Saga's entry lore counters (CR 714.3a / 714.3b), placed in [applyEntryDesignations]:
+        // emit the CountersAddedEvent chapter detection reads, from every entry path (including the
+        // as-enters-choice resumers, which is where a read-ahead Saga enters).
+        if (cardDef != null && !spellComponent.castFaceDown && cardDef.isSaga) {
+            val loreCount = newState.getEntity(spellId)?.get<CountersComponent>()
+                ?.getCount(CounterType.LORE)?.takeIf { it > 0 } ?: 1
+            newState = com.wingedsheep.engine.handlers.effects.DamageUtils
+                .markCounterOnControlledPermanent(newState, spellId, CounterType.LORE, entering = true)
+            counterEvents.add(CountersAddedEvent(spellId, CounterType.LORE, loreCount, cardDef.name))
+        }
+
         newState = applyGlobalEntersTapped(newState, spellId, spellComponent, cardDef, controllerId)
         newState = enterSneakAttacking(newState, spellId, spellComponent, controllerId)
         addCastFaceDoorUnlockedEvents(newState, spellId, cardComponent, controllerId, counterEvents)
@@ -226,6 +240,9 @@ internal class PermanentEntry(
         var updated = c.without<SpellOnStackComponent>()
             .without<TargetsComponent>()
             .without<com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent>()
+            // The crew/saddle record outlives the permanent as last-known information; a recast
+            // card is a new object nothing has crewed (CR 400.7).
+            .without<CrewSaddleContributorsComponent>()
             .with(ControllerComponent(controllerId))
 
         if (resolvingAsSpellCopy) {
@@ -242,6 +259,10 @@ internal class PermanentEntry(
             val castDef = state.getEntity(spellId)?.get<CardComponent>()
                 ?.let { cardRegistry.getCard(it.cardDefinitionId) }
             FaceDownTurnUp.castMode(castDef)?.let { updated = updated.with(FaceDownModeComponent(it)) }
+            // Illusionary Mask's rider belongs to "the creature that spell becomes as it resolves".
+            if (spellComponent.turnsFaceUpInstead) {
+                updated = com.wingedsheep.engine.mechanics.FaceUpInstead.stamp(updated, staticAbilityHandler)
+            }
         }
 
         // All permanents enter summoning sick (CR 302.6 / 508.1a — the control-continuity
@@ -293,6 +314,9 @@ internal class PermanentEntry(
         spellComponent: SpellOnStackComponent
     ): ComponentContainer {
         var updated = container
+        if (spellComponent.castFromZone != null) {
+            updated = updated.with(com.wingedsheep.engine.state.components.battlefield.WasCastComponent)
+        }
         // Track if this permanent was cast from hand (for cards like Phage the Untouchable)
         if (spellComponent.castFromZone == Zone.HAND) {
             updated = updated.with(CastFromHandComponent)
@@ -346,7 +370,9 @@ internal class PermanentEntry(
         spellComponent.declaredCostSlot?.let { slot ->
             bag = bag.withChoice(
                 slot,
-                com.wingedsheep.engine.state.components.battlefield.ChoiceValue.Flag
+                spellComponent.additionalCostChoices[slot]?.let {
+                    com.wingedsheep.engine.state.components.battlefield.ChoiceValue.NumberChoice(it)
+                } ?: com.wingedsheep.engine.state.components.battlefield.ChoiceValue.Flag
             )
         }
         // Sneak (CR 702.190): durably mark the permanent so Conditions.SneakCostWasPaid
@@ -687,7 +713,8 @@ internal class PermanentEntry(
             val (riderState, riderEvents) =
                 com.wingedsheep.engine.handlers.effects.EntersWithReplacements.applyCastFromGraveyardRider(
                     newState, spellId, controllerId,
-                    graveyardCastRider.entersWithCounter, graveyardCastRider.addedSubtype
+                    graveyardCastRider.entersWithCounter, graveyardCastRider.addedSubtype,
+                    graveyardCastRider.grantedAbility
                 )
             newState = riderState
             counterEvents.addAll(riderEvents)
@@ -776,12 +803,16 @@ internal class PermanentEntry(
         // Handle Saga entering the battlefield (Rule 714.3a)
         // Add SagaComponent and initial lore counter (triggers chapter I detection)
         if (cardDef != null && !spellComponent.castFaceDown && cardDef.isSaga) {
-            val current = newState.getEntity(spellId)?.get<CountersComponent>() ?: CountersComponent()
-            // Mark chapter 1 as triggered since lore count will be 1
-            val sagaComponent = SagaComponent(triggeredChapters = setOf(1))
+            val entering = newState.getEntity(spellId)
+            val current = entering?.get<CountersComponent>() ?: CountersComponent()
+            // One lore counter (CR 714.3a), or the read-ahead chosen number (CR 714.3b)
+            val loreCount = entering?.let {
+                com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.sagaEntryLoreCount(it)
+            } ?: 1
+            val sagaComponent = SagaComponent(triggeredChapters = (1..loreCount).toSet())
             newState = newState.updateEntity(spellId) { c ->
                 c.with(sagaComponent)
-                    .with(current.withAdded(CounterType.LORE, 1))
+                    .with(current.withAdded(CounterType.LORE, loreCount))
             }
         }
         return newState
@@ -837,19 +868,12 @@ internal class PermanentEntry(
             newState = newState.updateEntity(spellId) { c -> c.with(TappedComponent) }
             val projected = newState.projectedState
             // CR 506.3c / 508.4a: the creature only enters attacking if the carried defender is
-            // still a legal attack target — an opponent still in the game, an opponent's
+            // still a legal attack target — a defending player still in the game, their
             // planeswalker still on the battlefield, or a battle still on the battlefield and
-            // protected by an opponent (mirrors the defender check in AttackPhaseManager). If it's
-            // no longer valid, the creature enters but is never attacking — no redirect.
-            val opponents = newState.getOpponents(controllerId).toSet()
+            // protected by one of them. If it's no longer valid, the creature enters but is never
+            // attacking — no redirect.
             val legalDefender = spellComponent.sneakAttackDefenderId?.takeIf { d ->
-                (d in newState.turnOrder && d != controllerId) ||
-                    (projected.isPlaneswalker(d) &&
-                        d in newState.getBattlefield() &&
-                        projected.getController(d) != controllerId) ||
-                    (projected.isBattle(d) &&
-                        d in newState.getBattlefield() &&
-                        com.wingedsheep.engine.mechanics.battle.Battles.canBeAttackedBy(newState, d, controllerId, opponents))
+                com.wingedsheep.engine.mechanics.combat.CombatDefenders.isLegalEnteringAttackTarget(newState, controllerId, d)
             }
             if (legalDefender != null && projected.isCreature(spellId)) {
                 newState = newState.updateEntity(spellId) { c ->

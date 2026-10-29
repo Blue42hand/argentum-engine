@@ -3080,7 +3080,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a Dragon permanent card to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
                 },
                 {
                     "type": "MoveCollection",
@@ -3566,7 +3568,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a creature card with mana value 6 or greater to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -5260,7 +5264,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -5456,9 +5462,10 @@
                     }
                 },
                 "effect": {
-                    "type": "Modal",
-                    "modes": [
+                    "type": "ChooseAction",
+                    "choices": [
                         {
+                            "label": "Enchanted creature gets +1/-1 until end of turn",
                             "effect": {
                                 "type": "ModifyStats",
                                 "powerModifier": {
@@ -5470,10 +5477,10 @@
                                     "amount": -1
                                 },
                                 "target": "EnchantedCreature"
-                            },
-                            "description": "Enchanted creature gets +1/-1 until end of turn"
+                            }
                         },
                         {
+                            "label": "Enchanted creature gets -1/+1 until end of turn",
                             "effect": {
                                 "type": "ModifyStats",
                                 "powerModifier": {
@@ -5485,8 +5492,7 @@
                                     "amount": 1
                                 },
                                 "target": "EnchantedCreature"
-                            },
-                            "description": "Enchanted creature gets -1/+1 until end of turn"
+                            }
                         }
                     ]
                 },
@@ -6552,7 +6558,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Sliver card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -6743,7 +6751,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -7565,7 +7575,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 3
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
                     }
                 },
                 "effect": {
@@ -8037,7 +8050,10 @@
                 "type": "PayAtom",
                 "atom": {
                     "type": "AtomPayLife",
-                    "amount": 5
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    }
                 }
             }
         }

@@ -84,7 +84,6 @@ value class CounterType(val name: String) {
         val CHARGE = CounterType("CHARGE")
         val GEM = CounterType("GEM")
         val POISON = CounterType("POISON")
-        val EXPERIENCE = CounterType("EXPERIENCE")
         val SILVER = CounterType("SILVER")
         val GOLD = CounterType("GOLD")
         val PLAGUE = CounterType("PLAGUE")
@@ -147,6 +146,12 @@ value class CounterType(val name: String) {
          * for the keyword and `TriggerAbilityResolver` for the per-counter triggers.
          */
         val EXALTED = CounterType("EXALTED")
+
+        /**
+         * Shadow counter (LTC — Minas Morgul, Dark Fortress). Keyword counter (CR 122.1b / 613.1f): the
+         * permanent has shadow for as long as it has one. Wired through `StateProjector.KEYWORD_COUNTER_MAP`.
+         */
+        val SHADOW = CounterType("SHADOW")
         val STASH = CounterType("STASH")
 
         /**
@@ -444,6 +449,22 @@ value class CounterType(val name: String) {
          */
         val ENERGY = CounterType("ENERGY")
 
+        /** Player counters whose inherent precombat-main trigger processes radiation. */
+        val RAD = CounterType("RAD")
+
+        /**
+         * Experience counter (Commander 2015 onward; Avatar: The Last Airbender Eternal). Like
+         * [ENERGY] and [POISON] it is placed on a **player**, not a permanent (CR 122.1 — "a marker
+         * placed on an object or player"), and has no inherent rule: the cards that give them read
+         * the total back. "You get an experience counter" is
+         * `Effects.AddCounters(CounterType.EXPERIENCE, 1, EffectTarget.Controller)`; "for each
+         * experience counter you have" is `DynamicAmounts.playerCounterCount(CounterType.EXPERIENCE)`.
+         * All experience counters are interchangeable, whatever gave them (Aang, Airbending Master;
+         * Toph, Earthbending Master). Projected to the client as `ClientPlayer.experienceCounters`.
+         * NOT a keyword counter, so it is intentionally absent from `StateProjector.KEYWORD_COUNTER_MAP`.
+         */
+        val EXPERIENCE = CounterType("EXPERIENCE")
+
         /**
          * Ice counter (SOI — Thing in the Ice). Passive "thaw countdown" counter with no inherent rule
          * of its own — Thing in the Ice enters with four (`EntersWithCounters(
@@ -544,6 +565,13 @@ value class CounterType(val name: String) {
         val HUNGER = CounterType("HUNGER")
 
         /**
+         * Age counter (CR 702.24, cumulative upkeep). Each upkeep the cumulative upkeep trigger puts one on
+         * its permanent and then charges the upkeep cost once per age counter; the counter itself has no
+         * rule of its own (CR 702.24b: the counters aren't tied to any one instance of the ability).
+         */
+        val AGE = CounterType("AGE")
+
+        /**
          * Slime counter (VOW — Toxrill, the Corrosive). A pure marker with no inherent rule of its
          * own, like [STORAGE] and [HUNGER]: Toxrill's own static ability is what reads the tally
          * ("creatures you don't control get -1/-1 for each slime counter on them"), and his dies
@@ -617,6 +645,13 @@ value class CounterType(val name: String) {
         val INVITATION = CounterType("INVITATION")
 
         /**
+         * Vow counter (C21 — Promise of Loyalty). A pure marker with no inherent rule: the spell
+         * grants each chosen creature "can't attack you or planeswalkers you control" for as long
+         * as it has one (`Duration.WhileAffectedHasCounter(VOW)`).
+         */
+        val VOW = CounterType("VOW")
+
+        /**
          * Impostor counter (MKM — Illicit Masquerade). A pure marker: the enchantment's dies trigger
          * keys off any impostor counter, including ones another source placed.
          */
@@ -633,6 +668,18 @@ value class CounterType(val name: String) {
          * deal to other players adds them, and an activated cost removes X of them.
          */
         val THEFT = CounterType("THEFT")
+
+        /**
+         * Acorn counter (MH2 — Chitterspitter). A tally with no inherent rule: an upkeep trigger
+         * adds one when you sacrifice a token, and a Squirrel anthem reads the count.
+         */
+        val ACORN = CounterType("ACORN")
+
+        /**
+         * Ingredient counter (BLC — Communal Brewing). A tally with no inherent rule: the enters
+         * trigger adds them, and a creature-cast trigger reads the count as +1/+1 counters.
+         */
+        val INGREDIENT = CounterType("INGREDIENT")
 
         /**
          * Training counter (CHK — Sensei Golden-Tail). A marker with no inherent rule: it records
@@ -657,6 +704,48 @@ value class CounterType(val name: String) {
          */
         val REPRIEVE = CounterType("REPRIEVE")
 
+        /**
+         * Bounty counter (J22 — Termination Facilitator). A passive marker with no inherent rule: the
+         * card's own observer trigger reads it to destroy a marked permanent when it is dealt damage.
+         */
+        val BOUNTY = CounterType("BOUNTY")
+
+        /**
+         * Corpse counter (LEA — Scavenging Ghoul). A passive spendable store with no inherent rule:
+         * the card's end-step trigger adds one per creature that died this turn, and its regeneration
+         * ability removes one as its cost.
+         */
+        val CORPSE = CounterType("CORPSE")
+
+        /** Passive progress marker used by Amonkhet artifacts such as Edifice of Authority. */
+        val BRICK = CounterType("BRICK")
+
+        /**
+         * Vitality counter (LEA — Living Artifact). A passive spendable store with no inherent rule:
+         * the card's damage trigger adds one per point of damage dealt to its controller, and its
+         * upkeep trigger may remove one to gain 1 life.
+         */
+        val VITALITY = CounterType("VITALITY")
+
+        /**
+         * Phyresis counter (DMU — Weatherlight Compleated). A passive tally with no inherent rule:
+         * the card reads it as "four or more" (it's a Phyrexian creature) and "seven or more"
+         * (draw instead of scry).
+         */
+        val PHYRESIS = CounterType("PHYRESIS")
+
+        /**
+         * Muster counter (GTC — Assemble the Legion). A passive tally with no inherent rule: the
+         * card's upkeep trigger adds one, then creates a Soldier token for each muster counter.
+         */
+        val MUSTER = CounterType("MUSTER")
+
+        /**
+         * Brain counter (PIP — Rex, Cyber-Hound). A pure marker on a card in exile: it grants nothing
+         * on its own; Rex's `HasAllActivatedAbilitiesOfCards(DonorCards.ALL_EXILE)` filters exile by it.
+         */
+        val BRAIN = CounterType("BRAIN")
+
         /** Every counter kind the SDK names, in declaration order. */
         val KNOWN: List<CounterType> = listOf(
             PLUS_ONE_PLUS_ONE,
@@ -675,7 +764,6 @@ value class CounterType(val name: String) {
             CHARGE,
             GEM,
             POISON,
-            EXPERIENCE,
             SILVER,
             GOLD,
             PLAGUE,
@@ -702,6 +790,7 @@ value class CounterType(val name: String) {
             HASTE,
             MENACE,
             EXALTED,
+            SHADOW,
             STASH,
             CROAK,
             BLIGHT,
@@ -749,6 +838,8 @@ value class CounterType(val name: String) {
             FILM,
             SKEWER,
             ENERGY,
+            RAD,
+            EXPERIENCE,
             ICE,
             OMEN,
             SUSPECT,
@@ -759,6 +850,7 @@ value class CounterType(val name: String) {
             HONE,
             STORAGE,
             HUNGER,
+            AGE,
             SLIME,
             OIL,
             JAVELIN,
@@ -768,13 +860,23 @@ value class CounterType(val name: String) {
             JUDGMENT,
             BLOODLINE,
             INVITATION,
+            VOW,
             IMPOSTOR,
             DEVOTION,
             THEFT,
+            ACORN,
+            INGREDIENT,
             TRAINING,
             MIRE,
             COLLECTION,
             REPRIEVE,
+            BOUNTY,
+            CORPSE,
+            BRICK,
+            VITALITY,
+            PHYRESIS,
+            MUSTER,
+            BRAIN,
         )
 
         /**

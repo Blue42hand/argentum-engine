@@ -1420,6 +1420,89 @@
     ]
 }
 
+// Engulfing Slagwurm
+{
+    "name": "Engulfing Slagwurm",
+    "manaCost": "{5}{G}{G}",
+    "typeLine": "Creature — Wurm",
+    "oracleText": "Whenever this creature blocks or becomes blocked by a creature, destroy that creature. You gain life equal to that creature's toughness.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Engulfing Slagwurm:1",
+                "trigger": {
+                    "type": "BlocksOrBecomesBlockedByEvent",
+                    "partnerFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "StoreNumber",
+                            "name": "number0",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": "TriggeringEntity",
+                                "numericProperty": "Toughness"
+                            }
+                        },
+                        {
+                            "type": "MoveToZone",
+                            "target": "TriggeringEntity",
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "VariableReference",
+                                "variableName": "number0"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever this creature blocks or becomes blocked by a creature, destroy that creature. You gain life equal to that creature's toughness."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "118",
+        "rarity": "RARE",
+        "artist": "Jaime Jones",
+        "flavorText": "Its teeth exist only for decoration.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/a/8aeabc4a-7b4f-4e3d-bcc7-423bb703563a.jpg?1783941718",
+        "rulings": [
+            {
+                "date": "2011-01-01",
+                "text": "Engulfing Slagwurm's ability triggers and resolves during the declare blockers step. Creatures destroyed this way will not deal combat damage."
+            },
+            {
+                "date": "2011-01-01",
+                "text": "If your Engulfing Slagwurm blocks or becomes blocked by multiple creatures, its ability triggers that many times. Each trigger will be associated with a specific creature. You choose which order to have the abilities resolve."
+            },
+            {
+                "date": "2011-01-01",
+                "text": "If Engulfing Slagwurm's ability resolves and the other creature is not destroyed (perhaps because it has already left the battlefield or it regenerates), you'll still gain life equal to that creature's toughness."
+            },
+            {
+                "date": "2011-01-01",
+                "text": "As each ability resolves, the amount of life you gain is equal to the appropriate creature's current toughness (if it's somehow still on the battlefield), or its toughness as it last existed on the battlefield (in all other cases)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Exsanguinate
 {
     "name": "Exsanguinate",
@@ -1653,7 +1736,12 @@
                     "filter": {
                         "cardPredicates": [
                             "IsPermanent",
-                            "ManaValueAtMostX"
+                            {
+                                "type": "CompareNumericProperty",
+                                "property": "MANA_VALUE",
+                                "operator": "LTE",
+                                "amount": "XValue"
+                            }
                         ]
                     },
                     "storeSelected": "selected1",
@@ -1769,6 +1857,122 @@
     ]
 }
 
+// Golem Artisan
+{
+    "name": "Golem Artisan",
+    "manaCost": "{5}",
+    "typeLine": "Artifact Creature — Golem",
+    "oracleText": "{2}: Target artifact creature gets +1/+1 until end of turn.\n{2}: Target artifact creature gains your choice of flying, trample, or haste until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Golem Artisan:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}: Target artifact creature gets +1/+1 until end of turn."
+            },
+            {
+                "id": "Golem Artisan:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "ChooseAction",
+                    "choices": [
+                        {
+                            "label": "It gains flying until end of turn",
+                            "effect": {
+                                "type": "GrantKeyword",
+                                "keyword": "FLYING",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                }
+                            }
+                        },
+                        {
+                            "label": "It gains trample until end of turn",
+                            "effect": {
+                                "type": "GrantKeyword",
+                                "keyword": "TRAMPLE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                }
+                            }
+                        },
+                        {
+                            "label": "It gains haste until end of turn",
+                            "effect": {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact creature"
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "descriptionOverride": "{2}: Target artifact creature gains your choice of flying, trample, or haste until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "UNCOMMON",
+        "artist": "Nic Klein",
+        "flavorText": "Better living through metallurgy.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7ccfc314-2f18-43c2-9ccd-59bb5dbe35e9.jpg?1783941708"
+    }
+}
+
 // Golem's Heart
 {
     "name": "Golem's Heart",
@@ -1856,6 +2060,109 @@
     ]
 }
 
+// Inexorable Tide
+{
+    "name": "Inexorable Tide",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever you cast a spell, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Inexorable Tide:1",
+                "trigger": "SpellCastEvent",
+                "binding": "ANY",
+                "effect": "Proliferate"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "RARE",
+        "artist": "Dave Kendall",
+        "flavorText": "\"See how gratefully this world accepts our blessings.\"\n—Jin-Gitaxias, Core Augur",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f41e281-fcbb-450b-8a67-7b072c55c6f0.jpg?1783941739"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Infiltration Lens
+{
+    "name": "Infiltration Lens",
+    "manaCost": "{1}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Whenever equipped creature becomes blocked by a creature, you may draw two cards.\nEquip {1}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Infiltration Lens:1",
+                "trigger": {
+                    "type": "BecomesBlockedEvent",
+                    "filter": "creature"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Infiltration Lens:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ]
+    },
+    "equipCost": "{1}",
+    "metadata": {
+        "collectorNumber": "167",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "flavorText": "Neurok spies carry devices that let them look a few moments into the future, giving them an almost insurmountable edge.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1baa10da-2733-4657-a1ea-74eb5a5a82b1.jpg?1783941707",
+        "rulings": [
+            {
+                "date": "2011-01-01",
+                "text": "If the equipped creature becomes blocked by multiple creatures, Infiltration Lens’s ability triggers that many times."
+            }
+        ]
+    }
+}
+
 // Kuldotha Forgemaster
 {
     "name": "Kuldotha Forgemaster",
@@ -1907,7 +2214,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an artifact card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -3451,7 +3760,12 @@
                                     "cardPredicates": [
                                         "IsNonland",
                                         "IsPermanent",
-                                        "ManaValueEqualsX"
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "EQ",
+                                            "amount": "XValue"
+                                        }
                                     ],
                                     "statePredicates": [
                                         "ControllerDealtCombatDamageBySourceThisTurn"

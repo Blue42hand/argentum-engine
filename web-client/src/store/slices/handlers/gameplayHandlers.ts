@@ -11,6 +11,9 @@ import { getWebSocket, clearLobbyId, requestReauth } from '../shared'
 import { keepAttackerPreview, keepBlockerPreview } from './combatPreview'
 import { CLEARED_PIPELINE_SELECTIONS, isActionStillOffered } from '../ui/pipelineSlice'
 import type { SetState, GetState } from './types'
+import { useTableTalkStore } from '@/store/tableTalkStore'
+import { getPreferences } from '@/store/preferencesStore'
+import { createSetPriorityModeMessage, createSetStopOverridesMessage } from '@/types'
 import type {
   LogEntry,
   DrawAnimation,
@@ -24,7 +27,7 @@ import type {
 /**
  * Extract the relevant player ID from an event for log coloring.
  */
-function getEventPlayerId(event: { type: string; playerId?: string; casterId?: string; controllerId?: string; attackingPlayerId?: string; viewingPlayerId?: string; revealingPlayerId?: string; activePlayerId?: string; newControllerId?: string }): EntityId | null {
+function getEventPlayerId(event: { type: string; playerId?: string; casterId?: string; controllerId?: string; attackingPlayerId?: string; viewingPlayerId?: string; revealingPlayerId?: string; activePlayerId?: string; newControllerId?: string; startingPlayerId?: string; newHolderId?: string }): EntityId | null {
   switch (event.type) {
     case 'lifeChanged': return event.playerId as EntityId
     case 'cardDrawn': return event.playerId as EntityId
@@ -39,11 +42,16 @@ function getEventPlayerId(event: { type: string; playerId?: string; casterId?: s
     case 'cardsRevealed': return event.revealingPlayerId as EntityId
     case 'turnedFaceUp': return event.controllerId as EntityId
     case 'transformed': return event.controllerId as EntityId
+    case 'dieRolled':
     case 'coinFlipped': return event.playerId as EntityId
     case 'turnChanged': return event.activePlayerId as EntityId
+    case 'gameRestarted': return event.startingPlayerId as EntityId
     case 'permanentsSacrificed': return event.playerId as EntityId
     case 'cardCycled': return event.playerId as EntityId
     case 'libraryShuffled': return event.playerId as EntityId
+    case 'initiativeTaken': return event.newHolderId as EntityId
+    case 'venturedIntoDungeon': return event.playerId as EntityId
+    case 'dungeonCompleted': return event.playerId as EntityId
     case 'controlChanged': return event.newControllerId as EntityId
     case 'decisionMade': return event.playerId as EntityId
     default: return null
@@ -81,7 +89,7 @@ function appendGameLogTail(
   const entries: LogEntry[] = reusable > 0 ? existing.slice(0, reusable) : []
   const now = Date.now()
   for (let i = reusable; i < log.length; i++) {
-    const e = log[i] as { type: string; description: string; playerId?: string; casterId?: string; controllerId?: string; attackingPlayerId?: string; viewingPlayerId?: string; revealingPlayerId?: string; activePlayerId?: string; newControllerId?: string }
+    const e = log[i] as { type: string; description: string; playerId?: string; casterId?: string; controllerId?: string; attackingPlayerId?: string; viewingPlayerId?: string; revealingPlayerId?: string; activePlayerId?: string; newControllerId?: string; startingPlayerId?: string; newHolderId?: string }
     entries.push({
       description: e.description,
       playerId: getEventPlayerId(e),
@@ -94,7 +102,8 @@ function appendGameLogTail(
 
 function getEventLogType(eventType: string): 'action' | 'turn' | 'combat' | 'system' {
   switch (eventType) {
-    case 'turnChanged': return 'turn'
+    case 'turnChanged':
+    case 'gameRestarted': return 'turn'
     case 'creatureAttacked':
     case 'creatureBlocked': return 'combat'
     case 'abilityFizzled':
@@ -742,9 +751,34 @@ type GameplayHandlerKeys =
   | 'onMulliganDecision' | 'onChooseBottomCards' | 'onMulliganComplete' | 'onWaitingForOpponentMulligan'
   | 'onGameOver' | 'onPlayerEliminated' | 'onError'
 
+/**
+ * Send the player's standing stops and starting priority mode to the server for a new game, and
+ * mirror them in the store so the step strip and mode button read right before the first update.
+ * The server keeps both per game, so this runs once per game start.
+ */
+function applyGameplayPreferences(set: SetState) {
+  const { priorityMode, myTurnStops, opponentTurnStops } = getPreferences().gameplay
+  set({
+    stopOverrides: { myTurnStops, opponentTurnStops },
+    priorityMode,
+    fullControl: priorityMode === 'fullControl',
+  })
+  const ws = getWebSocket()
+  if (myTurnStops.length || opponentTurnStops.length) {
+    ws?.send(createSetStopOverridesMessage(myTurnStops, opponentTurnStops))
+  }
+  if (priorityMode !== 'auto') ws?.send(createSetPriorityModeMessage(priorityMode))
+}
+
 export function createGameplayHandlers(set: SetState, get: GetState): Pick<MessageHandlers, GameplayHandlerKeys> {
   return {
     onGameCreated: (msg) => {
+      // A rematch starts straight from the result screen: drop the finished game first, or its
+      // overlay would sit on top of the new one. The server already closed the post-game.
+      if (get().gameOverState) {
+        useTableTalkStore.getState().resetForNewGame()
+        get().returnToMenu()
+      }
       // Clear any quick-game lobby state — the lobby has done its job (server already removed it).
       set({ sessionId: msg.sessionId, quickGameLobbyState: null, priorityYield: null, interactionEpoch: null, stateVersion: null })
     },
@@ -758,6 +792,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
 
       // Clear spectating state — active game takes priority. Fresh game, fresh camera.
       set({ spectatingState: null, priorityYield: null, interactionEpoch: null, stateVersion: null })
+      useTableTalkStore.getState().resetForNewGame()
       get().resetBoardView()
 
       // Two-Headed Giant (CR 810): the seat → team map only arrives here, in the game-start
@@ -773,24 +808,11 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
       // vs. Team shares neither. `syncSeatTeams` re-derives both from every state update.
       const sharedTurns = msg.players.some((p) => p.teamSharedTurns)
       get().setSeatTeams(seatTeams, sharedLife, sharedTurns)
+      get().setSeatAvatars(msg.players)
 
-      // Load persisted stop overrides and send to server
-      try {
-        const saved = localStorage.getItem('argentum-stop-overrides')
-        if (saved) {
-          const parsed = JSON.parse(saved) as { myTurnStops: string[]; opponentTurnStops: string[] }
-          if (parsed.myTurnStops?.length || parsed.opponentTurnStops?.length) {
-            set({
-              stopOverrides: parsed as { myTurnStops: Step[]; opponentTurnStops: Step[] },
-            })
-            getWebSocket()?.send({
-              type: 'setStopOverrides' as const,
-              myTurnStops: parsed.myTurnStops,
-              opponentTurnStops: parsed.opponentTurnStops,
-            })
-          }
-        }
-      } catch { /* ignore invalid localStorage data */ }
+      // Start the game the way the player set the table up (Preferences → Gameplay): their
+      // standing stops and their starting priority mode.
+      applyGameplayPreferences(set)
 
       // Show match intro animation
       const playerName = localStorage.getItem('argentum-player-name') ?? 'You'
@@ -814,6 +836,8 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
           playerName,
           opponentName,
           opponentNames: msg.players.filter((p) => !p.isYou).map((p) => p.name),
+          playerAvatar: msg.players.find((p) => p.isYou)?.avatar ?? null,
+          opponentAvatars: msg.players.filter((p) => !p.isYou).map((p) => p.avatar ?? null),
           ...(round != null ? { round } : {}),
           ...(playerRecord != null ? { playerRecord } : {}),
           ...(opponentRecord != null ? { opponentRecord } : {}),

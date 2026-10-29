@@ -81,6 +81,14 @@ data class GameState(
      */
     val turnNumber: Int = 0,
 
+    /**
+     * Display-only round counter: advances once the turn passes back around the table, so both
+     * players' turns in a duel — or every seat's in a pod — share one number. Extra turns (CR 500.7)
+     * stay in the current round. Nothing in the rules reads this; use [turnNumber] for that.
+     * Starts at 0 and becomes 1 with the first turn, like [turnNumber].
+     */
+    val roundNumber: Int = 0,
+
     /** ID of the player whose turn it is */
     val activePlayerId: EntityId? = null,
 
@@ -186,6 +194,22 @@ data class GameState(
     val dayNight: com.wingedsheep.sdk.core.DayNight? = null,
 
     /**
+     * The player who is **the monarch** (CR 725), or `null` while the game has none — there is no
+     * monarch until an effect makes one (CR 725.1), and CR 725.4 can leave the game without one.
+     * A single field rather than a per-player marker because only one player can be the monarch at a
+     * time (CR 725.3). All writes go through [com.wingedsheep.engine.mechanics.monarch.MonarchService].
+     */
+    val monarch: EntityId? = null,
+
+    /**
+     * The player who has **the initiative** (CR 726), or `null` while nobody has taken it yet (CR
+     * 726.1). Like [monarch], a single field because only one player can have it at a time (CR
+     * 726.3); the two designations are independent and can sit with different players or the same
+     * one. All writes go through [com.wingedsheep.engine.mechanics.initiative.InitiativeService].
+     */
+    val initiative: EntityId? = null,
+
+    /**
      * Entity id of the **previous turn's active player**, snapshotted by
      * [com.wingedsheep.engine.core.TurnManager.startTurn] the instant a new turn begins — before the
      * per-turn spell counters are zeroed. `null` on the game's first turn (there is no previous turn).
@@ -232,11 +256,11 @@ data class GameState(
      * Duration-bounded "spells you cast [this turn | until your next turn] that match … cost {N}
      * less" discounts (the Scion cycle; Ral, Leyline Prodigy). Unlike [pendingNextSpellAffinities]
      * these are not consumed by the spell they discount — they apply to every matching spell until
-     * their [SpellCostReduction.duration] ends. Serialized under its pre-duration name so recorded
+     * their [SpellCostModifier.duration] ends. Serialized under its pre-duration name so recorded
      * states keep decoding.
      */
     @kotlinx.serialization.SerialName("turnSpellCostReductions")
-    val spellCostReductions: List<SpellCostReduction> = emptyList(),
+    val spellCostModifiers: List<SpellCostModifier> = emptyList(),
 
     /** Whether a spell was warped this turn (for Void condition: "a spell was warped this turn") */
     val spellWarpedThisTurn: Boolean = false,
@@ -311,6 +335,10 @@ data class GameState(
      */
     val pendingSacrificeIds: Set<EntityId> = emptySet(),
 
+    /** One entry per paid enlist instance; object identity keeps departed visits distinct. Cleared at end of combat. */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val enlistmentsThisCombat: List<ObjectRef> = emptyList(),
+
     /**
      * Cards currently being discarded *by a spell or ability*, mapped to that spell/ability's
      * controller. Recorded by the discard sites (`ZoneTransitionService.discardCards` and the
@@ -345,6 +373,13 @@ data class GameState(
      * last turn. Backs `TurnTracker.DEALT_NONCOMBAT_DAMAGE_LAST_TURN` (Command the Stage).
      */
     val playersDealtNoncombatDamageLastTurn: Set<EntityId> = emptySet(),
+    /**
+     * Players (by entity id) who controlled a creature or planeswalker that was dealt excess damage
+     * (CR 120.4a) this turn, keyed on the recipient's controller as the damage was dealt. Populated
+     * by `DamageUtils.trackExcessDamageToPermanent` and cleared at every turn boundary. Backs
+     * `TurnTracker.PERMANENT_DEALT_EXCESS_DAMAGE`.
+     */
+    val playersWithPermanentDealtExcessDamageThisTurn: Set<EntityId> = emptySet(),
     /**
      * Players (by entity id) who lost life during the previous turn, whoever's turn it was.
      * Snapshotted from each player's `LifeLostThisTurnComponent` by
@@ -447,7 +482,7 @@ data class GameState(
 
     /**
      * Per-player persistent "yield" preferences keyed by [com.wingedsheep.sdk.scripting.AbilityIdentity]
-     * (MTGO right-click yields — see `backlog/stack-collapse-and-batch-decisions.md` §C). Lives on
+     * (MTGO right-click yields — see `backlog/archived/stack-collapse-and-batch-decisions.md` §C). Lives on
      * [GameState] (not the server session) so it survives serialization, replays deterministically,
      * and is naturally per-player-maskable. The `untilEndOfTurn` slice is cleared at every cleanup
      * step (CR 514); `wholeGame` / `autoAnswer` persist for the whole game. Read by
@@ -492,6 +527,21 @@ data class GameState(
      * on its controller's behalf without having asked.
      */
     val optionalDamageRedirectChoices: Map<String, Boolean> = emptyMap(),
+
+    /**
+     * A resolved "restart the game" (CR 727) waiting for its resolution to finish; the settle
+     * boundary carries it out through [com.wingedsheep.engine.core.GameRestarter].
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val pendingRestart: com.wingedsheep.engine.core.GameRestartRequest? = null,
+
+    /**
+     * The rest of the instructions of the ability that restarted the game, followed just before the
+     * new game's first untap step (CR 727.4) by
+     * [com.wingedsheep.engine.handlers.MulliganHandler.beginFirstTurn].
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val restartFollowUp: com.wingedsheep.engine.core.TurnStartFollowUp? = null,
 ) {
     /**
      * Cached projection of the game state with all continuous effects (Rule 613) applied.
@@ -1074,10 +1124,35 @@ data class GameState(
     /**
      * Whether [playerId] can pay [amount] life: paying 0 always can (CR 119.4 / 118.3); otherwise
      * the (team's, CR 810.9a) life total must be at least the amount and the player must be able to
-     * lose life (CR 119.8 — "a cost that involves having that player pay life can't be paid").
+     * lose life (CR 119.8 — "a cost that involves having that player pay life can't be paid"), and no
+     * cost-scoped prohibition may forbid paying life for [purpose] (Karn's Sylex).
      */
-    fun canPayLife(playerId: EntityId, amount: Int): Boolean =
-        amount <= 0 || (lifeTotal(playerId) >= amount && !isLifeLossLocked(playerId))
+    fun canPayLife(playerId: EntityId, amount: Int, purpose: LifePaymentPurpose): Boolean =
+        amount <= 0 || (lifeTotal(playerId) >= amount && !isLifePaymentBlocked(playerId, purpose))
+
+    /**
+     * Whether [playerId] can't pay *any* life for [purpose]: they can't lose life (CR 119.8), or a
+     * [com.wingedsheep.sdk.scripting.PlayersCantPayLifeForCosts] on the battlefield forbids paying
+     * life in that context (Karn's Sylex). The "pay up to X life" paths read this to cap X at 0.
+     */
+    fun isLifePaymentBlocked(playerId: EntityId, purpose: LifePaymentPurpose): Boolean =
+        isLifeLossLocked(playerId) || isLifePaymentForbidden(purpose)
+
+    /**
+     * Whether a permanent's [com.wingedsheep.sdk.scripting.PlayersCantPayLifeForCosts] forbids
+     * paying life for [purpose]. It binds every player, so no player id is needed; a source that
+     * has lost its abilities forbids nothing.
+     */
+    private fun isLifePaymentForbidden(purpose: LifePaymentPurpose): Boolean {
+        if (purpose == LifePaymentPurpose.OTHER) return false
+        return getBattlefield().any { entityId ->
+            val marker = getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.ForbidsLifePaymentForCostsComponent>()
+                ?: return@any false
+            if (purpose == LifePaymentPurpose.ACTIVATE_MANA_ABILITY && marker.excludeManaAbilities) return@any false
+            !projectedState.hasLostAllAbilities(entityId)
+        }
+    }
 
     /**
      * [playerId]'s **speed** (Aetherdrift, CR 702.179), 0–[com.wingedsheep.sdk.core.Speed.MAX].
@@ -1212,6 +1287,13 @@ data class GameState(
             grantedStateTriggeredAbilities = grantedStateTriggeredAbilities.filter { it.entityId != entityId },
             grantedActivatedAbilities = grantedActivatedAbilities.filter { it.entityId != entityId }
         )
+
+    /** A zone change ends the individual escape grant even though the physical card keeps its id. */
+    fun withoutEscapeGrants(entityId: EntityId): GameState =
+        if (grantedKeywordAbilities.none { it.entityId == entityId && it.ability is com.wingedsheep.sdk.scripting.KeywordAbility.Escape }) this
+        else copy(grantedKeywordAbilities = grantedKeywordAbilities.filterNot {
+            it.entityId == entityId && it.ability is com.wingedsheep.sdk.scripting.KeywordAbility.Escape
+        })
 
     // =========================================================================
     // Convenience Zone Accessors

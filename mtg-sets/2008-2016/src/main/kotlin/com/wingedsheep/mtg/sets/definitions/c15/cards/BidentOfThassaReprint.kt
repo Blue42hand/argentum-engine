@@ -3,6 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.c15.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Bident of Thassa reprint in Commander 2015 (C15). Canonical
+ * [com.wingedsheep.sdk.model.CardDefinition] lives in Theros (THS).
+ */
 val BidentOfThassaReprint = Printing(
     oracleId = "e1afaef7-9fa3-4662-a95f-adfb0da9fd11",
     name = "Bident of Thassa",

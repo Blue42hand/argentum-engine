@@ -232,6 +232,60 @@
     ]
 }
 
+// Cabal Ritual
+{
+    "name": "Cabal Ritual",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Add {B}{B}{B}.\nThreshold — Add {B}{B}{B}{B}{B} instead if there are seven or more cards in your graveyard.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            },
+            "then": {
+                "type": "AddMana",
+                "color": "BLACK",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 5
+                }
+            },
+            "otherwise": {
+                "type": "AddMana",
+                "color": "BLACK",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 3
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "artist": "Greg Hildebrandt",
+        "flavorText": "\"Each syllable chills your veins. Each word rattles your mind.\"\n—Cabal Patriarch",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/5403b49d-03a7-4cc3-af3c-df098c1c9c2e.jpg?1783945159"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Centaur Veteran
 {
     "name": "Centaur Veteran",
@@ -413,7 +467,10 @@
                 "type": "AdditionalAtom",
                 "atom": {
                     "type": "AtomPayLife",
-                    "amount": 3
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
                 }
             }
         }
@@ -926,6 +983,90 @@
     ]
 }
 
+// Nantuko Cultivator
+{
+    "name": "Nantuko Cultivator",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Insect Druid",
+    "oracleText": "When this creature enters, you may discard any number of land cards. Put that many +1/+1 counters on this creature and draw that many cards.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nantuko Cultivator:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "filter": "land"
+                                    },
+                                    "storeAs": "stored0_candidates"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "stored0_candidates",
+                                    "selection": "ChooseAnyNumber",
+                                    "storeSelected": "stored0",
+                                    "prompt": "Choose any number of land cards to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "stored0",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "AddDynamicCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "amount": {
+                                "type": "VariableReference",
+                                "variableName": "stored0_count"
+                            },
+                            "target": "Self"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "VariableReference",
+                                "variableName": "stored0_count"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, you may discard any number of land cards. Put that many +1/+1 counters on this creature and draw that many cards."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "133",
+        "rarity": "RARE",
+        "artist": "Darrell Riche",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d258fe7-7906-43ca-8ebd-344aa81cb85b.jpg?1783945141"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Nantuko Shade
 {
     "name": "Nantuko Shade",
@@ -1320,6 +1461,160 @@
     ]
 }
 
+// Tainted Field
+{
+    "name": "Tainted Field",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}: Add {W} or {B}. Activate only if you control a Swamp.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Tainted Field:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Tainted Field:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Swamp"
+                        }
+                    }
+                ],
+                "isManaAbility": true
+            },
+            {
+                "id": "Tainted Field:3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Swamp"
+                        }
+                    }
+                ],
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "140",
+        "rarity": "UNCOMMON",
+        "artist": "Don Hazeltine",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/75b5f0aa-1570-4064-ad20-aac7be8b2c9c.jpg?1783945139"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
+// Tainted Peak
+{
+    "name": "Tainted Peak",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}: Add {B} or {R}. Activate only if you control a Swamp.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Tainted Peak:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Tainted Peak:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Swamp"
+                        }
+                    }
+                ],
+                "isManaAbility": true
+            },
+            {
+                "id": "Tainted Peak:3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Swamp"
+                        }
+                    }
+                ],
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "142",
+        "rarity": "UNCOMMON",
+        "artist": "Tony Szczudlo",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4dcaaabe-e1d7-4047-9960-79178af3d903.jpg?1783945139"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Tainted Wood
 {
     "name": "Tainted Wood",
@@ -1353,15 +1648,10 @@
                     {
                         "type": "ActivationOnlyIfCondition",
                         "condition": {
-                            "type": "Any",
-                            "conditions": [
-                                {
-                                    "type": "Exists",
-                                    "player": "You",
-                                    "zone": "Battlefield",
-                                    "filter": "land Swamp"
-                                }
-                            ]
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Swamp"
                         }
                     }
                 ],
@@ -1379,15 +1669,10 @@
                     {
                         "type": "ActivationOnlyIfCondition",
                         "condition": {
-                            "type": "Any",
-                            "conditions": [
-                                {
-                                    "type": "Exists",
-                                    "player": "You",
-                                    "zone": "Battlefield",
-                                    "filter": "land Swamp"
-                                }
-                            ]
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Swamp"
                         }
                     }
                 ],

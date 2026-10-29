@@ -71,7 +71,7 @@ class EngineServices(
      * it is threaded through the graph rather than parked in a global — two engines in one JVM
      * (server plus gym, parallel tests) each keep their own.
      */
-    val zones = ZoneTransitionService(cardRegistry, predicateEvaluator, tokenArtRegistry)
+    val zones = ZoneTransitionService(cardRegistry, predicateEvaluator)
 
     /**
      * The one replacement-effect processor for this game. Declared before anything that
@@ -105,7 +105,8 @@ class EngineServices(
         costPaymentService = { costPaymentService },
         targetFinder = targetFinder,
         targetValidator = targetValidator,
-        legalActionEnumerator = { legalActionEnumerator }
+        legalActionEnumerator = { legalActionEnumerator },
+        activateAbilityHandler = { activateAbilityHandler },
     )
     val manaAbilitySideEffectExecutor = ManaAbilitySideEffectExecutor(
         zones,
@@ -132,7 +133,7 @@ class EngineServices(
     val grantedKeywordResolver = GrantedKeywordResolver(cardRegistry)
     val alternativePaymentHandler = AlternativePaymentHandler(grantedKeywordResolver)
     val costHandler = CostHandler(zones)
-    val mulliganHandler = MulliganHandler(cardRegistry)
+    val mulliganHandler = MulliganHandler(cardRegistry, effectExecutorRegistry::execute)
     val castPermissionUtils = CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator)
     val legalityKernel = LegalityKernel(cardRegistry, conditionEvaluator)
     val sbaChecker = StateBasedActionChecker(zones, cardRegistry = cardRegistry)
@@ -151,12 +152,18 @@ class EngineServices(
     val continuationHandler = ContinuationHandler(this)
     val settler = Settler(
         triggerDetector, triggerProcessor, sbaChecker, stateTriggerPoller, turnManager,
-        effectExecutor = effectExecutorRegistry::execute
+        effectExecutor = effectExecutorRegistry::execute,
+        gameRestarter = GameRestarter(cardRegistry) { state, events ->
+            mulliganHandler.beginFirstTurn(state, events, turnManager)
+        }
     )
 
     /** The cast pipeline (CR 601.2). Built last: it draws on nearly every service above. */
     val castSpellHandler: CastSpellHandler = CastSpellHandler.create(this)
     val playLandHandler: PlayLandHandler = PlayLandHandler.create(this)
+    /** Activated abilities, for effects that instruct an activation mid-resolution (Drain Power). */
+    val activateAbilityHandler: com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler =
+        com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler.create(this)
 
     /** Pays [com.wingedsheep.sdk.scripting.costs.PayCost]s — for "pay or suffer" executors and resumers alike. */
     val costPaymentService = com.wingedsheep.engine.mechanics.cost.CostPaymentService(this)

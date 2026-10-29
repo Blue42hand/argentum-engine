@@ -1783,7 +1783,12 @@
                                     "filter": {
                                         "cardPredicates": [
                                             "IsCreature",
-                                            "ManaValueAtMostX"
+                                            {
+                                                "type": "CompareNumericProperty",
+                                                "property": "MANA_VALUE",
+                                                "operator": "LTE",
+                                                "amount": "XValue"
+                                            }
                                         ]
                                     }
                                 },
@@ -2396,7 +2401,12 @@
                     "baseFilter": {
                         "cardPredicates": [
                             "IsCreature",
-                            "ManaValueAtMostX"
+                            {
+                                "type": "CompareNumericProperty",
+                                "property": "MANA_VALUE",
+                                "operator": "LTE",
+                                "amount": "XValue"
+                            }
                         ]
                     }
                 },
@@ -4503,7 +4513,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put on top of your library",
+                                "selectedLabel": "Put on top of your library"
                             },
                             "ShuffleLibrary",
                             {
@@ -9166,7 +9178,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Mountain card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -11148,7 +11162,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land or land Sphere or land Locus card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -11314,7 +11330,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -11435,7 +11454,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a Myr card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -11499,7 +11520,12 @@
                                     "IsCreature"
                                 ]
                             },
-                            "ManaValueEqualsX"
+                            {
+                                "type": "CompareNumericProperty",
+                                "property": "MANA_VALUE",
+                                "operator": "EQ",
+                                "amount": "XValue"
+                            }
                         ]
                     }
                 }
@@ -14788,7 +14814,8 @@
                                     }
                                 },
                                 "storeAs": "target0",
-                                "nonTargeting": true
+                                "nonTargeting": true,
+                                "prompt": "Choose a creature to sacrifice"
                             },
                             {
                                 "type": "SacrificeTarget",
@@ -15106,7 +15133,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         },
                         "CostTap"
@@ -15477,7 +15507,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -15512,7 +15545,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -15531,7 +15567,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 3
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
                             }
                         }
                     ]
@@ -15549,7 +15588,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 4
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                }
                             }
                         }
                     ]
@@ -17142,7 +17184,12 @@
                                 "cardPredicates": [
                                     "IsArtifact",
                                     "IsNontoken",
-                                    "ManaValueEqualsX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "EQ",
+                                        "amount": "XValue"
+                                    }
                                 ],
                                 "controllerPredicate": "ControlledByYou"
                             }
@@ -17364,7 +17411,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -19731,7 +19780,7 @@
                             "condition": {
                                 "type": "Not",
                                 "condition": {
-                                    "type": "TriggeringPlayerIs",
+                                    "type": "PlayerIs",
                                     "player": "You"
                                 }
                             }

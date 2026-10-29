@@ -2563,7 +2563,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -2635,7 +2637,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4914,7 +4918,7 @@
         ],
         "staticAbilities": [
             {
-                "type": "CantAttack",
+                "type": "CantAttackYou",
                 "filter": {
                     "baseFilter": {
                         "cardPredicates": [
@@ -4927,7 +4931,8 @@
                             }
                         ]
                     }
-                }
+                },
+                "coversPlaneswalkers": true
             }
         ]
     },
@@ -5179,7 +5184,12 @@
                             "filter": {
                                 "cardPredicates": [
                                     "IsCreature",
-                                    "PowerAtLeastX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "POWER",
+                                        "operator": "GTE",
+                                        "amount": "XValue"
+                                    }
                                 ]
                             }
                         },
@@ -8577,7 +8587,8 @@
                                     "creatureTypes": [
                                         "Elemental"
                                     ]
-                                }
+                                },
+                                "description": "Create a 4/4 white and blue Elemental creature token"
                             },
                             {
                                 "effect": {
@@ -9582,7 +9593,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an Aura or Equipment card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -10095,7 +10108,12 @@
                             "baseFilter": {
                                 "cardPredicates": [
                                     "IsCreature",
-                                    "ManaValueEqualsX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "EQ",
+                                        "amount": "XValue"
+                                    }
                                 ],
                                 "controllerPredicate": "OwnedByYou"
                             },
@@ -12716,7 +12734,8 @@
                             "type": "PlayerRef",
                             "player": "Each"
                         }
-                    }
+                    },
+                    "description": "Each player loses 4 life"
                 },
                 {
                     "effect": {
@@ -13953,7 +13972,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -13982,13 +14003,15 @@
                             "Human"
                         ],
                         "imageUri": "https://cards.scryfall.io/normal/front/5/0/50240867-3a3e-4a8d-9569-816ab4a3671a.jpg?1783914992"
-                    }
+                    },
+                    "description": "Create a 1/1 white Human creature token"
                 },
                 {
                     "effect": {
                         "type": "CreatePredefinedToken",
                         "tokenType": "Food"
-                    }
+                    },
+                    "description": "Create a Food token"
                 }
             ],
             "chooseCount": 2
@@ -14363,7 +14386,7 @@
                 "id": "Rowan, Scion of War:1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "ReduceSpellCosts",
+                    "type": "ModifySpellCosts",
                     "spellFilter": {
                         "cardPredicates": [
                             {
@@ -17702,7 +17725,13 @@
                             "cardPredicates": [
                                 "IsCreature",
                                 "IsNontoken",
-                                "NameNotSharedWithControlledToken"
+                                {
+                                    "type": "Not",
+                                    "predicate": {
+                                        "type": "SharesNameWithPermanentYouControl",
+                                        "filter": "token"
+                                    }
+                                }
                             ],
                             "controllerPredicate": "ControlledByYou"
                         }
@@ -17735,7 +17764,13 @@
                             "cardPredicates": [
                                 "IsCreature",
                                 "IsNontoken",
-                                "NameNotSharedWithControlledToken"
+                                {
+                                    "type": "Not",
+                                    "predicate": {
+                                        "type": "SharesNameWithPermanentYouControl",
+                                        "filter": "token"
+                                    }
+                                }
                             ],
                             "controllerPredicate": "ControlledByYou"
                         }
@@ -18153,7 +18188,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a creature or basic land card to put into your hand",
+                                    "selectedLabel": "Put into your hand"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -21170,7 +21207,7 @@
                 "id": "Will, Scion of Peace:1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "ReduceSpellCosts",
+                    "type": "ModifySpellCosts",
                     "spellFilter": {
                         "cardPredicates": [
                             {
@@ -21553,7 +21590,14 @@
                             "baseFilter": {
                                 "cardPredicates": [
                                     "IsEnchantment",
-                                    "NameNotSharedWithAnotherControlledPermanent"
+                                    {
+                                        "type": "Not",
+                                        "predicate": {
+                                            "type": "SharesNameWithPermanentYouControl",
+                                            "filter": "permanent",
+                                            "excludeSelf": true
+                                        }
+                                    }
                                 ],
                                 "controllerPredicate": "ControlledByYou"
                             }

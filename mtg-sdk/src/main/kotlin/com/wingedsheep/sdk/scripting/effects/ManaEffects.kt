@@ -204,9 +204,12 @@ data class AddColorlessManaEffect(
      * non-empty the mana is stored as colorless restricted-mana entries so the riders survive in
      * the pool, under [ManaRestriction.AnySpend] when [restriction] is null.
      */
-    val riders: Set<ManaSpellRider> = emptySet()
+    val riders: Set<ManaSpellRider> = emptySet(),
+    /** When the produced mana expires, independently of its spending restriction and riders. */
+    val expiry: ManaExpiry = ManaExpiry.END_OF_TURN
 ) : Effect {
-    constructor(amount: Int, restriction: ManaRestriction? = null) : this(DynamicAmount.Fixed(amount), restriction)
+    constructor(amount: Int, restriction: ManaRestriction? = null, expiry: ManaExpiry = ManaExpiry.END_OF_TURN) :
+        this(DynamicAmount.Fixed(amount), restriction, expiry = expiry)
 
     override val description: String = buildString {
         append(when (val a = amount) {
@@ -214,6 +217,11 @@ data class AddColorlessManaEffect(
             else -> "Add an amount of {C} equal to ${a.description}"
         })
         if (restriction != null) append(". ${restriction.description}")
+        when (expiry) {
+            ManaExpiry.END_OF_COMBAT -> append(". Until end of combat, you don't lose this mana as steps and phases end")
+            ManaExpiry.KEPT_UNTIL_END_OF_TURN -> append(". Until end of turn, you don't lose this mana as steps and phases end")
+            ManaExpiry.END_OF_TURN -> Unit
+        }
         for (rider in riders) append(". ${rider.description}")
     }
 }
@@ -447,9 +455,38 @@ enum class ManaColorSource {
     CraftedMaterials,
 }
 
-/** Lose every unit of unspent mana, including restricted and combat-duration mana. */
+/**
+ * Lose every unit of unspent mana, including restricted and combat-duration mana.
+ *
+ * [transferTo], when set, names the player who then adds exactly the mana lost this way
+ * ("…loses all unspent mana and you add the mana lost this way", Drain Power). Each unit keeps its
+ * colour, restriction, riders, expiry, snow mark and provenance; mana a replacement converted
+ * instead of losing was never lost, so it doesn't move.
+ */
 @SerialName("LoseUnspentMana")
 @Serializable
-data class LoseUnspentManaEffect(val target: EffectTarget = EffectTarget.Controller) : Effect {
-    override val description: String = "${target.description} loses all unspent mana"
+data class LoseUnspentManaEffect(
+    val target: EffectTarget = EffectTarget.Controller,
+    val transferTo: EffectTarget? = null
+) : Effect {
+    override val description: String = "${target.description} loses all unspent mana" +
+        (transferTo?.let { ", and ${it.description} adds the mana lost this way" } ?: "")
+}
+
+/**
+ * "<Its controller> activates a mana ability of [permanent]" — a mandatory activation made during
+ * resolution; the mana ability resolves immediately, off the stack (CR 605.3b).
+ *
+ * The permanent's controller activates one of its mana abilities whose costs they can pay; if it has
+ * none (a tapped land with only `{T}` abilities, a land with no mana ability), nothing happens. When
+ * it has several, or one with a choice of colour or amount, the controller makes those choices.
+ * Compose with `ForEachInCollection` for "activates a mana ability of each land they control"
+ * (Drain Power).
+ */
+@SerialName("ActivateManaAbility")
+@Serializable
+data class ActivateManaAbilityEffect(
+    val permanent: EffectTarget
+) : Effect {
+    override val description: String = "its controller activates a mana ability of ${permanent.description}"
 }

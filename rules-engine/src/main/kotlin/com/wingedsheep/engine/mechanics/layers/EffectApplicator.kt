@@ -39,11 +39,15 @@ internal class EffectApplicator(
      * projected keyword set can't hold two equal strings, so two "gains toxic 1" grants — or a
      * printed toxic 2 plus a granted toxic 2 — would otherwise collapse to one and lose the N the
      * readers sum (CR 702.164b's total toxic value, `KeywordValue`).
+     *
+     * Crew is the exception: each `CREW_<n>` is a separate crew ability, not a share of one total
+     * (a Vehicle with crew 3 that gains crew 1 can be crewed for 1, not 4), so distinct Ns sit side
+     * by side and the crew readers take the cheapest.
      */
     private fun addKeyword(keywords: MutableSet<String>, keyword: String) {
         val split = keyword.lastIndexOf('_')
         val n = if (split > 0) keyword.substring(split + 1).toIntOrNull() else null
-        if (n == null) {
+        if (n == null || keyword.startsWith(CREW_PREFIX)) {
             keywords.add(keyword)
             return
         }
@@ -69,7 +73,8 @@ internal class EffectApplicator(
             val ctx = ConditionEvaluationContext.Projection(
                 sourceId = effect.sourceId,
                 sourceValues = sourceValues,
-                projectedValues = projectedValues
+                projectedValues = projectedValues,
+                fallbackControllerId = effect.controllerId
             )
             if (!conditionEvaluator.evaluate(state, sourceCondition, ctx)) return
         }
@@ -203,8 +208,11 @@ internal class EffectApplicator(
                     // The cross-zone flags on the modification are read by StateProjector to build
                     // ProjectedState.crossZoneSubtypeGrants; Layer 4 projection here only ever
                     // touches battlefield permanents, so they're irrelevant to this branch.
-                    val chosenType = state.getEntity(effect.sourceId)
-                        ?.chosenCreatureType()
+                    // "The chosen type" is whichever type the source chose as it entered: a
+                    // creature type (Adaptive Automaton) or a basic land type (Thran Portal, whose
+                    // new land type then carries its intrinsic mana ability, CR 305.6).
+                    val source = state.getEntity(effect.sourceId)
+                    val chosenType = source?.chosenCreatureType() ?: source?.chosenLandType()
                     if (chosenType != null) {
                         values.types.add(chosenType)
                         values.subtypes.add(chosenType)
@@ -215,6 +223,7 @@ internal class EffectApplicator(
                 }
                 is Modification.RemoveType -> {
                     values.types.remove(mod.type)
+                    values.removedCardTypes.add(mod.type)
                 }
                 is Modification.SetCreatureSubtypes -> {
                     val creatureTypes = com.wingedsheep.sdk.core.Subtype.ALL_CREATURE_TYPES.toSet()
@@ -319,11 +328,11 @@ internal class EffectApplicator(
                         values.keywords.add("HEXPROOF_FROM_$colorName")
                     }
                 }
-                is Modification.GrantHexproofFromMonocolored -> {
-                    values.keywords.add("HEXPROOF_FROM_MONOCOLORED")
+                is Modification.GrantHexproofFrom -> {
+                    values.keywords.addAll(mod.keywords)
                 }
-                is Modification.GrantHexproofFromMulticolored -> {
-                    values.keywords.add("HEXPROOF_FROM_MULTICOLORED")
+                is Modification.GrantProtectionFrom -> {
+                    values.keywords.addAll(mod.keywords)
                 }
                 is Modification.GrantProtectionFromControlledColors -> {
                     // Protection from the colors of permanents the source's controller controls
@@ -412,6 +421,9 @@ internal class EffectApplicator(
                 is Modification.CanBlockAdditional -> {
                     values.additionalBlockCount += mod.count
                 }
+                is Modification.ManaAbilitiesCostLife -> {
+                    values.manaAbilityLifeTax += mod.amount
+                }
                 is Modification.CantBeBlockedExceptBy -> {
                     values.cantBeBlockedExceptByFilters.add(mod.blockerFilter)
                 }
@@ -435,8 +447,15 @@ internal class EffectApplicator(
                         values.toughness = (values.toughness ?: 0) + toughnessMod
                     }
                 }
+                is Modification.GrantStaticAbility -> {
+                    values.staticAbilities.add(mod.ability)
+                    values.staticAbilitySourceIds.add(effect.sourceId)
+                }
                 is Modification.RemoveAllAbilities -> {
                     values.keywords.clear()
+                    values.staticAbilities.clear()
+                    values.staticAbilitySourceIds.clear()
+                    values.manaAbilityLifeTax = 0
                     values.lostAllAbilities = true
                 }
                 is Modification.NoOp -> {
@@ -491,3 +510,6 @@ internal class EffectApplicator(
         }
     }
 }
+
+/** Prefix of a granted crew keyword ([com.wingedsheep.sdk.scripting.KeywordAbility.grantedCrew]); see `addKeyword`. */
+private val CREW_PREFIX = "${com.wingedsheep.sdk.core.Keyword.CREW.name}_"

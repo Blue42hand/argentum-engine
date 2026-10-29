@@ -75,7 +75,11 @@ enum class TriggerCategory {
     COMMIT_CRIME,
     CHOOSE_TARGETS,
     DISCARD,
+    MILLED,
     RING_TEMPTED,
+    VENTURED,
+    DUNGEON_COMPLETED,
+    DESIGNATION_TAKEN,
     CLASHED,
     SCRIED,
     SURVEILED,
@@ -89,6 +93,9 @@ enum class TriggerCategory {
     CONNIVED,
     EXPLOITED,
     TRAINED,
+    EVOLVED,
+    DIE_ROLLED,
+    ENLISTED,
     EXERTED,
     CHAMPIONED,
     YOU_BEND,
@@ -221,14 +228,16 @@ class TriggerIndex(
          */
         fun triggerToCategories(trigger: SdkGameEvent, binding: TriggerBinding): List<TriggerCategory> {
             // ATTACHED triggers are generally handled by AttachmentTriggerDetector via the
-            // aurasByTarget index. Two exceptions, both needing the full BlockersDeclaredEvent
-            // block map that the per-entity attachment path never sees, so both stay indexed under
+            // aurasByTarget index. Combat exceptions need the full BlockersDeclaredEvent
+            // block map that the per-entity attachment path never sees, so they stay indexed under
             // BLOCKERS_DECLARED and are handled in the main detectTriggersForEvent loop (which
             // resolves ATTACHED → the equipped/enchanted creature):
+            //   - BecomesBlockedEvent, to fire once per matching blocker (Infiltration Lens)
             //   - BlocksOrBecomesBlockedByEvent, to compute the combat partner (Barrow-Blade)
             //   - BecomesUnblockedEvent, whose "isn't blocked" is a *negative* over the whole map
             //     (Farrel's Mantle)
             if (binding == TriggerBinding.ATTACHED &&
+                trigger !is SdkGameEvent.BecomesBlockedEvent &&
                 trigger !is SdkGameEvent.BlocksOrBecomesBlockedByEvent &&
                 trigger !is SdkGameEvent.BecomesUnblockedEvent
             ) return emptyList()
@@ -247,14 +256,15 @@ class TriggerIndex(
                 is SdkGameEvent.CardRevealedFromDrawEvent -> listOf(TriggerCategory.CARD_REVEALED)
                 is SdkGameEvent.AttackEvent -> listOf(TriggerCategory.ATTACKERS_DECLARED)
                 is SdkGameEvent.YouAttackEvent -> listOf(TriggerCategory.ATTACKERS_DECLARED)
-                is SdkGameEvent.CreaturesAttackYouEvent -> listOf(TriggerCategory.ATTACKERS_DECLARED)
+                is SdkGameEvent.CreaturesAttackYouEvent ->
+                    listOf(if (trigger.unblocked) TriggerCategory.BLOCKERS_DECLARED else TriggerCategory.ATTACKERS_DECLARED)
                 is SdkGameEvent.CreaturesAttackYourOpponentEvent -> listOf(TriggerCategory.ATTACKERS_DECLARED)
                 is SdkGameEvent.BlockEvent -> listOf(TriggerCategory.BLOCKERS_DECLARED)
                 is SdkGameEvent.BecomesBlockedEvent -> listOf(TriggerCategory.BLOCKERS_DECLARED)
                 is SdkGameEvent.BecomesUnblockedEvent -> listOf(TriggerCategory.BLOCKERS_DECLARED)
                 is SdkGameEvent.BlocksOrBecomesBlockedByEvent -> listOf(TriggerCategory.BLOCKERS_DECLARED)
                 is SdkGameEvent.DamageReceivedEvent ->
-                    if (trigger.source == GameObjectFilter.Any) listOf(TriggerCategory.DAMAGE_RECEIVED) else emptyList()
+                    if (trigger.source == null) listOf(TriggerCategory.DAMAGE_RECEIVED) else emptyList()
                 is SdkGameEvent.SpellCastEvent -> listOf(TriggerCategory.SPELL_CAST)
                 is SdkGameEvent.NthSpellCastEvent -> listOf(TriggerCategory.SPELL_CAST)
                 is SdkGameEvent.SpellCopiedEvent -> listOf(TriggerCategory.SPELL_COPIED)
@@ -296,7 +306,13 @@ class TriggerIndex(
                 is SdkGameEvent.CommitCrimeEvent -> listOf(TriggerCategory.COMMIT_CRIME)
                 is SdkGameEvent.TargetsChosenEvent -> listOf(TriggerCategory.CHOOSE_TARGETS)
                 is SdkGameEvent.DiscardEvent -> listOf(TriggerCategory.DISCARD)
+                // Also a replacement filter (ModifyKeywordActionAmount); the index only sees it on
+                // triggered abilities, where it observes the CardsMilledEvent.
+                is SdkGameEvent.MillEvent -> MILLED_LIST
                 is SdkGameEvent.RingTemptedEvent -> RING_TEMPTED_LIST
+                is SdkGameEvent.VenturedIntoDungeonEvent -> VENTURED_LIST
+                is SdkGameEvent.DungeonCompletedEvent -> DUNGEON_COMPLETED_LIST
+                is SdkGameEvent.DesignationTakenEvent -> DESIGNATION_TAKEN_LIST
                 is SdkGameEvent.ClashedEvent -> CLASHED_LIST
                 is SdkGameEvent.ScriedEvent -> SCRIED_LIST
                 is SdkGameEvent.SurveiledEvent -> SURVEILED_LIST
@@ -312,7 +328,10 @@ class TriggerIndex(
                 is SdkGameEvent.ExploredEvent -> EXPLORED_LIST
                 is SdkGameEvent.ConnivedEvent -> CONNIVED_LIST
                 is SdkGameEvent.ExploitedEvent -> EXPLOITED_LIST
+                is SdkGameEvent.DieRolledEvent -> DIE_ROLLED_LIST
                 is SdkGameEvent.TrainedEvent -> TRAINED_LIST
+                is SdkGameEvent.EvolvedEvent -> EVOLVED_LIST
+                is SdkGameEvent.EnlistedEvent -> ENLISTED_LIST
                 is SdkGameEvent.ExertedAsItAttacksEvent -> EXERTED_LIST
                 is SdkGameEvent.ChampionedEvent -> CHAMPIONED_LIST
                 is SdkGameEvent.BendPerformedEvent -> BEND_LIST
@@ -334,8 +353,8 @@ class TriggerIndex(
                 // need data the per-event loop doesn't carry (the source face of a door, the damage
                 // source, the dying creature's damage history). DamagePreventedEvent and
                 // CardPlayedFromPermissionEvent back linked delayed triggers only. Indexing any of
-                // these here would fire them a second time. DamageReceivedEvent with a non-Any
-                // source filter goes to the damage detector too (branch above).
+                // these here would fire them a second time. DamageReceivedEvent with a source filter
+                // ("a source deals damage to this") goes to the damage detector too (branch above).
                 is SdkGameEvent.BecomesPlottedEvent,
                 is SdkGameEvent.CardPlayedFromPermissionEvent,
                 is SdkGameEvent.ControlChangeEvent,
@@ -352,8 +371,8 @@ class TriggerIndex(
                 is SdkGameEvent.ExtraTurnEvent,
                 is SdkGameEvent.CounterSpellEvent,
                 is SdkGameEvent.LifePaymentEvent,
-                is SdkGameEvent.MillEvent,
-                is SdkGameEvent.ScryEvent -> emptyList()
+                is SdkGameEvent.ScryEvent,
+                is SdkGameEvent.SurveilEvent -> emptyList()
 
                 // Synthetic: StateTriggerPoller produces these pending triggers directly.
                 is SdkGameEvent.StateConditionMetEvent -> emptyList()
@@ -386,7 +405,7 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.PhasedInEvent -> PHASES_IN_LIST
             is LifeChangedEvent -> when (event.reason) {
                 LifeChangeReason.LIFE_GAIN -> LIFE_GAIN_LIST
-                LifeChangeReason.DAMAGE, LifeChangeReason.LIFE_LOSS, LifeChangeReason.PAYMENT -> LIFE_LOSS_LIST
+                LifeChangeReason.DAMAGE, LifeChangeReason.LIFE_LOSS, LifeChangeReason.RADIATION, LifeChangeReason.PAYMENT -> LIFE_LOSS_LIST
             }
             is BecomesTargetEvent -> BECOMES_TARGET_LIST
             is TurnFaceUpEvent -> TURN_FACE_UP_LIST
@@ -397,7 +416,12 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.CommitCrimeEvent -> COMMIT_CRIME_LIST
             is com.wingedsheep.engine.core.TargetsChosenEvent -> CHOOSE_TARGETS_LIST
             is CardsDiscardedEvent -> DISCARD_LIST
+            is com.wingedsheep.engine.core.CardsMilledEvent -> MILLED_LIST
             is com.wingedsheep.engine.core.RingTemptedEvent -> RING_TEMPTED_LIST
+            is com.wingedsheep.engine.core.VenturedIntoDungeonEvent -> VENTURED_LIST
+            is com.wingedsheep.engine.core.DungeonCompletedEvent -> DUNGEON_COMPLETED_LIST
+            is com.wingedsheep.engine.core.InitiativeTakenEvent -> DESIGNATION_TAKEN_LIST
+            is com.wingedsheep.engine.core.MonarchChangedEvent -> DESIGNATION_TAKEN_LIST
             is com.wingedsheep.engine.core.ClashedEvent -> CLASHED_LIST
             is com.wingedsheep.engine.core.ScriedEvent -> SCRIED_LIST
             is com.wingedsheep.engine.core.SurveiledEvent -> SURVEILED_LIST
@@ -410,7 +434,10 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.PermanentExploredEvent -> EXPLORED_LIST
             is com.wingedsheep.engine.core.PermanentConnivedEvent -> CONNIVED_LIST
             is com.wingedsheep.engine.core.ExploitedEvent -> EXPLOITED_LIST
+            is com.wingedsheep.engine.core.DieRolledEvent -> DIE_ROLLED_LIST
             is com.wingedsheep.engine.core.TrainedEvent -> TRAINED_LIST
+            is com.wingedsheep.engine.core.EvolvedEvent -> EVOLVED_LIST
+            is com.wingedsheep.engine.core.EnlistedEvent -> ENLISTED_LIST
             is com.wingedsheep.engine.core.ExertedEvent -> EXERTED_LIST
             is com.wingedsheep.engine.core.ChampionedEvent -> CHAMPIONED_LIST
             is com.wingedsheep.engine.core.BendPerformedEvent -> BEND_LIST
@@ -443,7 +470,9 @@ class TriggerIndex(
             // TriggerCategory here and a branch in TriggerMatcher.
             is com.wingedsheep.engine.core.PlayerActionPermissionsChangedEvent,
             is com.wingedsheep.engine.core.PlayerActionTakenEvent,
+            is com.wingedsheep.engine.core.CompanionPutIntoHandEvent,
             is com.wingedsheep.engine.core.TurnEndedByEffectEvent,
+            is com.wingedsheep.engine.core.GameRestartedEvent,
             is com.wingedsheep.engine.core.TurnSkippedEvent,
             is com.wingedsheep.engine.core.AbilityAutoAnsweredEvent,
             is com.wingedsheep.engine.core.AbilityCounteredEvent,
@@ -471,6 +500,7 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.DecisionSubmittedEvent,
             is com.wingedsheep.engine.core.DiscardRequiredEvent,
             is com.wingedsheep.engine.core.DoorLockedEvent,
+            is com.wingedsheep.engine.core.AttackDeclarationCancelledEvent,
             is com.wingedsheep.engine.core.DrawFailedEvent,
             is com.wingedsheep.engine.core.EnduringStoryGainedEvent,
             is com.wingedsheep.engine.core.GameEndedEvent,
@@ -487,6 +517,8 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.ManaSpentEvent,
             is com.wingedsheep.engine.core.ManaPoolChangedEvent,
             is com.wingedsheep.engine.core.StaticAbilityGrantedEvent,
+            is com.wingedsheep.engine.core.CopiableCharacteristicsChangedEvent,
+            is com.wingedsheep.engine.core.CopiableTriggeredAbilityAddedEvent,
             is com.wingedsheep.engine.core.DamagePreventionShieldCreatedEvent,
             is com.wingedsheep.engine.core.BlockerDeclarationPolicyChangedEvent,
             is com.wingedsheep.engine.core.TextChangedEvent,
@@ -539,7 +571,11 @@ class TriggerIndex(
         private val COMMIT_CRIME_LIST = listOf(TriggerCategory.COMMIT_CRIME)
         private val CHOOSE_TARGETS_LIST = listOf(TriggerCategory.CHOOSE_TARGETS)
         private val DISCARD_LIST = listOf(TriggerCategory.DISCARD)
+        private val MILLED_LIST = listOf(TriggerCategory.MILLED)
         private val RING_TEMPTED_LIST = listOf(TriggerCategory.RING_TEMPTED)
+        private val VENTURED_LIST = listOf(TriggerCategory.VENTURED)
+        private val DUNGEON_COMPLETED_LIST = listOf(TriggerCategory.DUNGEON_COMPLETED)
+        private val DESIGNATION_TAKEN_LIST = listOf(TriggerCategory.DESIGNATION_TAKEN)
         private val CLASHED_LIST = listOf(TriggerCategory.CLASHED)
         private val SCRIED_LIST = listOf(TriggerCategory.SCRIED)
         private val SURVEILED_LIST = listOf(TriggerCategory.SURVEILED)
@@ -553,7 +589,10 @@ class TriggerIndex(
         private val EXPLORED_LIST = listOf(TriggerCategory.EXPLORED)
         private val CONNIVED_LIST = listOf(TriggerCategory.CONNIVED)
         private val EXPLOITED_LIST = listOf(TriggerCategory.EXPLOITED)
+        private val DIE_ROLLED_LIST = listOf(TriggerCategory.DIE_ROLLED)
         private val TRAINED_LIST = listOf(TriggerCategory.TRAINED)
+        private val EVOLVED_LIST = listOf(TriggerCategory.EVOLVED)
+        private val ENLISTED_LIST = listOf(TriggerCategory.ENLISTED)
         private val EXERTED_LIST = listOf(TriggerCategory.EXERTED)
         private val CHAMPIONED_LIST = listOf(TriggerCategory.CHAMPIONED)
         private val BEND_LIST = listOf(TriggerCategory.YOU_BEND)

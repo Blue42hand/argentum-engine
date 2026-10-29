@@ -11,6 +11,7 @@ data class PersistentTournamentLobby(
     val lobbyId: String,
     val setCodes: List<String> = emptyList(),
     val setNames: List<String> = emptyList(),
+    val useJumpstart: Boolean = false,
     val format: String = "SEALED",  // TournamentFormat enum name
     /**
      * Rules axis: [com.wingedsheep.sdk.core.GameRules] name, or **null for a row written before the
@@ -37,6 +38,10 @@ data class PersistentTournamentLobby(
     val cubeBasicLandSetCode: String? = null,
     val cubePackSize: Int? = null,
     val cubeDealerRemainingCardNames: List<String> = emptyList(),
+    /** `CubeBoosterStyle` name; null for lobbies persisted before booster-style cubes (= shuffled). */
+    val cubeBoosterStyle: String? = null,
+    /** Each cube card's rarity *in the cube*, which can differ from the card's own. */
+    val cubeCardRarities: Map<String, String> = emptyMap(),
     /** Cube Pool Play (no draft, whole cube as everyone's pool). Meaningless without a cube. */
     val cubePoolPlay: Boolean = false,
     val bannedCardNames: Set<String> = emptySet(),
@@ -59,8 +64,8 @@ data class PersistentTournamentLobby(
     val aiAssistEnabled: Boolean = true,
     /** Lobby mode axis: LobbyGameMode enum name ("TOURNAMENT" / "FREE_FOR_ALL"). */
     val gameMode: String = "TOURNAMENT",
-    /** FFA attack rule: AttackMode enum name ("MULTIPLE" / "LEFT" / "RIGHT"). */
-    val attackMode: String = "MULTIPLE",
+    /** FFA attack rule the host picked: AttackMode enum name ("MULTIPLE" / "LEFT" / "RIGHT"); null = the rules' default. */
+    val attackMode: String? = null,
     /** 2HG: true = random teams each game, false = host-set teams via [teamAssignments]. */
     val randomTeams: Boolean = true,
     /** 2HG manual team assignment: playerId -> team index (0 or 1). Empty when unset/random. */
@@ -89,6 +94,11 @@ data class PersistentLobbyPlayer(
     val playerId: String,
     val playerName: String,
     val token: String,
+    val jumpstartOffers: List<String> = emptyList(),
+    val jumpstartSelections: List<String> = emptyList(),
+    /** Legacy: written while picks were one at a time; read only to upgrade such a row. */
+    val jumpstartFirstOffers: List<String> = emptyList(),
+    val jumpstartSecondOffers: List<String> = emptyList(),
     val cardPoolNames: List<String>,  // Card names only
     val currentPackNames: List<String>? = null,  // Draft only: current pack cards
     val packQueueNames: List<List<String>> = emptyList(),  // Draft only: queued packs (async passing)

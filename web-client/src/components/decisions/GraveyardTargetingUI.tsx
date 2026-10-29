@@ -1,3 +1,4 @@
+import { compatibleSelectionPool } from '@/utils/selectionGroups'
 import { useState, useMemo } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import { ZoneType } from '@/types'
@@ -163,8 +164,12 @@ export function GraveyardTargetingUI({
           : 'up to one card'
         : `${numWord(minTargets)} to ${numWord(maxTargets)} cards`
 
-  const helperText = isOptionalTarget
+  const helperText = targetReq?.emptyChoiceLabel
+    ? 'Choose a new target, or keep the original target.'
+    : isOptionalTarget
     ? `Optional: choose ${countPhrase} to ${actionVerb}, or decline.`
+    : targetReq?.exclusiveGroups
+    ? `Choose ${countPhrase} to ${actionVerb}, one from each eligible ${pileNoun.toLowerCase()}.`
     : `Choose ${countPhrase} to ${actionVerb}.`
 
   // Lift selection state to persist across tab switches. Seeded from initialSelection so stepping
@@ -184,12 +189,14 @@ export function GraveyardTargetingUI({
         minSelections={minTargets}
         maxSelections={maxTargets}
         initialSelection={initialSelection}
+        selectionGroups={targetReq?.selectionGroups ?? null}
+        exclusiveGroups={targetReq?.exclusiveGroups ?? null}
         responsive={responsive}
         onConfirm={handleConfirm}
         confirmText={isOptionalTarget ? optionalConfirmText : 'Confirm Target'}
-        showFailToFind={isOptionalTarget}
-        failToFindText="Decline Trigger"
-        confirmRequiresSelection={isOptionalTarget}
+        showFailToFind={isOptionalTarget || !!targetReq?.emptyChoiceLabel}
+        failToFindText={targetReq?.emptyChoiceLabel ?? 'Decline Trigger'}
+        confirmRequiresSelection={isOptionalTarget || !!targetReq?.emptyChoiceLabel}
         sortByType={true}
         useGlobalHover={true}
         {...(onViewBattlefield ? { onViewBattlefield } : {})}
@@ -274,13 +281,15 @@ export function GraveyardTargetingUI({
         minSelections={minTargets}
         maxSelections={maxTargets}
         totalManaValueAtMost={targetReq?.totalManaValueAtMost ?? null}
+        selectionGroups={targetReq?.selectionGroups ?? null}
+        exclusiveGroups={targetReq?.exclusiveGroups ?? null}
         responsive={responsive}
         onConfirm={handleConfirm}
         onMinimize={() => setMinimized(true)}
         {...(onViewBattlefield ? { onViewBattlefield } : {})}
         confirmText={isOptionalTarget ? optionalConfirmText : 'Confirm Target'}
-        declineText={isOptionalTarget ? 'Decline Trigger' : undefined}
-        confirmRequiresSelection={isOptionalTarget}
+        declineText={targetReq?.emptyChoiceLabel ?? (isOptionalTarget ? 'Decline Trigger' : undefined)}
+        confirmRequiresSelection={isOptionalTarget || !!targetReq?.emptyChoiceLabel}
         {...(onBack ? { onBack } : {})}
       />
     </div>
@@ -292,6 +301,8 @@ export function GraveyardTargetingUI({
  * Now accepts selectedCards as a prop to persist across tab switches.
  */
 function GraveyardCardSelection({
+  selectionGroups,
+  exclusiveGroups,
   cards,
   selectedCards,
   onSelectedCardsChange,
@@ -313,6 +324,8 @@ function GraveyardCardSelection({
   minSelections: number
   maxSelections: number
   totalManaValueAtMost?: number | null
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
   responsive: ResponsiveSizes
   onConfirm: (selectedCards: EntityId[]) => void
   onMinimize: () => void
@@ -369,6 +382,7 @@ function GraveyardCardSelection({
       onSelectedCardsChange(selectedCards.filter((id) => id !== cardId))
       return
     }
+    if (maxSelections > 1 && !compatibleSelectionPool(cards.map((c) => c.id), selectionGroups, selectedCards, exclusiveGroups).includes(cardId)) return
     if (selectedCards.length >= maxSelections) {
       // Single-select slot at its cap: clicking a different card replaces the pick, the same rule
       // the board path uses (toggleDecisionSelection). It also unblocks a mixed

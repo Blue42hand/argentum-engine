@@ -56,7 +56,7 @@ export const BOOTSTRAP_SET_CODE = 'ECL'
  * pool alone (`startBlockReason` rejects an extension-only selection), and partial sets have a
  * knowingly incomplete pool.
  */
-function defaultSetCode(availableSets: readonly AvailableSet[]): string {
+export function defaultSetCode(availableSets: readonly AvailableSet[]): string {
   return availableSets.find((s) => s.code === BOOTSTRAP_SET_CODE)?.code
     ?? availableSets.find((s) => !s.extensionSet && !s.partial)?.code
     ?? BOOTSTRAP_SET_CODE
@@ -86,13 +86,18 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
     setPendingLobbyIntent({
       deckTab: deckTabFor(recipe),
       ...(recipe.deck.kind === 'SAVED' ? { deckName: recipe.deck.name } : {}),
+      ...(recipe.deck.kind === 'EXAMPLE' ? { exampleName: recipe.deck.name } : {}),
       autoStart: recipe.autoStart,
+      ...(recipe.autoStart && spec.kind === 'TOURNAMENT' && recipe.selection.roster === 'SOLO'
+        ? { startWhenSeated: 1 + recipe.aiSeats }
+        : {}),
       ...(notes.length > 0 ? { notes: [...notes] } : {}),
     })
 
     if (spec.kind === 'QUICK') {
-      // Everything a quick lobby has is a create-message field except the AI's deck, which is keyed
-      // on the lobby existing — so that one waits for the broadcast and the rest ride the create.
+      // Everything a quick lobby has is a create-message field except the AI's deck and your
+      // Random-deck sets, which are keyed on the lobby existing — so those wait for the broadcast
+      // and the rest ride the create.
       s.createQuickGameLobby(
         spec.vsAi,
         undefined,
@@ -102,7 +107,12 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
         settings.ranked ?? false,
       )
       const aiDeck = aiDeckSpecFor(recipe)
-      setPendingLobbyApply({ ...(aiDeck ? { aiDeck } : {}), aiSeats: 0 })
+      const randomSetCodes = recipe.deck.kind === 'RANDOM' ? recipe.deck.setCodes ?? [] : []
+      setPendingLobbyApply({
+        ...(aiDeck ? { aiDeck } : {}),
+        ...(randomSetCodes.length > 0 ? { randomSetCodes: [...randomSetCodes] } : {}),
+        aiSeats: 0,
+      })
       return
     }
 
@@ -141,6 +151,7 @@ export function useApplyRecipe(): (recipe: LobbyRecipe, notes?: readonly string[
  */
 function deckTabFor(recipe: LobbyRecipe): DeckPickerTab {
   if (recipe.deck.kind === 'RANDOM') return 'random'
+  if (recipe.deck.kind === 'EXAMPLE') return 'examples'
   return 'saved'
 }
 
@@ -160,6 +171,8 @@ function cubeUpdateFor(settings: RecipeSettings): PendingCubeUpdate | null {
     cubeBasicLandSetCode: cube.basicLandSetCode,
     packSize: cube.packSize,
     cubePoolPlay: cube.poolPlay,
+    ...(cube.boosterStyle ? { cubeBoosterStyle: cube.boosterStyle } : {}),
+    ...(cube.rarities ? { cubeRarities: { ...cube.rarities } } : {}),
   }
 }
 
@@ -177,6 +190,7 @@ function cubeUpdateFor(settings: RecipeSettings): PendingCubeUpdate | null {
  */
 function tournamentSettings(settings: RecipeSettings): PendingSettingsUpdate {
   return {
+    ...(settings.useJumpstart !== undefined ? { useJumpstart: settings.useJumpstart } : {}),
     ...(settings.boosterCount !== undefined ? { boosterCount: settings.boosterCount } : {}),
     ...(settings.boosterDistribution ? { boosterDistribution: { ...settings.boosterDistribution } } : {}),
     ...(settings.chaosBoosters !== undefined ? { chaosBoosters: settings.chaosBoosters } : {}),

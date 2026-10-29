@@ -96,6 +96,80 @@
     ]
 }
 
+// Blight Keeper
+{
+    "name": "Blight Keeper",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Bat Imp",
+    "oracleText": "Flying\n{7}{B}, {T}, Sacrifice this creature: Target opponent loses 4 life and you gain 4 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Blight Keeper:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{7}{B}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 4
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 4
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "92",
+        "artist": "Ben Wootten",
+        "flavorText": "It withers fruit and flesh alike.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3bcabe2d-82d2-4c1b-8f28-21dc29c9dbf2.jpg?1783935767"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Blinding Fog
 {
     "name": "Blinding Fog",
@@ -224,6 +298,75 @@
     "colorIdentityOverride": [
         "BLACK",
         "WHITE"
+    ]
+}
+
+// Captain Lannery Storm
+{
+    "name": "Captain Lannery Storm",
+    "manaCost": "{2}{R}",
+    "typeLine": "Legendary Creature — Human Pirate",
+    "oracleText": "Haste\nWhenever Captain Lannery Storm attacks, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nWhenever you sacrifice a Treasure, Captain Lannery Storm gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Captain Lannery Storm:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                },
+                "descriptionOverride": "Whenever Captain Lannery Storm attacks, create a Treasure token."
+            },
+            {
+                "id": "Captain Lannery Storm:2",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "artifact Treasure",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you sacrifice a Treasure, Captain Lannery Storm gets +1/+0 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "RARE",
+        "artist": "Chris Rallis",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/a/5ab86a8a-7a0a-473e-9a97-da2fe0ab866c.jpg?1783935752",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "Captain Lannery Storm's last ability triggers whenever you sacrifice a Treasure for any reason, not just to activate a Treasure's mana ability."
+            },
+            {
+                "date": "2017-09-29",
+                "text": "If you sacrifice Treasures to cast Captain Lannery Storm, its last ability won't trigger for those Treasures."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -1296,6 +1439,75 @@
     ]
 }
 
+// Firecannon Blast
+{
+    "name": "Firecannon Blast",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Firecannon Blast deals 3 damage to target creature.\nRaid — Firecannon Blast deals 6 damage instead if you attacked this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            "then": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 6
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                }
+            },
+            "otherwise": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 3
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "145",
+        "artist": "Svetlin Velinov",
+        "flavorText": "Goblins' fearlessness and diminutive size make them the perfect cannoneers.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b1f083c3-d7b0-4d3d-8551-af52c7883d83.jpg?1783935746"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Frenzied Raptor
 {
     "name": "Frenzied Raptor",
@@ -1442,7 +1654,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -1457,7 +1672,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -2154,6 +2372,68 @@
     ]
 }
 
+// Lookout's Dispersal
+{
+    "name": "Lookout's Dispersal",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "This spell costs {1} less to cast if you control a Pirate.\nCounter target spell unless its controller pays {4}.",
+    "script": {
+        "spellEffect": {
+            "type": "Counter",
+            "condition": {
+                "type": "CounterCondition.UnlessPaysMana",
+                "cost": "{4}"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                },
+                "gating": {
+                    "type": "OnlyIf",
+                    "condition": {
+                        "type": "Exists",
+                        "player": "You",
+                        "zone": "Battlefield",
+                        "filter": "permanent Pirate"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "62",
+        "rarity": "UNCOMMON",
+        "artist": "Ryan Yee",
+        "flavorText": "Her song plucks the strings of the storm, shifting wind and storm into a harmony that will carry her ship to safety.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f5751a3c-7695-4c47-9cbd-92fd5b1b7ec9.jpg?1783935780",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "Once you announce that you're casting Lookout's Dispersal, no player may take other actions until the spell's been paid for. Notably, players can't try to raise the spell's cost by removing your Pirates."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Looming Altisaur
 {
     "name": "Looming Altisaur",
@@ -2512,6 +2792,105 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Perilous Voyage
+{
+    "name": "Perilous Voyage",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Return target nonland permanent you don't control to its owner's hand. If its mana value was 2 or less, scry 2.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "EntityProperty",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "numericProperty": "ManaValue"
+                    },
+                    "operator": "LTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            },
+            "then": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Hand"
+                    },
+                    {
+                        "type": "Scry",
+                        "count": 2
+                    }
+                ]
+            },
+            "otherwise": {
+                "type": "MoveToZone",
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                },
+                "destination": "Hand"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsNonland",
+                            "IsPermanent"
+                        ],
+                        "controllerPredicate": {
+                            "type": "ControllerNot",
+                            "predicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "67",
+        "rarity": "UNCOMMON",
+        "artist": "Wesley Burt",
+        "flavorText": "For the first time in her life, Vraska tried to prevent death.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9f6623e-2784-4bc9-9d8c-3eee9c78c350.jpg?1783935777",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "If the target permanent is an illegal target by the time Perilous Voyage resolves, the entire spell doesn't resolve. You won't scry."
+            },
+            {
+                "date": "2017-09-29",
+                "text": "Use the permanent's mana value as it existed on the battlefield to determine whether you scry."
+            },
+            {
+                "date": "2017-09-29",
+                "text": "If a permanent has {X} in its mana cost, X is considered to be 0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2976,6 +3355,53 @@
     ]
 }
 
+// Rigging Runner
+{
+    "name": "Rigging Runner",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin Pirate",
+    "oracleText": "First strike\nRaid — This creature enters with a +1/+1 counter on it if you attacked this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true,
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "rarity": "UNCOMMON",
+        "artist": "Simon Dominic",
+        "flavorText": "The hook makes him feel brave, and the hat makes him feel fancy.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/eb9983ce-8ca6-450a-9cac-5396ba8e1690.jpg?1783935740"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Ripjaw Raptor
 {
     "name": "Ripjaw Raptor",
@@ -3280,6 +3706,49 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Shaper Apprentice
+{
+    "name": "Shaper Apprentice",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Merfolk Wizard",
+    "oracleText": "This creature has flying as long as you control another Merfolk.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "FLYING",
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "permanent Merfolk",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "artist": "Yongjae Choi",
+        "flavorText": "The River Heralds would wreck a thousand ships to keep intruders from finding the golden city.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/02955471-5ffc-4c7b-83fe-a69816415ca1.jpg?1783935774"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -3722,6 +4191,65 @@
     "colorIdentityOverride": []
 }
 
+// Storm Fleet Pyromancer
+{
+    "name": "Storm Fleet Pyromancer",
+    "manaCost": "{4}{R}",
+    "typeLine": "Creature — Human Pirate Wizard",
+    "oracleText": "Raid — When this creature enters, if you attacked this turn, this creature deals 2 damage to any target.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Storm Fleet Pyromancer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "163",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/ab5f5e45-2abb-43e1-aecb-97f0390282a7.jpg?1783935739"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Storm Fleet Spy
 {
     "name": "Storm Fleet Spy",
@@ -3769,6 +4297,88 @@
         "artist": "Scott Murphy",
         "flavorText": "\"They're searching in the same direction we are. And for the same thing, I'll wager.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/f/7/f7c33ef4-60bb-4f95-92a5-7abedaac6767.jpg?1782710448"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Storm Sculptor
+{
+    "name": "Storm Sculptor",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Merfolk Wizard",
+    "oracleText": "This creature can't be blocked.\nWhen this creature enters, return a creature you control to its owner's hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Storm Sculptor:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature",
+                                "player": "You"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Return a creature you control to its owner's hand",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, return a creature you control to its owner's hand."
+            }
+        ],
+        "staticAbilities": [
+            "CantBeBlocked"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "85",
+        "artist": "Sidharth Chaturvedi",
+        "flavorText": "In his hands, the wind can become a weapon or a means of escape.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/9532b735-8390-4379-ae43-2bd00d281dd6.jpg?1783935768",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "Storm Sculptor's last ability doesn't target the creature you'll return to hand. You choose one as the ability resolves. No player may take actions between the time you choose a creature to return and the time you do so."
+            },
+            {
+                "date": "2017-09-29",
+                "text": "Storm Sculptor's last ability isn't optional. If Storm Sculptor is the only creature you control when the ability resolves, you'll have to return it to its owner's hand."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLUE"
@@ -4519,7 +5129,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 7
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 7
+                                }
                             }
                         }
                     ]
@@ -4650,6 +5263,66 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Watertrap Weaver
+{
+    "name": "Watertrap Weaver",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Merfolk Wizard",
+    "oracleText": "When this creature enters, tap target creature an opponent controls. That creature doesn't untap during its controller's next untap step.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Watertrap Weaver:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "DOESNT_UNTAP",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "UntilAfterAffectedControllersNextUntap"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "artist": "Josu Hernaiz",
+        "flavorText": "The river is a powerful friend.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0d973568-d7b0-443f-a09d-44f6b02da5d4.jpg?1783935768"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

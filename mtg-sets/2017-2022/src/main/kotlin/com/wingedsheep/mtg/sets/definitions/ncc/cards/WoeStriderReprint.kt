@@ -3,6 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.ncc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Woe Strider reprint in NCC. Canonical CardDefinition lives in its earliest set.
+ */
 val WoeStriderReprint = Printing(
     oracleId = "3adbd963-e85d-4569-963a-4472594f06f9",
     name = "Woe Strider",

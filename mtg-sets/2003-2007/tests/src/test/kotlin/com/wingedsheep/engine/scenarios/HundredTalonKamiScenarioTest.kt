@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
@@ -51,8 +50,6 @@ class HundredTalonKamiScenarioTest : ScenarioTestBase() {
                 game.resolveStack()
                 game.isInGraveyard(1, "Hundred-Talon Kami") shouldBe true
 
-                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(true)
                 val decision = game.getPendingDecision()
                 decision.shouldBeInstanceOf<ChooseTargetsDecision>()
                 val ghostShip = game.findCardsInGraveyard(1, "Ghost Ship").single()

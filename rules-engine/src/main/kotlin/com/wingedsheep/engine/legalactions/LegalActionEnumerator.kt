@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.legalactions
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.TurnManager
 import com.wingedsheep.engine.handlers.ConditionEvaluator
@@ -45,6 +47,7 @@ class LegalActionEnumerator(
         CyclingEnumerator(),
         PlotEnumerator(),
         ForetellEnumerator(),
+        CompanionEnumerator(),
         SuspendEnumerator(),
         CastFromZoneEnumerator(predicateEvaluator = predicateEvaluator),
         ManaAbilityEnumerator(predicateEvaluator = predicateEvaluator),
@@ -94,7 +97,16 @@ class LegalActionEnumerator(
         }
 
         // Normal priority: enumerate all action categories
-        val offers = enumerators.flatMap { it.enumerate(context) }.filter { offer ->
+        val offers = (enumerators.flatMap { it.enumerate(context) } + optionalPaymentOffers(context)).filter { offer ->
+            val cast = offer.action as? com.wingedsheep.engine.core.CastSpell
+            if (cast != null && context.castPermissionUtils.blockedByResolvedCastRestriction(state, cast)) {
+                return@filter false
+            }
+            // A half that can only be cast from a particular zone (aftermath, CR 702.127a) — the
+            // same verdict the cast validator reaches through `reasonCannotCast`.
+            if (cast != null && context.castPermissionUtils.castFaceZoneFailure(state, cast) != null) {
+                return@filter false
+            }
             forced == null || when (val action = offer.action) {
                 is com.wingedsheep.engine.core.CastSpell -> action.cardId == forced.card.entityId
                 is com.wingedsheep.engine.core.PlayLand -> action.cardId == forced.card.entityId
@@ -109,7 +121,61 @@ class LegalActionEnumerator(
             offers
         }
         return com.wingedsheep.engine.legalactions.enumerators.AdditionalManaForCountersOffer
-            .annotate(context, permitted, predicateEvaluator = predicateEvaluator)
+            .annotate(context, permitted.map(::capXAtExactTargetCount), predicateEvaluator = predicateEvaluator)
+    }
+
+    /** Reuse every casting rail under an immutable declared-cost pricing context. */
+    private fun optionalPaymentOffers(context: EnumerationContext): List<LegalAction> {
+        val payments = costCalculator.optionalPayments(context.state, context.playerId)
+        if (payments.isEmpty()) return emptyList()
+        val groups = payments.groupBy { costCalculator.optionalModifier(context.state, it) }.values
+        // Identical instances have identical outcomes; offer each count, not every permutation.
+        var combinations = listOf(emptyList<com.wingedsheep.engine.core.CostModifierPayment>())
+        for (group in groups) combinations = combinations.flatMap { selected ->
+            (0..group.size).map { selected + group.take(it) }.filter { chosen ->
+                context.state.canPayLife(context.playerId, chosen.sumOf {
+                    costCalculator.optionalModifier(context.state, it)?.optionalLifePayment ?: 0
+                }, LifePaymentPurpose.CAST_SPELL)
+            }
+        }
+        return combinations.filter { it.isNotEmpty() }.flatMap { chosen ->
+            val life = chosen.sumOf { costCalculator.optionalModifier(context.state, it)?.optionalLifePayment ?: 0 }
+            val pricing = costCalculator.withOptionalPayments(chosen)
+            val variant = EnumerationContext(context.state, context.playerId, cardRegistry,
+                manaSolver.reservingLife(life), pricing, predicateEvaluator, conditionEvaluator, turnManager, context.mode)
+            enumerators.asSequence().filter {
+                it is CastSpellEnumerator || it is CastFromZoneEnumerator || it is SneakCastEnumerator ||
+                    it is EmergeCastEnumerator || it is AnnouncedCharacteristicsCastEnumerator || it is WebSlingingCastEnumerator
+            }.flatMap { it.enumerate(variant) }.mapNotNull { offer ->
+                val action = offer.action as? com.wingedsheep.engine.core.CastSpell ?: return@mapNotNull null
+                if (action.castFaceDown) return@mapNotNull null
+                val component = context.state.getEntity(action.cardId)
+                    ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>() ?: return@mapNotNull null
+                val printed = cardRegistry.getCard(component.cardDefinitionId) ?: return@mapNotNull null
+                val spell = pricing.optionalPaymentDefinition(context.state, action, printed)
+                val zone = context.state.logicalZone(action.cardId)?.zoneType
+                if (chosen.any { !pricing.optionalPaymentApplies(context.state, it, spell, context.playerId, zone,
+                    declaredCostSlot = action.declaredCostSlot) }) return@mapNotNull null
+                offer.copy(action = action.copy(optionalCostPayments = chosen), description = "${offer.description} — pay $life life")
+            }.toList()
+        }
+    }
+
+    /**
+     * "X target creatures" needs X distinct legal targets (CR 601.2c, 115.3), so an X larger than
+     * the legal targets can't be cast: cap [LegalAction.maxAffordableX] at the smallest such
+     * requirement's legal-target count, and the client's X picker never offers an X the cast would
+     * then be rejected for. The enumerated target list is permissive where an X-relative filter
+     * narrows it later, so this is an upper bound — the validator still has the last word.
+     */
+    private fun capXAtExactTargetCount(action: LegalAction): LegalAction {
+        val maxX = action.maxAffordableX ?: return action
+        val requirementCaps = action.targetRequirements.orEmpty()
+            .filter { it.xConstrainsCountExactly }
+            .map { it.validTargets.size }
+        val flatCap = if (action.xConstrainsTargetCountExactly) action.validTargets?.size else null
+        val cap = (requirementCaps + listOfNotNull(flatCap)).minOrNull() ?: return action
+        return if (cap < maxX) action.copy(maxAffordableX = cap) else action
     }
 
     /**
@@ -141,6 +207,7 @@ class LegalActionEnumerator(
             predicateEvaluator, conditionEvaluator, turnManager, mode,
         )
         return ManaAbilityEnumerator(predicateEvaluator = predicateEvaluator).enumerate(context) +
+            ZoneActivatedAbilityEnumerator(Zone.HAND, predicateEvaluator, manaOnly = true).enumerate(context) +
             PlayerActionEnumerator(manaOnly = true).enumerate(context)
     }
 

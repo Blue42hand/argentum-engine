@@ -66,18 +66,18 @@ class BladewingTheRisenTest : FunSpec({
         driver.castSpell(activePlayer, bladewing)
         driver.bothPass() // resolve Bladewing
 
-        // ETB trigger fires — the "you may" is asked first, then targets
-        driver.submitYesNo(activePlayer, true)
-        driver.submitTargetSelection(activePlayer, listOf(dragonInGraveyard))
+        // Choosing the ETB trigger's target is also its "you may" yes.
+        driver.submitTargetSelection(activePlayer, listOf(dragonInGraveyard)).error shouldBe null
 
-        // Trigger on stack — resolve it
+        // Trigger on stack — resolve it; no second yes/no is asked
         driver.bothPass()
+        driver.pendingDecision shouldBe null
 
         // Dragon should now be on the battlefield
         driver.findPermanent(activePlayer, "Test Dragon") shouldNotBe null
     }
 
-    test("ETB can be declined") {
+    test("ETB can be declined at its target prompt") {
         val driver = createDriver()
         driver.initMirrorMatch(
             deck = Deck.of("Swamp" to 20, "Mountain" to 20),
@@ -87,7 +87,7 @@ class BladewingTheRisenTest : FunSpec({
         val activePlayer = driver.activePlayer!!
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
-        driver.putCardInGraveyard(activePlayer, "Test Dragon")
+        val dragon = driver.putCardInGraveyard(activePlayer, "Test Dragon")
 
         val bladewing = driver.putCardInHand(activePlayer, "Bladewing the Risen")
         driver.giveMana(activePlayer, Color.BLACK, 2)
@@ -96,12 +96,14 @@ class BladewingTheRisenTest : FunSpec({
         driver.castSpell(activePlayer, bladewing)
         driver.bothPass()
 
-        // Decline the ETB trigger at its may-question
-        driver.submitYesNo(activePlayer, false)
-        driver.bothPass()
+        // Decline the ETB trigger with an empty target selection: it never goes on the stack
+        driver.submitTargetSelection(activePlayer, emptyList()).error shouldBe null
+        driver.pendingDecision shouldBe null
+        driver.state.stack.isEmpty() shouldBe true
 
         // Dragon should remain in graveyard
         driver.findPermanent(activePlayer, "Test Dragon") shouldBe null
+        driver.getGraveyardCardNames(activePlayer).contains("Test Dragon") shouldBe true
     }
 
     test("activated ability gives all Dragons +1/+1") {

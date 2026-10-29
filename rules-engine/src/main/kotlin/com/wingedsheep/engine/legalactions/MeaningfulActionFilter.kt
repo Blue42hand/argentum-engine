@@ -24,6 +24,12 @@ interface PriorityAction {
     val actionType: String
     val requiresTargets: Boolean
     val validTargets: List<EntityId>?
+
+    /**
+     * How many of [validTargets] the action must pick. `0` is an "up to N" requirement, which is
+     * castable with no legal target at all (Tam's Resistance on an empty board).
+     */
+    val minTargets: Int get() = 1
     val validAttackers: List<EntityId>?
     val validBlockers: List<EntityId>?
     val isManaAbility: Boolean
@@ -185,7 +191,8 @@ object MeaningfulActionFilter {
         // A targeted spell that cannot be legally targeted is invisible — casting it isn't
         // possible. Both shapes count: the single-requirement one whose `validTargets` is empty,
         // and the multi-requirement one with an unfillable mandatory slot.
-        if (action.requiresTargets && action.validTargets.isNullOrEmpty()) return false
+        // An "up to N" requirement (`minTargets == 0`) is the exception: it is cast choosing none.
+        if (action.requiresTargets && action.validTargets.isNullOrEmpty() && action.minTargets > 0) return false
         if (action.hasUnfillableTargetRequirement) return false
 
         // A non-mana activated ability is meaningful.
@@ -197,7 +204,7 @@ object MeaningfulActionFilter {
         if (action.actionType in SPELL_CAST_ACTION_TYPES ||
             action.actionType == "CycleCard" || action.actionType == "TypecycleCard" ||
             action.actionType == "PlotCard" || action.actionType == "ForetellCard" ||
-            action.actionType == "CrewVehicle"
+            action.actionType == "PutCompanionIntoHand" || action.actionType == "CrewVehicle"
         ) {
             return action.isAffordableAction
         }
@@ -280,6 +287,14 @@ object MeaningfulActionFilter {
             hasAttackers(state)
         ) {
             return AutoPassVerdict(false, "STOP (Stops mode): Combat damage step with attackers")
+        }
+
+        // Stops mode keeps the declare attackers step's priority window (CR 508.2) when no
+        // creature attacks, on either side of the table — including the turns where nothing could
+        // attack and the engine declared no attackers itself. Auto passes it below: there is
+        // nothing to respond to.
+        if (stopsMode && state.step == Step.DECLARE_ATTACKERS && !hasAttackers(state)) {
+            return STOP_STOPS_MODE_NO_ATTACKERS
         }
 
         // Never auto-pass the active player's own main phases.
@@ -553,6 +568,8 @@ object MeaningfulActionFilter {
     private val PASS_OWN_STACK_ITEM = AutoPassVerdict(true, "AUTO-PASS: Own spell/ability on top of stack")
     private val STOP_OWN_STACK_ITEM_BUT_HOLDING =
         AutoPassVerdict(false, "STOP: Own spell/ability on top of stack but player has holdPriority action")
+    private val STOP_STOPS_MODE_NO_ATTACKERS =
+        AutoPassVerdict(false, "STOP (Stops mode): Declare attackers step with no attackers")
     private val STOP_STOPS_MODE_OPPONENT_STACK =
         AutoPassVerdict(false, "STOP (Stops mode): Opponent's spell/ability on stack")
     private val PASS_OPPONENT_PERMANENT_SPELL =

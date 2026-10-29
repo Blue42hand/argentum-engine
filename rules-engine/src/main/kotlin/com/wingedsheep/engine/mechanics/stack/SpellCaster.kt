@@ -117,6 +117,7 @@ internal class SpellCaster(
         manaSpentOnXByColor: Map<Color, Int> = emptyMap(),
         phyrexianLifePips: Int = 0,
         faceIndex: Int? = null,
+        castFused: Boolean = false,
         spentManaProvenance: com.wingedsheep.engine.mechanics.mana.SpentManaProvenance =
             com.wingedsheep.engine.mechanics.mana.SpentManaProvenance(),
         castTimeFlags: Set<String> = emptySet(),
@@ -137,7 +138,7 @@ internal class SpellCaster(
         // Remove from current zone (typically hand). The spell is a new object (CR 400.7): a grant
         // left on the card by an earlier stack life that never resolved (a countered spell whose
         // cast trigger gave it an ability) must not follow it back onto the stack.
-        var newState = removeFromCurrentZone(state, cardId, casterId).withoutObjectGrants(cardId)
+        var newState = removeFromCurrentZone(state, cardId, casterId).withoutObjectGrants(cardId).withoutEscapeGrants(cardId)
         if (castFaceDown) {
             newState = clearRevealedMorphsInHand(newState, casterId)
         }
@@ -198,7 +199,7 @@ internal class SpellCaster(
         val splicedTargetsOrdered: List<List<ChosenTarget>> = if (splicedCardNames.isEmpty()) {
             emptyList()
         } else {
-            SpliceCasts.sliceSplicedTargets(effectiveTargets, splicedCardNames, cardRegistry)
+            SpliceCasts.sliceSplicedTargets(effectiveTargets, splicedCardNames, cardRegistry, effectiveTargetRequirements)
         }
 
         // Add spell components
@@ -219,6 +220,10 @@ internal class SpellCaster(
             modeDamageDistribution = modeDamageDistribution,
             sacrificedPermanents = sacrificedPermanents,
             castFaceDown = castFaceDown,
+            // Read off the authorizing permission before consumeCastPermissions spends it below.
+            turnsFaceUpInstead = castFaceDown && state.mayPlayPermissions.any {
+                it.castFaceDown && it.turnsFaceUpInstead && it.controllerId == casterId && cardId in it.cardIds
+            },
             damageDistribution = damageDistribution,
             chosenCreatureType = chosenCreatureType,
             exiledCardCount = exiledCardCount,
@@ -256,12 +261,26 @@ internal class SpellCaster(
             manaSpentOnXByColor = manaSpentOnXByColor,
             phyrexianLifePips = phyrexianLifePips,
             faceIndex = faceIndex,
+            castFused = castFused,
             castTimeFlags = castTimeFlags
         )
         newState = newState.updateEntity(cardId) { c ->
             withSpellComponents(
                 state, c, cardComponent, spellOnStack, effectiveTargets, effectiveTargetRequirements, castFaceDown
             )
+        }
+
+        // Aftermath (CR 702.127a): "If this spell was cast from a graveyard, exile it instead of
+        // putting it anywhere else any time it would leave the stack." Armed here, where every cast
+        // (a free cast during resolution included) puts its spell on the stack, as the on-any-exit
+        // rider the resolver, the fizzle path and every counter destination already honour.
+        if (com.wingedsheep.engine.mechanics.AftermathCasts.exilesOnLeavingStack(
+                cardRegistry.getCard(cardComponent.cardDefinitionId), faceIndex, castFromZone == Zone.GRAVEYARD
+            )
+        ) {
+            newState = newState.updateEntity(cardId) { c ->
+                c.with(com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent(onlyIfResolved = false))
+            }
         }
 
         // Commander tax bookkeeping (CR 903.8): increment castsFromCommandZone on cast-commit so
@@ -294,9 +313,12 @@ internal class SpellCaster(
         val spellName = if (castTransformed) {
             newState.getEntity(cardId)?.get<CardComponent>()?.name ?: cardComponent.name
         } else {
-            cardComponent.name
+            // CR 709.3b — a single split half on the stack has only that half's name. Other face
+            // casts (Adventure, prepare) keep the card's name, which name-keyed trackers rely on.
+            faceIndex?.let { cardRegistry.getCard(cardComponent.cardDefinitionId)?.takeIf { d -> d.isSplit }?.cardFaces?.getOrNull(it)?.name }
+                ?: cardComponent.name
         }
-        // Preserve SpellCastEvent.cardName's historical public-name contract. The trusted
+        // SpellCastEvent.cardName is the spell's public name (a split half's own name). The trusted
         // presentation snapshot below separately retains semantic identity and private audiences.
         val eventName = if (castFaceDown) FACE_DOWN_DISPLAY_NAME else spellName
         val targetNames = castTargetNames(newState, effectiveTargets, casterId)
@@ -391,12 +413,11 @@ internal class SpellCaster(
         // other caller — a synthesized cast that pays no mana cost at all — CR 107.3b is directly
         // on point: "the only legal choice for X is 0."
         //
-        // Binding it here rather than leaving null is load-bearing, not cosmetic: the resolution-time
-        // `CardPredicate.ManaValueAtMostX` fails *open* on an unbound X — deliberately, so an X spell
-        // is still offered during legal-action enumeration, which runs before X is chosen. Left null
-        // all the way to resolution, "each creature with mana value X or less" matches *every*
-        // creature, and Day of Black Sun cast for X=0 wipes the board. It is also what puts the
-        // "(X=0)" in the game log's cast line, which is otherwise silently absent.
+        // Binding it here rather than leaving null is load-bearing, not cosmetic: an X comparison
+        // left unbound all the way to resolution matches *nothing* (it fails open only during
+        // legal-action enumeration), so Day of Black Sun cast for X=0 would destroy no 0-drops. It
+        // is also what puts the "(X=0)" in the game log's cast line, which is otherwise silently
+        // absent.
         return xValue ?: run {
             val castCost = faceIndex
                 ?.let { cardRegistry.getCard(cardComponent.cardDefinitionId)?.cardFaces?.getOrNull(it)?.manaCost }
@@ -605,7 +626,7 @@ internal class SpellCaster(
 
         // Emit BecomesTargetEvent for each permanent, spell, or player target (Rule 601.2c)
         // Also track targeting for Valiant ("first time each turn")
-        for (target in effectiveTargets) {
+        for (target in effectiveTargets.distinct()) {
             newState = StackPlacement.emitBecomesTarget(newState, target, cardId, casterId, events, sourceIsSpell = true)
         }
         return newState

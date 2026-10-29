@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers.effects.copy
 
 import com.wingedsheep.engine.core.CardEntityFactory
 import com.wingedsheep.engine.state.ComponentContainer
+import com.wingedsheep.engine.state.components.identity.copiableNumericKeywords
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.NumericKeywordValuesComponent
 import com.wingedsheep.engine.state.components.identity.ToxicComponent
@@ -33,12 +34,10 @@ import com.wingedsheep.sdk.scripting.effects.CopyExceptions
  * tokens and silently did nothing on permanents. Keeping the arithmetic here means a new exception
  * is written once and every path above gets it.
  *
- * Not (yet) routed through here: the two paths whose only "except" clause is the single boolean
- * `removeLegendary` and which therefore have no arithmetic to share —
  * [com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfEquippedCreatureExecutor]
- * (Helm of the Host) and
- * [com.wingedsheep.engine.handlers.effects.stack.StormCopyEffectExecutor] (copies of *spells*,
- * CR 707.10, where the copy lives on the stack rather than as a permanent's copiable values).
+ * (Helm of the Host) also routes its nonlegendary exception here, so it applies to both flip halves.
+ * Spell copies also route through here via [com.wingedsheep.engine.mechanics.stack.StackPlacement]
+ * before placement, including characteristics used by prospective-copy target checks.
  *
  * Copiable values only: everything applied here lives on the [CardComponent], so it is itself
  * copiable (a later copy of the copy sees it) and it lasts exactly as long as the copy does.
@@ -75,13 +74,24 @@ object CopyExceptionApplier {
      *
      * A no-op fast path when the exceptions are empty, so a plain copy allocates nothing.
      */
-    fun apply(base: CardComponent, exceptions: CopyExceptions): CardComponent {
+    fun apply(
+        base: CardComponent,
+        exceptions: CopyExceptions,
+        resolvingTrigger: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
+        copierColors: Set<com.wingedsheep.sdk.core.Color> = emptySet(),
+        copierStats: CreatureStats? = null,
+    ): CardComponent {
         if (exceptions.isEmpty) return base
+        val addedTriggers = exceptions.addedTriggeredAbilities +
+            if (exceptions.retainResolvingTriggeredAbility && resolvingTrigger != null) listOf(resolvingTrigger)
+            else emptyList()
         return base.copy(
+            flipSide = base.flipSide?.let { apply(it, exceptions, resolvingTrigger, copierColors, copierStats) },
+            copyNumericKeywords = base.copyNumericKeywords + exceptions.addedNumericKeywords,
             name = exceptions.nameOverride ?: base.name,
             // Each instance gets its own identity, including two copies of a once-per-turn
             // trigger. Plain subsequent copies retain these ids rather than adding instances.
-            copyTriggeredAbilities = base.copyTriggeredAbilities + exceptions.addedTriggeredAbilities.mapIndexed { index, ability ->
+            copyTriggeredAbilities = base.copyTriggeredAbilities + addedTriggers.mapIndexed { index, ability ->
                 ability.copy(id = com.wingedsheep.sdk.scripting.AbilityId(
                     "copy:${base.copyTriggeredAbilities.size + index}:${ability.id.value}"
                 ))
@@ -92,9 +102,17 @@ object CopyExceptionApplier {
                 ))
             },
             typeLine = typeLine(base.typeLine, exceptions),
-            baseStats = baseStats(base.baseStats, exceptions),
-            baseKeywords = base.baseKeywords + exceptions.addedKeywords,
-            colors = exceptions.overrideColors ?: (base.colors + exceptions.addedColors),
+            // "Its power and toughness are equal to this creature's" keeps the copier's own base
+            // P/T — a prototyped copier's included (CR 718.3b). No copier (a minted token): unchanged.
+            baseStats = if (exceptions.retainPowerToughness && copierStats != null) copierStats
+                else baseStats(base.baseStats, exceptions),
+            // Color is already derived from the indicator/CDA in the stored characteristics.
+            // A color exception also omits the copied color-defining keyword (CR 707.9d).
+            baseKeywords = (if (exceptions.retainColors || exceptions.overrideColors != null ||
+                exceptions.addedColors.isNotEmpty()) base.baseKeywords - Keyword.DEVOID
+                else base.baseKeywords) + exceptions.addedKeywords,
+            colors = if (exceptions.retainColors) copierColors
+                else exceptions.overrideColors ?: (base.colors + exceptions.addedColors),
             // "…and it has no mana cost" (Embalm / Eternalize, CR 702.128a) — mana value 0, and
             // that 0 is itself a copiable value.
             manaCost = if (exceptions.noManaCost) ManaCost.ZERO else base.manaCost,
@@ -110,20 +128,17 @@ object CopyExceptionApplier {
      * entity creation into [ToxicComponent] / [NumericKeywordValuesComponent] — so a copy path that
      * builds its entity from a copied [CardComponent] alone silently loses them. Reading them off
      * [source]'s components (rather than its definition) is what makes a copy of a copy right: the
-     * first copy's components already carry its own exception-added values.
+     * first copy's components already carry its own exception-added values. A flipped source is
+     * different: its active components describe the alternative half, while a new token enters
+     * upright. Rebuild that half from its definition and frozen copy-added abilities instead.
      */
     fun withNumericKeywords(
         copy: ComponentContainer,
         source: ComponentContainer,
         exceptions: CopyExceptions,
+        registry: com.wingedsheep.engine.registry.CardRegistry? = null,
     ): ComponentContainer {
-        val numeric = buildList {
-            source.get<ToxicComponent>()?.let { add(KeywordAbility.Numeric(Keyword.TOXIC, it.amount)) }
-            source.get<NumericKeywordValuesComponent>()?.values?.forEach { (keyword, n) ->
-                add(KeywordAbility.Numeric(keyword, n))
-            }
-            addAll(exceptions.addedNumericKeywords)
-        }
+        val numeric = source.copiableNumericKeywords(registry) + exceptions.addedNumericKeywords
         return CardEntityFactory.applyNumericKeywords(
             copy.without<ToxicComponent>().without<NumericKeywordValuesComponent>(),
             numeric,

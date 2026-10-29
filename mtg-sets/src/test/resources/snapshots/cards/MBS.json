@@ -85,6 +85,103 @@
     ]
 }
 
+// Consecrated Sphinx
+{
+    "name": "Consecrated Sphinx",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Creature — Sphinx",
+    "oracleText": "Flying\nWhenever an opponent draws a card, you may draw two cards.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Consecrated Sphinx:1",
+                "trigger": {
+                    "type": "DrawEvent",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "rarity": "MYTHIC",
+        "artist": "Mark Zug",
+        "flavorText": "Blessed by the hands of Jin-Gitaxias.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7f6b20c-9871-433c-8557-44493447e914.jpg?1783941389",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "You may either draw two cards or not draw at all. You can't choose to draw only one card."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "The ability triggers once for each card an opponent draws. You choose whether to draw two cards as each of those abilities resolves."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "If each player controls a Consecrated Sphinx, their abilities will cause each other to trigger until one player chooses not to draw cards."
+            }
+        ]
+    }
+}
+
+// Go for the Throat
+{
+    "name": "Go for the Throat",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target nonartifact creature.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature nonartifact"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "rarity": "UNCOMMON",
+        "artist": "David Rapoza",
+        "flavorText": "Having flesh is increasingly a liability on Mirrodin.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1c665cfc-7e9a-444b-96b5-e8e4ef57a98a.jpg?1783941384"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Green Sun's Zenith
 {
     "name": "Green Sun's Zenith",
@@ -107,7 +204,12 @@
                                     "type": "HasColor",
                                     "color": "GREEN"
                                 },
-                                "ManaValueAtMostX"
+                                {
+                                    "type": "CompareNumericProperty",
+                                    "property": "MANA_VALUE",
+                                    "operator": "LTE",
+                                    "amount": "XValue"
+                                }
                             ]
                         }
                     },
@@ -124,7 +226,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a creature green card with mana value at most X to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
                 },
                 {
                     "type": "MoveCollection",
@@ -186,6 +290,62 @@
         "imageUri": "https://cards.scryfall.io/normal/front/4/9/49b913f3-6581-45ae-9cdb-274c2ccd8899.jpg?1783941369"
     },
     "colorIdentityOverride": []
+}
+
+// Kuldotha Flamefiend
+{
+    "name": "Kuldotha Flamefiend",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Elemental",
+    "oracleText": "When this creature enters, you may sacrifice an artifact. If you do, this creature deals 4 damage divided as you choose among any number of targets.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kuldotha Flamefiend:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "artifact"
+                        }
+                    },
+                    "then": {
+                        "type": "DividedDamage",
+                        "totalDamage": 4,
+                        "minTargets": 0,
+                        "maxTargets": 4
+                    },
+                    "descriptionOverride": "You may sacrifice an artifact. If you do, this creature deals 4 damage divided as you chose among the targets."
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "count": 4,
+                    "minCount": 0,
+                    "optional": true
+                },
+                "descriptionOverride": "You may sacrifice an artifact. If you do, this creature deals 4 damage divided as you choose among any number of targets."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "rarity": "UNCOMMON",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/8/189fea03-24db-4574-bbc2-4d3bc9e629a5.jpg?1783941378"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
 }
 
 // Lumengrid Gargoyle
@@ -285,6 +445,63 @@
     ]
 }
 
+// Nested Ghoul
+{
+    "name": "Nested Ghoul",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Phyrexian Zombie Warrior",
+    "oracleText": "Whenever a source deals damage to this creature, create a 2/2 black Phyrexian Zombie creature token.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nested Ghoul:1",
+                "trigger": {
+                    "type": "DamageReceivedEvent",
+                    "source": {}
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Phyrexian",
+                        "Zombie"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/4/6/46769d11-a7ae-43ac-8c00-e1681955949b.jpg?1783941356"
+                },
+                "descriptionOverride": "Whenever a source deals damage to this creature, create a 2/2 black Phyrexian Zombie creature token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Kendall",
+        "flavorText": "\"The chest cavity is cleared of useless meat. I know just what to do with the space.\"\n—Gyed, Vault Priest",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c035ff58-9df3-4db4-b9d0-97d58080ecfe.jpg?1783941383",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Nested Ghoul's ability will trigger if a source with infect deals damage to it."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If multiple sources deal damage to Nested Ghoul simultaneously (because it was blocked by multiple creatures, for example), the ability will trigger for each source dealing damage to Nested Ghoul."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Ogre Resister
 {
     "name": "Ogre Resister",
@@ -303,6 +520,112 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Pierce Strider
+{
+    "name": "Pierce Strider",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Phyrexian Construct",
+    "oracleText": "When this creature enters, target opponent loses 3 life.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Pierce Strider:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, target opponent loses 3 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "UNCOMMON",
+        "artist": "Igor Kieryluk",
+        "flavorText": "\"Pain isn't a negative stimulus. Pain is a sign of your imperfection.\"\n—Sheoldred, Whispering One",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/8/88b449a5-634f-47b1-a757-86a6849f6777.jpg?1783941365"
+    },
+    "colorIdentityOverride": []
+}
+
+// Psychosis Crawler
+{
+    "name": "Psychosis Crawler",
+    "manaCost": "{5}",
+    "typeLine": "Artifact Creature — Phyrexian Horror",
+    "oracleText": "Psychosis Crawler's power and toughness are each equal to the number of cards in your hand.\nWhenever you draw a card, each opponent loses 1 life.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Count",
+                "player": "You",
+                "zone": "Hand"
+            }
+        },
+        "toughness": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Count",
+                "player": "You",
+                "zone": "Hand"
+            }
+        }
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Psychosis Crawler:1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "126",
+        "rarity": "RARE",
+        "artist": "Stephan Martiniere",
+        "flavorText": "\"If that brain can't figure out the secret of the serum, then add more brains.\"\n—Rhmir, Hand of the Augur",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4dd84701-857e-4948-8cb8-39b8a321a177.jpg?1783941364",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "If an effect causes you to draw multiple cards, Psychosis Crawler will trigger that many times."
+            }
+        ]
+    }
 }
 
 // Quilled Slagwurm

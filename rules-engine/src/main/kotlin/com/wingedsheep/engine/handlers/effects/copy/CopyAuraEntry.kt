@@ -14,7 +14,11 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
-/** Attachment choices use the resulting identity without installing it in the old zone. */
+/**
+ * Aura attachment choices use the resulting identity without installing it in the old zone.
+ * Ordinary Auras share this prepare/replay path with copied Auras, retaining the whole move
+ * instruction (including effect-supplied entry counters) across their attachment decision.
+ */
 object CopyAuraEntry {
     data class Preparation(val context: EffectContext, val pause: EffectResult? = null)
 
@@ -46,13 +50,13 @@ object CopyAuraEntry {
         state: GameState, effect: Effect, context: EffectContext, entrants: Map<EntityId, EntityId>,
         registry: CardRegistry, finder: TargetFinder, evaluator: PredicateEvaluator,
     ): Preparation {
-        if (context.entryCopies.isEmpty()) return Preparation(context)
         var prepared = context
         val order = state.apnapOrder.withIndex().associate { it.value to it.index }
         for ((id, controller) in entrants.entries.sortedBy { order[it.value] ?: Int.MAX_VALUE }) {
-            val choice = context.entryCopies[id]?.takeIf { it.copiedCard != null } ?: continue
+            val choice = context.entryCopies[id]?.takeIf { it.copiedCard != null }
             if (id in prepared.entryAuraHosts) continue
-            val card = EffectCopyEntry.apply(state, id, choice).getEntity(id)?.get<CardComponent>() ?: continue
+            val card = (if (choice != null) EffectCopyEntry.apply(state, id, choice) else state)
+                .getEntity(id)?.get<CardComponent>() ?: continue
             if (!card.isAura) continue
             val hosts = legalHosts(state, id, card, controller, registry, finder, evaluator).filter { it !in entrants }
             val specified = (effect as? MoveCollectionEffect)?.attachTo

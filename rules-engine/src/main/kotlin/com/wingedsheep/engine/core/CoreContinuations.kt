@@ -73,7 +73,12 @@ data class TriggeredAbilityContinuation(
     val interveningIf: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
     /** The ability is a backup ability — see
      *  [com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent.isBackup]. */
-    val isBackup: Boolean = false
+    val isBackup: Boolean = false,
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
+    /** The target decision doubles as the ability's "you may" question: an empty answer declines
+     *  the ability, a target answers yes (see
+     *  [com.wingedsheep.engine.event.TriggerProcessor.consentAnswerableAtTargeting]). */
+    val consentAtTargeting: Boolean = false
 ) : AnswerContinuation
 
 /**
@@ -116,7 +121,8 @@ data class TriggerDamageDistributionContinuation(
     /** The ability's intervening-"if" (CR 603.4), preserved across the distribution decision so the
      *  stack object built on resume can re-check it as it resolves. */
     val interveningIf: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
-    val isBackup: Boolean = false
+    val isBackup: Boolean = false,
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 ) : AnswerContinuation
 
 /**
@@ -271,18 +277,8 @@ data class BeholdContinuation(
     val otherwise: Effect? = null,
 ) : AnswerContinuation
 
-/**
- * Resume placing a triggered ability on the stack after the player answers a "may" question.
- *
- * When a triggered ability has both a bare "may" gate (a [Gate.MayDecide] with no `otherwise` —
- * the lowered `Effects.May`, recognized via `Effect.asMayDecide`) and targets (like Invigorating
- * Boon's "you may put a +1/+1 counter on target creature"), the may question is asked FIRST.
- * If the player says yes, we then proceed to target selection.
- * If the player says no, the trigger is skipped entirely.
- *
- * @property trigger The full pending trigger to process if the player says yes
- * @property targetRequirement The target requirement for the ability
- */
+/** An already suspended pre-resolution consent question from a saved game. New triggers
+ * announce targets first and use GatedEffectContinuation for resolution consent. */
 @Serializable
 data class MayTriggerContinuation(
     val trigger: PendingTrigger,
@@ -311,25 +307,6 @@ data class TriggerOpponentChooserContinuation(
     val trigger: PendingTrigger,
     val targetRequirement: TargetRequirement,
     val opponentIds: List<EntityId>
-) : AnswerContinuation
-
-/**
- * Resume after the controller answers a [com.wingedsheep.engine.core.BatchYesNoDecision] raised on
- * behalf of a run of structurally identical optional ("you may … target …") triggers.
- *
- * The run shares one may-question; on resume the answer is fanned back out:
- *  - "yes to all" unwraps the may-gate on every trigger in [triggers] and processes them as ordinary
- *    targeted triggers (each then chooses its own target via the existing per-trigger machinery);
- *  - "no to all" drops the whole run;
- *  - a peel-off answer ("yes/no to this one") resolves [triggers].first() that way and re-runs the
- *    rest (which re-batch if still ≥ 2), so the player can change their mind partway.
- *
- * Triggers after the run are queued separately as a [PendingTriggersContinuation] beneath this frame
- * when the batch is raised, so they resume in APNAP order regardless of the answer.
- */
-@Serializable
-data class BatchMayTriggerContinuation(
-    val triggers: List<PendingTrigger>,
 ) : AnswerContinuation
 
 /**

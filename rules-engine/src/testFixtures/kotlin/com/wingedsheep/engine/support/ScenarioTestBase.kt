@@ -502,6 +502,8 @@ abstract class ScenarioTestBase : FunSpec() {
         private fun createCard(cardName: String, ownerId: EntityId): EntityId {
             val cardDef = cardRegistry.getCard(cardName)
                 ?: error("Card not found in registry: $cardName")
+            // As GameInitializer does: owners order graveyard arrivals only once a card reads it.
+            if (cardDef.readsGraveyardOrder) state = state.copy(preserveGraveyardOrder = true)
 
             val cardId = EntityId.of("card-${entityIdCounter.incrementAndGet()}")
 

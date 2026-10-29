@@ -3,16 +3,22 @@ package com.wingedsheep.mtg.sets.definitions.bro.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
-/** Blanchwood Prowler — The Brothers' War #172. */
+/**
+ * Blanchwood Prowler — The Brothers' War #172
+ * {1}{G} · Creature — Elemental · 1/1
+ *
+ * When this creature enters, mill three cards. You may put a land card from among the cards
+ * milled this way into your hand. If you don't, put a +1/+1 counter on this creature.
+ *
+ * Same shape as Ravenous Gigamole / Ostrich-Horse: gather the top three, mill them, then choose
+ * up to one land card among them for hand; an empty choice (declined, or no land milled) puts
+ * the +1/+1 counter on this creature instead.
+ */
 val BlanchwoodProwler = card("Blanchwood Prowler") {
     manaCost = "{1}{G}"
     colorIdentity = "G"
@@ -26,8 +32,7 @@ val BlanchwoodProwler = card("Blanchwood Prowler") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmounts.fixed(3), Player.You))
-            toGraveyard(milled)
+            val milled = mill(3)
             val lands = filter(milled, GameObjectFilter.Land)
             val chosen = chooseUpTo(1, from = lands)
             ifNotEmpty(chosen) {

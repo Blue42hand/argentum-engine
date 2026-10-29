@@ -72,7 +72,7 @@ object TrivialDecisions {
                 decision.maxTotalManaValue != null ||
                 decision.minTotalManaValue != null ||
                 decision.maxTotalPower != null ||
-                decision.conditionalMinimums.isNotEmpty()
+                decision.conditionalMinimums.isNotEmpty() || decision.selectionLimits != null
             if (decision.options.size <= 1 &&
                 !hasStateDependentConstraints &&
                 decision.minSelections == decision.options.size &&

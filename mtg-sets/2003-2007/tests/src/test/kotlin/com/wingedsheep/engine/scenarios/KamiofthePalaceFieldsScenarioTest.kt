@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
@@ -52,8 +51,6 @@ class KamiofthePalaceFieldsScenarioTest : ScenarioTestBase() {
                 game.resolveStack()
                 game.isInGraveyard(1, "Kami of the Palace Fields") shouldBe true
 
-                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(true)
                 val decision = game.getPendingDecision()
                 decision.shouldBeInstanceOf<ChooseTargetsDecision>()
                 val kumo = game.findCardsInGraveyard(1, "Venerable Kumo").single()

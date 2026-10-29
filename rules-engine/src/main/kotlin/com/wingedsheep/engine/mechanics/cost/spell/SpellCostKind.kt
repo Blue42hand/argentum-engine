@@ -128,9 +128,10 @@ class SpellCostEnumeration(
     val castCardId: EntityId,
     val costUtils: CostEnumerationUtils,
     val predicateEvaluator: PredicateEvaluator,
+    val reservedLife: Int = 0,
 ) {
     constructor(context: EnumerationContext, castCardId: EntityId) :
-        this(context.state, context.playerId, castCardId, context.costUtils, context.predicateEvaluator)
+        this(context.state, context.playerId, castCardId, context.costUtils, context.predicateEvaluator, context.reservedLife)
 }
 
 /**
@@ -138,6 +139,7 @@ class SpellCostEnumeration(
  * candidate pool it contributes; the enumerator turns the result into one `AdditionalCostData`.
  */
 class SpellCostOffer {
+    var lifeRequired = 0
     val sacrificeTargets = mutableListOf<EntityId>()
     var variableSacrificeTargets = emptyList<EntityId>()
     var variableSacrificeReduction = 0
@@ -201,6 +203,13 @@ class SpellCostLedger(
 
     val sacrificedSnapshots = mutableListOf<EntitySnapshot>()
     var exiledCardCount = 0
+
+    /**
+     * The X an additional cost defined as it was paid — "exile X cards from your graveyard" names
+     * the spell's X (CR 107.3a), so the number exiled *is* X. Null when no paid cost defines X; the
+     * spell's X then comes from its `{X}` alone.
+     */
+    var costDefinedX: Int? = null
     val beheldCards = mutableListOf<EntityId>()
 
     /** Creatures tapped for convoke, with their entry stamps (CR 702.51c) — `SpellOnStackComponent.convokedCreatures`. */

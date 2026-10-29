@@ -75,7 +75,8 @@ object DependentTargetSelection {
         requirements: List<TargetRequirement>,
         chosen: List<List<EntityId>>,
         context: PredicateContext,
-        targetFinder: TargetFinder
+        targetFinder: TargetFinder,
+        targetingSourceType: TargetingSourceType = TargetingSourceType.TRIGGERED_ABILITY
     ): List<EntityId> {
         require(requirements.all { req -> req !is TargetObject || req.filter.zone == Zone.BATTLEFIELD } &&
             requirements.dropLast(1).all { req -> req.count == 1 && !req.unlimited }) {
@@ -88,7 +89,7 @@ object DependentTargetSelection {
             return targetFinder.findLegalTargets(
                 state, requirements[prefix.size], context.controllerId,
                 sourceId = context.sourceId,
-                targetingSourceType = TargetingSourceType.TRIGGERED_ABILITY,
+                targetingSourceType = targetingSourceType,
                 triggeringEntityId = context.triggeringEntityId,
                 pipelineContext = context.copy(
                     targets = prefixTargets,
@@ -100,9 +101,32 @@ object DependentTargetSelection {
             if (canStopAt(requirements, prefix.size)) return true
             val next = requirements[prefix.size]
             // The multi-target last slot completes with enough legal targets for its minimum.
-            if (prefix.size == requirements.lastIndex) return candidates(prefix).size >= next.effectiveMinCount
+            if (prefix.size == requirements.lastIndex) return com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality
+                .eligible(state, candidates(prefix), next).size >= next.effectiveMinCount
             return candidates(prefix).any { canComplete(prefix + listOf(listOf(it))) }
         }
-        return candidates(chosen).filter { canComplete(chosen + listOf(listOf(it))) }
+        val legal = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.eligible(state, candidates(chosen), requirements[chosen.size])
+        return legal.filter { canComplete(chosen + listOf(listOf(it))) }
+    }
+
+    /**
+     * Every slot's [legalNext] choices for every prefix the earlier slots can produce, keyed by the
+     * comma-joined earlier picks — the table a client walks slot by slot without a round trip.
+     */
+    fun prefixTables(
+        state: GameState,
+        requirements: List<TargetRequirement>,
+        context: PredicateContext,
+        targetFinder: TargetFinder,
+        targetingSourceType: TargetingSourceType = TargetingSourceType.TRIGGERED_ABILITY
+    ): List<Map<String, List<EntityId>>> {
+        val tables = requirements.map { linkedMapOf<String, List<EntityId>>() }
+        fun visit(prefix: List<List<EntityId>>) {
+            val legal = legalNext(state, requirements, prefix, context, targetFinder, targetingSourceType)
+            tables[prefix.size][prefix.flatten().joinToString(",")] = legal
+            if (prefix.size < requirements.lastIndex) legal.forEach { visit(prefix + listOf(listOf(it))) }
+        }
+        visit(emptyList())
+        return tables
     }
 }

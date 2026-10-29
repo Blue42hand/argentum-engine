@@ -24,7 +24,9 @@ class SelectCardsHandler : AiDecisionHandler<SelectCardsDecision> {
         state: ClientGameState,
         labels: Map<EntityId, String>
     ) {
-        sb.appendLine("Select ${decision.minSelections}-${decision.maxSelections} card(s):")
+        if (decision.selectionLimits != null) {
+            sb.appendLine("Allocate exactly ${decision.maxSelections} counters or decline with NONE. Repeat an option letter for each counter allocated there.")
+        } else sb.appendLine("Select ${decision.minSelections}-${decision.maxSelections} card(s):")
         for ((j, eid) in decision.options.withIndex()) {
             val card = state.cards[eid]
             val info = decision.cardInfo?.get(eid)
@@ -39,7 +41,8 @@ class SelectCardsHandler : AiDecisionHandler<SelectCardsDecision> {
                 val oracle = card?.oracleText
                 if (!oracle.isNullOrBlank()) append(" — \"${oracle.flattenOracle()}\"")
             }
-            sb.appendLine("  [$letter] $name$details")
+            val capacity = decision.selectionLimits?.get(eid)?.let { " — capacity $it" }.orEmpty()
+            sb.appendLine("  [$letter] $name$details$capacity")
         }
     }
 
@@ -49,10 +52,17 @@ class SelectCardsHandler : AiDecisionHandler<SelectCardsDecision> {
         state: ClientGameState,
         parser: AiResponseParser
     ): DecisionResponse? {
-        val indices = parser.parseMultipleSelections(response, decision.options.size - 1)
+        if (decision.selectionLimits != null && response.trim().equals("NONE", ignoreCase = true)) {
+            return CardsSelectedResponse(decision.id, emptyList())
+        }
+        val indices = parser.parseMultipleSelections(response, decision.options.size - 1,
+            allowRepeated = decision.selectionLimits != null)
         return if (indices != null) {
             val selected = indices.map { decision.options[it] }
-            CardsSelectedResponse(decisionId = decision.id, selectedCards = selected)
+            val answer = CardsSelectedResponse(decisionId = decision.id, selectedCards = selected)
+            if (decision.selectionLimits != null &&
+                com.wingedsheep.engine.handlers.actions.decision.DecisionValidators.validate(decision, answer) != null) null
+            else answer
         } else null
     }
 

@@ -1,3 +1,338 @@
+// Deadly Rollick
+{
+    "name": "Deadly Rollick",
+    "manaCost": "{3}{B}",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nExile target creature.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Exile"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "condition": {
+                "type": "Exists",
+                "player": "You",
+                "zone": "Battlefield",
+                "filter": {
+                    "cardPredicates": [
+                        "IsPermanent"
+                    ],
+                    "statePredicates": [
+                        "IsCommander"
+                    ]
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "Otrimi was disappointed at how quickly its new friend got tired and stopped playing.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c61fa2c0-63c0-4dc2-9f17-5a00530e3348.jpg?1783931217",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "It doesn't matter whose commander you control. Any one will do. If you have two commanders, you just need to control one of them."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Deflecting Swat
+{
+    "name": "Deflecting Swat",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nYou may choose new targets for target spell or ability.",
+    "script": {
+        "spellEffect": {
+            "type": "ChangeTriggeringObjectTargets",
+            "spell": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "anyOf": [
+                            {},
+                            {
+                                "cardPredicates": [
+                                    "IsActivatedOrTriggeredAbility"
+                                ]
+                            }
+                        ]
+                    },
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "condition": {
+                "type": "Exists",
+                "player": "You",
+                "zone": "Battlefield",
+                "filter": {
+                    "cardPredicates": [
+                        "IsPermanent"
+                    ],
+                    "statePredicates": [
+                        "IsCommander"
+                    ]
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "Archmage attacks are little more than annoyances to Kalamax.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/4/84f035e1-6c89-457b-b05f-85680a50ed91.jpg?1783931214",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "If the target spell has a variable number of targets, you can't change how many targets it has."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "It doesn't matter whose commander you control. Any one will do. If you have two commanders, you just need to control one of them."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "Once you begin casting this spell, players can't take any other actions until you're done casting it. Notably, they can't try to remove the commander you control to make you pay its cost."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "If the target spell has damage divided as it was cast (like Mythos of Vadrok), the division can't be changed although the targets receiving that damage still can. The same is true of spells that distribute counters."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "If you choose new targets for the target spell, the new targets must be legal."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fierce Guardianship
+{
+    "name": "Fierce Guardianship",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nCounter target noncreature spell.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "noncreature",
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "condition": {
+                "type": "Exists",
+                "player": "You",
+                "zone": "Battlefield",
+                "filter": {
+                    "cardPredicates": [
+                        "IsPermanent"
+                    ],
+                    "statePredicates": [
+                        "IsCommander"
+                    ]
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "RARE",
+        "artist": "Randy Vargas",
+        "flavorText": "\"Hunt somewhere else. This is your only warning.\"\n—Gavi, nest warden",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/c/4c5ffa83-c88d-4f5d-851e-a642b229d596.jpg?1783931220",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "It doesn't matter whose commander you control. Any one will do. If you have two commanders, you just need to control one of them."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "Once you begin casting this spell, players can't take any other actions until you're done casting it. Notably, they can't try to remove the commander you control to make you pay its cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Martial Impetus
+{
+    "name": "Martial Impetus",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +1/+1 and is goaded. (It attacks each combat if able and attacks a player other than you if able.)\nWhenever enchanted creature attacks, each other creature that's attacking one of your opponents gets +1/+1 until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Martial Impetus:1",
+                "trigger": "AttackEvent",
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "statePredicates": [
+                                    "IsAttackingAnOpponent"
+                                ]
+                            },
+                            "excludeTriggeringEntity": true
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "IterationEntity"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1
+            },
+            "Goaded"
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "rarity": "UNCOMMON",
+        "artist": "Aaron Miller",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/5/25656d3d-dc5a-4085-8461-cab11b96e70a.jpg?1783931225"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Molten Echoes
+{
+    "name": "Molten Echoes",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "As this enchantment enters, choose a creature type.\nWhenever a nontoken creature you control of the chosen type enters, create a token that's a copy of that creature. That token gains haste. Exile it at the beginning of the next end step.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Molten Echoes:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "IsNontoken",
+                            "HasChosenSubtype"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateTokenCopyOfTarget",
+                    "target": "TriggeringEntity",
+                    "addedKeywords": [
+                        "HASTE"
+                    ],
+                    "exileAtStep": "END"
+                },
+                "descriptionOverride": "Whenever a nontoken creature you control of the chosen type enters, create a token that's a copy of that creature. That token gains haste. Exile it at the beginning of the next end step."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CREATURE_TYPE"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "RARE",
+        "artist": "Zoltan Boros",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/c/8ca1dbc4-2177-477e-88e2-d07cefb542e4.jpg?1783931213",
+        "rulings": [
+            {
+                "date": "2020-04-17",
+                "text": "You must choose an existing creature type, such as Human or Warrior. Card types such as artifact and supertypes such as legendary can't be chosen."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "If the nontoken creature leaves the battlefield before Molten Echoes's triggered ability resolves, the token that's created uses the creature's last known information from before it left."
+            },
+            {
+                "date": "2020-04-17",
+                "text": "Any enters-the-battlefield abilities of the copied creature will trigger when the token enters the battlefield. Any \"As [this creature] enters the battlefield\" or \"[This creature] enters the battlefield with\" abilities of the copied creature will also work."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Nesting Grounds
 {
     "name": "Nesting Grounds",

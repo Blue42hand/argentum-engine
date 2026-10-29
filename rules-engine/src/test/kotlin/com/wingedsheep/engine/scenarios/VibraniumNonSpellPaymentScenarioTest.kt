@@ -202,6 +202,7 @@ class VibraniumNonSpellPaymentScenarioTest : FunSpec({
         val opponent = game.getOpponent(player)
         val token = game.putPermanentOnBattlefield(player, "Vibranium")
         val attacker = game.putCreatureOnBattlefield(player, "Grizzly Bears")
+        game.removeSummoningSickness(attacker)
         game.putPermanentOnBattlefield(opponent, prison.name)
         game.passPriorityUntil(Step.DECLARE_ATTACKERS)
 

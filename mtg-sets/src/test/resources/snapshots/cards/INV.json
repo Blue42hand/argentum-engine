@@ -189,7 +189,10 @@
                                     "type": "PayAtom",
                                     "atom": {
                                         "type": "AtomPayLife",
-                                        "amount": 5
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 5
+                                        }
                                     }
                                 },
                                 "consequenceIfNonePaid": {
@@ -1100,7 +1103,8 @@
                             "effect": {
                                 "type": "GainLife",
                                 "amount": "XValue"
-                            }
+                            },
+                            "description": "You gain X life"
                         }
                     ]
                 },
@@ -2411,7 +2415,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a legendary card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4050,12 +4056,12 @@
         "targetRequirements": [
             {
                 "type": "TargetObject",
-                "optional": true,
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
                 "id": "t0",
-                "dynamicMaxCount": "XValue"
+                "dynamicMaxCount": "XValue",
+                "dynamicMinCount": "XValue"
             }
         ]
     },
@@ -4611,7 +4617,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a basic land card to put into your hand",
+                                    "selectedLabel": "Put into your hand"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -4627,7 +4635,11 @@
                             ]
                         }
                     },
-                    "then": "SkipNextDrawStep"
+                    "then": {
+                        "type": "SkipStepOrPhaseEffect",
+                        "part": "DRAW_STEP",
+                        "duration": "NEXT"
+                    }
                 }
             }
         ]
@@ -5092,41 +5104,6 @@
     ]
 }
 
-// Fertile Ground
-{
-    "name": "Fertile Ground",
-    "manaCost": "{1}{G}",
-    "typeLine": "Enchantment — Aura",
-    "oracleText": "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional one mana of any color.",
-    "script": {
-        "staticAbilities": [
-            {
-                "type": "AdditionalManaOnTap",
-                "amount": {
-                    "type": "Fixed",
-                    "amount": 1
-                },
-                "anyColor": true
-            }
-        ],
-        "auraTarget": {
-            "type": "TargetObject",
-            "filter": {
-                "baseFilter": "land"
-            }
-        }
-    },
-    "metadata": {
-        "collectorNumber": "188",
-        "artist": "Carl Critchlow",
-        "flavorText": "As Phyrexians descended, Multani paused to reflect on the beauty that might never be seen again.",
-        "imageUri": "https://cards.scryfall.io/normal/front/7/8/789e3582-b541-4916-ac7e-015214d7a27a.jpg?1562919190"
-    },
-    "colorIdentityOverride": [
-        "GREEN"
-    ]
-}
-
 // Fight or Flight
 {
     "name": "Fight or Flight",
@@ -5427,7 +5404,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -7680,7 +7659,12 @@
                                 "filter": {
                                     "cardPredicates": [
                                         "IsCreature",
-                                        "ManaValueEqualsX"
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "EQ",
+                                            "amount": "XValue"
+                                        }
                                     ]
                                 }
                             },
@@ -9013,7 +8997,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -9408,7 +9395,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -9681,67 +9670,106 @@
                             "moveType": "Discard"
                         }
                     ]
-                },
-                {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": "WasKicked"
-                    },
-                    "then": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "FromZone",
-                                    "zone": "Hand",
-                                    "player": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    }
-                                },
-                                "storeAs": "hand"
-                            },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "hand",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 2
-                                    }
-                                },
-                                "chooser": "TargetPlayer",
-                                "storeSelected": "discarded",
-                                "prompt": "Choose 2 cards to discard"
-                            },
-                            {
-                                "type": "MoveCollection",
-                                "from": "discarded",
-                                "destination": {
-                                    "type": "ToZone",
-                                    "zone": "Graveyard",
-                                    "player": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    }
-                                },
-                                "moveType": "Discard"
-                            }
-                        ]
-                    }
                 }
             ]
         },
-        "targetRequirements": [
+        "kickerTargetRequirements": [
             {
                 "type": "TargetPlayer",
-                "optional": true,
                 "id": "t0"
             }
-        ]
+        ],
+        "kickerSpellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 2 cards to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "chooser": "TargetPlayer",
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 2 cards to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                }
+            ]
+        }
     },
     "metadata": {
         "collectorNumber": "66",
@@ -9865,7 +9893,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -10273,7 +10304,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -10525,7 +10558,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -13671,7 +13707,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an enchantment card to put on top of your library",
+                            "selectedLabel": "Put on top of your library"
                         },
                         "ShuffleLibrary",
                         {
@@ -17063,7 +17101,10 @@
                             "type": "PayAtom",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         },
                         "suffer": {
@@ -17369,7 +17410,12 @@
                                                     "IsCreature"
                                                 ]
                                             },
-                                            "ManaValueEqualsX"
+                                            {
+                                                "type": "CompareNumericProperty",
+                                                "property": "MANA_VALUE",
+                                                "operator": "EQ",
+                                                "amount": "XValue"
+                                            }
                                         ]
                                     }
                                 },
@@ -17405,7 +17451,12 @@
                             "filter": {
                                 "cardPredicates": [
                                     "IsNonland",
-                                    "ManaValueEqualsX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "EQ",
+                                        "amount": "XValue"
+                                    }
                                 ]
                             }
                         },

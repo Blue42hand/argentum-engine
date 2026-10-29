@@ -75,8 +75,7 @@ private fun ManaPool.matchFloating(
 ): FloatingManaAllocation? {
     val units = buildList {
         restrictedMana.forEachIndexed { index, entry ->
-            val eligible = if (context == null) entry.restriction == ManaRestriction.AnySpend
-                else entry.restriction.isSatisfiedBy(context)
+            val eligible = entry.restriction.isEligibleForPayment(context)
             if (eligible) add(PoolUnits(entry.color,
                 entry.source?.isSnow == true, 1, index, entry.obligationIds - dischargedObligations))
         }
@@ -160,7 +159,10 @@ private fun ManaPool.matchFloating(
         } else {
             // Deduct the selected snow/plain bucket exactly, independent of pip visitation order.
             val color = unit.color
+            pool = pool.copy(manaUnits = pool.manaUnits.consume(color,
+                if (unit.snow) 0 else count, if (unit.snow) count else 0))
             pool = if (color == null) pool.copy(colorless = pool.colorless - count,
+                manaUnits = pool.manaUnits,
                 snowColorless = pool.snowColorless - if (unit.snow) count else 0)
             else {
                 val nextSnow = (pool.snowMana[color] ?: 0) - if (unit.snow) count else 0

@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.model.EntityId
  * on the same state — no rollback or cleanup needed.
  */
 class GameSimulator(
-    private val cardRegistry: CardRegistry,
+    internal val cardRegistry: CardRegistry,
     private val processor: ActionProcessor = ActionProcessor(EngineServices(cardRegistry), computeUndo = false),
     private val enumerator: LegalActionEnumerator = LegalActionEnumerator.create(cardRegistry),
     /**
@@ -68,6 +68,13 @@ class GameSimulator(
     /** Guard against recursive resolution — inner simulations (from DecisionResponder
      *  evaluating alternatives) should NOT re-enter the resolver. */
     private var isResolving = false
+
+    /**
+     * True while the strategic resolver is answering a decision from inside one of this
+     * simulator's own simulations — a resolver can read it to skip work that only pays off for a
+     * decision the AI is about to make for real.
+     */
+    internal val resolvingNestedDecision: Boolean get() = isResolving
 
     /**
      * The constant-time policy used while [isResolving] blocks the strategic resolver.

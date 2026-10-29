@@ -43,6 +43,9 @@ data class ShuffleLibraryEffect(
  * Suppression of a literal "scry 0" (CR 701.22b) is handled by `scry()` omitting this
  * tail entirely, not here.
  *
+ * The size of [bottomCollection] captures the number chosen for the bottom, independently
+ * of any later library changes, for "that many" scry payoffs.
+ *
  * Card authors should not use this directly; it is wired into the scry primitive.
  */
 @SerialName("EmitScriedEvent")
@@ -50,7 +53,9 @@ data class ShuffleLibraryEffect(
 data class EmitScriedEventEffect(
     val gatherCollection: String = "scried",
     /** Who scried — the player whose library was looked at ("Target player scries X"). */
-    val player: Player = Player.You
+    val player: Player = Player.You,
+    /** Collection chosen for the bottom; count the choice, not the later library contents. */
+    val bottomCollection: String = "toBottom"
 ) : Effect {
     // Intentionally blank: this is an internal pipeline tail with no player-facing text.
     override val description: String = ""
@@ -389,6 +394,18 @@ data class ExileLibraryUntilManaValueEffect(
  * (CR 601.2f): added to the mana cost and to every other cost increase, stamped on the card for this
  * one cast only, and removed if the cast never initiates. A caster who can't pay the total simply
  * doesn't cast it (CR 601.2h).
+ *
+ * **Casting it face down.** Set [castFaceDown] for "you may cast that card face down as a 2/2
+ * creature spell without paying its mana cost" (Illusionary Mask). The spell is a face-down spell
+ * exactly as a morph cast makes one (CR 708.2, 708.4: a nameless, colorless 2/2 creature spell with no
+ * abilities and mana value 0), but the card needs no morph — the effect is what allows it — and
+ * nothing is paid. It can be responded to and countered like any spell. Once a permanent it can
+ * be turned face up only by a rule or effect that allows it: its own morph or disguise, if the
+ * card has one. [turnsFaceUpInstead] adds the Mask's rider to the permanent the spell becomes:
+ * until it is turned face up, if it would assign or deal damage, be dealt damage, or become
+ * tapped, it is turned face up instead and then does so. Face-down casts take no targets, so the
+ * free-cast-only shape is enforced: no [payManaCost], [castTransformed], [alternativeCost] or
+ * [additionalManaCost].
  */
 @SerialName("CastFromCollectionWithoutPayingCost")
 @Serializable
@@ -419,8 +436,18 @@ data class CastFromCollectionWithoutPayingCostEffect(
     val alternativeCost: AdditionalCost? = null,
     /** Mana owed on top of the mana cost, or null — see the class KDoc. */
     val additionalManaCost: ManaCost? = null,
+    /** Cast the card face down as a 2/2 creature spell — see the class KDoc. */
+    val castFaceDown: Boolean = false,
+    /** The face-down permanent turns face up instead of dealing/being dealt damage or tapping. */
+    val turnsFaceUpInstead: Boolean = false,
 ) : Effect {
     init {
+        require(!castFaceDown || (!payManaCost && !castTransformed && alternativeCost == null && additionalManaCost == null)) {
+            "A face-down cast is a free cast of the card's face-down 2/2; it takes no other cost or face"
+        }
+        require(!turnsFaceUpInstead || castFaceDown) {
+            "turnsFaceUpInstead is a rider on a face-down cast; it needs castFaceDown"
+        }
         require(alternativeCost == null || !payManaCost) {
             "An alternative cost replaces the mana cost; it can't be combined with payManaCost"
         }
@@ -432,6 +459,7 @@ data class CastFromCollectionWithoutPayingCostEffect(
     override val description: String = buildString {
         append("Cast that card")
         if (castTransformed) append(" transformed")
+        if (castFaceDown) append(" face down as a 2/2 creature spell")
         when {
             alternativeCost != null -> append(
                 " by ${alternativeCost.description.replaceFirstChar { it.lowercaseChar() }.replaceFirst("pay ", "paying ")}" +
@@ -441,6 +469,11 @@ data class CastFromCollectionWithoutPayingCostEffect(
             additionalManaCost != null -> append(" by paying $additionalManaCost in addition to its other costs")
         }
         insteadOfGraveyard?.let { append(it.riderText) }
+        if (turnsFaceUpInstead) {
+            append(". If the creature that spell becomes as it resolves has not been turned face up and would " +
+                "assign or deal damage, be dealt damage, or become tapped, instead it's turned face up and " +
+                "assigns or deals damage, is dealt damage, or becomes tapped")
+        }
     }
 
     override fun applyTextReplacement(replacer: com.wingedsheep.sdk.scripting.text.TextReplacer): Effect {
@@ -453,6 +486,11 @@ data class CastFromCollectionWithoutPayingCostEffect(
  * Play the first card in [from] during this effect's resolution without paying its mana cost.
  * Spells use the ordinary synthesized-cast pipeline; lands are played as a special action and
  * still consume one of the controller's land plays for the turn.
+ *
+ * The card may sit in exile (Fight Rigging's hideaway card) or in the library (Djinn of Wishes'
+ * revealed top card). A land is played only on its controller's turn with a land play left (CR
+ * 305.2b, 305.3); otherwise that part of the instruction is ignored and the card stays put, so a
+ * follow-up "if you don't, exile it" reads the card's zone (`filter(revealed, currentlyIn(...))`).
  */
 @SerialName("PlayFromCollectionWithoutPayingCost")
 @Serializable
@@ -517,8 +555,17 @@ data class PlayFromCollectionWithoutPayingCostEffect(
  * @property maxCasts Maximum number of cards that may still be cast by this loop, or `null`
  *   for no cap. A value of `0` or less makes the effect a no-op. Only meaningful alongside the
  *   default `payManaCost = false` — see above.
+ * **Playing lands too.** [playLands] is the "you may **play lands and cast spells** from among
+ * [them]" wording (Gix, Yawgmoth Praetor). Land cards in the collection are offered alongside the
+ * spells, but only while the controller could play a land right now — on their own turn, with a
+ * land play left, and not locked out (CR 305.2, 305.3; Gix's ruling: "only during your own turn
+ * and only if you have not yet played a land this turn"). A chosen land is *played* through the
+ * normal land-play path (a special action, CR 116.2a), so it uses up that land play; it is not a
+ * spell, so it spends none of a [maxCasts] / [maxTotalManaValue] budget.
+ *
  * @property maxTotalManaValue Remaining total-mana-value budget for the casts, or `null` for no
  *   cap. Only meaningful alongside the default `payManaCost = false`.
+ * @property playLands When true, land cards in the collection may be played as lands.
  */
 @SerialName("CastAnyNumberFromCollectionWithoutPayingCost")
 @Serializable
@@ -527,10 +574,17 @@ data class CastAnyNumberFromCollectionWithoutPayingCostEffect(
     val payManaCost: Boolean = false,
     val maxCasts: Int? = null,
     val maxTotalManaValue: Int? = null,
+    val playLands: Boolean = false,
 ) : Effect {
     override val description: String = buildString {
-        append("Cast ")
-        append(if (maxCasts == null) "any number of those cards" else "up to $maxCasts of those cards")
+        append(if (playLands) "Play lands and cast spells from among " else "Cast ")
+        append(
+            when {
+                playLands -> "those cards"
+                maxCasts == null -> "any number of those cards"
+                else -> "up to $maxCasts of those cards"
+            }
+        )
         if (maxTotalManaValue != null) append(" with total mana value $maxTotalManaValue or less")
         if (!payManaCost) append(" without paying their mana costs")
     }

@@ -50,6 +50,13 @@ object Targets {
     fun Any(filter: GameObjectFilter): TargetRequirement = AnyTarget(filter = filter)
 
     /**
+     * "Any number of targets" (Fireball) — zero or more distinct creatures, players,
+     * planeswalkers, or battles. Read them uniformly with `Effects.ForEachTarget(…)`; a
+     * zero-target cast is legal and resolves without targets (it is not a targeted spell).
+     */
+    val AnyNumber: TargetRequirement = AnyTarget(unlimited = true)
+
+    /**
      * "Any target of an opponent's choice" — a real target of your spell/ability that an
      * opponent selects (Cuombajj Witches). Announced and resolved like any target, with
      * legality (hexproof/protection) measured relative to you, the controller. List it after

@@ -221,9 +221,12 @@ internal class CastRecords(
             else -> null
         }
         val riderSubtype: String? = grant?.takeIf { it.hasEntryRider }?.addedSubtypeOnEntry
-        if (riderCounter != null || riderSubtype != null) {
+        val riderAbility = grant?.grantedAbilityOnEntry
+        if (riderCounter != null || riderSubtype != null || riderAbility != null) {
             newState = newState.updateEntity(action.cardId) { c ->
-                c.with(GraveyardCastRiderComponent(entersWithCounter = riderCounter, addedSubtype = riderSubtype))
+                c.with(GraveyardCastRiderComponent(
+                    entersWithCounter = riderCounter, addedSubtype = riderSubtype, grantedAbility = riderAbility
+                ))
             }
         }
         if (grant?.exileInsteadOfGraveyard == true && cardComponent.typeLine.let { it.isInstant || it.isSorcery }) {
@@ -246,7 +249,7 @@ internal class CastRecords(
      *   is a new object with a fresh allowance, and an unlimited matching source consumes nothing.
      * - A `MayCastWithoutPayingManaCost(oncePerTurn = true)` source (Zaffai and the Tempests) is
      *   consumed only when no unlimited free-cast source could have paid instead; the origin zone
-     *   decides whether a `fromExileOnly` source (Warped Space) applied at all.
+     *   decides whether a zone-scoped `fromZones` source (Warped Space: exile only) applied at all.
      * - A once-per-turn graveyard-cast grant (Gisa and Geralf) is burned only when no unlimited grant
      *   could have authorized the cast.
      */

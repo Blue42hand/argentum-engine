@@ -9,6 +9,9 @@
  * WebSocket connect handshake (see connectionSlice) to attribute games to the account.
  */
 import type { SharedDeck } from '@/components/deckbuilder/shareDeck'
+import type { CubeBoosterStyle, CubeRarity } from '@/types'
+
+export type { CubeBoosterStyle, CubeRarity }
 
 const AUTH_KEY = 'argentum-auth'
 
@@ -31,7 +34,10 @@ function authHeaders(): Record<string, string> {
 }
 
 async function errorMessage(res: Response, fallback: string): Promise<string> {
-  const body = (await res.json().catch(() => null)) as { error?: string } | null
+  const body = (await res.json().catch(() => null)) as { error?: string; timestamp?: unknown; path?: unknown } | null
+  // Spring's default error body also carries `error` — the bare HTTP reason ("Not Found") — beside
+  // `timestamp` and `path`. That is not a message for a player; only our own `{ error }` bodies are.
+  if (body?.timestamp !== undefined && body.path !== undefined) return fallback
   return body?.error ?? fallback
 }
 
@@ -44,6 +50,8 @@ export interface AccountUser {
   readonly isAdmin: boolean
   /** When true the account appears offline to its friends even while connected. */
   readonly hidePresence: boolean
+  /** Chosen preset avatar id (see components/profile/avatars), or null for the initial. */
+  readonly avatar?: string | null
 }
 
 export interface LoginResponse {
@@ -76,14 +84,23 @@ export async function fetchAppConfig(): Promise<AppConfig> {
 
 // ----- Auth -----
 
-/** Request a magic-link sign-in email. Resolves on success regardless of whether the email exists. */
-export async function requestLogin(email: string): Promise<void> {
+/**
+ * Request a magic-link sign-in email. Resolves on success regardless of whether the email exists.
+ *
+ * `devLoginPath` is present only on a dev server that can't send mail (dev endpoints on, no mail
+ * credentials): the link's own path, so local sign-in doesn't mean fishing it out of the server log.
+ */
+export async function requestLogin(email: string): Promise<{ devLoginPath?: string }> {
   const res = await fetch('/api/auth/request-login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   })
   if (!res.ok) throw new Error(await errorMessage(res, `Sign-in request failed (${res.status})`))
+  const body = await res.json().catch(() => ({})) as { devLoginPath?: unknown }
+  return typeof body.devLoginPath === 'string' && body.devLoginPath.startsWith('/login/verify')
+    ? { devLoginPath: body.devLoginPath }
+    : {}
 }
 
 /** Exchange a magic-link token for a durable auth token + the account. */
@@ -106,6 +123,18 @@ export async function updateProfile(displayName: string): Promise<AccountUser> {
   })
   if (res.status === 401) throw new UnauthorizedError()
   if (!res.ok) throw new Error(await errorMessage(res, `Failed to update profile (${res.status})`))
+  return (await res.json()) as AccountUser
+}
+
+/** Pick a preset avatar, or `null` to go back to the initial. Returns the updated account. */
+export async function updateAvatar(avatar: string | null): Promise<AccountUser> {
+  const res = await fetch('/api/auth/me/avatar', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ avatar }),
+  })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(await errorMessage(res, `Failed to update avatar (${res.status})`))
   return (await res.json()) as AccountUser
 }
 
@@ -139,6 +168,27 @@ export async function saveLearnProgress(progress: unknown): Promise<void> {
   })
   if (res.status === 401) throw new UnauthorizedError()
   if (!res.ok) throw new Error(`Failed to save course progress (${res.status})`)
+}
+
+/**
+ * Player preferences on the account — the client's own document, stored verbatim by the server.
+ * `{}` when none were saved there yet. See `store/preferencesStore.ts` for the sync.
+ */
+export async function fetchPreferences(): Promise<unknown> {
+  const res = await fetch('/api/auth/me/preferences', { headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to load preferences (${res.status})`)
+  return res.json()
+}
+
+export async function savePreferences(preferences: unknown): Promise<void> {
+  const res = await fetch('/api/auth/me/preferences', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(preferences),
+  })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to save preferences (${res.status})`)
 }
 
 export interface DeckSummary {
@@ -216,16 +266,28 @@ export async function upsertDeckByName(deck: SharedDeck): Promise<DeckDetail> {
 
 // ----- Saved cubes -----
 
+/** One line of a stored cube. `rarity` is an explicit override; absent means the card's own rarity. */
+export interface SharedCubeEntry {
+  readonly name: string
+  readonly count: number
+  readonly rarity?: CubeRarity
+}
+
 /**
  * A cube as stored in the account — card names + counts, not resolved cards, so a cube can name a
  * card that isn't implemented yet and stays valid as sets land. Mirrors `SavedCube` minus the local
- * id/timestamp, and the server's `CubeList`.
+ * id/timestamp, and the server's `CubeList`. Everything after `packSize` is optional so cubes saved
+ * before booster styles existed still read as plain shuffled cubes.
  */
 export interface SharedCube {
   readonly name: string
-  readonly cards: ReadonlyArray<{ readonly name: string; readonly count: number }>
+  readonly description?: string
+  readonly cards: ReadonlyArray<SharedCubeEntry>
   readonly basicLandSetCode: string
+  /** Cards per pack — only meaningful for a `SHUFFLED` cube; booster styles fix their own size. */
   readonly packSize: number
+  /** Absent = `SHUFFLED`. */
+  readonly boosterStyle?: CubeBoosterStyle
 }
 
 export interface CubeSummary {
@@ -236,6 +298,18 @@ export interface CubeSummary {
 }
 
 export interface CubeDetail extends CubeSummary {
+  readonly cube: SharedCube
+  /** The public link code when the owner has shared this cube; null when it is private. */
+  readonly shareCode?: string | null
+}
+
+/** A cube opened through someone's share link — always the owner's latest saved version. */
+export interface SharedCubeView {
+  readonly shareCode: string
+  readonly name: string
+  readonly cardCount: number
+  readonly updatedAt: string
+  readonly ownerName: string | null
   readonly cube: SharedCube
 }
 
@@ -280,6 +354,34 @@ export async function deleteCube(id: number): Promise<void> {
   const res = await fetch(`/api/account/cubes/${id}`, { method: 'DELETE', headers: authHeaders() })
   if (res.status === 401) throw new UnauthorizedError()
   if (!res.ok && res.status !== 404) throw new Error(`Failed to delete cube (${res.status})`)
+}
+
+/** Create (or return the existing) public link for a saved cloud cube. */
+export async function shareCube(id: number): Promise<string> {
+  const res = await fetch(`/api/account/cubes/${id}/share`, { method: 'POST', headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to create a share link (${res.status})`)
+  return ((await res.json()) as { shareCode: string }).shareCode
+}
+
+/** Revoke a cube's public link; anyone holding the old link gets "not found" from then on. */
+export async function unshareCube(id: number): Promise<void> {
+  const res = await fetch(`/api/account/cubes/${id}/share`, { method: 'DELETE', headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok && res.status !== 404) throw new Error(`Failed to revoke the share link (${res.status})`)
+}
+
+/** Public, no auth. Null when the code is unknown or revoked, or the server has no accounts. */
+export async function getSharedCube(code: string): Promise<SharedCubeView | null> {
+  const res = await fetch(`/api/cubes/shared/${encodeURIComponent(code)}`)
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`Failed to load the shared cube (${res.status})`)
+  return (await res.json()) as SharedCubeView
+}
+
+/** The browser path a share code opens on. */
+export function sharedCubePath(code: string): string {
+  return `/cubes/shared/${encodeURIComponent(code)}`
 }
 
 // ----- Stats -----
@@ -355,10 +457,17 @@ export interface UserTournamentEntry {
   readonly name: string | null
   readonly format: string | null
   readonly gameMode: string | null
-  /** Final placement (1 = winner); 0 while the tournament is still in progress. */
+  /**
+   * Final placement (1 = winner). For an in-progress or abandoned tournament, the standing after the
+   * last recorded match (0 if none yet).
+   */
   readonly placement: number
   readonly playerCount: number
   readonly status: TournamentStatus
+  /** Match record — final once completed, last-known for an in-progress or abandoned tournament. */
+  readonly wins: number
+  readonly losses: number
+  readonly draws: number
 }
 
 /** One player's final standing in a tournament. */
@@ -507,6 +616,8 @@ export const fetchManaCurve = () => getStats<StatBucket[]>('/me/curve')
 export interface PublicProfile {
   readonly userId: string
   readonly displayName: string
+  /** Preset avatar id, or null for the initial. */
+  readonly avatar?: string | null
   readonly stats: AccountStats
   readonly ratings: RatingEntry[]
   readonly ratingHistory: RatingPoint[]

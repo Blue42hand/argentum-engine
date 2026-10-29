@@ -343,13 +343,18 @@ sealed interface SerializableModification {
      * actually prevents ("you gain life equal to the damage prevented this way", Candles' Glow) —
      * once per noncombat damage event, and once per combat damage step for everything the
      * controller's shields prevented in it.
+     *
+     * When [combatOnly] is set, only combat damage is prevented ("prevent the next 1 combat damage
+     * that would be dealt to you this turn", Decorated Griffin); noncombat damage passes through and
+     * leaves the shield untouched.
      */
     @Serializable
     data class PreventNextDamage(
         val remainingAmount: Int,
         /** If set, only prevents damage from this specific source (used for CR 615.7 prevention distribution) */
         val onlyFromSource: EntityId? = null,
-        val controllerGainsLife: Boolean = false
+        val controllerGainsLife: Boolean = false,
+        val combatOnly: Boolean = false
     ) : SerializableModification
 
     /**
@@ -378,6 +383,14 @@ sealed interface SerializableModification {
      */
     @Serializable
     data object RemoveDamageShield : SerializableModification
+
+    /**
+     * Adapt shield (Biomancer's Familiar): the next time the affected creature adapts this turn,
+     * it adapts as though it had no +1/+1 counters on it (CR 701.46a). Consumed by that adapt,
+     * whether or not the creature had counters; expires at end of turn.
+     */
+    @Serializable
+    data object AdaptAsThoughNoCountersShield : SerializableModification
 
     /**
      * Marks a permanent as unable to be regenerated this turn.
@@ -750,11 +763,15 @@ sealed interface SerializableModification {
      *   (Dark Sphere: "prevent half that damage, rounded down") — the rest is dealt, and the shield
      *   is consumed either way. A 1-damage instance therefore prevents nothing and still spends the
      *   shield, which is what the printed card does.
+     * @property maxAmount When set, at most this much of the instance is prevented ("prevent X of
+     *   that damage" — Power Leak); the shield is still spent by the instance, so a surplus never
+     *   carries over to later damage. Null prevents the whole instance.
      */
     @Serializable
     data class PreventNextDamageInstanceFromSource(
         val damageSourceId: EntityId,
-        val halveRoundedDown: Boolean = false
+        val halveRoundedDown: Boolean = false,
+        val maxAmount: Int? = null
     ) : SerializableModification
 
     /**
@@ -856,6 +873,8 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.RegenerationShield -> Modification.NoOp
     // RemoveDamageShield doesn't map to a layer modification - it's checked during destruction
     is SerializableModification.RemoveDamageShield -> Modification.NoOp
+    // AdaptAsThoughNoCountersShield doesn't map to a layer modification - AdaptExecutor reads it
+    is SerializableModification.AdaptAsThoughNoCountersShield -> Modification.NoOp
     // CantBeRegenerated doesn't map to a layer modification - it's checked during destruction
     is SerializableModification.CantBeRegenerated -> Modification.NoOp
     // PreventAllCombatDamage doesn't map to a layer modification - it's checked by CombatManager directly
@@ -866,7 +885,7 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.SetCardTypes -> Modification.SetCardTypes(types)
     is SerializableModification.SetAllSubtypes -> Modification.SetAllSubtypes(subtypes)
     is SerializableModification.SetBasicLandTypes -> Modification.SetBasicLandTypes(subtypes)
-    is SerializableModification.AddAllCreatureTypes -> Modification.AddAllCreatureTypes
+    is SerializableModification.AddAllCreatureTypes -> Modification.AddAllCreatureTypes()
     // SetCantAttack maps to the layer modification for "can't attack" projection
     is SerializableModification.SetCantAttack -> Modification.SetCantAttack
     is SerializableModification.SetCantBeTurnedFaceUp -> Modification.SetCantBeTurnedFaceUp

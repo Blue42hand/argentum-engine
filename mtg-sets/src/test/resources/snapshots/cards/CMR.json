@@ -1,3 +1,67 @@
+// Aesi, Tyrant of Gyre Strait
+{
+    "name": "Aesi, Tyrant of Gyre Strait",
+    "manaCost": "{4}{G}{U}",
+    "typeLine": "Legendary Creature — Serpent",
+    "oracleText": "You may play an additional land on each of your turns.\nLandfall — Whenever a land you control enters, you may draw a card.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Aesi, Tyrant of Gyre Strait:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            "GrantAdditionalLandDrop"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "365",
+        "rarity": "MYTHIC",
+        "artist": "Viktor Titov",
+        "flavorText": "\"To sail through those waters is to offer oneself as tribute.\"\n—Captain Hoyrik",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/6/d607b003-6b48-429c-a7fd-45b8dd1bb4f9.jpg?1783928734",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Aesi's ability is cumulative with other effects that let you play additional lands, such as the one from Exploration."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "A landfall ability triggers whenever a land you control enters for any reason. It triggers whenever you play a land, as well as whenever a spell or ability puts a land onto the battlefield under your control."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "A landfall ability doesn't trigger if a permanent already on the battlefield becomes a land."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}
+
 // Annoyed Altisaur
 {
     "name": "Annoyed Altisaur",
@@ -31,6 +95,68 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Anointer of Valor
+{
+    "name": "Anointer of Valor",
+    "manaCost": "{5}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nWhenever a creature attacks, you may pay {3}. When you do, put a +1/+1 counter on that creature.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Anointer of Valor:1",
+                "trigger": "AttackEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "PayManaCost",
+                        "cost": "{3}"
+                    },
+                    "reflexiveEffect": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 1,
+                        "target": "TriggeringEntity"
+                    },
+                    "descriptionOverride": "put a +1/+1 counter on that creature"
+                },
+                "descriptionOverride": "Whenever a creature attacks, you may pay {3}. When you do, put a +1/+1 counter on that creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "artist": "Antonio José Manzanedo",
+        "flavorText": "Light streaked down from the heavens, and a voice whispered in the soldier's ear: \"You shall not fall today.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/6/d66fcbb8-0fa5-48a9-b40c-d5a12f09a858.jpg?1783928889",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Anointer of Valor's triggered ability triggers when any creature attacks any player or planeswalker."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If you choose to pay {3}, a second triggered ability triggers. Players may respond to that reflexive triggered ability before the +1/+1 counter is put on the creature."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "You can't pay {3} more than once to put more than one +1/+1 counter on the attacking creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -79,6 +205,73 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Body of Knowledge
+{
+    "name": "Body of Knowledge",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Creature — Avatar",
+    "oracleText": "Body of Knowledge's power and toughness are each equal to the number of cards in your hand.\nYou have no maximum hand size.\nWhenever this creature is dealt damage, draw that many cards.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Count",
+                "player": "You",
+                "zone": "Hand"
+            }
+        },
+        "toughness": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Count",
+                "player": "You",
+                "zone": "Hand"
+            }
+        }
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Body of Knowledge:1",
+                "trigger": "DamageReceivedEvent",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGER_DAMAGE_AMOUNT"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            "NoMaximumHandSize"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "59",
+        "rarity": "RARE",
+        "artist": "Clint Cearley",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/786ae686-0790-4ba1-927f-523984331549.jpg?1783928867",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "The ability that defines Body of Knowledge's power and toughness applies in all zones, not just the battlefield."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "As long as Body of Knowledge is in your hand, its ability will count itself."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Creatures may be dealt damage greater than their toughness. For example, if Body of Knowledge is a 3/3 creature and a source deals 5 damage to it, you'll draw five cards. Note that if Body of Knowledge is dealt lethal damage, it dies before the cards are drawn, meaning they won't raise Body of Knowledge's toughness in time to save it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -288,6 +481,123 @@
     "colorIdentityOverride": []
 }
 
+// Jeska's Will
+{
+    "name": "Jeska's Will",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one. If you control a commander as you cast this spell, you may choose both instead.\n• Add {R} for each card in target opponent's hand.\n• Exile the top three cards of your library. You may play them this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "RED",
+                        "amount": {
+                            "type": "Count",
+                            "player": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "zone": "Hand"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetOpponent",
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Add {R} for each card in target opponent's hand"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
+                                },
+                                "storeAs": "impulseExiled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "impulseExiled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                }
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "impulseExiled"
+                            }
+                        ]
+                    },
+                    "description": "Exile the top three cards of your library. You may play them this turn"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1,
+            "dynamicChooseCount": {
+                "type": "Conditional",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent"
+                        ],
+                        "statePredicates": [
+                            "IsCommander"
+                        ]
+                    }
+                },
+                "ifTrue": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "ifFalse": {
+                    "type": "Fixed",
+                    "amount": 1
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "\"Gather your strength. Prepare yourself.\"\n—Jeska, to Radha",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/e/4e91d96d-cc69-439b-b876-a7d57039022c.jpg?1783928812",
+        "rulings": [
+            {
+                "date": "2026-03-20",
+                "text": "Use the number of cards in the target opponent's hand as Jeska's Will resolves to determine how much {R} to add."
+            },
+            {
+                "date": "2026-03-20",
+                "text": "Even though the card is named after a specific character, controlling any commander will satisfy its condition. The commander you control doesn't have to be your commander."
+            },
+            {
+                "date": "2026-03-20",
+                "text": "Once you've chosen both modes for the spell, it doesn't matter whether you continue to control a commander."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Kangee, Sky Warden
 {
     "name": "Kangee, Sky Warden",
@@ -362,6 +672,236 @@
         "artist": "Dan Murayama Scott",
         "flavorText": "\"Let their horrors and machines come. We will meet them blow for blow.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/9/9/99988f41-99b4-4423-be5f-9dc4ec7d813b.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
+// Keeper of the Accord
+{
+    "name": "Keeper of the Accord",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "At the beginning of each opponent's end step, if that player controls more creatures than you, create a 1/1 white Soldier creature token.\nAt the beginning of each opponent's end step, if that player controls more lands than you, you may search your library for a basic Plains card, put it onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Keeper of the Accord:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Soldier"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/2/3/23b4c4d7-5b53-417a-a61b-df56eec4a274.jpg?1783928585"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "TriggeringPlayer",
+                        "filter": "creature"
+                    },
+                    "operator": "GT",
+                    "right": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    }
+                }
+            },
+            {
+                "id": "Keeper of the Accord:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Plains"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic Plains card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent"
+                        ]
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "TriggeringPlayer",
+                        "filter": "land"
+                    },
+                    "operator": "GT",
+                    "right": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "land"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "rarity": "RARE",
+        "artist": "Denman Rooke",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/7/37eec618-2c3d-423b-bbb7-72ef7deb38fc.jpg?1783928882",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Both triggered abilities trigger at the same time. You may put them on the stack in either order."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If the opponent doesn't control more creatures than you as their end step begins, the first ability won't trigger. The same is true for lands and the second ability. Each of those abilities will check again when it tries to resolve. If the opponent no longer controls more creatures (or lands) than you, the ability won't resolve and will have no effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Kwain, Itinerant Meddler
+{
+    "name": "Kwain, Itinerant Meddler",
+    "manaCost": "{W}{U}",
+    "typeLine": "Legendary Creature — Rabbit Wizard",
+    "oracleText": "{T}: Each player may draw a card, then each player who drew a card this way gains 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Kwain, Itinerant Meddler:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "prompt": "Draw a card? (If you do, you gain 1 life.)"
+                        },
+                        "then": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeAs": "gathered0"
+                                },
+                                {
+                                    "type": "DrawCards",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                {
+                                    "type": "FilterCollection",
+                                    "from": "gathered0",
+                                    "filter": {
+                                        "statePredicates": [
+                                            {
+                                                "type": "InZone",
+                                                "zone": "Hand"
+                                            }
+                                        ]
+                                    },
+                                    "storeMatching": "matching2"
+                                },
+                                {
+                                    "type": "ConditionalOnCollection",
+                                    "collection": "matching2",
+                                    "ifNotEmpty": {
+                                        "type": "GainLife",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "decisionMaker": "Controller"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "284",
+        "rarity": "RARE",
+        "artist": "Lucas Graciano",
+        "flavorText": "\"Why so slow, why so slow? Hurry up! You never know what you'll find.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f571fef1-1fd2-4355-b803-5edccb6f4b94.jpg?1783928771"
     },
     "colorIdentityOverride": [
         "WHITE",
@@ -454,7 +994,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a creature green card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -717,6 +1259,73 @@
     ]
 }
 
+// Rejuvenating Springs
+{
+    "name": "Rejuvenating Springs",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {G} or {U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Rejuvenating Springs:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Rejuvenating Springs:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "354",
+        "rarity": "RARE",
+        "artist": "Alayna Danner",
+        "flavorText": "When they're done pummeling each other, the fighters relax companionably in the springs, warming their sore muscles.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/51e69910-0d90-48a0-af29-3cddaeec5151.jpg?1783928741",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
+    ]
+}
+
 // Reshape the Earth
 {
     "name": "Reshape the Earth",
@@ -747,7 +1356,9 @@
                             "amount": 10
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for up to ten land cards to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -808,6 +1419,350 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Spectator Seating
+{
+    "name": "Spectator Seating",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {R} or {W}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Spectator Seating:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Spectator Seating:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "356",
+        "rarity": "RARE",
+        "artist": "Ravenna Tran",
+        "flavorText": "The loudest and most heartfelt cheers come from the cheap seats.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2f6f1453-fe93-4a29-965c-5f867a81e8b3.jpg?1783928740",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
+// Training Center
+{
+    "name": "Training Center",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {U} or {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Training Center:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Training Center:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "358",
+        "rarity": "RARE",
+        "artist": "Daniel Ljunggren",
+        "flavorText": "Between matches, combatants practice to stay in peak mental and physical form.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b15c58c0-4d42-488e-bb9d-7a550d9ea5e6.jpg?1783928737",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
+// Undergrowth Stadium
+{
+    "name": "Undergrowth Stadium",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {B} or {G}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Undergrowth Stadium:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Undergrowth Stadium:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "359",
+        "rarity": "RARE",
+        "artist": "Yeong-Hao Han",
+        "flavorText": "To get to Valor's Reach, competitors must first make a name for themselves in the smaller arenas.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/df64c9cf-17de-44f3-831d-ba09661f2308.jpg?1783928737",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
+// Vault of Champions
+{
+    "name": "Vault of Champions",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {W} or {B}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Vault of Champions:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Vault of Champions:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "360",
+        "rarity": "RARE",
+        "artist": "Cliff Childs",
+        "flavorText": "Where victors are commemorated and moments of glory immortalized.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/e/0e144ae1-500d-4485-b476-5783b14380d9.jpg?1783928738",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Count the number of opponents you currently have, not how many you started with. If your four-player game is down to you and a single opponent, the land enters the battlefield tapped."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect puts the land onto the battlefield tapped, having two or more opponents won't untap it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
+// War Room
+{
+    "name": "War Room",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{3}, {T}, Pay life equal to the number of colors in your commanders' color identity: Draw a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "War Room:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "War Room:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": "CommanderColorIdentityCount"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "361",
+        "rarity": "RARE",
+        "artist": "Milivoj Ćeran",
+        "flavorText": "A figure is moved on a map, and the tide of war changes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/8/48d6ce7c-5dc8-449b-acbd-db259ae687ed.jpg?1783928737",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Color identity is set before the game begins and doesn't change during the game, even if your commander is in a hidden zone (like the hand or library) or an effect changes your commander's color."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If you don't have a commander, you can't activate War Room's last ability at all."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If your commander has no colors in its color identity, you pay no life to activate War Room's last ability."
+            }
+        ]
+    }
 }
 
 // Wyleth, Soul of Steel

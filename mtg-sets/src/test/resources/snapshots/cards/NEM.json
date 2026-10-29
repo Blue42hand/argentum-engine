@@ -343,7 +343,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 3 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1010,7 +1012,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Goblin permanent card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1124,7 +1128,9 @@
                                         "amount": 3
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for up to three cards named Nesting Wurm to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -1214,7 +1220,9 @@
                             "amount": 3
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for up to three creature cards to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -1666,7 +1674,9 @@
                                     "amount": 3
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for up to three Mercenary cards to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1747,7 +1757,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 2 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1848,7 +1860,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Merfolk permanent card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -2196,7 +2210,9 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for up to two Forest land cards to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
                 },
                 {
                     "type": "MoveCollection",
@@ -2272,7 +2288,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an Elf permanent card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -2345,7 +2363,9 @@
                                         "amount": 3
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for up to three cards named Skyshroud Sentinel to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",

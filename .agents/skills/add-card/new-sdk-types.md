@@ -1,8 +1,11 @@
 # Wiring a new SDK type
 
 Read this only when a card genuinely needs vocabulary the SDK doesn't have. First satisfy the bar in
-[`docs/sdk-design-principles.md`](../../../docs/sdk-design-principles.md) — composition first, and if a
-new type survives that, it must be parameterized for the *next* card, not this one.
+[`docs/sdk-design-principles.md`](../../../docs/sdk-design-principles.md) — compose first, then add an
+axis to the closest existing type, and only then a new type, parameterized for the *next* card, not this
+one. A new sealed type also needs its line in `mtg-sdk/src/test/resources/sdk-surface-baseline.txt`
+naming its two closest existing types and why neither could take the axis (`SdkSurfaceBaselineTest`
+prints the neighbours).
 
 If the addition is more than a small primitive a single card needs — a mechanic, a decision flow, a
 turn-structure change — stop and use the **`add-feature`** skill instead. It traces every layer.
@@ -51,23 +54,6 @@ catalog and a standing `AGENTS.md` rule: add the new building block to the right
 
 A new SDK type that reads or writes a named pipeline variable must also be classified in
 `CardLinter.dataflowFields`, or `CardLintTest`'s hygiene check fails. See §21.
-
-## Teach the mtgish generator (best-effort, wide payoff)
-
-One entry unlocks coverage and auto-draft for *every* card sharing the mechanic across the whole corpus,
-not just this one. When the building block maps to an mtgish IR tag:
-
-- **Capability bridge** (`mtgish-tooling/.../coverage/bridge/`) — a one-line `tag → capability` mapping
-  in the closest themed bridge file, so the probe scores those cards as coverable rather than blocked.
-- **Rendering emitter** (`mtgish-tooling/.../coverage/emitter/*Handlers.kt`) — a `simple("Tag",
-  "MyEffect()")` entry, or `on("Tag") { node, args, tvar -> … }` when it needs amount/target/filter
-  recovery. Extend `TargetRecovery.kt` rather than widening filters. Handlers don't track imports;
-  `Shells.importsFor` derives them.
-
-Confirm with `just coverage-verify --set <SET>`. If the mechanic is genuinely too card-specific to render
-exactly, return `null` from the emitter (the SCAFFOLD tier) but **still add the bridge entry** so coverage
-scoring stays correct. See [`mtgish-tooling/README.md`](../../../mtgish-tooling/README.md)
-§"Adding a handler".
 
 ## Assay will want to spell it too — name it, don't build it here
 

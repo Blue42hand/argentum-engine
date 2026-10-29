@@ -504,7 +504,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Forest land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -549,6 +551,140 @@
         "BLACK",
         "GREEN"
     ]
+}
+
+// Birgi, God of Storytelling
+{
+    "name": "Birgi, God of Storytelling",
+    "manaCost": "{2}{R}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "Whenever you cast a spell, add {R}. Until end of turn, you don't lose this mana as steps and phases end.\nCreatures you control can boast twice during each of your turns rather than once.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Birgi, God of Storytelling:1",
+                "trigger": "SpellCastEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "expiry": "KEPT_UNTIL_END_OF_TURN"
+                },
+                "descriptionOverride": "Whenever you cast a spell, add {R}. Until end of turn, you don't lose this mana as steps and phases end."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ExtraOnceOnlyActivations",
+                "kind": "BOAST",
+                "extraActivations": 1,
+                "condition": "IsYourTurn"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Harnfel, Horn of Bounty",
+        "manaCost": "{4}{R}",
+        "typeLine": "Legendary Artifact",
+        "oracleText": "Discard a card: Exile the top two cards of your library. You may play those cards this turn.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "Harnfel, Horn of Bounty:1",
+                    "cost": {
+                        "type": "CostAtomWrapper",
+                        "atom": "AtomDiscard"
+                    },
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "gathered0",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                }
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "gathered0"
+                            }
+                        ]
+                    },
+                    "descriptionOverride": "Exile the top two cards of your library. You may play those cards this turn."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "123",
+            "rarity": "RARE",
+            "artist": "Eric Deschamps",
+            "flavorText": "Like her well of stories, Birgi's horn never runs dry.",
+            "imageUri": "https://cards.scryfall.io/normal/back/4/4/44657ab1-0a6a-4a5f-9688-86f239083821.jpg?1783928241",
+            "rulings": [
+                {
+                    "date": "2021-02-05",
+                    "text": "The cards exiled by Harnfel's activated ability are exiled face up."
+                },
+                {
+                    "date": "2021-02-05",
+                    "text": "You may play those cards that turn even if Harnfel leaves the battlefield or another player gains control of it."
+                },
+                {
+                    "date": "2021-02-05",
+                    "text": "Unless an effect allows you to play additional lands that turn, you can play land cards exiled with Harnfel only if you haven't played a land yet that turn. In most cases, if you exile two land cards with Harnfel, you won't be able to play both."
+                },
+                {
+                    "date": "2021-02-05",
+                    "text": "Any cards exiled with Harnfel that you don't play remain exiled."
+                },
+                {
+                    "date": "2021-02-05",
+                    "text": "The card you discard to activate the ability isn't part of \"those cards\" and can't be played, even if it somehow ends up in exile."
+                }
+            ]
+        },
+        "colorIdentityOverride": [
+            "RED"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "RARE",
+        "artist": "Eric Deschamps",
+        "flavorText": "\"This is a tale to make all Kaldheim tremble...\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/4/44657ab1-0a6a-4a5f-9688-86f239083821.jpg?1783928241",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "Birgi's first ability uses the stack and can be responded to. It isn't a mana ability."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "You must still attack with a creature you control to activate its boast ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ],
+    "layout": "MODAL_DFC"
 }
 
 // Blightstep Pathway
@@ -610,6 +746,73 @@
         "BLACK"
     ],
     "layout": "MODAL_DFC"
+}
+
+// Bloodline Pretender
+{
+    "name": "Bloodline Pretender",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Shapeshifter",
+    "oracleText": "Changeling (This card is every creature type.)\nAs this creature enters, choose a creature type.\nWhenever another creature you control of the chosen type enters, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "CHANGELING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bloodline Pretender:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "HasChosenSubtype"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CREATURE_TYPE"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "235",
+        "rarity": "UNCOMMON",
+        "artist": "Slawomir Maniak",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/eb8a16f6-55c1-40eb-998f-592bf31916b1.jpg?1783928187",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "If Bloodline Pretender enters the battlefield at the same time as another creature, you can choose one of that creature's creature types and have Bloodline Pretender's last ability trigger for that other creature."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If Bloodline Pretender is somehow on the battlefield without a chosen creature type, its last ability can't trigger, even if a creature with no creature types enters the battlefield."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "You must choose an existing creature type, such as Vampire or Druid. You can't choose card types (e.g., artifact) or supertypes (e.g., snow)."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Breakneck Berserker
@@ -899,6 +1102,82 @@
     ]
 }
 
+// Demonic Gifts
+{
+    "name": "Demonic Gifts",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Until end of turn, target creature gets +2/+0 and gains \"When this creature dies, return it to the battlefield under its owner's control.\"",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantTriggeredAbility",
+                    "ability": {
+                        "id": "Demonic Gifts:1",
+                        "trigger": {
+                            "type": "ZoneChangeEvent",
+                            "from": "Battlefield",
+                            "to": "Graveyard"
+                        },
+                        "effect": {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Battlefield",
+                            "fromZone": "Graveyard"
+                        },
+                        "descriptionOverride": "When this creature dies, return it to the battlefield under its owner's control."
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "artist": "Kekai Kotaki",
+        "flavorText": "It began as a flavor on the tongue, like a bloody morsel of roast boar—but soon the power was a conflagration in her veins.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/f/3f23c487-ac4a-475b-ad5e-ec6f8678e668.jpg?1783928252",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "The reanimating effect of Demonic Gifts works only once. Once the creature dies and returns to the battlefield, it's a new object with no relation to the creature it was. If that new creature dies, it won't come back."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Depart the Realm
 {
     "name": "Depart the Realm",
@@ -1169,6 +1448,72 @@
     ]
 }
 
+// Dread Rider
+{
+    "name": "Dread Rider",
+    "manaCost": "{5}{B}",
+    "typeLine": "Creature — Spirit Knight",
+    "oracleText": "{1}{B}, {T}, Exile a creature card from your graveyard: Target opponent loses 3 life.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 7
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Dread Rider:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{B}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomExileFrom",
+                                "zone": "Graveyard",
+                                "filter": "creature"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "89",
+        "artist": "Irina Nordsol",
+        "flavorText": "\"What kind of monstrous grave robber leaves the treasures, but takes the bodies?\"\n—Fjall, Beskir elder",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/0/205eb029-68a0-4895-b142-2eb09987b5cb.jpg?1783928250"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dwarven Reinforcements
 {
     "name": "Dwarven Reinforcements",
@@ -1361,6 +1706,117 @@
         "artist": "Chris Seaman",
         "flavorText": "\"No elf can match a Tuskeri in combat. Why not charge?\"\n—Knorjolvin, Tuskeri raider",
         "imageUri": "https://cards.scryfall.io/normal/front/7/0/70479c44-da7c-48c7-8c6a-47210dc03277.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Elven Bow
+{
+    "name": "Elven Bow",
+    "manaCost": "{G}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "When this Equipment enters, you may pay {2}. If you do, create a 1/1 green Elf Warrior creature token, then attach this Equipment to it.\nEquipped creature gets +1/+2 and has reach.\nEquip {3}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Elven Bow:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{2}"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "CreateToken",
+                                "power": 1,
+                                "toughness": 1,
+                                "colors": [
+                                    "GREEN"
+                                ],
+                                "creatureTypes": [
+                                    "Elf",
+                                    "Warrior"
+                                ],
+                                "imageUri": "https://cards.scryfall.io/normal/front/1/1/118d0655-5719-4512-8bc1-fe759669811b.jpg?1783928078"
+                            },
+                            {
+                                "type": "AttachEquipment",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "createdTokens"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Elven Bow:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 2
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "REACH"
+            }
+        ]
+    },
+    "equipCost": "{3}",
+    "metadata": {
+        "collectorNumber": "166",
+        "rarity": "UNCOMMON",
+        "artist": "Dallas Williams",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/4/34c599c7-bcc1-4005-b830-1fa4811af66e.jpg?1783928216",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "You decide whether to pay {2} as the enters-the-battlefield ability resolves. If you do, you immediately create the Elf Warrior creature token and attach Elven Bow to it. No players may respond to your decision to pay or not, and no player may take actions during this process."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -2052,6 +2508,89 @@
     ]
 }
 
+// Goldspan Dragon
+{
+    "name": "Goldspan Dragon",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying, haste\nWhenever this creature attacks or becomes the target of a spell, create a Treasure token.\nTreasures you control have \"{T}, Sacrifice this artifact: Add two mana of any one color.\"",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Goldspan Dragon:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        "AttackEvent",
+                        {
+                            "type": "BecomesTargetEvent",
+                            "spellsOnly": true
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantActivatedAbility",
+                "ability": {
+                    "id": "Goldspan Dragon:2",
+                    "cost": {
+                        "type": "CostComposite",
+                        "costs": [
+                            "CostTap",
+                            "CostSacrificeSelf"
+                        ]
+                    },
+                    "effect": {
+                        "type": "AddManaOfChoice",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                },
+                "filter": {
+                    "baseFilter": "artifact Treasure ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "139",
+        "rarity": "MYTHIC",
+        "artist": "Andrew Mar",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d914868-9000-4df2-a818-0ef8a7f636ae.jpg?1783928228",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "If a spell targets Goldspan Dragon more than once, the triggered ability will trigger only once."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "An ability that triggers when a creature becomes the target of a spell resolves before the spell that caused it to trigger. Such an ability resolves even if that spell is countered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Goldvein Pick
 {
     "name": "Goldvein Pick",
@@ -2298,6 +2837,61 @@
     },
     "colorIdentityOverride": [
         "BLACK",
+        "BLUE"
+    ]
+}
+
+// Icebind Pillar
+{
+    "name": "Icebind Pillar",
+    "manaCost": "{2}{U}",
+    "typeLine": "Snow Artifact",
+    "oracleText": "{S}, {T}: Tap target artifact or creature. ({S} can be paid with one mana from a snow source.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Icebind Pillar:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{S}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact|creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{S}, {T}: Tap target artifact or creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "62",
+        "rarity": "UNCOMMON",
+        "artist": "Wisnu Tan",
+        "flavorText": "\"Oh, Valki. I'm disappointed in you. How could the god of lies be so gullible?\"\n—Tibalt",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a3152f1f-5d3f-4bc4-9b6f-f2983ab3f691.jpg?1783928261"
+    },
+    "colorIdentityOverride": [
         "BLUE"
     ]
 }
@@ -2777,6 +3371,79 @@
     ]
 }
 
+// Littjara Kinseekers
+{
+    "name": "Littjara Kinseekers",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Shapeshifter",
+    "oracleText": "Changeling (This card is every creature type.)\nWhen this creature enters, if you control three or more creatures that share a creature type, put a +1/+1 counter on this creature, then scry 1.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "CHANGELING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Littjara Kinseekers:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "Scry",
+                            "count": 1
+                        }
+                    ]
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": "LargestSharedCreatureTypeCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "artist": "Tyler Walpole",
+        "flavorText": "Like calls to like, and none are forgotten.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/1/c119f836-0707-49e2-b6d4-25f849d054a4.jpg?1783928261",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "Three creatures share a creature type if there's at least one creature type all three have, no matter what other creature types they have. For example, Littjara Kinseekers (which has all creature types), an Elf Warrior, and an Elf Wizard share a creature type because they're all Elves."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If you don't control three or more creatures that share a creature type immediately after Littjara Kinseekers enters the battlefield, its ability doesn't trigger. If you don't control three or more as the ability resolves, you won't put a +1/+1 counter on Littjara Kinseekers or scry 1. The three shared-type creatures you control when the ability resolves don't have to be the same three you controlled when the ability triggered."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "You put just one +1/+1 counter on Littjara Kinseekers and scry 1, no matter how many extra trios of creatures that share a creature type you control."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Maja, Bretagard Protector
 {
     "name": "Maja, Bretagard Protector",
@@ -2888,6 +3555,66 @@
     ]
 }
 
+// Maskwood Nexus
+{
+    "name": "Maskwood Nexus",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "Creatures you control are every creature type. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.\n{3}, {T}: Create a 2/2 blue Shapeshifter creature token with changeling. (It is every creature type.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Maskwood Nexus:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Shapeshifter"
+                    ],
+                    "keywords": [
+                        "CHANGELING"
+                    ]
+                },
+                "descriptionOverride": "{3}, {T}: Create a 2/2 blue Shapeshifter creature token with changeling."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "IsAllCreatureTypes",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "includeControlledSpells": true,
+                "includeOwnedCardsOutsideBattlefield": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "240",
+        "rarity": "RARE",
+        "artist": "Jason A. Engle",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/471d2aef-cfd4-4131-bbc7-62eeed9f3343.jpg?1783928186"
+    },
+    "colorIdentityOverride": []
+}
+
 // Mistwalker
 {
     "name": "Mistwalker",
@@ -2957,6 +3684,175 @@
     ]
 }
 
+// Pilfering Hawk
+{
+    "name": "Pilfering Hawk",
+    "manaCost": "{1}{U}",
+    "typeLine": "Snow Creature — Bird",
+    "oracleText": "Flying\n{S}, {T}: Draw a card, then discard a card. ({S} can be paid with one mana from a snow source.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Pilfering Hawk:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{S}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "descriptionOverride": "{S}, {T}: Draw a card, then discard a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"Well, at least it left us a mouse in exchange. Er . . . ugh . . . make that half a mouse.\"\n—Binhald, Beskir veteran",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/6/76ee3829-8dec-4c0f-a6c2-ad47a1c94cfc.jpg?1783928258"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Raiders' Karve
+{
+    "name": "Raiders' Karve",
+    "manaCost": "{3}",
+    "typeLine": "Artifact — Vehicle",
+    "oracleText": "Whenever this Vehicle attacks, look at the top card of your library. If it's a land card, you may put it onto the battlefield tapped.\nCrew 3 (Tap any number of creatures you control with total power 3 or more: This Vehicle becomes an artifact creature until end of turn.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "CREW"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "CREW",
+            "n": 3
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Raiders' Karve:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "land",
+                            "storeSelected": "selected1",
+                            "prompt": "You may put the land onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped",
+                            "remainderLabel": "Leave on top",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "242",
+        "artist": "Aaron Miller",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f572cbb1-49ee-4c95-90a3-82704cf92454.jpg?1783928184"
+    }
+}
+
 // Ravenous Lindwurm
 {
     "name": "Ravenous Lindwurm",
@@ -2996,6 +3892,93 @@
     ]
 }
 
+// Righteous Valkyrie
+{
+    "name": "Righteous Valkyrie",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Angel Cleric",
+    "oracleText": "Flying\nWhenever another Angel or Cleric you control enters, you gain life equal to that creature's toughness.\nAs long as you have at least 7 life more than your starting life total, creatures you control get +2/+2.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Righteous Valkyrie:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Angel|Cleric ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "TriggeringEntity",
+                        "numericProperty": "Toughness"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 2,
+                    "toughnessBonus": 2,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "LifeTotal",
+                        "player": "You"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Add",
+                        "left": {
+                            "type": "StartingLifeTotal",
+                            "player": "You"
+                        },
+                        "right": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/02fb5f9f-8750-4eb5-a03a-6dacc60e0b90.jpg?1783928279",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "The amount of life you gain is equal to the Angel or Cleric's toughness as the triggered ability resolves. If the Angel or Cleric is no longer on the battlefield at that time, use its toughness from when it was last on the battlefield."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "Because damage remains marked on creatures until the damage is removed as the turn ends, nonlethal damage dealt to creatures you control may become lethal if your life total drops below 7 life more than your starting life total or if Righteous Valkyrie leaves the battlefield that turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Rimewood Falls
 {
     "name": "Rimewood Falls",
@@ -3016,6 +3999,117 @@
     "colorIdentityOverride": [
         "GREEN",
         "BLUE"
+    ]
+}
+
+// Roots of Wisdom
+{
+    "name": "Roots of Wisdom",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Mill three cards, then return a land card or Elf card from your graveyard to your hand. If you can't, draw a card. (To mill a card, put the top card of your library into your graveyard.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "isMill": true
+                    },
+                    "storeAs": "milled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "milled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.DoAction",
+                        "action": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Graveyard",
+                                        "filter": "land|Elf"
+                                    },
+                                    "storeAs": "gathered0"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "gathered0",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "returned",
+                                    "prompt": "Return a land card or Elf card from your graveyard to your hand",
+                                    "selectedLabel": "Return to hand"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "returned",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Hand"
+                                    }
+                                }
+                            ]
+                        },
+                        "successCriterion": {
+                            "type": "SuccessCriterion.CollectionNonEmpty",
+                            "name": "returned"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": []
+                    },
+                    "otherwise": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "190",
+        "artist": "Sidharth Chaturvedi",
+        "flavorText": "Though imprisoned in Jaspera trees, the elvish gods known as the Einir still whisper through the ages.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/734afb5b-3163-47fa-856f-8a85b9da22d3.jpg?1783928206",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "Roots of Wisdom doesn't target any cards in graveyards. You may return a land card or an Elf card that was just milled or one that was already there."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If there's a land card or Elf card in your graveyard, you must return one. You can't choose not to in order to draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -3232,6 +4326,42 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Shimmerdrift Vale
+{
+    "name": "Shimmerdrift Vale",
+    "manaCost": "",
+    "typeLine": "Snow Land",
+    "oracleText": "This land enters tapped.\nAs this land enters, choose a color.\n{T}: Add one mana of the chosen color.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Shimmerdrift Vale:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": "ManaColorSet.SourceChosenColor"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped",
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "COLOR"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "267",
+        "artist": "Titus Lunter",
+        "flavorText": "Reflections from the wind-sculpted snow gleam with every color of the rainbow.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/0/f09d98db-0176-41a7-b99b-ead29876cdab.jpg?1783928172"
+    },
+    "colorIdentityOverride": []
 }
 
 // Showdown of the Skalds
@@ -3570,6 +4700,76 @@
     ]
 }
 
+// Spectral Steel
+{
+    "name": "Spectral Steel",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +2/+2.\n{1}{W}, Exile this card from your graveyard: Return another target Aura or Equipment card from your graveyard to your hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Spectral Steel:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{W}"
+                            }
+                        },
+                        "CostExileSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "Aura|Equipment own:you",
+                            "zone": "Graveyard",
+                            "excludeSelf": true
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "activateFromZone": "Graveyard"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 2
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "UNCOMMON",
+        "artist": "Johannes Voss",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/f/cf036489-ef9e-40ee-a1bb-24ee37c554f1.jpg?1783928275"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Squash
 {
     "name": "Squash",
@@ -3622,6 +4822,59 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Stalwart Valkyrie
+{
+    "name": "Stalwart Valkyrie",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Angel Warrior",
+    "oracleText": "You may pay {1}{W} and exile a creature card from your graveyard rather than pay this spell's mana cost.\nFlying",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "selfAlternativeCost": {
+            "manaCost": "{1}{W}",
+            "additionalCosts": [
+                {
+                    "type": "AdditionalAtom",
+                    "atom": {
+                        "type": "AtomExileFrom",
+                        "zone": "Graveyard",
+                        "filter": "creature"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "artist": "Jason Rainville",
+        "flavorText": "\"Only the worthy may pass.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/89ecb530-e429-4b50-a24c-8437614cf224.jpg?1783928277",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "Casting Stalwart Valkyrie for its alternative cost doesn't change when you can cast it."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "Once you announce that you're casting Stalwart Valkyrie using its alternative cost, no player may take other actions until the spell's been paid for. Notably, players can't try to remove creature cards from your graveyard to stop you from casting the spell."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "Stalwart Valkyrie has mana value 4, no matter what you actually paid to cast it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -3851,6 +5104,248 @@
     ]
 }
 
+// Tergrid, God of Fright
+{
+    "name": "Tergrid, God of Fright",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "Menace\nWhenever an opponent sacrifices a nontoken permanent or discards a permanent card, you may put that card from a graveyard onto the battlefield under your control.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Tergrid, God of Fright:1",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "permanent nontoken",
+                    "sacrificedBy": "EachOpponent",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "TriggeringEntity",
+                        "destination": "Battlefield",
+                        "controllerOverride": "Controller",
+                        "fromZone": "Graveyard"
+                    },
+                    "descriptionOverride": "Whenever an opponent sacrifices a nontoken permanent, you may put that card from a graveyard onto the battlefield under your control."
+                },
+                "descriptionOverride": "Whenever an opponent sacrifices a nontoken permanent, you may put that card from a graveyard onto the battlefield under your control."
+            },
+            {
+                "id": "Tergrid, God of Fright:2",
+                "trigger": {
+                    "type": "DiscardEvent",
+                    "player": "EachOpponent",
+                    "cardFilter": "permanent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "TriggeringEntity",
+                        "destination": "Battlefield",
+                        "controllerOverride": "Controller",
+                        "fromZone": "Graveyard"
+                    },
+                    "descriptionOverride": "Whenever an opponent discards a permanent card, you may put that card from a graveyard onto the battlefield under your control."
+                },
+                "descriptionOverride": "Whenever an opponent discards a permanent card, you may put that card from a graveyard onto the battlefield under your control."
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Tergrid's Lantern",
+        "manaCost": "{3}{B}",
+        "typeLine": "Legendary Artifact",
+        "oracleText": "{T}: Target player loses 3 life unless they sacrifice a nonland permanent of their choice or discard a card.\n{3}{B}: Untap Tergrid's Lantern.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "Tergrid's Lantern:1",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "PayOrSuffer",
+                        "cost": {
+                            "type": "Choice",
+                            "options": [
+                                {
+                                    "type": "PayAtom",
+                                    "atom": {
+                                        "type": "AtomSacrifice",
+                                        "filter": "nonland"
+                                    }
+                                },
+                                {
+                                    "type": "PayAtom",
+                                    "atom": "AtomDiscard"
+                                }
+                            ]
+                        },
+                        "suffer": {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetPlayer",
+                            "id": "t0"
+                        }
+                    ],
+                    "descriptionOverride": "Target player loses 3 life unless they sacrifice a nonland permanent of their choice or discard a card."
+                },
+                {
+                    "id": "Tergrid's Lantern:2",
+                    "cost": {
+                        "type": "CostAtomWrapper",
+                        "atom": {
+                            "type": "AtomMana",
+                            "cost": "{3}{B}"
+                        }
+                    },
+                    "effect": {
+                        "type": "TapUntap",
+                        "target": "Self",
+                        "tap": false
+                    },
+                    "descriptionOverride": "Untap Tergrid's Lantern."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "112",
+            "rarity": "RARE",
+            "artist": "Yongjae Choi",
+            "flavorText": "When Tergrid was a child, her shadow tried to kill her. Only her lantern keeps it at bay.",
+            "imageUri": "https://cards.scryfall.io/normal/back/1/4/14dc88ee-bba9-4625-af0d-89f3762a0ead.jpg?1783928244",
+            "rulings": [
+                {
+                    "date": "2021-02-05",
+                    "text": "The player targeted by the first ability of Tergrid's Lantern can choose to lose 3 life even if they have nonland permanents to sacrifice or cards to discard. They can't choose to sacrifice a nonland permanent if they don't control any, nor can they choose to discard a card if they have none in hand."
+                }
+            ]
+        },
+        "colorIdentityOverride": [
+            "BLACK"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "rarity": "RARE",
+        "artist": "Yongjae Choi",
+        "flavorText": "Fear is her one true companion.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/4/14dc88ee-bba9-4625-af0d-89f3762a0ead.jpg?1783928244",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "If an opponent sacrifices a nontoken permanent, it doesn't matter which graveyard it goes to. Tergrid's ability will trigger."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If the card leaves the graveyard before Tergrid's ability resolves, you can't put it onto the battlefield, even if it returns to the graveyard before the ability resolves."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If an opponent sacrifices a nontoken permanent or discards a permanent card as part of paying the cost of a spell or ability, Tergrid's ability will trigger and goes on the stack on top of that spell or ability. Tergrid's ability will resolve before that spell or ability."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If you put an Aura onto the battlefield using Tergrid's ability, you choose what the Aura will enchant just before it enters the battlefield. An Aura put onto the battlefield this way doesn't target the player or permanent it will enchant, so permanents or players with hexproof may be chosen; however, the chosen recipient must be able to legally be enchanted by the Aura, so a player or permanent with protection from one of the Aura's qualities can't be chosen this way. If there's nothing legal for the Aura to enchant, it stays in the graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ],
+    "layout": "MODAL_DFC"
+}
+
+// Toski, Bearer of Secrets
+{
+    "name": "Toski, Bearer of Secrets",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Squirrel",
+    "oracleText": "This spell can't be countered.\nIndestructible\nToski attacks each combat if able.\nWhenever a creature you control deals combat damage to a player, draw a card.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Toski, Bearer of Secrets:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
+                    "sourceFilter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            "MustAttack"
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "rarity": "RARE",
+        "artist": "Jason Rainville",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f9e79b59-94c8-4697-bf88-f0a0433170f5.jpg?1783928203",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "A spell or ability that counters spells can still target Toski. When that spell or ability resolves, Toski won't be countered, but any additional effects of that spell or ability will still happen."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If Toski can't attack for some reason (such as being tapped or having come under that player's control that turn), then it doesn't attack. If there's a cost associated with having it attack, you aren't forced to pay that cost, so it doesn't have to attack in that case either."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Undersea Invader
 {
     "name": "Undersea Invader",
@@ -3877,6 +5372,88 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Valkyrie Harbinger
+{
+    "name": "Valkyrie Harbinger",
+    "manaCost": "{4}{W}{W}",
+    "typeLine": "Creature — Angel Cleric",
+    "oracleText": "Flying\nLifelink (Damage dealt by this creature also causes you to gain that much life.)\nAt the beginning of each end step, if you gained 4 or more life this turn, create a 4/4 white Angel creature token with flying and vigilance.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING",
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Valkyrie Harbinger:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 4,
+                    "toughness": 4,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Angel"
+                    ],
+                    "keywords": [
+                        "FLYING",
+                        "VIGILANCE"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/9/8/9864812a-b3b1-4e12-8737-0795cdff994c.jpg?1783902808"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "374",
+        "rarity": "RARE",
+        "artist": "Tran Nguyen",
+        "flavorText": "Where she flies, the Light of Starnheim shines.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/d/edab83a9-35b5-4312-b8ee-1c042c02aa31.jpg?1783928124",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "You create just one Angel token, no matter how much life you've gained past 4 life."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "Valkyrie Harbinger's ability looks at how much life you've gained in the turn, even if it wasn't on the battlefield when you gained life. It doesn't care if you also lost life, even if you lost more life than you gained."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "If you haven't gained 4 life by the time an end step begins, Valkyrie Harbinger's ability won't trigger at all."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 

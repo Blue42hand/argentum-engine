@@ -16,6 +16,7 @@ object MarchOfTheMachineAftermathSet : MtgSet {
     override val code = "MAT"
     override val displayName = "March of the Machine: The Aftermath"
     override val releaseDate = "2023-05-12"
+    override val extensionSet = true
     override val incomplete = true
 
     override val cards: List<CardDefinition> by lazy {

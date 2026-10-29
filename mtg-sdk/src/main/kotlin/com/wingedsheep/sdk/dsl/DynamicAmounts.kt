@@ -134,14 +134,27 @@ object DynamicAmounts {
     fun greatestAmongPlayers(inner: DynamicAmount, players: Player = Player.Each): DynamicAmount =
         DynamicAmount.GreatestAmongPlayers(players, inner)
 
+    /** The least value of [inner] (evaluated as each of [players]) — "the player who has the fewest". */
+    fun leastAmongPlayers(inner: DynamicAmount, players: Player = Player.Each): DynamicAmount =
+        DynamicAmount.LeastAmongPlayers(players, inner)
+
     /** The total mana spent to cast this spell. */
     fun totalManaSpent(): DynamicAmount = DynamicAmount.TotalManaSpent
 
     /** The amount of [color] mana spent on X. */
     fun manaSpentOnX(color: Color): DynamicAmount = DynamicAmount.ManaSpentOnX(color)
 
-    /** The amount of mana produced by a [subtype] source (a Cave) spent to cast this. */
-    fun manaSpentFromSubtype(subtype: Subtype): DynamicAmount = DynamicAmount.ManaSpentFromSubtype(subtype)
+    /**
+     * The amount of [color] mana spent to cast this, across the whole cost. "For each {U}{U} spent
+     * to cast it" is `manaOfColorSpent(Color.BLUE) / 2`.
+     */
+    fun manaOfColorSpent(color: Color): DynamicAmount = DynamicAmount.ManaOfColorSpent(color)
+
+    /** Mana from a [subtype] source spent on the named cast or activation payment. */
+    fun manaSpentFromSubtype(
+        subtype: Subtype,
+        payment: com.wingedsheep.sdk.scripting.values.ManaPayment = com.wingedsheep.sdk.scripting.values.ManaPayment.CAST,
+    ): DynamicAmount = DynamicAmount.ManaSpentFromSubtype(subtype, payment)
 
     /** The amount of mana from snow sources ("{S}") spent to cast this (CR 107.4h). */
     fun snowManaSpent(): DynamicAmount = DynamicAmount.SnowManaSpent
@@ -189,8 +202,15 @@ object DynamicAmounts {
     /** The number of cards discarded by the triggering event. */
     fun triggerDiscardCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT)
 
+    /** The final result of the die roll that triggered this ability. */
+    fun triggerDieResult(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DIE_RESULT)
+
     /** The number the triggering scry looked at. */
     fun triggerScryCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT)
+
+    /** The number of cards chosen for the bottom during the triggering scry. */
+    fun triggerScryBottomCount(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_BOTTOM_COUNT)
 
     /** The number of counters the triggering event put on ("that many"). */
     fun triggerCountersPlaced(): DynamicAmount =
@@ -412,6 +432,14 @@ object DynamicAmounts {
     fun devotionTo(vararg colors: Color): DynamicAmount =
         DynamicAmount.DevotionTo(colors.toList())
 
+    /**
+     * The number of colors in your commanders' color identity (War Room) — 0 for a colorless
+     * commander; a Partner / Background pair counts the union of their identities. As a cost it is
+     * unpayable for a player with no commander. See [DynamicAmount.CommanderColorIdentityCount].
+     */
+    fun commanderColorIdentityCount(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.CommanderColorIdentityCount(player)
+
     fun creaturesYouControl(): DynamicAmount =
         battlefield(Player.You, GameObjectFilter.Creature).count()
 
@@ -442,6 +470,19 @@ object DynamicAmounts {
         filter: GameObjectFilter = GameObjectFilter.Any,
         players: Player = Player.Each,
     ): DynamicAmount = DynamicAmount.GreatestAmongPlayers(
+        players = players,
+        inner = battlefield(Player.You, filter).count(),
+    )
+
+    /**
+     * "The number of [filter] controlled by the player who controls the fewest" —
+     * [DynamicAmount.LeastAmongPlayers] around a per-player battlefield count (Balance). The
+     * minimum twin of [greatestControlledBySinglePlayer], keeping the same per-player boundary.
+     */
+    fun fewestControlledBySinglePlayer(
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        players: Player = Player.Each,
+    ): DynamicAmount = DynamicAmount.LeastAmongPlayers(
         players = players,
         inner = battlefield(Player.You, filter).count(),
     )
@@ -732,9 +773,20 @@ object DynamicAmounts {
     fun plusOneCountersPutOnYourCreaturesThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.PLUS_ONE_COUNTERS_PUT_ON_YOUR_CREATURES)
 
+    /** The number of lands [player] has played this turn — the land-play action, not lands put onto the battlefield. */
+    fun landsPlayedThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.LANDS_PLAYED)
+
     /** The number of cards [player] has drawn this turn. */
     fun cardsDrawnThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.CARDS_DRAWN)
+
+    /**
+     * The number of untapped lands [player] controlled at the beginning of this turn — an untap-step
+     * snapshot taken before anything untaps (Power Surge).
+     */
+    fun untappedLandsAtTurnStart(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.UNTAPPED_LANDS_AT_TURN_START)
 
     /** The damage [player] has been dealt this turn. */
     fun damageReceivedThisTurn(player: Player = Player.You): DynamicAmount =
@@ -764,6 +816,10 @@ object DynamicAmounts {
      */
     fun permanentsPutIntoGraveyardFromBattlefieldThisTurn(player: Player = Player.Each): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.PERMANENTS_PUT_INTO_GRAVEYARD_FROM_BATTLEFIELD)
+
+    /** Counts directly attacked opponents once each, including opponents who subsequently left. */
+    fun opponentsAttackedThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.OPPONENTS_ATTACKED)
 
     fun opponentsWhoLostLifeThisTurn(): DynamicAmount =
         DynamicAmount.TurnTracking(Player.You, TurnTracker.OPPONENTS_WHO_LOST_LIFE)
@@ -874,6 +930,14 @@ object DynamicAmounts {
         DynamicAmount.TurnTracking(player, TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY)
 
     /**
+     * "The number of cards put into [player]'s graveyard from anywhere this turn" (Fraying Sanity,
+     * with `Player.EnchantedPlayer`). Every origin zone counts, tokens don't; see
+     * [TurnTracker.CARDS_PUT_INTO_GRAVEYARD].
+     */
+    fun cardsPutIntoGraveyardThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.CARDS_PUT_INTO_GRAVEYARD)
+
+    /**
      * "The number of permanents [player] sacrificed this turn" (controller-scoped, any permanent
      * type). Reads the per-player `PermanentsSacrificedThisTurnComponent`, distinct from the
      * game-wide cost-reduction counter. Used by Sawblade Skinripper ("deals that much damage").
@@ -932,10 +996,18 @@ object DynamicAmounts {
     fun speed(player: Player = Player.You): DynamicAmount = DynamicAmount.Speed(player)
 
     /**
-     * How many counters of [counterType] a player currently has (CR 122.1 — counters placed on a
-     * player rather than a permanent). Poison, energy, and rad counters all live here.
+     * How many dungeons [player] has completed this game (CR 309.7) — of the dungeon named [dungeon]
+     * only, when it's given. "If you've completed a dungeon" is `Conditions.YouCompletedADungeon`.
      */
-    fun playerCounterCount(counterType: CounterType, player: Player = Player.You): DynamicAmount =
+    fun dungeonsCompleted(player: Player = Player.You, dungeon: String? = null): DynamicAmount =
+        DynamicAmount.DungeonsCompleted(player, dungeon)
+
+    /**
+     * How many counters of [counterType] a player currently has (CR 122.1 — counters placed on a
+     * player rather than a permanent). Poison, energy, and rad counters all live here. `null`
+     * [counterType] counts every kind.
+     */
+    fun playerCounterCount(counterType: CounterType?, player: Player = Player.You): DynamicAmount =
         DynamicAmount.PlayerCounterCount(counterType, player)
 
     /**
@@ -961,6 +1033,10 @@ object DynamicAmounts {
     fun propertyOf(entity: EffectTarget.SingleEntity, property: EntityNumericProperty): DynamicAmount =
         DynamicAmount.EntityProperty(entity, property)
 
+    /** Number of enlist costs this object paid in the current combat, including repeated instances. */
+    fun enlistmentsThisCombat(entity: EffectTarget.SingleEntity): DynamicAmount =
+        propertyOf(entity, EntityNumericProperty.EnlistmentsThisCombat)
+
     /** [entity]'s power (a target handle, `EffectTarget.TriggeringEntity`, `IterationEntity`, …). */
     fun powerOf(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.Power)
 
@@ -972,6 +1048,14 @@ object DynamicAmounts {
 
     /** The amount of mana spent to cast [entity] (a spell) — reduced by cost reductions, unlike its mana value. */
     fun manaSpentToCast(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.ManaSpent)
+
+    /**
+     * The number of permanents sacrificed to pay the costs of casting [entity] (a spell) — read
+     * off the spell itself, so a cast trigger sees its spell's payment ("when you do, copy this
+     * spell for each creature sacrificed this way" — Plumb the Forbidden).
+     */
+    fun permanentsSacrificedToCast(entity: EffectTarget.SingleEntity): DynamicAmount =
+        propertyOf(entity, EntityNumericProperty.PermanentsSacrificedToCast)
 
     /** The number of [type] counters on [entity] (`null` = counters of any kind). */
     fun countersOn(entity: EffectTarget.SingleEntity, type: CounterType?): DynamicAmount =

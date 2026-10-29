@@ -48,7 +48,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 3 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -232,6 +234,64 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Assembly-Worker
+{
+    "name": "Assembly-Worker",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Assembly-Worker",
+    "oracleText": "{T}: Target Assembly-Worker creature gets +1/+1 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Assembly-Worker:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature Assembly-Worker"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{T}: Target Assembly-Worker creature gets +1/+1 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "rarity": "UNCOMMON",
+        "artist": "Chippy",
+        "flavorText": "With their factories long destroyed, some of Mishra's creations still toil in remote areas, endlessly performing and reperforming their last orders.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e086d662-3740-4704-9184-c42c6a16d829.jpg?1783943200",
+        "rulings": [
+            {
+                "date": "2018-03-16",
+                "text": "Assembly-Worker's ability can target any creature with the Assembly-Worker subtype, not only creatures named Assembly-Worker."
+            }
+        ]
+    }
 }
 
 // Basal Sliver
@@ -605,6 +665,161 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Clockwork Hydra
+{
+    "name": "Clockwork Hydra",
+    "manaCost": "{5}",
+    "typeLine": "Artifact Creature — Hydra",
+    "oracleText": "This creature enters with four +1/+1 counters on it.\nWhenever this creature attacks or blocks, remove a +1/+1 counter from it. If you do, it deals 1 damage to any target.\n{T}: Put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Clockwork Hydra:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    {
+                                        "type": "HasCounter",
+                                        "counterType": "PLUS_ONE_PLUS_ONE"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "RemoveCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": "Self"
+                            },
+                            {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Clockwork Hydra:2",
+                "trigger": "BlockEvent",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    {
+                                        "type": "HasCounter",
+                                        "counterType": "PLUS_ONE_PLUS_ONE"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "RemoveCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": "Self"
+                            },
+                            {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t1"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Clockwork Hydra:3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "{T}: Put a +1/+1 counter on this creature."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 4,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "253",
+        "rarity": "UNCOMMON",
+        "artist": "Daren Bader",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/54522c50-5333-47ac-ba3e-d87c599404c4.jpg?1783943198",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "If Clockwork Hydra leaves the battlefield while its trigger is on the stack, you can't remove a +1/+1 counter from it, so it won't deal damage."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If the chosen target is an illegal target by the time Clockwork Hydra's triggered ability tries to resolve, the ability doesn't resolve. You don't remove a counter from Clockwork Hydra."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Corpulent Corpse
@@ -1749,7 +1964,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -2624,7 +2841,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for an instant card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -2648,6 +2867,57 @@
     "colorIdentityOverride": [
         "BLUE",
         "BLACK"
+    ]
+}
+
+// Ophidian Eye
+{
+    "name": "Ophidian Eye",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Flash (You may cast this spell any time you could cast an instant.)\nEnchant creature\nWhenever enchanted creature deals damage to an opponent, you may draw a card.",
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ophidian Eye:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "artist": "Zoltan Boros & Gabor Szikszai",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/26836ff5-b3c3-4b10-af1e-df3658781cb2.jpg?1783943242"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2698,6 +2968,72 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Pit Keeper
+{
+    "name": "Pit Keeper",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, if you have four or more creature cards in your graveyard, you may return target creature card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Pit Keeper:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Hand"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "artist": "Anthony S. Waters",
+        "flavorText": "\"The undead are not 'awakened.' They are evicted when there is no room left in the pit for more bodies.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/8936e767-0e48-4adb-93e9-790fe0cc19f2.jpg?1783943230"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -3257,7 +3593,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
                 },
                 {
                     "type": "MoveCollection",
@@ -3553,6 +3891,60 @@
     ]
 }
 
+// Swarmyard
+{
+    "name": "Swarmyard",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}: Regenerate target Insect, Rat, Spider, or Squirrel. (The next time it would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Swarmyard:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Swarmyard:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Regenerate",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent Insect|Rat|Spider|Squirrel"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{T}: Regenerate target Insect, Rat, Spider, or Squirrel."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "278",
+        "rarity": "RARE",
+        "artist": "Thomas M. Baxa",
+        "flavorText": "Where scavengers nest in hollowed-out rib cages and chittering crawlers peer from empty eye sockets, few dare to trespass.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/5/25bfe849-a508-4fa8-8999-909fe8ec34fa.jpg?1783943193"
+    },
+    "colorIdentityOverride": []
+}
+
 // Telekinetic Sliver
 {
     "name": "Telekinetic Sliver",
@@ -3682,7 +4074,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -4328,6 +4722,49 @@
         "artist": "Carl Critchlow",
         "flavorText": "Venser admired his handiwork and smiled. His first prototype had joined with the hive mind all too well, running with the brood and becoming a predator itself. This one, he thought, would be accepted into the hive but still obey his commands.",
         "imageUri": "https://cards.scryfall.io/normal/front/1/e/1e3c5a64-453b-4477-853a-9514ba326f16.jpg?1783943196"
+    },
+    "colorIdentityOverride": []
+}
+
+// Vesuva
+{
+    "name": "Vesuva",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "You may have this land enter tapped as a copy of any land on the battlefield.",
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        "IsLand"
+                    ]
+                },
+                "tappedIfCopied": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "281",
+        "rarity": "RARE",
+        "artist": "Zoltan Boros & Gabor Szikszai",
+        "flavorText": "It is everywhere you've ever been.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82fc9498-7397-4857-87fe-7c9010944ed8.jpg?1783943192",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Vesuva copies exactly what is printed on the land it's copying and nothing else (unless it's copying a land that's copying something else). It doesn't copy whether a land is tapped or untapped, counters, Auras, or non-copy effects that changed its types."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If Vesuva somehow enters the battlefield at the same time as another land, Vesuva can't become a copy of that land. You may choose only a land that's already on the battlefield."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If you don't choose a land on the battlefield, Vesuva enters the battlefield untapped as itself, and will not be able to tap for mana."
+            }
+        ]
     },
     "colorIdentityOverride": []
 }

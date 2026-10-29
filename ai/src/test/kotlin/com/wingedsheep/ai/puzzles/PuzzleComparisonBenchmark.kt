@@ -100,12 +100,82 @@ class PuzzleComparisonBenchmark : ScenarioTestBase() {
                 // controls for haste, an ETB that clears a blocker, and the late-game release.
                 AiProfile.PRODUCTION_AMBUSH,
                 AiProfile.PRODUCTION_CANDIDATE_AMBUSH,
+                AiProfile.PRODUCTION_CANDIDATE_EXPIRING_AMBUSH,
                 // Expiring grants held for a window that can spend them, alone and on top of what
                 // is live. `instants-14` is the verdict that should move; `instants-15` (the
                 // released window) and `instants-16` (a payoff that outlives the turn) are the
                 // negative controls and must not.
                 AiProfile.PRODUCTION_EXPIRING,
                 AiProfile.PRODUCTION_CANDIDATE_EXPIRING,
+                // Castability-aware card selection, alone and on top of what is live.
+                AiProfile.PRODUCTION_CARDSELECT,
+                AiProfile.PRODUCTION_CANDIDATE_CARDSELECT,
+                // Choice decisions (colour, land type, card name, skip-a-draw) answered by what
+                // they are for. The suite has no naming or colour position, so these columns are
+                // a no-regression check, not where the gain shows.
+                AiProfile.PRODUCTION_CHOICES,
+                AiProfile.PRODUCTION_CANDIDATE_CHOICES,
+                // End-of-turn payoffs nothing can spend, alone and on top of the expiring floor.
+                // `instants-18` … `-21` are the verdicts that should move; `instants-15` and `-17`
+                // (a grant bought for a fight that is still coming) and `instants-22` (a trick on
+                // the attacker that is in the fight) are the negative controls and must not.
+                AiProfile.PRODUCTION_NOOP,
+                AiProfile.PRODUCTION_CANDIDATE_NOOP,
+                // Target polarity read off the effect, alone and on top of what is live.
+                AiProfile.PRODUCTION_POLARITY,
+                AiProfile.PRODUCTION_CANDIDATE_POLARITY,
+                // Chump blocks only when the life is needed, alone and on top of what is live.
+                AiProfile.PRODUCTION_CHUMPGATE,
+                AiProfile.PRODUCTION_CANDIDATE_CHUMPGATE,
+                // Sorcery-speed permanents no longer charged as card loss, alone and on top of the
+                // agent the 2026-10-09 logs were taken with. `sequencing-09`/`-10` are the verdicts
+                // that should move; `instants-*` and `respond-02` (hold the last Counterspell) are
+                // the negative controls, since an instant's hand value is real option value.
+                AiProfile.PRODUCTION_DEPLOY,
+                AiProfile.PRODUCTION_CANDIDATE_DEPLOY,
+                // "Up to N targets" filled past one while each extra target helps.
+                AiProfile.PRODUCTION_UPTO,
+                AiProfile.PRODUCTION_CANDIDATE_UPTO,
+                // A library search that can find nothing refused outright.
+                AiProfile.PRODUCTION_DEADSEARCH,
+                AiProfile.PRODUCTION_CANDIDATE_DEADSEARCH,
+                // A minus-only planeswalker (the empower-Jace token) spends its loyalty.
+                AiProfile.PRODUCTION_FUELLOYALTY,
+                AiProfile.PRODUCTION_CANDIDATE_FUELLOYALTY,
+                // An activation that changes nothing refused outright.
+                AiProfile.PRODUCTION_EMPTYPAYOFF,
+                AiProfile.PRODUCTION_CANDIDATE_EMPTYPAYOFF,
+                // Idle mana spent on drawing, in the last window that can.
+                AiProfile.PRODUCTION_IDLEDRAW,
+                AiProfile.PRODUCTION_CANDIDATE_IDLEDRAW,
+                // Lands in hand priced by the land drop that will reach them.
+                AiProfile.PRODUCTION_SURPLUSLANDS,
+                AiProfile.PRODUCTION_CANDIDATE_SURPLUSLANDS,
+                // An until-end-of-turn P/T change read only on a creature already in a fight.
+                AiProfile.PRODUCTION_EXPIRINGSTATS,
+                AiProfile.PRODUCTION_CANDIDATE_EXPIRINGSTATS,
+                // Each attacker picks its defender: opposing planeswalkers priced as engines.
+                AiProfile.PRODUCTION_WALKERATTACKS,
+                AiProfile.PRODUCTION_CANDIDATE_WALKERATTACKS,
+                // Our own planeswalkers defended, and spent before they die.
+                AiProfile.PRODUCTION_WALKERDEFENCE,
+                AiProfile.PRODUCTION_CANDIDATE_WALKERDEFENCE,
+                // Enablers cast before the spells they discount.
+                AiProfile.PRODUCTION_ENABLERS,
+                AiProfile.PRODUCTION_CANDIDATE_ENABLERS,
+                // A precombat pump priced by the attack it buys.
+                AiProfile.PRODUCTION_PLANPUMPS,
+                AiProfile.PRODUCTION_CANDIDATE_PLANPUMPS,
+                // Instant-speed deploys held for the opponent's turn.
+                AiProfile.PRODUCTION_DEPLOYHOLD,
+                AiProfile.PRODUCTION_CANDIDATE_DEPLOYHOLD,
+                // A beginning-of-combat pump bought only for creatures the attack plan sends.
+                AiProfile.PRODUCTION_PLANNEDPUMPS,
+                AiProfile.PRODUCTION_CANDIDATE_PLANNEDPUMPS,
+                // Attack decisions from the 2026-10-09 game-log review — crack-back priced as life,
+                // tapped fliers keeping their evasion — alone and on top of what is live.
+                AiProfile.PRODUCTION_ATTACKS,
+                AiProfile.PRODUCTION_CANDIDATE_ATTACKS,
                 // Phase 7's rollout evaluator, isolated from Phases 4 and 6 so the column is
                 // attributable to the rollouts alone.
                 AiProfile.PHASE7,

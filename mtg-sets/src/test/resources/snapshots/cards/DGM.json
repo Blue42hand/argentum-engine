@@ -76,6 +76,44 @@
     ]
 }
 
+// Gruul War Chant
+{
+    "name": "Gruul War Chant",
+    "manaCost": "{2}{R}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Attacking creatures you control get +1/+0 and have menace.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 0,
+                "filter": {
+                    "baseFilter": "creature attacking ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "MENACE",
+                "filter": {
+                    "baseFilter": "creature attacking ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Kendall",
+        "flavorText": "\"We are the heart of the wild, the fire in its eyes, and the howl in its throat. Come, join the battle to which you were born.\"\n—Kroshkar, Gruul shaman",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/df383a6a-5eb1-48e8-a5f3-f4731ddb871b.jpg?1783940029"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Kraul Warrior
 {
     "name": "Kraul Warrior",
@@ -183,7 +221,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Gate land card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -271,6 +311,39 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Riot Control
+{
+    "name": "Riot Control",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "You gain 1 life for each creature your opponents control. Prevent all damage that would be dealt to you this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "EachOpponent",
+                        "filter": "creature"
+                    }
+                },
+                "PreventDamageShield"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "artist": "Slawomir Maniak",
+        "flavorText": "\"Ravnicans need order. If they don't have it, we shall bring it to them.\"\n—Isperia",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d7886607-86db-4221-8752-296104aaaef2.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -421,4 +494,115 @@
         "GREEN",
         "WHITE"
     ]
+}
+
+// Wear // Tear
+{
+    "name": "Wear // Tear",
+    "manaCost": "",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact.\nFuse (You may cast one or both halves of this card from your hand.)\n//\nDestroy target enchantment.\nFuse (You may cast one or both halves of this card from your hand.)",
+    "keywords": [
+        "FUSE"
+    ],
+    "metadata": {
+        "collectorNumber": "135",
+        "rarity": "UNCOMMON",
+        "artist": "Ryan Pancoast",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/1/d169a3b2-18ae-4414-98ef-d879676fdcc0.jpg?1783940014",
+        "rulings": [
+            {
+                "date": "2013-04-15",
+                "text": "If you're casting a split card with fuse from any zone other than your hand, you can't cast both halves. You'll only be able to cast one half or the other."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "To cast a fused split spell, pay both of its mana costs. While the spell is on the stack, its mana value is the total amount of mana in both costs."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "You can choose the same object as the target of each half of a fused split spell, if appropriate."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "When resolving a fused split spell with multiple targets, treat it as you would any spell with multiple targets. If all targets are illegal when the spell tries to resolve, the spell doesn't resolve and none of its effects happen. If at least one target is still legal at that time, the spell resolves, but an illegal target can't perform any actions or have any actions performed on it."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "When a fused split spell resolves, follow the instructions of the left half first, then the instructions on the right half."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "On the stack, a split spell that hasn't been fused has only that half's characteristics and mana value. The other half is treated as though it didn't exist."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "Some split cards with fuse have two monocolor halves of different colors. If such a card is cast as a fused split spell, the resulting spell is multicolored. If only one half is cast, the spell is the color of that half. While not on the stack, such a card is multicolored."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If you cast a split card with fuse from your hand without paying its mana cost, you can choose to use its fuse ability and cast both halves without paying their mana costs."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ],
+    "layout": "SPLIT",
+    "cardFaces": [
+        {
+            "name": "Wear",
+            "manaCost": "{1}{R}",
+            "typeLine": "Instant",
+            "oracleText": "Destroy target artifact.\nFuse (You may cast one or both halves of this card from your hand.)",
+            "script": {
+                "spellEffect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Tear",
+            "manaCost": "{W}",
+            "typeLine": "Instant",
+            "oracleText": "Destroy target enchantment.\nFuse (You may cast one or both halves of this card from your hand.)",
+            "script": {
+                "spellEffect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "enchantment"
+                        },
+                        "id": "t1"
+                    }
+                ]
+            }
+        }
+    ],
+    "hasNoManaCost": true
 }

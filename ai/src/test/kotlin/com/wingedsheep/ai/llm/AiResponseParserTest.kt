@@ -8,6 +8,12 @@ class AiResponseParserTest : StringSpec({
 
     val parser = AiResponseParser()
 
+    "preserves repeated allocation letters only when explicitly allowed" {
+        parser.parseMultipleSelections("A, A, B", 1, allowRepeated = true) shouldBe listOf(0, 0, 1)
+        parser.parseMultipleSelections("1, 1, 2", 1, allowRepeated = true) shouldBe listOf(0, 0, 1)
+        parser.parseMultipleSelections("A, A, B", 1) shouldBe listOf(0, 1)
+    }
+
     "parses explicit keep and mulligan responses" {
         parser.parseMulliganChoice("Keep this hand") shouldBe true
         parser.parseMulliganChoice("Take a mulligan") shouldBe false

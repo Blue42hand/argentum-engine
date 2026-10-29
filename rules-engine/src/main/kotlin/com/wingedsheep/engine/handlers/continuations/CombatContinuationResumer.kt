@@ -98,7 +98,14 @@ class CombatContinuationResumer(
         if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(result.state, result.events)
         }
-        return checkForMore(result.state, result.events)
+        // The re-run's stored numbers ("the damage dealt this way", excess damage) belong to the
+        // composite step after it, which now resumes from the frame beneath.
+        val published = exposeCollectionsToNextFrame(
+            result.state,
+            collections = emptyMap(),
+            numbers = result.updatedStoredNumbers
+        )
+        return checkForMore(published, result.events)
     }
 
     fun resumeDamageAssignment(
@@ -290,8 +297,9 @@ class CombatContinuationResumer(
 
         val timestamp = originalShield?.timestamp ?: state.timestamp
         var workingState = state
-        val gainsLife = (originalShield?.effect?.modification as? SerializableModification.PreventNextDamage)
-            ?.controllerGainsLife ?: false
+        val originalMod = originalShield?.effect?.modification as? SerializableModification.PreventNextDamage
+        val gainsLife = originalMod?.controllerGainsLife ?: false
+        val combatOnly = originalMod?.combatOnly ?: false
         for ((sourceId, preventionAmount) in response.distribution) {
             if (preventionAmount <= 0) continue
             val (effectId, advanced) = workingState.newEntity()
@@ -301,7 +309,8 @@ class CombatContinuationResumer(
                 modification = SerializableModification.PreventNextDamage(
                     preventionAmount,
                     onlyFromSource = sourceId,
-                    controllerGainsLife = gainsLife
+                    controllerGainsLife = gainsLife,
+                    combatOnly = combatOnly
                 ),
                 affectedEntities = setOf(continuation.recipientId)
             )

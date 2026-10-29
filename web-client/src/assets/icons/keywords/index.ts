@@ -97,6 +97,7 @@ export const displayableKeywords = new Set([
 
 /** Maps engine CounterType to mana-font counter class suffixes */
 export const counterManaClass: Record<string, string> = {
+  RAD: 'counter-charge',
   PLUS_ONE_PLUS_ONE: 'counter-plus',
   MINUS_ONE_MINUS_ONE: 'counter-minus',
   PLUS_ONE_PLUS_ZERO: 'counter-plus',
@@ -179,6 +180,7 @@ export const counterManaClass: Record<string, string> = {
   HONE: 'counter-arrow',
   STORAGE: 'counter-brick',
   HUNGER: 'counter-doom',
+  AGE: 'counter-time',
   OIL: 'counter-slime',
   DOOM: 'counter-doom',
   FIRE: 'counter-bolt',
@@ -197,9 +199,18 @@ export const counterManaClass: Record<string, string> = {
   JUDGMENT: 'counter-shield',
   BLOODLINE: 'counter-doom',
   INVITATION: 'counter-devotion',
+  VOW: 'counter-shield',
   IMPOSTOR: 'counter-shield',
   DEVOTION: 'counter-devotion',
   THEFT: 'counter-gold',
+  ACORN: 'counter-gold',
+  INGREDIENT: 'counter-gold',
   TRAINING: 'counter-shield',
   MIRE: 'counter-flood',
+  CORPSE: 'counter-doom',
+  BRICK: 'counter-charge',
+  VITALITY: 'counter-hope',
+  PHYRESIS: 'counter-doom',
+  MUSTER: 'counter-charge',
+  BRAIN: 'counter-charge',
 }

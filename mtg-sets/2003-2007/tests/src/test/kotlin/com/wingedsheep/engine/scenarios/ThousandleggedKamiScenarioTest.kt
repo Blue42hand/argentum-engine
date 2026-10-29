@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -52,8 +51,6 @@ class ThousandleggedKamiScenarioTest : ScenarioTestBase() {
                 game.resolveStack()
                 game.isInGraveyard(1, "Thousand-legged Kami") shouldBe true
 
-                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(true)
                 val decision = game.getPendingDecision()
                 decision.shouldBeInstanceOf<ChooseTargetsDecision>()
                 val dragon = game.findCardsInGraveyard(1, "Eternal Dragon").single()

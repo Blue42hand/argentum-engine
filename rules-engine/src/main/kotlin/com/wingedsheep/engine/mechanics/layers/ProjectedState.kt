@@ -10,11 +10,11 @@ import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 
 /**
- * An active "this object is also the chosen creature type" grant that reaches **beyond** the
- * battlefield (the Conspiracy / Leyline of Transformation clause "The same is true for creature
+ * An active "this object is also the chosen creature type" (or "every creature type") grant that
+ * reaches **beyond** the battlefield (the Conspiracy / Leyline of Transformation / Maskwood Nexus clause "The same is true for creature
  * spells you control and creature cards you own that aren't on the battlefield").
  *
- * Built by [StateProjector] from each battlefield `GrantChosenSubtype` whose cross-zone flags are
+ * Built by [StateProjector] from each battlefield `GrantChosenSubtype` / `IsAllCreatureTypes` whose cross-zone flags are
  * set, then consulted by every subtype read-site for objects that have no battlefield projection
  * entry (spells on the stack, cards in hand/library/graveyard/exile/command) via
  * [ProjectedState.crossZoneGrantedSubtypes]. Battlefield permanents are unaffected — they get the
@@ -22,14 +22,15 @@ import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
  *
  * @property controllerId The granting permanent's controller — the player who "controls" the
  *   affected spells and "owns" the affected cards (the asymmetry is in the card text).
- * @property chosenType The creature type chosen as the granting permanent entered.
+ * @property subtypes The creature types granted: the one chosen as the granting permanent entered
+ *   (Leyline of Transformation), or every creature type (Maskwood Nexus).
  * @property includeControlledSpells Grant reaches creature spells [controllerId] controls (stack).
  * @property includeOwnedCardsOutsideBattlefield Grant reaches creature cards [controllerId] owns in
  *   any non-battlefield, non-stack zone.
  */
 data class CrossZoneSubtypeGrant(
     val controllerId: EntityId,
-    val chosenType: String,
+    val subtypes: Set<String>,
     val includeControlledSpells: Boolean,
     val includeOwnedCardsOutsideBattlefield: Boolean
 )
@@ -59,6 +60,15 @@ data class ProjectedValues(
     val name: String? = null,
     val keywords: Set<String> = emptySet(),
     val cantHaveKeywords: Set<String> = emptySet(),
+    /** Point-of-use abilities lowered through GrantStaticAbility, with duplicate instances retained. */
+    val staticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
+    /**
+     * Parallel to [staticAbilities]: the source of the continuous effect that gave each entry —
+     * the holder itself for its own (printed or resolved-effect-gained) abilities, the granting
+     * permanent for a [com.wingedsheep.sdk.scripting.GrantStaticAbility]. Lets a point-of-use
+     * read date the ability by the later of holder and granter (CR 613.7a).
+     */
+    val staticAbilitySourceIds: List<EntityId> = emptyList(),
     val enchantmentRestrictions: List<ActiveEnchantmentRestriction> = emptyList(),
     val colors: Set<String> = emptySet(),
     val types: Set<String> = emptySet(),
@@ -76,6 +86,8 @@ data class ProjectedValues(
     val cantBeBlockedExceptByFilters: List<com.wingedsheep.sdk.scripting.GameObjectFilter> = emptyList(),
     val canOnlyBlockCreaturesWithFilters: List<com.wingedsheep.sdk.scripting.GameObjectFilter> = emptyList(),
     val additionalBlockCount: Int = 0,
+    /** Extra life every mana ability of this permanent costs to activate (Thran Portal). */
+    val manaAbilityLifeTax: Int = 0,
     val lostAllAbilities: Boolean = false,
     /**
      * True when a continuous effect SET this permanent's basic land types (Blood Moon,
@@ -142,14 +154,14 @@ class ProjectedState(
                 ?: return emptySet()
             crossZoneSubtypeGrants
                 .filter { it.includeControlledSpells && it.controllerId == controller }
-                .mapTo(mutableSetOf()) { it.chosenType }
+                .flatMapTo(mutableSetOf()) { it.subtypes }
         } else {
             // Battlefield permanents are covered by Layer 4 projection, not this overlay.
             if (entityId in state.getBattlefield()) return emptySet()
             val owner = card.ownerId ?: return emptySet()
             crossZoneSubtypeGrants
                 .filter { it.includeOwnedCardsOutsideBattlefield && it.controllerId == owner }
-                .mapTo(mutableSetOf()) { it.chosenType }
+                .flatMapTo(mutableSetOf()) { it.subtypes }
         }
     }
 
@@ -269,6 +281,23 @@ class ProjectedState(
     fun getAdditionalBlockCount(entityId: EntityId): Int =
         projectedValues[entityId]?.additionalBlockCount ?: 0
 
+    /**
+     * The additional life each mana ability of [entityId] costs to activate — Thran Portal's
+     * [com.wingedsheep.sdk.scripting.ManaAbilitiesCostAdditionalLife]. 0 for nearly everything.
+     */
+    fun getManaAbilityLifeTax(entityId: EntityId): Int =
+        projectedValues[entityId]?.manaAbilityLifeTax ?: 0
+
+    fun getStaticAbilities(entityId: EntityId): List<com.wingedsheep.sdk.scripting.StaticAbility> =
+        projectedValues[entityId]?.staticAbilities ?: emptyList()
+
+    /**
+     * The ids of the effect sources behind [getStaticAbilities], index for index — see
+     * [ProjectedValues.staticAbilitySourceIds].
+     */
+    fun getStaticAbilitySourceIds(entityId: EntityId): List<EntityId> =
+        projectedValues[entityId]?.staticAbilitySourceIds ?: emptyList()
+
     fun hasLostAllAbilities(entityId: EntityId): Boolean =
         projectedValues[entityId]?.lostAllAbilities == true
 
@@ -306,6 +335,8 @@ internal fun buildIntermediateProjectedState(
             baseToughness = v.baseToughness,
             keywords = v.keywords.toSet(),
             cantHaveKeywords = v.cantHaveKeywords.toSet(),
+            staticAbilities = v.staticAbilities.toList(),
+            staticAbilitySourceIds = v.staticAbilitySourceIds.toList(),
             enchantmentRestrictions = v.enchantmentRestrictions.toList(),
             colors = v.colors.toSet(),
             types = v.types.toSet(),
@@ -323,6 +354,7 @@ internal fun buildIntermediateProjectedState(
             cantBeBlockedExceptByFilters = v.cantBeBlockedExceptByFilters.toList(),
             canOnlyBlockCreaturesWithFilters = v.canOnlyBlockCreaturesWithFilters.toList(),
             additionalBlockCount = v.additionalBlockCount,
+            manaAbilityLifeTax = v.manaAbilityLifeTax,
             lostAllAbilities = v.lostAllAbilities,
             name = v.name
         )

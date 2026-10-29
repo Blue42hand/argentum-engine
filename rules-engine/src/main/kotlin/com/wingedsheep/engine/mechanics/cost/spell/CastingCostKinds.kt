@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.mechanics.cost.spell
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.core.CardsRevealedEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
@@ -22,6 +24,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
+import com.wingedsheep.sdk.scripting.CostZone
 
 /*
  * Kinds for the casting-context-specific [AdditionalCost] subtypes — the costs that mean something
@@ -32,7 +35,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 private fun rejectUnaffordableLife(check: SpellCostCheck, required: Int, message: () -> String): String? {
     // CR 119.4 — you can't pay life unless you have at least that much (CR 810.9a — team's shared
     // total); CR 119.8 — nor at all while you can't lose life.
-    return if (!check.state.canPayLife(check.playerId, required)) message() else null
+    return if (!check.state.canPayLife(check.playerId, required, LifePaymentPurpose.CAST_SPELL)) message() else null
 }
 
 /**
@@ -115,12 +118,12 @@ internal object PayLifePerTargetCostKind : SpellCostKind<AdditionalCost.PayLifeP
 internal object PayXLifeCostKind : SpellCostKind<AdditionalCost.PayXLife> {
     // X = 0 is always legal (default minCount = 0); a higher minCount requires enough life to pay it.
     override fun canPay(state: GameState, payerId: EntityId, cost: AdditionalCost.PayXLife, costHandler: CostHandler) =
-        state.canPayLife(payerId, cost.minCount)
+        state.canPayLife(payerId, cost.minCount, LifePaymentPurpose.CAST_SPELL)
 
     // Surface the cap (current life total) so the client can bound the X slider (0..payXLifeMaxX).
     override fun enumerate(env: SpellCostEnumeration, cost: AdditionalCost.PayXLife, offer: SpellCostOffer): Boolean {
         // CR 119.8 — a player who can't lose life can pay only X = 0.
-        val currentLife = if (env.state.isLifeLossLocked(env.playerId)) 0 else env.state.lifeTotal(env.playerId)
+        val currentLife = if (env.state.isLifePaymentBlocked(env.playerId, LifePaymentPurpose.CAST_SPELL)) 0 else (env.state.lifeTotal(env.playerId) - env.reservedLife - offer.lifeRequired).coerceAtLeast(0)
         offer.payXLifeCost = cost
         offer.payXLifeMaxX = currentLife
         return currentLife >= cost.minCount
@@ -134,7 +137,7 @@ internal object PayXLifeCostKind : SpellCostKind<AdditionalCost.PayXLife> {
         if (amount < 0) {
             return "Pay X life: X cannot be negative"
         }
-        if (!check.state.canPayLife(check.playerId, amount)) {
+        if (!check.state.canPayLife(check.playerId, amount, LifePaymentPurpose.CAST_SPELL)) {
             val currentLife = check.state.lifeTotal(check.playerId)
             return "Pay X life: can't pay $amount life (life total $currentLife)"
         }
@@ -159,29 +162,77 @@ internal object PayLifeEqualToManaValueCostKind : SpellCostKind<AdditionalCost.P
         check.state.getEntity(check.action.cardId)?.get<CardComponent>()?.manaCost?.cmc ?: 0
 }
 
-/** "Exile X cards from your graveyard" — at least [AdditionalCost.ExileVariableCards.minCount]. */
+/**
+ * "Exile X cards from your graveyard" — at least [AdditionalCost.ExileVariableCards.minCount]. The
+ * number exiled is the spell's X (CR 107.3a: X in an additional cost is chosen as the spell is
+ * cast), so a flashback cost of this shape (Summons of Saruman) sets X for a spell whose `{X}` it
+ * doesn't pay.
+ */
 internal object ExileVariableCardsCostKind : SpellCostKind<AdditionalCost.ExileVariableCards> {
+    // `canPay` has no cast in hand and can't exclude the card being cast; `enumerate` does.
     override fun canPay(state: GameState, payerId: EntityId, cost: AdditionalCost.ExileVariableCards, costHandler: CostHandler): Boolean {
         val zone = ZoneKey(payerId, cost.fromZone.toZone())
         return costHandler.findMatchingCardsUnified(state, state.getZone(zone), cost.filter, payerId).size >= cost.minCount
     }
 
+    // The card being cast is on the stack before its costs are paid (CR 601.2a), so a flashback
+    // spell is never part of its own exile pool.
     override fun enumerate(env: SpellCostEnumeration, cost: AdditionalCost.ExileVariableCards, offer: SpellCostOffer): Boolean {
-        val validExileTargets = env.costUtils.findExileTargets(env.state, env.playerId, cost.filter, cost.fromZone.toZone())
+        val validExileTargets = env.costUtils.findExileTargets(
+            env.state, env.playerId, cost.filter, cost.fromZone.toZone(), excludeSelfId = env.castCardId,
+        )
         offer.exileTargets = validExileTargets
         offer.exileMinCount = cost.minCount
         return validExileTargets.size >= cost.minCount
     }
 
+    // Presented on its own when it rides an alternative cost (flashback's bundled cost).
+    override fun candidates(env: SpellCostEnumeration, cost: AdditionalCost.ExileVariableCards) =
+        env.costUtils.findExileTargets(
+            env.state, env.playerId, cost.filter, cost.fromZone.toZone(), excludeSelfId = env.castCardId,
+        )
+
+    override fun canPayFrom(env: SpellCostEnumeration, cost: AdditionalCost.ExileVariableCards, candidates: List<EntityId>) =
+        candidates.size >= cost.minCount
+
+    override fun present(
+        env: SpellCostEnumeration,
+        cost: AdditionalCost.ExileVariableCards,
+        candidates: List<EntityId>,
+    ): Pair<String, AdditionalCostData>? {
+        val costType = when (cost.fromZone) {
+            CostZone.GRAVEYARD -> "ExileFromGraveyard"
+            CostZone.HAND -> "ExileFromHand"
+            else -> return null
+        }
+        if (candidates.isEmpty()) return null
+        return "Exile from ${cost.fromZone.description}" to AdditionalCostData(
+            description = cost.description,
+            costType = costType,
+            validExileTargets = candidates,
+            exileMinCount = cost.minCount,
+            exileMaxCount = candidates.size,
+        )
+    }
+
+    override fun selectionSupplied(cost: AdditionalCost.ExileVariableCards, payment: AdditionalCostPayment) =
+        payment.exiledCards.isNotEmpty()
+
     override fun validate(check: SpellCostCheck, cost: AdditionalCost.ExileVariableCards): String? {
         val state = check.state
         val exiled = check.payment?.exiledCards ?: emptyList()
+        if (exiled.distinct().size != exiled.size) {
+            return "Each card can be exiled only once"
+        }
         if (exiled.size < cost.minCount) {
             return "You must exile at least ${cost.minCount} ${cost.filter.description}(s) from your ${cost.fromZone.description}"
         }
         val zoneCards = state.getZone(ZoneKey(check.playerId, cost.fromZone.toZone()))
         val context = PredicateContext(controllerId = check.playerId)
         for (cardId in exiled) {
+            if (cardId == check.action.cardId) {
+                return "A spell can't exile itself to pay its own cost"
+            }
             if (cardId !in zoneCards) {
                 return "Card to exile is not in your ${cost.fromZone.description}"
             }
@@ -196,7 +247,9 @@ internal object ExileVariableCardsCostKind : SpellCostKind<AdditionalCost.ExileV
     override fun pay(ledger: SpellCostLedger, cost: AdditionalCost.ExileVariableCards): String? {
         val exiledCards = ledger.payment.exiledCards
         exileFromOwnZone(ledger, exiledCards, cost.fromZone.toZone())
+        ledger.exiledAsCostCards.addAll(exiledCards)
         ledger.exiledCardCount = exiledCards.size
+        ledger.costDefinedX = exiledCards.size
         return null
     }
 }

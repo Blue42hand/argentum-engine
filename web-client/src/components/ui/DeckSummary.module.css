@@ -107,3 +107,7 @@
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
+
+@media (max-width: 640px), (max-height: 820px) {
+  .summary[data-compact='true'] .curveContainer { display: none; }
+}

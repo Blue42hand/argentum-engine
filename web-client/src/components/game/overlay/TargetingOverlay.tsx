@@ -1,5 +1,6 @@
 import React from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
+import { selectIsMultiplayerGame } from '@/store/selectors.ts'
 import type { ClientCard, EntityId } from '@/types'
 import type { ResponsiveSizes } from '@/hooks/useResponsive.ts'
 import { calculateFittingCardWidth } from '@/hooks/useResponsive.ts'
@@ -521,6 +522,7 @@ export function TargetingOverlay() {
   const goBackTargeting = useGameStore((state) => state.goBackTargeting)
   const responsive = useResponsiveContext()
   const draggable = useDraggable()
+  const isMultiplayer = useGameStore(selectIsMultiplayerGame)
 
   const gameState = useGameStore((state) => state.gameState)
   const addTarget = useGameStore((state) => state.addTarget)
@@ -651,8 +653,9 @@ export function TargetingOverlay() {
         ? `Select card to reveal (${targetDisplay})`
         : isTapPermanent
           ? // The server already sends the cost description sentence-cased ("Tap any number of
-            // creatures you control with total power 2 or more"), so it is shown verbatim.
-            requiredTotalPower > 0 && targetingState.targetDescription
+            // creatures you control with total power 2 or more", "Untap two tapped creatures you
+            // control"), so it is shown verbatim.
+            targetingState.targetDescription
             ? `${targetingState.targetDescription} (${targetDisplay})`
             : `Select permanents to tap (${targetDisplay})`
           : isBounce
@@ -694,6 +697,16 @@ export function TargetingOverlay() {
       ref={draggable.ref}
       style={{
         ...styles.targetingOverlay,
+        // 2-player: dead centre is the life-orb / step-strip HUD, and "any target" spells need
+        // both orbs visible and clickable — so park the prompt at the top, over the opponent's
+        // face-down hand, which is never a target. (Phones drop it below the Concede row.)
+        ...(isMultiplayer ? null : {
+          top: responsive.isMobile ? 46 : 12,
+          transform: 'translateX(-50%)',
+          maxWidth: 'calc(100vw - 32px)',
+          // Tighter than the centred card: up here every pixel of height is opponent's board.
+          gap: 6,
+        }),
         ...draggable.style,
         padding: responsive.isMobile ? '12px 16px' : '16px 24px',
         borderColor: TARGET_COLOR,
@@ -743,6 +756,11 @@ export function TargetingOverlay() {
       }}>
         {promptText}
       </div>
+      {targetingState.sourceCardName && (
+        <div style={{ color: '#ccc', fontSize: responsive.fontSize.small, fontStyle: 'italic', marginTop: 2 }}>
+          for {targetingState.sourceCardName}
+        </div>
+      )}
       <div style={{ color: '#aaa', fontSize: responsive.fontSize.small, marginTop: 4 }}>
         {hintText}
       </div>

@@ -41,8 +41,11 @@ internal fun repeatableOptionalCostLimit(
                 add((availableMana.coerceAtLeast(0) + lifeForPhyrexian) / manaPerPayment)
             }
             when (val atom = (cost.additionalCost as? AdditionalCost.Atom)?.atom) {
-                is CostAtom.PayLife -> if (atom.amount > 0) {
-                    add(state.lifeTotal(playerId).toLong().coerceAtLeast(0) / atom.amount)
+                is CostAtom.PayLife -> {
+                    val amount = atom.amount as? DynamicAmount.Fixed
+                    if (amount != null && amount.amount > 0) {
+                        add(state.lifeTotal(playerId).toLong().coerceAtLeast(0) / amount.amount)
+                    }
                 }
                 is CostAtom.PayPlayerCounters -> {
                     val amount = atom.amount as? DynamicAmount.Fixed

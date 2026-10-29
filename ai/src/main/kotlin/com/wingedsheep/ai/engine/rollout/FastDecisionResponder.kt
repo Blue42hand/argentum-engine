@@ -1,7 +1,9 @@
 package com.wingedsheep.ai.engine.rollout
 
+import com.wingedsheep.ai.engine.CombatDamagePlanner
 import com.wingedsheep.ai.engine.TargetSelection
 import com.wingedsheep.ai.engine.TrivialDecisions
+import com.wingedsheep.ai.engine.evaluation.BoardPresence
 import com.wingedsheep.ai.engine.knowledge.IntentCatalog
 import com.wingedsheep.engine.core.AssignDamageDecision
 import com.wingedsheep.engine.core.BatchYesNoDecision
@@ -15,11 +17,11 @@ import com.wingedsheep.engine.core.ChooseNumberDecision
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.ChooseReplacementDecision
 import com.wingedsheep.engine.core.ChooseTargetsDecision
+import com.wingedsheep.engine.core.constrainedTargetSelection
+import com.wingedsheep.engine.core.legalTargetsFor
 import com.wingedsheep.engine.core.ColorChosenResponse
 import com.wingedsheep.engine.core.CombatResolutionDecision
-import com.wingedsheep.engine.core.CombatResolutionResponse
 import com.wingedsheep.engine.core.DamageAssignmentResponse
-import com.wingedsheep.engine.core.DamageEdgeAmount
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.engine.core.DistributeDecision
 import com.wingedsheep.engine.core.DistributionResponse
@@ -42,6 +44,7 @@ import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -76,16 +79,27 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
             // Rank by the same heuristic the Strategist's cheap path uses. Not "first legal": a
             // playout that aims every removal spell at the nearest 1/1 systematically undervalues
             // removal, which is a bias in the leaf the whole phase exists to improve.
+            // In slot order: a slot that reads an earlier target draws from the earlier picks' table.
             is ChooseTargetsDecision -> TargetsResponse(
                 decision.id,
-                decision.targetRequirements.associate { req ->
-                    val legal = decision.legalTargets[req.index] ?: emptyList()
+                decision.targetRequirements.fold(emptyMap()) { chosen, req ->
+                    val pool = decision.legalTargetsFor(req.index, chosen)
+                    val ownerPicks = req.exclusiveGroups?.let { groups ->
+                        constrainedTargetSelection(pool, req.minTargets, req.maxTargets, req.selectionGroups, groups) {
+                            TargetSelection.rank(state, it, playerId, intents)
+                        }
+                    }
+                    val legal = ownerPicks ?: req.selectionGroups?.map { group -> group.filter { it in pool } }
+                        ?.filter { it.size >= req.minTargets }
+                        ?.maxByOrNull { group -> group.sortedByDescending { TargetSelection.rank(state, it, playerId, intents) }
+                            .take(req.maxTargets).sumOf { TargetSelection.rank(state, it, playerId, intents) } }
+                        ?: if (req.selectionGroups == null) pool else emptyList()
                     val count = req.maxTargets.coerceAtMost(legal.size).coerceAtLeast(
                         req.minTargets.coerceAtMost(legal.size)
                     )
-                    req.index to legal
+                    chosen + (req.index to legal
                         .sortedByDescending { TargetSelection.rank(state, it, playerId, intents) }
-                        .take(count)
+                        .take(count))
                 }
             )
 
@@ -95,7 +109,11 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
             // evidence N, CR 701.59a): that gate is a *sum*, so "the minimum count" is an illegal
             // submission the validator rejects — pay it with the fewest cards instead.
             is SelectCardsDecision ->
-                if (decision.minTotalManaValue != null) {
+                if (decision.selectionLimits != null) {
+                    // Rollouts keep optional costs declined; mandatory allocations pay in full.
+                    CardsSelectedResponse(decision.id, if (decision.minSelections == 0) emptyList() else
+                        com.wingedsheep.ai.engine.CounterAllocation.fullPayment(decision).orEmpty())
+                } else if (decision.minTotalManaValue != null) {
                     CardsSelectedResponse(decision.id, manaFloorSelection(state, decision))
                 } else {
                     CardsSelectedResponse(
@@ -159,10 +177,21 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
                 decision.id,
                 decision.defaultAssignments.ifEmpty { decision.minimumAssignments }
             )
-            is CombatResolutionDecision -> CombatResolutionResponse(
-                decision.id,
-                decision.edges.map { DamageEdgeAmount(it.id, it.amount) }
-            )
+            // Same division the full responder uses: the engine's lethal-in-declaration-order default
+            // can waste a kill, which would bias every playout through a multi-block.
+            is CombatResolutionDecision -> {
+                val projected = state.projectedState
+                CombatDamagePlanner.plan(
+                    decision,
+                    decision.playerId,
+                    controllerOf = projected::getController,
+                    value = { id ->
+                        val card = state.getEntity(id)?.get<CardComponent>()
+                        if (card == null || projected.hasKeyword(id, Keyword.INDESTRUCTIBLE)) 0.0
+                        else BoardPresence.permanentValue(state, projected, id, card, intents)
+                    },
+                )
+            }
 
             // Auto-pay when the solver found a payment; otherwise submit nothing, which the engine
             // reads as a decline and ends the line cleanly rather than looping on it.

@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.legalactions.ActionEnumerator
 import com.wingedsheep.engine.legalactions.AdditionalCostData
@@ -64,7 +66,13 @@ class CommandZoneAbilityEnumerator : ActionEnumerator {
 
                 // Cost payability — Mana and Discard, atom or composite (the avatar's "{X}{X}{X},
                 // Discard a card"). Other atoms are validated by the handler at payment time.
-                val effectiveCost = ability.cost
+                // Priced through the board's statics as the activation handler's totaller does —
+                // an "abilities you activate" reduction (Zirda) reaches the command zone too.
+                val effectiveCost = context.castPermissionUtils.applyActivatedAbilityCostReduction(
+                    ability.cost, state, entityId, playerId, ability.isExhaust, ability.isPowerUp,
+                    ability.isManaAbility,
+                    chosenTargetIds = if (ability.targetRequirements.isEmpty()) emptyList() else null
+                )
                 val handCards = state.getZone(playerId, Zone.HAND)
                 val abilityContext = com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext(
                     cardComponent, context.projected, entityId, ability
@@ -126,7 +134,8 @@ class CommandZoneAbilityEnumerator : ActionEnumerator {
                         precomputedSources = context.availableManaSources,
                         // Same source scoping the battlefield enumerator passes: cost filters
                         // routinely resolve against the ability's own permanent.
-                        sourceId = entityId
+                        sourceId = entityId,
+                        lifePurpose = LifePaymentPurpose.activating(ability.isManaAbility)
                     )
                 } else null
 

@@ -13,21 +13,26 @@ import kotlinx.serialization.Serializable
 // =============================================================================
 
 /**
- * Condition: "the player who triggered this ability is [player]".
+ * Condition: "[subject] is [player]" — two resolved player references name the same player.
  *
- * Compares the triggering player (the one carried in the trigger context — e.g. the player who
- * lost the game, gained life, cast the spell) against another resolved player reference. Used to
- * narrow a broad "whenever a player does X" trigger to a specific player without a bespoke event
- * filter: Shinryu, Transcendent Rival gates "When the chosen player loses the game, you win the
- * game" as `triggerRestriction = TriggeringPlayerIs(Player.ChosenOpponent)`. Both sides resolve via
- * the engine's shared player resolver, so any [Player] reference works on the right-hand side.
+ * The default [subject] is the triggering player (the one carried in the trigger context — e.g.
+ * the player who lost the game, gained life, cast the spell), which narrows a broad "whenever a
+ * player does X" trigger to a specific player without a bespoke event filter: Shinryu,
+ * Transcendent Rival gates "When the chosen player loses the game, you win the game" as
+ * `triggerRestriction = PlayerIs(player = Player.ChosenOpponent)`. Inside a per-player loop
+ * `Player.You` is the visited player, so `Not(PlayerIs(Player.You, Player.DefendingPlayer))` is
+ * "each opponent other than defending player" (myriad, CR 702.116a) and
+ * `Not(PlayerIs(player = Player.You))` skips the triggering player (Zenith Chronicler). Both
+ * sides resolve via the engine's shared player resolver, so any single-player [Player] reference
+ * works on either side; an unresolvable side makes the condition false.
  */
-@SerialName("TriggeringPlayerIs")
+@SerialName("PlayerIs")
 @Serializable
-data class TriggeringPlayerIs(
-    val player: Player
+data class PlayerIs(
+    val subject: Player = Player.TriggeringPlayer,
+    val player: Player,
 ) : Condition {
-    override val description: String = "if the triggering player is ${player.description}"
+    override val description: String = "if ${subject.description} is ${player.description}"
 }
 
 /**
@@ -319,40 +324,6 @@ data class NumberMatches(
  * Exists(Player.You, Zone.HAND, negate = true)
  * ```
  */
-/**
- * Condition: some player in the game has [threshold] or less life.
- *
- * Existential quantifier over all players in turn order — distinct from
- * [Compare] of `DynamicAmount.LifeTotal(player)`, which resolves to a single
- * player's life and can't express "any player" / "some player" cleanly. The
- * engine iterates `state.turnOrder` and returns true as soon as one player's
- * life total is at most [threshold].
- *
- * Used by cards like Razortrap Gorge ("this land enters tapped unless a
- * player has 13 or less life").
- *
- * @property threshold The maximum life total at which the condition is true.
- */
-@SerialName("APlayerLifeAtMost")
-@Serializable
-data class APlayerLifeAtMost(val threshold: Int) : Condition {
-    override val description: String = "a player has $threshold or less life"
-}
-
-/** Condition: every player in the game has [threshold] or less life. */
-@SerialName("EachPlayerLifeAtMost")
-@Serializable
-data class EachPlayerLifeAtMost(val threshold: Int) : Condition {
-    override val description: String = "each player has $threshold or less life"
-}
-
-/** Condition: at least one opponent of the ability's controller has [threshold] or less life. */
-@SerialName("AnOpponentLifeAtMost")
-@Serializable
-data class AnOpponentLifeAtMost(val threshold: Int) : Condition {
-    override val description: String = "an opponent has $threshold or less life"
-}
-
 @SerialName("Exists")
 @Serializable
 data class Exists(
@@ -377,7 +348,7 @@ data class Exists(
         }
         append(player.possessive)
         append(" ")
-        append(zone.displayName.removePrefix("a ").removePrefix("the "))
+        append(zone.noun)
     }
     override fun applyTextReplacement(replacer: TextReplacer): Condition {
         val newFilter = filter.applyTextReplacement(replacer)

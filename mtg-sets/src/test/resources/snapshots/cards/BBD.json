@@ -1,0 +1,528 @@
+// Bountiful Promenade
+{
+    "name": "Bountiful Promenade",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {G} or {W}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Bountiful Promenade:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Bountiful Promenade:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "81",
+        "rarity": "RARE",
+        "artist": "Jung Park",
+        "flavorText": "No pilgrimage to Valor's Reach is complete without a stroll through its celebrated shopping district.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/1/21865ed6-5edd-41f4-9ae0-f501872d91dc.jpg?1783934849",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "If you began the game with two or more opponents but now only have one opponent left, these lands enter the battlefield tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
+// Grothama, All-Devouring
+{
+    "name": "Grothama, All-Devouring",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Legendary Creature — Wurm",
+    "oracleText": "Other creatures have \"Whenever this creature attacks, you may have it fight Grothama, All-Devouring.\"\nWhen Grothama, All-Devouring leaves the battlefield, each player draws cards equal to the amount of damage dealt to Grothama this turn by sources they controlled.",
+    "creatureStats": {
+        "power": 10,
+        "toughness": 8
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Grothama, All-Devouring:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": "EachPlayerDrawsForDamageDealtToSource"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantTriggeredAbility",
+                "ability": {
+                    "id": "Grothama, All-Devouring:1",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
+                            "type": "Fight",
+                            "target1": "Self",
+                            "target2": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature name:Grothama, All-Devouring"
+                        },
+                        "id": "t0"
+                    }
+                },
+                "filter": {
+                    "baseFilter": "creature",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "rarity": "MYTHIC",
+        "artist": "Mark Behm",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/ab8935b1-ec87-4330-9952-9ef8cd344531.jpg?1783934853"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Inner Demon
+{
+    "name": "Inner Demon",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +2/+2, has flying, and is a Demon in addition to its other types.\nWhen this Aura enters, all non-Demon creatures get -2/-2 until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Inner Demon:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "NotSubtype",
+                                        "subtype": "Demon"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "target": "IterationEntity"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 2
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FLYING"
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Demon",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Behm",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/c/dcbfc305-f3b3-4f8f-b18f-bb7af01a39a4.jpg?1783934861",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "Inner Demon's triggered ability affects only non-Demon creatures on the battlefield at the time it resolves. Creatures that enter the battlefield later in the turn won't get -2/-2. Unless Inner Demon leaves the battlefield before that ability resolves, the enchanted creature won't get -2/-2."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Luxury Suite
+{
+    "name": "Luxury Suite",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {B} or {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Luxury Suite:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Luxury Suite:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "82",
+        "rarity": "RARE",
+        "artist": "Jonas De Ro",
+        "flavorText": "The view is rivaled only by the decadence of the decor.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/81298b0b-9d47-4777-998e-0c17821ef536.jpg?1783934848",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "If you began the game with two or more opponents but now only have one opponent left, these lands enter the battlefield tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
+// Morphic Pool
+{
+    "name": "Morphic Pool",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {U} or {B}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Morphic Pool:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Morphic Pool:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "rarity": "RARE",
+        "artist": "Grzegorz Rutkowski",
+        "flavorText": "Ancient magic reshapes the stage into a variety of landscapes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/63b9efd6-0709-4d4b-a907-d8a77ec1a327.jpg?1783934849",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "If you began the game with two or more opponents but now only have one opponent left, these lands enter the battlefield tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
+// Saltwater Stalwart
+{
+    "name": "Saltwater Stalwart",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Merfolk Warrior",
+    "oracleText": "Whenever this creature deals damage to an opponent, target player draws a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Saltwater Stalwart:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetPlayer",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "artist": "Sam Burley",
+        "flavorText": "Every attack is a test of your defenses. Every hit marks the map of your defeat.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/ae11adef-57b1-4f39-951b-cd4d5c0a0b80.jpg?1783934865"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Spire Garden
+{
+    "name": "Spire Garden",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped unless you have two or more opponents.\n{T}: Add {R} or {G}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Spire Garden:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Spire Garden:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": "PlayerCount",
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "85",
+        "rarity": "RARE",
+        "artist": "Darek Zabrocki",
+        "flavorText": "From thrilling combat to unparalleled vistas, Valor's Reach has it all.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/4/64943615-7543-4acd-a884-22ece8f0ed3e.jpg?1783934847",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "If you began the game with two or more opponents but now only have one opponent left, these lands enter the battlefield tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Stolen Strategy
+{
+    "name": "Stolen Strategy",
+    "manaCost": "{4}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your upkeep, exile the top card of each opponent's library. Until end of turn, you may cast spells from among those exiled cards, and you may spend mana as though it were mana of any color to cast those spells.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Stolen Strategy:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "player": "EachOpponent"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "gathered0",
+                            "withAnyManaColor": true,
+                            "nonLandOnly": true
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "RARE",
+        "artist": "Dmitry Burmak",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/b/bb90e4b8-8f66-45f0-a457-a081f2ff231c.jpg?1783934855",
+        "rulings": [
+            {
+                "date": "2018-06-08",
+                "text": "Stolen Strategy doesn't change when you can cast the exiled card. For example, if you exile a sorcery card, you can cast it only during your main phase when the stack is empty."
+            },
+            {
+                "date": "2018-06-08",
+                "text": "Casting an exiled card causes it to leave exile. You can't cast it multiple times."
+            },
+            {
+                "date": "2018-06-08",
+                "text": "If you don't cast the exiled cards, they remain exiled. They can't be cast on later turns."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

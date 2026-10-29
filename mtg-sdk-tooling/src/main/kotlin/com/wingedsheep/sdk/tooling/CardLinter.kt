@@ -1,7 +1,6 @@
 package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.CardDefinition
@@ -91,12 +90,6 @@ object CardLinter {
     /** `Scope.AttachedTo`'s serial name. */
     private const val ATTACHED_TO = "AttachedTo"
 
-    /**
-     * Fortifications attach to lands (CR 301.6-adjacent; the Fortify keyword). No card in the
-     * corpus uses one yet and there is no `Subtype` constant, but they are an attachment type, so
-     * the attachability check honors the subtype rather than mis-flagging the first one added.
-     */
-    private val FORTIFICATION = Subtype("Fortification")
 
     fun lint(card: CardDefinition): List<CardValidationError> {
         val findings = mutableListOf<CardValidationError>()
@@ -116,6 +109,7 @@ object CardLinter {
         lintDefinition(card.name, fullTree, explicitTree, slots, findings)
         checkSlots(card.name, slots, findings)
         checkOpponentChoosers(card.name, explicitTree, withinActivatedAbility = false, findings)
+        checkDynamicTargetCounts(card.name, explicitTree, findings)
         checkAttachedScope(card, findings)
         checkProwessTrigger(card, findings)
         checkManaAbilityClassification(card.name, fullTree, findings)
@@ -478,7 +472,7 @@ object CardLinter {
     /** True if any face of the physical card can host an attachment. */
     private fun canEverBeAttached(card: CardDefinition): Boolean {
         fun attaches(typeLine: TypeLine, script: CardScript) =
-            typeLine.isAura || typeLine.isEquipment || typeLine.hasSubtype(FORTIFICATION) ||
+            typeLine.isAura || typeLine.isEquipment || typeLine.isFortification ||
                 // A card can carry the target/cost without the subtype; CardValidator reports that
                 // mismatch on its own, and this check has no business double-reporting it.
                 script.auraTarget != null
@@ -592,6 +586,65 @@ object CardLinter {
     }
 
     /**
+     * A [com.wingedsheep.sdk.scripting.targets.TargetObject] whose dynamic target count says
+     * something no Oracle text does. "X target creatures" is exactly X (`dynamicMinCount` and
+     * `dynamicMaxCount` both X — the DSL's `targets(filter, exactly = X)`); "up to X target
+     * creatures" is `dynamicMaxCount` with `optional = true`; "any number of …" with a cap is
+     * `dynamicMaxCount` with `unlimited = true`. Three other shapes are rejected:
+     *
+     * - `dynamicMaxCount` alone, neither optional nor unlimited — a floor of the static `minCount`
+     *   (one) under a dynamic cap, "one to X targets", which no card prints. It is what "X target"
+     *   used to be approximated as, and it made X = 0 uncastable.
+     * - `dynamicMinCount` without `dynamicMaxCount` — a floor with no cap.
+     * - `dynamicMinCount` with `optional` or `unlimited` — a floor the flag then waives.
+     */
+    private fun checkDynamicTargetCounts(
+        cardName: String,
+        element: JsonElement,
+        findings: MutableList<CardValidationError>,
+    ) {
+        when (element) {
+            is JsonObject -> {
+                if ((element["type"] as? JsonPrimitive)?.contentOrNull == "TargetObject") {
+                    fun present(field: String) = element[field]?.takeIf { it !is JsonNull } != null
+                    fun flag(field: String) = (element[field] as? JsonPrimitive)?.contentOrNull == "true"
+                    val max = present("dynamicMaxCount")
+                    val min = present("dynamicMinCount")
+                    val waived = flag("optional") || flag("unlimited")
+                    val ownerCountConflict = present("ownerDistribution") &&
+                        (max || min || waived ||
+                            (element["count"] as? JsonPrimitive)?.contentOrNull?.let { it != "1" } == true ||
+                            (element["minCount"] as? JsonPrimitive)?.contentOrNull?.let { it != "1" } == true)
+                    val problem = when {
+                        ownerCountConflict -> "ownerDistribution alongside another target-count input"
+                        min && !max -> "a dynamicMinCount without a dynamicMaxCount"
+                        min && waived -> "a dynamicMinCount alongside optional/unlimited, which waive it"
+                        max && !min && !waived ->
+                            "a dynamicMaxCount that is neither exact nor optional (\"one to X targets\")"
+                        else -> null
+                    }
+                    if (problem != null) {
+                        findings.add(
+                            CardValidationError.AmbiguousDynamicTargetCount(
+                                cardName = cardName,
+                                message = if (ownerCountConflict) {
+                                    "'$cardName' has ownerDistribution alongside another count input. " +
+                                        "ownerDistribution is the whole count; use UP_TO_ONE for optional per-owner targets."
+                                } else "'$cardName' has a target requirement with $problem. Spell " +
+                                    "\"X target …\" as targets(filter, exactly = X) and \"up to X target …\" " +
+                                    "as optional = true with dynamicMaxCount = X."
+                            )
+                        )
+                    }
+                }
+                element.values.forEach { checkDynamicTargetCounts(cardName, it, findings) }
+            }
+            is JsonArray -> element.forEach { checkDynamicTargetCounts(cardName, it, findings) }
+            else -> {}
+        }
+    }
+
+    /**
      * The [com.wingedsheep.sdk.scripting.targets.TargetRequirement] type discriminators that carry
      * a `chooser` field. Keep in step with the SDK: a requirement that gains a `chooser` and is
      * missing here is silently exempt from [checkOpponentChoosers].
@@ -626,7 +679,10 @@ object CardLinter {
      * entries win over field-keyed ones.
      */
     private val dataflowFields: Map<Pair<String?, String>, Classification> = buildMap {
+        put("EmitScriedEvent" to "gatherCollection", read(Space.COLLECTION))
+        put("EmitScriedEvent" to "bottomCollection", read(Space.COLLECTION))
         // --- Writers -------------------------------------------------------------------------
+        put("SecretEntityChoice" to "storeMostChosen", write(Space.COLLECTION))
         put("GatherCards" to "storeAs", write(Space.COLLECTION))
         put("CaptureControllers" to "storeAs", write(Space.COLLECTION))
         put("StorePlayer" to "storeAs", write(Space.COLLECTION))
@@ -668,6 +724,7 @@ object CardLinter {
         put("DrawUpTo" to "storeNotDrawnAs", write(Space.NUMBER))
         put("Fight" to "excessDamageVariable", write(Space.NUMBER))
         put("DealDamage" to "excessDamageVariable", write(Space.NUMBER))
+        put("DealDamage" to "damageDealtVariable", write(Space.NUMBER))
         put("PayCounters" to "storeAmountAs", write(Space.NUMBER))
         put("CollectEvidenceChosenAmount" to "storeAmountAs", write(Space.NUMBER))
         put("PayManaCostRepeatedly" to "storeCountAs", write(Space.NUMBER))
@@ -679,7 +736,7 @@ object CardLinter {
 
         // --- Readers -------------------------------------------------------------------------
         for (type in listOf(
-            "CaptureControllers", "GatherSubtypes", "RevealCollection", "SelectFromCollection",
+            "SecretEntityChoice", "CaptureControllers", "GatherSubtypes", "RevealCollection", "SelectFromCollection",
             "ChoosePile", "MoveCollection", "GrantMayPlayFromExile", "GrantPlayWithoutPayingCost",
             "MakePlotted",
             "GrantPlayWithAdditionalCost", "GrantPlayWithCostIncrease", "FilterCollection",
@@ -687,7 +744,7 @@ object CardLinter {
             "StoreCardName", "ForcePlay", "CastFromCollectionWithoutPayingCost", "PlayFromCollectionWithoutPayingCost",
             "CastAnyNumberFromCollectionWithoutPayingCost", "ExileFromStorage",
             "CopyCollectionIntoCollection", "RecordChosenLinkedExile", "RecordSourceObjects",
-            "PairWithSource", "EmitChampionedEvent",
+            "PairWithSource", "EmitChampionedEvent", "EnchantPutOntoBattlefield",
         )) put(type to "from", read(Space.COLLECTION))
         put("GrantCantBeBlockedExceptByCollection" to "collection", read(Space.COLLECTION))
         put("ChoosePile" to "pileA", read(Space.COLLECTION))
@@ -754,6 +811,8 @@ object CardLinter {
     /** Implicit accesses keyed by node type — participation not visible as a string field. */
     private fun implicitAccesses(type: String?, obj: JsonObject): List<Pair<Kind, Pair<Space, String>>> =
         when {
+            type == "RollDice" ->
+                (obj["resultCounts"] as? JsonObject)?.keys.orEmpty().map { Kind.WRITE to (Space.NUMBER to it) }
             type == "ChooseCreatureType" ->
                 listOf(Kind.WRITE to (Space.CHOSEN to "chosenCreatureType"))
             // Paying "Reveal the creature type you chose" publishes the source's secret note into
@@ -884,6 +943,14 @@ object CardLinter {
         "ConvokedSource" to "CONVOKED_CREATURES",
     )
 
+    /**
+     * Fallback slots a [slotReaders] node also accepts: `GrantChosenSubtype` reads the chosen
+     * creature type, or failing that the chosen basic land type (Thran Portal).
+     */
+    private val slotReaderFallbacks: Map<String, Set<String>> = mapOf(
+        "GrantChosenSubtype" to setOf("LAND_TYPE"),
+    )
+
     /** Node types whose `slot` field names the slot they read. */
     private val slotFieldReaders = setOf("CastChoice", "CastChoiceMade", "CastChoiceIs")
 
@@ -917,7 +984,12 @@ object CardLinter {
                             ?.let { slots.declaredModeIds.add(it) }
                     }
                 }
-                slotReaders[type]?.let { slots.reads.add(it to type.orEmpty()) }
+                // A reader with an explicit `slot` field (the default is omitted from the JSON) reads
+                // that slot instead — Stenn's CardTypeEqualsChosenComponent(MODE).
+                slotReaders[type]?.let {
+                    val slot = (element["slot"] as? JsonPrimitive)?.contentOrNull ?: it
+                    slots.reads.add(slot to type.orEmpty())
+                }
                 if (type in slotFieldReaders) {
                     (element["slot"] as? JsonPrimitive)?.contentOrNull
                         ?.let { slots.reads.add(it to type.orEmpty()) }
@@ -1546,7 +1618,8 @@ object CardLinter {
 
     private fun checkSlots(cardName: String, slots: SlotUsage, findings: MutableList<CardValidationError>) {
         for ((slot, nodeType) in slots.reads) {
-            if (slot !in slots.declared) {
+            val fallbacks = slotReaderFallbacks[nodeType].orEmpty()
+            if (slot !in slots.declared && fallbacks.none { it in slots.declared }) {
                 findings.add(
                     CardValidationError.UndeclaredChoiceSlotRead(
                         cardName = cardName,

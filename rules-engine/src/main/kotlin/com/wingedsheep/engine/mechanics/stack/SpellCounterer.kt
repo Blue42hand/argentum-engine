@@ -121,6 +121,11 @@ class SpellCounterer(
         // Remove stack components
         newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, spellId)
         newState = com.wingedsheep.engine.mechanics.PrototypeCasts.end(newState, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
+        if (destZone == Zone.GRAVEYARD) {
+            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .recordSpellGraveyardArrival(newState, spellId, ownerId)
+        }
         newState = newState.updateEntity(spellId) { c ->
             c.without<SpellOnStackComponent>()
                 .without<TextReplacementComponent>()
@@ -262,6 +267,11 @@ class SpellCounterer(
 
         newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, spellId)
         newState = com.wingedsheep.engine.mechanics.PrototypeCasts.end(newState, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
+        if (destZone == Zone.GRAVEYARD) {
+            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .recordSpellGraveyardArrival(newState, spellId, ownerId)
+        }
         newState = newState.updateEntity(spellId) { c ->
             c.without<SpellOnStackComponent>()
                 .without<TextReplacementComponent>()
@@ -332,6 +342,7 @@ class SpellCounterer(
 
         newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, spellId)
         newState = com.wingedsheep.engine.mechanics.PrototypeCasts.end(newState, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
 
         // Remove stack components and optionally grant the counter's controller a free recast
         // (Kheru Spellsnatcher).
@@ -418,6 +429,7 @@ class SpellCounterer(
         newState = newState.addToZone(exileZone, spellId)
         newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, spellId)
         newState = com.wingedsheep.engine.mechanics.PrototypeCasts.end(newState, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
         newState = newState.updateEntity(spellId) { c ->
             c.without<SpellOnStackComponent>()
                 .without<TextReplacementComponent>()
@@ -575,6 +587,7 @@ class SpellCounterer(
         newState = newState.addToZone(ZoneKey(ownerId, Zone.EXILE), spellId)
         newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, spellId)
         newState = com.wingedsheep.engine.mechanics.PrototypeCasts.end(newState, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
         newState = newState.updateEntity(spellId) { c ->
             c.without<SpellOnStackComponent>()
                 .without<TextReplacementComponent>()

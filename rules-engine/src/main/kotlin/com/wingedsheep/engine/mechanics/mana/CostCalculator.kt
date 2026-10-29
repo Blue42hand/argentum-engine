@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.mechanics.mana
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureOf
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
@@ -10,6 +11,8 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
+import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.EmblemStaticAbilityComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.CreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CommanderComponent
@@ -19,6 +22,8 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.CardFace
+import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.CharacteristicValue
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -60,10 +65,53 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 class CostCalculator(
     private val cardRegistry: CardRegistry,
-    private val predicateEvaluator: PredicateEvaluator
+    private val predicateEvaluator: PredicateEvaluator,
+    val optionalCostPayments: List<com.wingedsheep.engine.core.CostModifierPayment> = emptyList(),
 ) {
+    /** Immutable pricing context, used by both declaration variants and the cast totaller. */
+    fun withOptionalPayments(payments: List<com.wingedsheep.engine.core.CostModifierPayment>): CostCalculator =
+        if (payments == optionalCostPayments) this else CostCalculator(cardRegistry, predicateEvaluator, payments)
+
+    fun optionalModifier(state: GameState, payment: com.wingedsheep.engine.core.CostModifierPayment): ModifySpellCost? =
+        (state.projectedState.getStaticAbilities(payment.sourceId).getOrNull(payment.abilityIndex) as? ModifySpellCost)
+            ?.takeIf { it.optionalLifePayment != null }
+
+    fun optionalPayments(state: GameState, casterId: EntityId): List<com.wingedsheep.engine.core.CostModifierPayment> = buildList {
+        for (id in state.projectedState.getBattlefieldControlledBy(casterId)) {
+            state.projectedState.getStaticAbilities(id).forEachIndexed { index, ability ->
+                if (ability is ModifySpellCost && ability.optionalLifePayment != null) {
+                    add(com.wingedsheep.engine.core.CostModifierPayment(id, index))
+                }
+            }
+        }
+    }
+
+    /** Characteristics of the face actually announced, rather than the printed front. */
+    internal fun optionalPaymentDefinition(state: GameState, action: com.wingedsheep.engine.core.CastSpell, printed: CardDefinition): CardDefinition {
+        action.faceIndex?.let { index -> printed.cardFaces.getOrNull(index)?.let { return faceCharacteristics(printed, it) } }
+        val backSelected = action.useAlternativeCost &&
+            (action.alternativeCostType == com.wingedsheep.engine.core.AlternativeCostType.MODAL_BACK_FACE ||
+                action.alternativeCostType == com.wingedsheep.engine.core.AlternativeCostType.DISTURB)
+        val transformedPermission = state.mayPlayPermissions.any {
+            it.castTransformed && it.controllerId == action.playerId && action.cardId in it.cardIds
+        }
+        if (backSelected || transformedPermission) printed.backFace?.let { return it }
+        return com.wingedsheep.engine.mechanics.CastCharacteristics.definitionForCast(printed, action)!!
+    }
+
+    fun optionalPaymentApplies(
+        state: GameState, payment: com.wingedsheep.engine.core.CostModifierPayment,
+        cardDef: CardDefinition, casterId: EntityId, fromZone: Zone?,
+        targets: List<EntityId> = emptyList(), declaredCostSlot: ChoiceSlot? = null,
+    ): Boolean {
+        val ability = optionalModifier(state, payment) ?: return false
+        return targetMatchesSpell(ability.target, cardDef, casterId, payment.sourceId, state, targets, fromZone) &&
+            gatingApplies(state, casterId, cardDef, ability, declaredCostSlot)
+    }
+
     private val conditionEvaluator = predicateEvaluator.conditions
     private val dynamicAmountEvaluator = predicateEvaluator.amounts
+    private val targetFinder by lazy { com.wingedsheep.engine.handlers.TargetFinder(predicateEvaluator) }
 
     /**
      * Calculate the effective cost of casting a spell after applying all cost reductions.
@@ -71,6 +119,8 @@ class CostCalculator(
      * @param state The current game state
      * @param cardDef The card definition being cast
      * @param casterId The player casting the spell
+     * @param card The card being cast, when [cardDef] is only one face of it — commander tax is
+     *   owed by the card, whichever face is cast
      * @return The effective mana cost after reductions
      */
     fun calculateEffectiveCost(
@@ -81,6 +131,7 @@ class CostCalculator(
         fromZone: Zone? = null,
         declaredCostSlot: ChoiceSlot? = null,
         baseCost: ManaCost = cardDef.manaCost,
+        card: CardDefinition = cardDef,
     ): ManaCost {
         var totalReduction = 0
         var totalIncrease = 0
@@ -91,6 +142,7 @@ class CostCalculator(
         // Self-reductions read from the spell card's own static abilities.
         for (ability in cardDef.script.staticAbilities) {
             if (ability !is ModifySpellCost) continue
+            if (ability.optionalLifePayment != null) continue
             if (ability.target != SpellCostTarget.SelfCast) continue
             if (!gatingApplies(state, casterId, cardDef, ability, declaredCostSlot)) continue
             applyToSpellCast(
@@ -125,17 +177,19 @@ class CostCalculator(
         }
 
         // Duration-bounded "spells you cast this turn / until your next turn that match … cost {N}
-        // less" discounts (Will / Rowan, Scion of …; Ral, Leyline Prodigy). The amount was fixed when the granting ability resolved, so unlike
+        // less (or more)" modifiers (Will / Rowan, Scion of …; Ral, Leyline Prodigy; Academy
+        // Loremaster's tax). The amount was fixed when the granting ability resolved, so unlike
         // the affinity riders above nothing is recomputed here — and unlike them, a matching cast
         // does not consume the entry.
-        for (reduction in state.spellCostReductions) {
-            if (reduction.controllerId != casterId) continue
-            if (!matchesCardDefinition(cardDef, reduction.spellFilter, null, state, state.projectedState)) continue
-            totalReduction += reduction.amount
+        for (modifier in state.spellCostModifiers) {
+            if (modifier.controllerId != casterId) continue
+            if (!matchesCardDefinition(cardDef, modifier.spellFilter, null, state, state.projectedState)) continue
+            if (modifier.increase) totalIncrease += modifier.amount else totalReduction += modifier.amount
         }
 
-        // Battlefield-sourced ModifySpellCost abilities.
-        for ((sourceId, ability) in scanBattlefieldModifySpellCost(state)) {
+        // ModifySpellCost abilities on battlefield permanents and emblems.
+        for ((sourceId, ability) in scanModifySpellCost(state)) {
+            if (ability.optionalLifePayment != null) continue
             if (!targetMatchesSpell(ability.target, cardDef, casterId, sourceId, state, chosenTargets, fromZone)) continue
             if (!gatingApplies(state, casterId, cardDef, ability, declaredCostSlot)) continue
             applyToSpellCast(
@@ -150,7 +204,7 @@ class CostCalculator(
         }
 
         // Commander tax (CR 903.8).
-        totalIncrease += calculateCommanderTax(state, cardDef, casterId, fromZone)
+        totalIncrease += calculateCommanderTax(state, card, casterId, fromZone)
 
         // CR 601.2f: the total cost is the base cost plus all cost increases, then minus all cost
         // reductions; the mana component is floored at {0} (it can't be reduced below {0}). Apply
@@ -170,8 +224,80 @@ class CostCalculator(
         // Last, once the cost is final: symbols the caster may pay with life (K'rrik) become
         // Phyrexian. This changes how the cost may be paid, not the cost, so it follows every
         // increase and reduction.
-        return LifePayableMana.apply(state, cardRegistry, casterId, effectiveCost)
+        return LifePayableMana.apply(state, cardRegistry, casterId, applyOptionalPayments(
+            state, cardDef, casterId, effectiveCost, chosenTargets, fromZone, declaredCostSlot))
     }
+
+    /** Apply elected modifiers after every additional mana cost has been included. */
+    fun applyOptionalPayments(
+        state: GameState, cardDef: CardDefinition, casterId: EntityId, cost: ManaCost,
+        chosenTargets: List<EntityId> = emptyList(), fromZone: Zone? = null, declaredCostSlot: ChoiceSlot? = null,
+        phyrexianPaidWithLife: List<Color> = emptyList(),
+    ): ManaCost {
+        if (optionalCostPayments.isEmpty()) return cost
+        var genericReduction = 0
+        var genericIncrease = 0
+        val coloredReductionSymbols = mutableListOf<ManaSymbol>()
+        val coloredReductionWithOverflow = mutableListOf<ManaSymbol>()
+        val coloredIncreaseSymbols = mutableListOf<ManaSymbol>()
+        for (payment in optionalCostPayments) {
+            val ability = optionalModifier(state, payment) ?: continue
+            if (!targetMatchesSpell(ability.target, cardDef, casterId, payment.sourceId, state, chosenTargets, fromZone)) continue
+            if (!gatingApplies(state, casterId, cardDef, ability, declaredCostSlot)) continue
+            applyToSpellCast(
+                state, cardDef, casterId, ability.modification, chosenTargets, sourceId = payment.sourceId,
+                addGenericReduction = { genericReduction += it }, addGenericIncrease = { genericIncrease += it },
+                addColoredReduction = { coloredReductionSymbols += it },
+                addColoredReductionWithOverflow = { coloredReductionWithOverflow += it },
+                addColoredIncrease = { coloredIncreaseSymbols += it }, abilitySourceId = payment.sourceId,
+            )
+        }
+
+        var result = increaseGenericCost(cost, genericIncrease)
+        result = increaseColoredCost(result, coloredIncreaseSymbols)
+        result = reduceGenericCost(result, genericReduction)
+        result = reduceOptionalColored(result, coloredReductionSymbols, phyrexianPaidWithLife)
+        return reduceColoredCostWithOverflow(result, coloredReductionWithOverflow)
+    }
+
+    /**
+     * The effective cost of casting [face] of [cardDef] instead of its primary characteristics —
+     * a split half (CR 709.3b), an Adventure or Omen (CR 715.3b), a modal DFC's spell back
+     * (CR 712.11c) or a prepare-spell copy (CR 722.3c).
+     *
+     * On the stack such a spell has only the face's characteristics, so every cost modifier is
+     * judged against the face, and the face is priced exactly like a normal cast with its own mana
+     * cost as the base. "Noncreature spells you cast cost {1} less" (Geist of Saint Thalia)
+     * discounts a creature card's Adventure or prepare spell, and a noncreature tax applies to
+     * it — reading the card's creature type line instead got both wrong.
+     */
+    fun calculateFaceCastCost(
+        state: GameState,
+        cardDef: CardDefinition,
+        face: CardFace,
+        casterId: EntityId,
+        chosenTargets: List<EntityId> = emptyList(),
+        fromZone: Zone? = null,
+        declaredCostSlot: ChoiceSlot? = null,
+    ): ManaCost = calculateEffectiveCost(
+        state, faceCharacteristics(cardDef, face), casterId, chosenTargets, fromZone, declaredCostSlot,
+        card = cardDef,
+    )
+
+    /** [cardDef] seen with only [face]'s characteristics, as the spell is while on the stack. */
+    internal fun faceCharacteristics(cardDef: CardDefinition, face: CardFace): CardDefinition = cardDef.copy(
+        name = face.name,
+        manaCost = face.manaCost,
+        typeLine = face.typeLine,
+        oracleText = face.oracleText,
+        creatureStats = null,
+        keywords = face.keywords,
+        keywordAbilities = emptyList(),
+        script = face.script,
+        colorIndicator = null,
+        layout = CardLayout.NORMAL,
+        cardFaces = emptyList(),
+    )
 
     /**
      * Compute commander tax for [cardDef] when cast from [fromZone].
@@ -203,11 +329,11 @@ class CostCalculator(
     }
 
     /**
-     * Scan the battlefield for [ModifySpellCost] static abilities, returning each
+     * Scan battlefield permanents and emblems for [ModifySpellCost] static abilities, returning each
      * (sourceEntityId, ability) pair. Class-level filtering via [ClassLevelComponent]
      * is honored.
      */
-    private fun scanBattlefieldModifySpellCost(state: GameState): List<Pair<EntityId, ModifySpellCost>> {
+    private fun scanModifySpellCost(state: GameState): List<Pair<EntityId, ModifySpellCost>> {
         val results = mutableListOf<Pair<EntityId, ModifySpellCost>>()
         for (playerId in state.turnOrder) {
             for (entityId in state.getBattlefield(playerId)) {
@@ -222,7 +348,24 @@ class CostCalculator(
                 }
             }
         }
+        // Emblems are synthetic, non-battlefield sources. Their owned statics remain active
+        // after the permanent that created them leaves, and each emblem contributes separately.
+        for ((entityId, container) in state.entities) {
+            val statics = container.get<EmblemStaticAbilityComponent>() ?: continue
+            for (ability in statics.abilities) {
+                if (ability is ModifySpellCost) results += entityId to ability
+            }
+        }
         return results
+    }
+
+    /** Permanents use projected control; only emblems read their fixed controller directly. */
+    private fun modifierController(state: GameState, sourceId: EntityId): EntityId? {
+        state.projectedState.getController(sourceId)?.let { return it }
+        val source = state.getEntity(sourceId) ?: return null
+        return if (source.has<EmblemStaticAbilityComponent>()) {
+            source.get<ControllerComponent>()?.playerId
+        } else null
     }
 
     /**
@@ -241,7 +384,7 @@ class CostCalculator(
         return when (target) {
             SpellCostTarget.SelfCast -> false
             is SpellCostTarget.YouCast -> {
-                val controller = state.projectedState.getController(sourceId)
+                val controller = modifierController(state, sourceId)
                 controller == casterId &&
                     matchesCardDefinition(cardDef, target.filter, sourceId, state, state.projectedState)
             }
@@ -253,7 +396,7 @@ class CostCalculator(
                 // Source must be controlled by an opponent of the caster, the spell must be cast
                 // from one of the named zones, and the card must match the filter.
                 if (fromZone == null || fromZone !in target.zones) return false
-                val sourceController = state.projectedState.getController(sourceId) ?: return false
+                val sourceController = modifierController(state, sourceId) ?: return false
                 if (sourceController == casterId) return false
                 matchesCardDefinition(cardDef, target.filter, sourceId, state, state.projectedState)
             }
@@ -261,7 +404,7 @@ class CostCalculator(
                 // Source must be controlled by the caster, the spell must be cast from one of the
                 // named zones, and the card must match the filter (Doc Aurlock).
                 if (fromZone == null || fromZone !in target.zones) return false
-                val sourceController = state.projectedState.getController(sourceId) ?: return false
+                val sourceController = modifierController(state, sourceId) ?: return false
                 if (sourceController != casterId) return false
                 matchesCardDefinition(cardDef, target.filter, sourceId, state, state.projectedState)
             }
@@ -284,7 +427,7 @@ class CostCalculator(
         sourceId: EntityId,
         state: GameState,
     ): Boolean {
-        val sourceController = state.projectedState.getController(sourceId) ?: return false
+        val sourceController = modifierController(state, sourceId) ?: return false
         if (sourceController == casterId) return false
         return matchesCardDefinition(cardDef, target.filter, sourceId, state, state.projectedState)
     }
@@ -303,7 +446,7 @@ class CostCalculator(
         chosenTargets: List<EntityId>,
     ): Boolean {
         if (chosenTargets.isEmpty()) return false
-        val sourceController = state.projectedState.getController(sourceId) ?: return false
+        val sourceController = modifierController(state, sourceId) ?: return false
         if (sourceController == casterId) return false
         val context = PredicateContext(controllerId = sourceController, sourceId = sourceId)
         val projected = state.projectedState
@@ -319,6 +462,7 @@ class CostCalculator(
                 }
                 is Scope.SoulbondPair ->
                     com.wingedsheep.engine.mechanics.SoulbondPairing.isInPairOf(state, sourceId, targetId)
+                is Scope.ChosenCreature -> state.chosenCreatureOf(sourceId) == targetId
                 is Scope.Battlefield ->
                     predicateEvaluator.matches(state, projected, targetId, targetFilter.baseFilter, context)
             }
@@ -770,7 +914,7 @@ class CostCalculator(
         casterId: EntityId,
         amount: DynamicAmount
     ): Int {
-        val controllerId = sourceId?.let { state.projectedState.getController(it) } ?: casterId
+        val controllerId = sourceId?.let { modifierController(state, it) } ?: casterId
         return dynamicAmountEvaluator.evaluate(
             state,
             amount,
@@ -795,8 +939,10 @@ class CostCalculator(
             projectedState.getPower(entityId) ?: baseCharacteristic(card.baseStats?.power)
         EntityNumericProperty.Toughness ->
             projectedState.getToughness(entityId) ?: baseCharacteristic(card.baseStats?.toughness)
-        EntityNumericProperty.BasePower -> baseCharacteristic(card.baseStats?.power)
-        EntityNumericProperty.BaseToughness -> baseCharacteristic(card.baseStats?.toughness)
+        EntityNumericProperty.BasePower ->
+            projectedState.getBasePower(entityId) ?: baseCharacteristic(card.baseStats?.power)
+        EntityNumericProperty.BaseToughness ->
+            projectedState.getBaseToughness(entityId) ?: baseCharacteristic(card.baseStats?.toughness)
         EntityNumericProperty.ManaValue -> card.manaValue
         else -> 0
     }
@@ -833,29 +979,50 @@ class CostCalculator(
     /**
      * Calculate the minimum possible cost for affordability gating during legal-action
      * enumeration. For target-conditional reductions, this assumes the reduction WILL apply
-     * iff at least one legal target matching the filter currently exists on the battlefield.
+     * iff at least one of the spell's legal targets currently matches the filter — wherever
+     * the spell targets, so a graveyard-targeting spell (No One Left Behind) finds its
+     * discounted target in the graveyard. A spell whose targets aren't declared on the script
+     * (modal modes) falls back to any matching battlefield permanent.
      *
      * Used by CastSpellEnumerator so spells like Dire Downdraft show as castable when a
      * discounted target exists, even though the actual cost is locked from chosen targets
-     * at cast time.
+     * at cast time. [spellId] is the card being cast, so targeting restrictions that read the
+     * source (hexproof, "another") are honoured.
      */
     fun calculateMinPossibleCost(
         state: GameState,
         cardDef: CardDefinition,
-        casterId: EntityId
+        casterId: EntityId,
+        spellId: EntityId
     ): ManaCost {
         val optimisticTargets = mutableListOf<EntityId>()
+        var legalTargets: List<EntityId>? = null
         for (ability in cardDef.script.staticAbilities) {
             if (ability !is ModifySpellCost) continue
             if (ability.target != SpellCostTarget.SelfCast) continue
             val src = sourceFromModification(ability.modification)
             if (src is CostReductionSource.FixedIfAnyTargetMatches) {
-                val match = findAnyBattlefieldMatch(state, casterId, src.filter)
+                val match = if (cardDef.script.targetRequirements.isEmpty()) {
+                    findAnyBattlefieldMatch(state, casterId, src.filter)
+                } else {
+                    val candidates = legalTargets ?: spellLegalTargets(state, cardDef, casterId, spellId)
+                        .also { legalTargets = it }
+                    findAnyMatch(state, casterId, candidates, src.filter)
+                }
                 if (match != null) optimisticTargets += match
             }
         }
         return calculateEffectiveCost(state, cardDef, casterId, optimisticTargets)
     }
+
+    /** Every legal target of any of the spell's declared target requirements, in any zone. */
+    private fun spellLegalTargets(
+        state: GameState,
+        cardDef: CardDefinition,
+        casterId: EntityId,
+        spellId: EntityId
+    ): List<EntityId> =
+        cardDef.script.targetRequirements.flatMap { targetFinder.findLegalTargets(state, it, casterId, sourceId = spellId) }
 
     private fun sourceFromModification(modification: CostModification): CostReductionSource? = when (modification) {
         is CostModification.ReduceGenericBy -> modification.source
@@ -919,6 +1086,18 @@ class CostCalculator(
         return targets.any { entityId ->
             predicateEvaluator.matches(state, projected, entityId, filter, context)
         }
+    }
+
+    /** The first of [candidates] matching the filter. */
+    private fun findAnyMatch(
+        state: GameState,
+        playerId: EntityId,
+        candidates: List<EntityId>,
+        filter: GameObjectFilter
+    ): EntityId? {
+        val projected = state.projectedState
+        val context = PredicateContext(controllerId = playerId)
+        return candidates.firstOrNull { predicateEvaluator.matches(state, projected, it, filter, context) }
     }
 
     /**
@@ -1139,6 +1318,46 @@ class CostCalculator(
         return ManaCost(cost.symbols + symbolsToAdd)
     }
 
+    /** Match announced colored payments, including hybrid halves, without spilling into generic. */
+    private fun reduceOptionalColored(cost: ManaCost, reductions: List<ManaSymbol>, lifePips: List<Color>): ManaCost {
+        if (reductions.isEmpty()) return cost
+        val reserved = mutableSetOf<Int>()
+        for (color in lifePips) {
+            val index = cost.symbols.indices.firstOrNull { it !in reserved && cost.symbols[it] == ManaSymbol.Phyrexian(color) }
+                ?: cost.symbols.indices.firstOrNull {
+                    it !in reserved && (cost.symbols[it] as? ManaSymbol.HybridPhyrexian)?.color1 == color
+                }
+            if (index != null) reserved.add(index)
+        }
+        fun matches(reduction: ManaSymbol, symbol: ManaSymbol): Boolean {
+            if (reduction == symbol) return true
+            val color = (reduction as? ManaSymbol.Colored)?.color ?: return false
+            return when (symbol) {
+                is ManaSymbol.HybridPair -> color == symbol.color1 || color == symbol.color2
+                is ManaSymbol.HybridPhyrexian -> color == symbol.color1 || color == symbol.color2
+                is ManaSymbol.Phyrexian -> color == symbol.color
+                is ManaSymbol.MonocolorHybrid -> color == symbol.color
+                else -> false
+            }
+        }
+        val assignments = mutableMapOf<Int, Int>()
+        fun assign(reduction: Int, visited: MutableSet<Int>): Boolean {
+            val candidates = cost.symbols.indices.filter { it !in reserved && matches(reductions[reduction], cost.symbols[it]) }
+                .sortedBy { if (cost.symbols[it] == reductions[reduction]) 0 else 1 }
+            for (index in candidates) {
+                if (!visited.add(index)) continue
+                val previous = assignments[index]
+                if (previous == null || assign(previous, visited)) {
+                    assignments[index] = reduction
+                    return true
+                }
+            }
+            return false
+        }
+        reductions.indices.forEach { assign(it, mutableSetOf()) }
+        return ManaCost(cost.symbols.filterIndexed { index, _ -> index !in assignments })
+    }
+
     /**
      * Remove specific colored mana symbols from a mana cost.
      * Each symbol in symbolsToRemove removes at most one matching colored symbol from the cost.
@@ -1242,6 +1461,7 @@ class CostCalculator(
             CardPredicate.IsEnchantment -> typeLine.isEnchantment
             CardPredicate.IsPlaneswalker -> CardType.PLANESWALKER in typeLine.cardTypes
             CardPredicate.IsBattle -> typeLine.isBattle
+            CardPredicate.IsKindred -> typeLine.isKindred
             CardPredicate.IsInstant -> typeLine.isInstant
             CardPredicate.IsSorcery -> typeLine.isSorcery
             CardPredicate.HasAdventure -> cardDef.isAdventure
@@ -1279,10 +1499,8 @@ class CostCalculator(
             is CardPredicate.NameEquals -> cardDef.name == predicate.name
             // Room-name distinctness is a resolution-time search filter, not a cost concern.
             CardPredicate.NameNotSharedWithControlledRoom -> false
-            CardPredicate.NameNotSharedWithControlledToken -> false
             // Same for "no other permanent you control shares this name" — a targeting
             // restriction, never a cost-reduction condition.
-            CardPredicate.NameNotSharedWithAnotherControlledPermanent -> false
 
             is CardPredicate.OriginallyPrintedInSet ->
                 cardDef.setCode?.equals(predicate.setCode, ignoreCase = true) == true
@@ -1293,8 +1511,6 @@ class CostCalculator(
             is CardPredicate.ManaValueEquals -> cardDef.manaCost.cmc == predicate.value
             is CardPredicate.ManaValueAtMost -> cardDef.manaCost.cmc <= predicate.max
             // CostCalculator has no chosen-number context; predicate has no static answer here.
-            CardPredicate.ManaValueAtMostX -> false
-            CardPredicate.ManaValueEqualsX -> false
             is CardPredicate.ManaValueAtLeast -> cardDef.manaCost.cmc >= predicate.min
             // CostCalculator has no entity context; predicate has no static answer here.
             is CardPredicate.ManaValueAtMostEntity -> false
@@ -1304,6 +1520,8 @@ class CostCalculator(
             // moment the filter is checked (Omnipresence: "mana value less than or equal to the
             // number of creatures you control"). With no source or state there is nothing to
             // resolve "you" against, so the predicate stays closed.
+            // Resolution-only: a cost-reduction filter has no resolving payment to read.
+            CardPredicate.ManaCostPayableWithManaSpent -> false
             is CardPredicate.ManaValueAtMostDynamic ->
                 sourceDynamicValue(state, sourceEntityId, predicate.amount)
                     ?.let { cardDef.manaCost.cmc <= it } ?: false
@@ -1330,16 +1548,10 @@ class CostCalculator(
             is CardPredicate.PowerEquals -> cardDef.creatureStats?.basePower == predicate.value
             is CardPredicate.BasePowerEquals -> cardDef.creatureStats?.basePower == predicate.value
             is CardPredicate.BaseToughnessEquals -> cardDef.creatureStats?.baseToughness == predicate.value
-            // CostCalculator has no X context; predicate has no static answer here.
-            CardPredicate.PowerEqualsX -> false
             is CardPredicate.PowerAtMost -> (cardDef.creatureStats?.basePower ?: 0) <= predicate.max
             is CardPredicate.PowerAtLeast -> (cardDef.creatureStats?.basePower ?: 0) >= predicate.min
-            // CostCalculator has no X context; predicate has no static answer here.
-            CardPredicate.PowerAtLeastX -> false
             is CardPredicate.ToughnessEquals -> cardDef.creatureStats?.baseToughness == predicate.value
             is CardPredicate.ToughnessAtMost -> (cardDef.creatureStats?.baseToughness ?: 0) <= predicate.max
-            // CostCalculator has no X context; predicate has no static answer here.
-            CardPredicate.ToughnessAtMostX -> false
             is CardPredicate.ToughnessAtLeast -> (cardDef.creatureStats?.baseToughness ?: 0) >= predicate.min
             is CardPredicate.PowerOrToughnessAtLeast -> {
                 val power = cardDef.creatureStats?.basePower ?: 0
@@ -1404,6 +1616,7 @@ class CostCalculator(
             is CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl -> true
             is CardPredicate.DoesNotShareLandTypeWithPermanentYouControl -> true
             CardPredicate.SharesColorWithRecipient -> false
+            CardPredicate.SharesColorWithTriggeringMana -> false
             CardPredicate.SharesChosenColorWithSource -> {
                 if (sourceEntityId == null || state == null) return false
                 val chosenColor = state.getEntity(sourceEntityId)
@@ -1461,9 +1674,9 @@ class CostCalculator(
         val baseMorphCost = ManaCost.parse("{3}")
         var totalReduction = 0
 
-        for ((sourceId, ability) in scanBattlefieldModifySpellCost(state)) {
+        for ((sourceId, ability) in scanModifySpellCost(state)) {
             if (ability.target != SpellCostTarget.FaceDownYouCast) continue
-            if (state.projectedState.getController(sourceId) != casterId) continue
+            if (modifierController(state, sourceId) != casterId) continue
             when (val mod = ability.modification) {
                 is CostModification.ReduceGeneric -> totalReduction += mod.amount
                 is CostModification.ReduceGenericBy ->
@@ -1474,7 +1687,16 @@ class CostCalculator(
             }
         }
 
-        return reduceGenericCost(baseMorphCost, totalReduction)
+        // Duration-bounded modifiers that cover every spell the caster casts ("spells they cast
+        // this turn cost {2} more" — Academy Loremaster). A face-down spell has no name, colour or
+        // mana cost of its own, so only an unfiltered modifier can be said to match it.
+        var totalIncrease = 0
+        for (modifier in state.spellCostModifiers) {
+            if (modifier.controllerId != casterId || modifier.spellFilter != GameObjectFilter.Any) continue
+            if (modifier.increase) totalIncrease += modifier.amount else totalReduction += modifier.amount
+        }
+
+        return reduceGenericCost(increaseGenericCost(baseMorphCost, totalIncrease), totalReduction)
     }
 
     /**
@@ -1484,7 +1706,7 @@ class CostCalculator(
      */
     fun calculateMorphCostIncrease(state: GameState): Int {
         var totalIncrease = 0
-        for ((_, ability) in scanBattlefieldModifySpellCost(state)) {
+        for ((_, ability) in scanModifySpellCost(state)) {
             if (ability.target != SpellCostTarget.MorphActivation) continue
             when (val mod = ability.modification) {
                 is CostModification.IncreaseGeneric -> totalIncrease += mod.amount
@@ -1653,13 +1875,10 @@ class CostCalculator(
             // Fold in unlocked Room-face statics (CR 709.5) so a face-level Warped Space is seen.
             for (ability in com.wingedsheep.engine.state.components.identity.RoomFaceStatics.activeStaticAbilities(container, permanentDef)) {
                 if (ability !is MayCastWithoutPayingManaCost) continue
-                // `fromExileOnly` (Warped Space) frees only spells cast from exile. When the cast
-                // zone is unknown (a coarse "any free-cast source?" probe), such a source doesn't
-                // count toward a hand cast — require an explicit EXILE zone.
-                if (ability.fromExileOnly && castFromZone != com.wingedsheep.sdk.core.Zone.EXILE) continue
-                // `fromHandOnly` (Omnipresence — "from your hand") frees only hand casts. The coarse
-                // probe (unknown zone) still counts it, since a matching card may be in hand.
-                if (ability.fromHandOnly && castFromZone != null && castFromZone != com.wingedsheep.sdk.core.Zone.HAND) continue
+                // `fromZones` scopes the cast zone: Warped Space frees only exile casts, Omnipresence
+                // only hand casts, One with the Multiverse hand or library-top casts. The coarse probe
+                // (unknown zone) is a hand probe, so an exile-only source doesn't count toward it.
+                if (!ability.allowsCastFrom(castFromZone)) continue
                 if (ability.controllerOnly) {
                     val controllerId = state.projectedState.getController(entityId) ?: continue
                     if (controllerId != casterId) continue
@@ -1756,8 +1975,7 @@ class CostCalculator(
             for (ability in statics.abilities) {
                 if (ability !is MayCastWithoutPayingManaCost) continue
                 if (ability.firstSpellOfTurnOnly || ability.oncePerTurn) continue
-                if (ability.fromExileOnly && castFromZone != com.wingedsheep.sdk.core.Zone.EXILE) continue
-                if (ability.fromHandOnly && castFromZone != null && castFromZone != com.wingedsheep.sdk.core.Zone.HAND) continue
+                if (!ability.allowsCastFrom(castFromZone)) continue
                 if (ability.controllerOnly && emblemController != casterId) continue
                 if (spellCardDef != null && ability.spellFilter != GameObjectFilter.Any &&
                     !matchesCardDefinition(spellCardDef, ability.spellFilter, entityId, state, state.projectedState)
@@ -1795,10 +2013,9 @@ class CostCalculator(
             // Fold in unlocked Room-face statics (CR 709.5) so a face-level Warped Space is seen.
             for (ability in com.wingedsheep.engine.state.components.identity.RoomFaceStatics.activeStaticAbilities(container, permanentDef)) {
                 if (ability !is MayCastWithoutPayingManaCost) continue
-                // A `fromExileOnly` source (Warped Space) is only a candidate for an exile cast, so
-                // it isn't burned by a free hand cast granted by a different source.
-                if (ability.fromExileOnly && castFromZone != com.wingedsheep.sdk.core.Zone.EXILE) continue
-                if (ability.fromHandOnly && castFromZone != null && castFromZone != com.wingedsheep.sdk.core.Zone.HAND) continue
+                // A zone-scoped source (Warped Space: exile only) is only a candidate for a cast from
+                // one of its zones, so it isn't burned by a free cast granted by a different source.
+                if (!ability.allowsCastFrom(castFromZone)) continue
                 if (ability.controllerOnly) {
                     val controllerId = state.projectedState.getController(entityId) ?: continue
                     if (controllerId != casterId) continue
@@ -1820,46 +2037,13 @@ class CostCalculator(
         return oncePerTurnCandidate
     }
 
-    /**
-     * Calculate the effective cost of casting a spell using an alternative base cost.
-     * Applies cost increases (tax effects) to the alternative cost.
-     * Per Rule 118.9a, cost reductions and increases apply to alternative costs.
-     *
-     * Note: Self-reduction (`SpellCostTarget.SelfCast`) and Affinity are NOT applied to
-     * alternative costs, since those modify the card's own mana cost. Only
-     * battlefield-sourced AnyCaster and OpponentsCast increases apply (CR 118.9d).
-     */
+    /** Price an alternative mana cost with the same increases and reductions as a normal cast. */
     fun calculateEffectiveCostWithAlternativeBase(
         state: GameState,
         cardDef: CardDefinition,
         alternativeCost: ManaCost,
         casterId: EntityId,
-    ): ManaCost {
-        var totalIncrease = 0
-        for ((sourceId, ability) in scanBattlefieldModifySpellCost(state)) {
-            val applies = when (val target = ability.target) {
-                is SpellCostTarget.AnyCaster ->
-                    matchesCardDefinition(cardDef, target.filter, sourceId, state, state.projectedState)
-                is SpellCostTarget.OpponentsCast ->
-                    opponentsCastMatches(target, cardDef, casterId, sourceId, state)
-                else -> false
-            }
-            if (!applies) continue
-            when (val mod = ability.modification) {
-                is CostModification.IncreaseGeneric -> totalIncrease += mod.amount
-                is CostModification.IncreaseGenericBy ->
-                    totalIncrease += evaluateReduction(
-                        state, mod.source, casterId, abilitySourceId = sourceId
-                    )
-                is CostModification.IncreaseGenericPerOtherSpellThisTurn -> {
-                    val spellsCast = state.playerSpellsCastThisTurn[casterId] ?: 0
-                    totalIncrease += spellsCast * mod.amountPerSpell
-                }
-                else -> { /* Battlefield reductions don't apply to alternative casting costs. */ }
-            }
-        }
-        return LifePayableMana.apply(state, cardRegistry, casterId, increaseGenericCost(alternativeCost, totalIncrease))
-    }
+    ): ManaCost = calculateEffectiveCost(state, cardDef, casterId, baseCost = alternativeCost)
 
     /**
      * Calculate the additional life [casterId] must pay as part of casting a spell with
@@ -1878,7 +2062,7 @@ class CostCalculator(
         val targetEntityIds = targets.mapNotNull { (it as? ChosenTarget.Permanent)?.entityId }
         if (targetEntityIds.isEmpty()) return 0
         var total = 0
-        for ((sourceId, ability) in scanBattlefieldModifySpellCost(state)) {
+        for ((sourceId, ability) in scanModifySpellCost(state)) {
             val target = ability.target as? SpellCostTarget.OpponentsCastTargeting ?: continue
             val modification = ability.modification as? CostModification.IncreaseLife ?: continue
             if (!opponentsCastTargetingMatches(state, casterId, sourceId, target.targetFilter, targetEntityIds)) continue

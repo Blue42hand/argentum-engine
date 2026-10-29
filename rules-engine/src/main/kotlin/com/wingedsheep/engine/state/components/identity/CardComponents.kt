@@ -111,6 +111,12 @@ data class CardComponent(
      * which is the one place the modal/nonmodal split is decided.
      */
     val manaValueOverride: Int? = null,
+    /** The alternative copiable flip half, frozen with any copy exceptions on both halves. */
+    val flipSide: CardComponent? = null,
+    /** Numeric abilities added as copiable text, retained across flip-half selection and expiry. */
+    val copyNumericKeywords: List<com.wingedsheep.sdk.scripting.KeywordAbility.Numeric> = emptyList(),
+    /** Intrinsic static text on inline tokens without a registered definition. */
+    val copyStaticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
     /** Rules text added by copy effects; copied and restored with the identity, not a layer-six grant. */
     val copyTriggeredAbilities: List<com.wingedsheep.sdk.scripting.TriggeredAbility> = emptyList(),
     /**
@@ -118,6 +124,8 @@ data class CardComponent(
      * [copyTriggeredAbilities]; read through [ownActivatedAbilities] alongside the definition's own.
      */
     val copyActivatedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
+    /** Intrinsic ward costs carried by a copy whose values have no printed card definition. */
+    val copyWardCosts: List<com.wingedsheep.sdk.scripting.effects.WardCost> = emptyList(),
     /** Copiable spending-rule abilities, baked from the active printed statics on entry/unlock. */
     val manaSpendingGrants: List<ManaSpendingGrant> = emptyList(),
 ) : Component {
@@ -263,6 +271,8 @@ data object CantBeCopiedComponent : Component
  * rather than two markers that can drift apart:
  *  - `StatePredicate.PutIntoGraveyardThisTurn` — marker present, [fromBattlefield] ignored
  *    (FDN — Abyssal Harvester's "creature card from a graveyard that was put there this turn").
+ *  - `StatePredicate.MilledThisTurn` — marker present *and* [milled] (PIP — Raul, Trouble
+ *    Shooter; Tato Farmer).
  *  - `StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn` — marker present *and*
  *    [fromBattlefield] (LTR — Samwise the Stouthearted's "permanent card in your graveyard
  *    that was put there from the battlefield this turn" and Lobelia Sackville-Baggins's
@@ -273,5 +283,10 @@ data object CantBeCopiedComponent : Component
  */
 @Serializable
 data class PutIntoGraveyardThisTurnComponent(
-    val fromBattlefield: Boolean
+    val fromBattlefield: Boolean,
+    /**
+     * True when this arrival was a mill (CR 701.17) — set after the move by
+     * `ZoneTransitionService.trackMill`. Backs `StatePredicate.MilledThisTurn`.
+     */
+    val milled: Boolean = false
 ) : Component

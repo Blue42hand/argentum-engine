@@ -13,6 +13,7 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.effects.mana.ManaAbilityResolutionPipeline
+import com.wingedsheep.engine.handlers.effects.mana.manaColorsAdded
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.activeManaSpendingScope
@@ -81,6 +82,7 @@ internal class ActivatedManaAbilityResolver(
         effect: Effect,
         events: List<GameEvent>,
         sacrificedSnapshots: List<EntitySnapshot>,
+        manaSpent: com.wingedsheep.engine.mechanics.mana.SpentMana,
     ): ExecutionResult {
         val action = activation.action
         val ability = activation.ability
@@ -165,6 +167,8 @@ internal class ActivatedManaAbilityResolver(
             }
         }
         val context = EffectContext(
+            chosenModes = action.chosenModes.orEmpty(),
+            modeTargetsOrdered = action.modeTargetsOrdered,
             sourceId = action.sourceId,
             objectReferences = activation.activationReferences.authorize(activationEvents),
             controllerId = action.playerId,
@@ -180,6 +184,9 @@ internal class ActivatedManaAbilityResolver(
             // permanent is already in the graveyard (CR 113.7a); without the snapshots the
             // amount resolves to 0 and the ability produces nothing.
             sacrificedPermanents = sacrificedSnapshots,
+            manaSpent = manaSpent,
+            lastKnownSourceSnapshot = if (state.projectedState.getTypes(action.sourceId).isEmpty())
+                com.wingedsheep.engine.state.components.stack.captureLastKnown(stateBeforeActivation, action.sourceId) else null,
             // Dropped when another player chooses the color at resolution (Spectral Searchlight) —
             // the activator has no say in it, whatever the client sent.
             manaColorChoice = action.manaColorChoice.takeUnless {
@@ -251,6 +258,10 @@ internal class ActivatedManaAbilityResolver(
         }
 
         val eventsWithMana = if (manaEvent != null) activationEvents + manaEvent else activationEvents
+        // Every color the activation added, read off the pool before tagging moves it into
+        // per-unit entries — a composite's ManaAddedEvent reports only its first part.
+        val producedColors = if (dampening.dampened) emptySet()
+            else manaColorsAdded(stateBeforeEffect, dampening.state, action.playerId)
 
         // Read the production event before tagging moves plain mana into per-unit entries.
         // Tag before triggered bonuses so those bonuses don't inherit the activation obligation.
@@ -269,9 +280,14 @@ internal class ActivatedManaAbilityResolver(
         // reflexive "when you do" half, which is not itself a mana ability, CR 605.1a), and the
         // land-tapped event Mana Flare-style triggers watch. Such triggered abilities still use
         // the stack even though the mana ability itself resolves off it.
+        //
+        // All of these key on the source being *tapped* for mana, so a mana ability without {T}
+        // in its cost (Ashnod's Altar, a Gold token) gets none of them — Kinnan's ruling — the
+        // same gate the scoped-production path applies.
+        if (!costsTap) return ExecutionResult.success(currentState, eventsWithMana + effectResult.events)
         return manaPipeline.finishTapBonuses(
             currentState, action.sourceId, cardComponent, action.playerId,
-            manaEvent, eventsWithMana + effectResult.events
+            manaEvent, eventsWithMana + effectResult.events, producedColors
         )
     }
 

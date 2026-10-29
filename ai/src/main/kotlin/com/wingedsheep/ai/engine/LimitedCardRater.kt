@@ -2,6 +2,7 @@ package com.wingedsheep.ai.engine
 
 import com.wingedsheep.ai.draftsim.DraftsimData
 import com.wingedsheep.ai.engine.knowledge.EffectWalker
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
@@ -144,6 +145,9 @@ object LimitedCardRater {
         }.coerceIn(0.0, 5.0)
     }
 
+    /** Heuristic base rating of a planeswalker, before its loyalty abilities and rarity. */
+    private const val PLANESWALKER_BASE = 3.0
+
     private fun heuristicRate(card: CardDefinition): Double {
         var rating = baseRating(card)
         rating += keywordBonus(card)
@@ -180,6 +184,14 @@ object LimitedCardRater {
                 else -> 1.5
             }
         }
+
+        // A planeswalker is a repeatable engine that has to be attacked to be answered — in limited
+        // nearly every one is a first-pick. Its loyalty abilities still add their own effect value
+        // on top (as activated abilities), but most of what a walker does — a fresh token, a card,
+        // a counter every turn while soaking damage — is the recurrence, which no single effect
+        // leaf captures. Without this floor the generic "other permanent" 1.5 put a five-mana
+        // rare walker below a vanilla 3/9.
+        if (CardType.PLANESWALKER in card.typeLine.cardTypes) return PLANESWALKER_BASE
 
         // Non-creature spells
         return when {
@@ -327,6 +339,7 @@ object LimitedCardRater {
 
             // Counter manipulation
             is AddCountersEffect -> 0.4
+            is AdaptEffect -> 0.4
 
             // Keyword grants
             is GrantKeywordEffect -> 0.2

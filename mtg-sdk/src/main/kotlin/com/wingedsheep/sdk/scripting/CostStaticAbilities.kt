@@ -28,7 +28,11 @@ data class ModifySpellCost(
     val target: SpellCostTarget,
     val modification: CostModification,
     val gating: CostGating = CostGating.None,
+    /** Optional additional life payment elected once per instance while announcing the spell. */
+    val optionalLifePayment: Int? = null,
 ) : StaticAbility {
+    init { require(optionalLifePayment == null || optionalLifePayment > 0) }
+
     override val description: String = buildDescription()
 
     private fun buildDescription(): String {
@@ -80,7 +84,8 @@ data class ModifySpellCost(
             is CostGating.OnlyIf -> " ${g.condition.description}"
             else -> ""
         }
-        return "$prefix $agreedVerb$perTurn$conditionSuffix"
+        return "$prefix $agreedVerb$perTurn$conditionSuffix" +
+            (optionalLifePayment?.let { " if you pay an additional $it life" } ?: "")
     }
 
     /**
@@ -617,7 +622,8 @@ sealed interface CostReductionSource {
      *
      * At cast resolution, the reduction applies if any of the spell's chosen targets match.
      * For affordability enumeration (before targets are chosen), the reduction is treated as
-     * applicable if at least one legal target exists on the battlefield.
+     * applicable if at least one of the spell's legal targets matches — in whatever zone the spell
+     * targets (No One Left Behind finds its discounted creature card in the graveyard).
      */
     @SerialName("FixedIfAnyTargetMatches")
     @Serializable
@@ -1119,14 +1125,31 @@ sealed interface UnlockCostTarget {
  * sibling of [ReduceEquipCost.onlyIfTargetIsSource], which covers *equip* abilities whatever their
  * source.
  *
+ * [reach] widens *which activations* the reduction sees. The default,
+ * [ActivatedAbilityReach.MATCHING_PERMANENTS], is every card above: abilities of permanents on the
+ * battlefield that [filter] matches, whoever activates them. [ActivatedAbilityReach.ACTIVATED_BY_YOU]
+ * is Zirda, the Dawnwaker's "Abilities you activate that aren't mana abilities cost {2} less to
+ * activate. This effect can't reduce the mana in that cost to less than one mana." — every ability
+ * the static's controller activates, from **any zone** (its ruling names cycling; channel, unearth
+ * and the rest of the hand/graveyard keyword abilities follow), whose source [filter]'s
+ * `baseFilter` matches →
+ * `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Any), DynamicAmounts.fixed(2), manaFloor = 1, excludeManaAbilities = true, reach = ActivatedAbilityReach.ACTIVATED_BY_YOU)`.
+ *
+ * [excludeManaAbilities] leaves mana abilities (CR 605) at full price — the same flag, with the
+ * same meaning, as [IncreaseActivatedAbilityCost.excludeManaAbilities].
+ *
  * @property filter Which permanents' activated abilities are cheaper (matched via projected state;
  *   use [GroupFilter.attachedCreature] for an Aura's enchanted permanent, [GroupFilter.source] for
- *   "this permanent's abilities", or a battlefield filter for a group).
+ *   "this permanent's abilities", or a battlefield filter for a group). Under
+ *   [ActivatedAbilityReach.ACTIVATED_BY_YOU], its `baseFilter` is matched against the ability's
+ *   source in whatever zone it is activated from.
  * @property amount Dynamic generic-mana reduction applied to each matching ability's cost.
  * @property manaFloor Minimum total mana the cost may be reduced to (default 0).
  * @property exhaustOnly When true, only exhaust abilities (`ActivatedAbility.isExhaust`) are reduced.
  * @property powerUpOnly When true, only power-up abilities (`ActivatedAbility.isPowerUp`) are reduced.
  * @property onlyIfTargetIsSource When true, only activations that target this static's source are reduced.
+ * @property excludeManaAbilities When true, mana abilities (CR 605) are not reduced.
+ * @property reach Which activations the reduction sees — see [ActivatedAbilityReach].
  */
 @SerialName("ReduceActivatedAbilityCost")
 @Serializable
@@ -1136,7 +1159,9 @@ data class ReduceActivatedAbilityCost(
     val manaFloor: Int = 0,
     val exhaustOnly: Boolean = false,
     val powerUpOnly: Boolean = false,
-    val onlyIfTargetIsSource: Boolean = false
+    val onlyIfTargetIsSource: Boolean = false,
+    val excludeManaAbilities: Boolean = false,
+    val reach: ActivatedAbilityReach = ActivatedAbilityReach.MATCHING_PERMANENTS
 ) : StaticAbility {
     override val description: String = buildString {
         val abilities = when {
@@ -1144,12 +1169,16 @@ data class ReduceActivatedAbilityCost(
             powerUpOnly -> "power-up abilities"
             else -> "activated abilities"
         }
-        if (onlyIfTargetIsSource) {
+        if (reach == ActivatedAbilityReach.ACTIVATED_BY_YOU) {
+            append("Abilities you activate")
+            if (excludeManaAbilities) append(" that aren't mana abilities")
+        } else if (onlyIfTargetIsSource) {
             append(abilities.replaceFirstChar { it.uppercase() })
             append(" of ${filter.description} that target this permanent")
         } else {
             append(filter.description.replaceFirstChar { it.uppercase() })
             append("'s $abilities")
+            if (excludeManaAbilities) append(" that aren't mana abilities")
         }
         when (amount) {
             is DynamicAmount.Fixed -> append(" cost {${amount.amount}} less to activate")
@@ -1166,6 +1195,27 @@ data class ReduceActivatedAbilityCost(
         val newAmount = amount.applyTextReplacement(replacer)
         return if (newFilter !== filter || newAmount !== amount) copy(filter = newFilter, amount = newAmount) else this
     }
+}
+
+/**
+ * Which activations a [ReduceActivatedAbilityCost] sees.
+ */
+@Serializable
+enum class ActivatedAbilityReach {
+    /**
+     * Abilities of permanents on the battlefield that the static's `filter` matches, whoever
+     * activates them — "activated abilities of creatures you control" (Training Grounds). An ability
+     * activated from a hand or graveyard card is not reduced (Training Grounds' ruling: cycling and
+     * unearth are untouched).
+     */
+    MATCHING_PERMANENTS,
+
+    /**
+     * Every ability the static's controller activates, from any zone — the battlefield, a hand
+     * card's cycling or channel, a graveyard card's unearth — whose source matches the static's
+     * `filter.baseFilter`. "Abilities you activate" (Zirda, the Dawnwaker).
+     */
+    ACTIVATED_BY_YOU
 }
 
 /**
@@ -1213,4 +1263,70 @@ data class IncreaseActivatedAbilityCost(
         val newAmount = amount.applyTextReplacement(replacer)
         return if (newFilter !== filter || newAmount !== amount) copy(filter = newFilter, amount = newAmount) else this
     }
+}
+
+/**
+ * The mana abilities of permanents matching [filter] cost an additional [amount] life to activate
+ * — Thran Portal's "Mana abilities of this land cost an additional 1 life to activate."
+ *
+ * The life is an extra *cost* (CR 118.3 — it can be paid only if the player's life total is at
+ * least [amount], CR 119.4), folded into **every** mana ability the matching permanent has: its
+ * printed ones, the intrinsic ability its basic land types give it (CR 305.6), and any ability
+ * granted to it. It is the life-cost counterpart of [IncreaseActivatedAbilityCost] restricted to
+ * mana abilities, and like any static ability it stops applying once the permanent loses its
+ * abilities.
+ *
+ * Lowered by the engine to a Layer 6 projected value, so manual activation, legal-action
+ * enumeration and every auto-pay path read one answer.
+ *
+ * @property amount Additional life each mana-ability activation costs.
+ * @property filter Which permanents' mana abilities are taxed — [GroupFilter.source] (the
+ *   default) for "this land". Several Thran Portals each tax only themselves (printed ruling).
+ */
+@SerialName("ManaAbilitiesCostAdditionalLife")
+@Serializable
+data class ManaAbilitiesCostAdditionalLife(
+    val amount: Int = 1,
+    val filter: GroupFilter = GroupFilter.source()
+) : StaticAbility {
+    override val description: String =
+        "Mana abilities of ${filter.description} cost an additional $amount life to activate"
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * "Players can't pay life to cast spells or to activate abilities [that aren't mana abilities]" —
+ * Karn's Sylex. A prohibition on *paying life as a cost* of casting a spell or activating an
+ * ability (CR 119.4 / 118.3): life in an additional or alternative cost, a "pay N life" activation
+ * cost, and Phyrexian mana symbols paid with life (CR 107.4f) all become unpayable.
+ *
+ * Deliberately scoped to those two contexts. Damage and "lose N life" are untouched (that is
+ * [com.wingedsheep.sdk.scripting.effects.LockLifeLossEffect]'s lock, which also forbids paying
+ * life), and so is life paid while something *resolves* — ward's "pay N life", "unless that
+ * player pays N life" — since that payment is neither part of casting nor of activating.
+ *
+ * Neighbours: [ManaAbilitiesCostAdditionalLife] taxes life onto mana abilities rather than
+ * forbidding it; [PlayersCantActivateAbilities] forbids the activation itself, not one way of
+ * paying for it. Neither carries a "which payment" axis, so this is its own type.
+ *
+ * Applies to every player. Like any static ability it stops once its source loses its abilities.
+ *
+ * @property excludeManaAbilities true for "abilities that aren't mana abilities" (Karn's Sylex):
+ *   a mana ability's life cost — Mana Confluence, Thran Portal's tax — stays payable, even while
+ *   it pays for a spell. false (default) forbids life for every activated ability.
+ */
+@SerialName("PlayersCantPayLifeForCosts")
+@Serializable
+data class PlayersCantPayLifeForCosts(
+    val excludeManaAbilities: Boolean = false
+) : StaticAbility {
+    override val description: String =
+        "Players can't pay life to cast spells or to activate abilities" +
+            if (excludeManaAbilities) " that aren't mana abilities" else ""
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility = this
 }

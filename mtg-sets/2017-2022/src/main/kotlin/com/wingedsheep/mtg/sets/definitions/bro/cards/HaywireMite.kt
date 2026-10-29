@@ -7,9 +7,19 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
-/** Haywire Mite — The Brothers' War #199. */
+/**
+ * Haywire Mite — The Brothers' War #199
+ * {1} · Artifact Creature — Insect · Uncommon
+ * 1/1
+ *
+ * When this creature dies, you gain 2 life.
+ * {G}, Sacrifice this creature: Exile target noncreature artifact or noncreature enchantment.
+ *
+ * "Noncreature artifact or noncreature enchantment" is the artifact-or-enchantment filter narrowed
+ * by [GameObjectFilter.notCreature] (as on Guerrilla Gorilla). Sacrificing it to its own ability
+ * also fires the dies trigger.
+ */
 val HaywireMite = card("Haywire Mite") {
     manaCost = "{1}"
     colorIdentity = "G"
@@ -26,8 +36,10 @@ val HaywireMite = card("Haywire Mite") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.SacrificeSelf)
-        val target = target(TargetFilter(GameObjectFilter.ArtifactOrEnchantment.notCreature()))
-        effect = Effects.Exile(target)
+        val victim = target(TargetFilter(GameObjectFilter.ArtifactOrEnchantment.notCreature()))
+        effect = Effects.Exile(victim)
+        description = "{G}, Sacrifice this creature: Exile target noncreature artifact or " +
+            "noncreature enchantment."
     }
 
     metadata {

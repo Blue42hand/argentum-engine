@@ -6,6 +6,7 @@ import com.wingedsheep.ai.engine.deck.ConstructedDeckGenerator
 import com.wingedsheep.ai.engine.deck.RandomDeckGenerator
 import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.gameserver.deck.DeckValidator
 import com.wingedsheep.gameserver.lobby.AiDeckSpec
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.core.ManaCost
@@ -32,7 +33,7 @@ import io.kotest.matchers.shouldNotBe
 class RandomDeckResolverTest : FunSpec({
 
     /** Every format the synthetic pool claims legality in, so one `card()` covers every case. */
-    val allFormats = setOf(DeckFormat.PAUPER, DeckFormat.MODERN, DeckFormat.COMMANDER, DeckFormat.STANDARD)
+    val allFormats = setOf(DeckFormat.PAUPER, DeckFormat.MODERN, DeckFormat.LEGACY, DeckFormat.COMMANDER, DeckFormat.STANDARD)
 
     fun card(name: String, cost: String, rarity: Rarity, formats: Set<DeckFormat>) =
         CardDefinition.creature(
@@ -94,10 +95,13 @@ class RandomDeckResolverTest : FunSpec({
         val registry = CardRegistry()
         configs.values.forEach { registry.register(it.cards) }
         registry.register(basics)
+        val inference = DeckSetInference(booster, registry)
         return RandomDeckResolver(
             SealedDeckGenerator(booster),
             ConstructedDeckGenerator(booster, registry),
             CommanderDeckGenerator(booster, registry),
+            inference,
+            PremadeOpponentPicker(inference, DeckValidator(registry)),
         )
     }
 
@@ -238,5 +242,70 @@ class RandomDeckResolverTest : FunSpec({
 
         deck.commander shouldNotBe null
         deck.totalCards shouldBe 100
+    }
+
+    // --- An Auto AI facing a submitted deck plays out of that deck's sets. The synthetic pool has
+    // no built-in starters, so these pin the generated fallback; PremadeOpponentPickerTest pins the
+    // sibling-starter preference over real Bloomburrow lists.
+
+    /** A human list drawn from set BBB: [copies] each of ten commons, plus Forests. */
+    fun bbbDeck(copies: Int, size: Int) =
+        (1..10).associate { "BBB Common $it" to copies } + ("Forest" to size - 10 * copies)
+
+    test("Auto facing a 40-card deck opens its sealed pool from that deck's set, not the lobby's") {
+        val deck = resolver().resolveAgainst(
+            AiDeckSpec.Auto, format = null, fallbackSetCode = "AAA", commanderRules = false,
+            opponentDeck = bbbDeck(copies = 2, size = 40),
+        )
+
+        deck.deckList.values.sum() shouldBe sealedSize
+        deck.deckList.keys.filterNot { it.startsWith("Forest") }.forEach { it.startsWith("BBB") shouldBe true }
+    }
+
+    test("Auto facing a 60-card deck builds a 60-card deck from that deck's set") {
+        // A tuned 60-card list against a 40-card sealed pool is a mismatch in consistency, not
+        // just in cards — the AI gets the same shape the human brought.
+        val deck = resolver().resolveAgainst(
+            AiDeckSpec.Auto, format = null, fallbackSetCode = "AAA", commanderRules = false,
+            opponentDeck = bbbDeck(copies = 4, size = 60),
+        )
+
+        deck.deckList.values.sum() shouldBe constructedSize
+        deck.deckList.keys.filterNot { it.startsWith("Forest") }.forEach { it.startsWith("BBB") shouldBe true }
+    }
+
+    test("Auto facing a deck under a constructed format builds to the format from that deck's set") {
+        val deck = resolver().resolveAgainst(
+            AiDeckSpec.Auto, format = DeckFormat.MODERN, fallbackSetCode = "AAA", commanderRules = false,
+            opponentDeck = bbbDeck(copies = 4, size = 60),
+        )
+
+        deck.deckList.values.sum() shouldBe constructedSize
+        deck.deckList.keys.filterNot { it.startsWith("Forest") }.forEach { it.startsWith("BBB") shouldBe true }
+    }
+
+    test("a deck with no set identity leaves Auto as it was") {
+        // Nothing but basics: every set prints them, so there is nothing to match.
+        val deck = resolver().resolveAgainst(
+            AiDeckSpec.Auto, format = null, fallbackSetCode = "AAA", commanderRules = false,
+            opponentDeck = mapOf("Forest" to 40),
+        )
+
+        deck.deckList.values.sum() shouldBe sealedSize
+        deck.deckList.keys.filterNot { it.startsWith("Forest") }.forEach { it.startsWith("AAA") shouldBe true }
+    }
+
+    test("the host's own set choice beats matching the human's deck") {
+        val deck = resolver().resolveAgainst(
+            AiDeckSpec.Sets(listOf("AAA")), format = null, fallbackSetCode = "AAA", commanderRules = false,
+            opponentDeck = bbbDeck(copies = 2, size = 40),
+        )
+
+        deck.deckList.keys.filterNot { it.startsWith("Forest") }.forEach { it.startsWith("AAA") shouldBe true }
+    }
+
+    test("the lobby label can name the sets an Auto AI will match") {
+        resolver().matchingSets(bbbDeck(copies = 2, size = 40)) shouldBe listOf("BBB")
+        resolver().matchingSets(null) shouldBe emptyList()
     }
 })

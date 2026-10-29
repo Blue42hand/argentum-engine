@@ -13,7 +13,8 @@
  *     dismissed the seat dialog with it.
  *
  * The three sources are `AiDeckSpec` on the server, and they mean the same thing in both lobbies:
- *   - **Auto** — the server rolls it one, honouring the lobby's deck-legality axis.
+ *   - **Auto** — the server rolls it one, honouring the lobby's deck-legality axis. Against a deck
+ *     the human brought, it plays from that deck's sets — a sibling starter deck when one exists.
  *   - **From sets** — same builders, card pool pinned to sets you choose. Empty means Auto.
  *   - **Pick a deck** — an exact list, through the same {@link DeckPicker} you use for your own. Its
  *     `saved` / `examples` / `paste` tabs are three ways to reach a decklist and collapse into one
@@ -167,6 +168,9 @@ export function AiDeckChooser({
                 : format
                   ? `The server builds the AI a 60-card ${formatLabel}-legal deck.`
                   : 'The server opens eight boosters from your set and auto-builds the AI a 40-card deck.'}
+              {' '}
+              Bring your own deck and the AI plays from the same set(s): another starter deck from them
+              when there is one, otherwise a deck built from them to match yours.
             </div>
           )}
 

@@ -417,7 +417,7 @@ class MultiEnvService(
                 deck = deckResolver.resolve(spec.deck),
                 startingLife = spec.startingLife,
                 playerId = spec.playerId,
-                commanderCardName = spec.commanderCardName
+                commanderCardNames = listOfNotNull(spec.commanderCardName)
             )
         },
         startingHandSize = startingHandSize,

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.handlers.effects.DamageUtils
@@ -129,18 +130,21 @@ class ForcefieldScenarioTest : ScenarioTestBase() {
             game.state = result.state
             finish(game); game.getLifeTotal(1) shouldBe 19
         }
-        test("face-down chosen source badge hides its printed identity for every viewer") {
+        test("face-down chosen source badge names it only to the player who may look under it") {
             val game = board(); val giant = game.findPermanent("Hill Giant")!!
             game.state = game.state.updateEntity(giant) { it.with(FaceDownComponent) }
             unblocked(game); activate(game); choose(game)
-            val views = listOf(game.getClientState(1), game.getClientState(2),
+            fun badgeOf(view: ClientGameState) = view.players.single { it.playerId == game.player1Id }.activeEffects
+                .single { it.effectId.startsWith("prevent_next_damage_leaving_amount") }
+            val hiddenViews = listOf(game.getClientState(1),
                 stateTransformer.transform(game.state, game.player1Id, isSpectator = true))
-            for (view in views) {
-                val badge = view.players.single { it.playerId == game.player1Id }.activeEffects
-                    .single { it.effectId.startsWith("prevent_next_damage_leaving_amount") }
+            for (view in hiddenViews) {
+                val badge = badgeOf(view)
                 badge.name shouldBe "Leave 1 from Face-down creature"
                 badge.description!!.contains("Hill Giant") shouldBe false
             }
+            // CR 708.5: the face-down creature's controller may look at it.
+            badgeOf(game.getClientState(2)).name shouldBe "Leave 1 from Hill Giant"
             finish(game); game.getLifeTotal(1) shouldBe 19
         }
     }

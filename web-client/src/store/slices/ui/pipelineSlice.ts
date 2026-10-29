@@ -354,6 +354,7 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
         targetIds: [...result.selectedTargets],
         totalDamage: actionInfo.totalDamageToDistribute,
         minPerTarget,
+        ...(actionInfo.distributionUnit ? { unit: actionInfo.distributionUnit } : {}),
         distribution: initialDistribution,
       })
       return

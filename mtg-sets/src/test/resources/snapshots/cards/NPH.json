@@ -29,6 +29,114 @@
     "colorIdentityOverride": []
 }
 
+// Beast Within
+{
+    "name": "Beast Within",
+    "manaCost": "{2}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target permanent. Its controller creates a 3/3 green Beast creature token.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Beast"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/9/d93d0098-2147-4e84-af15-91dec8b98d21.jpg?1721427669",
+                    "controller": "TargetController"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "permanent"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "103",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Allsop",
+        "flavorText": "\"Kill the weak so they can't drag the strong down to their level. This is true compassion.\"\n—Benzir, archdruid of Temple Might",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce5b6d19-22e3-4f57-8f4d-a17e982286c7.jpg?1783941304"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Blade Splicer
+{
+    "name": "Blade Splicer",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Phyrexian Human Artificer",
+    "oracleText": "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.\nGolems you control have first strike.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Blade Splicer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Phyrexian",
+                        "Golem"
+                    ],
+                    "artifactToken": true
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "FIRST_STRIKE",
+                "filter": {
+                    "baseFilter": "permanent Golem ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "4",
+        "rarity": "RARE",
+        "artist": "Greg Staples",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b8e56a28-713b-4a13-a601-1128cf117539.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Deceiver Exarch
 {
     "name": "Deceiver Exarch",
@@ -253,6 +361,303 @@
     ]
 }
 
+// Forced Worship
+{
+    "name": "Forced Worship",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature can't attack.\n{2}{W}: Return this Aura to its owner's hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Forced Worship:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                },
+                "descriptionOverride": "{2}{W}: Return this Aura to its owner's hand."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantAttack",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "artist": "Karl Kopinski",
+        "flavorText": "Imprisonment teaches revenge. Hobbling teaches resignation.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e050701d-4609-470d-85ff-4b7638893c6a.jpg?1783941326",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Forced Worship's activated ability may only be activated if Forced Worship is on the battlefield. If it's no longer on the battlefield when the ability resolves, the ability has no effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Gitaxian Probe
+{
+    "name": "Gitaxian Probe",
+    "manaCost": "{U/P}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at target player's hand.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "artist": "Chippy",
+        "flavorText": "\"My flesh holds no secrets, monster. The spirit of Mirrodin will fight on.\"\n—Vy Covalt, Mirran resistance",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/995486ce-58bb-4753-a812-0ca73ef1a235.jpg?1783941320",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "To calculate the mana value of a card with Phyrexian mana symbols in its cost, count each Phyrexian mana symbol as 1."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If you're at 1 life or less, you can't pay 2 life."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "The targeted player may have no cards in their hand. You'll still draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Karn Liberated
+{
+    "name": "Karn Liberated",
+    "manaCost": "{7}",
+    "typeLine": "Legendary Planeswalker — Karn",
+    "oracleText": "+4: Target player exiles a card from their hand.\n−3: Exile target permanent.\n−14: Restart the game, leaving in exile all non-Aura permanent cards exiled with Karn. Then put those cards onto the battlefield under your control.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Karn Liberated:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 4
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "chooser": "TargetPlayer",
+                            "storeSelected": "selected1",
+                            "prompt": "Choose a card to exile"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "linkToSource": true
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Karn Liberated:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    },
+                    "destination": "Exile",
+                    "linkToSource": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent"
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Karn Liberated:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -14
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "gathered0",
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsPermanent",
+                                    {
+                                        "type": "NotSubtype",
+                                        "subtype": "Aura"
+                                    }
+                                ]
+                            },
+                            "storeMatching": "matching1"
+                        },
+                        {
+                            "type": "RestartGame",
+                            "exempt": "matching1",
+                            "afterRestart": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "matching1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Jason Chan",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f9287151-95df-4f5a-b32a-4b0aea825452.jpg?1783941329",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "The player who controlled the ability that restarted the game is the starting player in the new game. The new game starts like a game normally does: Each player shuffles their deck (except the cards left in exile by Karn's ability). Each player's life total becomes 20 (or the starting life total for whatever format you're playing). Players draw a hand of seven cards. Players may take mulligans. Players may take actions based on cards in their opening hands, such as those of Leylines."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Karn's first and third abilities are linked. Similarly, Karn's second and third abilities are linked. Only non-Aura permanent cards exiled by either of Karn's first two abilities will remain in exile when the game restarts."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "After the pregame procedure is complete but before the new game's first turn, Karn's ability finishes resolving and the cards left in exile are put onto the battlefield. If this causes any triggered abilities to trigger, those abilities are put onto the stack at the beginning of the first upkeep step."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Permanents put onto the battlefield due to Karn's ability will have been under the starting controller's control continuously since the beginning of that player's first turn. Creatures among them can attack and their activated abilities with {T} in the cost can be activated."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "No actions taken in the game that was restarted apply to the new game. For example, if you were dealt damage by Stigma Lasher in the original game, the effect that states you can't gain life doesn't carry over to the new game."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Players won't have any counters or emblems they had in the original game."
+            }
+        ]
+    },
+    "startingLoyalty": 6
+}
+
 // Loxodon Convert
 {
     "name": "Loxodon Convert",
@@ -273,6 +678,103 @@
     ]
 }
 
+// Noxious Revival
+{
+    "name": "Noxious Revival",
+    "manaCost": "{G/P}",
+    "typeLine": "Instant",
+    "oracleText": "({G/P} can be paid with either {G} or 2 life.)\nPut target card from a graveyard on top of its owner's library.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Library",
+            "placement": "Top"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "118",
+        "rarity": "UNCOMMON",
+        "artist": "Matt Stewart",
+        "flavorText": "\"Dead or alive, my creations are stronger than Jin-Gitaxias's septic minions.\"\n—Vorinclex, Voice of Hunger",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1bdd1243-1d14-496a-9b7a-0c5b34461361.jpg?1783941300"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Phyrexian Metamorph
+{
+    "name": "Phyrexian Metamorph",
+    "manaCost": "{3}{U/P}",
+    "typeLine": "Artifact Creature — Phyrexian Shapeshifter",
+    "oracleText": "({U/P} can be paid with either {U} or 2 life.)\nYou may have this creature enter as a copy of any artifact or creature on the battlefield, except it's an artifact in addition to its other types.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        {
+                            "type": "Or",
+                            "predicates": [
+                                "IsCreature",
+                                "IsArtifact"
+                            ]
+                        }
+                    ]
+                },
+                "exceptions": {
+                    "addedCardTypes": [
+                        "ARTIFACT"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "RARE",
+        "artist": "Jana Schirmer & Johannes Voss",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d2e27911-87cb-49a0-a34f-6afe4bddd592.jpg?1783941318",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "If Phyrexian Metamorph copies a noncreature artifact, it is no longer a creature."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If the chosen creature is copying something else (for example, if the chosen creature is a Clone), then your Phyrexian Metamorph enters as whatever the chosen creature copied, except it's also an artifact."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "You can choose not to copy anything. In that case, Phyrexian Metamorph simply enters as a 0/0 artifact creature and is put into its owner's graveyard as a state-based action (unless something else is raising its toughness)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Phyrexian Obliterator
 {
     "name": "Phyrexian Obliterator",
@@ -290,7 +792,10 @@
         "triggeredAbilities": [
             {
                 "id": "Phyrexian Obliterator:1",
-                "trigger": "DamageReceivedEvent",
+                "trigger": {
+                    "type": "DamageReceivedEvent",
+                    "source": {}
+                },
                 "effect": {
                     "type": "ForceSacrifice",
                     "filter": {},
@@ -392,6 +897,91 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Spellskite
+{
+    "name": "Spellskite",
+    "manaCost": "{2}",
+    "typeLine": "Artifact Creature — Phyrexian Horror",
+    "oracleText": "{U/P}: Change a target of target spell or ability to this creature. ({U/P} can be paid with either {U} or 2 life.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Spellskite:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{U/P}"
+                    }
+                },
+                "effect": {
+                    "type": "ChangeTarget",
+                    "newTarget": "Self"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "anyOf": [
+                                    {},
+                                    {
+                                        "cardPredicates": [
+                                            "IsActivatedOrTriggeredAbility"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "zone": "Stack"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "RARE",
+        "artist": "Chippy",
+        "flavorText": "\"Let's show Vorinclex that progress doesn't always need teeth or claws.\"\n—Malcator, Executor of Synthesis",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/a/1a84bada-ed6a-4e97-8a0c-05b7cb32d66f.jpg?1783941290",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "You can activate Spellskite's ability even if Spellskite isn't a legal target for the target spell or ability—or even if that spell or ability has no targets. In this case, no targets are changed."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If Spellskite leaves the battlefield before its ability resolves or otherwise becomes an illegal target for the target spell or ability before its ability resolves, no targets are changed."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If changing one target of a spell or ability to Spellskite would make other targets of that spell or ability illegal, that target can't be changed to Spellskite."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If the spell or ability has multiple instances of the word \"target,\" you choose which one target you're changing to Spellskite as Spellskite's ability resolves."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If a spell or ability has multiple targets but doesn't use the word \"target\" multiple times, such as the ability of Deepglow Skate, you can only change one of the targets to Spellskite."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If a spell or ability has a variable number of targets, you can't change the number of targets."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

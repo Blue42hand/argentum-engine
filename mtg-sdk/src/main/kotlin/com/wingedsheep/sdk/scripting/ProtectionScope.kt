@@ -43,6 +43,16 @@ sealed interface ProtectionScope {
     @Serializable
     data object Multicolored : ProtectionScope
 
+    /**
+     * From monocolored — matches a source with exactly one color (CR 105.2a), the twin of
+     * [Multicolored]. Engine-wired for *hexproof*, printed ([KeywordAbility.Hexproof]) or granted
+     * (Dragonfire Blade, via [GrantHexproofFromToGroup]), and for player protection; creature
+     * *protection* from monocolored is not projected, and [KeywordAbility.Protection] rejects it.
+     */
+    @SerialName("ProtectionScope.Monocolored")
+    @Serializable
+    data object Monocolored : ProtectionScope
+
     /** Protection from a card type — "from creatures". */
     @SerialName("ProtectionScope.CardType")
     @Serializable
@@ -86,6 +96,17 @@ sealed interface ProtectionScope {
     @SerialName("ProtectionScope.PermanentsCastThisTurn")
     @Serializable
     data object PermanentsCastThisTurn : ProtectionScope
+
+    /**
+     * From Ring-bearers — a battlefield source that is its controller's Ring-bearer (CR 701.54).
+     * The designation is information about the object, so it is a quality protection can name
+     * (CR 702.16a). Enforced like [PermanentsCastThisTurn]: damage, enchanting/equipping,
+     * blocking, and targeting by abilities whose source is a Ring-bearer (CR 702.16b). Lord of
+     * the Nazgûl ("Wraiths you control have protection from Ring-bearers").
+     */
+    @SerialName("ProtectionScope.RingBearers")
+    @Serializable
+    data object RingBearers : ProtectionScope
 
     /**
      * From activated abilities — only the targeting leg applies, since an ability never deals

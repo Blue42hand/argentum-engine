@@ -8,7 +8,6 @@ import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.RoomFullyUnlockedEvent
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.UnlockRoomDoor
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.actions.ActionHandler
@@ -112,6 +111,7 @@ class UnlockRoomDoorHandler(
                     colorless = poolComponent.colorless,
                     restrictedMana = poolComponent.restrictedMana,
                     snowMana = poolComponent.snowMana,
+                    manaUnits = poolComponent.manaUnits,
                     snowColorless = poolComponent.snowColorless
                 ).withSpendingColors(state, action.playerId)
                 if (!costHandler.canPayManaCost(pool, cost, unlockContext)) {
@@ -167,6 +167,7 @@ class UnlockRoomDoorHandler(
                     colorless = poolComponent.colorless,
                     restrictedMana = poolComponent.restrictedMana,
                     snowMana = poolComponent.snowMana,
+                    manaUnits = poolComponent.manaUnits,
                     snowColorless = poolComponent.snowColorless
                 ).withSpendingColors(currentState, action.playerId)
                 val newPool = costHandler.payManaCost(pool, cost, unlockContext)
@@ -182,6 +183,7 @@ class UnlockRoomDoorHandler(
                             colorless = newPool.colorless,
                             restrictedMana = newPool.restrictedMana,
                             snowMana = newPool.snowMana,
+                            manaUnits = newPool.manaUnits,
                             snowColorless = newPool.snowColorless
                         )
                     )
@@ -211,6 +213,7 @@ class UnlockRoomDoorHandler(
                     colorless = poolComponent.colorless,
                     restrictedMana = poolComponent.restrictedMana,
                     snowMana = poolComponent.snowMana,
+                    manaUnits = poolComponent.manaUnits,
                     snowColorless = poolComponent.snowColorless
                 ).withSpendingColors(currentState, action.playerId)
                 val partialResult = pool.payPartial(cost, unlockContext)
@@ -236,6 +239,7 @@ class UnlockRoomDoorHandler(
                             colorless = poolAfterPayment.colorless,
                             restrictedMana = poolAfterPayment.restrictedMana,
                             snowMana = poolAfterPayment.snowMana,
+                            manaUnits = poolAfterPayment.manaUnits,
                             snowColorless = poolAfterPayment.snowColorless
                         )
                     )
@@ -276,8 +280,9 @@ class UnlockRoomDoorHandler(
                 )
             }
             is PaymentStrategy.Explicit -> {
+                val credited = manaSolver.creditExplicitSources(currentState, action.playerId, action.paymentStrategy.manaAbilitiesToActivate, cost, spellContext = unlockContext)
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
+                    val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingLife(currentState, sourceId, action.playerId, credited[sourceId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }

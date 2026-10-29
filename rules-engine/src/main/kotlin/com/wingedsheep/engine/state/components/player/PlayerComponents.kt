@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.engine.mechanics.mana.consume
 import kotlinx.serialization.Serializable
 
 /**
@@ -58,6 +59,8 @@ data class ManaPoolComponent(
      * [com.wingedsheep.engine.mechanics.mana.ManaPool.snowMana] for the invariant and spend order.
      */
     val snowMana: Map<Color, Int> = emptyMap(),
+    /** Exact source snapshots, grouped with each unrestricted unit’s actual color. */
+    val manaUnits: List<com.wingedsheep.engine.mechanics.mana.ManaUnit> = emptyList(),
     val snowColorless: Int = 0
 ) : Component {
     /**
@@ -104,15 +107,21 @@ data class ManaPoolComponent(
         // Non-snow units go first, so the snow mark only shrinks once no plain unit is left.
         val snow = snowMana[color] ?: 0
         val left = current - amount
-        return if (snow <= left) spent
-        else spent.copy(snowMana = if (left > 0) snowMana + (color to left) else snowMana - color)
+        val snowSpent = (snow - left).coerceAtLeast(0)
+        val tagged = spent.copy(manaUnits = manaUnits.consume(color, amount - snowSpent, snowSpent))
+        return if (snowSpent == 0) tagged
+        else tagged.copy(snowMana = if (left > 0) snowMana + (color to left) else snowMana - color)
     }
 
     /**
      * Spend colorless mana.
      */
     fun spendColorless(amount: Int): ManaPoolComponent? =
-        if (colorless >= amount) copy(colorless = colorless - amount, snowColorless = minOf(snowColorless, colorless - amount)) else null
+        if (colorless >= amount) copy(colorless = colorless - amount,
+            snowColorless = minOf(snowColorless, colorless - amount),
+            manaUnits = manaUnits.consume(null,
+                amount - (snowColorless - (colorless - amount)).coerceAtLeast(0),
+                (snowColorless - (colorless - amount)).coerceAtLeast(0))) else null
 
     /** Floating units that came from a snow source. */
     val snowTotal: Int get() = snowColorless + snowMana.values.sum()
@@ -166,7 +175,7 @@ data class ManaPoolComponent(
      * Check if pool is empty. Includes the provenance tags so a stale tag without backing mana
      * still triggers the end-of-step pool reset.
      */
-    val isEmpty: Boolean get() = total == 0 && manaBySubtype.isEmpty() && manaBySource.isEmpty() && manaByCardType.isEmpty()
+    val isEmpty: Boolean get() = total == 0 && manaBySubtype.isEmpty() && manaBySource.isEmpty() && manaByCardType.isEmpty() && manaUnits.isEmpty()
 
     /**
      * Add restricted mana to the pool.
@@ -214,7 +223,11 @@ data class ManaPoolComponent(
     private fun withConverted(entries: List<RestrictedManaEntry>, color: Color): ManaPoolComponent {
         val (plain, restricted) = entries.partition { it.restriction == ManaRestriction.AnySpend && it.riders.isEmpty() }
         val recoloured = restricted.map { it.copy(color = color, expiry = ManaExpiry.END_OF_TURN) }
-        return copy(restrictedMana = restrictedMana + recoloured).let { if (plain.isNotEmpty()) it.add(color, plain.size) else it }
+        return copy(restrictedMana = restrictedMana + recoloured,
+            manaUnits = manaUnits + plain.mapNotNull { entry -> entry.source?.let {
+                com.wingedsheep.engine.mechanics.mana.ManaUnit(color, it)
+            } }).let { if (plain.isNotEmpty()) it.add(color, plain.size).markSnow(color,
+                plain.count { entry -> entry.source?.isSnow == true }) else it }
     }
 
     /**
@@ -233,6 +246,30 @@ data class ManaPoolComponent(
      * Empty the mana pool.
      */
     fun empty(): ManaPoolComponent = ManaPoolComponent()
+
+    /**
+     * Add every unit of [other] to this pool, unchanged: colour, restriction, riders, expiry, snow
+     * mark and provenance all travel with the mana ("you add the mana lost this way" — Drain Power).
+     * Per-activation spending obligations belong to the player who activated, so they don't.
+     */
+    fun plus(other: ManaPoolComponent): ManaPoolComponent = ManaPoolComponent(
+        white = white + other.white,
+        blue = blue + other.blue,
+        black = black + other.black,
+        red = red + other.red,
+        green = green + other.green,
+        colorless = colorless + other.colorless,
+        restrictedMana = restrictedMana + other.restrictedMana.map { it.copy(obligationIds = emptySet()) },
+        manaBySubtype = sumCounts(manaBySubtype, other.manaBySubtype),
+        manaBySource = sumCounts(manaBySource, other.manaBySource),
+        manaByCardType = sumCounts(manaByCardType, other.manaByCardType),
+        snowMana = sumCounts(snowMana, other.snowMana),
+        manaUnits = manaUnits + other.manaUnits,
+        snowColorless = snowColorless + other.snowColorless
+    )
+
+    private fun <K> sumCounts(a: Map<K, Int>, b: Map<K, Int>): Map<K, Int> =
+        if (b.isEmpty()) a else a + b.mapValues { (k, v) -> (a[k] ?: 0) + v }
 
     /**
      * Empty the pool as a step or phase ends (CR 500.5 / 703.4q), the engine's turn-based
@@ -264,9 +301,10 @@ data class ManaPoolComponent(
                 // Provenance tags are markers on already-counted colour mana, not extra mana; the
                 // pool-level tags don't carry over a mana-loss boundary.
                 val lostPlain = white + blue + black + red + green + colorless
-                ManaPoolComponent(restrictedMana = preserved)
+                ManaPoolComponent(restrictedMana = preserved,
+                    manaUnits = manaUnits.map { it.copy(color = convertTo) })
                     .withConverted(lostRestricted, convertTo)
-                    .let { if (lostPlain > 0) it.add(convertTo, lostPlain) else it }
+                    .let { if (lostPlain > 0) it.add(convertTo, lostPlain).markSnow(convertTo, snowTotal) else it }
             }
             retain.isNotEmpty() -> ManaPoolComponent(
                 white = if (Color.WHITE in retain) white else 0,
@@ -278,6 +316,7 @@ data class ManaPoolComponent(
                 restrictedMana = preserved + lostRestricted.filter { it.color != null && it.color in retain },
                 // Provenance tags do not survive a mana-loss boundary, but snow is a property of
                 // the retained mana itself (it came from a snow source), so it stays.
+                manaUnits = manaUnits.filter { it.color in retain },
                 snowMana = snowMana.filterKeys { it in retain }
             )
             else -> ManaPoolComponent(restrictedMana = preserved)
@@ -369,21 +408,26 @@ data class PlayerTurnsTakenComponent(
 
 /**
  * Tracks land drops for the turn.
+ *
+ * [playedThisTurn] counts land plays directly rather than deriving them from
+ * `maxPerTurn - remaining`: an effect-granted extra drop (Explore) raises [remaining] alone, so
+ * the derived count would come up short — Fastbond's "if it wasn't the first land" would miss.
  */
 @Serializable
 data class LandDropsComponent(
     val remaining: Int = 1,
-    val maxPerTurn: Int = 1
+    val maxPerTurn: Int = 1,
+    val playedThisTurn: Int = 0
 ) : Component {
     /**
      * Use a land drop.
      */
-    fun use(): LandDropsComponent = copy(remaining = remaining - 1)
+    fun use(): LandDropsComponent = copy(remaining = remaining - 1, playedThisTurn = playedThisTurn + 1)
 
     /**
      * Reset for a new turn.
      */
-    fun reset(): LandDropsComponent = copy(remaining = maxPerTurn)
+    fun reset(): LandDropsComponent = copy(remaining = maxPerTurn, playedThisTurn = 0)
 
     /**
      * Check if a land can be played.
@@ -429,7 +473,12 @@ data class MulliganStateComponent(
      * subsequent mulligans count as normal. Set once at game setup from the table size and carried
      * through bottoming — see [GameInitializer]. False for two-player games (London Mulligan as-is).
      */
-    val freeMulligan: Boolean = false
+    val freeMulligan: Boolean = false,
+    /**
+     * The game was set up without a mulligan phase (`GameConfig.skipMulligans` — training and
+     * self-play drivers that can't answer one). A restarted game (CR 727) skips it too.
+     */
+    val skipped: Boolean = false,
 ) : Component {
     companion object {
         const val STARTING_HAND_SIZE = 7
@@ -922,6 +971,35 @@ data class TheRingComponent(
 ) : Component
 
 /**
+ * A player's progress through the dungeons (CR 309): the dungeon card they own in the command zone
+ * with its venture marker, and every dungeon they have completed this game.
+ *
+ * Absent until the player first ventures. All writes go through
+ * [com.wingedsheep.engine.mechanics.dungeon.DungeonService].
+ *
+ * @property current The dungeon in the command zone and the room the marker is on, or `null` when
+ *   the player owns no dungeon in the command zone (none yet, or the last one was completed).
+ * @property completed Names of the dungeons completed, in order (CR 309.7). The same dungeon can
+ *   appear more than once.
+ */
+@Serializable
+data class DungeonProgressComponent(
+    val current: DungeonMarker? = null,
+    val completed: List<String> = emptyList()
+) : Component
+
+/**
+ * Where a player's venture marker is (CR 309.4): on room [room] of the dungeon named [dungeon], whose
+ * card in the command zone is the entity [dungeonEntityId] — the source of its room abilities.
+ */
+@Serializable
+data class DungeonMarker(
+    val dungeonEntityId: EntityId,
+    val dungeon: String,
+    val room: Int
+)
+
+/**
  * Tracks a player's **speed** (Aetherdrift, CR 702.179).
  *
  * *Presence* of this component means the player has speed at all; its absence is CR 702.179b's "no
@@ -996,33 +1074,49 @@ data class SpellsCantBeCounteredComponent(
  * leaving the stack, since the static-on-permanent variant would die with its source.
  *
  * Multiple grants stack additively — each [com.wingedsheep.sdk.scripting.effects.GrantFlashToSpellsEffect]
- * resolution appends to [filters]; a spell gains flash if it matches any entry. The whole
- * component is removed in one shot when the duration elapses.
+ * resolution appends a [FlashGrant]; a spell gains flash if it matches any entry. Each grant keeps
+ * its own lifetime, so an end-of-turn grant (Borne Upon a Wind) and an until-your-next-turn one
+ * (Teferi, Time Raveler's +1) expire independently; the component goes when its last grant does.
  *
- * @property filters Filters matched against the card being cast (read in any zone).
- * @property removeOn When this component is removed.
+ * @property grants The live grants.
  */
 @Serializable
-data class FlashGrantsThisTurnComponent(
-    val filters: List<GameObjectFilter> = emptyList(),
-    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
-) : Component
+data class FlashGrantsComponent(
+    val grants: List<FlashGrant> = emptyList()
+) : Component {
+    /** Every live grant's filter, regardless of lifetime. */
+    val filters: List<GameObjectFilter> get() = grants.map { it.filter }
+}
 
 /**
- * Component indicating that a player cannot cast spells for the rest of this turn.
- * Applied by effects like Xantid Swarm ("defending player can't cast spells this turn").
+ * One flash permission in a [FlashGrantsComponent].
  *
- * When present on a player entity, that player's spell casting legal actions
- * are suppressed in LegalActionsCalculator.
- *
- * @param removeOn When this component should be removed:
- *   - [PlayerEffectRemoval.EndOfTurn] — removed during end-of-turn cleanup (default)
- *   - [PlayerEffectRemoval.Permanent] — stays until explicitly removed
+ * @property filter Matched against the card being cast (read in any zone).
+ * @property removeOn When this grant lapses.
+ * @property expiresForPlayerId For [PlayerEffectRemoval.UntilYourNextTurn], whose "next turn" ends
+ *   the grant. Null → the grant's holder (the normal case: "you may cast …").
  */
 @Serializable
+data class FlashGrant(
+    val filter: GameObjectFilter,
+    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn,
+    val expiresForPlayerId: EntityId? = null
+)
+
+/** Independent casting bans; cleanup removes only entries whose duration has ended. */
+@Serializable
 data class CantCastSpellsComponent(
-    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
+    val restrictions: List<SpellCastRestriction> = listOf(SpellCastRestriction())
 ) : Component
+
+/** A resolved ban retains the granting context for source- and controller-relative filters. */
+@Serializable
+data class SpellCastRestriction(
+    val spellFilter: GameObjectFilter = GameObjectFilter.Any,
+    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn,
+    val sourceId: EntityId? = null,
+    val controllerId: EntityId? = null
+)
 
 /**
  * Component indicating that a player can't search libraries — applied by
@@ -1140,6 +1234,19 @@ data class CardsInHandAtTurnStartComponent(
 ) : Component
 
 /**
+ * How many untapped lands this player controlled **at the beginning of the current turn**. Written
+ * alongside [CardsInHandAtTurnStartComponent] in `BeginningPhaseManager.performUntapStep`, before the
+ * active player's permanents phase in or untap, and overwritten there each turn.
+ *
+ * Backs [com.wingedsheep.sdk.scripting.values.TurnTracker.UNTAPPED_LANDS_AT_TURN_START] and, through
+ * it, Power Surge.
+ */
+@Serializable
+data class UntappedLandsAtTurnStartComponent(
+    val count: Int = 0
+) : Component
+
+/**
  * Number of equip abilities this player has activated during the current turn. Reset to 0 at
  * turn start by TurnManager. Read by Forge Anew's [com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn]
  * to know whether the next equip is the "first equip this turn" (count == 0) that may be paid for
@@ -1179,16 +1286,27 @@ data class LoyaltyAbilitiesActivatedThisTurnComponent(
 ) : Component
 
 /**
- * Turn-scoped permission to activate loyalty abilities of planeswalkers matching any of [filters]
- * on any player's turn, any time this player could cast an instant (Jace's Machinations). Lifts
- * only the sorcery-timing half of CR 606.3; the once-per-turn limit still applies. Written by
- * [com.wingedsheep.sdk.scripting.effects.GrantInstantSpeedLoyaltyAbilitiesEffect]; grants stack
- * by appending filters, and the component is removed whole at cleanup when [removeOn] is
- * [PlayerEffectRemoval.EndOfTurn].
+ * One "you may activate loyalty abilities of [filter] more freely" permission: [instantSpeed] lifts
+ * the sorcery-timing half of CR 606.3 (Jace's Machinations), [times] raises the once-per-turn half
+ * (Urza Assembles the Titans; 1 leaves it alone).
  */
 @Serializable
-data class InstantSpeedLoyaltyGrantsComponent(
-    val filters: List<GameObjectFilter> = emptyList(),
+data class LoyaltyActivationPermission(
+    val filter: GameObjectFilter,
+    val instantSpeed: Boolean = false,
+    val times: Int = 1,
+)
+
+/**
+ * A player's loyalty-activation permissions, written by
+ * [com.wingedsheep.sdk.scripting.effects.GrantLoyaltyActivationPermissionEffect]. Grants stack by
+ * appending; each filter is matched against the planeswalker on projected state when its ability is
+ * offered or activated, so planeswalkers that enter after the grant are covered. The component is
+ * removed whole at cleanup when [removeOn] is [PlayerEffectRemoval.EndOfTurn].
+ */
+@Serializable
+data class LoyaltyActivationPermissionsComponent(
+    val grants: List<LoyaltyActivationPermission> = emptyList(),
     val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
 ) : Component
 
@@ -1523,11 +1641,16 @@ data class PermanentsSacrificedThisTurnComponent(val count: Int = 0) : Component
  * counts as a discard). Reset to an empty list for every player at the start of each turn by
  * [com.wingedsheep.engine.core.TurnManager].
  *
- * Two roles with deliberately different lifetimes:
+ * Three roles with deliberately different lifetimes:
  *  - [count] — total cards discarded this turn (monotonic). Backs `TurnTracker.CARDS_DISCARDED`
  *    (`DynamicAmount.TurnTracking`) — e.g. Green Goblin, Revenant "draw a card for each card you've
  *    discarded this turn". Never decremented mid-turn: a discarded card that later leaves the
  *    graveyard was still discarded this turn.
+ *  - [history] — the same discards as ids, in discard order (a card discarded twice is listed
+ *    twice), never pruned. The entries before a [com.wingedsheep.engine.core.CardsDiscardedEvent]'s
+ *    `priorDiscardsThisTurn` are what the discard trigger's `firstTimeEachTurn` axis searches
+ *    (Veronica, Dissident Scribe); [undefinedCharacteristics] marks the ones discarded with
+ *    undefined characteristics, which no card predicate matches.
  *  - [cardIds] — entity ids of discarded-this-turn cards **still identifiable as that discarded
  *    object**. Membership (`sourceId in cardIds`) backs the `YouDiscardedThisCardThisTurn` condition
  *    that gates the Mayhem keyword (CR 702.187b). Entity ids are stable across the hand→graveyard
@@ -1539,7 +1662,9 @@ data class PermanentsSacrificedThisTurnComponent(val count: Int = 0) : Component
 @Serializable
 data class CardsDiscardedThisTurnComponent(
     val cardIds: List<EntityId> = emptyList(),
-    val count: Int = 0
+    val count: Int = 0,
+    val history: List<EntityId> = emptyList(),
+    val undefinedCharacteristics: Set<EntityId> = emptySet()
 ) : Component
 
 /**
@@ -1683,6 +1808,21 @@ data class CreatureCardsPutIntoGraveyardThisTurnComponent(val count: Int = 0) : 
 data class CardsPutIntoGraveyardFromLibraryThisTurnComponent(val count: Int = 0) : Component
 
 /**
+ * The cards put into this player's graveyard from any other zone this turn, in arrival order (a
+ * card that arrives twice is listed twice). Cleared at end of turn by CleanupPhaseManager.
+ *
+ * Recorded by the same `moveToZone` hook as [CreatureCardsPutIntoGraveyardThisTurnComponent], keyed
+ * on the owner, tokens excluded (a token isn't a card, CR 111.6). Turn history: a card that later
+ * leaves the graveyard stays listed. Backs the `firstTimeEachTurn` axis of the batched "one or more
+ * [filter] cards are put into your graveyard from anywhere" trigger (Crawling Sensation) — the
+ * detector asks whether any card listed *before* the current batch already matched. Its size is
+ * `TurnTracker.CARDS_PUT_INTO_GRAVEYARD` ("cards put into their graveyard from anywhere this turn",
+ * Fraying Sanity).
+ */
+@Serializable
+data class CardsPutIntoGraveyardThisTurnComponent(val cardIds: List<EntityId> = emptyList()) : Component
+
+/**
  * Marks that this player has flipped one or more coins already this turn. Presence alone is the
  * signal — it is set the first time the player flips (regardless of who controls any coin-flip
  * replacement) so that a "the first time you flip one or more coins each turn" effect
@@ -1705,7 +1845,9 @@ data object FlippedCoinsThisTurnComponent : Component
 data class EnteredPermanentRecord(
     val entityId: EntityId,
     val cardTypes: Set<com.wingedsheep.sdk.core.CardType> = emptySet(),
-    val subtypes: Set<String> = emptySet()
+    val subtypes: Set<String> = emptySet(),
+    /** Whether the entering permanent was a token — i.e. this entry is its creation (CR 111.2). */
+    val isToken: Boolean = false
 ) {
     val isLand: Boolean get() = com.wingedsheep.sdk.core.CardType.LAND in cardTypes
 }
@@ -1729,6 +1871,8 @@ data class EnteredPermanentRecord(
  *    artifact entered the battlefield under your control this turn").
  *  - [countOfType] → `DynamicAmount.CardTypeEnteredUnderControlThisTurn` ("if three or more
  *    artifacts entered the battlefield under your control this turn", Malcator, Purity Overseer).
+ *  - [countTokens] → `TurnTracker.TOKENS_CREATED` ("activate only if you created a token this
+ *    turn", Idol of Oblivion) — a token's entry is its creation (CR 111.2).
  *  - [entries] directly → `DynamicAmount.SubtypeEnteredUnderControlThisTurn` ("each other Zombie
  *    that entered the battlefield under your control this turn", Geralf, the Fleshwright).
  */
@@ -1742,6 +1886,9 @@ data class PermanentsEnteredUnderControlThisTurnComponent(
     /** Number of logged entries that had [cardType] at the moment they entered. */
     fun countOfType(cardType: com.wingedsheep.sdk.core.CardType): Int =
         entries.count { cardType in it.cardTypes }
+
+    /** Number of logged entries that were tokens — the tokens this player created this turn. */
+    fun countTokens(): Int = entries.count { it.isToken }
 }
 
 /**

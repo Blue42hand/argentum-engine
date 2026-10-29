@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
@@ -7,6 +9,7 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
+import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.toEntityId
 import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
@@ -30,12 +33,14 @@ import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.CollectEvidenceEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.ChoiceLabels
 import com.wingedsheep.sdk.scripting.effects.DynamicHint
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
+import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.PayDynamicLifeEffect
 import com.wingedsheep.sdk.scripting.effects.PayDynamicManaCostEffect
@@ -134,6 +139,9 @@ class GatedEffectExecutor(
             // Source must still be in its required zone (e.g. a dies-trigger "may" whose source
             // has since left) — otherwise the may-action is impossible, so skip silently.
             if (gate.sourceRequiredZone != null && context.sourceId != null) {
+                if (gate.sourceRequiredZone == Zone.BATTLEFIELD && context.sourceReferenceLost) {
+                    return EffectResult.success(state)
+                }
                 val inRequiredZone = state.zones.any { (zoneKey, entities) ->
                     zoneKey.zoneType == gate.sourceRequiredZone && context.sourceId in entities
                 }
@@ -142,7 +150,7 @@ class GatedEffectExecutor(
             // A ChooseActionEffect payoff with no feasible choice — don't ask the may question at all.
             val then = effect.then
             if (then is ChooseActionEffect &&
-                then.choices.none { checkFeasibility(state, context.controllerId, it.feasibilityCheck, predicateEvaluator = predicateEvaluator) }
+                then.choices.none { checkFeasibility(state, context.controllerId, it.feasibilityCheck, predicateEvaluator = predicateEvaluator, manaSolver = manaSolver) }
             ) {
                 return EffectResult.success(state)
             }
@@ -179,7 +187,7 @@ class GatedEffectExecutor(
             // analogue of a targeted "may" with no legal targets falling to its else branch (e.g.
             // "you may sacrifice an artifact. If you don't, …" with no artifact taps you out).
             gate.feasibility?.let { check ->
-                if (!checkFeasibility(state, context.controllerId, check, predicateEvaluator = predicateEvaluator)) {
+                if (!checkFeasibility(state, context.controllerId, check, predicateEvaluator = predicateEvaluator, manaSolver = manaSolver)) {
                     return effect.otherwise
                         ?.let { effectExecutor(state, it, context) }
                         ?: EffectResult.success(state)
@@ -211,6 +219,14 @@ class GatedEffectExecutor(
             return executeWaterbendPayment(state, playerId, pay.cost, effect.then, effect.otherwise, context)
         }
 
+        // The controller said yes when they chose this ability's target (the target decision
+        // offered a decline) — don't ask the same question again. Cleared for the branch so a
+        // later "you may" inside it still asks.
+        if (gate is Gate.MayDecide && context.consentAnsweredAtTargeting) {
+            val answered = context.copy(consentAnsweredAtTargeting = false)
+            return effectExecutor(state, effect.then, answered)
+        }
+
         // Persistent auto-answer yield (backlog §C): if the decision-maker has remembered a yes/no
         // for this ability, resolve the "you may" question without prompting and run the matching
         // branch. Scoped to Gate.MayDecide — the pure may-question — never a cost/pay gate, so a
@@ -233,6 +249,13 @@ class GatedEffectExecutor(
             return effect.otherwise
                 ?.let { effectExecutor(state, it, context) }
                 ?: EffectResult.success(state)
+        }
+
+        // "You may sacrifice a [permanent]. If you do, …" — *whether* and *which* are one choice, so
+        // ask it once: pick the permanent on the battlefield, or decline. A yes/no followed by the
+        // pick asks the player to commit before showing what they'd be giving up.
+        optionalSacrificeOf(gate, playerId, context)?.let { sacrifice ->
+            return executeOptionalSacrificePick(state, playerId, sacrifice, effect, context)
         }
 
         // An optional *mana* payment (the lowered Effects.MayPay shape) keeps its bespoke UX —
@@ -264,18 +287,23 @@ class GatedEffectExecutor(
         // player confirms a number, not a formula.
         val payLabel = (gate as? Gate.MayPay)?.let { computedCostLabel(state, it.cost, context) }
 
+        val labels = (gate as? Gate.MayDecide)?.choiceLabels?.let { renderChoiceLabels(state, it, context) }
+
         val decision = { decisionId: String -> YesNoDecision(
             id = decisionId,
             playerId = playerId,
-            prompt = effect.description,
+            prompt = labels?.prompt ?: effect.description,
             context = decisionContext(
                 context,
                 sourceName,
                 inlineOnTrigger = (gate as? Gate.MayDecide)?.inlineOnTrigger ?: false
             ),
-            yesText = payLabel ?: "Yes",
-            noText = if (payLabel != null) "Don't pay" else "No",
-            hint = hint
+            yesText = labels?.yes ?: payLabel ?: "Yes",
+            noText = labels?.no ?: if (payLabel != null) "Don't pay" else "No",
+            hint = hint,
+            peerOptions = labels != null,
+            yesDetail = labels?.yesDetail,
+            noDetail = labels?.noDetail
         ) }
 
         val continuation = GatedEffectContinuation(
@@ -287,6 +315,68 @@ class GatedEffectExecutor(
 
         return EffectResult.from(state.suspendForDecision(decision, continuation))
     }
+
+    /**
+     * The [Gate.MayPay] whose whole cost is sacrificing one of the controller's own permanents —
+     * the shape [executeOptionalSacrificePick] collapses into a single pick. A cost owed by another
+     * player, a multi-permanent sacrifice (a partial pick has no meaning) and "any number" keep
+     * the yes/no.
+     */
+    private fun optionalSacrificeOf(gate: Gate, playerId: EntityId, context: EffectContext): SacrificeEffect? =
+        ((gate as? Gate.MayPay)?.cost as? SacrificeEffect)
+            ?.takeIf { !it.any && it.count == 1 && playerId == context.controllerId }
+
+    /**
+     * "You may sacrifice a [permanent]. If you do, [then]." as one battlefield pick: choosing a
+     * permanent sacrifices it and runs [GatedEffect.then]; choosing none runs
+     * [GatedEffect.otherwise]. Affordability was checked by the caller, so there is a candidate.
+     * Resumed by `resumeGatedEffect` on its [CardsSelectedResponse] branch.
+     */
+    private fun executeOptionalSacrificePick(
+        state: GameState,
+        playerId: EntityId,
+        sacrifice: SacrificeEffect,
+        effect: GatedEffect,
+        context: EffectContext
+    ): EffectResult {
+        val sourceName = context.sourceId?.let { state.getEntity(it)?.get<CardComponent>()?.name }
+        val decision = { decisionId: String -> SelectCardsDecision(
+            id = decisionId,
+            playerId = playerId,
+            prompt = effect.description,
+            context = decisionContext(context, sourceName),
+            options = sacrificeFodder(state, playerId, sacrifice, context),
+            minSelections = 0,
+            maxSelections = 1,
+            useTargetingUI = true,
+            declineLabel = "Don't sacrifice"
+        ) }
+        val continuation = GatedEffectContinuation(
+            gate = effect.gate,
+            then = effect.then,
+            otherwise = effect.otherwise,
+            effectContext = context
+        )
+        return EffectResult.from(state.suspendForDecision(decision, continuation))
+    }
+
+    /**
+     * The permanents [playerId] could sacrifice to pay [cost]: `SacrificeExecutor`'s pool, less any
+     * that "can't be sacrificed" — picking one would pay nothing and still earn the payoff.
+     */
+    private fun sacrificeFodder(
+        state: GameState,
+        playerId: EntityId,
+        cost: SacrificeEffect,
+        context: EffectContext
+    ): List<EntityId> =
+        BattlefieldFilterUtils.findMatchingOnBattlefield(
+            state, cost.filter.youControl(), PredicateContext(controllerId = playerId),
+            predicateEvaluator = predicateEvaluator
+        ).filterNot {
+            (cost.excludeSource && it == context.sourceId) ||
+                state.projectedState.hasKeyword(it, com.wingedsheep.sdk.core.AbilityFlag.CANT_BE_SACRIFICED)
+        }
 
     /**
      * The optional-mana-payment yes/no — formerly `MayPayManaExecutor`. Affordability is already
@@ -575,7 +665,9 @@ class GatedEffectExecutor(
         phase = DecisionPhase.RESOLUTION,
         triggeringEntityId = context.triggeringEntityId,
         inlineOnTrigger = inlineOnTrigger,
-        subjectEntityId = context.iterationEntityId
+        subjectEntityId = context.iterationEntityId,
+        targetIds = context.targets.map { it.toEntityId() },
+        abilityIdentity = context.abilityIdentity
     )
 
     /**
@@ -583,6 +675,19 @@ class GatedEffectExecutor(
      * which number *this* instance carries (CR 603.3d locks targets at trigger time, but the
      * amount is only read here, as the instance resolves).
      */
+    /** Fill a [ChoiceLabels]' `{n}` / `{s}` placeholders with its amount as it resolves now. */
+    private fun renderChoiceLabels(state: GameState, labels: ChoiceLabels, context: EffectContext): ChoiceLabels {
+        val n = labels.amount?.let { dynamicAmountEvaluator.evaluate(state, it, context) } ?: return labels
+        fun fill(template: String) = template.replace("{n}", n.toString()).replace("{s}", if (n == 1) "" else "s")
+        return labels.copy(
+            prompt = fill(labels.prompt),
+            yes = fill(labels.yes),
+            no = fill(labels.no),
+            yesDetail = labels.yesDetail?.let(::fill),
+            noDetail = labels.noDetail?.let(::fill)
+        )
+    }
+
     private fun renderDynamicHint(state: GameState, hint: DynamicHint, context: EffectContext): String {
         val amount = dynamicAmountEvaluator.evaluate(state, hint.amount, context)
         return hint.template.replace(DynamicHint.PLACEHOLDER, amount.toString())
@@ -653,7 +758,7 @@ class GatedEffectExecutor(
                 ) >= amount
             }
             is PayLifeEffect -> {
-                state.canPayLife(playerId, cost.amount) // CR 810.9a / 119.8
+                state.canPayLife(playerId, cost.amount, LifePaymentPurpose.OTHER) // CR 810.9a / 119.8
             }
             is PayDynamicLifeEffect -> {
                 // Resolve the cost's own payer; a computed amount of <= 0 is free (CR 119.4).
@@ -661,7 +766,7 @@ class GatedEffectExecutor(
                 val payerId = TargetResolutionUtils
                     .resolvePlayerTarget(EffectTarget.PlayerRef(cost.payer), context, state)
                     ?: playerId
-                state.canPayLife(payerId, amount)
+                state.canPayLife(payerId, amount, LifePaymentPurpose.OTHER)
             }
             // "You may pay {1} up to three times" as a gate cost: the repeated payment's floor is
             // one repetition, so a payer who can't afford even that must not be offered the "yes"
@@ -692,13 +797,7 @@ class GatedEffectExecutor(
             // permanents (`any = true`, "sacrifice any number", is always payable: zero is legal).
             // Without this the gate fails open and offers an impossible "yes": Pippin's Bravery with
             // no Food still lets you choose "Sacrifice a Food" and wrongly take the +4/+4 branch.
-            is com.wingedsheep.sdk.scripting.effects.SacrificeEffect -> cost.any || run {
-                val fodder = BattlefieldFilterUtils.findMatchingOnBattlefield(
-                    state, cost.filter.youControl(), PredicateContext(controllerId = playerId),
-                    predicateEvaluator = predicateEvaluator
-                ).filterNot { cost.excludeSource && it == context.sourceId }
-                fodder.size >= cost.count
-            }
+            is SacrificeEffect -> cost.any || sacrificeFodder(state, playerId, cost, context).size >= cost.count
             else -> true
         }
 

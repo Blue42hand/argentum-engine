@@ -207,7 +207,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -3495,7 +3497,8 @@
                                 "min": 4
                             }
                         ]
-                    }
+                    },
+                    "perAttackedPlayer": true
                 },
                 "binding": "ANY",
                 "effect": {
@@ -4060,6 +4063,7 @@
                                         "chooser": "TargetPlayer",
                                         "storeSelected": "toBottom",
                                         "storeRemainder": "toTop",
+                                        "prompt": "Scry 3: choose cards to put on the bottom of your library",
                                         "selectedLabel": "Put on bottom",
                                         "remainderLabel": "Put on top"
                                     },
@@ -5201,7 +5205,9 @@
                                     "amount": 2
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for up to two basic land cards to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -5664,7 +5670,12 @@
                             "baseFilter": {
                                 "cardPredicates": [
                                     "IsCreature",
-                                    "ManaValueAtMostX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "LTE",
+                                        "amount": "XValue"
+                                    }
                                 ]
                             }
                         }
@@ -5684,7 +5695,12 @@
                                 "filter": {
                                     "cardPredicates": [
                                         "IsCreature",
-                                        "ManaValueAtMostX"
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "LTE",
+                                            "amount": "XValue"
+                                        }
                                     ]
                                 }
                             },
@@ -6876,7 +6892,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                    "selectedLabel": "Put onto the battlefield tapped"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -9246,13 +9264,13 @@
         "targetRequirements": [
             {
                 "type": "TargetObject",
-                "optional": true,
                 "filter": {
                     "baseFilter": "creature",
                     "zone": "Graveyard"
                 },
                 "id": "t0",
-                "dynamicMaxCount": "XValue"
+                "dynamicMaxCount": "XValue",
+                "dynamicMinCount": "XValue"
             }
         ],
         "spellWaterbend": {
@@ -10337,33 +10355,20 @@
                 },
                 "effect": {
                     "type": "Gated",
-                    "gate": "Gate.MayDecide",
-                    "then": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "SacrificeTarget",
-                                "target": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
-                            {
-                                "type": "AddCounters",
-                                "counterType": "PLUS_ONE_PLUS_ONE",
-                                "count": 2,
-                                "target": "Self"
-                            }
-                        ]
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "filter": {
-                        "baseFilter": "creature|artifact ctrl:you",
-                        "excludeSelf": true
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature|artifact",
+                            "excludeSource": true
+                        }
                     },
-                    "id": "t0"
+                    "then": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 2,
+                        "target": "Self"
+                    }
                 },
                 "descriptionOverride": "Whenever Hei Bai enters, you may sacrifice another creature or artifact. If you do, put two +1/+1 counters on Hei Bai."
             },
@@ -10372,33 +10377,20 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
-                    "gate": "Gate.MayDecide",
-                    "then": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "SacrificeTarget",
-                                "target": {
-                                    "type": "BoundVariable",
-                                    "name": "t1"
-                                }
-                            },
-                            {
-                                "type": "AddCounters",
-                                "counterType": "PLUS_ONE_PLUS_ONE",
-                                "count": 2,
-                                "target": "Self"
-                            }
-                        ]
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "filter": {
-                        "baseFilter": "creature|artifact ctrl:you",
-                        "excludeSelf": true
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature|artifact",
+                            "excludeSource": true
+                        }
                     },
-                    "id": "t1"
+                    "then": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 2,
+                        "target": "Self"
+                    }
                 },
                 "descriptionOverride": "Whenever Hei Bai attacks, you may sacrifice another creature or artifact. If you do, put two +1/+1 counters on Hei Bai."
             },
@@ -10412,7 +10404,7 @@
                     "type": "MoveAllLastKnownCounters",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t2"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -10420,7 +10412,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t2"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When Hei Bai leaves the battlefield, put its counters on target creature you control."
             }
@@ -12107,7 +12099,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 1
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
                     }
                 },
                 "effect": {
@@ -12280,7 +12275,9 @@
                                     "filter": "Shrine"
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for basic land cards (up to the number of Shrines you control) to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -12327,7 +12324,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -12609,7 +12608,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Lesson or Noble card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -15905,7 +15906,16 @@
                         {
                             "type": "TargetObject",
                             "filter": {
-                                "baseFilter": {},
+                                "baseFilter": {
+                                    "anyOf": [
+                                        {},
+                                        {
+                                            "cardPredicates": [
+                                                "IsActivatedOrTriggeredAbility"
+                                            ]
+                                        }
+                                    ]
+                                },
                                 "zone": "Stack"
                             }
                         }
@@ -15916,7 +15926,10 @@
                             "type": "AdditionalAtom",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 5
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 5
+                                }
                             }
                         }
                     ]
@@ -15927,7 +15940,16 @@
                         {
                             "type": "TargetObject",
                             "filter": {
-                                "baseFilter": {},
+                                "baseFilter": {
+                                    "anyOf": [
+                                        {},
+                                        {
+                                            "cardPredicates": [
+                                                "IsActivatedOrTriggeredAbility"
+                                            ]
+                                        }
+                                    ]
+                                },
                                 "zone": "Stack"
                             }
                         }
@@ -17016,7 +17038,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -18615,7 +18639,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mountain or Cave card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -18796,7 +18822,9 @@
                                     "filter": "creature pow>=4 attacking"
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for basic land cards (up to the number of attacking creature with power 4 or greaters you control) to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -21656,7 +21684,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -22476,7 +22506,7 @@
                             }
                         ]
                     },
-                    "descriptionOverride": "Look at card cards in your a hand. Choose exactly 1 of those cards. Put those cards into a graveyard unless you waterbend {2}"
+                    "descriptionOverride": "Discard a card unless you waterbend {2}"
                 }
             ]
         }
@@ -23304,34 +23334,29 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "SelectTarget",
-                    "requirement": {
-                        "type": "TargetObject",
-                        "filter": {
-                            "baseFilter": "artifact|creature|enchantment"
-                        },
-                        "id": "target artifact, creature, or enchantment"
-                    },
-                    "storeAs": "target0"
-                },
-                {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "PipelineTarget",
-                        "collectionName": "target0"
+                        "type": "BoundVariable",
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
                 {
                     "type": "CreatePredefinedToken",
                     "tokenType": "Clue",
-                    "controller": {
-                        "type": "ControllerOfPipelineTarget",
-                        "collectionName": "target0"
-                    }
+                    "controller": "TargetController"
                 }
             ]
-        }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact|creature|enchantment"
+                },
+                "id": "t0"
+            }
+        ]
     },
     "metadata": {
         "collectorNumber": "3",

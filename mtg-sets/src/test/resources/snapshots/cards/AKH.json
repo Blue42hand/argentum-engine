@@ -53,6 +53,43 @@
     ]
 }
 
+// Anointed Procession
+{
+    "name": "Anointed Procession",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "If an effect would create one or more tokens under your control, it creates twice that many of those tokens instead.",
+    "script": {
+        "replacementEffects": [
+            "MultiplyTokenCreation"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "rarity": "RARE",
+        "artist": "Victor Adame Minguez",
+        "flavorText": "\"The gods here may walk among the people, but they are not with them.\"\n—Gideon Jura",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/a/9a52c265-6920-4929-ba0a-70da08df01f1.jpg?1783936544",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "If an effect creates more than one kind of token, it'll create twice as many of each kind. For example, if you cast Bestial Menace while controlling Anointed Procession, you'll create two Snake tokens, two Wolf tokens, and two Elephant tokens."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "If you control two Anointed Processions, then the number of tokens created is four times the original number. If you control three, then the number of tokens created is eight times the original number, and so on."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "If the effect creating the tokens instructs you to do something with those tokens at a later time, like exiling them at the end of combat, you'll do that for all the tokens."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Baleful Ammit
 {
     "name": "Baleful Ammit",
@@ -792,6 +829,76 @@
     ]
 }
 
+// Combat Celebrant
+{
+    "name": "Combat Celebrant",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Warrior",
+    "oracleText": "If this creature hasn't been exerted this turn, you may exert it as it attacks. When you do, untap all other creatures you control and after this phase, there is an additional combat phase. (An exerted creature won't untap during your next untap step.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Combat Celebrant:1",
+                "trigger": "ExertedAsItAttacksEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "creature ctrl:you",
+                                    "excludeSelf": true
+                                }
+                            },
+                            "body": {
+                                "type": "TapUntap",
+                                "target": "IterationEntity",
+                                "tap": false
+                            }
+                        },
+                        "AddCombatPhase"
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ExertAsItAttacks",
+                "onlyIfNotExertedThisTurn": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "125",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rallis",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/8/28b63c3d-2e55-4343-b49a-11fa602ec473.jpg?1783936491",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "Combat Celebrant's ability untaps all of your creatures, not just the ones that are attacking."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "There's no main phase between your combat phases, so you'll have no opportunity to cast spells or activate abilities that could only be cast any time you could cast a sorcery. For example, you won't be able to cast another creature or equip Equipment between combats."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "If you exert Combat Celebrant, you get an additional combat phase even if Combat Celebrant doesn't survive the first combat phase."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Companion of the Trials
 {
     "name": "Companion of the Trials",
@@ -1035,6 +1142,89 @@
     ]
 }
 
+// Deem Worthy
+{
+    "name": "Deem Worthy",
+    "manaCost": "{4}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Deem Worthy deals 7 damage to target creature.\nCycling {3}{R} ({3}{R}, Discard this card: Draw a card.)\nWhen you cycle this card, you may have it deal 2 damage to target creature.",
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{3}{R}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 7
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "triggeredAbilities": [
+            {
+                "id": "Deem Worthy:1",
+                "trigger": "CycleEvent",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "t1"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "127",
+        "rarity": "UNCOMMON",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/99a2ed5f-62b8-4308-a656-f273f62f6ab8.jpg?1783936490",
+        "rulings": [
+            {
+                "date": "2022-12-08",
+                "text": "When you cycle this card, first the cycling ability goes on the stack, then the triggered ability goes on the stack on top of it. The triggered ability will resolve before you draw a card from the cycling ability."
+            },
+            {
+                "date": "2022-12-08",
+                "text": "The cycling ability and the triggered ability are separate. If the triggered ability doesn't resolve (because, for example, it has been countered, or all of its targets have become illegal), the cycling ability will still resolve, and you'll draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Desert Cerodon
 {
     "name": "Desert Cerodon",
@@ -1222,6 +1412,259 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Dusk // Dawn
+{
+    "name": "Dusk // Dawn",
+    "manaCost": "",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all creatures with power 3 or greater.\n//\nAftermath (Cast this spell only from your graveyard. Then exile it.)\nReturn all creature cards with power 2 or less from your graveyard to your hand.",
+    "metadata": {
+        "collectorNumber": "210",
+        "rarity": "RARE",
+        "artist": "Noah Bradley",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/3/937dbc51-b589-4237-9fce-ea5c757f7c48.jpg?1783936459",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "If another effect allows you to cast a split card with aftermath from any zone other than a graveyard, you can't cast the half with aftermath."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "If another effect allows you to cast a split card with aftermath from a graveyard, you may cast either half. If you cast the half that has aftermath, you'll exile the card if it would leave the stack."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "A spell with aftermath cast from a graveyard will always be exiled afterward, whether it resolves, it's countered, or it leaves the stack in some other way."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ],
+    "layout": "SPLIT",
+    "cardFaces": [
+        {
+            "name": "Dusk",
+            "manaCost": "{2}{W}{W}",
+            "typeLine": "Sorcery",
+            "oracleText": "Destroy all creatures with power 3 or greater.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature pow>=3"
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Dawn",
+            "manaCost": "{3}{W}{W}",
+            "typeLine": "Sorcery",
+            "oracleText": "Aftermath (Cast this spell only from your graveyard. Then exile it.)\nReturn all creature cards with power 2 or less from your graveyard to your hand.",
+            "keywords": [
+                "AFTERMATH"
+            ],
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard",
+                                "filter": "creature pow<=2"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "hasNoManaCost": true
+}
+
+// Edifice of Authority
+{
+    "name": "Edifice of Authority",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{1}, {T}: Target creature can't attack this turn. Put a brick counter on this artifact.\n{1}, {T}: Until your next turn, target creature can't attack or block and its activated abilities can't be activated. Activate only if there are three or more brick counters on this artifact.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Edifice of Authority:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CantAttack",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "BRICK",
+                            "count": 1,
+                            "target": "Self"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Target creature can't attack this turn. Put a brick counter on this artifact."
+            },
+            {
+                "id": "Edifice of Authority:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CantAttack",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            },
+                            "duration": "UntilYourNextTurn"
+                        },
+                        {
+                            "type": "CantBlockTargetCreatures",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            },
+                            "duration": "UntilYourNextTurn"
+                        },
+                        {
+                            "type": "GrantStaticAbility",
+                            "ability": {
+                                "type": "PreventActivatedAbilities",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsPermanent"
+                                    ],
+                                    "statePredicates": [
+                                        "IsSource"
+                                    ]
+                                }
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            },
+                            "duration": "UntilYourNextTurn"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": "BRICK"
+                                }
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
+                    }
+                ],
+                "descriptionOverride": "Until your next turn, target creature can't attack or block and its activated abilities can't be activated."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "226",
+        "rarity": "UNCOMMON",
+        "artist": "Florian de Gesincourt",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66e6fa29-087f-4da6-9114-30feec708560.jpg?1783936452",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "Once a player has announced that they are activating the ability of a creature, Edifice of Authority can’t be used to undo it. Its last ability must be activated before the player activates that creature’s ability. The player may respond to Edifice of Authority’s ability with the target creature’s ability if able."
+            }
+        ]
+    }
 }
 
 // Electrify
@@ -1470,6 +1913,63 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Flameblade Adept
+{
+    "name": "Flameblade Adept",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Jackal Warrior",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)\nWhenever you cycle or discard a card, this creature gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Flameblade Adept:1",
+                "trigger": "DiscardEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you cycle or discard a card, this creature gets +1/+0 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "UNCOMMON",
+        "artist": "Tomasz Jedruszek",
+        "flavorText": "\"Allow zealous flames to light your path and the glory you seek will be revealed.\"\n—Hazoret, god of zeal",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f974d05a-3b31-4661-af18-58d87b76f19e.jpg?1783936489",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "An ability that triggers whenever you \"cycle or discard\" a card triggers only once if you cycle a card. The ability \"Whenever you discard a card\" is functionally identical to this ability; cycling is mentioned for clarity."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "If a player discards a card during their cleanup step due to having too many cards in hand, any appropriate abilities that trigger on discarding that card trigger. If this happens, those triggered abilities are put onto the stack and players receive priority in that cleanup step to cast spells or activate abilities (normally, no players may take actions during a cleanup step). Another cleanup step is created following that one."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2099,6 +2599,41 @@
     ]
 }
 
+// Lay Claim
+{
+    "name": "Lay Claim",
+    "manaCost": "{5}{U}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant permanent\nYou control enchanted permanent.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}"
+        }
+    ],
+    "script": {
+        "staticAbilities": [
+            "ControlEnchantedPermanent"
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "permanent"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "61",
+        "rarity": "UNCOMMON",
+        "artist": "Chris Rallis",
+        "flavorText": "Initiates need worry only about the trials. Everything else is in the hands of the gods.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/cc0e741f-0448-4a95-9178-074356e50426.jpg?1783936519"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Liliana's Mastery
 {
     "name": "Liliana's Mastery",
@@ -2150,6 +2685,177 @@
         "flavorText": "\"There are so many of them. It seems they've just been waiting for someone to serve.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c57b3b8-71f1-479c-b7f7-508fee2b5b0f.jpg?1783936503"
     },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Liliana, Death's Majesty
+{
+    "name": "Liliana, Death's Majesty",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Legendary Planeswalker — Liliana",
+    "oracleText": "+1: Create a 2/2 black Zombie creature token. Mill two cards.\n−3: Return target creature card from your graveyard to the battlefield. That creature is a black Zombie in addition to its other colors and types.\n−7: Destroy all non-Zombie creatures.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Liliana, Death's Majesty:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [
+                                "BLACK"
+                            ],
+                            "creatureTypes": [
+                                "Zombie"
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5bd6905-79be-4d2c-a343-f6e6a181b3e6.jpg?1783936411"
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        },
+                                        "isMill": true
+                                    },
+                                    "storeAs": "milled"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "milled",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Create a 2/2 black Zombie creature token. Mill two cards."
+            },
+            {
+                "id": "Liliana, Death's Majesty:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Battlefield"
+                        },
+                        {
+                            "type": "AddColor",
+                            "colors": [
+                                "BLACK"
+                            ],
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "AddCreatureType",
+                            "subtype": "Zombie",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Return target creature card from your graveyard to the battlefield. That creature is a black Zombie in addition to its other colors and types."
+            },
+            {
+                "id": "Liliana, Death's Majesty:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -7
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "NotSubtype",
+                                            "subtype": "Zombie"
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Destroy all non-Zombie creatures."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rallis",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/0/40d8f490-f04d-4d59-9ab0-a977527fd529.jpg?1783936503",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "A creature that is a Zombie and has other types, such as a Zombie Jackal, isn't a non-Zombie creature."
+            }
+        ]
+    },
+    "startingLoyalty": 5,
     "colorIdentityOverride": [
         "BLACK"
     ]
@@ -2624,7 +3330,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -2878,6 +3586,107 @@
     ]
 }
 
+// Prowling Serpopard
+{
+    "name": "Prowling Serpopard",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Creature — Cat Snake",
+    "oracleText": "This spell can't be countered.\nCreature spells you control can't be countered.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantCantBeCountered",
+                "filter": "creature ctrl:you"
+            }
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "180",
+        "rarity": "RARE",
+        "artist": "Tyler Jacobson",
+        "flavorText": "The viziers serving Rhonas, the god of strength, maintain the menagerie of animals employed during his trial.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/92921fc1-11d0-41a9-b9b2-b44fd0913d31.jpg?1783936471",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "A spell or ability that counters spells can still target a creature spell you control. When that spell or ability resolves, the creature spell won't be countered, but any additional effects of that spell or ability will still happen."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Pull from Tomorrow
+{
+    "name": "Pull from Tomorrow",
+    "manaCost": "{X}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Draw X cards, then discard a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": "XValue"
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 1 card to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "65",
+        "rarity": "RARE",
+        "artist": "Sara Winters",
+        "flavorText": "\"I do things in my own time.\"\n—Etha, initiate of Rhet crop",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f1eccf27-c934-45fb-87ae-67006cd4e0ed.jpg?1783936518"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Pursue Glory
 {
     "name": "Pursue Glory",
@@ -2991,6 +3800,115 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Rhonas the Indomitable
+{
+    "name": "Rhonas the Indomitable",
+    "manaCost": "{2}{G}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "Deathtouch, indestructible\nRhonas can't attack or block unless you control another creature with power 4 or greater.\n{2}{G}: Another target creature gets +2/+0 and gains trample until end of turn.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "DEATHTOUCH",
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Rhonas the Indomitable:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "TRAMPLE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature",
+                            "excludeSelf": true
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantAttackUnless",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "creature pow>=4",
+                    "excludeSelf": true
+                }
+            },
+            {
+                "type": "CantBlockUnless",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "creature pow>=4",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "182",
+        "rarity": "MYTHIC",
+        "artist": "Chase Stone",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/50f23c47-278c-4188-8fb4-ae20a0c423c5.jpg?1783936470",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "Once Rhonas has attacked or blocked, it will remain in combat even if you no longer control another creature with power 4 or greater."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "You don't have to attack with another creature with power 4 or greater for Rhonas to be able to attack. The same is true of blocking."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

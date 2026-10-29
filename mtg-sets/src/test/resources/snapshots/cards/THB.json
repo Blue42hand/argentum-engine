@@ -712,6 +712,82 @@
     ]
 }
 
+// Dryad of the Ilysian Grove
+{
+    "name": "Dryad of the Ilysian Grove",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment Creature — Nymph Dryad",
+    "oracleText": "You may play an additional land on each of your turns.\nLands you control are every basic land type in addition to their other types.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            "GrantAdditionalLandDrop",
+            {
+                "type": "GrantSubtype",
+                "subtype": "Plains",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Island",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Swamp",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Mountain",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Forest",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "169",
+        "rarity": "RARE",
+        "artist": "Scott Murphy",
+        "flavorText": "\"Vine-wreathed, he nurtures life among the dead.\"\n—Psemilla, Meletian poet",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d964876-194b-49f1-8e74-cfe9269f2c62.jpg?1783931541",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "Dryad of the Ilysian Grove’s first ability is cumulative if you control more than one. It’s also cumulative with other effects that let you play additional lands, such as the one from Escape to the Wilds."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Each land you control will have the land types Plains, Island, Swamp, Mountain, and Forest. They’ll also have the mana ability of each basic land type (for example, Forests have “{T}: Add {G}.”). They’ll still have their other subtypes and abilities."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Giving a land additional basic land types doesn’t change its name or whether it’s legendary or basic."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Eat to Extinction
 {
     "name": "Eat to Extinction",
@@ -1125,6 +1201,115 @@
     ]
 }
 
+// Flicker of Fate
+{
+    "name": "Flicker of Fate",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Exile target creature or enchantment, then return it to the battlefield under its owner's control.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Exile"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|enchantment"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "artist": "Tomasz Jedruszek",
+        "flavorText": "An infinite journey in an infinitesimal time.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/59e19bac-176c-4e37-bfc8-27c00de7c37f.jpg?1783931597",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "Once the exiled permanent returns, it's considered a new object with no relation to the object that it was. Auras attached to the exiled permanent will be put into their owners' graveyards. Equipment attached to the exiled permanent will become unattached and remain on the battlefield. Any counters on the exiled permanent will cease to exist."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If a token is exiled this way, it will cease to exist and won't return to the battlefield."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If an Aura is put onto the battlefield without being cast, the Aura's controller-to-be chooses what it will enchant as it comes back onto the battlefield. An Aura put onto the battlefield this way doesn't target anything (so it could be attached to an opponent's permanent with hexproof, for example), but the Aura's enchant ability restricts what it can be attached to. If the Aura can't legally be attached to anything, it remains in its current zone."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Glory Bearers
+{
+    "name": "Glory Bearers",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment Creature — Human Cleric",
+    "oracleText": "Whenever another creature you control attacks, it gets +0/+1 until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Glory Bearers:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature ctrl:you"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "TriggeringEntity"
+                },
+                "descriptionOverride": "Whenever another creature you control attacks, it gets +0/+1 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "17",
+        "artist": "Tyler Walpole",
+        "flavorText": "\"We are bearers of the ancient light, keepers of sun-crowned Heliod's blessings. Fight, and the light will protect you!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/a/8a70e1be-f04a-43c1-8fca-205a24e3db38.jpg?1783931596"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Grim Physician
 {
     "name": "Grim Physician",
@@ -1181,6 +1366,77 @@
     ]
 }
 
+// Hydra's Growth
+{
+    "name": "Hydra's Growth",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nWhen this Aura enters, put a +1/+1 counter on enchanted creature.\nAt the beginning of your upkeep, double the number of +1/+1 counters on enchanted creature.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hydra's Growth:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "EnchantedCreature"
+                }
+            },
+            {
+                "id": "Hydra's Growth:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "EnchantedCreature",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": "PLUS_ONE_PLUS_ONE"
+                        }
+                    },
+                    "target": "EnchantedCreature"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "rarity": "UNCOMMON",
+        "artist": "Bayard Wu",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/5112ee2a-a6f3-4280-a915-000a97a9cdef.jpg?1783931539",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "If Hydra's Growth leaves the battlefield before its enters-the-battlefield triggered ability resolves, the creature it last enchanted before it left gets the +1/+1 counter."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "To double the number of +1/+1 counters on a creature, put a number of +1/+1 counters on it equal to the number it already has. Other cards that interact with putting counters on it will interact with this effect accordingly."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Hyrax Tower Scout
 {
     "name": "Hyrax Tower Scout",
@@ -1225,6 +1481,123 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Ilysian Caryatid
+{
+    "name": "Ilysian Caryatid",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Plant",
+    "oracleText": "{T}: Add one mana of any color. If you control a creature with power 4 or greater, add two mana of any one color instead.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Ilysian Caryatid:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "creature pow>=4"
+                        }
+                    },
+                    "then": {
+                        "type": "AddManaOfChoice",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "otherwise": "AddManaOfChoice"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add one mana of any color. If you control a creature with power 4 or greater, add two mana of any one color instead."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "artist": "Winona Nelson",
+        "flavorText": "Those who die as heroes are permitted to dwell in Ilysia, a protected realm of the Underworld as tranquil and vibrant as the rest is bleak.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7cdf8ab8-f221-4f7b-9af9-3849cad1f596.jpg?1783931537"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Impending Doom
+{
+    "name": "Impending Doom",
+    "manaCost": "{2}{R}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +3/+3 and attacks each combat if able.\nWhen enchanted creature dies, this Aura deals 3 damage to that creature's controller.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Impending Doom:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": "ControllerOfTriggeringEntity"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 3,
+                "toughnessBonus": 3
+            },
+            {
+                "type": "MustAttack",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "139",
+        "rarity": "UNCOMMON",
+        "artist": "Zoltan Boros",
+        "flavorText": "\"Feast, for your next meal may be your last!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/5681db91-5dab-41e6-96f2-275ec9495e5b.jpg?1783931550",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "If the enchanted creature can't attack for any reason (such as being tapped or having come under that player's control that turn), then it doesn't attack. If there's a cost associated with having it attack, the player isn't forced to pay that cost, so it doesn't have to attack in that case either."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2252,6 +2625,77 @@
     ]
 }
 
+// Phalanx Tactics
+{
+    "name": "Phalanx Tactics",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature you control gets +2/+1 until end of turn. Each other creature you control gets +1/+1 until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you",
+                            "excludeTarget": true
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "IterationEntity"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "rarity": "UNCOMMON",
+        "artist": "Bayard Wu",
+        "flavorText": "Every soldier has a place to stand and a role to play.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f114a10-0b00-4f3a-bd73-d4c791fbf4d5.jpg?1783931592"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Pharika's Libation
 {
     "name": "Pharika's Libation",
@@ -2445,6 +2889,108 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Relentless Pursuit
+{
+    "name": "Relentless Pursuit",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Reveal the top four cards of your library. You may put a creature card and/or a land card from among them into your hand. Put the rest into your graveyard.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "storeAs": "gathered0",
+                    "revealed": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "creature",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
+                    "prompt": "You may put a creature card into your hand",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Leave",
+                    "showAllCards": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "remainder1",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "land",
+                    "storeSelected": "selected2",
+                    "storeRemainder": "remainder2",
+                    "prompt": "You may put a land card into your hand",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put into graveyard",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "remainder2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "artist": "Magali Villeneuve",
+        "flavorText": "Calix was patient, steadily following Elspeth until their destined confrontation.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/752b9560-b1d6-441c-8bc8-bf6988112d25.jpg?1783931531",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "While resolving Relentless Pursuit, you could put no cards, a creature card, a land card, or a creature card and a land card into your hand."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -3022,6 +3568,100 @@
     ]
 }
 
+// Stinging Lionfish
+{
+    "name": "Stinging Lionfish",
+    "manaCost": "{1}{U}",
+    "typeLine": "Enchantment Creature — Fish",
+    "oracleText": "Whenever you cast your first spell during each opponent's turn, you may tap or untap target nonland permanent.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Stinging Lionfish:1",
+                "trigger": {
+                    "type": "NthSpellCastEvent",
+                    "nthSpell": 1,
+                    "player": "You"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Modal",
+                        "modes": [
+                            {
+                                "effect": {
+                                    "type": "TapUntap",
+                                    "target": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    }
+                                },
+                                "description": "Tap that permanent"
+                            },
+                            {
+                                "effect": {
+                                    "type": "TapUntap",
+                                    "target": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    },
+                                    "tap": false
+                                },
+                                "description": "Untap that permanent"
+                            }
+                        ],
+                        "countsAsModalSpell": false
+                    },
+                    "descriptionOverride": "Whenever you cast your first spell during each opponent's turn, you may tap or untap target nonland permanent."
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "nonland permanent"
+                    },
+                    "id": "t0"
+                },
+                "triggerRestriction": "IsOpponentsTurn",
+                "descriptionOverride": "Whenever you cast your first spell during each opponent's turn, you may tap or untap target nonland permanent."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "rarity": "UNCOMMON",
+        "artist": "Christopher Burdett",
+        "flavorText": "Starfish are its favorite prey.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/1/0162a0b8-a2d1-4664-a445-331aee6d5175.jpg?1783931577",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "An ability that triggers when you cast a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "This ability triggers only on your very first spell during an opponent's turn, not the first spell after the card is on the battlefield. If you cast a spell before it's on the battlefield (including if you cast this card somehow during an opponent's turn), the ability won't trigger."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If you have more than one opponent, this ability can trigger once during each of those opponents' turns."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "In a Two-Headed Giant game, this ability triggers no more than once during each opposing team's turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Sunmane Pegasus
 {
     "name": "Sunmane Pegasus",
@@ -3404,6 +4044,45 @@
     "colorIdentityOverride": []
 }
 
+// Transcendent Envoy
+{
+    "name": "Transcendent Envoy",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment Creature — Griffin",
+    "oracleText": "Flying\nAura spells you cast cost {1} less to cast.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "Aura"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "40",
+        "artist": "Zezhou Chen",
+        "flavorText": "\"The first griffins were made by the gods to capture falling stars; they were given the keenest eyes and the swiftest wings, and sent to keep watch above the clouds.\"\n—*The Cosmogony*",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/9/a9241289-28d2-4827-970e-81bdecbb5c16.jpg?1783931589"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Triton Waverider
 {
     "name": "Triton Waverider",
@@ -3493,6 +4172,66 @@
     ]
 }
 
+// Underworld Breach
+{
+    "name": "Underworld Breach",
+    "manaCost": "{1}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "Each nonland card in your graveyard has escape. The escape cost is equal to the card's mana cost plus exile three other cards from your graveyard. (You may cast cards from your graveyard for their escape cost.)\nAt the beginning of the end step, sacrifice this enchantment.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Underworld Breach:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": "SacrificeSelf"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GraveyardCardsHaveEscape",
+                "filter": "nonland",
+                "additionalCost": {
+                    "type": "AdditionalAtom",
+                    "atom": {
+                        "type": "AtomExileFrom",
+                        "zone": "Graveyard",
+                        "count": 3,
+                        "excludeSelf": true
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "rarity": "RARE",
+        "artist": "Lie Setiawan",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/e/0e51d796-7279-4c06-87f0-37adbdaa41df.jpg?1783931543",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "After an escaped spell resolves, it returns to its owner's graveyard if it's not a permanent spell. If it is a permanent spell, it enters the battlefield and will return to its owner's graveyard if it dies later. Perhaps it will escape again—good underworld security is so hard to come by these days."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Escape's permission doesn't change when you may cast the spell from your graveyard."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If a card has no mana cost, its escape cost is an unpayable cost, so you can't cast it for that cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Venomous Hierophant
 {
     "name": "Venomous Hierophant",
@@ -3572,6 +4311,68 @@
         "artist": "Volkan Baǵa",
         "flavorText": "\"May the skies be clear of gales and gulls.\"\n—Meletian prayer",
         "imageUri": "https://cards.scryfall.io/normal/front/8/6/869fee23-df75-448d-9fca-6ba6713d459f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Wavebreak Hippocamp
+{
+    "name": "Wavebreak Hippocamp",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment Creature — Horse Fish",
+    "oracleText": "Whenever you cast your first spell during each opponent's turn, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Wavebreak Hippocamp:1",
+                "trigger": {
+                    "type": "NthSpellCastEvent",
+                    "nthSpell": 1,
+                    "player": "You"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "triggerRestriction": "IsOpponentsTurn",
+                "descriptionOverride": "Whenever you cast your first spell during each opponent's turn, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "RARE",
+        "artist": "Caio Monteiro",
+        "flavorText": "Tritons search for omens in its wake.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/9/d900dff5-1196-443f-b9b0-b8e75c67c868.jpg?1783931573",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "An ability that triggers when you cast a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "This ability triggers only on your very first spell during an opponent's turn, not the first spell after the card is on the battlefield. If you cast a spell before it's on the battlefield (including if you cast this card somehow during an opponent's turn), the ability won't trigger."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If you have more than one opponent, this ability can trigger once during each of those opponents' turns."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "In a Two-Headed Giant game, this ability triggers no more than once during each opposing team's turn."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLUE"
@@ -3667,7 +4468,8 @@
                         "Goat"
                     ],
                     "imageUri": "https://cards.scryfall.io/normal/front/3/6/36cd5f96-5683-4959-b973-37f3c2fcf9bf.jpg?1783931456"
-                }
+                },
+                "descriptionOverride": "When this creature enters, create a 0/1 white Goat creature token."
             }
         ],
         "activatedAbilities": [
@@ -3684,7 +4486,8 @@
                 "effect": {
                     "type": "Scry",
                     "count": 1
-                }
+                },
+                "descriptionOverride": "Sacrifice another creature: Scry 1."
             }
         ],
         "replacementEffects": [
@@ -3734,5 +4537,74 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Wolfwillow Haven
+{
+    "name": "Wolfwillow Haven",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional {G}.\n{4}{G}, Sacrifice this Aura: Create a 2/2 green Wolf creature token. Activate only during your turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Wolfwillow Haven:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{G}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Wolf"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/4/1/411f4bf6-7f09-4e24-b483-0068d2f974e5.jpg?1783931451"
+                },
+                "restrictions": [
+                    "OnlyDuringYourTurn"
+                ],
+                "descriptionOverride": "{4}{G}, Sacrifice this Aura: Create a 2/2 green Wolf creature token. Activate only during your turn."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "AdditionalManaOnTap",
+                "color": "GREEN",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "land"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "205",
+        "rarity": "UNCOMMON",
+        "artist": "Jakub Kasper",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72b886c3-234c-49ce-9a11-456c1e8f092f.jpg?1783931526"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }

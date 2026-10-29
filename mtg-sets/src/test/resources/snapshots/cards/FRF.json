@@ -166,6 +166,49 @@
     ]
 }
 
+// Frontier Mastodon
+{
+    "name": "Frontier Mastodon",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elephant",
+    "oracleText": "Ferocious — This creature enters with a +1/+1 counter on it if you control a creature with power 4 or greater.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true,
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "creature pow>=4",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "artist": "Nils Hamm",
+        "flavorText": "Each bronze disk on its harness is an offering from a young Temur hunter, a sign of respect to the spirits of the wild.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/6/46c09fe7-d55f-49b4-95c9-a3bb36baa3aa.jpg?1783938681",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "Frontier Mastodon's ferocious ability checks if you control a creature with power 4 or greater as Frontier Mastodon enters the battlefield. Because Frontier Mastodon isn't on the battlefield at this time, it won't count itself."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Gore Swine
 {
     "name": "Gore Swine",
@@ -203,6 +246,254 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Hero's Blade
+{
+    "name": "Hero's Blade",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +3/+2.\nWhenever a legendary creature you control enters, you may attach this Equipment to it.\nEquip {4}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hero's Blade:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "IsLegendary"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "AttachEquipment",
+                        "target": "TriggeringEntity"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Hero's Blade:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 3,
+                "toughnessBonus": 2
+            }
+        ]
+    },
+    "equipCost": "{4}",
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "UNCOMMON",
+        "artist": "Aaron Miller",
+        "flavorText": "The best swords are forged with dragonfire.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e69b72c1-232c-420e-b900-6dfe73cfff13.jpg?1783938671",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If the legendary creature that entered the battlefield leaves the battlefield before Hero's Blade becomes attached, Hero's Blade stays as it was. If it's already attached to another creature, it remains attached to that creature."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "The triggered ability will trigger when one of the Gods from Theros block enters the battlefield only if your devotion is high enough that it's a creature when it enters. If Hero's Blade is attached to a God that stops being a creature (or any creature that stops being a creature), it will become unattached."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Hooded Assassin
+{
+    "name": "Hooded Assassin",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Assassin",
+    "oracleText": "When this creature enters, choose one —\n• Put a +1/+1 counter on this creature.\n• Destroy target creature that was dealt damage this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hooded Assassin:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "Self"
+                            },
+                            "description": "Put a +1/+1 counter on this creature"
+                        },
+                        {
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "destination": "Graveyard",
+                                "byDestruction": true
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "cardPredicates": [
+                                                "IsCreature"
+                                            ],
+                                            "statePredicates": [
+                                                "WasDealtDamageThisTurn"
+                                            ]
+                                        }
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "Destroy target creature that was dealt damage this turn"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/05d4da1d-5b8c-43be-aa30-22df69c0cc23.jpg?1783938696",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "If a creature was dealt damage but regenerated (which removes all damage from it), it will still be a legal target for the second mode of the triggered ability."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "You choose which mode you're using as you put the ability on the stack, after the creature has entered the battlefield. Once you've chosen a mode, you can't change that mode even if the creature leaves the battlefield in response to that ability."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If a mode requires a target and there are no legal targets available, that mode can't be chosen. You must choose another mode if able."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Humble Defector
+{
+    "name": "Humble Defector",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "{T}: Draw two cards. Target opponent gains control of this creature. Activate only during your turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Humble Defector:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "GiveControlToTargetPlayer",
+                            "permanent": "Self",
+                            "newController": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "t0"
+                    }
+                ],
+                "restrictions": [
+                    "OnlyDuringYourTurn"
+                ],
+                "descriptionOverride": "{T}: Draw two cards. Target opponent gains control of this creature. Activate only during your turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "rarity": "UNCOMMON",
+        "artist": "Slawomir Maniak",
+        "flavorText": "\"You were once Mardu, so your body and will are strong. Now we must train your mind.\"\n—Houn, Jeskai elder",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4bb0c13f-6cea-48b4-a5c8-2c0cfcfea7fd.jpg?1783938687",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If Humble Defector isn't on the battlefield as its ability resolves, but the target player is still a legal target, the ability will resolve. You'll draw two cards, even though the player doesn't gain control of Humble Defector."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Humble Defector's ability can be activated any time during your turn, including in response to a spell or ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -589,6 +880,290 @@
     ]
 }
 
+// Renowned Weaponsmith
+{
+    "name": "Renowned Weaponsmith",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "{T}: Add {C}{C}. Spend this mana only to cast artifact spells or activate abilities of artifacts.\n{U}, {T}: Search your library for a card named Heart-Piercer Bow or Vial of Dragonfire, reveal it, put it into your hand, then shuffle.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Renowned Weaponsmith:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "restriction": {
+                        "type": "CardTypeSpellsOrAbilitiesOnly",
+                        "cardType": "ARTIFACT",
+                        "allowAbilities": true
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Renowned Weaponsmith:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "Or",
+                                            "predicates": [
+                                                {
+                                                    "type": "NameEquals",
+                                                    "name": "Heart-Piercer Bow"
+                                                },
+                                                {
+                                                    "type": "NameEquals",
+                                                    "name": "Vial of Dragonfire"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card named Heart-Piercer Bow or named Vial of Dragonfire to put into your hand",
+                            "selectedLabel": "Put into your hand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "descriptionOverride": "{U}, {T}: Search your library for a card named Heart-Piercer Bow or Vial of Dragonfire, reveal it, put it into your hand, then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "UNCOMMON",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/500f72e0-2de2-4c02-bda0-8a61aa9b37fc.jpg?1783938703",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "You can't spend mana added by this ability to pay costs of triggered abilities of artifacts such as the first ability of Chandra's Regulator."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "The mana generated by Renowned Weaponsmith's first ability can't be spent to activate abilities of artifact sources that aren't on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Sage's Reverie
+{
+    "name": "Sage's Reverie",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nWhen this Aura enters, draw a card for each Aura you control that's attached to a creature.\nEnchanted creature gets +1/+1 for each Aura you control that's attached to a creature.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sage's Reverie:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsEnchantment",
+                                {
+                                    "type": "HasSubtype",
+                                    "subtype": "Aura"
+                                }
+                            ],
+                            "statePredicates": [
+                                {
+                                    "type": "IsAttachedTo",
+                                    "filter": "creature"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsEnchantment",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Aura"
+                            }
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "IsAttachedTo",
+                                "filter": "creature"
+                            }
+                        ]
+                    }
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsEnchantment",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Aura"
+                            }
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "IsAttachedTo",
+                                "filter": "creature"
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "UNCOMMON",
+        "artist": "Jason Rainville",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0f22dd6f-807a-48a7-bc69-29aaec7012de.jpg?1783938712",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "Count the number of Auras you control attached to creatures as the enters-the-battlefield ability resolves to determine how many cards to draw. This will include Sage's Reverie as long as it's still on the battlefield at that time."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "An Aura doesn't necessarily need the enchant creature ability for the abilities of Sage's Reverie to count it. For example, an Aura with enchant permanent that's attached to a creature will count."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Shamanic Revelation
+{
+    "name": "Shamanic Revelation",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw a card for each creature you control.\nFerocious — You gain 4 life for each creature you control with power 4 or greater.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "creature pow>=4"
+                        },
+                        "multiplier": 4
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "138",
+        "rarity": "RARE",
+        "artist": "Cynthia Sheppard",
+        "flavorText": "First, whispers of ancient days. Then, visions of things to come.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c7f2c73-26d8-42a6-acde-2c5a2f4e21a1.jpg?1783938679"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Smoldering Efreet
 {
     "name": "Smoldering Efreet",
@@ -630,6 +1205,105 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Temur Sabertooth
+{
+    "name": "Temur Sabertooth",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Cat",
+    "oracleText": "{1}{G}: You may return another creature you control to its owner's hand. If you do, this creature gains indestructible until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Temur Sabertooth:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "BattlefieldMatching",
+                                            "filter": "creature",
+                                            "player": "You",
+                                            "excludeSelf": true
+                                        },
+                                        "storeAs": "gathered0"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "gathered0",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "bounced",
+                                        "prompt": "Return another creature you control to its owner's hand",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "bounced",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Hand"
+                                        }
+                                    }
+                                ]
+                            },
+                            "successCriterion": {
+                                "type": "SuccessCriterion.CollectionNonEmpty",
+                                "name": "bounced"
+                            }
+                        },
+                        "then": {
+                            "type": "GrantKeyword",
+                            "keyword": "INDESTRUCTIBLE",
+                            "target": "Self"
+                        }
+                    }
+                },
+                "descriptionOverride": "{1}{G}: You may return another creature you control to its owner's hand. If you do, this creature gains indestructible until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "rarity": "UNCOMMON",
+        "artist": "Mike Sass",
+        "flavorText": "The Temur see themselves as a pack, their bonds more primal than the Abzan's.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d54da7c-8828-4d34-bfd0-a654692d3f5a.jpg?1783938677",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "You choose whether to return a creature and which creature to return as the activated ability resolves. This doesn't target any creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

@@ -93,7 +93,7 @@ class SuspendCardFromHandHandler(
         // permission side of "could begin to cast" is exactly as real as printed flash.
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
         val hasFlash = cardDef?.keywords?.contains(Keyword.FLASH) == true ||
-            castPermissionUtils.hasGrantedFlash(state, action.cardId)
+            castPermissionUtils.hasGrantedFlash(state, action.cardId, action.playerId)
         val isInstantSpeed = cardComponent.typeLine.isInstant || hasFlash
         if (!isInstantSpeed && !turnManager.canPlaySorcerySpeed(state, action.playerId)) {
             return "This card can only be suspended at a time you could cast it"
@@ -132,7 +132,9 @@ class SuspendCardFromHandHandler(
                 red = poolComponent.red,
                 green = poolComponent.green,
                 colorless = poolComponent.colorless,
+                restrictedMana = poolComponent.restrictedMana,
                 snowMana = poolComponent.snowMana,
+                manaUnits = poolComponent.manaUnits,
                 snowColorless = poolComponent.snowColorless
             ).withSpendingColors(state, action.playerId)
             val remainingCost = pool.payPartial(suspend.cost).remainingCost
@@ -173,7 +175,9 @@ class SuspendCardFromHandHandler(
             red = poolComponent.red,
             green = poolComponent.green,
             colorless = poolComponent.colorless,
+            restrictedMana = poolComponent.restrictedMana,
             snowMana = poolComponent.snowMana,
+            manaUnits = poolComponent.manaUnits,
             snowColorless = poolComponent.snowColorless
         ).withSpendingColors(state, action.playerId)
         val partialResult = pool.payPartial(suspend.cost)
@@ -197,7 +201,9 @@ class SuspendCardFromHandHandler(
                     red = poolAfterPayment.red,
                     green = poolAfterPayment.green,
                     colorless = poolAfterPayment.colorless,
+                    restrictedMana = poolAfterPayment.restrictedMana,
                     snowMana = poolAfterPayment.snowMana,
+                    manaUnits = poolAfterPayment.manaUnits,
                     snowColorless = poolAfterPayment.snowColorless
                 )
             )

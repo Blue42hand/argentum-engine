@@ -1,6 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.dmu
 
 import com.wingedsheep.mtg.sets.discovery.CardDiscovery
+import com.wingedsheep.sdk.limited.BoosterStrategy
+import com.wingedsheep.sdk.limited.LegendarySlotBooster
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 import com.wingedsheep.sdk.model.Printing
@@ -16,7 +18,14 @@ object DominariaUnitedSet : MtgSet {
     override val code = "DMU"
     override val displayName = "Dominaria United"
     override val releaseDate = "2022-09-09"
-    override val incomplete = true
+
+    /**
+     * Draft Booster: ten commons, one legendary creature, and either a legendary rare/mythic beside
+     * three nonlegendary uncommons (3 packs in 12) or a legendary uncommon beside two nonlegendary
+     * uncommons and a nonlegendary rare/mythic (9 in 12). The basic land and the traditional-foil
+     * replacement of a common are omitted; the generator supplies basics at deck building.
+     */
+    override val boosterStrategy: BoosterStrategy = LegendarySlotBooster(commons = 10, uncommons = 3, legendaryRareChance = 0.25)
 
     override val cards: List<CardDefinition> by lazy {
         CardDiscovery.findIn(CARDS_PACKAGE)

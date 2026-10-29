@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
+import com.wingedsheep.sdk.core.PlayerDesignation
 import com.wingedsheep.sdk.core.Speed
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -47,6 +48,7 @@ import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisT
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
+import com.wingedsheep.sdk.scripting.conditions.PlayerHasDesignation
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasEnduringStory
 import com.wingedsheep.sdk.scripting.conditions.RingHasTemptedPlayerAtLeast
 import com.wingedsheep.sdk.scripting.references.Player
@@ -308,6 +310,13 @@ object Conditions {
         excludeSelf: Boolean = false
     ): ConditionInterface =
         Exists(Player.You, Zone.BATTLEFIELD, filter, negate = negate, excludeSelf = excludeSelf)
+
+    /**
+     * "If you control a commander" — a permanent on the battlefield that is a commander (CR 903.3d).
+     * Whose commander doesn't matter; any one will do (Fierce Guardianship ruling, 2020-04-17).
+     * Usually the gate on a free-cast `selfAlternativeCost` (Fierce Guardianship, Deadly Rollick).
+     */
+    val YouControlACommander: ConditionInterface = YouControl(GameObjectFilter.Permanent.commander())
 
     /**
      * If **an** opponent controls at least one permanent matching [filter] — the opponent-side
@@ -606,7 +615,15 @@ object Conditions {
      * player loses the game, you win the game" with `TriggeringPlayerIs(Player.ChosenOpponent)`.
      */
     fun TriggeringPlayerIs(player: Player): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.TriggeringPlayerIs(player)
+        com.wingedsheep.sdk.scripting.conditions.PlayerIs(Player.TriggeringPlayer, player)
+
+    /**
+     * [subject] is [player]: both references resolve to the same player. Inside a per-player loop
+     * `Player.You` is the visited player, so `Not(PlayerIs(Player.You, Player.DefendingPlayer))`
+     * reads "for each opponent other than defending player" (myriad).
+     */
+    fun PlayerIs(subject: Player, player: Player): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.PlayerIs(subject, player)
 
     /**
      * [player] has the most life, or is tied for the most life, among all players. The "most life"
@@ -714,22 +731,57 @@ object Conditions {
         Compare(DynamicAmount.LifeTotal(Player.You), ComparisonOperator.LTE, DynamicAmount.Fixed(threshold))
 
     /**
-     * If *some* player in the game has [threshold] or less life. Existential — true
-     * as soon as any player (you or any opponent, including in multiplayer) matches.
-     *
-     * Used by cards like Razortrap Gorge ("enters tapped unless a player has 13 or
-     * less life"). Distinct from [LifeAtMost], which is `Player.You` only.
+     * If *some* player in the game has [threshold] or less life (Razortrap Gorge: "enters tapped
+     * unless a player has 13 or less life") — the least life total among the players still in the
+     * game is at most [threshold]. Existential over you and every opponent; distinct from
+     * [LifeAtMost], which is `Player.You` only. Team games read the shared team total (CR 810.9a).
      */
     fun APlayerLifeAtMost(threshold: Int): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.APlayerLifeAtMost(threshold)
+        Compare(
+            DynamicAmount.LeastAmongPlayers(Player.Each, DynamicAmount.LifeTotal(Player.You)),
+            ComparisonOperator.LTE,
+            DynamicAmount.Fixed(threshold)
+        )
 
-    /** If every player in the game has [threshold] or less life. */
+    /**
+     * If every player in the game has [threshold] or less life (Cryptolith Fragment) — the
+     * greatest life total among the players still in the game is at most [threshold]. Team games
+     * read the shared team total (CR 810.9a).
+     */
     fun EachPlayerLifeAtMost(threshold: Int): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.EachPlayerLifeAtMost(threshold)
+        Compare(
+            DynamicAmount.GreatestAmongPlayers(Player.Each, DynamicAmount.LifeTotal(Player.You)),
+            ComparisonOperator.LTE,
+            DynamicAmount.Fixed(threshold)
+        )
 
-    /** If at least one opponent has [threshold] or less life. */
+    /**
+     * If at least one opponent has [threshold] or less life (Bloodghast) — existential over the
+     * controller's opponents only, so the controller's own low life never satisfies it: the least
+     * life total among your opponents is at most [threshold].
+     */
     fun AnOpponentLifeAtMost(threshold: Int): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.AnOpponentLifeAtMost(threshold)
+        Compare(
+            DynamicAmount.LeastAmongPlayers(Player.EachOpponent, DynamicAmount.LifeTotal(Player.You)),
+            ComparisonOperator.LTE,
+            DynamicAmount.Fixed(threshold)
+        )
+
+    /**
+     * If a single opponent cast [count] or more spells this turn (Mindbreak Trap) — existential
+     * per opponent, so three opponents casting one spell each never satisfy it: the greatest
+     * `SpellsCastThisTurn` among your opponents is at least [count]. Counts casts, not
+     * resolutions, so countered spells still count.
+     */
+    fun AnOpponentCastSpellsThisTurnAtLeast(count: Int): ConditionInterface =
+        Compare(
+            DynamicAmount.GreatestAmongPlayers(
+                Player.EachOpponent,
+                DynamicAmount.SpellsCastThisTurn(Player.You)
+            ),
+            ComparisonOperator.GTE,
+            DynamicAmount.Fixed(count)
+        )
 
     /**
      * If your life total is N or more.
@@ -1895,6 +1947,21 @@ object Conditions {
         )
 
     /**
+     * "If [player] created [atLeast] or more tokens this turn" — Idol of Oblivion's "activate only
+     * if you created a token this turn". Turn history over `TurnTracker.TOKENS_CREATED`: the tokens
+     * need not still exist.
+     */
+    fun CreatedTokenThisTurn(
+        atLeast: Int = 1,
+        player: Player = Player.You
+    ): ConditionInterface =
+        trackerAtLeast(
+            com.wingedsheep.sdk.scripting.values.TurnTracker.TOKENS_CREATED,
+            atLeast,
+            player,
+        )
+
+    /**
      * If an opponent lost life this turn (from any source).
      * Used for cards like Hired Claw: "Activate only if an opponent lost life this turn"
      */
@@ -1925,6 +1992,17 @@ object Conditions {
     val OpponentWasDealtNoncombatDamageLastTurn: ConditionInterface =
         trackerAtLeast(
             com.wingedsheep.sdk.scripting.values.TurnTracker.DEALT_NONCOMBAT_DAMAGE_LAST_TURN,
+            player = Player.EachOpponent
+        )
+
+    /**
+     * If a creature or planeswalker an opponent controlled was dealt excess damage this turn
+     * (CR 120.4a; Rith, Liberated Primeval). Turn history, not a board scan: the recipient
+     * dying to that damage doesn't undo it.
+     */
+    val OpponentPermanentWasDealtExcessDamageThisTurn: ConditionInterface =
+        trackerAtLeast(
+            com.wingedsheep.sdk.scripting.values.TurnTracker.PERMANENT_DEALT_EXCESS_DAMAGE,
             player = Player.EachOpponent
         )
 
@@ -1984,6 +2062,15 @@ object Conditions {
      */
     fun candidateWasDealtDamageBySourceThisTurn(): ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.SourceDealtDamageToPlayerThisTurn(Player.Candidate)
+
+    /**
+     * Candidate restriction: the player being considered has the most life or is tied for the
+     * most. Backs "choose a player with the most life or tied for most life" (The Black Gate) —
+     * pair it with a non-targeting `selectTarget`, so the choice is made, and the restriction
+     * read, as the ability resolves.
+     */
+    fun candidateHasMostLife(): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.PlayerHasMostLife(Player.Candidate)
 
     /**
      * Candidate-target restriction: the player being targeted has [n] or less life.
@@ -2208,19 +2295,20 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.ControlledCreatureDiedThisTurnCondition
 
     /**
-     * "if a [subtype] creature died this turn" — global, matched against each dying creature's
-     * last-known subtypes. Used for "a Goblin died this turn"-style gates.
+     * "if a [subtype] creature died this turn" — matched against each dying creature's last-known
+     * subtypes. Global by default; pass [player] (e.g. `Player.You`) for "died under your control".
      */
-    fun SubtypeCreatureDiedThisTurn(subtype: Subtype): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.CreatureWithSubtypeDiedThisTurn(subtype.value, present = true)
+    fun SubtypeCreatureDiedThisTurn(subtype: Subtype, player: Player = Player.Each): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.CreatureWithSubtypeDiedThisTurn(subtype.value, present = true, player = player)
 
     /**
-     * "if a non-[subtype] creature died this turn" — global, satisfied when at least one creature
-     * that died this turn did *not* have [subtype] among its last-known subtypes. Used by Undead
-     * Sprinter (DSK): "if a non-Zombie creature died this turn".
+     * "if a non-[subtype] creature died this turn" — satisfied when at least one creature that died
+     * this turn did *not* have [subtype] among its last-known subtypes. Global by default (Undead
+     * Sprinter, DSK); `player = Player.You` scopes it to deaths under the source controller's
+     * control (Cult Conscript, DMU: "a non-Skeleton creature died under your control this turn").
      */
-    fun NonSubtypeCreatureDiedThisTurn(subtype: Subtype): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.CreatureWithSubtypeDiedThisTurn(subtype.value, present = false)
+    fun NonSubtypeCreatureDiedThisTurn(subtype: Subtype, player: Player = Player.Each): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.CreatureWithSubtypeDiedThisTurn(subtype.value, present = false, player = player)
 
     /**
      * Intervening-if: "if a permanent you controlled left the battlefield this turn".
@@ -2294,6 +2382,14 @@ object Conditions {
         IsNotYourTurnCondition
 
     /**
+     * If you could cast a sorcery now — a main phase of your turn with an empty stack (CR 307.5).
+     * Wrap in [Not] on a caster-relative `PlayersCantCastSpells` for "can cast spells only any time
+     * they could cast a sorcery".
+     */
+    val CouldCastSorcery: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.CouldCastSorcery
+
+    /**
      * If it's an opponent's turn — the active player is one of your opponents, never a teammate.
      */
     val IsOpponentsTurn: ConditionInterface =
@@ -2332,6 +2428,38 @@ object Conditions {
      */
     val YouHaveCitysBlessing: ConditionInterface =
         PlayerHasCitysBlessing(Player.You)
+
+    /** If you're the monarch (CR 725). False while the game has no monarch. */
+    val YouAreTheMonarch: ConditionInterface =
+        PlayerHasDesignation(Player.You, PlayerDesignation.MONARCH)
+
+    /**
+     * If an opponent is the monarch (CR 725) — any opponent, not just the first (Queen Marchesa's
+     * upkeep Assassin). False while the game has no monarch.
+     */
+    val AnOpponentIsTheMonarch: ConditionInterface =
+        PlayerHasDesignation(Player.AnOpponent, PlayerDesignation.MONARCH)
+
+    /**
+     * If you have the initiative (CR 726) — Feywild Caretaker's and Passageway Seer's end-step
+     * payoffs. False while nobody has taken the initiative yet.
+     */
+    val YouHaveTheInitiative: ConditionInterface =
+        PlayerHasDesignation(Player.You, PlayerDesignation.INITIATIVE)
+
+    /**
+     * If you've completed a dungeon (CR 309.7) — "as long as you've completed a dungeon" on Gloom
+     * Stalker, Nadaar and the AFR/CLB "Adventurer" cycle. Counts every dungeon completed this game,
+     * Undercity included.
+     */
+    val YouCompletedADungeon: ConditionInterface = CompletedDungeon(Player.You)
+
+    /**
+     * "if [player] has completed [dungeon]" — any dungeon when [dungeon] is null; a specific one by
+     * name otherwise ("if you haven't completed Tomb of Annihilation" is this, wrapped in [Not]).
+     */
+    fun CompletedDungeon(player: Player, dungeon: String? = null): ConditionInterface =
+        Compare(DynamicAmount.DungeonsCompleted(player, dungeon), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
 
     /**
      * If you have an enduring story (The Hobbit, CR 702.195).
@@ -2432,23 +2560,14 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadCounters
 
     /**
-     * If the triggering entity had [subtype] among its **projected** subtypes when it left the
-     * battlefield (CR 603.10 last-known information). Wrap in [Not] for the "if it wasn't a X"
-     * wording — e.g. Infernal Vessel's `Not(TriggeringEntityHadSubtype(Subtype.DEMON.value))`,
-     * where the Demon type the card grants itself on return is what stops it looping.
+     * "If it was [filter]" — the triggering permanent's **last-known** projected type line when it
+     * left the battlefield matches [filter] (CR 603.10 / 608.2h). [filter] may use card types and
+     * subtypes only. Wrap in [Not] for "if it wasn't …": Infernal Vessel's
+     * `Not(TriggeringEntityWas(GameObjectFilter.Any.withSubtype(Subtype.DEMON)))`; Tom, Bert, and
+     * William's `TriggeringEntityWas(GameObjectFilter.Creature)`.
      */
-    fun TriggeringEntityHadSubtype(subtype: String): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadSubtype(subtype)
-
-    /**
-     * If the triggering entity had [cardType] among its **projected** card types when it left the
-     * battlefield (CR 603.10 last-known information). The card-type sibling of
-     * [TriggeringEntityHadSubtype] — e.g. Tom, Bert, and William's
-     * `TriggeringEntityHadCardType(CardType.CREATURE.name)`, where returning as an artifact is what
-     * stops the death trigger looping.
-     */
-    fun TriggeringEntityHadCardType(cardType: String): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadCardType(cardType)
+    fun TriggeringEntityWas(filter: GameObjectFilter): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityWas(filter)
 
     /**
      * "**If you won**" — the partial rider on a "Whenever you clash" trigger (CR 701.30d). True when

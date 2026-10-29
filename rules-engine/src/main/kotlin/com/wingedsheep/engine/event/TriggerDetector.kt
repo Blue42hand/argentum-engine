@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.mechanics.monarch.MonarchService
+import com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardThisTurnComponent
 import com.wingedsheep.engine.core.ClassLevelChangedEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.AttackersDeclaredEvent
@@ -33,6 +35,7 @@ import com.wingedsheep.engine.state.components.battlefield.SagaComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.battlefield.TriggeredAbilityFiredEverComponent
 import com.wingedsheep.engine.state.components.battlefield.TriggeredAbilityFiredThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.EmblemSourceComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -267,6 +270,9 @@ class TriggerDetector(
         val index = buildTriggerIndex(state)
         val triggers = mutableListOf<PendingTrigger>()
         val departures = events.filterIsInstance<ZoneChangeEvent>()
+        // Slot in [triggers] of each "is dealt damage" trigger already raised by this batch's
+        // combat damage, keyed by ability instance and recipient — see [foldSimultaneousDamage].
+        val combatDamageSlots = mutableMapOf<List<Any?>, Int>()
 
         for ((eventIndex, event) in events.withIndex()) {
             // DrawEvent firing counts are derived from CardsDrawnThisTurnComponent, which `state`
@@ -284,27 +290,61 @@ class TriggerDetector(
             if (event is ZoneChangeEvent) {
                 attachmentDetector.detectAttachmentDepartureTriggers(state, event, departures, detected, index)
             }
-            triggers.addAll(detected.map { pending ->
-                if (pending.objectReferences.captured) return@map pending
+            triggers.addAll(foldSimultaneousDamage(detected, event, triggers, combatDamageSlots).mapNotNull { pending ->
+                if (pending.objectReferences.captured) return@mapNotNull pending
                 val selfZoneEvent = event is ZoneChangeEvent && event.entityId == pending.sourceId
                 val attachedDeparture = selfZoneEvent && pending.ability.binding == TriggerBinding.ATTACHED &&
                     pending.triggerContext.triggeringEntityId != pending.sourceId
                 val triggeringZoneEvent = if (event is ZoneChangeEvent && pending.triggerContext.triggeringEntityId == event.entityId) event
                     else if (attachedDeparture) events.take(eventIndex).filterIsInstance<ZoneChangeEvent>().lastOrNull {
-                        it.entityId == pending.triggerContext.triggeringEntityId && it.fromZone == Zone.BATTLEFIELD
+                        it.entityId == pending.triggerContext.triggeringEntityId && it.isBattlefieldDeparture
                     } else null
-                val eventContext = triggeringZoneEvent?.let(TriggerContext::fromEvent) ?: pending.triggerContext
+                val eventContext = (triggeringZoneEvent?.let(TriggerContext::fromEvent) ?: pending.triggerContext)
+                    .let { ctx ->
+                        // "When this enters, if it was kicked, …" — freeze the source's own
+                        // optional-cost choices at trigger time. The durable cast-choices bag is
+                        // stripped when the permanent leaves (CR 400.7), but the intervening "if"
+                        // is rechecked on resolution (CR 603.4) and how the spell was cast is
+                        // fixed, so removing the permanent in response must not untick it.
+                        if (!selfZoneEvent || (event as ZoneChangeEvent).toZone != Zone.BATTLEFIELD) return@let ctx
+                        val source = state.getEntity(pending.sourceId) ?: return@let ctx
+                        val definitionId = source.get<CardComponent>()?.cardDefinitionId ?: return@let ctx
+                        val chosen = source.get<CastChoicesComponent>()?.chosen.orEmpty()
+                        val choices = optionalCostChoices(definitionId) { it in chosen }
+                        if (choices.isEmpty()) ctx else ctx.copy(
+                            selfCastCostChoices = choices,
+                            selfCastAdditionalCostChoices = chosen.filterKeys { it in choices }.mapNotNull { (slot, value) ->
+                                (value as? com.wingedsheep.engine.state.components.battlefield.ChoiceValue.NumberChoice)
+                                    ?.let { slot to it.amount }
+                            }.toMap(),
+                        )
+                    }
                 val sourceEventContext = (event as? ZoneChangeEvent)?.takeIf { selfZoneEvent }?.let(TriggerContext::fromEvent)
-                val sourceAtEvent = events.subList(eventIndex + 1, events.size)
-                    .filterIsInstance<ZoneChangeEvent>().firstOrNull { it.entityId == pending.sourceId }?.oldObject
-                    ?: state.objectRef(pending.sourceId)
+                val nextSourceMove = events.subList(eventIndex + 1, events.size)
+                    .filterIsInstance<ZoneChangeEvent>().firstOrNull { it.entityId == pending.sourceId }
+                if (!selfZoneEvent && event is ZoneChangeEvent && event.toZone == Zone.BATTLEFIELD &&
+                    nextSourceMove?.toZone == Zone.BATTLEFIELD &&
+                    (event.simultaneousEntryGroup == null || event.simultaneousEntryGroup != nextSourceMove.simultaneousEntryGroup)) {
+                    // A source arriving in a later instruction did not observe this earlier entry.
+                    return@mapNotNull null
+                }
+                // Battlefield entrants observe other entrants in their simultaneous batch even
+                // when their own entry was emitted later. Bind that observer's new battlefield
+                // object, rather than its old hand/graveyard object. Subsequent departures still
+                // use oldObject, preserving the exact visit that observed the event.
+                val sourceAtEvent = if (event is ZoneChangeEvent && event.toZone == Zone.BATTLEFIELD &&
+                    nextSourceMove?.toZone == Zone.BATTLEFIELD) nextSourceMove.newObject
+                else nextSourceMove?.oldObject
+                val boundSourceAtEvent = sourceAtEvent ?: state.objectRef(pending.sourceId)
                 pending.copy(triggerContext = eventContext, objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(
                     captured = true,
-                    origin = if (selfZoneEvent) sourceEventContext?.triggeringOrigin else sourceAtEvent,
+                    permittedMoves = (com.wingedsheep.engine.handlers.meldArrivalMoves(events, sourceEventContext?.triggeringObject) +
+                        com.wingedsheep.engine.handlers.meldArrivalMoves(events, eventContext.triggeringObject)).distinct(),
+                    origin = if (selfZoneEvent) sourceEventContext?.triggeringOrigin else boundSourceAtEvent,
                     // CR 400.7f allows the Aura's immediate graveyard object, including the unattached SBA.
                     source = if (attachedDeparture && (event as ZoneChangeEvent).toZone != Zone.GRAVEYARD)
                         sourceEventContext?.triggeringOrigin
-                    else if (selfZoneEvent) sourceEventContext?.triggeringObject else sourceAtEvent,
+                    else if (selfZoneEvent) sourceEventContext?.triggeringObject else boundSourceAtEvent,
                     triggering = if (triggeringZoneEvent != null) eventContext.triggeringObject
                     else eventContext.triggeringObject ?: pending.triggerContext.triggeringEntityId?.let { id ->
                         events.subList(eventIndex + 1, events.size).filterIsInstance<ZoneChangeEvent>()
@@ -319,12 +359,15 @@ class TriggerDetector(
         // on it" event for that recipient (CR 603.2c), so fold the per-kind/per-source events.
         mergePerRecipientCounterTriggers(triggers)
 
-        // Rule 603.10: "Look back in time" for simultaneous deaths.
-        // When multiple creatures die at the same time (e.g., from Infest),
-        // each creature's death triggers should still see the others dying.
-        // The main loop in detectTriggersForEvent only checks battlefield creatures,
-        // so dead creatures miss each other's death events. Fix that here.
-        deathAndLeaveDetector.detectSimultaneousDeathTriggers(state, index.statics, events, triggers)
+        // Rule 603.10a: "Look back in time" for permanents leaving the battlefield together.
+        // When several permanents leave at the same time (e.g., Infest, or a mass exile),
+        // each one's leaves-the-battlefield triggers should still see the others leaving.
+        // The main loop in detectTriggersForEvent only checks battlefield permanents,
+        // so departed ones miss each other's departures. Fix that here.
+        deathAndLeaveDetector.detectSimultaneousDepartureTriggers(state, index.statics, events, triggers)
+        // The same look-back for "a creature dealt damage by this creature this turn dies" whose
+        // damaging creature died alongside its victim (Dread Slaver trading in combat).
+        deathAndLeaveDetector.detectDepartedDamagingSourceDiesTriggers(state, index.statics, events, triggers)
 
         // Detect "whenever one or more cards are put into your graveyard from your library"
         // batching triggers (e.g., Sidisi, Brood Tyrant). Groups library→graveyard zone changes
@@ -415,6 +458,14 @@ class TriggerDetector(
         // Detect Saga chapter triggers from lore counter additions
         detectSagaChapterTriggers(state, events, triggers)
 
+        // Room abilities (CR 309.4c): "When you move your venture marker into this room, …".
+        DungeonRoomAbilities.detect(events, triggers)
+
+        // The initiative's inherent triggers that fire off events (CR 726.2) — the venture on
+        // taking it, and the batched combat-damage steal.
+        InitiativeAbilities.detectTakeVentures(events, triggers)
+        InitiativeAbilities.detectCombatDamageSteals(state, events, triggers)
+
         // Duplicate triggers for "additional time" static abilities (e.g., Naban, Panharmonicon,
         // Gandalf the White). When a permanent matching the filter enters or leaves the
         // battlefield (per the static's directions), triggered abilities on the controller's
@@ -424,6 +475,10 @@ class TriggerDetector(
         // Duplicate triggers caused by a creature being declared as an attacker (Windcrag Siege's
         // Mardu mode). The attack-cause analogue of duplicateETBTriggers.
         duplicateAttackTriggers(state, events, triggers)
+
+        // Duplicate spell-cast / spell-copied triggers caused by a matching spell (Veyran, Voice of
+        // Duality). The cast-cause analogue of duplicateAttackTriggers.
+        duplicateCastOrCopyTriggers(state, events, triggers)
 
         // Duplicate death/leave-the-battlefield triggers caused by a creature dying (Teysa Karlov;
         // The Masamune's granted ability). The death-cause analogue of duplicateAttackTriggers.
@@ -496,7 +551,7 @@ class TriggerDetector(
                 val triggerContext = trigger.triggerContext
                 val selfEvent = triggerContext.triggeringEntityId == trigger.sourceId
                 val departure = events.filterIsInstance<ZoneChangeEvent>().firstOrNull {
-                    it.entityId == trigger.sourceId && it.fromZone == Zone.BATTLEFIELD &&
+                    it.entityId == trigger.sourceId && it.isBattlefieldDeparture &&
                         (trigger.sourceBattlefieldTimestamp == null ||
                             it.lastKnown?.battlefieldEntryTimestamp == trigger.sourceBattlefieldTimestamp)
                 }
@@ -505,6 +560,8 @@ class TriggerDetector(
                 val actionable = if (selfEvent && triggerContext.triggeringObject != null) triggerContext.triggeringObject else origin
                 trigger = trigger.copy(objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(
                     captured = true, origin = origin, source = actionable,
+                    permittedMoves = (com.wingedsheep.engine.handlers.meldArrivalMoves(events, actionable) +
+                        com.wingedsheep.engine.handlers.meldArrivalMoves(events, triggerContext.triggeringObject)).distinct(),
                     triggering = triggerContext.triggeringObject ?: triggerContext.triggeringEntityId?.let { id ->
                         events.filterIsInstance<ZoneChangeEvent>().lastOrNull { it.entityId == id }?.newObject
                             ?: state.objectRef(id)
@@ -646,8 +703,14 @@ class TriggerDetector(
             }
         }
 
-        // Check ATTACHED step triggers on auras (e.g., Custody Battle, Lingering Death)
-        // For ATTACHED + StepEvent(Player.You), "you" = the attached creature's controller
+        // Check ATTACHED step triggers on auras — "at the beginning of the upkeep of enchanted
+        // creature's controller" (Lingering Death, Wanderlust). The binding re-scopes only the
+        // *timing*: StepEvent(Player.You) reads the attached permanent's controller. The trigger is
+        // still the Aura's, so the Aura's controller controls it (CR 113.8) and it is put on the
+        // stack in that player's APNAP slot (CR 603.3b). "That player" — the attached permanent's
+        // controller — is bound as the triggering player, for `Player.TriggeringPlayer` to read.
+        // An ability the Aura *grants* the creature ("enchanted creature has 'at the beginning of
+        // your upkeep …'") is a GrantTriggeredAbility instead (Custody Battle), owned by the creature.
         for ((targetId, attachments) in index.aurasByTarget) {
             val enchantedController = projected.getController(targetId) ?: continue
             for (entry in attachments) {
@@ -662,8 +725,12 @@ class TriggerDetector(
                                 ability = ability,
                                 sourceId = entry.entityId,
                                 sourceName = entry.cardComponent.name,
-                                controllerId = enchantedController,
-                                triggerContext = TriggerContext(step = step, triggeringEntityId = activePlayerId)
+                                controllerId = entry.controllerId,
+                                triggerContext = TriggerContext(
+                                    step = step,
+                                    triggeringEntityId = enchantedController,
+                                    triggeringPlayerId = enchantedController
+                                )
                             )
                         )
                     }
@@ -718,6 +785,52 @@ class TriggerDetector(
                         sourceId = global.sourceId,
                         sourceName = global.sourceName,
                         controllerId = global.controllerId,
+                        triggerContext = TriggerContext(step = step, triggeringEntityId = activePlayerId)
+                    )
+                )
+            }
+        }
+
+        // Radiation has no source and is controlled by each active player (CR 728.1).
+        if (step == com.wingedsheep.sdk.core.Step.PRECOMBAT_MAIN) {
+            for (player in state.sharedTurnTeam(activePlayerId)) {
+                val ability = RadiationAbilities.ability
+                triggers.add(PendingTrigger(
+                    ability = ability,
+                    sourceId = player,
+                    sourceName = RadiationAbilities.SOURCE_NAME,
+                    controllerId = player,
+                    triggerContext = TriggerContext(step = step, triggeringEntityId = player, triggeringPlayerId = player)
+                ))
+            }
+        }
+
+        // The monarch's inherent end-step draw (CR 725.2) — sourceless, controlled by the monarch.
+        state.monarch?.let { monarch ->
+            val ability = MonarchAbilities.endStepDraw
+            if (matcher.matchesStepTrigger(ability.trigger, step, monarch, state, monarch)) {
+                triggers.add(
+                    PendingTrigger(
+                        ability = ability,
+                        sourceId = monarch,
+                        sourceName = MonarchService.SOURCE_NAME,
+                        controllerId = monarch,
+                        triggerContext = TriggerContext(step = step, triggeringEntityId = activePlayerId)
+                    )
+                )
+            }
+        }
+
+        // The initiative's inherent upkeep venture (CR 726.2) — sourceless, controlled by the holder.
+        state.initiative?.let { holder ->
+            val ability = InitiativeAbilities.upkeepVenture
+            if (matcher.matchesStepTrigger(ability.trigger, step, holder, state, holder)) {
+                triggers.add(
+                    PendingTrigger(
+                        ability = ability,
+                        sourceId = holder,
+                        sourceName = com.wingedsheep.engine.mechanics.initiative.InitiativeService.SOURCE_NAME,
+                        controllerId = holder,
                         triggerContext = TriggerContext(step = step, triggeringEntityId = activePlayerId)
                     )
                 )
@@ -950,6 +1063,10 @@ class TriggerDetector(
         }
     }
 
+    /** The captured permanents' copiable values at trigger time; see [TriggerContext.capturedEntitySnapshots]. */
+    private fun copiableSnapshots(state: GameState, ids: List<EntityId>) =
+        ids.mapNotNull { com.wingedsheep.engine.state.components.identity.captureCopiableSnapshot(state, it, cardRegistry) }
+
     private fun detectEventBasedDelayedTriggers(
         state: GameState,
         events: List<EngineGameEvent>,
@@ -1100,6 +1217,10 @@ class TriggerDetector(
                     continue
                 }
 
+                // A cast watcher scopes the caster, not the triggering object: the spell stays the
+                // triggering entity (and the caster the triggering player) of a player-watched cast.
+                val watchedTriggering = delayed.watchedEntityId
+                    .takeUnless { specEvent is com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent }
                 if (delayed.fireOnce) firedOnceIds.add(delayed.id)
                 triggers.add(
                     PendingTrigger(
@@ -1112,11 +1233,11 @@ class TriggerDetector(
                             additionalTargetRequirements = delayed.additionalTargetRequirements
                         ),
                         sourceId = delayed.sourceId,
-                objectReferences = referencesFor(delayed.watchedEntityId ?: TriggerContext.fromEvent(event).triggeringEntityId),
+                objectReferences = referencesFor(watchedTriggering ?: TriggerContext.fromEvent(event).triggeringEntityId),
                         sourceName = delayed.sourceName,
                         controllerId = delayed.controllerId,
                         triggerContext = TriggerContext.fromEvent(event).copy(
-                            triggeringEntityId = delayed.watchedEntityId
+                            triggeringEntityId = watchedTriggering
                                 ?: TriggerContext.fromEvent(event).triggeringEntityId
                         ),
                         consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
@@ -1181,7 +1302,11 @@ class TriggerDetector(
             // Spell-cast delayed triggers ("whenever you cast a [filtered] spell this turn, …",
             // Rediscover the Way chapter III) are filter-scoped: delegate to the canonical
             // spell-cast matcher so the spell filter and casting-player predicate are honored.
-            is com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent,
+            // A watched entity on a cast trigger is the one player it watches — "that player gets
+            // two rad counters whenever they cast a spell" (Nuka-Nuke Launcher).
+            is com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent ->
+                (watchedEntityId == null || (event as? SpellCastEvent)?.casterId == watchedEntityId) &&
+                    matcher.matchesTrigger(specEvent, spec.binding, event, sourceId, controllerId, state)
             is com.wingedsheep.sdk.scripting.EventPattern.SpellCopiedEvent ->
                 matcher.matchesTrigger(specEvent, spec.binding, event, sourceId, controllerId, state)
             // Ability-activation delayed triggers ("when you next activate an exhaust ability that
@@ -1293,6 +1418,12 @@ class TriggerDetector(
             val entityId = entry.entityId
             val cardComponent = entry.cardComponent
             val controllerId = entry.controllerId
+            // A permanent that left and returned within this batch (a flicker) is on the battlefield
+            // again as a new object (CR 400.7) that never saw its old self leave. That departure's
+            // look-back triggers belong to [DeathAndLeaveTriggerDetector]; firing here as well would
+            // trigger "whenever this or another creature leaves" twice for one departure.
+            if (event is ZoneChangeEvent && event.isBattlefieldDeparture &&
+                event.toZone != Zone.BATTLEFIELD && event.entityId == entityId) continue
 
             for (ability in entry.abilities) {
                 if (Zone.BATTLEFIELD !in ability.activeZones) continue
@@ -1473,21 +1604,27 @@ class TriggerDetector(
                             }
                         }
                     }
-                    // "Whenever this creature becomes blocked[ by ...]" (BecomesBlockedEvent, SELF).
+                    // "Whenever this creature becomes blocked[ by ...]" (BecomesBlockedEvent, SELF/ATTACHED).
                     // Two shapes that differ in firing count:
                     //   - Unfiltered ("becomes blocked"): becoming blocked is a single event no
-                    //     matter how many creatures block, so fire exactly ONCE with the source as
+                    //     matter how many creatures block, so fire exactly ONCE with the combat creature as
                     //     the triggering entity. This keeps blocker-count payoffs correct (Rampage:
                     //     +N/+N for each creature blocking it beyond the first) and avoids prompting
                     //     "may" abilities once per blocker (Gustcloak).
                     //   - Filtered ("becomes blocked by a creature matching [filter]"): fire once per
                     //     matching blocker, with triggeringEntityId = the blocker, so effects targeting
                     //     the triggering entity resolve to that blocker (Flanking gives each -1/-1).
-                    else if (ability.trigger is EventPattern.BecomesBlockedEvent && ability.binding == TriggerBinding.SELF &&
+                    else if (ability.trigger is EventPattern.BecomesBlockedEvent &&
+                        (ability.binding == TriggerBinding.SELF || ability.binding == TriggerBinding.ATTACHED) &&
                         event is com.wingedsheep.engine.core.BlockingRelationshipsEvent) {
+                        val combatCreatureId = if (ability.binding == TriggerBinding.ATTACHED) {
+                            state.getEntity(entityId)
+                                ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
+                                ?.targetId ?: continue
+                        } else entityId
                         val blockerFilter = (ability.trigger as EventPattern.BecomesBlockedEvent).filter
                         if (blockerFilter == null) {
-                            val isBlocked = entityId in event.newlyBlockedAttackers
+                            val isBlocked = combatCreatureId in event.newlyBlockedAttackers
                             if (isBlocked) {
                                 triggers.add(
                                     PendingTrigger(
@@ -1495,13 +1632,13 @@ class TriggerDetector(
                                         sourceId = entityId,
                                         sourceName = cardComponent.name,
                                         controllerId = controllerId,
-                                        triggerContext = TriggerContext(triggeringEntityId = entityId)
+                                        triggerContext = TriggerContext(triggeringEntityId = combatCreatureId)
                                     )
                                 )
                             }
                         } else {
                             for ((blockerId, attackerIds) in event.blockers) {
-                                if (!attackerIds.contains(entityId)) continue
+                                if (!attackerIds.contains(combatCreatureId)) continue
                                 if (!predicateEvaluator.matches(
                                         state, projected, blockerId, blockerFilter,
                                         PredicateContext(controllerId = controllerId, sourceId = entityId)
@@ -1606,6 +1743,48 @@ class TriggerDetector(
                             )
                         }
                     }
+                    // "Whenever one or more creatures an opponent controls attack you and aren't
+                    // blocked, that player …" (Coveted Jewel). The block event names no attacking
+                    // player, so bind the unblocked attackers' controller as the triggering player —
+                    // once per such player when several attack together (2HG; the card's ruling).
+                    else if (ability.trigger is EventPattern.CreaturesAttackYouEvent &&
+                        (ability.trigger as EventPattern.CreaturesAttackYouEvent).unblocked) {
+                        val attackers = matcher.unblockedAttackersAgainstYou(
+                            ability.trigger as EventPattern.CreaturesAttackYouEvent, event, controllerId, state
+                        )
+                        for (attackingPlayer in attackers.mapNotNull { projected.getController(it) }.distinct()) {
+                            triggers.add(
+                                PendingTrigger(
+                                    ability = ability,
+                                    sourceId = entityId,
+                                    sourceName = cardComponent.name,
+                                    controllerId = controllerId,
+                                    triggerContext = TriggerContext(triggeringPlayerId = attackingPlayer)
+                                )
+                            )
+                        }
+                    }
+                    // "Whenever you attack a player" (CR 508.3e) fires once for each player
+                    // attacked, binding that player as "that player" (Echoing Assault, Meriadoc
+                    // Brandybuck — the cards' rulings).
+                    else if (ability.trigger is EventPattern.YouAttackEvent &&
+                        (ability.trigger as EventPattern.YouAttackEvent).perAttackedPlayer &&
+                        event is AttackersDeclaredEvent) {
+                        val attacked = matcher.attackedPlayersFor(
+                            ability.trigger as EventPattern.YouAttackEvent, event, entityId, controllerId, state
+                        )
+                        for (attackedPlayer in attacked) {
+                            triggers.add(
+                                PendingTrigger(
+                                    ability = ability,
+                                    sourceId = entityId,
+                                    sourceName = cardComponent.name,
+                                    controllerId = controllerId,
+                                    triggerContext = TriggerContext.fromEvent(event).copy(triggeringPlayerId = attackedPlayer)
+                                )
+                            )
+                        }
+                    }
                     // For "whenever [a player] draws a card" (DrawEvent), drawing N cards via a
                     // single effect creates N separate trigger firings — one per card drawn
                     // (CR 121.2 + 603.2). The engine emits a single aggregate CardsDrawnEvent, so
@@ -1637,6 +1816,24 @@ class TriggerDetector(
                     // the whole event to a single firing — CardsDiscardedEvent is already one event
                     // per discard action, so the cap is exactly the printed once-per-event — and has
                     // no single "it" to bind.
+                    // A mill trigger fires once per matching milled card, or once per mill
+                    // instruction for "one or more" (batch) — see TriggerMatcher.millTriggerContexts.
+                    else if (ability.trigger is EventPattern.MillEvent &&
+                        event is com.wingedsheep.engine.core.CardsMilledEvent) {
+                        for (millContext in matcher.millTriggerContexts(
+                            ability.trigger as EventPattern.MillEvent, event, entityId, controllerId, state
+                        )) {
+                            triggers.add(
+                                PendingTrigger(
+                                    ability = ability,
+                                    sourceId = entityId,
+                                    sourceName = cardComponent.name,
+                                    controllerId = controllerId,
+                                    triggerContext = millContext
+                                )
+                            )
+                        }
+                    }
                     else if (ability.trigger is EventPattern.DiscardEvent &&
                         event is CardsDiscardedEvent) {
                         val discardTrigger = ability.trigger as EventPattern.DiscardEvent
@@ -1712,15 +1909,7 @@ class TriggerDetector(
                                         // Never clobber a capture the event itself carries
                                         // (manifest dread's graveyard cards).
                                         capturedEntityIds = capturedTargets ?: ctx.capturedEntityIds,
-                                        // "Whenever a source deals damage to this creature" binds
-                                        // the damage *source*, so "that source's controller …"
-                                        // (Belltower Sphinx) resolves. DamageTriggerDetector owns
-                                        // the same rule for the case where the creature died to
-                                        // that damage; both paths must agree.
-                                        triggeringEntityId =
-                                            if (event is DamageDealtEvent &&
-                                                DamageTriggerDetector.bindsDamageSource(ability)
-                                            ) event.sourceId else ctx.triggeringEntityId
+                                        capturedEntitySnapshots = capturedTargets?.let { copiableSnapshots(state, it) }
                                     )
                                 }
                             )
@@ -1752,14 +1941,22 @@ class TriggerDetector(
                         // Explicit battlefield-exit triggers use the dedicated look-back detectors.
                         // "From anywhere" triggers instead see the card in its destination zone,
                         // including abilities restored when it leaves the battlefield.
-                        if (event is ZoneChangeEvent && event.fromZone == Zone.BATTLEFIELD &&
+                        if (event is ZoneChangeEvent && event.isBattlefieldDeparture &&
                             event.entityId == entityId &&
-                            (ability.trigger as? EventPattern.ZoneChangeEvent)?.from == Zone.BATTLEFIELD
+                            matcher.battlefieldExitAtoms(ability.trigger).isNotEmpty()
                         ) continue
                         if (isGraveyardToHandSelfTrigger(ability, event, entityId)) continue
                         val ownerId = cardComponent.ownerId
                             ?: container.get<OwnerComponent>()?.playerId
                             ?: continue
+                        val millTrigger = ability.trigger as? EventPattern.MillEvent
+                        if (millTrigger != null && event is com.wingedsheep.engine.core.CardsMilledEvent) {
+                            for (millContext in matcher.millTriggerContexts(millTrigger, event, entityId, ownerId, state)) {
+                                triggers.add(PendingTrigger(ability = ability, sourceId = entityId, sourceName = cardComponent.name,
+                                    controllerId = ownerId, triggerContext = millContext))
+                            }
+                            continue
+                        }
                         if (matcher.matchesTrigger(ability.trigger, ability.binding, event, entityId, ownerId, state)) {
                             // Same trigger-time capture as the battlefield scan above, so a
                             // "…targets one or more X, those X …" ability active from the
@@ -1775,7 +1972,10 @@ class TriggerDetector(
                                     controllerId = ownerId,
                                     triggerContext = TriggerContext.fromEvent(event).let { ctx ->
                                         if (capturedTargets == null) ctx
-                                        else ctx.copy(capturedEntityIds = capturedTargets)
+                                        else ctx.copy(
+                                            capturedEntityIds = capturedTargets,
+                                            capturedEntitySnapshots = copiableSnapshots(state, capturedTargets)
+                                        )
                                     }
                                 )
                             )
@@ -1793,7 +1993,7 @@ class TriggerDetector(
 
         // Handle death triggers (source might not be on battlefield anymore)
         if (event is ZoneChangeEvent && event.toZone == Zone.GRAVEYARD &&
-            event.fromZone == Zone.BATTLEFIELD) {
+            event.isBattlefieldDeparture) {
             deathAndLeaveDetector.detectDeathTriggers(state, index.statics, event, triggers)
             // Handle "whenever a creature dealt damage by this creature this turn dies" triggers
             deathAndLeaveDetector.detectCreatureDealtDamageBySourceDiesTriggers(state, event, triggers, projected, index)
@@ -1807,7 +2007,7 @@ class TriggerDetector(
         }
 
         // Handle leaves-the-battlefield triggers (source is no longer on battlefield)
-        if (event is ZoneChangeEvent && event.fromZone == Zone.BATTLEFIELD) {
+        if (event is ZoneChangeEvent && event.isBattlefieldDeparture) {
             deathAndLeaveDetector.detectLeavesBattlefieldTriggers(state, index.statics, event, triggers)
         }
 
@@ -1865,6 +2065,11 @@ class TriggerDetector(
             damageDetector.detectDamageObserverTriggers(state, event, triggers, index)
         }
 
+        // The monarch's inherent combat-damage steal (CR 725.2) — a sourceless damage observer
+        if (event is DamageDealtEvent && state.monarch != null) {
+            damageDetector.detectMonarchStealTrigger(state, event, triggers)
+        }
+
         // Handle "whenever a [subtype] deals combat damage to a player" triggers (e.g., Cabal Slaver)
         if (event is DamageDealtEvent && event.sourceId != null && event.isCombatDamage && event.targetId in state.turnOrder) {
             damageDetector.detectSubtypeDamageToPlayerTriggers(state, event, triggers, projected, index)
@@ -1889,13 +2094,13 @@ class TriggerDetector(
             detectSelfCastTriggers(state, index.statics, event, triggers)
         }
 
-        // Handle a self-exploiting creature's own exploit watcher (CR 603.10a look-back). When an
-        // exploiter sacrifices *itself* it is in the graveyard by the time the ExploitedEvent fires,
-        // so the battlefield index scan above misses its own "whenever a creature you control
-        // exploits ..." trigger (Skull Skaab). The exploiter was on the battlefield as its exploit
-        // ability resolved, so the sacrifice look-back requires that watcher to still fire.
+        // Handle an exploit watcher borne by the creature the exploit just sacrificed (CR 603.10a
+        // look-back). That creature is in the graveyard by the time the ExploitedEvent fires, so the
+        // battlefield index scan above misses its "whenever a creature you control exploits ..."
+        // trigger — Skull Skaab exploiting itself, or Colonel Autumn sacrificed to its own or another
+        // creature's exploit.
         if (event is com.wingedsheep.engine.core.ExploitedEvent) {
-            detectExploitedSelfSacrificeTriggers(state, index.statics, event, triggers)
+            detectExploitedSacrificedWatcherTriggers(state, index.statics, event, triggers)
         }
 
         // Handle a "becomes unattached" trigger borne by an attachment that unattached *because* it
@@ -1956,47 +2161,51 @@ class TriggerDetector(
     }
 
     /**
-     * Detect an exploit watcher borne by an exploiter that sacrificed *itself* and so is no longer on
-     * the battlefield when its [com.wingedsheep.engine.core.ExploitedEvent] fires.
+     * Detect an exploit watcher borne by the creature an exploit ability just sacrificed, which is no
+     * longer on the battlefield when its [com.wingedsheep.engine.core.ExploitedEvent] fires.
      *
      * CR 603.10a: abilities that trigger when a player sacrifices a permanent "look back in time" — the
-     * game uses the appearance of objects immediately before the sacrifice. A creature with exploit is on
-     * the battlefield as its own exploit ability resolves (that resolution is what performs the sacrifice),
-     * so its own "whenever a creature you control exploits a[nontoken] creature" watcher (Skull Skaab)
-     * must still fire even when the exploiter sacrifices itself. This matches the DTK Silumgar Butcher
-     * ruling. The main index scan in [detectTriggersForEvent] only covers battlefield permanents, so a
-     * self-exploiting Skull Skaab — now in the graveyard — would otherwise miss its own trigger.
+     * game uses the appearance of objects immediately before the sacrifice. "Exploits a creature" *is* that
+     * sacrifice (CR 702.110b), so the creature being sacrificed still sees it: a self-exploiting Skull Skaab
+     * fires its own watcher (the DTK Silumgar Butcher ruling), and so does Colonel Autumn whether it
+     * exploits itself or is sacrificed to another creature's exploit.
+     *
+     * The look-back covers only the sacrificed object. A watcher that left the battlefield *before* the
+     * exploit resolved (Colonel Autumn bounced in response to its own exploit trigger) was not there
+     * immediately before the sacrifice and does not trigger — the Colonel Autumn ruling — even though it
+     * is still the event's exploiter.
      *
      * Guards:
-     *  - Fires only when the exploiter has actually left the battlefield, so this never double-fires with
-     *    the battlefield index scan (which handles the exploiter-still-present case, e.g. exploiting
-     *    another creature).
-     *  - Skips [TriggerBinding.OTHER] — "whenever *another* creature you control exploits" never fires for
-     *    the exploiter observing its own exploit.
+     *  - Fires only when the sacrificed creature has actually left the battlefield, so this never
+     *    double-fires with the battlefield index scan.
+     *  - [TriggerBinding.SELF] / [TriggerBinding.OTHER] are still checked against the exploiter by the
+     *    matcher: a sacrificed SELF watcher fires only for its own exploit, an OTHER watcher only for
+     *    another creature's.
      */
-    private fun detectExploitedSelfSacrificeTriggers(
+    private fun detectExploitedSacrificedWatcherTriggers(
         state: GameState,
         statics: BattlefieldStaticsIndex,
         event: com.wingedsheep.engine.core.ExploitedEvent,
         triggers: MutableList<PendingTrigger>
     ) {
-        val exploiterId = event.exploiterId
+        val watcherId = event.sacrificedId
         // Still on the battlefield → already covered by the main index scan; avoid a double fire.
-        if (exploiterId in state.getBattlefield()) return
+        if (watcherId in state.getBattlefield()) return
 
-        val container = state.getEntity(exploiterId) ?: return
+        val container = state.getEntity(watcherId) ?: return
         val cardComponent = container.get<CardComponent>() ?: return
+        // Exploit sacrifices a creature its controller controls (CR 701.21a), so the sacrificed
+        // watcher's controller is the exploiter's.
         val controllerId = event.exploiterControllerId
 
-        val abilities = abilityResolver.getTriggeredAbilities(exploiterId, cardComponent.cardDefinitionId, state, statics)
+        val abilities = abilityResolver.getTriggeredAbilities(watcherId, cardComponent.cardDefinitionId, state, statics)
         for (ability in abilities) {
             if (ability.trigger !is EventPattern.ExploitedEvent) continue
-            if (ability.binding == TriggerBinding.OTHER) continue
-            if (!matcher.matchesTrigger(ability.trigger, ability.binding, event, exploiterId, controllerId, state)) continue
+            if (!matcher.matchesTrigger(ability.trigger, ability.binding, event, watcherId, controllerId, state)) continue
             triggers.add(
                 PendingTrigger(
                     ability = ability,
-                    sourceId = exploiterId,
+                    sourceId = watcherId,
                     sourceName = cardComponent.name,
                     controllerId = controllerId,
                     triggerContext = TriggerContext.fromEvent(event)
@@ -2015,6 +2224,16 @@ class TriggerDetector(
      * (CR 113.6), so a Hearthborn Battler or Plan for All Outcomes that is itself the Nth spell
      * cast does **not** trigger off its own cast.
      */
+    /** Each optional additional cost [cardDefinitionId] offers, mapped to whether [declared] says it was paid. */
+    private fun optionalCostChoices(
+        cardDefinitionId: String,
+        declared: (ChoiceSlot) -> Boolean
+    ): Map<ChoiceSlot, Boolean> =
+        cardRegistry.getCard(cardDefinitionId)?.keywordAbilities
+            ?.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
+            ?.associate { it.declaredSlot to declared(it.declaredSlot) }
+            ?: emptyMap()
+
     private fun detectSelfCastTriggers(
         state: GameState,
         statics: BattlefieldStaticsIndex,
@@ -2031,11 +2250,8 @@ class TriggerDetector(
 
         val castManaSpent by lazy { com.wingedsheep.engine.handlers.ManaSpentReader.snapshot(state, entityId) }
         val castCostChoices by lazy {
-            val offered = cardRegistry.getCard(cardComponent.cardDefinitionId)?.keywordAbilities
-                ?.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
-                ?.associate { it.declaredSlot to (it.declaredSlot == event.declaredCostSlot) }
-                ?: emptyMap()
-            offered + listOfNotNull(event.declaredCostSlot?.let { it to true }).toMap()
+            optionalCostChoices(cardComponent.cardDefinitionId) { it == event.declaredCostSlot } +
+                listOfNotNull(event.declaredCostSlot?.let { it to true }).toMap()
         }
         for (ability in abilities) {
             if (ability.trigger !is EventPattern.CastThisSpellEvent) continue
@@ -2131,6 +2347,11 @@ class TriggerDetector(
      * Detect cycling triggers on the card that was cycled.
      * Cards like Renewed Faith have "When you cycle this card, you may gain 2 life."
      * The card is now in the graveyard, but its cycling trigger still fires.
+     *
+     * Only [TriggerBinding.SELF] cycle triggers belong here: an `ANY`-bound
+     * [EventPattern.CycleEvent] is an observer ("whenever you cycle another card", Drannith
+     * Stinger) owned by the battlefield pass. The card being cycled was in hand, not on the
+     * battlefield, so its observer ability isn't functioning and must not fire off its own cycling.
      */
     private fun detectCyclingCardTriggers(
         state: GameState,
@@ -2145,7 +2366,7 @@ class TriggerDetector(
         val abilities = abilityResolver.getTriggeredAbilities(entityId, cardComponent.cardDefinitionId, state, statics)
 
         for (ability in abilities) {
-            if (ability.trigger is EventPattern.CycleEvent) {
+            if (ability.trigger is EventPattern.CycleEvent && ability.binding == TriggerBinding.SELF) {
                 triggers.add(
                     PendingTrigger(
                         ability = ability,
@@ -2418,6 +2639,9 @@ class TriggerDetector(
                 val hasMatch = ownerEvents.any { event ->
                     cardMatchesGraveyardBatchFilter(state, event.entityId, trigger.filter)
                 }
+                if (hasMatch && trigger.firstTimeEachTurn &&
+                    matchedGraveyardEarlierThisTurn(state, controllerId, ownerEvents, trigger.filter)
+                ) continue
 
                 if (hasMatch) {
                     triggers.add(
@@ -2577,6 +2801,28 @@ class TriggerDetector(
      * matches [filter] for graveyard batching triggers. Card-characteristic predicates are
      * evaluated against the card's base [CardComponent]; [GameObjectFilter.Any] always matches.
      */
+    /**
+     * "For the first time each turn": did a card matching [filter] reach [ownerId]'s graveyard this
+     * turn *before* the current batch? The owner's [CardsPutIntoGraveyardThisTurnComponent] already
+     * lists this batch's arrivals (the move recorded them), so they are taken off the tail once per
+     * event before the earlier history is searched.
+     */
+    private fun matchedGraveyardEarlierThisTurn(
+        state: GameState,
+        ownerId: EntityId,
+        batch: List<ZoneChangeEvent>,
+        filter: GameObjectFilter
+    ): Boolean {
+        val arrivals = state.getEntity(ownerId)?.get<CardsPutIntoGraveyardThisTurnComponent>()?.cardIds
+            ?: return false
+        val earlier = arrivals.toMutableList()
+        for (event in batch) {
+            val at = earlier.lastIndexOf(event.entityId)
+            if (at >= 0) earlier.removeAt(at)
+        }
+        return earlier.any { cardMatchesGraveyardBatchFilter(state, it, filter) }
+    }
+
     private fun cardMatchesGraveyardBatchFilter(
         state: GameState,
         entityId: EntityId,
@@ -2607,6 +2853,8 @@ class TriggerDetector(
                     com.wingedsheep.sdk.core.CardType.PLANESWALKER in cardComponent.typeLine.cardTypes
                 is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsBattle ->
                     cardComponent.typeLine.isBattle
+                is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsKindred ->
+                    cardComponent.typeLine.isKindred
                 is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsPermanent ->
                     cardComponent.typeLine.isPermanent
                 is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsNonland ->
@@ -2656,7 +2904,12 @@ class TriggerDetector(
                     sourceName = event.sourceName,
                     controllerId = event.controllerId,
                     granterId = event.granterId,
-                    triggerContext = event.carriedTriggerContext,
+                    triggerContext = events.filterIsInstance<ZoneChangeEvent>().firstOrNull {
+                        it.oldObject != null && it.oldObject == event.carriedObjectReferences.triggering
+                    }?.lastKnown?.let { snapshot -> event.carriedTriggerContext.copy(
+                        triggeringLastKnownSnapshot = snapshot,
+                        lastKnownPower = snapshot.power, lastKnownToughness = snapshot.toughness,
+                    ) } ?: event.carriedTriggerContext,
                     carriedPipeline = event.carriedPipeline,
                     objectReferences = event.carriedObjectReferences.copy(captured = true)
                 )
@@ -3115,6 +3368,48 @@ class TriggerDetector(
         triggers.addAll(merged)
     }
 
+    /**
+     * "Whenever this is dealt damage" triggers once per damage *event* (CR 603.2c), and combat
+     * damage is dealt simultaneously (CR 510.2): two blockers hitting Fungusaur are one event,
+     * one +1/+1 counter, and Boros Reckoner's "that much damage" is the total. The engine emits
+     * one [DamageDealtEvent] per source, so the recipient form ([EventPattern.DamageReceivedEvent]
+     * with no `source` filter) folds a combat event's triggers into the one this batch already
+     * raised for the same ability and recipient, summing the damage. Returns the triggers still
+     * to add. The per-source form ("a source deals damage to this") is untouched — it triggers
+     * once per source by its own wording (Nested Ghoul's ruling).
+     */
+    private fun foldSimultaneousDamage(
+        detected: List<PendingTrigger>,
+        event: EngineGameEvent,
+        triggers: MutableList<PendingTrigger>,
+        slots: MutableMap<List<Any?>, Int>
+    ): List<PendingTrigger> {
+        if (event !is DamageDealtEvent || !event.isCombatDamage) return detected
+        val kept = mutableListOf<PendingTrigger>()
+        for (pending in detected) {
+            val trigger = pending.ability.trigger
+            if (trigger !is EventPattern.DamageReceivedEvent || trigger.source != null) {
+                kept.add(pending)
+                continue
+            }
+            val key = listOf(pending.sourceId, pending.ability.id, pending.granterId, event.targetId)
+            val slot = slots[key]
+            if (slot == null) {
+                // The caller appends `kept` to `triggers` in order, so this is its final slot.
+                slots[key] = triggers.size + kept.size
+                kept.add(pending)
+                continue
+            }
+            val first = triggers[slot]
+            val ctx = first.triggerContext
+            triggers[slot] = first.copy(triggerContext = ctx.copy(
+                damageAmount = (ctx.damageAmount ?: 0) + event.amount,
+                excessDamageAmount = ((ctx.excessDamageAmount ?: 0) + event.excessAmount).takeIf { it > 0 }
+            ))
+        }
+        return kept
+    }
+
     private fun isPerRecipientCounterTrigger(pending: PendingTrigger): Boolean {
         val trigger = pending.ability.trigger
         return trigger is EventPattern.CountersPlacedEvent && !trigger.batch
@@ -3313,7 +3608,7 @@ class TriggerDetector(
         data class LeaveInfo(val entityId: EntityId, val cardComponent: CardComponent)
         val leavesByController = mutableMapOf<EntityId, MutableList<LeaveInfo>>()
         for (event in events) {
-            if (event is ZoneChangeEvent && event.fromZone == Zone.BATTLEFIELD &&
+            if (event is ZoneChangeEvent && event.isBattlefieldDeparture &&
                 event.toZone != Zone.GRAVEYARD) {
                 val entity = state.getEntity(event.entityId) ?: continue
                 val card = entity.get<CardComponent>() ?: continue
@@ -3394,7 +3689,7 @@ class TriggerDetector(
      * Two source populations are considered: permanents that survived the batch (taken from the
      * post-batch battlefield index) and — for Rule 603.10 "look back in time" — a source that
      * itself died in this same batch, recovered from its last-known card definition since it is no
-     * longer on the battlefield (mirrors [DeathAndLeaveTriggerDetector.detectSimultaneousDeathTriggers]).
+     * longer on the battlefield (mirrors [DeathAndLeaveTriggerDetector.detectSimultaneousDepartureTriggers]).
      */
     private fun detectCreaturesDiedBatchTriggers(
         state: GameState,
@@ -3409,7 +3704,7 @@ class TriggerDetector(
         val deathsByController = mutableMapOf<EntityId, MutableList<CreatureDeathInfo>>()
         for (event in events) {
             if (event !is ZoneChangeEvent) continue
-            if (event.fromZone != Zone.BATTLEFIELD || event.toZone != Zone.GRAVEYARD) continue
+            if (!event.isBattlefieldDeparture || event.toZone != Zone.GRAVEYARD) continue
             val controllerId = event.lastKnown?.controllerId ?: event.ownerId
             deathsByController.getOrPut(controllerId) { mutableListOf() }
                 .add(
@@ -3440,13 +3735,13 @@ class TriggerDetector(
         // (2) Rule 603.10 "look back in time": a source that itself died in this same batch must
         // still see the *other* creatures that died alongside it. The index is built from the
         // current (post-batch) battlefield, so such a source is absent from it — recover its
-        // abilities from its last-known card definition, exactly as detectSimultaneousDeathTriggers
+        // abilities from its last-known card definition, exactly as detectSimultaneousDepartureTriggers
         // does for the per-creature path. (For Vengeful Townsfolk the on-self +1/+1 is a harmless
         // no-op once it is in the graveyard, but a non-self payoff — draw a card, make a token,
         // deal damage — would otherwise be silently dropped on a board wipe that also kills it.)
         for (event in events) {
             if (event !is ZoneChangeEvent) continue
-            if (event.fromZone != Zone.BATTLEFIELD || event.toZone != Zone.GRAVEYARD) continue
+            if (!event.isBattlefieldDeparture || event.toZone != Zone.GRAVEYARD) continue
             // Still on the battlefield → already covered by the index path above.
             if (event.entityId in state.getBattlefield()) continue
             val container = state.getEntity(event.entityId)
@@ -3749,9 +4044,16 @@ class TriggerDetector(
             val controllerId = container.get<ControllerComponent>()?.playerId
                 ?: cardComponent.ownerId ?: continue
             val finalChapter = sagaChapters.maxOf { it.chapter }
+            // Read ahead (CR 702.155a): the turn the Saga entered, a chapter can only trigger when
+            // the Saga has exactly that chapter's number of lore counters — so the chapters
+            // skipped by entering with N counters don't trigger.
+            val readAheadEntryTurn = state.projectedState.hasKeyword(
+                entityId, com.wingedsheep.sdk.core.Keyword.READ_AHEAD
+            ) && container.has<com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent>()
 
             // Fire chapters that are newly reached by this counter addition
             for (chapter in sagaChapters.sortedBy { it.chapter }) {
+                if (readAheadEntryTurn && loreCount != chapter.chapter) continue
                 // Chapter triggers if lore count now >= chapter number
                 // AND it wasn't already triggered before this counter addition
                 if (loreCount >= chapter.chapter && previousLoreCount < chapter.chapter) {
@@ -3810,7 +4112,7 @@ class TriggerDetector(
         // we don't have to disambiguate.
         val zoneEvents = events.filterIsInstance<ZoneChangeEvent>().filter {
             it.toZone == Zone.BATTLEFIELD ||
-                (it.fromZone == Zone.BATTLEFIELD && it.toZone != Zone.BATTLEFIELD)
+                (it.isBattlefieldDeparture && it.toZone != Zone.BATTLEFIELD)
         }
         if (zoneEvents.isEmpty()) return
 
@@ -4053,6 +4355,86 @@ class TriggerDetector(
     }
 
     /**
+     * Duplicate triggers caused by casting or copying a spell for [AdditionalCastOrCopyTriggers]
+     * static abilities (Veyran, Voice of Duality). The cast-cause analogue of
+     * [duplicateAttackTriggers]: a spell-cast / spell-copied triggered ability of a permanent the
+     * doubler's controller controls, whose triggering spell that player cast or copied and that matches
+     * the doubler's spell filter, fires an additional time per copy.
+     */
+    private fun duplicateCastOrCopyTriggers(
+        state: GameState,
+        events: List<EngineGameEvent>,
+        triggers: MutableList<PendingTrigger>
+    ) {
+        if (triggers.isEmpty()) return
+        // (spell, the player who cast or copied it)
+        val spells = events.mapNotNull { event ->
+            when (event) {
+                is SpellCastEvent -> event.spellEntityId to event.casterId
+                is com.wingedsheep.engine.core.SpellCopiedEvent -> event.copyEntityId to event.controllerId
+                else -> null
+            }
+        }
+        if (spells.isEmpty()) return
+
+        val projected = state.projectedState
+        data class CastDoubler(val controllerId: EntityId, val filter: GameObjectFilter, val sourceId: EntityId)
+        val doublers = mutableListOf<CastDoubler>()
+        for (permanentId in state.getBattlefield()) {
+            val container = state.getEntity(permanentId) ?: continue
+            val card = container.get<CardComponent>() ?: continue
+            if (container.has<FaceDownComponent>()) continue
+            val controllerId = projected.getController(permanentId) ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val classLevel = container.get<ClassLevelComponent>()?.currentLevel
+            for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
+                val unwrapped: AdditionalCastOrCopyTriggers? = when (ability) {
+                    is AdditionalCastOrCopyTriggers -> ability
+                    is ConditionalStaticAbility ->
+                        (ability.ability as? AdditionalCastOrCopyTriggers)?.takeIf {
+                            conditionEvaluator.evaluate(
+                                state, ability.condition,
+                                EffectContext(sourceId = permanentId, controllerId = controllerId)
+                            )
+                        }
+                    else -> null
+                }
+                if (unwrapped != null) doublers.add(CastDoubler(controllerId, unwrapped.spellFilter, permanentId))
+            }
+        }
+        if (doublers.isEmpty()) return
+
+        val battlefield = state.getBattlefield().toSet()
+        val duplicates = mutableListOf<PendingTrigger>()
+        for (doubler in doublers) {
+            val causes = spells.filter { (spellId, playerId) ->
+                playerId == doubler.controllerId && predicateEvaluator.matches(
+                    state, projected, spellId, doubler.filter,
+                    PredicateContext(controllerId = doubler.controllerId, sourceId = doubler.sourceId)
+                )
+            }.map { it.first }.toSet()
+            if (causes.isEmpty()) continue
+            for (trigger in triggers) {
+                if (trigger.controllerId != doubler.controllerId) continue
+                // "of a permanent you control" — not a spell's own cast trigger, not an emblem.
+                if (trigger.sourceId !in battlefield) continue
+                if (!isSpellCastOrCopiedPattern(trigger.ability.trigger)) continue
+                if (trigger.triggerContext.triggeringEntityId !in causes) continue
+                duplicates.add(trigger)
+            }
+        }
+        triggers.addAll(duplicates)
+    }
+
+    private fun isSpellCastOrCopiedPattern(pattern: EventPattern): Boolean = when (pattern) {
+        is EventPattern.SpellCastEvent,
+        is EventPattern.SpellCopiedEvent,
+        is EventPattern.NthSpellCastEvent -> true
+        is EventPattern.AnyOf -> pattern.events.any(::isSpellCastOrCopiedPattern)
+        else -> false
+    }
+
+    /**
      * Duplicate death/leave-the-battlefield triggers for [AdditionalDeathTriggers] static abilities
      * (Teysa Karlov; The Masamune's granted ability). The death-cause analogue of
      * [duplicateAttackTriggers]: for each creature put into a graveyard from the battlefield this
@@ -4087,7 +4469,7 @@ class TriggerDetector(
         // Creatures put into a graveyard from the battlefield this batch, taking continuous effects
         // into account via last-known type line (an animated land that dies counts, CR 700.4).
         val dyingCreatures = events.filterIsInstance<ZoneChangeEvent>()
-            .filter { it.fromZone == Zone.BATTLEFIELD && it.toZone == Zone.GRAVEYARD }
+            .filter { it.isBattlefieldDeparture && it.toZone == Zone.GRAVEYARD }
             .filter { it.lastKnown?.typeLine?.isCreature == true }
             .map { it.entityId }
             .toSet()
@@ -4100,7 +4482,7 @@ class TriggerDetector(
         // Last-known information of every permanent that left the battlefield this batch (CR
         // 603.10a): read for departed trigger sources and departed doublers alike.
         val departed = events.filterIsInstance<ZoneChangeEvent>()
-            .filter { it.fromZone == Zone.BATTLEFIELD && it.lastKnown != null && it.entityId !in battlefield }
+            .filter { it.isBattlefieldDeparture && it.lastKnown != null && it.entityId !in battlefield }
             .associateBy { it.entityId }
 
         data class DeathDoubler(

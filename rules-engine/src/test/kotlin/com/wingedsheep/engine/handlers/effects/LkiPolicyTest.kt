@@ -38,13 +38,16 @@ class LkiPolicyTest : FunSpec({
             EffectTarget.SpecificEntity(EntityId("e1")),
             EffectTarget.RingBearer(),
             EffectTarget.AffectedEntity,
-            EffectTarget.IterationEntity,
             EffectTarget.AmassedArmy,
             EffectTarget.ChosenCreature,
             EffectTarget.AttachedToTriggeringPermanent,
         ).forEach { ref ->
             lkiPolicyFor(ref) shouldBe LkiPolicy.LIVE_ONLY
         }
+    }
+
+    test("a loop's object reads LKI only from this resolution's own move off the battlefield") {
+        lkiPolicyFor(EffectTarget.IterationEntity) shouldBe LkiPolicy.LIVE_THEN_OWN_MOVE_LKI
     }
 
     test("cards that are never on the battlefield read their printed characteristics") {

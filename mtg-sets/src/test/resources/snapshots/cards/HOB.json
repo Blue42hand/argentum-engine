@@ -802,7 +802,8 @@
                             "effect": {
                                 "type": "CreatePredefinedToken",
                                 "tokenType": "Treasure"
-                            }
+                            },
+                            "description": "Create a Treasure token"
                         }
                     ]
                 },
@@ -1702,7 +1703,9 @@
                                         "excludeSelf": true
                                     }
                                 },
-                                "storeAs": "target0"
+                                "storeAs": "target0",
+                                "nonTargeting": true,
+                                "prompt": "Choose another creature to sacrifice"
                             },
                             {
                                 "type": "StoreNumber",
@@ -2448,7 +2451,8 @@
                             },
                             "id": "t0"
                         }
-                    ]
+                    ],
+                    "description": "Counter target spell unless its controller pays {4}"
                 },
                 {
                     "effect": {
@@ -2777,7 +2781,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -2952,7 +2959,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -3424,7 +3433,7 @@
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
-                        "baseFilter": "creature Dwarf ctrl:you"
+                        "baseFilter": "permanent Dwarf ctrl:you"
                     },
                     "id": "t0"
                 }
@@ -4130,7 +4139,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         },
                         "CostSacrificeSelf"
@@ -6044,7 +6056,8 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 }
-                            }
+                            },
+                            "description": "Draw a card"
                         }
                     ],
                     "excludePreviouslyChosenModes": true,
@@ -6113,7 +6126,8 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 }
-                            }
+                            },
+                            "description": "Draw a card"
                         }
                     ],
                     "excludePreviouslyChosenModes": true,
@@ -6573,6 +6587,7 @@
                         "Wolf"
                     ]
                 },
+                "riderTiming": "WHEN_YOU_DO",
                 "appliesTo": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:opponent",
@@ -6649,7 +6664,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -7597,7 +7614,9 @@
                                                         "amount": 1
                                                     }
                                                 },
-                                                "storeSelected": "found"
+                                                "storeSelected": "found",
+                                                "prompt": "Search your hand and/or library for a Dragon card to put onto the battlefield",
+                                                "selectedLabel": "Put onto the battlefield"
                                             },
                                             {
                                                 "type": "MoveCollection",
@@ -8507,7 +8526,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -8927,7 +8949,9 @@
                                                 "amount": 1
                                             }
                                         },
-                                        "storeSelected": "found"
+                                        "storeSelected": "found",
+                                        "prompt": "Search your library for a basic land card to put on top of your library",
+                                        "selectedLabel": "Put on top of your library"
                                     },
                                     "ShuffleLibrary",
                                     {
@@ -11636,7 +11660,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a creature legendary card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -12787,17 +12813,17 @@
                 },
                 "effect": {
                     "type": "Gated",
-                    "gate": "Gate.MayDecide",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature|artifact",
+                            "excludeSource": true
+                        }
+                    },
                     "then": {
                         "type": "Composite",
                         "effects": [
-                            {
-                                "type": "SacrificeTarget",
-                                "target": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
                             {
                                 "type": "DrawCards",
                                 "count": {
@@ -12811,14 +12837,6 @@
                             }
                         ]
                     }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "filter": {
-                        "baseFilter": "creature|artifact ctrl:you",
-                        "excludeSelf": true
-                    },
-                    "id": "t0"
                 },
                 "descriptionOverride": "When The Sackville-Bagginses enter, you may sacrifice another creature or artifact. If you do, draw a card and create a Treasure token."
             },
@@ -12838,12 +12856,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t1"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "t1"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever you sacrifice a token, target opponent loses 1 life."
             }
@@ -13585,7 +13603,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -13764,8 +13784,8 @@
                     ]
                 },
                 "interveningIf": {
-                    "type": "TriggeringEntityHadCardType",
-                    "cardType": "CREATURE"
+                    "type": "TriggeringEntityWas",
+                    "filter": "creature"
                 },
                 "descriptionOverride": "When Tom, Bert, and William die, if they were a creature, return them to the battlefield. They're an artifact."
             }

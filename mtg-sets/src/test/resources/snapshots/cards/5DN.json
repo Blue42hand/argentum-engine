@@ -487,6 +487,60 @@
     ]
 }
 
+// Condescend
+{
+    "name": "Condescend",
+    "manaCost": "{X}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell unless its controller pays {X}. Scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Counter",
+                    "condition": {
+                        "type": "CounterCondition.UnlessPaysDynamic",
+                        "amount": "XValue"
+                    }
+                },
+                {
+                    "type": "Scry",
+                    "count": 2
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "artist": "Ron Spears",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/8/e8303b80-e29a-46b8-90b0-c0cfe551b435.jpg?1783944406",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "You scry 2 even if the spell's controller pays {X}."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "You must be able to target another spell to cast Condescend. Condescend can't target itself."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Cosmic Larva
 {
     "name": "Cosmic Larva",
@@ -1456,6 +1510,34 @@
     ]
 }
 
+// Mana Geyser
+{
+    "name": "Mana Geyser",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Add {R} for each tapped land your opponents control.",
+    "script": {
+        "spellEffect": {
+            "type": "AddMana",
+            "color": "RED",
+            "amount": {
+                "type": "AggregateBattlefield",
+                "player": "EachOpponent",
+                "filter": "land tapped"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "artist": "Martina Pilcerova",
+        "flavorText": "The Quicksilver Sea hissed and bubbled at the indignity. The Vulshok shaman just smiled.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/9/3929662e-99d7-48e9-afac-1852af8be722.jpg?1783944392"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Night's Whisper
 {
     "name": "Night's Whisper",
@@ -2339,7 +2421,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",

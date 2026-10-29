@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.dis.cards.TrygonPredator
@@ -60,14 +59,12 @@ class TrygonPredatorScenarioTest : FunSpec({
 
         driver.currentStep shouldBe Step.COMBAT_DAMAGE
 
-        // "You may destroy?" — yes.
-        val yesNo = driver.pendingDecision as YesNoDecision
-        driver.submitYesNo(yesNo.playerId, true)
-
-        // Choose the target artifact.
+        // Choosing the target artifact is also the "you may" yes — no yes/no at resolution.
         val choose = driver.pendingDecision as ChooseTargetsDecision
-        driver.submitTargetSelection(attacker, listOf(artifact))
+        choose.targetRequirements.single().minTargets shouldBe 0
+        driver.submitTargetSelection(attacker, listOf(artifact)).error shouldBe null
         driver.bothPass()
+        driver.pendingDecision shouldBe null
 
         driver.findPermanent(defender, "Test Artifact") shouldBe null
         driver.getGraveyardCardNames(defender) shouldContain "Test Artifact"
@@ -91,10 +88,8 @@ class TrygonPredatorScenarioTest : FunSpec({
         driver.declareNoBlockers(defender)
         driver.bothPass()
 
-        val yesNo = driver.pendingDecision as YesNoDecision
-        driver.submitYesNo(yesNo.playerId, true)
-        val choose = driver.pendingDecision as ChooseTargetsDecision
-        driver.submitTargetSelection(attacker, listOf(enchantment))
+        driver.pendingDecision as ChooseTargetsDecision
+        driver.submitTargetSelection(attacker, listOf(enchantment)).error shouldBe null
         driver.bothPass()
 
         driver.findPermanent(defender, "Test Enchantment") shouldBe null
@@ -121,15 +116,13 @@ class TrygonPredatorScenarioTest : FunSpec({
         driver.declareNoBlockers(defender)
         driver.bothPass()
 
-        val yesNo = driver.pendingDecision as YesNoDecision
-        driver.submitYesNo(yesNo.playerId, true)
 
         val choose = driver.pendingDecision as ChooseTargetsDecision
         // The scoped filter must offer exactly the defender's artifact, never the attacker's.
         choose.legalTargets[0]!! shouldContainExactly listOf(defenderArtifact)
     }
 
-    test("declining leaves the artifact on the battlefield") {
+    test("declining at the target prompt leaves the artifact on the battlefield") {
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Forest" to 20, "Island" to 20), startingLife = 20)
 
@@ -138,7 +131,7 @@ class TrygonPredatorScenarioTest : FunSpec({
 
         val predator = driver.putCreatureOnBattlefield(attacker, "Trygon Predator")
         driver.removeSummoningSickness(predator)
-        driver.putPermanentOnBattlefield(defender, "Test Artifact")
+        val artifact = driver.putPermanentOnBattlefield(defender, "Test Artifact")
 
         driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
         driver.declareAttackers(attacker, listOf(predator), defender)
@@ -146,10 +139,11 @@ class TrygonPredatorScenarioTest : FunSpec({
         driver.declareNoBlockers(defender)
         driver.bothPass()
 
-        val yesNo = driver.pendingDecision as YesNoDecision
-        driver.submitYesNo(yesNo.playerId, false)
+        driver.pendingDecision as ChooseTargetsDecision
+        driver.submitTargetSelection(attacker, emptyList()).error shouldBe null
+        driver.stackSize shouldBe 0
 
-        driver.findPermanent(defender, "Test Artifact") shouldNotBe null
+        driver.findPermanent(defender, "Test Artifact") shouldBe artifact
         driver.assertLifeTotal(defender, 18)
     }
 

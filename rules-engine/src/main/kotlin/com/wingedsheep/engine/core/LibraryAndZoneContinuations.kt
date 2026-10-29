@@ -45,6 +45,12 @@ data class SelectFromCollectionContinuation(
      */
     val restrictions: List<SelectionRestriction> = emptyList(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    /**
+     * Every card the decision displayed to [playerId] — selectable or not. The resumer publishes
+     * the shown part of the remainder under [com.wingedsheep.engine.handlers.PipelineState.shownKey].
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val shownCards: List<EntityId>? = null,
 ) : AnswerContinuation
 
 /**
@@ -388,6 +394,7 @@ data class DiscoverMayCastContinuation(
     val storeDiscoveredAs: String? = null,
     val thenEffect: com.wingedsheep.sdk.scripting.effects.Effect? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**
@@ -422,6 +429,7 @@ data class CastFromCollectionTargetsContinuation(
     val onCastFailure: FreeCastFallback = FreeCastFallback.LEAVE,
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val faceIndex: Int? = null,
+    val castFused: Boolean = false,
 ) : AnswerContinuation
 
 /**
@@ -480,5 +488,7 @@ data class CastAnyNumberFromCollectionContinuation(
      * `null` when uncapped. The resumer re-enters the loop with the cast card's mana value spent.
      */
     val maxTotalManaValue: Int? = null,
+    /** "Play lands and cast spells from among them": a chosen land is played, not cast. */
+    val playLands: Boolean = false,
 ) : AnswerContinuation
 

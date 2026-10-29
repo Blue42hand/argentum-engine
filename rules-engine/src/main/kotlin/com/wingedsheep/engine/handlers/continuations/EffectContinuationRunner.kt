@@ -93,6 +93,13 @@ class EffectContinuationRunner(
                     sacrificedPermanents = currentContext.sacrificedPermanents + result.updatedSacrificedPermanents
                 )
             }
+            // Likewise every permanent the step moved off the battlefield, for "each permanent
+            // exiled this way … shares a card type with it" reads of IterationEntity (CR 608.2h).
+            if (result.updatedDepartedPermanents.isNotEmpty()) {
+                currentContext = currentContext.copy(
+                    departedPermanents = currentContext.departedPermanents + result.updatedDepartedPermanents
+                )
+            }
         }
 
         // Return accumulated collections / subtype groups / numbers / chosen values / sacrifices so callers can propagate them
@@ -101,6 +108,7 @@ class EffectContinuationRunner(
         val accumulatedStoredNumbers = currentContext.pipeline.storedNumbers - initialContext.pipeline.storedNumbers.keys
         val accumulatedChosenValues = currentContext.pipeline.chosenValues - initialContext.pipeline.chosenValues.keys
         val accumulatedSacrificed = currentContext.sacrificedPermanents.drop(initialContext.sacrificedPermanents.size)
+        val accumulatedDeparted = currentContext.departedPermanents.drop(initialContext.departedPermanents.size)
         return EffectResult(
             currentState,
             allEvents,
@@ -108,7 +116,8 @@ class EffectContinuationRunner(
             updatedSubtypeGroups = accumulatedSubtypeGroups,
             updatedStoredNumbers = accumulatedStoredNumbers,
             updatedChosenValues = accumulatedChosenValues,
-            updatedSacrificedPermanents = accumulatedSacrificed
+            updatedSacrificedPermanents = accumulatedSacrificed,
+            updatedDepartedPermanents = accumulatedDeparted
         )
     }
 }

@@ -23,6 +23,9 @@ app:
   # Build identity, stamped onto every recorded replay so one that later fails to re-simulate can be
   # traced to the build that recorded it. The Dockerfile sets this from the deploy's git sha.
   version: ${APP_VERSION:dev}
+  # Downtime quoted to connected players when the server shuts down for a restart (ServerRestartNotice).
+  # A deploy takes about this long from SIGTERM to the new container accepting connections.
+  restart-expected-downtime-seconds: ${RESTART_EXPECTED_DOWNTIME_SECONDS:60}
 
 spring:
   application:

@@ -8,6 +8,8 @@ import com.wingedsheep.engine.state.components.battlefield.*
 import com.wingedsheep.engine.state.components.identity.*
 import com.wingedsheep.engine.state.components.player.*
 import com.wingedsheep.engine.view.ClientCommanderDamage
+import com.wingedsheep.engine.view.ClientDungeon
+import com.wingedsheep.engine.view.ClientDungeonRoom
 import com.wingedsheep.engine.view.ClientManaPool
 import com.wingedsheep.engine.view.ClientPlayer
 import com.wingedsheep.engine.view.ClientRestrictedManaEntry
@@ -17,7 +19,8 @@ import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 
 /**
  * Projects a player — life, poison, zone sizes, mana pool, commander damage, team info — and the
- * badges on them (delegated to [PlayerActiveEffectsProjector]). All of it is public information.
+ * badges on them (delegated to [PlayerActiveEffectsProjector]). All of it is public information,
+ * except that a badge names a face-down object only to a viewer who may look under it.
  */
 internal class PlayerProjector(
     private val cardRegistry: CardRegistry,
@@ -28,7 +31,12 @@ internal class PlayerProjector(
     // hand size via the shared com.wingedsheep.engine.core.MaximumHandSize source of truth.
     private val dynamicAmountEvaluator = conditionEvaluator.amounts
 
-    fun project(state: GameState, playerId: EntityId): ClientPlayer {
+    fun project(
+        state: GameState,
+        playerId: EntityId,
+        viewingPlayerId: EntityId,
+        isSpectator: Boolean = false,
+    ): ClientPlayer {
         val container = state.getEntity(playerId)
         val playerComponent = container?.get<PlayerComponent>()
         // CR 810.9a — a player's displayed life is the team's shared total in Two-Headed Giant.
@@ -42,11 +50,7 @@ internal class PlayerProjector(
         )
 
         // Determine lands played this turn
-        val landsPlayed = if (landDropsComponent != null) {
-            landDropsComponent.maxPerTurn - landDropsComponent.remaining
-        } else {
-            0
-        }
+        val landsPlayed = landDropsComponent?.playedThisTurn ?: 0
 
         // A player has lost when the engine has marked them (mid-game elimination in a
         // multiplayer pod — drives the opponent-rail tombstone while the game continues),
@@ -73,17 +77,36 @@ internal class PlayerProjector(
             manaPool = container?.get<ManaPoolComponent>()?.let(::manaPool),
             manaPaymentColors = com.wingedsheep.engine.mechanics.mana.ManaSpendingRules.colors(state, playerId)
                 .mapKeys { it.key.symbol.toString() }.mapValues { (_, colors) -> colors.map { it.symbol.toString() } },
-            activeEffects = activeEffects.project(state, playerId, container),
+            activeEffects = activeEffects.project(state, playerId, container, viewingPlayerId, isSpectator),
             commanderDamage = commanderDamage(state, playerId),
             // CR 702.179 — public information, and 0 for the overwhelming majority of games.
             speed = state.speed(playerId),
             // CR 107.14 — public information like poison counters, and 0 outside energy decks.
             energyCounters = container?.get<CountersComponent>()?.getCount(CounterType.ENERGY) ?: 0,
+            radCounters = container?.get<CountersComponent>()?.getCount(CounterType.RAD) ?: 0,
+            // CR 122.1 — experience counters live on the player too; public, and 0 in nearly every game.
+            experienceCounters = container?.get<CountersComponent>()?.getCount(CounterType.EXPERIENCE) ?: 0,
             // Team variants (CR 810 / CR 808). Public information, and absent from every
             // non-team game, so both fields serialize away by default.
             teamIndex = container?.get<TeamComponent>()?.teamIndex,
             teamSharedLife = state.format.sharesTeamLife,
-            teamSharedTurns = state.format.sharesTeamTurns
+            teamSharedTurns = state.format.sharesTeamTurns,
+            // CR 309 — the dungeon card and its venture marker are public.
+            dungeon = dungeon(container?.get<DungeonProgressComponent>()?.current),
+            completedDungeons = container?.get<DungeonProgressComponent>()?.completed.orEmpty(),
+            // CR 103.2b — a revealed companion is public while it waits outside the game.
+            companionId = state.companionOutsideGame(playerId)
+        )
+    }
+
+    private fun dungeon(marker: DungeonMarker?): ClientDungeon? {
+        marker ?: return null
+        val definition = com.wingedsheep.sdk.dungeons.Dungeons.byName(marker.dungeon) ?: return null
+        return ClientDungeon(
+            name = definition.name,
+            imageUri = definition.imageUri,
+            currentRoom = marker.room,
+            rooms = definition.rooms.map { ClientDungeonRoom(it.name, it.text, it.leadsTo) }
         )
     }
 

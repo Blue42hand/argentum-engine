@@ -19,6 +19,7 @@ import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.CardsInHandAtTurnStartComponent
 import com.wingedsheep.engine.state.components.player.SkipNextUntapStepComponent
+import com.wingedsheep.engine.state.components.player.UntappedLandsAtTurnStartComponent
 import com.wingedsheep.engine.state.components.player.SkipUntapComponent
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.sdk.core.AbilityFlag
@@ -110,11 +111,18 @@ class BeginningPhaseManager(
         // "At the beginning of this turn" has to be captured here rather than read later: by the
         // upkeep, the very cards a card like Mindstorm Crown is measuring may already have moved.
         // Recorded for every player, not just the active one, so an opponent-scoped reading of the
-        // same tracker is available for free.
+        // same tracker is available for free. Untapped lands (Power Surge) are counted here too,
+        // before anything phases in or untaps; phased-out lands aren't controlled and don't count.
+        val turnStartProjected = newState.projectedState
+        val untappedLands = newState.getBattlefield()
+            .filter { turnStartProjected.hasType(it, "LAND") && newState.getEntity(it)?.has<TappedComponent>() != true }
+            .groupingBy { turnStartProjected.getController(it) }
+            .eachCount()
         for (pid in newState.turnOrder) {
             val handSize = newState.getZone(ZoneKey(pid, Zone.HAND)).size
             newState = newState.updateEntity(pid) { container ->
                 container.with(CardsInHandAtTurnStartComponent(count = handSize))
+                    .with(UntappedLandsAtTurnStartComponent(count = untappedLands[pid] ?: 0))
             }
         }
 
@@ -190,21 +198,32 @@ class BeginningPhaseManager(
         // cleared unconditionally below regardless of whether this filter actually skipped an
         // untap (2024-06-07 ruling: an exerted-but-already-untapped permanent's marker still
         // expires having done nothing).
-        val permanentsAfterCantUntap = permanentsToUntap.filter { entityId ->
+        val permanentsNotRestricted = permanentsToUntap.filter { entityId ->
             !projected.doesntUntapDuringUntapStep(entityId) &&
                 newState.getEntity(entityId)?.has<ExertedComponent>() != true
         }
+
+        // Freeze restrictions before the simultaneous untap: a tapped conditional source may
+        // untap alongside everything else without retroactively restricting that same action.
+        // A zero cap (Meekstone — "creatures with power 3 or greater don't untap") leaves the
+        // player nothing to choose, so its permanents simply drop out of the untap like
+        // DOESNT_UNTAP ones, and the remaining caps are recomputed over what is left. Caps read
+        // the final projected state, so a filter on power sees every layer-7 modification.
+        val allUntapLimits = untapLimitChoices(
+            newState, cardRegistry, predicateEvaluator, permanentsNotRestricted
+        )
+        val keptTappedByZeroCap = allUntapLimits.filter { it.max == 0 }
+            .flatMapTo(HashSet()) { it.matchingPermanents }
+        val permanentsAfterCantUntap = permanentsNotRestricted.filter { it !in keptTappedByZeroCap }
+        val untapLimits = if (keptTappedByZeroCap.isEmpty()) allUntapLimits else untapLimitChoices(
+            newState, cardRegistry, predicateEvaluator, permanentsAfterCantUntap
+        )
 
         // Check if any permanents have MAY_NOT_UNTAP keyword (e.g., Everglove Courier)
         val mayNotUntapPermanents = permanentsAfterCantUntap.filter { entityId ->
             projected.hasKeyword(entityId, AbilityFlag.MAY_NOT_UNTAP)
         }
 
-        // Freeze restrictions before the simultaneous untap: a tapped conditional source may
-        // untap alongside everything else without retroactively restricting that same action.
-        val untapLimits = untapLimitChoices(
-            newState, cardRegistry, predicateEvaluator, permanentsAfterCantUntap
-        )
         // Overlapping caps share kept permanents. A sum can exceed the whole option pool;
         // this lower bound stays reachable, and the resumer validates every cap separately.
         val forcedKeepCount = untapLimits.maxOfOrNull { it.matchingPermanents.size - it.max } ?: 0
@@ -390,8 +409,11 @@ class BeginningPhaseManager(
         val toPhaseIn = state.allBattlefieldEntities().filter { entityId ->
             val phased = state.getEntity(entityId)?.get<PhasedOutComponent>()
             // Permanents phased out "until source leaves" (Oubliette) don't phase in at untap —
-            // they wait for the source's leaves-battlefield trigger.
-            phased?.phasedOutByController == activePlayer && phased.phaseInOnSourceLeaves == null
+            // they wait for the source's leaves-battlefield trigger. A locked one (The Phasing of
+            // Zhalfir) waits for EndedDurationExpiryCheck to release the lock.
+            phased?.phasedOutByController == activePlayer &&
+                phased.phaseInOnSourceLeaves == null &&
+                phased.phaseInLock == null
         }
 
         var newState = state
@@ -431,9 +453,11 @@ class BeginningPhaseManager(
         var newState = state
         val events = mutableListOf<GameEvent>()
 
-        val sagaIds = state.sharedTurnTeam(activePlayer).flatMap { member ->
-            newState.getZone(ZoneKey(member, Zone.BATTLEFIELD))
-        }
+        // Sagas the team *controls* (a stolen Saga advances on its controller's turn, not its
+        // owner's); getBattlefield also skips phased-out Sagas, which don't exist.
+        val team = state.sharedTurnTeam(activePlayer).toSet()
+        val projected = state.projectedState
+        val sagaIds = state.getBattlefield().filter { projected.getController(it) in team }
         for (entityId in sagaIds) {
             val container = newState.getEntity(entityId) ?: continue
             val cardComponent = container.get<CardComponent>() ?: continue
@@ -507,6 +531,7 @@ class BeginningPhaseManager(
         StatePredicate.HasManaAbility -> predicateEvaluator.matchesStatePredicate(state, entityId, predicate, projected = projected)
         StatePredicate.SharesNameWithSpellCastThisTurn -> false
         StatePredicate.PutIntoGraveyardThisTurn -> false
+        StatePredicate.MilledThisTurn -> false
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
         // Combat-partner history is cleared at cleanup, so nothing has blocked anything yet this turn.
         is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> false
@@ -514,6 +539,8 @@ class BeginningPhaseManager(
         // Untap candidates are battlefield permanents, so back face up is the whole CR 701.27g test.
         StatePredicate.IsTransformed ->
             container.get<com.wingedsheep.engine.state.components.identity.DoubleFacedComponent>()?.isBack == true
+        StatePredicate.IsCommander ->
+            container.has<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
         // No granter context in untap filtering — granter-relative exclusion is resolution-time only.
         StatePredicate.IsGrantingPermanent -> false
         // Counter history is plain per-entity state, so answer it exactly rather than falling open.
@@ -571,6 +598,7 @@ class BeginningPhaseManager(
         // Least-mana-value comparison remains unsupported by this narrow untap evaluator.
         is StatePredicate.HasLeastManaValueAmong -> false
         is StatePredicate.IsAttackingDefenderOf -> false
+        is StatePredicate.IsAttackingPlayer -> false
         // Protector scoping needs a "you" this helper has no context for; fail closed.
         is StatePredicate.IsProtectedBy -> false
         // Untap-during-other-untap-step filters only meaningfully restrict by counter type

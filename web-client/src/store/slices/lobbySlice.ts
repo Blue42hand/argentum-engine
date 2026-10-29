@@ -58,6 +58,7 @@ export interface LobbySliceActions {
    * `boosterCount`, `picksPerRound` and `chaosBoosters` and recalculates the booster distribution on
    * the way through. Splitting a bag across messages would therefore lose fields, not just be slower.
    */
+  pickJumpstartPacks: (firstPackId: string, secondPackId: string) => void
   updateLobbySettings: (settings: LobbySettingsUpdate) => void
   addAiToLobby: () => void
   removeAiFromLobby: (playerId: string) => void
@@ -79,6 +80,10 @@ export interface LobbySliceActions {
     deckList: Record<string, number>,
     commander?: string | null,
     sideboard?: Record<string, number>,
+    /** The second commander of a partner pair; ignored without `commander`. */
+    secondCommander?: string | null,
+    /** The deck's companion (CR 702.139), a sideboard card; null for none. */
+    companion?: string | null,
   ) => void
   /** Unsubmit (and re-edit) a previously submitted lobby deck. */
   unsubmitLobbyDeck: () => void
@@ -144,6 +149,10 @@ export const createLobbySlice: SliceCreator<LobbySlice> = (set, get) => ({
     set({ lobbyState: null, deckBuildingState: null, ffaState: null })
   },
 
+  pickJumpstartPacks: (firstPackId, secondPackId) => {
+    getWebSocket()?.send({ type: 'pickJumpstartPacks', firstPackId, secondPackId })
+  },
+
   updateLobbySettings: (settings) => {
     getWebSocket()?.send(createUpdateLobbySettingsMessage(settings))
   },
@@ -176,12 +185,16 @@ export const createLobbySlice: SliceCreator<LobbySlice> = (set, get) => ({
     set({ spectatingState: state })
   },
 
-  submitLobbyDeck: (deckList, commander, sideboard) => {
+  submitLobbyDeck: (deckList, commander, sideboard, secondCommander, companion) => {
     trackEvent('premade_deck_submitted', {
       deck_size: Object.values(deckList).reduce((a, b) => a + b, 0),
       has_commander: !!commander,
     })
-    getWebSocket()?.send(createSubmitSealedDeckMessage(deckList, commander, undefined, undefined, sideboard))
+    getWebSocket()?.send(
+      createSubmitSealedDeckMessage(
+        deckList, commander, undefined, undefined, sideboard, secondCommander, undefined, companion,
+      ),
+    )
   },
 
   unsubmitLobbyDeck: () => {

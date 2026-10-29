@@ -1,0 +1,168 @@
+package com.wingedsheep.ai.engine
+
+import com.wingedsheep.ai.engine.knowledge.IntentCatalog
+import com.wingedsheep.engine.core.CardsSelectedResponse
+import com.wingedsheep.engine.core.DecisionContext
+import com.wingedsheep.engine.core.DecisionPhase
+import com.wingedsheep.engine.core.SelectCardsDecision
+import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.player.LandDropsComponent
+import com.wingedsheep.engine.support.GameTestDriver
+import com.wingedsheep.mtg.sets.MtgSetCatalog
+import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.EntityId
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+
+/**
+ * [AiProfile.selectionCountsByValue], one test per misplay from the 2026-10-10 engine-vs-engine
+ * logs. Each test also pins the legacy count, so the misplay it documents stays visible.
+ *
+ * The board is the flooded one from game 1 turn 12: six lands out, only lands in hand. A castable
+ * four-drop creature is worth drawing; another land is not.
+ */
+class SelectionCountsByValueTest : FunSpec({
+
+    val vow = MtgSetCatalog.requireByCode("VOW")
+    val allCards = (vow.cards + vow.basicLands).distinctBy { it.name }
+
+    /** A game at [me]'s precombat main with [landsOut] Swamps out, an empty hand and the drop unspent. */
+    fun emptyHandGame(landsOut: Int): Pair<GameTestDriver, EntityId> {
+        val d = GameTestDriver().apply {
+            registerCards(allCards)
+            initMirrorMatch(Deck.of("Swamp" to 40))
+            passPriorityUntil(Step.PRECOMBAT_MAIN)
+        }
+        val me = d.activePlayer!!
+        var s = d.state
+        for (id in s.getZone(me, Zone.HAND)) {
+            s = s.moveToZone(id, ZoneKey(me, Zone.HAND), ZoneKey(me, Zone.LIBRARY))
+        }
+        d.replaceState(s)
+        repeat(landsOut) { d.putLandOnBattlefield(me, "Swamp") }
+        d.addComponent(me, LandDropsComponent(remaining = 1, playedThisTurn = 0))
+        return d to me
+    }
+
+    /** A game at [me]'s precombat main: six Swamps out, two in hand, the rest in the library. */
+    fun floodedGame(): Pair<GameTestDriver, EntityId> {
+        val d = GameTestDriver().apply {
+            registerCards(allCards)
+            initMirrorMatch(Deck.of("Swamp" to 40))
+            passPriorityUntil(Step.PRECOMBAT_MAIN)
+        }
+        val me = d.activePlayer!!
+        var s = d.state
+        for (id in s.getZone(me, Zone.HAND)) {
+            s = s.moveToZone(id, ZoneKey(me, Zone.HAND), ZoneKey(me, Zone.LIBRARY))
+        }
+        d.replaceState(s)
+        repeat(6) { d.putLandOnBattlefield(me, "Swamp") }
+        repeat(2) { d.putCardInHand(me, "Swamp") }
+        return d to me
+    }
+
+    fun choose(
+        d: GameTestDriver,
+        me: EntityId,
+        options: List<EntityId>,
+        maxSelections: Int,
+        selectedLabel: String?,
+        flag: Boolean,
+        librarySearch: Boolean = false,
+        prompt: String = "Choose up to $maxSelections card${if (maxSelections != 1) "s" else ""}",
+    ): List<EntityId> {
+        val decision = SelectCardsDecision(
+            id = "test",
+            playerId = me,
+            prompt = prompt,
+            context = DecisionContext(phase = DecisionPhase.RESOLUTION),
+            options = options,
+            minSelections = 0,
+            maxSelections = maxSelections,
+            selectedLabel = selectedLabel,
+            remainderLabel = selectedLabel?.takeUnless { librarySearch }?.let { "Put on top" },
+            librarySearch = librarySearch,
+        )
+        val responder = DecisionResponder(
+            GameSimulator(d.cardRegistry),
+            AIPlayer.defaultEvaluator(),
+            intents = IntentCatalog.of(d.cardRegistry),
+            castabilityAwareCardSelection = true,
+            selectionCountsByValue = flag,
+        )
+        return (responder.respond(d.state, decision, me) as CardsSelectedResponse).selectedCards
+    }
+
+    test("g3 T19: a search whose only candidate fits the count takes it") {
+        val (d, me) = floodedGame()
+        val land = d.putCardOnTopOfLibrary(me, "Swamp")
+
+        choose(d, me, listOf(land), 1, selectedLabel = null, flag = false) shouldBe emptyList()
+        choose(d, me, listOf(land), 1, selectedLabel = null, flag = true) shouldBe listOf(land)
+    }
+
+    test("a labelled search whose only candidate fits the count still takes it") {
+        val (d, me) = floodedGame()
+        val land = d.putCardOnTopOfLibrary(me, "Swamp")
+
+        choose(
+            d, me, listOf(land), 1, "Put onto the battlefield tapped", flag = true, librarySearch = true,
+            prompt = "Search your library for a basic land card to put onto the battlefield tapped",
+        ) shouldBe listOf(land)
+        // A graveyard-bound search is not a surveil, though its label names the graveyard: the
+        // castable creature a surveil would keep on top is still found.
+        val creature = d.putCardOnTopOfLibrary(me, "Diregraf Scavenger")
+        choose(
+            d, me, listOf(creature), 1, "Put into your graveyard", flag = true, librarySearch = true,
+            prompt = "Search your library for a card to put into your graveyard",
+        ) shouldBe listOf(creature)
+    }
+
+    test("g1 T12: scry keeps a castable creature on top while flooded") {
+        val (d, me) = floodedGame()
+        val creature = d.putCardOnTopOfLibrary(me, "Diregraf Scavenger")
+
+        choose(d, me, listOf(creature), 1, "Put on bottom", flag = false) shouldBe listOf(creature)
+        choose(d, me, listOf(creature), 1, "Put on bottom", flag = true) shouldBe emptyList()
+    }
+
+    test("scry 2 bottoms only the land it doesn't need") {
+        val (d, me) = floodedGame()
+        val land = d.putCardOnTopOfLibrary(me, "Swamp")
+        val creature = d.putCardOnTopOfLibrary(me, "Diregraf Scavenger")
+
+        choose(d, me, listOf(creature, land), 2, "Put on bottom", flag = true) shouldBe listOf(land)
+    }
+
+    test("g1/g2: surveil mills a dead land and keeps a live card") {
+        val (d, me) = floodedGame()
+        val land = d.putCardOnTopOfLibrary(me, "Swamp")
+
+        choose(d, me, listOf(land), 1, "Put in graveyard", flag = false) shouldBe emptyList()
+        choose(d, me, listOf(land), 1, "Put in graveyard", flag = true) shouldBe listOf(land)
+
+        val creature = d.putCardOnTopOfLibrary(me, "Diregraf Scavenger")
+        choose(d, me, listOf(creature), 1, "Put in graveyard", flag = true) shouldBe emptyList()
+    }
+
+    test("late game: surveil mills a land with thirteen out, though the land drop is unspent") {
+        // This turn's drop can't be filled by a card left on top — it is drawn next turn at the
+        // earliest — so the empty hand no longer props the thirteenth-plus land up to the keep line.
+        val (d, me) = emptyHandGame(landsOut = 13)
+        val land = d.putCardOnTopOfLibrary(me, "Swamp")
+
+        choose(d, me, listOf(land), 1, "Put in graveyard", flag = true) shouldBe listOf(land)
+        choose(d, me, listOf(land), 1, "Put on bottom", flag = true) shouldBe listOf(land)
+    }
+
+    test("early game: scry keeps a land on top with two out and an empty hand") {
+        val (d, me) = emptyHandGame(landsOut = 2)
+        val land = d.putCardOnTopOfLibrary(me, "Swamp")
+
+        choose(d, me, listOf(land), 1, "Put in graveyard", flag = true) shouldBe emptyList()
+        choose(d, me, listOf(land), 1, "Put on bottom", flag = true) shouldBe emptyList()
+    }
+})

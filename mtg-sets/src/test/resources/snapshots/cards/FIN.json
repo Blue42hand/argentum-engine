@@ -2573,7 +2573,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a Mountain land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -4035,7 +4037,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an Equipment artifact card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4361,7 +4365,8 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 }
-                            }
+                            },
+                            "description": "Draw a card"
                         }
                     ]
                 }
@@ -4899,7 +4904,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 3
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
                     }
                 },
                 "effect": {
@@ -5051,7 +5059,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library and/or graveyard for an artifact card with mana value 2 or less to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -8078,7 +8088,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -11908,7 +11920,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card named Magitek Infantry to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -12790,31 +12804,18 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
-                    "gate": "Gate.MayDecide",
-                    "then": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "SacrificeTarget",
-                                "target": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
-                            {
-                                "type": "Surveil",
-                                "count": 2
-                            }
-                        ]
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "filter": {
-                        "baseFilter": "creature|artifact ctrl:you",
-                        "excludeSelf": true
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature|artifact",
+                            "excludeSource": true
+                        }
                     },
-                    "id": "t0"
+                    "then": {
+                        "type": "Surveil",
+                        "count": 2
+                    }
                 }
             }
         ]
@@ -13811,7 +13812,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land or land Town card to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -14547,8 +14550,16 @@
         "BLACK",
         "GREEN"
     ],
+    "colorIndicator": [
+        "BLACK",
+        "GREEN"
+    ],
     "hasNoManaCost": true,
-    "meldResult": true
+    "meldResult": true,
+    "meldParts": [
+        "Fang, Fearless l'Cie",
+        "Vanille, Cheerful l'Cie"
+    ]
 }
 
 // Random Encounter
@@ -15487,7 +15498,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -16014,7 +16028,12 @@
                                         "type": "HasSubtype",
                                         "subtype": "Saga"
                                     },
-                                    "ManaValueEqualsX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "EQ",
+                                        "amount": "XValue"
+                                    }
                                 ],
                                 "controllerPredicate": "OwnedByYou"
                             },
@@ -16528,7 +16547,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a Bird or basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -18174,7 +18195,9 @@
                                     "baseFilter": "creature ctrl:you"
                                 }
                             },
-                            "storeAs": "target1"
+                            "storeAs": "target1",
+                            "nonTargeting": true,
+                            "prompt": "Choose a creature you control to attach this Equipment to"
                         },
                         {
                             "type": "ConditionalOnCollection",
@@ -18382,7 +18405,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -18923,7 +18948,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -19902,7 +19930,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -22762,12 +22792,12 @@
         ],
         "replacementEffects": [
             {
-                "type": "ModifyMillAmount",
-                "modifier": 4,
+                "type": "ModifyKeywordActionAmount",
                 "appliesTo": {
                     "type": "MillEvent",
                     "player": "EachOpponent"
-                }
+                },
+                "modifier": 4
             }
         ]
     },
@@ -24725,6 +24755,62 @@
                     ]
                 },
                 "descriptionOverride": "When Vanille enters, mill two cards, then return a permanent card from your graveyard to your hand."
+            },
+            {
+                "id": "Vanille, Cheerful l'Cie:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "PRECOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{3}{B}{G}"
+                        }
+                    },
+                    "then": {
+                        "type": "Meld",
+                        "partner": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NameEquals",
+                                    "name": "Fang, Fearless l'Cie"
+                                }
+                            ]
+                        },
+                        "into": "Ragnarok, Divine Deliverance"
+                    }
+                },
+                "interveningIf": {
+                    "type": "All",
+                    "conditions": [
+                        {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": "ctrl:you"
+                        },
+                        {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "NameEquals",
+                                        "name": "Fang, Fearless l'Cie"
+                                    }
+                                ],
+                                "controllerPredicate": "OwnedByYou"
+                            }
+                        }
+                    ]
+                }
             }
         ]
     },
@@ -25899,7 +25985,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -25954,7 +26042,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -26728,7 +26818,7 @@
                         "message": "Shinryu, Transcendent Rival — the chosen player lost the game"
                     },
                     "triggerRestriction": {
-                        "type": "TriggeringPlayerIs",
+                        "type": "PlayerIs",
                         "player": "ChosenOpponent"
                     },
                     "descriptionOverride": "Burning Chains — When the chosen player loses the game, you win the game."

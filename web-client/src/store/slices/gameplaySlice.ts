@@ -4,6 +4,7 @@
 import { decisionInteractionEpoch } from '@/network/liveAction'
 import type { SliceCreator, EntityId, LogEntry, MulliganState, GameOverState, ErrorState } from './types'
 import type { ClientGameState, GameAction, LegalActionInfo, PendingDecision, OpponentDecisionStatus } from '@/types'
+import { useTableTalkStore } from '@/store/tableTalkStore'
 import {
   createCreateGameMessage,
   createJoinGameMessage,
@@ -26,6 +27,7 @@ import {
 import type { Step, PriorityModeValue, PriorityYieldMode, YieldKind } from '@/types'
 import { trackEvent } from '@/utils/analytics.ts'
 import { getWebSocket } from './shared'
+import { getPreferences, usePreferences } from '@/store/preferencesStore'
 
 /** How long an error toast stays up before auto-dismissing. */
 const ERROR_AUTO_DISMISS_MS = 5000
@@ -135,7 +137,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   opponentName: null,
   undoAvailable: false,
   opponentDisconnectCountdown: null,
-  autoTapEnabled: localStorage.getItem('argentum-auto-tap') !== 'false',
+  autoTapEnabled: getPreferences().gameplay.autoTap,
   spectatorCount: 0,
   spectatorNames: [],
 
@@ -532,7 +534,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     const { autoTapEnabled } = get()
     const newValue = !autoTapEnabled
     set({ autoTapEnabled: newValue })
-    localStorage.setItem('argentum-auto-tap', String(newValue))
+    usePreferences.getState().update('gameplay', { autoTap: newValue })
   },
 
   cancelGame: () => {
@@ -579,8 +581,11 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     const newOverrides = { ...stopOverrides, [key]: newStops }
     set({ stopOverrides: newOverrides })
     getWebSocket()?.send(createSetStopOverridesMessage(newOverrides.myTurnStops, newOverrides.opponentTurnStops))
-    // Persist to localStorage
-    localStorage.setItem('argentum-stop-overrides', JSON.stringify(newOverrides))
+    // Remember them: the next game starts with the same stops (see onGameStarted).
+    usePreferences.getState().update('gameplay', {
+      myTurnStops: newOverrides.myTurnStops,
+      opponentTurnStops: newOverrides.opponentTurnStops,
+    })
   },
 
   // Persistent per-ability yields (MTGO right-click yields — backlog §C). The server owns the
@@ -600,6 +605,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
 
   returnToMenu: () => {
     const state = get()
+    useTableTalkStore.getState().leavePostGame()
     // FFA pods keep their lobby context too — "Return to Menu" from the game-over (or
     // eliminated) overlay drops back to the pod's standings screen, not the main menu.
     const isInTournament = state.tournamentState != null || state.ffaState != null

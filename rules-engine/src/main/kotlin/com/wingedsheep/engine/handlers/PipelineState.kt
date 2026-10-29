@@ -16,6 +16,10 @@ data class PipelineState(
     val storedCollections: Map<String, List<EntityId>> = emptyMap(),
     /** Named targets map for BoundVariable resolution (target name -> chosen target) */
     val namedTargets: Map<String, ChosenTarget> = emptyMap(),
+    /** Declaration roots remain known when a target is illegal or an optional slot is empty. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val declaredTargetNames: Set<String> = emptySet(),
     /** Named values chosen by the player during pipeline execution (e.g., creature type, color). */
     val chosenValues: Map<String, String> = emptyMap(),
     /** Named numeric values stored by pipeline effects (e.g., cards not drawn). */
@@ -34,6 +38,31 @@ data class PipelineState(
 
         /** Reserved metadata published by ChooseSpell alongside its selected card collection. */
         fun spellFaceKey(collection: String): String = "$collection:spellFace"
+
+        /**
+         * Reserved metadata collection published by a SelectFromCollection decision alongside its
+         * remainder: the remainder cards that decision displayed to [playerId]. A later move that
+         * would pause only so that player can *look* at those cards (a one-card "put back on top")
+         * reads it to skip a prompt showing a card they just saw — scry 1 / surveil 1.
+         */
+        fun shownKey(collection: String, playerId: EntityId): String = "__shown:${playerId.value}:$collection"
+
+        /**
+         * Reserved metadata collection published by a library-searching gather
+         * (`GatherCardsEffect.search`) alongside [collection]: the cards that search found. A
+         * SelectFromCollection over [collection] reads it to mark its decision as a library
+         * search ([com.wingedsheep.engine.core.SelectCardsDecision.librarySearch]). Empty when a
+         * later non-search gather reused the name.
+         */
+        fun searchedKey(collection: String): String = "__searched:$collection"
+
+        /**
+         * Reserved metadata collection published by a mill gather (`CardSource.TopOfLibrary` with
+         * `isMill`) alongside [collection]: the cards that mill took. The MoveCollection over
+         * [collection] reads it to report the move as a mill ([com.wingedsheep.engine.core.CardsMilledEvent]).
+         * Empty when a later non-mill gather reused the name.
+         */
+        fun milledKey(collection: String): String = "__milled:$collection"
 
         /**
          * Pipeline collection name under which a batch trigger seeds the entities it captured

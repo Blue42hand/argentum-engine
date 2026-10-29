@@ -468,6 +468,69 @@
     ]
 }
 
+// Black Market
+{
+    "name": "Black Market",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature dies, put a charge counter on this enchantment.\nAt the beginning of your first main phase, add {B} for each charge counter on this enchantment.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Black Market:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "CHARGE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            },
+            {
+                "id": "Black Market:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "PRECOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": "CHARGE"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "rarity": "RARE",
+        "artist": "Jeff Easley",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/05976e5c-b46c-431e-9dbd-1dc5fad3536c.jpg?1783945957",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "Getting the mana is not optional."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Blaster Mage
 {
     "name": "Blaster Mage",
@@ -776,7 +839,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 2 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -857,7 +922,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 4 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -935,7 +1002,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 3 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1028,7 +1097,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 6 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1106,7 +1177,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 1 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1186,7 +1259,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Mercenary permanent card with mana value 5 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -1965,7 +2040,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -2392,7 +2470,12 @@
                         "filter": {
                             "cardPredicates": [
                                 "IsCreature",
-                                "ManaValueAtMostX"
+                                {
+                                    "type": "CompareNumericProperty",
+                                    "property": "MANA_VALUE",
+                                    "operator": "LTE",
+                                    "amount": "XValue"
+                                }
                             ]
                         }
                     },
@@ -2709,7 +2792,12 @@
                                 "filter": {
                                     "cardPredicates": [
                                         "IsArtifact",
-                                        "ManaValueAtMostX"
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "LTE",
+                                            "amount": "XValue"
+                                        }
                                     ]
                                 }
                             },
@@ -3506,6 +3594,55 @@
     ]
 }
 
+// Monkey Cage
+{
+    "name": "Monkey Cage",
+    "manaCost": "{5}",
+    "typeLine": "Artifact",
+    "oracleText": "When a creature enters, sacrifice this artifact and create X 2/2 green Monkey creature tokens, where X is that creature's mana value.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Monkey Cage:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        "SacrificeSelf",
+                        {
+                            "type": "CreateToken",
+                            "count": {
+                                "type": "EntityProperty",
+                                "entity": "TriggeringEntity",
+                                "numericProperty": "ManaValue"
+                            },
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [
+                                "GREEN"
+                            ],
+                            "creatureTypes": [
+                                "Monkey"
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "307",
+        "rarity": "RARE",
+        "artist": "Carl Critchlow",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/07f6be53-7a20-4e6b-a6ce-11cba06af8cb.jpg?1783945911"
+    }
+}
+
 // Nightwind Glider
 {
     "name": "Nightwind Glider",
@@ -3851,7 +3988,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 4 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -3930,7 +4069,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 5 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -4009,7 +4150,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 3 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -4087,7 +4230,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 2 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -4168,7 +4313,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Rebel permanent card with mana value 6 or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -4807,7 +4954,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a Forest land card to put onto the battlefield",
+                                "selectedLabel": "Put onto the battlefield"
                             },
                             {
                                 "type": "MoveCollection",
@@ -5266,6 +5415,53 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Task Force
+{
+    "name": "Task Force",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Rebel",
+    "oracleText": "Whenever this creature becomes the target of a spell or ability, it gets +0/+3 until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Task Force:1",
+                "trigger": "BecomesTargetEvent",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "52",
+        "artist": "Gary Ruddell",
+        "flavorText": "They are the reflection of Rushwood's glow on the edge of a wooden sword.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/17a58c5b-28c2-4261-992c-2ecadb721880.jpg?1783945972",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "The +0/+3 bonus is added as a triggered ability upon the casting/activating of a spell or ability which targets this card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 

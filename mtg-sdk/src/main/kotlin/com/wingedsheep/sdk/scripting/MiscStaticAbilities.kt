@@ -103,6 +103,65 @@ data class ConditionalStaticAbility(
 }
 
 /**
+ * A static ability that functions from a zone other than the battlefield — "As long as this card
+ * is in your graveyard, …" (CR 113.6b: an ability that states which zones it functions in
+ * functions only from those zones). Anger: "As long as Anger is in your graveyard and you control
+ * a Mountain, creatures you control have haste" is a [GrantKeyword] behind a
+ * [ConditionalStaticAbility] ("you control a Mountain"), scoped here to `{GRAVEYARD}`.
+ *
+ * The static-ability twin of [TriggeredAbility.activeZones] and [ReplacementEffect.activeZones],
+ * and read the same way: the *scanner* filters by it. Declaring `{GRAVEYARD}` switches the
+ * ability **on** in its owner's graveyard and **off** on the battlefield — a cast Anger grants
+ * nothing until it dies, which is what the card says.
+ *
+ * "You" for the wrapped ability is the card's **owner**: a card in a graveyard has no controller,
+ * and CR 108.4a / 109.5 read "you" on such an object as its owner. So "creatures you control"
+ * and "you control a Mountain" both resolve against whoever owns the graveyard the card sits in.
+ *
+ * Why a wrapper and not a field: [ReplacementEffect.activeZones] is a per-subtype field because
+ * there are a few dozen replacement types; there are hundreds of [StaticAbility] leaves, and the
+ * zone is orthogonal to every one of them — the same reason [ConditionalStaticAbility] wraps
+ * rather than adding a `condition` to each leaf. The two closest types are
+ * [ConditionalStaticAbility] (a condition can gate an ability that is *already* functioning, but
+ * cannot switch one on outside the battlefield — the projector never looks there) and
+ * [TriggeredAbility.activeZones] (the same axis, on triggers). Write it through
+ * `staticAbility { activeZones = setOf(Zone.GRAVEYARD) }`.
+ *
+ * **Scope.** Only [SUPPORTED_ZONES] are accepted — the zones the state projector scans for
+ * these abilities — and only abilities that project through the layer system (keyword grants,
+ * stat changes, …) function from them; the engine refuses a wrapped ability that lowers to no
+ * continuous effect rather than letting it sit inert. Widen both together when a card needs it.
+ *
+ * @property ability The static ability that functions while the card is in one of [activeZones].
+ * @property activeZones The zones it functions from; never the battlefield.
+ */
+@SerialName("ZoneScopedStaticAbility")
+@Serializable
+data class ZoneScopedStaticAbility(
+    val ability: StaticAbility,
+    val activeZones: Set<Zone>
+) : StaticAbility {
+    init {
+        require(activeZones.isNotEmpty() && SUPPORTED_ZONES.containsAll(activeZones)) {
+            "ZoneScopedStaticAbility.activeZones must be a non-empty subset of $SUPPORTED_ZONES, was $activeZones"
+        }
+    }
+
+    override val description: String
+        get() = "As long as this card is in ${activeZones.joinToString(" or ") { if (it == Zone.GRAVEYARD) "your graveyard" else it.displayName }}, ${ability.description}"
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newAbility = ability.applyTextReplacement(replacer)
+        return if (newAbility !== ability) copy(ability = newAbility) else this
+    }
+
+    companion object {
+        /** The non-battlefield zones the engine scans for zone-scoped static abilities. */
+        val SUPPORTED_ZONES: Set<Zone> = setOf(Zone.GRAVEYARD)
+    }
+}
+
+/**
  * A single static ability whose one continuous effect spans multiple Rule 613 layers, expressed
  * as a bundle of component static abilities that share one identity (CR 613.6).
  *
@@ -628,7 +687,7 @@ data object PlayersRevealTopOfLibrary : StaticAbility {
 
 /**
  * You may play lands and cast spells matching a filter from the top of your library.
- * Unlike PlayFromTopOfLibrary, this restricts which spells can be cast (but always allows lands).
+ * Unlike PlayFromTopOfLibrary, this restricts which spells can be cast and which lands can be played.
  * Used for Glarb, Calamity's Augur (mana value 4 or greater).
  *
  * @property spellFilter The filter that spells on top of library must match to be castable, or
@@ -636,18 +695,29 @@ data object PlayersRevealTopOfLibrary : StaticAbility {
  *   permission at all (Ka-Zar of the Savage Land). Passing a land-shaped filter instead behaves the
  *   same, since a land is never cast, but renders a nonsense description ("cast spells matching
  *   land"), and that description is what the UI shows for a granted ability.
+ * @property landFilter The filter a land on top of the library must match to be played this way.
+ *   Defaults to every land; Isu the Abominable narrows it to snow lands ("you may play snow lands and
+ *   cast snow spells from the top of your library"). Evaluated against the card in the library, so
+ *   only printed characteristics are seen.
  */
 @SerialName("PlayLandsAndCastFilteredFromTopOfLibrary")
 @Serializable
 data class PlayLandsAndCastFilteredFromTopOfLibrary(
-    val spellFilter: GameObjectFilter?
+    val spellFilter: GameObjectFilter?,
+    val landFilter: GameObjectFilter = GameObjectFilter.Land
 ) : StaticAbility {
-    override val description: String =
-        if (spellFilter == null) "You may play lands from the top of your library."
-        else "You may play lands and cast spells matching ${spellFilter.description} from the top of your library."
+    override val description: String = buildString {
+        append("You may play ")
+        append(if (landFilter == GameObjectFilter.Land) "lands" else "${landFilter.description}s")
+        if (spellFilter != null) append(" and cast spells matching ${spellFilter.description}")
+        append(" from the top of your library.")
+    }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
-        val newFilter = spellFilter?.applyTextReplacement(replacer)
-        return if (newFilter !== spellFilter) copy(spellFilter = newFilter) else this
+        val newSpellFilter = spellFilter?.applyTextReplacement(replacer)
+        val newLandFilter = landFilter.applyTextReplacement(replacer)
+        return if (newSpellFilter !== spellFilter || newLandFilter !== landFilter) {
+            copy(spellFilter = newSpellFilter, landFilter = newLandFilter)
+        } else this
     }
 }
 
@@ -1163,43 +1233,54 @@ data class LegendRuleDoesNotApplyTo(
 }
 
 /**
- * The controller skips their draw step — "Skip your draw step." (Colfenor's Plans, Necropotence).
+ * [player] skips every [part] for as long as this static applies — "Skip your draw step."
+ * (Colfenor's Plans, Necrodominance; [player] = [Player.You]) and "Players skip their untap
+ * steps." (Stasis; [Player.Each]).
  *
- * Like [NoMaximumHandSize] this is a turn-based read rather than a continuous-projection effect:
- * [com.wingedsheep.engine.core.DrawPhaseManager] scans the battlefield for it as the draw step
- * begins and, when the drawing player controls a permanent that has it, takes no draw. It is the
- * standing counterpart of
- * [com.wingedsheep.sdk.scripting.effects.SkipStepOrPhaseThisTurnEffect] / the one-shot
- * "skip your next draw step" marker, which are consumed by the step they skip.
+ * A turn-based read rather than a continuous-projection effect: the engine scans the battlefield
+ * (and granted statics) as the step begins, resolving [player] from each source's controller, and
+ * proceeds past the step as though it didn't exist (CR 500.11). [ConditionalStaticAbility] and
+ * [CompositeStaticAbility] wrappers are unwrapped. Unlike the one-shot and this-turn
+ * [com.wingedsheep.sdk.scripting.effects.SkipStepOrPhaseEffect], it is never consumed.
  *
- * The draw-step read matches the ability by type and does **not** unwrap a
- * [ConditionalStaticAbility], so an "as long as …" wording needs that unwrapping added to
- * `DrawPhaseManager.skipsDrawStep` first — every printed use of this line so far is unconditional.
+ * Only [com.wingedsheep.sdk.core.TurnPart.UNTAP_STEP] and
+ * [com.wingedsheep.sdk.core.TurnPart.DRAW_STEP] have a standing reader.
  */
-@SerialName("SkipDrawStep")
+@SerialName("SkipStepOrPhase")
 @Serializable
-data object SkipDrawStep : StaticAbility {
-    override val description: String = "Skip your draw step"
-}
+data class SkipStepOrPhase(
+    val part: com.wingedsheep.sdk.core.TurnPart,
+    val player: Player = Player.You,
+) : StaticAbility {
+    init {
+        require(part in SUPPORTED) { "SkipStepOrPhase supports only $SUPPORTED, not $part" }
+    }
 
-/** Standing player-scoped restriction; unlike a next-step marker it is never consumed. */
-@SerialName("SkipUntapStep")
-@Serializable
-data class SkipUntapStep(val player: Player = Player.Each) : StaticAbility {
-    override val description: String = "${player.description} skips their untap steps"
+    override val description: String = when (player) {
+        Player.You -> "Skip your ${part.displayName}"
+        else -> "${player.description} skips their ${part.displayName}s"
+    }
+
+    companion object {
+        /** The parts the engine reads a standing skip for. */
+        val SUPPORTED: Set<com.wingedsheep.sdk.core.TurnPart> =
+            setOf(com.wingedsheep.sdk.core.TurnPart.UNTAP_STEP, com.wingedsheep.sdk.core.TurnPart.DRAW_STEP)
+    }
 }
 
 /**
  * Removes the maximum hand size limit for the controller.
  * Used for cards like Thought Vessel and Reliquary Tower: "You have no maximum hand size."
  *
- * The engine checks for this static ability during the cleanup step. If the active player
- * controls any permanent on the battlefield with this ability, the discard-down-to-hand-size
- * action is skipped.
+ * The engine reads it from each permanent's *projected* static abilities
+ * (`com.wingedsheep.engine.core.MaximumHandSize`), so it applies to whoever controls a
+ * permanent that has it — printed, gained from a resolved effect, or granted by
+ * [GrantStaticAbility] ("Enchanted creature has 'You have no maximum hand size'", Nerd Rage) —
+ * and stops applying when that permanent loses its abilities.
  */
 @SerialName("NoMaximumHandSize")
 @Serializable
-data object NoMaximumHandSize : StaticAbility {
+data object NoMaximumHandSize : ProjectedStaticAbility {
     override val description: String = "You have no maximum hand size"
 }
 
@@ -1411,6 +1492,11 @@ data object UntapSelfDuringOtherUntapSteps : StaticAbility {
  *
  * Used by Damping Field — "Players can't untap more than one artifact during their untap steps"
  * (`filter = GameObjectFilter.Artifact`, `max = 1`).
+ *
+ * `max = 0` is the global "[filter] don't untap during their controllers' untap steps" (Meekstone:
+ * creatures with power 3 or greater). With nothing to choose, the engine drops the matching
+ * permanents from the untap without a prompt. Unlike a layer-6 `DOESNT_UNTAP` grant, the filter is
+ * read at the untap step over the final projected state, so a power filter sees layer-7 changes.
  */
 @SerialName("UntapLimitPerStep")
 @Serializable
@@ -1419,7 +1505,8 @@ data class UntapLimitPerStep(
     val max: Int
 ) : StaticAbility {
     override val description: String =
-        "Players can't untap more than $max ${filter.description} during their untap steps"
+        if (max == 0) "${filter.description} don't untap during their controllers' untap steps"
+        else "Players can't untap more than $max ${filter.description} during their untap steps"
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -1428,18 +1515,29 @@ data class UntapLimitPerStep(
 }
 
 /**
- * You may activate loyalty abilities of planeswalkers you control an extra time each turn.
- * Used for Oath of Teferi: "You may activate the loyalty abilities of planeswalkers you control
- * twice each turn rather than only once."
- *
- * The engine checks for this static ability on the controller's battlefield when validating
- * planeswalker loyalty ability activations. Multiple copies do NOT stack — the maximum is
- * always two activations per planeswalker per turn regardless of how many copies are controlled.
+ * Sets the maximum loyalty activations each turn for permanents matching [filter].
+ * Defaults to Oath of Teferi's planeswalkers you control; `GameObjectFilter.Any.sourceItself()`
+ * expresses Urza, Planeswalker's self-only permission. Multiple permissions take the largest
+ * [times], never their sum, and do not change timing, costs, or activation prohibitions.
  */
 @SerialName("ExtraLoyaltyActivation")
 @Serializable
-data object ExtraLoyaltyActivation : StaticAbility {
-    override val description: String = "You may activate loyalty abilities of planeswalkers you control twice each turn rather than only once"
+data class ExtraLoyaltyActivation(
+    val filter: GameObjectFilter = GameObjectFilter.Planeswalker.youControl(),
+    val times: Int = 2,
+) : StaticAbility {
+    init {
+        require(times >= 2) { "A loyalty activation allowance must be at least two" }
+    }
+
+    override val description: String
+        get() = "You may activate loyalty abilities of ${filter.description} " +
+            (if (times == 2) "twice" else "$times times") + " each turn rather than only once"
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val replaced = filter.applyTextReplacement(replacer)
+        return if (replaced !== filter) copy(filter = replaced) else this
+    }
 }
 
 /**
@@ -1573,6 +1671,36 @@ data class AdditionalAttackTriggers(
 }
 
 /**
+ * If you casting or copying a spell matching [spellFilter] causes a triggered ability of a permanent
+ * you control to trigger, that ability triggers an additional time (CR 603.2d). The **cast-cause**
+ * analogue of [AdditionalAttackTriggers]: models Veyran, Voice of Duality ("If you casting or copying
+ * an instant or sorcery spell causes a triggered ability of a permanent you control to trigger, that
+ * ability triggers an additional time").
+ *
+ * Only spell-cast/spell-copied triggered abilities are doubled ("whenever you cast …", magecraft's
+ * "cast or copy", prowess, "your second spell each turn") — and only when the spell that caused them
+ * matches [spellFilter] and was cast or copied by the doubler's controller (a copy counts as copied
+ * by the player who controls it, CR 707.10). A "whenever you cast a spell" ability doubles when that
+ * spell is an instant or sorcery even though the ability itself doesn't care about the spell's type.
+ * The triggered ability must belong to a permanent the doubler's controller controls — a spell's own
+ * "when you cast this spell" ability isn't a permanent's.
+ *
+ * Multiple copies are additive: N copies add N extra firings of each affected trigger.
+ */
+@SerialName("AdditionalCastOrCopyTriggers")
+@Serializable
+data class AdditionalCastOrCopyTriggers(
+    val spellFilter: GameObjectFilter = GameObjectFilter.InstantOrSorcery,
+    override val description: String =
+        "If you casting or copying an instant or sorcery spell causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time"
+) : StaticAbility {
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = spellFilter.applyTextReplacement(replacer)
+        return if (newFilter !== spellFilter) copy(spellFilter = newFilter) else this
+    }
+}
+
+/**
  * If a creature dying causes a triggered ability within the doubler's *scope* to trigger, that
  * ability triggers an additional time. The **death-cause** analogue of [AdditionalAttackTriggers]:
  * where that doubles triggers caused by an attack being declared, this doubles triggers caused by a
@@ -1639,24 +1767,34 @@ data class AdditionalDeathTriggers(
  *
  * Multiple copies are additive: two copies yield two additional land drops.
  *
- * @property count The number of additional land drops granted each turn (default 1)
+ * A null [count] is "any number of lands" (Fastbond) — not a large constant, so it never
+ * overflows when summed with the turn's base drop or other grants; once any applicable grant is
+ * unlimited the player's land plays are unbounded for as long as it applies.
+ *
+ * @property count The number of additional land drops granted each turn (default 1); null for
+ *   "any number of lands"
  * @property affected Who gets the extra drops, relative to the source's controller: [Player.You]
  *   (default), [Player.Each], or [Player.EachOpponent].
  */
 @SerialName("GrantAdditionalLandDrop")
 @Serializable
 data class GrantAdditionalLandDrop(
-    val count: Int = 1,
+    val count: Int? = 1,
     val affected: Player = Player.You
 ) : StaticAbility {
     init {
+        require(count == null || count > 0) { "GrantAdditionalLandDrop.count must be positive or null, was $count" }
         require(affected == Player.You || affected == Player.Each || affected == Player.EachOpponent) {
             "GrantAdditionalLandDrop.affected must be You, Each, or EachOpponent, was $affected"
         }
     }
 
     override val description: String = run {
-        val lands = if (count == 1) "an additional land" else "$count additional lands"
+        val lands = when (count) {
+            null -> "any number of lands"
+            1 -> "an additional land"
+            else -> "$count additional lands"
+        }
         when (affected) {
             Player.Each -> "Each player may play $lands on each of their turns"
             Player.EachOpponent -> "Each opponent may play $lands on each of their turns"

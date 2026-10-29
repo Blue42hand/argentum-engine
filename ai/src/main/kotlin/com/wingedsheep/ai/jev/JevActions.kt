@@ -21,7 +21,8 @@ internal class JevActions(
         if (action is DeclareAttackers) {
             val assignments = linkedMapOf<EntityId, EntityId>()
             for (attacker in info.validAttackers.orEmpty()) {
-                val defenders: List<EntityId?> = info.validAttackTargets.orEmpty() +
+                val legal = info.attackTargetsByAttacker?.get(attacker) ?: info.validAttackTargets.orEmpty()
+                val defenders: List<EntityId?> = legal +
                     if (attacker in info.mandatoryAttackers.orEmpty()) emptyList() else listOf(null)
                 val defender = q.pick("Attack with ${label(attacker)}?", defenders) {
                     if (it == null) "Do not attack" else "Attack ${label(it)}"
@@ -68,8 +69,9 @@ internal class JevActions(
                 xConstrainsManaValue = info.xConstrainsTargetManaValue,
                 xConstrainsManaValueExactly = info.xConstrainsTargetManaValueExactly,
                 xConstrainsPower = info.xConstrainsTargetPower, xConstrainsCount = info.xConstrainsTargetCount,
+                xConstrainsCountExactly = info.xConstrainsTargetCountExactly,
             )) else emptyList(), x)
-        val costs = listOfNotNull(info.additionalCostInfo) + modes.mapNotNull { it.additionalCostInfo } +
+        val costs = listOfNotNull(info.additionalCostInfo) + info.additionalCostInfo?.alsoRequired.orEmpty() + modes.mapNotNull { it.additionalCostInfo } +
             List((modes.size - 1).coerceAtLeast(0)) { modal?.additionalCostPerExtraMode }.filterNotNull()
         val payment = costs.map(::cost).reduceOrNull(::combine)
         val manaPayment = manaPayment(info)
@@ -96,17 +98,23 @@ internal class JevActions(
         "Choose creatures with total power at least ${info.tapForPowerRequired}",
         info.tapForPowerCreatures.orEmpty().map { it.entityId })
 
-    private fun targets(requirements: List<LegalActionTargetInfo>, x: Int?): List<ChosenTarget> =
-        requirements.flatMap { r ->
-            val options = r.validTargets.filter { id ->
+    private fun targets(requirements: List<LegalActionTargetInfo>, x: Int?): List<ChosenTarget> {
+        val chosenIds = mutableListOf<EntityId>()
+        for (r in requirements) {
+            val candidates = r.validTargetsByPrefix?.get(chosenIds.joinToString(","))
+                ?: if (r.validTargetsByPrefix == null) r.validTargets else emptyList()
+            val options = candidates.filter { id ->
                 val card = state.cards[id]
                 (x == null || !r.xConstrainsManaValue || card == null || card.manaValue <= x) &&
                     (x == null || !r.xConstrainsManaValueExactly || card?.manaValue == x) &&
                     (x == null || !r.xConstrainsPower || card?.power == x)
             }
-            cards(r.description, options, r.minTargets,
-                if (r.xConstrainsCount && x != null) minOf(x, r.maxTargets) else r.maxTargets).map(::target)
+            val max = if (r.xConstrainsCount && x != null) x else r.maxTargets
+            val min = if (r.xConstrainsCountExactly && x != null) x else minOf(r.minTargets, max)
+            chosenIds += cards(r.description, options, min, max)
         }
+        return chosenIds.map(::target)
+    }
 
     private fun target(id: EntityId): ChosenTarget {
         if (state.players.any { it.playerId == id }) return ChosenTarget.Player(id)

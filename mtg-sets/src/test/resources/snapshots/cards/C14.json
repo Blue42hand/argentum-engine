@@ -77,6 +77,60 @@
     "colorIdentityOverride": []
 }
 
+// Commander's Sphere
+{
+    "name": "Commander's Sphere",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add one mana of any color in your commander's color identity.\nSacrifice this artifact: Draw a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Commander's Sphere:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": "ManaColorSet.CommanderIdentity"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Commander's Sphere:2",
+                "cost": "CostSacrificeSelf",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "artist": "Ryan Alexander Lee",
+        "flavorText": "It harmonizes with the essence of its master.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/61e0a922-1689-484f-abb3-902ce1c964ca.jpg?1783938863",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If you don't have a commander, Commander's Sphere's first ability produces no mana."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If your commander is a card that has no colors in its color identity, Commander's Sphere's first ability produces no mana. It doesn't produce {C}."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If you have two commanders, the ability adds one mana of any color in their combined color identities."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Creeperhulk
 {
     "name": "Creeperhulk",
@@ -152,6 +206,174 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Dualcaster Mage
+{
+    "name": "Dualcaster Mage",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "Flash\nWhen this creature enters, copy target instant or sorcery spell. You may choose new targets for the copy.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Dualcaster Mage:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CopyTargetSpell",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "instant|sorcery",
+                        "zone": "Stack"
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "RARE",
+        "artist": "Matt Stewart",
+        "flavorText": "\"It has been my experience that disasters like to strike in pairs.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/b/0b80c8a0-0870-4836-bee1-f4a805d119d6.jpg?1783938867",
+        "rulings": [
+            {
+                "date": "2016-06-08",
+                "text": "Dualcaster Mage's triggered ability can target (and copy) any instant or sorcery spell, not just one with targets. It doesn't matter who controls it."
+            },
+            {
+                "date": "2016-06-08",
+                "text": "As Dualcaster Mage's triggered ability resolves, it creates a copy of a spell on the stack. The copy isn't cast, so abilities that trigger when a player casts a spell won't trigger."
+            },
+            {
+                "date": "2016-06-08",
+                "text": "The copy will have the same targets as the spell it's copying unless you choose new ones. You may change any number of the targets, including all of them or none of them. If, for one of the targets, you can't choose a new legal target, then it remains unchanged (even if the current target is illegal)."
+            },
+            {
+                "date": "2016-06-08",
+                "text": "If the spell is modal (that is, it says \"Choose one —\" or the like), the copy will have the same mode. You can't choose a different one."
+            },
+            {
+                "date": "2016-06-08",
+                "text": "If the spell has an X whose value was determined as it was cast (like Earthquake does), the copy has the same value of X."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Intellectual Offering
+{
+    "name": "Intellectual Offering",
+    "manaCost": "{4}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Choose an opponent. You and that player each draw three cards.\nChoose an opponent. Untap all nonland permanents you control and all nonland permanents that player controls.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ChooseOpponentForSource",
+                    "prompt": "Choose an opponent: you and that player each draw three cards"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "ChosenOpponent"
+                    }
+                },
+                {
+                    "type": "ChooseOpponentForSource",
+                    "prompt": "Choose an opponent: untap all nonland permanents you and that player control"
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "nonland permanent ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "TapUntap",
+                        "target": "IterationEntity",
+                        "tap": false
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ChosenOpponent"
+                    },
+                    "body": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "nonland permanent ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "TapUntap",
+                            "target": "IterationEntity",
+                            "tap": false
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "RARE",
+        "artist": "Mark Winters",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/63de9e39-3c16-452f-9f06-4c1298752f57.jpg?1783938871",
+        "rulings": [
+            {
+                "date": "2014-11-07",
+                "text": "You may choose the same opponent for each of the effects, or you may choose different opponents. None of the affected players are targets of the spell."
+            },
+            {
+                "date": "2014-11-07",
+                "text": "You choose the opponents for each effect as the spell resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -277,7 +499,9 @@
                                     "amount": 2
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for up to two basic land cards to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -393,6 +617,79 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Titania, Protector of Argoth
+{
+    "name": "Titania, Protector of Argoth",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Legendary Creature — Elemental",
+    "oracleText": "When Titania enters, return target land card from your graveyard to the battlefield.\nWhenever a land you control is put into a graveyard from the battlefield, create a 5/3 green Elemental creature token.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Titania, Protector of Argoth:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When Titania enters, return target land card from your graveyard to the battlefield."
+            },
+            {
+                "id": "Titania, Protector of Argoth:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 5,
+                    "toughness": 3,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Elemental"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/4/1449862b-309e-4c58-ac94-13d1acdd363f.jpg?1783938795"
+                },
+                "descriptionOverride": "Whenever a land you control is put into a graveyard from the battlefield, create a 5/3 green Elemental creature token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "MYTHIC",
+        "artist": "Magali Villeneuve",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/224d904a-5972-4152-878a-9a922e7a55b6.jpg?1783938864"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

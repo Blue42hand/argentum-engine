@@ -1,6 +1,7 @@
 import { AbilityFlag, Color, CounterType, DayNight, Keyword, Phase, Step, ZoneType } from './enums'
 import { EntityId, ZoneId } from './entities'
 import { ClientEvent } from './events'
+import type { AttackMode } from './messages'
 
 /**
  * Client-facing game state DTO.
@@ -29,8 +30,14 @@ export interface ClientGameState {
   /** Who currently has priority */
   readonly priorityPlayerId: EntityId
 
-  /** Turn number */
+  /** Turn number — counts every player turn, so it advances on each seat's turn */
   readonly turnNumber: number
+
+  /**
+   * Round number — advances once the turn passes back around the table, so every seat's turn in
+   * one pass shares a number. Absent on states recorded before it existed; fall back to turnNumber.
+   */
+  readonly roundNumber?: number | undefined
 
   /** Whether the game is over */
   readonly isGameOver: boolean
@@ -57,6 +64,14 @@ export interface ClientGameState {
    * so never masked. Drives the day/night indicator. See {@link DayNight}.
    */
   readonly dayNight?: DayNight | null
+
+  /**
+   * The Free-for-All attack restriction (CR 803): `'LEFT'` / `'RIGHT'` limit each player to the
+   * neighbouring seat in that direction; absent/null when any opponent may be attacked. Fixed for
+   * the game, so a delta never carries it — the applicator keeps the full state's value. Display
+   * only: `validAttackTargets` is still what a declaration may name.
+   */
+  readonly attackMode?: AttackMode | null
 
   /**
    * If non-null, the affected player whose choices the viewing player is currently driving
@@ -481,6 +496,9 @@ export interface ClientCard {
   /** Original card name when this permanent is a copy (e.g., "Clever Impersonator") */
   readonly copyOf?: string | null
 
+  /** Art of the original card's own printing when this permanent is a copy */
+  readonly copyOfImageUri?: string | null
+
   /**
    * True when the printed card is legendary but this permanent's projected type line is not —
    * a copy effect explicitly stripped legendariness ("except it isn't legendary" /
@@ -699,6 +717,12 @@ export interface ClientPlayer {
    * badge is rendered.
    */
   readonly energyCounters?: number
+  readonly radCounters?: number
+  /**
+   * This player's experience counter total (CR 122.1 — a counter on a player). `0` means no badge
+   * is rendered.
+   */
+  readonly experienceCounters?: number
   /**
    * Team membership in a team variant (Two-Headed Giant — CR 810; Team vs. Team — CR 808):
    * players sharing a `teamIndex` are teammates. Absent in every non-team game. Carried on the
@@ -716,6 +740,37 @@ export interface ClientPlayer {
    * there, which is why it can't be folded into `teamSharedLife` or into "has a `teamIndex`".
    */
   readonly teamSharedTurns?: boolean
+  /**
+   * This player's revealed companion while it waits outside the game (CR 103.2b, 702.139a); absent
+   * once it is put into hand, or when there is none. Public: the card itself is in `cards` for
+   * every viewer. Shown beside the command zone.
+   */
+  readonly companionId?: EntityId | null
+  /**
+   * The dungeon this player owns in the command zone and where their venture marker is (CR 309),
+   * or absent when they aren't in a dungeon. Public — everyone sees every player's dungeon.
+   */
+  readonly dungeon?: ClientDungeon | null
+  /** Names of the dungeons this player has completed, in order (CR 309.7). */
+  readonly completedDungeons?: readonly string[]
+}
+
+/**
+ * A player's dungeon (CR 309): the whole room graph plus the room the venture marker is on.
+ * Matches backend ClientDungeon.kt.
+ */
+export interface ClientDungeon {
+  readonly name: string
+  readonly imageUri?: string | null
+  readonly currentRoom: number
+  readonly rooms: readonly ClientDungeonRoom[]
+}
+
+/** One room: its name, printed effect, and the room indices its arrows lead to (empty = bottom). */
+export interface ClientDungeonRoom {
+  readonly name: string
+  readonly text: string
+  readonly leadsTo: readonly number[]
 }
 
 /**
@@ -755,6 +810,11 @@ export interface ClientPlayerEffect {
    * (e.g. The Ring's four temptations). Rendered as filled/empty pips.
    */
   readonly progress?: ClientEffectProgress
+  /**
+   * The emblem entity behind this badge, when the emblem has activated abilities of its own
+   * (Karn, Living Legacy's). Legal actions whose `sourceId` matches are activated from the badge.
+   */
+  readonly sourceId?: EntityId
   /** When the effect ends, e.g. "until end of turn"; absent when no end is stated. */
   readonly duration?: string | null
 }

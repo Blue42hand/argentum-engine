@@ -5,7 +5,14 @@
  * - mergeResult: applies a phase result to the accumulated action
  * - enterPhase: calls the appropriate start* method for a phase
  */
-import type { ChosenTarget, EntityId, LegalActionInfo, GameAction, ClientGameState } from '@/types'
+import type {
+  ChosenTarget,
+  EntityId,
+  LegalActionInfo,
+  GameAction,
+  ClientGameState,
+} from '@/types'
+import type { AdditionalCostInfo } from '@/types/messages'
 import { TAP_FOR_GENERIC_LABEL_IMPROVISE, TAP_FOR_GENERIC_LABEL_WATERBEND } from '@/types'
 import { materializeX, parseManaCost } from '@/utils/manaCost'
 import type {
@@ -44,6 +51,20 @@ function targetEntityId(target: ChosenTarget): EntityId {
     case 'Card':
       return target.cardId
   }
+}
+
+/**
+ * The additional cost a `costPayment` phase pays: the action's own `additionalCostInfo`, or — for a
+ * spell with several selection costs ("discard a card and sacrifice a creature") — the
+ * `costIndex`-th entry of its `alsoRequired` chain.
+ */
+export function costInfoForPhase(
+  actionInfo: LegalActionInfo,
+  phase: PipelinePhase | undefined,
+): AdditionalCostInfo | undefined {
+  const costInfo = actionInfo.additionalCostInfo
+  const index = phase?.type === 'costPayment' ? (phase.costIndex ?? 0) : 0
+  return index === 0 ? costInfo : costInfo?.alsoRequired?.[index - 1]
 }
 
 // ---------------------------------------------------------------------------
@@ -291,6 +312,10 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
       if (!isAutoSelectable) {
         phases.push({ type: 'costPayment' })
       }
+      // Every further selection cost the cast demands gets its own picker, in order (CR 601.2h).
+      actionInfo.additionalCostInfo.alsoRequired?.forEach((_, i) => {
+        phases.push({ type: 'costPayment', costIndex: i + 1 })
+      })
     } else if (costType === 'BlightVariable') {
       phases.push({ type: 'blightVariable' })
     } else if (costType === 'PayXLife') {
@@ -614,7 +639,9 @@ export function mergeResult(
         return { type: 'Permanent' as const, entityId: targetId }
       })
       if (action.type === 'CastSpell' || action.type === 'ActivateAbility') {
-        return { ...action, targets }
+        return result.targetGroupCounts
+          ? { ...action, targets, targetGroupCounts: result.targetGroupCounts }
+          : { ...action, targets }
       }
       return action
     }
@@ -874,6 +901,7 @@ export function enterPhase(
           count = scaled(costInfo.tapCount)
           flags.isSacrificeSelection = true
           flags.isTapPermanentSelection = true
+          flags.targetDescription = costInfo.description
           break
         case 'SacrificePermanent':
           validTargets = [...costInfo.validSacrificeTargets!]
@@ -908,7 +936,7 @@ export function enterPhase(
     }
 
     case 'costPayment': {
-      const costInfo = actionInfo.additionalCostInfo!
+      const costInfo = costInfoForPhase(actionInfo, phase)!
       const costType = costInfo.costType!
 
       let validTargets: EntityId[]
@@ -976,6 +1004,9 @@ export function enterPhase(
           }
           flags.isSacrificeSelection = true
           flags.isTapPermanentSelection = true
+          // Shown verbatim as the prompt: it is what tells "Untap two tapped creatures you
+          // control" (Halo Fountain) apart from an ordinary tap cost.
+          flags.targetDescription = costInfo.description
           break
         }
         case 'Conspire':
@@ -1204,15 +1235,27 @@ export function enterPhase(
         if (chosenX == null) return staticMax
         return chosenX
       }
+      // "X target creatures" (as opposed to "up to X") is exact: the server flags it, and the
+      // chosen X becomes the minimum as well as the maximum.
+      const resolveMinByX = (staticMin: number, max: number, exact: boolean | undefined): number =>
+        exact && chosenX != null ? chosenX : Math.min(staticMin, max)
+      // Name the spell the targets are for — "for Catlike Curiosity (Disturb)". The banner is all
+      // the player sees once the menu closes, and the server's description is the one place that
+      // names the face actually being cast (a disturb or modal-DFC back, CR 712.8c) and how.
+      const spellSource = action.type === 'CastSpell' && actionInfo.description
+        ? { sourceCardName: actionInfo.description.replace(/^Cast /, '') }
+        : {}
 
-      if (actionInfo.targetRequirements && actionInfo.targetRequirements.length > 1) {
+      if (actionInfo.targetRequirements && actionInfo.targetRequirements.length > 0) {
         const firstReq = actionInfo.targetRequirements[0]!
         const maxTargets = resolveMaxByX(firstReq.maxTargets, firstReq.xConstrainsCount)
         store.startTargeting({
           action,
           validTargets: applyXFilters(firstReq.validTargets, firstReq.xConstrainsManaValue, firstReq.xConstrainsPower, firstReq.xConstrainsManaValueExactly),
           selectedTargets: [],
-          minTargets: Math.min(firstReq.minTargets, maxTargets),
+          selectionGroups: firstReq.selectionGroups ?? null,
+          exclusiveGroups: firstReq.exclusiveGroups ?? null,
+          minTargets: resolveMinByX(firstReq.minTargets, maxTargets, firstReq.xConstrainsCountExactly),
           maxTargets,
           currentRequirementIndex: 0,
           allSelectedTargets: [],
@@ -1221,6 +1264,7 @@ export function enterPhase(
           targetDescription: firstReq.description,
           totalRequirements: actionInfo.targetRequirements.length,
           ...(actionInfo.requiresDamageDistribution ? { requiresDamageDistribution: true } : {}),
+          ...spellSource,
         })
       } else {
         const rawMax = actionInfo.targetCount ?? 1
@@ -1230,12 +1274,13 @@ export function enterPhase(
           action,
           validTargets: applyXFilters(actionInfo.validTargets ?? [], actionInfo.xConstrainsTargetManaValue, actionInfo.xConstrainsTargetPower, actionInfo.xConstrainsTargetManaValueExactly),
           selectedTargets: [],
-          minTargets: Math.min(rawMin, maxTargets),
+          minTargets: resolveMinByX(rawMin, maxTargets, actionInfo.xConstrainsTargetCountExactly),
           maxTargets,
           // "Select target creature (0/1)" rather than a bare "Select targets" — the server
           // already derives the requirement's wording, the single-target path just dropped it.
           ...(actionInfo.targetDescription ? { targetDescription: actionInfo.targetDescription } : {}),
           ...(actionInfo.requiresDamageDistribution ? { requiresDamageDistribution: true } : {}),
+          ...spellSource,
         })
       }
       break

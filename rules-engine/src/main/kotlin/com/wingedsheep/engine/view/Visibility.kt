@@ -1,9 +1,11 @@
 package com.wingedsheep.engine.view
 
+import com.wingedsheep.engine.state.components.battlefield.liveStaticAbilities
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.faceDownDisplayName
+import com.wingedsheep.engine.state.faceDownZone
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.playerWhoMayLookAtFaceDown
 import com.wingedsheep.engine.state.ZoneKey
@@ -14,6 +16,7 @@ import com.wingedsheep.engine.state.components.identity.ForetoldComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.engine.state.components.identity.MayLookAtInExileComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
+import com.wingedsheep.engine.state.components.player.isRevealedCompanion
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.permissions.hasMayPlayFor
 import com.wingedsheep.sdk.core.Zone
@@ -92,6 +95,46 @@ class Visibility(
     )
 
     /**
+     * The name [viewingPlayerId] may read for [entityId], or null when it has no card name at all.
+     *
+     * This is the one place a card's name is rendered for a viewer: a face-down object on the
+     * stack, the battlefield or in exile reads as its face-down label unless this viewer may look
+     * under it, and every other card reads as itself. Text built for one viewer — a decision, a
+     * prompt, a badge — goes through here instead of copying [CardComponent.name].
+     *
+     * A card in a hidden zone is deliberately *not* masked here. A decision that shows a library
+     * or hand card is the effect showing it to its chooser (a search, a "look at the top N"), so
+     * whether it may be named depends on who the decision is for, which the producer decides.
+     */
+    fun cardNameFor(
+        state: GameState,
+        entityId: EntityId,
+        viewingPlayerId: EntityId,
+        isSpectator: Boolean = false,
+    ): String? {
+        val name = state.getEntity(entityId)?.get<CardComponent>()?.name ?: return null
+        return if (isCardIdentityHiddenFrom(state, entityId, viewingPlayerId, isSpectator)) {
+            faceDownDisplayName(state, entityId)
+        } else {
+            name
+        }
+    }
+
+    /**
+     * Whether [entityId] is a face-down object whose identity [viewingPlayerId] may not see. The
+     * predicate behind [cardNameFor], for consumers that mask more than the name (art, mana cost).
+     */
+    fun isCardIdentityHiddenFrom(
+        state: GameState,
+        entityId: EntityId,
+        viewingPlayerId: EntityId,
+        isSpectator: Boolean = false,
+    ): Boolean {
+        val zone = faceDownZone(state, entityId) ?: return false
+        return !isCardIdentityVisibleTo(state, zone, entityId, viewingPlayerId, isSpectator)
+    }
+
+    /**
      * Whether a recipient can carry [entityId]'s identity through the transition from its cast
      * origin in [beforeCast] to the spell in [onStack].
      *
@@ -157,6 +200,9 @@ class Visibility(
         viewingPlayerId: EntityId,
         isSpectator: Boolean = false,
     ): Boolean {
+        // A revealed companion waits outside the game, in its owner's otherwise private sideboard,
+        // and stays revealed to everyone — spectators included (CR 103.2b, 702.139a).
+        if (zoneKey.zoneType == Zone.SIDEBOARD && state.isRevealedCompanion(zoneKey.ownerId, entityId)) return true
         if (isCardIdentityVisibleToBaseline(state, zoneKey, entityId, viewingPlayerId, isSpectator)) return true
         if (isSpectator || zoneKey.zoneType == Zone.SIDEBOARD) return false
         // Player control shares every in-game permission, including private library looks and
@@ -311,7 +357,7 @@ class Visibility(
         for (entityId in state.controlledBattlefield(playerId)) {
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-            if (cardDef.script.staticAbilities.any { ability ->
+            if (cardDef.liveStaticAbilities(state, entityId).any { ability ->
                     activeStaticAbility(state, ability, entityId, playerId)?.let(predicate) == true
                 }
             ) return true

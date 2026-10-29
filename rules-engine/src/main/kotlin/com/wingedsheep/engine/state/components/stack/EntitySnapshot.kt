@@ -96,6 +96,10 @@ data class EntitySnapshot(
      * card needs control-at-zone-leave fidelity.
      */
     override val controllerId: EntityId? = null,
+    /** Owner captured independently of control, retained after a token ceases to exist. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val ownerId: EntityId? = null,
     override val counters: Map<CounterType, Int> = emptyMap(),
     override val keywords: Set<String> = emptySet(),
     override val lostAllAbilities: Boolean = false,
@@ -106,6 +110,21 @@ data class EntitySnapshot(
     val typeLine: TypeLine? = null,
     /** Card definition id, so dies/leaves triggers resolve for tokens after 704.5d cleanup. */
     val cardDefinitionId: String? = null,
+    /**
+     * Copiable values (CR 707.2) as the permanent last existed on the battlefield — its copy
+     * effects and face-down status applied — so an effect that copies a creature which has since
+     * left ("create a token that's a copy of that creature") copies it from last-known
+     * information (CR 608.2h). Null outside a battlefield exit.
+     */
+    val copiableCard: com.wingedsheep.engine.state.components.identity.CardComponent? = null,
+    /** Numeric abilities carried outside CardComponent, normalized to the copiable upright face. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val copiableNumericKeywords: List<com.wingedsheep.sdk.scripting.KeywordAbility.Numeric> = emptyList(),
+    /** Both copiable faces and the active face, independent of any later visit to the battlefield. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val copiableDoubleFaced: com.wingedsheep.engine.state.components.identity.DoubleFacedComponent? = null,
     /** Effective text at departure, before zone movement ends the object's text changes. */
     @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
@@ -210,6 +229,13 @@ data class EntitySnapshot(
     /** The cast-time {X} carried by `CastChoicesComponent`, so dies/leaves triggers read `DynamicAmount.CastX`. */
     val castX: Int? = null,
     /**
+     * The creature this permanent chose as it entered (`ChoiceSlot.CREATURE`), with the chosen
+     * object's generation. Frozen because the cast-choices bag is stripped on departure (CR 400.7),
+     * yet "when this creature leaves the battlefield, sacrifice the chosen creature" (Tyrannical
+     * Pitlord) resolves after that.
+     */
+    val chosenCreature: com.wingedsheep.engine.state.components.battlefield.ChoiceValue.EntityChoice? = null,
+    /**
      * True if this permanent was face down (CR 708) when it left the battlefield.
      *
      * Frozen because a card put into a graveyard is always turned face up (CR 708.4), so by the
@@ -239,6 +265,20 @@ data class EntitySnapshot(
     @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val manaValue: Int? = null,
+    /**
+     * Base power at capture — the layer-7b value after copy effects, characteristic-defining
+     * abilities and "base power is N" effects, before counters and modifiers (CR 613.4b). Frozen
+     * because off the battlefield only the printed value is readable, yet "if its power was
+     * different from its base power" (Jason Bright, Glowing Prophet) compares the departed
+     * creature's last-known power against its last-known base power (CR 608.2h).
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val basePower: Int? = null,
+    /** Base toughness at capture — the toughness sibling of [basePower]. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val baseToughness: Int? = null,
 ) : EntityView {
     companion object {
         /**
@@ -258,9 +298,12 @@ data class EntitySnapshot(
                 manaValue = permanentManaValue(state, entityId),
                 power = projected.getPower(entityId),
                 toughness = projected.getToughness(entityId),
+                basePower = projected.getBasePower(entityId),
+                baseToughness = projected.getBaseToughness(entityId),
                 subtypes = projected.getSubtypes(entityId),
                 supertypes = projected.getSupertypes(entityId),
                 controllerId = projected.getController(entityId),
+                ownerId = state.getEntity(entityId)?.get<CardComponent>()?.ownerId,
                 counters = countersOf(state, entityId),
                 keywords = projected.getKeywords(entityId),
                 lostAllAbilities = projected.hasLostAllAbilities(entityId),
@@ -293,10 +336,18 @@ fun captureEntitySnapshots(
         manaValue = state?.let { permanentManaValue(it, id) },
         power = projected.getPower(id),
         toughness = projected.getToughness(id),
+        basePower = projected.getBasePower(id),
+        baseToughness = projected.getBaseToughness(id),
         subtypes = projected.getSubtypes(id),
         supertypes = projected.getSupertypes(id),
         controllerId = projected.getController(id),
+        ownerId = state?.getEntity(id)?.get<CardComponent>()?.ownerId,
         wasSuspected = projected.isSuspected(id),
+        // The projected type line rides along so a "shares a card type with the sacrificed
+        // permanent" read sees the types it had on the battlefield — an animated land's Creature,
+        // a token that no longer exists at all (CR 608.2h).
+        typeLine = state?.getEntity(id)?.get<CardComponent>()?.typeLine
+            ?.let { projectedTypeLine(projected, id, it) },
     )
 }
 
@@ -335,6 +386,7 @@ fun captureCardInHandSnapshots(state: GameState, ids: List<EntityId>): List<Enti
         entityId = id,
         objectRef = state.objectRef(id),
         name = card?.name,
+        ownerId = card?.ownerId,
         manaValue = card?.manaValue ?: 0,
         power = (card?.baseStats?.power as? CharacteristicValue.Fixed)?.value,
         toughness = (card?.baseStats?.toughness as? CharacteristicValue.Fixed)?.value,
@@ -392,8 +444,12 @@ fun projectedTypeLine(state: GameState, entityId: EntityId): TypeLine? {
 }
 
 /** [projectedTypeLine] for a caller that already holds the printed [baseTypeLine]. */
-fun projectedTypeLine(state: GameState, entityId: EntityId, baseTypeLine: TypeLine): TypeLine {
-    val projected = state.projectedState.getProjectedValues(entityId) ?: return baseTypeLine
+fun projectedTypeLine(state: GameState, entityId: EntityId, baseTypeLine: TypeLine): TypeLine =
+    projectedTypeLine(state.projectedState, entityId, baseTypeLine)
+
+/** [projectedTypeLine] read through an explicit [projection] (a caller mid-cost holding its own). */
+fun projectedTypeLine(projection: ProjectedState, entityId: EntityId, baseTypeLine: TypeLine): TypeLine {
+    val projected = projection.getProjectedValues(entityId) ?: return baseTypeLine
     val cardTypes = projected.types
         .mapNotNull { runCatching { CardType.valueOf(it) }.getOrNull() }
         .toSet()

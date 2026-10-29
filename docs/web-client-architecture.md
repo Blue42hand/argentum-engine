@@ -57,7 +57,9 @@ submission happens. The rules that keep it honest:
 - **Server lists are trusted as-is.** `validCreatures` for attackers and blockers already
   excludes tapped creatures (the engine's `MustBeUntappedAttackRule`, `getValidBlockers`), so
   `GameCard` no longer re-checks `isTapped` on top of it; the default attack defender is the first
-  living seat in `validAttackTargets`, not the first living opponent in seat order.
+  living seat in `validAttackTargets`, not the first living opponent in seat order. A sticky or
+  default defender only applies to an attacker whose `attackTargetsByAttacker` entry (when it has one)
+  lists it — `utils/attackTargets.ts` is the lookup.
 - **A client-side pre-check reads the same data the server reads.** Banding (CR 702.22c, at most
   one member without banding) is checked in the `linkBand` reducer against `ClientCard.keywords`
   — the projected keyword set `validateBands` reads — so the client only refuses a band the
@@ -134,6 +136,9 @@ For responsiveness, we may later add:
 | `mulliganComplete` | Mulligan phase finished |
 | `gameOver` | Game ended with winner/reason |
 | `error` | Error with code and message |
+| `matchmakingStatus` | This player's matchmaking state (searching / idle, with a notice when it changed under them; `matched` once seated) |
+| `matchFound` | The queue paired this player; accept before the window closes |
+| `matchmakingQueues` | Searching players per queue, pushed on change |
 
 ### Client Messages (ClientMessage)
 
@@ -147,6 +152,9 @@ For responsiveness, we may later add:
 | `mulligan` | Take a mulligan |
 | `chooseBottomCards` | Select cards for library bottom |
 | `concede` | Concede the game |
+| `joinMatchmaking` | Search for an opponent: a mode (Random deck, Jump In, Momir Basic, Constructed + format), casual or ranked |
+| `leaveMatchmaking` | Stop searching (declines an open match prompt) |
+| `respondToMatch` | Accept or decline a `matchFound` prompt |
 
 ## State Management (Zustand)
 
@@ -500,8 +508,11 @@ are gated on `players.length > 2`).
   selected attacker has an explicit defender. When exactly one player is a legal attack
   target (attack left/right — CR 803.1, last opponent standing) the sticky defender is
   pre-assigned so the popup never asks; a restriction banner names who can legally be
-  attacked (phrased with the lobby's `attackMode` when known) and rail chips of
-  unattackable living seats dim with a 🚫 marker. Arrows against the viewed defender render
+  attacked (phrased with `ClientGameState.attackMode`) and rail chips and shared-strip name
+  plates of unattackable living seats dim with a 🚫 marker. Under attack left/right the rail
+  also carries a direction header for the whole game, and the one seat you can attack / the
+  one that can attack you are tagged ⚔ TARGET / 🛡 ATTACKS YOU on their chip and plate
+  (`useAttackNeighbours` — display only, standing down once two players remain). Arrows against the viewed defender render
   per-creature in the defender's seat color; attacks on boards visible in a shared-strip
   view end on the defender's name plate; attacks on off-screen boards bundle
   into one arrow to the defender's rail chip with a creature-count badge (`CombatArrows`),

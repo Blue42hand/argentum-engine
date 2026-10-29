@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.mechanics.cost.SharedCreatureTypeTapCost
 import com.wingedsheep.engine.handlers.costs.CostAtomAmounts
 import com.wingedsheep.engine.mechanics.cost.PlayerCounterPayment
@@ -98,10 +100,13 @@ class ManaAbilityEnumerator(
             val grantedManaAbilities = state.grantedActivatedAbilities
                 .filter { it.entityId == entityId }
                 .map { it.ability }
-                .filter { it.isManaAbility }
-            val staticManaAbilities = context.castPermissionUtils
-                .getStaticGrantedActivatedAbilities(entityId, state)
-                .filter { it.isManaAbility }
+                .filter { it.isManaAbility && it.activateFromZone == Zone.BATTLEFIELD }
+            // …including those an emblem grants (Liliana of the Dark Realms' Swamps), the same
+            // grants `ManaStaticsIndex` hands the auto-payer.
+            val staticManaAbilities = (
+                context.castPermissionUtils.getStaticGrantedActivatedAbilities(entityId, state) +
+                    context.castPermissionUtils.getEmblemGrantedActivatedAbilities(entityId, state)
+                ).filter { it.isManaAbility && it.activateFromZone == Zone.BATTLEFIELD }
 
             // Intrinsic mana abilities from projected basic-land subtypes (CR 305.7).
             // When present, they replace the card definition's own mana abilities so
@@ -132,10 +137,13 @@ class ManaAbilityEnumerator(
                 entityLostAllAbilities -> emptyList()
                 intrinsicManaAbilities.isNotEmpty() -> intrinsicManaAbilities
                 cardDef == null -> emptyList()
-                else -> cardDef.script.effectiveActivatedAbilities(classLevel).filter { it.isManaAbility }
+                else -> cardDef.script.effectiveActivatedAbilities(classLevel).filter { it.isManaAbility && it.activateFromZone == Zone.BATTLEFIELD }
             }
             val manaAbilities = (ownManaAbilities + grantedManaAbilities + staticManaAbilities).let { all ->
                 if (entityId in borrowed) all.filter(BorrowedManaAbilities::isTapManaAbility) else all
+            }.let { all ->
+                // Thran Portal: every mana ability of this permanent costs additional life.
+                com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost.withTax(state, entityId, all)
             }
 
             // Apply text-changing effects to mana ability costs
@@ -183,8 +191,8 @@ class ManaAbilityEnumerator(
                             tapCost = atom
                             tapTargets = SharedCreatureTypeTapCost.eligible(
                                 state, atom,
-                                context.costUtils.findAbilityTapTargets(
-                                    state, playerId, atom.filter,
+                                context.costUtils.findTapCostTargets(
+                                    state, playerId, atom,
                                     if (atom.excludeSelf) entityId else null
                                 )
                             )
@@ -276,8 +284,8 @@ class ManaAbilityEnumerator(
                                         tapCost = atom
                                         tapTargets = SharedCreatureTypeTapCost.eligible(
                                             state, atom,
-                                            context.costUtils.findAbilityTapTargets(
-                                                state, playerId, atom.filter,
+                                            context.costUtils.findTapCostTargets(
+                                                state, playerId, atom,
                                                 if (atom.excludeSelf) entityId else null
                                             )
                                         )
@@ -391,7 +399,8 @@ class ManaAbilityEnumerator(
                 val manaAbilityMaxX: Int? = if (hasNonManaX) {
                     context.costUtils.calculateMaxAffordableX(
                         state, playerId, effectiveCost, effectiveCost.manaCostOrNull,
-                        precomputedSources = context.availableManaSources, sourceId = entityId
+                        precomputedSources = context.availableManaSources, sourceId = entityId,
+                        lifePurpose = LifePaymentPurpose.ACTIVATE_MANA_ABILITY
                     )
                 } else null
 

@@ -2,14 +2,14 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useGameStore } from '@/store/gameStore.ts'
 import { useZoneCards, useStackCards, useZone, useCard, selectGameState, librarySlots } from '@/store/selectors.ts'
-import { graveyard, exile, library } from '@/types'
+import { graveyard, exile, library, sideboard, CounterType } from '@/types'
 import type { ClientCard, ClientDeckCard, ClientPlayer } from '@/types'
 import { CARD_BACK_IMAGE_URL } from '@/utils/cardImages.ts'
 import { getCardImageUrl } from '@/utils/cardImages.ts'
-import { useResponsiveContext, handleImageError, getStashCounters, getTimeCounters } from './shared'
+import { useResponsiveContext, handleImageError, getStashCounters, getTimeCounters, getCounterCount } from './shared'
 import { DeckBrowser } from './DeckBrowser'
 import { counterManaClass } from '@/assets/icons/keywords'
-import { styles } from './styles'
+import { styles, passiveCounterBadgeStyle } from './styles'
 
 /** Stable empty array so the `ownDeck` selector doesn't hand Zustand a new reference each render. */
 const EMPTY_DECK: readonly ClientDeckCard[] = []
@@ -28,9 +28,15 @@ const MIN_PILE_WIDTH = 24
  * Native tooltip for the Deck pile. When the top card is face up, lead with its name — that's
  * the reason the pile looks different, and it doubles as the accessible label for the image.
  */
-function deckPileTitle(canBrowseDeck: boolean, isOwnDeck: boolean, topCard: ClientCard | null): string | undefined {
+function deckPileTitle(
+  canBrowseDeck: boolean,
+  isOwnDeck: boolean,
+  topCard: ClientCard | null,
+  outsideCount: number,
+): string | undefined {
   if (!canBrowseDeck) return topCard ? `Top card: ${topCard.name}` : undefined
-  const browse = isOwnDeck ? 'Your deck list and library (D)' : 'Library'
+  const outside = outsideCount > 0 ? `, ${outsideCount} outside the game` : ''
+  const browse = isOwnDeck ? `Your deck list, library${outside} (D)` : 'Library'
   return topCard ? `Top card: ${topCard.name} · ${browse}` : browse
 }
 
@@ -81,6 +87,10 @@ export function ZonePile({
     if (!gameState || gameState.viewingPlayerId !== player.playerId) return EMPTY_DECK
     return gameState.deck ?? EMPTY_DECK
   })
+  // The cards this player owns outside the game (CR 400.11a) — what Learn and the wishes reach
+  // for. The server only sends a sideboard's contents to its owner, so this is empty on every
+  // other seat's pile.
+  const outsideCards = useZoneCards(sideboard(player.playerId))
   const hoverCard = useGameStore((state) => state.hoverCard)
   const responsive = useResponsiveContext()
   const [browsingGraveyard, setBrowsingGraveyard] = useState(false)
@@ -174,10 +184,16 @@ export function ZonePile({
   // Clamp labels to the column so a wide label ("Graveyard") can't spill past the cell's
   // overflow clip — at the table's rightmost column that clip edge is the viewport edge,
   // and the spill rendered as sheared half-letters.
+  // Both seats' columns share one width — the nominal pile width, not the fitted one — so a
+  // column whose piles shrank to clear the Concede button still lines up with the other seat's
+  // and still has room for its "Graveyard" label instead of ellipsizing it.
+  const labelWidth = showLabels ? (responsive.isMobile ? 58 : 72) : 0
+  const columnWidth = Math.max(effectivePileWidth + 10, showLabels ? responsive.pileWidth + 10 : 0, labelWidth)
   const zoneLabelStyle: React.CSSProperties = {
     ...styles.zoneLabel,
     fontSize: responsive.isMobile ? 8 : 10,
-    maxWidth: effectivePileWidth + 10,
+    letterSpacing: responsive.isMobile ? 0.6 : 1,
+    maxWidth: columnWidth,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -215,13 +231,13 @@ export function ZonePile({
   }, [isOwnDeck])
 
   return (
-    <div ref={containerRef} style={{ ...styles.zonePile, gap: responsive.cardGap, minWidth: effectivePileWidth + 10, ...verticalOffset }}>
+    <div ref={containerRef} style={{ ...styles.zonePile, gap: responsive.cardGap, minWidth: columnWidth, ...verticalOffset }}>
       {/* Library/Deck */}
       <div style={styles.zoneStack}>
         <div
           data-zone={isOpponent ? 'opponent-library' : 'player-library'}
           data-zone-owner={player.playerId}
-          title={deckPileTitle(canBrowseDeck, isOwnDeck, showsTopLibraryCard ? topLibraryCard : null)}
+          title={deckPileTitle(canBrowseDeck, isOwnDeck, showsTopLibraryCard ? topLibraryCard : null, outsideCards.length)}
           style={{
             ...styles.deckPile,
             ...pileStyle,
@@ -510,6 +526,7 @@ export function ZonePile({
           ownerLabel={isOpponent ? `${player.name}'s` : 'Your'}
           slots={librarySlotIds}
           deck={ownDeck}
+          outsideCards={outsideCards}
           onClose={() => setBrowsingLibrary(false)}
         />,
         document.body,
@@ -733,6 +750,17 @@ function ExileBrowser({ cards, ownerLabel, onClose }: { cards: readonly ClientCa
               {getStashCounters(card) > 0 && (
                 <div style={styles.stashGridBadge}>
                   <i className={`ms ms-${counterManaClass.STASH}`} /> {getStashCounters(card)}
+                </div>
+              )}
+              {/* Brain counters mark the exiled cards Rex, Cyber-Hound borrows activated abilities
+                  from, so the exile browser is where a player checks which ones count. Bottom-left,
+                  clear of the plotted and stash badges. */}
+              {getCounterCount(card, CounterType.BRAIN) > 0 && (
+                <div
+                  title="Brain counter"
+                  style={{ ...passiveCounterBadgeStyle(CounterType.BRAIN), top: 'auto', right: 'auto', bottom: 4, left: 4, padding: '2px 6px', fontSize: 11, pointerEvents: 'none' }}
+                >
+                  <i className={`ms ms-${counterManaClass.BRAIN}`} /> {getCounterCount(card, CounterType.BRAIN)}
                 </div>
               )}
             </div>

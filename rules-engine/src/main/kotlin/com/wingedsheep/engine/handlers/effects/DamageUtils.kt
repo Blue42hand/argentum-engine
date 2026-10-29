@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.mechanics.FaceUpInstead
 import com.wingedsheep.engine.mechanics.targeting.ColorProtection
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -18,7 +19,7 @@ import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.effects.library.MillAmountModifier
+import com.wingedsheep.engine.handlers.effects.library.KeywordActionAmountModifier
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.engine.replacement.PendingReplacementRider
@@ -260,6 +261,21 @@ object DamageUtils {
             }
         }
 
+        // Illusionary Mask's rider: a face-down source that would deal damage, or a face-down
+        // recipient that would be dealt it, is turned face up instead and then deals or is dealt
+        // the damage. Applied after redirection and before every prevention effect; the rest of
+        // the pipeline then re-runs against the face-up permanents (CR 616.1f), so their own
+        // protection, damage replacements, deathtouch and lifelink apply. The amount is already
+        // fixed, so turning face up never changes it.
+        if (FaceUpInstead.applies(state, targetId) || (sourceId != null && FaceUpInstead.applies(state, sourceId))) {
+            val (faceUpState, faceUpEvents) = FaceUpInstead.turnFaceUpAll(state, listOfNotNull(sourceId, targetId))
+            val rest = dealDamageToTarget(
+                zones, faceUpState, targetId, amount, sourceId, cantBePrevented, isCombatDamage,
+                appliedRedirects, excessToController, damageSourceRef
+            )
+            return rest.copy(events = faceUpEvents + rest.events)
+        }
+
         // Protection from color/subtype: damage from sources of the stated quality is prevented (Rule 702.16)
         if (!cantBePrevented && sourceId != null) {
             // Check if all damage from this source is prevented (Chain of Silence)
@@ -412,7 +428,7 @@ object DamageUtils {
                 }
             }
 
-            val shieldResult = applyDamagePreventionShields(newState, targetId, effectiveAmount, sourceId = sourceId, predicateEvaluator = zones.predicateEvaluator)
+            val shieldResult = applyDamagePreventionShields(newState, targetId, effectiveAmount, isCombatDamage = isCombatDamage, sourceId = sourceId, predicateEvaluator = zones.predicateEvaluator)
             newState = shieldResult.state
             effectiveAmount = shieldResult.remainingDamage
             // "You gain life equal to the damage prevented this way" (Candles' Glow): this instance
@@ -436,10 +452,9 @@ object DamageUtils {
         events.addAll(shieldCounterEvents)
         events.addAll(reflectEvents)
         events.addAll(preventionLifeEvents)
-        // Excess damage (CR 120.4a) is computed below for the non-wither creature branch (above
-        // lethal), the planeswalker branch (above its loyalty) and the battle branch (above its
-        // defense) — the wither path (damage dealt as -1/-1 counters) is not yet modelled and
-        // stays at 0 here.
+        // Excess damage (CR 120.4a) is computed below for the creature branch (above lethal,
+        // whether the damage is marked or dealt as wither's -1/-1 counters), the planeswalker
+        // branch (above its loyalty) and the battle branch (above its defense).
         var creatureExcessDamage = 0
 
         // Check if target is a player, planeswalker, or creature
@@ -509,7 +524,14 @@ object DamageUtils {
                 state.getEntity(sourceId)?.get<SpellGrantedKeywordsComponent>()?.keywords?.contains(Keyword.WITHER.name) == true
             )
             if (hasWither) {
-                // Wither (CR 702.80): damage to creatures is dealt in the form of -1/-1 counters
+                // Wither (CR 702.80): damage to creatures is dealt in the form of -1/-1 counters.
+                // It is still damage, so the excess (CR 120.4a) is measured against lethal damage
+                // exactly as for marked damage, before the counters change the toughness.
+                val witherLethalNeeded =
+                    if (sourceId != null && sourceHasDeathtouch(zones.cardRegistry, newState, projected, sourceId)) 1
+                    else ((projected.getToughness(targetId) ?: 0) -
+                        (newState.getEntity(targetId)?.get<DamageComponent>()?.amount ?: 0)).coerceAtLeast(0)
+                creatureExcessDamage = (effectiveAmount - witherLethalNeeded).coerceAtLeast(0)
                 val counters = newState.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
                 newState = newState.updateEntity(targetId) { container ->
                     container.with(counters.withAdded(CounterType.MINUS_ONE_MINUS_ONE, effectiveAmount))
@@ -627,6 +649,10 @@ object DamageUtils {
                 sourceTargetIdsAtDamage = sourceTargetIds,
                 sourceAttachmentIds = attachmentIdsOf(state, sourceId),
             )
+        )
+        // A redirected excess (Gandalf's Sanction) never reaches the creature, so it wasn't dealt excess damage.
+        newState = trackExcessDamageToPermanent(
+            newState, projected, targetId, if (excessToController) 0 else creatureExcessDamage
         )
 
         // "An opponent was dealt noncombat damage this turn" (Whiplash Wordsmith, Command the Stage).
@@ -1178,6 +1204,28 @@ object DamageUtils {
     }
 
     /**
+     * Record that a creature or planeswalker was dealt [excess] damage (CR 120.4a) this turn,
+     * against the player who controlled it in [projected] — the projection as the damage was
+     * dealt, so a recipient that dies to this damage (or is a creature only through a continuous
+     * effect) is credited correctly. Battles don't count. Backs
+     * `TurnTracker.PERMANENT_DEALT_EXCESS_DAMAGE` (Rith, Liberated Primeval).
+     */
+    fun trackExcessDamageToPermanent(
+        state: GameState,
+        projected: ProjectedState,
+        targetId: EntityId,
+        excess: Int,
+    ): GameState {
+        if (excess <= 0) return state
+        if (!projected.isCreature(targetId) && !projected.isPlaneswalker(targetId)) return state
+        val controllerId = projected.getController(targetId) ?: return state
+        if (controllerId in state.playersWithPermanentDealtExcessDamageThisTurn) return state
+        return state.copy(
+            playersWithPermanentDealtExcessDamageThisTurn = state.playersWithPermanentDealtExcessDamageThisTurn + controllerId
+        )
+    }
+
+    /**
      * Track that [sourceId] dealt damage to [targetCreatureId] this turn.
      * Updates the DamageDealtToCreaturesThisTurnComponent on the source entity.
      * Used for triggers like Soul Collector's "whenever a creature dealt damage by this creature this turn dies".
@@ -1265,6 +1313,7 @@ object DamageUtils {
             .toSet()
         val snapshot = DamageSourceLki(
             sourceControllerId = controllerId,
+            sourceId = sourceId,
             sourceSubtypes = subtypes,
             sourceWasCreature = projected.isCreature(sourceId),
         )
@@ -1561,6 +1610,8 @@ object DamageUtils {
             if (mod is SerializableModification.PreventNextDamage && targetId in effect.effect.affectedEntities) {
                 // Source-specific shields (from CR 615.7 prevention distribution) only match their source
                 if (mod.onlyFromSource != null && mod.onlyFromSource != sourceId) continue
+                // A combat-only shield neither prevents noncombat damage nor is spent by it.
+                if (mod.combatOnly && !isCombatDamage) continue
                 val prevented = minOf(mod.remainingAmount, remainingDamage)
                 remainingDamage -= prevented
                 if (mod.controllerGainsLife && prevented > 0) {
@@ -1621,7 +1672,13 @@ object DamageUtils {
                     // Protection family prevents all of it. Either way this is a *next instance*
                     // shield, so it is consumed even when it prevents nothing (a 1-damage hit
                     // halves to 0 and still spends the Sphere).
-                    remainingDamage = if (mod.halveRoundedDown) remainingDamage - remainingDamage / 2 else 0
+                    // Power Leak caps the instance's prevention at the mana paid; the surplus is
+                    // spent with the shield.
+                    remainingDamage = when {
+                        mod.halveRoundedDown -> remainingDamage - remainingDamage / 2
+                        mod.maxAmount != null -> remainingDamage - minOf(mod.maxAmount, remainingDamage)
+                        else -> 0
+                    }
                     toRemove.add(i)
                 }
             }
@@ -3137,12 +3194,16 @@ object DamageUtils {
                 // and the top cards are snapshotted before moving so a shrinking library isn't
                 // re-read.
                 if (effect.damagedPlayerMills && targetId in state.turnOrder) {
-                    val millCount = MillAmountModifier.apply(newState, targetId, amount, predicateEvaluator = zones.predicateEvaluator)
-                    for (cardId in newState.getLibrary(targetId).take(millCount)) {
+                    val millCount = KeywordActionAmountModifier.mill(newState, targetId, amount, predicateEvaluator = zones.predicateEvaluator)
+                    val milledCards = newState.getLibrary(targetId).take(millCount)
+                    for (cardId in milledCards) {
                         val result = zones.moveToZone(newState, cardId, Zone.GRAVEYARD)
                         newState = result.state
                         events.addAll(result.events)
                     }
+                    val (trackedState, milledEvent) = ZoneTransitionService.trackMill(newState, events, milledCards)
+                    newState = trackedState
+                    milledEvent?.let(events::add)
                 }
 
                 return EffectResult.success(newState, events)
@@ -3205,15 +3266,19 @@ object DamageUtils {
                 // the top cards before moving so a shrinking library doesn't re-read shifted slots.
                 var newState = state
                 val events = mutableListOf<EngineGameEvent>()
+                val milledCards = mutableListOf<EntityId>()
                 for (opponentId in state.getOpponents(sourceControllerId)) {
                     val topCards = newState.getLibrary(opponentId).take(amount)
+                    milledCards += topCards
                     for (cardId in topCards) {
                         val result = zones.moveToZone(newState, cardId, Zone.GRAVEYARD)
                         newState = result.state
                         events.addAll(result.events)
                     }
                 }
-                return EffectResult.success(newState, events)
+                // One mill instruction for every opponent (CR 603.2c: a single milled event).
+                val (trackedState, milledEvent) = ZoneTransitionService.trackMill(newState, events, milledCards)
+                return EffectResult.success(trackedState, events + listOfNotNull(milledEvent))
             }
         }
 

@@ -54,6 +54,7 @@ function combat(overrides: Record<string, unknown>) {
     selectedAttackers: [],
     attackerTargets: {},
     validAttackTargets: [],
+    attackTargetsByAttacker: {},
     blockerAssignments: {},
     validCreatures: [],
     attackingCreatures: [],
@@ -147,4 +148,14 @@ describe('selectCardInteraction', () => {
     expect(selectCardInteraction(s, input('k20'))).toMatchObject({ isValidConvokeCreature: true, isSelectedConvokeCreature: true, isValidTapForPowerCreature: true, isSelectedTapForPowerCreature: false })
     expect(selectCardInteraction(s, input('nope'))).toMatchObject({ isValidConvokeCreature: false, isValidTapForPowerCreature: false })
   })
+})
+
+it('equality-group decisions highlight the narrowed selection pool', () => {
+  const state = store({
+    pendingDecision: { type: 'ChooseTargetsDecision', targetRequirements: [{ index: 0 }], legalTargets: { 0: [id('a'), id('b')] }, context: {} },
+    decisionSelectionState: { validOptions: [id('a')], selectedOptions: [id('a')] },
+  })
+  const result = selectCardInteraction(state, input('b'))
+  expect(result.isValidDecisionTarget).toBe(false)
+  expect(result.isValidDecisionSelection).toBe(false)
 })

@@ -24,8 +24,9 @@ import kotlinx.serialization.Serializable
 /**
  * Multiple effects that happen together.
  *
- * By default, [description] and [runtimeDescription] concatenate each sub-effect's
- * own text with ". ". For cards whose pipeline produces a verbose or implementation-leaking
+ * By default, [description] and [runtimeDescription] join each sub-effect's own text with
+ * ". ", fusing the runs that only read as one sentence (a library search; a battlefield gather
+ * and the step that consumes it; see [describeSteps]). For cards whose pipeline produces a verbose or implementation-leaking
  * join (e.g., intermediate `StoreNumber` steps), supply [descriptionOverride] to render
  * a single hand-written sentence instead. Use `{0}`, `{1}`, ... placeholders paired with
  * [descriptionAmounts] to interpolate evaluated dynamic values at runtime — the static
@@ -40,7 +41,7 @@ data class CompositeEffect(
     val descriptionAmounts: List<DynamicAmount> = emptyList()
 ) : Effect {
     override val description: String =
-        descriptionOverride ?: effects.joinToString(". ") { it.description }
+        descriptionOverride ?: describeSteps(effects) { it.description }
 
     /** No override, no early stop: a sequence [Effect.then] may extend in place. */
     internal fun isPlainSequence(): Boolean =
@@ -48,7 +49,7 @@ data class CompositeEffect(
 
     override fun runtimeDescription(resolver: (DynamicAmount) -> Int?): String {
         val template = descriptionOverride
-            ?: return effects.joinToString(". ") { it.runtimeDescription(resolver) }
+            ?: return describeSteps(effects) { it.runtimeDescription(resolver) }
         var rendered = template
         descriptionAmounts.forEachIndexed { index, amount ->
             // Undeterminable slot: substitute the amount's own wording rather than a bogus "0".
@@ -85,6 +86,14 @@ data class CompositeEffect(
 data class Mode(
     val effect: Effect,
     val targetRequirements: List<TargetRequirement> = emptyList(),
+    /**
+     * Always written. The default is re-derived from [effect] on decode, and a bound target's
+     * noun ([EffectTarget.BoundVariable.requirementDescription]) is display-only state the JSON
+     * doesn't carry — so an omitted description would come back as "Destroy target" where the
+     * card said "Destroy target artifact" (a replay pin, a loaded card).
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.ALWAYS)
     val description: String = effect.description,
     val additionalManaCost: String? = null,
     val additionalCosts: List<AdditionalCost>? = null
@@ -765,7 +774,9 @@ data class CreateDelayedTriggerEffect(
      * For event-based delayed triggers: the entity that scopes the trigger.
      * The trigger only fires for events sourced from this entity. Context
      * references (e.g. ContextTarget(0)) are baked into a concrete entity id
-     * at creation time by CreateDelayedTriggerExecutor.
+     * at creation time by CreateDelayedTriggerExecutor. On a spell-cast trigger the watched
+     * entity is a player — the **caster** it waits on ("that player … whenever they cast a
+     * spell", Nuka-Nuke Launcher); the spell remains the triggering entity.
      *
      * For step-based delayed triggers (no [trigger]) there is no event to scope, so the baked
      * entity instead becomes the fired trigger's *triggering entity* — reachable from the effect
@@ -900,6 +911,23 @@ sealed interface DelayedTriggerExpiry {
     @SerialName("DelayedTriggerExpiry.UntilControllersNextTurn")
     @Serializable
     data object UntilControllersNextTurn : DelayedTriggerExpiry
+
+    /**
+     * Remove the delayed trigger during the cleanup step of [player]'s **next** turn — "until the
+     * end of *defending player's* next turn, whenever …" (Nuka-Nuke Launcher). The delayed-trigger
+     * analogue of [com.wingedsheep.sdk.scripting.Duration.EndOfYourNextTurn], with the player made
+     * an axis: [player] is resolved to a concrete player when the trigger is created, and the
+     * current turn never counts, even when it is that player's.
+     *
+     * Not [UntilControllersNextTurn]: that one ends at the *beginning* of the turn (after its untap
+     * step) and is keyed to the trigger's controller; this one lasts through the whole turn, of
+     * any player. If [player] leaves the game the trigger is removed with them.
+     */
+    @SerialName("DelayedTriggerExpiry.EndOfPlayersNextTurn")
+    @Serializable
+    data class EndOfPlayersNextTurn(
+        val player: EffectTarget = EffectTarget.PlayerRef(Player.You)
+    ) : DelayedTriggerExpiry
 
     /**
      * Remove the delayed trigger when the current combat phase ends — the scope of a "this combat"
@@ -1355,6 +1383,16 @@ sealed interface FeasibilityCheck {
         val filter: GameObjectFilter = GameObjectFilter.Any,
         val count: Int = 1
     ) : FeasibilityCheck
+
+    /**
+     * The player can pay [cost] right now — from floating mana or untapped mana sources. Hides a
+     * "pay {G}" option of a [ChooseActionEffect] the player can't afford, so "you may pay {G}, {W},
+     * or {U}. If you do, …" (Isu the Abominable) offers only the colours that can actually be paid,
+     * and skips the prompt when none can.
+     */
+    @SerialName("CanPayMana")
+    @Serializable
+    data class CanPayMana(val cost: ManaCost) : FeasibilityCheck
 }
 
 /**

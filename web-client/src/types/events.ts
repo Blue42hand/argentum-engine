@@ -9,9 +9,15 @@ import { DayNight } from './enums'
  * driving animations and displaying game log.
  */
 export type ClientEvent =
+  | CreatureEnlistedEvent
+  | AttackCancelledEvent
   | LifeChangedEvent
   | SpeedChangedEvent
   | DayNightChangedEvent
+  | MonarchChangedEvent
+  | InitiativeTakenEvent
+  | VenturedIntoDungeonEvent
+  | DungeonCompletedEvent
   | DamageDealtEvent
   | StatsModifiedEvent
   | CardDrawnEvent
@@ -39,8 +45,10 @@ export type ClientEvent =
   | CardsRevealedEvent
   | TurnedFaceUpEvent
   | TransformedEvent
+  | DieRolledEvent
   | CoinFlippedEvent
   | TurnChangedEvent
+  | GameRestartedEvent
   | ControlChangedEvent
   | CardCycledEvent
   | LibraryShuffledEvent
@@ -86,6 +94,57 @@ export interface DayNightChangedEvent {
   readonly oldDesignation: DayNight | null
   readonly newDesignation: DayNight
   readonly sourceName: string
+  readonly description: string
+}
+
+/**
+ * The monarch changed hands (CR 725). `newMonarchId` is null only when the monarch left the game and
+ * nobody still in it could take the title (CR 725.4). The crown itself is the player's active-effect badge.
+ */
+export interface MonarchChangedEvent {
+  readonly type: 'monarchChanged'
+  readonly previousMonarchId: EntityId | null
+  readonly newMonarchId: EntityId | null
+  readonly sourceName: string
+  readonly isYours?: boolean
+  readonly description: string
+}
+
+/**
+ * A player took the initiative (CR 726) — from an effect, by combat damage, or by inheritance when
+ * the holder left. `previousHolderId === newHolderId` when they took it again (CR 726.5).
+ */
+export interface InitiativeTakenEvent {
+  readonly type: 'initiativeTaken'
+  readonly previousHolderId: EntityId | null
+  readonly newHolderId: EntityId
+  readonly sourceName: string
+  readonly playerName?: string | null
+  readonly previousHolderName?: string | null
+  readonly isYours?: boolean
+  readonly description: string
+}
+
+/** A player ventured into the dungeon and moved their marker into `roomName` (CR 701.49). */
+export interface VenturedIntoDungeonEvent {
+  readonly type: 'venturedIntoDungeon'
+  readonly playerId: EntityId
+  readonly dungeonName: string
+  readonly roomName: string
+  readonly enteredDungeon: boolean
+  readonly playerName?: string | null
+  readonly isYours?: boolean
+  readonly description: string
+}
+
+/** A player completed a dungeon (CR 309.7). */
+export interface DungeonCompletedEvent {
+  readonly type: 'dungeonCompleted'
+  readonly playerId: EntityId
+  readonly dungeonName: string
+  readonly completedCount: number
+  readonly playerName?: string | null
+  readonly isYours?: boolean
   readonly description: string
 }
 
@@ -389,6 +448,13 @@ export interface TurnChangedEvent {
   readonly description: string
 }
 
+export interface GameRestartedEvent {
+  readonly type: 'gameRestarted'
+  readonly startingPlayerId: EntityId
+  readonly isYourTurn: boolean | null
+  readonly description: string
+}
+
 // ============================================================================
 // Control Events
 // ============================================================================
@@ -517,4 +583,30 @@ export function isPermanentUntappedEvent(event: ClientEvent): event is Permanent
 
 export function isHandLookedAtEvent(event: ClientEvent): event is HandLookedAtEvent {
   return event.type === 'handLookedAt'
+}
+
+/** An attacker paid one enlist cost. Selection uses the existing battlefield decision UI. */
+export interface CreatureEnlistedEvent {
+  readonly type: 'creatureEnlisted'
+  readonly attackerId: string
+  readonly enlistedId: string
+  readonly description: string
+}
+
+export interface AttackCancelledEvent {
+  readonly type: 'attackCancelled'
+  readonly playerId: string
+  readonly description: string
+}
+
+/** Public numerical dice, fully resolved by the server. */
+export interface DieRolledEvent {
+  readonly type: 'dieRolled'
+  readonly playerId: EntityId
+  readonly sides: number
+  readonly result: number
+  readonly sourceId: EntityId | null
+  readonly sourceName: string
+  readonly isYours?: boolean
+  readonly description: string
 }

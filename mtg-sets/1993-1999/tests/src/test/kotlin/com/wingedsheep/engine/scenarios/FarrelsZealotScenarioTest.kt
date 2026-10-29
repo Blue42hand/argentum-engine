@@ -34,11 +34,9 @@ class FarrelsZealotScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
                 game.declareNoBlockers()
 
-                // The gate asks whether to take the trade first; targets are locked in only on
-                // the "yes" branch, so a decline never asks for one.
+                // Choosing the target is taking the trade — no second yes/no at resolution.
                 val warrior = game.findPermanent("Elvish Warrior")!!
-                game.answerYesNo(true)
-                game.selectTargets(listOf(warrior))
+                game.selectTargets(listOf(warrior)).error shouldBe null
                 game.resolveStack()
 
                 game.passUntilPhase(Phase.POSTCOMBAT_MAIN, Step.POSTCOMBAT_MAIN)
@@ -65,8 +63,9 @@ class FarrelsZealotScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
                 game.declareNoBlockers()
 
-                game.answerYesNo(false)
-                game.resolveStack()
+                // Declining is an empty target selection: the trigger never goes on the stack.
+                game.selectTargets(emptyList()).error shouldBe null
+                game.state.stack.isEmpty() shouldBe true
 
                 withClue("the Warrior was never damaged") {
                     game.isOnBattlefield("Elvish Warrior") shouldBe true

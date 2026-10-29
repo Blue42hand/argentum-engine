@@ -1,48 +1,76 @@
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.filters.unified.*
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
+/**
+ * Animate Dead
+ * {1}{B}
+ * Enchantment — Aura
+ * Enchant creature card in a graveyard
+ * When this Aura enters, if it's on the battlefield, it loses "enchant creature card in a graveyard"
+ * and gains "enchant creature put onto the battlefield with this Aura." Return enchanted creature
+ * card to the battlefield under your control and attach this Aura to it. When this Aura leaves the
+ * battlefield, that creature's controller sacrifices it.
+ * Enchanted creature gets -1/-0.
+ *
+ * Cast targeting a creature card in any graveyard, it enters attached to that card — the enchant
+ * state-based action leaves it there while the card is still a creature card in a graveyard. The
+ * enters trigger gathers the enchanted card, returns it under your control, swaps the enchant
+ * ability and attaches (`Effects.EnchantPutOntoBattlefield`), then arms the "leaves the
+ * battlefield" sacrifice as a delayed trigger that remembers the returned creature.
+ */
 val AnimateDead = card("Animate Dead") {
     manaCost = "{1}{B}"
     colorIdentity = "B"
     typeLine = "Enchantment — Aura"
-    oracleText = "Enchant creature card in a graveyard\nWhen this Aura enters, if it's on the battlefield, it loses \"enchant creature card in a graveyard\" and gains \"enchant creature put onto the battlefield with this Aura.\" Return enchanted creature card to the battlefield under your control and attach this Aura to it. When this Aura leaves the battlefield, that creature's controller sacrifices it.\nEnchanted creature gets -1/-0."
+    oracleText = "Enchant creature card in a graveyard\n" +
+        "When this Aura enters, if it's on the battlefield, it loses \"enchant creature card in a graveyard\" " +
+        "and gains \"enchant creature put onto the battlefield with this Aura.\" Return enchanted creature card " +
+        "to the battlefield under your control and attach this Aura to it. When this Aura leaves the " +
+        "battlefield, that creature's controller sacrifices it.\n" +
+        "Enchanted creature gets -1/-0."
+
     auraTarget = TargetObject(filter = TargetFilter.CreatureInGraveyard)
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        interveningIf = Conditions.SourceMatches(GameObjectFilter.Any.currentlyIn(Zone.BATTLEFIELD))
+        interveningIf = Conditions.SourceInZone(Zone.BATTLEFIELD)
         effect = Effects.Pipeline {
-            val enchanted = gather(CardSource.ReferencedEntity(EffectTarget.EnchantedPermanent))
-            run(Effects.GrantStaticAbility(
-                EnchantRestrictionOverride(TargetObject(filter = TargetFilter.Creature), recordedHostKey = "reanimated"),
-                EffectTarget.Self, Duration.Permanent
-            ))
-            run(Effects.UnattachEquipment(EffectTarget.Self))
-            val returned = moveTracked(enchanted, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You),
-                filter = GameObjectFilter.Creature.currentlyIn(Zone.GRAVEYARD))
-            run(Effects.RecordSourceObjects(returned, "reanimated"))
-            run(Effects.ForEachInCollection(returned,
-                Effects.AttachToPermanent(EffectTarget.Self, EffectTarget.IterationEntity)))
-            run(Effects.CreateDelayedTrigger(
-                trigger = Triggers.self.leaves(),
-                watchedTarget = EffectTarget.Self,
-                expiry = DelayedTriggerExpiry.Never,
-                fireOnce = true,
-                carryCollections = listOf(returned),
-                effect = Effects.ForEachInCollection(returned,
-                    Effects.SacrificeTarget(EffectTarget.IterationEntity, sacrificedByItsController = true))
-            ))
+            val returned = gather(
+                CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Creature.attachedToBySource())
+            )
+            move(returned, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+            run(Effects.EnchantPutOntoBattlefield(returned))
+            run(
+                Effects.CreateDelayedTrigger(
+                    trigger = Triggers.self.leaves(),
+                    watchedTarget = EffectTarget.Self,
+                    fireOnce = true,
+                    expiry = DelayedTriggerExpiry.Never,
+                    carryCollections = listOf(returned.key),
+                    effect = Effects.SacrificeTarget(returned.asTarget, sacrificedByItsController = true)
+                )
+            )
         }
     }
-    staticAbility { ability = ModifyStats(-1, 0, filter = GroupFilter.attachedCreature()) }
+
+    staticAbility {
+        ability = ModifyStats(-1, 0)
+    }
 
     metadata {
         rarity = Rarity.UNCOMMON

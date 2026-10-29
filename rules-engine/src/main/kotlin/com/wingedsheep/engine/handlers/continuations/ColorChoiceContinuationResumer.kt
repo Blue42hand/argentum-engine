@@ -1,8 +1,10 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.actions.ability.hasTapCost
 import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 import com.wingedsheep.engine.handlers.effects.mana.ManaAbilityResolutionPipeline
+import com.wingedsheep.engine.handlers.effects.mana.manaColorsAdded
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
 import com.wingedsheep.engine.state.components.battlefield.withCastChoice
@@ -250,9 +252,15 @@ class ColorChoiceContinuationResumer(
         val tracked = if (continuation.baseContext.activatedAbility?.isManaAbility == true)
             com.wingedsheep.engine.state.tagManaObligationProduction(state, snowMarked, tapperId, sourceId)
             else snowMarked
+        // Tap bonuses only follow a mana ability with {T} in its cost (see ActivatedManaAbilityResolver).
+        val costsTap = continuation.baseContext.activatedAbility?.cost?.hasTapCost() ?: true
+        if (!costsTap) return checkForMore(tracked, events)
         val finished = manaPipeline.finishTapBonuses(
             tracked,
-            sourceId, sourceCard, tapperId, producedMana, events
+            sourceId, sourceCard, tapperId, producedMana, events,
+            // The whole activation's colors, not just the last part's event (`state` is the pool
+            // before the chosen mana was added).
+            if (dampening.dampened) emptySet() else manaColorsAdded(state, dampening.state, tapperId),
         )
         if (finished.outcome is Outcome.Paused) return finished
         return checkForMore(finished.newState, finished.events.toList())

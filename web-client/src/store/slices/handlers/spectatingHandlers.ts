@@ -55,6 +55,7 @@ export function createSpectatingHandlers(set: SetState, get: GetState): Pick<Mes
         for (const p of msg.players) if (p.teamIndex != null) teams[p.playerId] = p.teamIndex
         get().setSeatTeams(teams, msg.players.some((p) => p.teamSharedLife))
       }
+      if (msg.players && Object.keys(get().avatarByPlayerId).length === 0) get().setSeatAvatars(msg.players)
 
       if (msg.gameState && prevState?.gameState) {
         const prevPlayers = prevState.gameState.players
@@ -132,8 +133,10 @@ export function createSpectatingHandlers(set: SetState, get: GetState): Pick<Mes
 
     onSpectatingStopped: () => {
       set({ spectatingState: null })
-      // Leaving the stream: drop the stamped team map so a later non-team spectate starts clean.
+      // Leaving the stream: drop the stamped team map and portraits so the next spectate (stamped
+      // only while the map is empty) starts clean.
       get().setSeatTeams({})
+      get().setSeatAvatars([])
     },
 
     onSpectatorCountChanged: (msg) => {

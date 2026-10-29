@@ -142,7 +142,7 @@ sealed interface ReplacementEffect : TextReplaceable<ReplacementEffect> {
      *
      * Types that carry a `restrictions` field (e.g. [ModifyDrawAmount],
      * [PreventDamage], [DoubleDamage], [ModifyLifeGain], [ModifyLifeLoss],
-     * [ModifyMillAmount], [ModifyScryAmount], [LifeLossFloor]) override this automatically.
+     * [ModifyKeywordActionAmount], [LifeLossFloor]) override this automatically.
      */
     val restrictions: List<Condition> get() = emptyList()
 }
@@ -214,8 +214,20 @@ data class ModifyTokenCount(
  * Per the Worldwalker Helm ruling, the added token inherits the original effect's
  * "tapped" rider when [inheritTapped] is set, but never the original tokens' abilities.
  *
+ * [scale] says how many get added: [AdditionalTokenScale.PER_EVENT] adds
+ * [additionalTokenCount] once for the whole batch (Worldwalker Helm, Quina's Frog);
+ * [AdditionalTokenScale.PER_MATCHING_TOKEN] adds [additionalTokenCount] for *each* token of the
+ * batch the `tokenFilter` matches — "those tokens plus that many 1/1 green Squirrel creature
+ * tokens" (Chatterfang, Squirrel General). Several entries on one permanent are one ability:
+ * they all judge the batch as it stood before that permanent applied, so Academy Manufactor's
+ * "instead create one of each" is six entries (a Clue adds a Food and a Treasure, …) that don't
+ * see each other's additions — while a *second* permanent judges the batch the first one grew
+ * (two Manufactors make three of each, per the ruling).
+ *
  * @property additionalTokenType The predefined token to additionally create (e.g. "Map").
- * @property additionalTokenCount How many of that token to add per qualifying event.
+ * @property additionalTokenCount How many of that token to add per qualifying event, or per
+ *           matching token under [AdditionalTokenScale.PER_MATCHING_TOKEN].
+ * @property scale Whether the count is added once per event or once per matching token.
  * @property inheritTapped When true, the added token enters tapped if the original
  *           creation made tapped tokens.
  * @property restrictions Extra gates on when this applies, evaluated as described on
@@ -232,13 +244,22 @@ data class CreateAdditionalToken(
     val additionalTokenCount: Int = 1,
     val inheritTapped: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.TokenCreationEvent(),
-    override val restrictions: List<Condition> = emptyList()
+    override val restrictions: List<Condition> = emptyList(),
+    val scale: AdditionalTokenScale = AdditionalTokenScale.PER_EVENT
 ) : ReplacementEffect {
     override val description: String = buildString {
         append("If ${appliesTo.description}, create those tokens plus ")
-        append(if (additionalTokenCount == 1) "an additional " else "$additionalTokenCount additional ")
+        when {
+            scale == AdditionalTokenScale.PER_MATCHING_TOKEN ->
+                append(if (additionalTokenCount == 1) "that many " else "$additionalTokenCount times that many ")
+            additionalTokenCount == 1 -> append("an additional ")
+            else -> append("$additionalTokenCount additional ")
+        }
         append(additionalTokenType)
-        append(if (additionalTokenCount == 1) " token instead" else " tokens instead")
+        append(
+            if (additionalTokenCount == 1 && scale == AdditionalTokenScale.PER_EVENT) " token instead"
+            else " tokens instead"
+        )
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
@@ -248,6 +269,16 @@ data class CreateAdditionalToken(
             copy(appliesTo = newAppliesTo, restrictions = newRestrictions)
         } else this
     }
+}
+
+/** How many tokens a [CreateAdditionalToken] adds: once per creation event, or once per matching token. */
+@Serializable
+enum class AdditionalTokenScale {
+    /** [CreateAdditionalToken.additionalTokenCount] once for the whole batch ("plus an additional Map token"). */
+    PER_EVENT,
+
+    /** [CreateAdditionalToken.additionalTokenCount] for each token of the batch the filter matches ("plus that many"). */
+    PER_MATCHING_TOKEN
 }
 
 /**
@@ -267,8 +298,9 @@ data class CreateAdditionalToken(
  * the tokens enter under the player the original tokens were being created for, and the original
  * effect's riders ("tapped", "sacrifice it at end of turn") belonged to the tokens it no longer
  * creates. The substitute tokens are created without a second count-replacement pass (a doubler
- * already scaled "that many") and without re-checking this family, so a substitute that would
- * itself match the filter can't loop.
+ * already scaled "that many"). They are checked against this family again (CR 616.2), skipping
+ * every substitution already applied to the event (CR 614.5): Fisher's Talent chains Fish → Shark
+ * → Octopus, and a substitute that would itself match its own filter can't loop.
  *
  * Read engine-side by `TokenCreationReplacementHelper.findTokenSubstitution` at the token-creation
  * executors that read the other token replacements (creature tokens, predefined tokens, token
@@ -1294,25 +1326,41 @@ data class ModifyDrawAmount(
 }
 
 /**
- * Modify how many cards a player mills (CR 701.13). Additive: a [modifier] of `+4` makes a
- * player who would mill N instead mill `N + 4`; negative values reduce the mill (clamped to ≥ 0
- * by the caller). Applied at the mill announcement, once per mill instruction, exactly like
- * [ModifyDrawAmount] — so a paused-and-resumed mill never double-modifies.
+ * Modify how many cards a player mills, scries or surveils — "mill that many cards plus four
+ * instead", "scry that many cards plus one instead", "look at an additional two cards each time you
+ * surveil". Additive: a [modifier] of `+N` turns the announced count C into `C + N`; negative values
+ * reduce it (clamped to ≥ 0 by the caller). One type across these keyword actions rather than one
+ * per action, like [ModifyKeywordAction]: [appliesTo] says which action and whose —
  *
- * The [appliesTo] [EventPattern.MillEvent] gates which player's mills are affected relative to
- * the source's controller (`Player.You` / `Player.EachOpponent` / `Player.Each`). [restrictions]
- * are additional [Condition]s evaluated against the milling player as controller; ALL must hold.
+ *  - [EventPattern.MillEvent] — mill (CR 701.17). Applied at the mill announcement: the mill
+ *    pipeline's gather and the mill cost atom.
+ *  - [EventPattern.ScryEvent] — scry (CR 701.22). Applied at the scry pipeline's gather, so the
+ *    bigger look carries through to the top/bottom choice and the `ScriedEvent` count.
+ *  - [EventPattern.SurveilEvent] — surveil (CR 701.25). Applied at the surveil pipeline's gather,
+ *    so the extra cards are part of what is surveiled (CR 701.25b): each may go to the graveyard or
+ *    back on top, and the `SurveiledEvent` count includes them.
  *
- * Example — The Water Crystal: "If an opponent would mill one or more cards, they mill that many
- * cards plus four instead" → `ModifyMillAmount(4, appliesTo = MillEvent(Player.EachOpponent))`.
+ * Each pattern's `player` gates whose action is affected relative to the source's controller
+ * (`Player.You` / `Player.EachOpponent` / `Player.Each`). Applied once per instruction, so a
+ * paused-and-resumed pipeline never double-modifies; a count of 0 is no event (CR 701.22b /
+ * 701.25c) and is never modified; multiple instances sum. [restrictions] are additional
+ * [Condition]s evaluated against the acting player as controller; ALL must hold.
+ *
+ * Why not [ModifyDrawAmount]: a draw is not a keyword action and has its own announcement site
+ * (`DrawReplacementDispatcher`), with "N or more" draw gating these actions don't have.
+ *
+ * Examples — The Water Crystal: `ModifyKeywordActionAmount(MillEvent(Player.EachOpponent), 4)`;
+ * Kenessos, Priest of Thassa: `ModifyKeywordActionAmount(ScryEvent(), 1)`; Enhanced Surveillance:
+ * `ModifyKeywordActionAmount(SurveilEvent(), 2)`.
  */
-@SerialName("ModifyMillAmount")
+@SerialName("ModifyKeywordActionAmount")
 @Serializable
-data class ModifyMillAmount(
+data class ModifyKeywordActionAmount(
+    override val appliesTo: EventPattern.KeywordActionCountEvent,
     val modifier: Int,
-    override val restrictions: List<Condition> = emptyList(),
-    override val appliesTo: EventPattern = EventPattern.MillEvent()
+    override val restrictions: List<Condition> = emptyList()
 ) : ReplacementEffect {
+
     override val description: String = buildString {
         val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
         if (restrictionDesc.isNotEmpty()) {
@@ -1321,59 +1369,25 @@ data class ModifyMillAmount(
         } else {
             append("If ")
         }
-        append(appliesTo.description)
-        append(", they mill that many cards plus $modifier instead")
-    }
-
-    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
-        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
-        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
-        val anyChanged = newAppliesTo !== appliesTo ||
-            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
-        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
-    }
-}
-
-/**
- * Modify how many cards a player scries (CR 701.22) — the scry twin of [ModifyMillAmount]. A
- * [modifier] of `+1` makes a player who would scry N instead scry `N + 1`; negative values reduce
- * it (clamped to ≥ 0 by the caller). Applied once at the scry announcement — the scry pipeline's
- * gather — so a paused-and-resumed scry never double-modifies, and the bigger look carries
- * through to the top/bottom choice and the `ScriedEvent` count. A scry 0 is no scry event
- * (CR 701.22b) and is never modified.
- *
- * The [appliesTo] [EventPattern.ScryEvent] gates which player's scries are affected relative to
- * the source's controller. [restrictions] are additional [Condition]s evaluated against the
- * scrying player as controller; ALL must hold.
- *
- * Example — Kenessos, Priest of Thassa: "If you would scry a number of cards, scry that many cards
- * plus one instead" → `ModifyScryAmount(1)`.
- */
-@SerialName("ModifyScryAmount")
-@Serializable
-data class ModifyScryAmount(
-    val modifier: Int,
-    override val restrictions: List<Condition> = emptyList(),
-    override val appliesTo: EventPattern = EventPattern.ScryEvent()
-) : ReplacementEffect {
-    override val description: String = buildString {
-        val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
-        if (restrictionDesc.isNotEmpty()) {
-            append(restrictionDesc.replaceFirstChar { it.uppercase() })
-            append(", if ")
-        } else {
-            append("If ")
+        append(
+            when (appliesTo) {
+                is EventPattern.MillEvent -> "${appliesTo.player.description} would mill one or more cards"
+                else -> appliesTo.description
+            }
+        )
+        val verb = when (appliesTo) {
+            is EventPattern.MillEvent -> "mill"
+            is EventPattern.ScryEvent -> "scry"
+            is EventPattern.SurveilEvent -> "surveil"
         }
-        append(appliesTo.description)
-        append(", they scry that many cards plus $modifier instead")
+        append(", they $verb that many cards plus $modifier instead")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
-        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        // A keyword-action pattern carries only a Player — no replaceable text.
         val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
-        val anyChanged = newAppliesTo !== appliesTo ||
-            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
-        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
+        val anyChanged = newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
+        return if (anyChanged) copy(restrictions = newRestrictions) else this
     }
 }
 
@@ -2600,6 +2614,9 @@ data class PreventExtraTurns(
  *        "if a creature an opponent controls would die, instead exile it and ...; {cost}: return a
  *        creature card exiled with ~" recursion (The Darkness Crystal). Ignored for non-exile
  *        destinations.
+ * @param riderTiming Whether [additionalEffect] is part of the replacement itself ("instead exile
+ *        it and you gain 2 life") or a reflexive triggered ability that goes on the stack after it
+ *        ("exile it instead. When you do, create a 1/1 green Saproling creature token" — CR 603.12).
  * @param appliesTo The zone change event this replacement intercepts
  */
 @SerialName("RedirectZoneChangeWithEffect")
@@ -2609,10 +2626,16 @@ data class RedirectZoneChangeWith(
     val additionalEffect: Effect,
     val selfOnly: Boolean = false,
     val linkToSource: Boolean = false,
+    val riderTiming: ReplacementRiderTiming = ReplacementRiderTiming.WITH_REPLACEMENT,
     override val appliesTo: EventPattern
 ) : ReplacementEffect {
-    override val description: String =
-        "If ${appliesTo.description}, instead put it into ${newDestination.displayName} and ${additionalEffect.description}"
+    override val description: String = when (riderTiming) {
+        ReplacementRiderTiming.WITH_REPLACEMENT ->
+            "If ${appliesTo.description}, instead put it into ${newDestination.displayName} and ${additionalEffect.description}"
+        ReplacementRiderTiming.WHEN_YOU_DO ->
+            "If ${appliesTo.description}, instead put it into ${newDestination.displayName}. " +
+                "When you do, ${additionalEffect.description.replaceFirstChar { it.lowercase() }}"
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
@@ -2621,6 +2644,26 @@ data class RedirectZoneChangeWith(
             copy(appliesTo = newAppliesTo, additionalEffect = newAdditionalEffect)
         else this
     }
+}
+
+/**
+ * When the rider of a [RedirectZoneChangeWith] happens relative to the replaced zone change.
+ */
+@Serializable
+enum class ReplacementRiderTiming {
+    /**
+     * The rider is part of the replacement: it happens immediately, with no stack and no priority
+     * between the move and the rider (CR 614.1). Ugin's Nexus, Darigaaz Reincarnated, The Darkness
+     * Crystal. Only a small executor whitelist can run here.
+     */
+    WITH_REPLACEMENT,
+
+    /**
+     * "When you do, …" — a reflexive triggered ability (CR 603.12) that triggers each time the
+     * replacement applies and goes on the stack the next time a player would receive priority.
+     * Any effect can be the rider; it may be responded to. Head of the Hunt, Nemata, Primeval Warden.
+     */
+    WHEN_YOU_DO,
 }
 
 // =============================================================================

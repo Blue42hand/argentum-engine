@@ -800,13 +800,15 @@
                             "effect": {
                                 "type": "CreatePredefinedToken",
                                 "tokenType": "Food"
-                            }
+                            },
+                            "description": "Create a Food token"
                         },
                         {
                             "effect": {
                                 "type": "CreatePredefinedToken",
                                 "tokenType": "Treasure"
-                            }
+                            },
+                            "description": "Create a Treasure token"
                         }
                     ],
                     "countsAsModalSpell": false
@@ -1047,7 +1049,7 @@
             {
                 "chapter": 2,
                 "effect": {
-                    "type": "ReduceSpellCosts",
+                    "type": "ModifySpellCosts",
                     "spellFilter": {
                         "cardPredicates": [
                             "IsArtifact"
@@ -1431,7 +1433,8 @@
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
-                    }
+                    },
+                    "perAttackedPlayer": true
                 },
                 "binding": "ANY",
                 "effect": {
@@ -9585,7 +9588,9 @@
                                         "excludeSelf": true
                                     }
                                 },
-                                "storeAs": "target0"
+                                "storeAs": "target0",
+                                "nonTargeting": true,
+                                "prompt": "Choose another creature to sacrifice"
                             },
                             {
                                 "type": "SacrificeTarget",
@@ -10474,7 +10479,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 3
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
                     }
                 },
                 "effect": {
@@ -10868,7 +10876,9 @@
                                                 "baseFilter": "creature ctrl:you"
                                             }
                                         },
-                                        "storeAs": "target0"
+                                        "storeAs": "target0",
+                                        "nonTargeting": true,
+                                        "prompt": "Choose a creature you control to remove a counter from"
                                     },
                                     {
                                         "type": "Gated",
@@ -14046,7 +14056,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -14522,7 +14535,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -15652,6 +15668,10 @@
                     "count": {
                         "type": "Fixed",
                         "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
                     }
                 }
             }
@@ -17749,7 +17769,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Plan card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -21347,7 +21369,9 @@
                                                 "baseFilter": "artifact Equipment ctrl:you"
                                             }
                                         },
-                                        "storeAs": "target0"
+                                        "storeAs": "target0",
+                                        "nonTargeting": true,
+                                        "prompt": "Choose an Equipment you control to attach to Winter Soldier"
                                     },
                                     {
                                         "type": "AttachTargetEquipmentToCreature",

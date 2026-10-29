@@ -60,6 +60,15 @@ data class ActivatedAbility(
      * cost reduction rewrites the cost — which a static `descriptionOverride` could not.
      */
     val equipQuality: String? = null,
+    /**
+     * True for the fortify ability synthesized by [com.wingedsheep.sdk.dsl.CardBuilder.fortifyAbility]
+     * — CR 702.67a's "Fortify [cost]", the Fortification analog of equip (CR 301.6). Kept apart from
+     * [isEquipAbility] on purpose: fortify is a distinct keyword, so nothing that keys off *equip*
+     * abilities (instant-speed equip, equip cost reductions, Forge Anew's free first equip, "spend
+     * this mana only to activate equip abilities") reaches it. Its only reader is [describeWithCost],
+     * which renders the printed "Fortify {3}" line.
+     */
+    val isFortifyAbility: Boolean = false,
     val activateFromZone: Zone = Zone.BATTLEFIELD,
     /**
      * Count this ability's activations for the turn even though no [restrictions] entry needs the
@@ -264,8 +273,10 @@ data class ActivatedAbility(
         //
         // A non-mana equip cost takes the printed em dash instead of a space — "Equip—Sacrifice a
         // creature" (Demonmail Hauberk, Dissection Tools), not "Equip Sacrifice a creature".
-        if (isEquipAbility) {
-            val keyword = "Equip" + (equipQuality?.let { " $it" } ?: "")
+        //
+        // Fortify (CR 702.67a) is printed the same way: "Fortify {3}".
+        if (isEquipAbility || isFortifyAbility) {
+            val keyword = if (isFortifyAbility) "Fortify" else "Equip" + (equipQuality?.let { " $it" } ?: "")
             return if (effectiveCost.manaCostOrNull != null) "$keyword $base" else "$keyword—$base"
         }
         val costText = if (hasWaterbend) "Waterbend $base" else base
@@ -336,6 +347,33 @@ data class ActivatedAbility(
                 genericCostReduction = genericCostReduction,
             )
         }
+
+        /**
+         * The ability "Fortify [cost]" *is* — CR 702.67a's "attach this Fortification to target land
+         * you control. Activate only as a sorcery." The Fortification analog of [equip] (CR 301.6),
+         * lowered the same way and for the same reason: one body shared by
+         * [com.wingedsheep.sdk.dsl.CardBuilder.fortifyAbility] and any reader of the printed line.
+         *
+         * The attach itself is the same [AttachEquipmentEffect] equip uses — "attach this permanent
+         * to the target" — and the engine's attachment rules (CR 301.6, 704.5n) decide that a
+         * Fortification's host must be a land. Unlike equip there is no `CardDefinition` cost field
+         * and no quality variant: no printed card has either.
+         */
+        fun fortify(
+            cost: ManaCost,
+            id: AbilityId = AbilityId.next(),
+        ): ActivatedAbility = ActivatedAbility(
+            id = id,
+            cost = AbilityCost.Atom(CostAtom.Mana(cost)),
+            effect = AttachEquipmentEffect(EffectTarget.BoundVariable(FORTIFY_TARGET_LABEL)),
+            targetRequirements = listOf(TargetObject(filter = TargetFilter.LandYouControl, id = FORTIFY_TARGET_LABEL)),
+            isManaAbility = false,
+            isFortifyAbility = true,
+            timing = TimingRule.SorcerySpeed,
+        )
+
+        /** The label a fortify ability's target requirement and its attach effect share. */
+        const val FORTIFY_TARGET_LABEL: String = "land you control"
 
         /**
          * The label an equip ability's target requirement carries, which doubles as the name of the
@@ -437,6 +475,32 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
         val filter: GameObjectFilter = GameObjectFilter.Any
     ) : AbilityCost {
         override val description: String = "Exile X ${filter.description}s from your graveyard"
+
+        override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
+
+    /**
+     * Discard X cards, where X is the ability's X value — "{4}{B}{B}{B}, Discard X cards: …"
+     * (Gix, Yawgmoth Praetor).
+     *
+     * The hand-side twin of [ExileXFromGraveyard]: X *is* the size of the selection. With no `{X}`
+     * in the mana cost the engine pauses for the cards (any number of matching cards in hand,
+     * including none) and binds X to how many were chosen — the value of a variable defined by a
+     * cost choice is announced as the ability is activated (CR 601.2b via CR 602.2b). With a `{X}`
+     * alongside it, the mana X fixes the count and the selection must be exactly that many.
+     * The discard fires discard triggers (it is a discard, CR 701.9).
+     *
+     * @property filter Which cards in hand may be discarded.
+     */
+    @SerialName("CostDiscardX")
+    @Serializable
+    data class DiscardX(
+        val filter: GameObjectFilter = GameObjectFilter.Any
+    ) : AbilityCost {
+        override val description: String = "Discard X ${filter.description}s"
 
         override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
             val newFilter = filter.applyTextReplacement(replacer)
@@ -595,7 +659,10 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     data class TapXPermanents(
         val filter: GameObjectFilter = GameObjectFilter.Creature
     ) : AbilityCost {
-        override val description: String = "Tap X untapped ${filter.description}s you control"
+        override val description: String =
+            "Tap X untapped ${com.wingedsheep.sdk.scripting.util.pluralNounPhrase(
+                filter.copy(controllerPredicate = null).description
+            )} you control"
 
         override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
             val newFilter = filter.applyTextReplacement(replacer)

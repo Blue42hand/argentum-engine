@@ -34,6 +34,13 @@ data class ArenaConfig(
     val maxTurns: Int = 50,
     val threads: Int = Runtime.getRuntime().availableProcessors(),
     val featureOutput: Path? = null,
+    /**
+     * Per-game wall-clock cap, or null for none (the default, so the harness tests and every
+     * determinism check run uncapped). `just arena` sets it from `-DarenaGameTimeoutSec`. A game
+     * it ends is a `timeout(...)` draw and is **not** reproducible from its seed — see
+     * [TableGameRunner.play].
+     */
+    val gameTimeout: Duration? = null,
 ) {
     val pairs: Int get() = (games + 1) / 2
 
@@ -55,10 +62,7 @@ object Arena {
 
     fun run(config: ArenaConfig, onProgress: (completed: Int, total: Int, pair: ArenaPair) -> Unit = { _, _, _ -> }): ArenaRun {
         val set = MtgSetCatalog.requireByCode(config.setCode)
-        val registry = CardRegistry().apply {
-            register(set.cards)
-            register(set.basicLands)
-        }
+        val registry = harnessRegistry(set)
         val featureCollector = config.featureOutput?.let {
             ArenaFeatureCollector(it, registry, config.setCode)
         }
@@ -111,13 +115,13 @@ object Arena {
             registry, seat0 = config.agentA, seat1 = config.agentB,
             seat0Deck = deck, seat1Deck = deck,
             seed = pairSeed, pairId = pairId, gameIndex = 0, maxTurns = config.maxTurns,
-            featureCollector = featureCollector,
+            featureCollector = featureCollector, gameTimeout = config.gameTimeout,
         )
         val gameB = ArenaGameRunner.play(
             registry, seat0 = config.agentB, seat1 = config.agentA,
             seat0Deck = deck, seat1Deck = deck,
             seed = pairSeed, pairId = pairId, gameIndex = 1, maxTurns = config.maxTurns,
-            featureCollector = featureCollector,
+            featureCollector = featureCollector, gameTimeout = config.gameTimeout,
         )
         return ArenaPair(pairId, gameA, gameB)
     }

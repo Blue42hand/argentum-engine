@@ -32,7 +32,14 @@ class CounterTypeTest : DescribeSpec({
             CounterType.TRAINING.printed shouldBe "training"
             CounterType.MIRE.printed shouldBe "mire"
             CounterType.COLLECTION.printed shouldBe "collection"
+            CounterType.BOUNTY.printed shouldBe "bounty"
             CounterType.REPRIEVE.printed shouldBe "reprieve"
+            CounterType.CORPSE.printed shouldBe "corpse"
+            CounterType.BRICK.printed shouldBe "brick"
+            CounterType.VITALITY.printed shouldBe "vitality"
+            CounterType.MUSTER.printed shouldBe "muster"
+            CounterType.AGE.printed shouldBe "age"
+            CounterType.RAD.printed shouldBe "rad"
         }
     }
 
@@ -102,7 +109,10 @@ class CounterTypeTest : DescribeSpec({
         /** Kinds named after `object Counters` was retired, so they have no legacy constant. */
         val NEW_KINDS = setOf(CounterType.BLOODLINE, CounterType.INVITATION, CounterType.IMPOSTOR, CounterType.DEVOTION,
             CounterType.THEFT, CounterType.TRAINING, CounterType.MIRE, CounterType.COLLECTION,
-            CounterType.REPRIEVE, CounterType.EXPERIENCE)
+            CounterType.REPRIEVE, CounterType.BOUNTY, CounterType.CORPSE, CounterType.BRICK,
+            CounterType.VITALITY, CounterType.AGE, CounterType.EXPERIENCE, CounterType.VOW,
+            CounterType.ACORN, CounterType.INGREDIENT, CounterType.RAD, CounterType.PHYRESIS,
+            CounterType.MUSTER)
 
         /** The values of the retired `object Counters` string constants, verbatim. */
         val LEGACY_SPELLINGS: Map<CounterType, String> = mapOf(
@@ -123,6 +133,7 @@ class CounterTypeTest : DescribeSpec({
             CounterType.INDESTRUCTIBLE to "indestructible", CounterType.DEATHTOUCH to "deathtouch",
             CounterType.TRAMPLE to "trample", CounterType.HEXPROOF to "hexproof", CounterType.REACH to "reach",
             CounterType.HASTE to "haste", CounterType.MENACE to "menace", CounterType.EXALTED to "exalted",
+            CounterType.SHADOW to "shadow",
             CounterType.STASH to "stash",
             CounterType.CROAK to "croak", CounterType.BLIGHT to "blight", CounterType.COIN to "coin",
             CounterType.FLOOD to "flood", CounterType.CHORUS to "chorus", CounterType.DREAM to "dream",
@@ -145,7 +156,8 @@ class CounterTypeTest : DescribeSpec({
             CounterType.JAVELIN to "javelin", CounterType.CREDIT to "credit", CounterType.CUBE to "cube",
             CounterType.TIDE to "tide", CounterType.SKEWER to "skewer", CounterType.ENERGY to "energy",
             CounterType.ICE to "ice", CounterType.PLAN to "plan", CounterType.INVASION to "invasion",
-            CounterType.UNLOCK to "unlock", CounterType.JUDGMENT to "judgment"
+            CounterType.UNLOCK to "unlock", CounterType.JUDGMENT to "judgment",
+            CounterType.BRAIN to "brain"
         )
     }
 }

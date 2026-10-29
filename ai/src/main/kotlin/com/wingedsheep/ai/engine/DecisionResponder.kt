@@ -7,15 +7,31 @@ import com.wingedsheep.ai.engine.budget.DecisionBudget
 import com.wingedsheep.ai.engine.budget.LegacyBudgetPolicy
 import com.wingedsheep.ai.engine.evaluation.BoardEvaluator
 import com.wingedsheep.ai.engine.evaluation.BoardPresence
+import com.wingedsheep.ai.engine.evaluation.CardAdvantage
+import com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow
+import com.wingedsheep.ai.engine.knowledge.GraveyardSynergy
 import com.wingedsheep.ai.engine.knowledge.IntentCatalog
+import com.wingedsheep.ai.engine.knowledge.TargetPolarity
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.player.LandDropsComponent
+import com.wingedsheep.engine.state.components.player.SkipDrawStepComponent
+import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.effects.SecretChoice
+import kotlin.random.Random
 
 /**
  * Handles all [PendingDecision] types by evaluating possible responses
@@ -45,10 +61,86 @@ class DecisionResponder(
      * [IntentCatalog.NONE] is the off position and leaves both at their pre-Phase-6 behaviour.
      */
     private val intents: IntentCatalog = IntentCatalog.NONE,
+    /**
+     * [AiProfile.castabilityAwareCardSelection]: rank keep / take / discard / search choices with
+     * [CardSelectionValue] instead of the battlefield-land-count heuristic. Off leaves every one of
+     * those answers exactly as it was.
+     */
+    private val castabilityAwareCardSelection: Boolean = false,
+    /**
+     * [AiProfile.informedChoiceDecisions]: break simulation ties on colour, land-type,
+     * creature-type and card-name choices with [ChoicePriors], shortlist the open-ended name and
+     * creature-type lists instead of simulating every entry, and price a pending "skip your draw
+     * step" marker as the card it costs. Off is the historical behaviour, byte for byte.
+     */
+    private val informedChoices: Boolean = false,
+    /**
+     * [AiProfile.fillUpToMaxTargets]: grow an "up to N" target answer past its first pick while
+     * each added target improves the simulated result, and always fill a requirement to its
+     * minimum. Off answers every requirement with exactly one target, as it always has.
+     */
+    private val fillUpToMaxTargets: Boolean = false,
+    /**
+     * [AiProfile.selectionCountsByValue]: an unlabelled "choose up to N" takes N even when the
+     * options don't outnumber it, and a scry-to-bottom or surveil-to-graveyard choice sends exactly
+     * the cards worth less than [LOOK_KEEP_THRESHOLD] — possibly none, possibly all. Off is the
+     * historical count logic.
+     */
+    private val selectionCountsByValue: Boolean = false,
+    /**
+     * [AiProfile.holdUnusablePumps]: decline an optional payment whose only payoff is an
+     * end-of-turn grant on creatures that cannot attack or block this turn. Off is the historical
+     * tie-to-yes.
+     */
+    private val holdUnusablePumps: Boolean = false,
+    /**
+     * [AiProfile.pumpsNeedAPlannedAttack]: under [holdUnusablePumps], a beginning-of-combat
+     * payment on our own turn asks this advisor which creatures it would attack with on the yes
+     * branch, and grants on the creatures left home count as unspendable. Null (the default)
+     * keeps "can attack" as the only test.
+     */
+    private val combatAdvisor: CombatAdvisor? = null,
+    /**
+     * [AiProfile.surplusAwareLands]: an optional target is not picked when the pick returns one of
+     * our own lands to a hand whose other lands already cover this turn's and next turn's land
+     * drops ([strandsALand]). Off is the historical evaluator-only comparison.
+     */
+    private val surplusAwareLands: Boolean = false,
+    /** Secret commitments are chosen independently of other players' unrevealed answers. */
+    private val secretChoiceRandom: Random = Random.Default,
+    /**
+     * [AiProfile.targetPolarityFromEffect]: a target slot the ability's effect reads as
+     * [TargetPolarity.BENEFICIAL] — a shield counter, a pump, an untap — draws from our own side
+     * whenever our side has a legal target, and ties break toward our most valuable permanent
+     * instead of toward the best *removal* target. Off is the historical removal-oriented ranking.
+     */
+    private val targetPolarityFromEffect: Boolean = false,
 ) {
+    private val priors: ChoicePriors? = if (informedChoices) ChoicePriors(simulator.cardRegistry) else null
+
     var forcedPlayPicker: (GameState, EntityId) -> GameAction = simulator::completeForcedPlay
 
     fun respond(state: GameState, decision: PendingDecision, playerId: EntityId): DecisionResponse {
+        // Secret commitments must bypass both simulation and advisors: either can inspect the
+        // saved private answers and let the last chooser respond to information they cannot see.
+        val secret = (state.peekContinuation() as? Suspension)?.takeIf {
+            it.question.id == decision.id
+        }?.answer as? SecretChoiceContinuation
+        if (secret != null) {
+            when (decision) {
+                is ChooseNumberDecision -> {
+                    val numeric = secret.effect.choice as? SecretChoice.Number
+                    // Ranked bids can cost the chosen amount of life. Stay at the allowed floor
+                    // rather than risking a lethal bid or consulting opponents' hidden numbers.
+                    val ranked = numeric != null && (numeric.highestEffect != null ||
+                        numeric.lowestEffect != null || numeric.tiedEffect != null)
+                    return NumberChosenResponse(decision.id, if (ranked) decision.minValue else
+                        secretChoiceRandom.nextLong(decision.minValue.toLong(), decision.maxValue.toLong() + 1).toInt())
+                }
+                is SelectCardsDecision -> return respondSecretEntity(state, decision, playerId)
+                else -> {}
+            }
+        }
         // Try card-specific advisor first
         val sourceName = decision.context.sourceName
         if (sourceName != null) {
@@ -86,11 +178,30 @@ class DecisionResponder(
             is ChooseReplacementDecision -> respondReplacement(decision)
             is BudgetModalDecision -> respondBudgetModal(decision)
             is AssignDamageDecision -> respondDamageAssignment(state, decision)
-            is CombatResolutionDecision -> respondCombatResolution(decision)
+            is CombatResolutionDecision -> respondCombatResolution(state, decision, playerId)
             is SearchLibraryDecision -> respondSearchLibrary(state, decision, playerId)
             is ReorderLibraryDecision -> respondReorderLibrary(state, decision, playerId)
             is SelectManaSourcesDecision -> respondManaSelection(decision)
         }
+    }
+
+    /** Ballot desirability uses only the visible board, never earlier private votes. */
+    private fun respondSecretEntity(
+        state: GameState,
+        decision: SelectCardsDecision,
+        playerId: EntityId,
+    ): CardsSelectedResponse {
+        val projected = state.projectedState
+        fun publicValue(id: EntityId): Int =
+            (projected.getPower(id) ?: 0).coerceAtLeast(0) + (projected.getToughness(id) ?: 0).coerceAtLeast(0)
+        val candidates = decision.options.filter {
+            projected.isCreature(it) &&
+                projected.getController(it)?.let { controller -> state.isOpponentOf(controller, playerId) } == true &&
+                !projected.hasKeyword(it, Keyword.INDESTRUCTIBLE)
+        }
+        val best = candidates.maxByOrNull(::publicValue)
+            ?: if (decision.minSelections > 0) decision.options.minByOrNull(::publicValue) else null
+        return CardsSelectedResponse(decision.id, listOfNotNull(best))
     }
 
     // ── Text-change replacement (Crystal Spray, Artificial Evolution) ────
@@ -118,64 +229,247 @@ class DecisionResponder(
         budget: DecisionBudget,
     ): DecisionResponse {
         val maxCandidates = budget.allowances.targetCandidates
+        val polarities = if (targetPolarityFromEffect) {
+            TargetSelection.decisionPolarities(state, decision, intents)
+        } else {
+            emptyMap()
+        }
+        fun heuristicFor(req: TargetRequirementInfo): (EntityId) -> Double =
+            if (polarities[req.index] == TargetPolarity.BENEFICIAL) {
+                { id -> beneficialTargetHeuristic(state, id, playerId) }
+            } else {
+                { id -> targetHeuristic(state, id, playerId) }
+            }
         if (decision.targetRequirements.size == 1) {
             val req = decision.targetRequirements.first()
-            val targets = decision.legalTargets[req.index] ?: return cancelOrFirst(decision)
-            if (targets.isEmpty()) return cancelOrFirst(decision)
+            if (req.exclusiveGroups != null) {
+                val picks = constrainedTargetSelection(decision.legalTargetsFor(req.index, emptyMap()), req.minTargets, req.maxTargets,
+                    req.selectionGroups, req.exclusiveGroups.orEmpty(), heuristicFor(req))
+                return TargetsResponse(decision.id, mapOf(req.index to picks))
+            }
+            val equalityGroups = req.selectionGroups
+            if (equalityGroups != null) {
+                val answers = equalityGroups.flatMap { group ->
+                    val ranked = group.sortedByDescending { targetHeuristic(state, it, playerId) }
+                    val minimum = maxOf(1, req.minTargets)
+                    val maximum = if (fillUpToMaxTargets) minOf(req.maxTargets, ranked.size) else minOf(minimum, ranked.size)
+                    (minimum..maximum).map { ranked.take(it) }
+                }.toMutableList()
+                if (req.minTargets == 0) answers.add(emptyList())
+                val best = answers.maxByOrNull { picks ->
+                    evaluateResult(state, simulator.simulateDecision(state,
+                        TargetsResponse(decision.id, mapOf(req.index to picks))), playerId)
+                } ?: emptyList()
+                return TargetsResponse(decision.id, mapOf(req.index to best))
+            }
+            val legal = decision.legalTargets[req.index] ?: return cancelOrFirst(decision)
+            if (legal.isEmpty()) return cancelOrFirst(decision)
+            val targets = polarityPool(state, legal, playerId, polarities[req.index], optional = req.minTargets == 0)
+            // An optional slot whose every legal target is on the wrong side stays empty.
+            if (targets.isEmpty()) return TargetsResponse(decision.id, mapOf(req.index to emptyList()))
+            val heuristic = heuristicFor(req)
 
             // For small target pools, simulate each; for large pools, use heuristics then simulate top candidates
             val candidates = if (targets.size <= maxCandidates) {
                 targets
             } else {
-                targets.sortedByDescending { targetHeuristic(state, it, playerId) }.take(maxCandidates)
+                targets.sortedByDescending(heuristic).take(maxCandidates)
             }
 
-            val best = pickBestBySimulation(state, candidates, playerId) { target ->
+            val optional = req.minTargets == 0
+            val best = pickBestBySimulation(
+                state, candidates, playerId,
+                reject = { optional && strandsALand(state, it.state, playerId) },
+                heuristic = heuristic,
+            ) { target ->
                 TargetsResponse(decision.id, mapOf(req.index to listOf(target)))
             }
-            val bestResponse = TargetsResponse(decision.id, mapOf(req.index to listOf(best)))
+            val picks = if (fillUpToMaxTargets) {
+                growTargets(state, playerId, req, best, candidates, targets) { picked ->
+                    TargetsResponse(decision.id, mapOf(req.index to picked))
+                }
+            } else {
+                listOf(best)
+            }
+            val bestResponse = TargetsResponse(decision.id, mapOf(req.index to picks))
 
             // For optional targets (minTargets == 0), also consider picking no targets
-            if (req.minTargets == 0) {
+            if (optional) {
                 val skipResponse = TargetsResponse(decision.id, mapOf(req.index to emptyList()))
-                val bestScore = evaluateResult(simulator.simulateDecision(state, bestResponse), playerId)
-                val skipScore = evaluateResult(simulator.simulateDecision(state, skipResponse), playerId)
-                if (skipScore >= bestScore) return skipResponse
+                val bestResult = simulator.simulateDecision(state, bestResponse)
+                if (strandsALand(state, bestResult.state, playerId)) return skipResponse
+                val bestScore = evaluateResult(state, bestResult, playerId)
+                val skipScore = evaluateResult(state,simulator.simulateDecision(state, skipResponse), playerId)
+                // An even trade is still worth taking when it strips the opponent's graveyard (or
+                // mills them) — the part of the result the evaluator can't see.
+                val even = skipScore == bestScore ||
+                    kotlin.math.abs(skipScore - bestScore) <= TIE_EPSILON * maxOf(1.0, kotlin.math.abs(bestScore))
+                val evenButUseful = even && bestScore != Double.NEGATIVE_INFINITY &&
+                    libraryAndGraveyardPreference(state, bestResult.state, playerId) > 0.0
+                if (skipScore >= bestScore && !evenButUseful) return skipResponse
             }
 
             return bestResponse
         }
 
-        // Multi-target: simulate the best target for each requirement independently. Every probe
+        // Multi-target: choose each requirement against a complete, progressively updated answer. Every probe
         // still has to be a *complete* answer to the decision — `DecisionValidators.validateTargets`
         // rejects a response that leaves a mandatory requirement out, and a rejected probe comes
         // back as `SimulationResult.Illegal` carrying the unchanged state, so every candidate would
         // score identically: the pick would collapse to "the first legal target", and the optional
         // pick-vs-skip comparison below would tie and always skip. Varying one requirement against a
-        // fixed baseline for the others keeps the comparison meaningful.
-        val baseline = minimalCompleteSelection(decision)
-        val selected = decision.targetRequirements.associate { req ->
-            val targets = decision.legalTargets[req.index] ?: emptyList()
-            if (targets.isEmpty()) {
-                req.index to emptyList()
+        // complete baseline for the others keeps the comparison meaningful. Carry each selected
+        // answer into the next probe: independently legal replacements can conflict when combined
+        // (two copy slots choosing the same object for one target requirement).
+        // A slot that reads an earlier target draws from the earlier picks' table, and every probe
+        // re-picks the later slots that probe would unseat, so no probe is illegal for that reason.
+        var selected = minimalCompleteSelection(decision)
+        fun probe(index: Int, picks: List<EntityId>) =
+            TargetsResponse(decision.id, decision.repairSlotsAfter(index, selected + (index to picks)))
+        for (req in decision.targetRequirements) {
+            val targets = polarityPool(
+                state, decision.legalTargetsFor(req.index, selected), playerId, polarities[req.index],
+                optional = req.minTargets == 0,
+            )
+            val heuristic = heuristicFor(req)
+            val groups = req.selectionGroups
+            val answer = if (req.exclusiveGroups != null) {
+                constrainedTargetSelection(targets, req.minTargets, req.maxTargets, req.selectionGroups,
+                    req.exclusiveGroups.orEmpty(), heuristic)
+            } else if (groups != null) {
+                val answers = groups.flatMap { group ->
+                    val ranked = group.filter { it in targets }.sortedByDescending { targetHeuristic(state, it, playerId) }
+                    val minimum = maxOf(1, req.minTargets)
+                    val maximum = if (fillUpToMaxTargets) minOf(req.maxTargets, ranked.size) else minOf(minimum, ranked.size)
+                    (minimum..maximum).map { ranked.take(it) }
+                }.toMutableList()
+                if (req.minTargets == 0) answers.add(emptyList())
+                answers.maxByOrNull { picks -> evaluateResult(state,
+                    simulator.simulateDecision(state, probe(req.index, picks)), playerId) } ?: emptyList()
+            } else if (targets.isEmpty()) {
+                emptyList()
             } else {
-                val best = pickBestBySimulation(state, targets.take(maxCandidates), playerId) { target ->
-                    TargetsResponse(decision.id, baseline + (req.index to listOf(target)))
+                val best = pickBestBySimulation(
+                    state, targets.take(maxCandidates), playerId,
+                    reject = { req.minTargets == 0 && strandsALand(state, it.state, playerId) },
+                    heuristic = heuristic,
+                ) { target ->
+                    probe(req.index, listOf(target))
+                }
+                val picks = if (fillUpToMaxTargets) {
+                    growTargets(state, playerId, req, best, targets.take(maxCandidates), targets) { picked ->
+                        probe(req.index, picked)
+                    }
+                } else {
+                    listOf(best)
                 }
                 // For optional targets, compare best pick against skipping
                 if (req.minTargets == 0) {
-                    val pickResponse = TargetsResponse(decision.id, baseline + (req.index to listOf(best)))
-                    val skipResponse = TargetsResponse(decision.id, baseline + (req.index to emptyList()))
-                    val pickScore = evaluateResult(simulator.simulateDecision(state, pickResponse), playerId)
-                    val skipScore = evaluateResult(simulator.simulateDecision(state, skipResponse), playerId)
-                    if (skipScore >= pickScore) req.index to emptyList()
-                    else req.index to listOf(best)
+                    val pickResponse = probe(req.index, picks)
+                    val skipResponse = probe(req.index, emptyList())
+                    val pickResult = simulator.simulateDecision(state, pickResponse)
+                    val pickScore = evaluateResult(state, pickResult, playerId)
+                    val skipScore = evaluateResult(state,simulator.simulateDecision(state, skipResponse), playerId)
+                    if (skipScore >= pickScore || strandsALand(state, pickResult.state, playerId)) emptyList()
+                    else picks
                 } else {
-                    req.index to listOf(best)
+                    picks
                 }
             }
+            selected = decision.repairSlotsAfter(req.index, selected + (req.index to answer))
         }
         return TargetsResponse(decision.id, selected)
+    }
+
+    /**
+     * Grow a one-target answer for [req] toward [TargetRequirementInfo.maxTargets], under
+     * [fillUpToMaxTargets]. Each round simulates every remaining candidate added to the picks so
+     * far and keeps the best one if it beats the current answer — "up to two other target
+     * creatures" takes the second counter when a second creature is worth countering, and stops
+     * before one on the opponent's side. Below [TargetRequirementInfo.minTargets] a pick is taken
+     * whatever it scores (only a legal one), drawing on [allTargets] once [candidates] run out: a
+     * mandatory "two target creatures" answered with one is not a weaker answer but an illegal one.
+     */
+    private fun growTargets(
+        state: GameState,
+        playerId: EntityId,
+        req: TargetRequirementInfo,
+        first: EntityId,
+        candidates: List<EntityId>,
+        allTargets: List<EntityId>,
+        respond: (List<EntityId>) -> DecisionResponse,
+    ): List<EntityId> {
+        val picks = mutableListOf(first)
+        if (req.maxTargets <= 1 && req.minTargets <= 1) return picks
+        var score = evaluateResult(state,simulator.simulateDecision(state, respond(picks)), playerId)
+        while (picks.size < req.maxTargets) {
+            val mandatory = picks.size < req.minTargets
+            val pool = (if (mandatory) candidates + allTargets else candidates).distinct().filterNot(picks::contains)
+            val scored = pool.map { it to evaluateResult(state,simulator.simulateDecision(state, respond(picks + it)), playerId) }
+            val (next, nextScore) = scored.maxByOrNull { it.second } ?: break
+            // Short of the minimum every probe is illegal, so an unscorable pick is still taken.
+            val stillShort = picks.size + 1 < req.minTargets
+            if (nextScore == Double.NEGATIVE_INFINITY && !stillShort) break
+            if (!mandatory && nextScore <= score) break
+            picks += next
+            score = nextScore
+        }
+        return picks
+    }
+
+    /**
+     * The legal targets a slot of [polarity] should draw from: for a [TargetPolarity.BENEFICIAL]
+     * slot, our own side when it has any legal target, else anything but an opponent's, else
+     * everything (a mandatory slot still needs an answer). Every other polarity keeps [legal].
+     *
+     * A filter rather than a tie-break because the simulation rarely separates the sides: a
+     * triggered ability's target is scored with the ability still on the stack, so a shield counter
+     * on our creature and on theirs evaluate the same, and the removal-oriented tie-break then
+     * hands it to them.
+     *
+     * An [optional] slot ("up to one target …") has no "a mandatory slot still needs an answer" to
+     * fall back on: it draws only from the right side — anything but an opponent's for a
+     * BENEFICIAL slot, anything but ours for a HARMFUL one — and may come back empty, which leaves
+     * the slot empty.
+     */
+    private fun polarityPool(
+        state: GameState,
+        legal: List<EntityId>,
+        playerId: EntityId,
+        polarity: TargetPolarity?,
+        optional: Boolean,
+    ): List<EntityId> {
+        if (optional) {
+            return when (polarity) {
+                TargetPolarity.BENEFICIAL -> legal.filter { TargetSelection.isOurs(state, it, playerId) }
+                    .ifEmpty { legal.filterNot { TargetSelection.isTheirs(state, it, playerId) } }
+                TargetPolarity.HARMFUL -> legal.filterNot { TargetSelection.isOurs(state, it, playerId) }
+                TargetPolarity.UNKNOWN, null -> legal
+            }
+        }
+        if (polarity != TargetPolarity.BENEFICIAL) return legal
+        return legal.filter { TargetSelection.isOurs(state, it, playerId) }
+            .ifEmpty { legal.filterNot { TargetSelection.isTheirs(state, it, playerId) } }
+            .ifEmpty { legal }
+    }
+
+    /**
+     * [targetHeuristic]'s mirror for a [TargetPolarity.BENEFICIAL] slot: our side first, our most
+     * valuable creature ahead of a lesser one, an opponent's permanent last.
+     */
+    private fun beneficialTargetHeuristic(state: GameState, targetId: EntityId, playerId: EntityId): Double {
+        val side = when {
+            TargetSelection.isOurs(state, targetId, playerId) -> 10.0
+            TargetSelection.isTheirs(state, targetId, playerId) -> -10.0
+            else -> 0.0
+        }
+        val projected = state.projectedState
+        val value = if (projected.isCreature(targetId)) {
+            (projected.getPower(targetId) ?: 0) + (projected.getToughness(targetId) ?: 0).toDouble()
+        } else {
+            0.0
+        }
+        return side + if (side < 0) -value else value
     }
 
     /** Heuristic for pre-ranking targets before simulation. Higher = better target. */
@@ -204,6 +498,17 @@ class DecisionResponder(
         decision: SelectCardsDecision,
         playerId: EntityId
     ): DecisionResponse {
+        if (decision.selectionLimits != null) {
+            val allocation = CounterAllocation.fullPayment(decision)
+            val decline = CardsSelectedResponse(decision.id, emptyList())
+            if (allocation == null) return decline
+            val payment = CardsSelectedResponse(decision.id, allocation)
+            if (decision.minSelections > 0) return payment
+            val payScore = evaluateChoice(state, simulator.simulateDecision(state, payment), playerId)
+            val declineScore = evaluateChoice(state, simulator.simulateDecision(state, decline), playerId)
+            return if (payScore >= declineScore) payment else decline
+        }
+
         val options = decision.options
         val min = decision.minSelections
         val max = decision.maxSelections
@@ -219,7 +524,7 @@ class DecisionResponder(
             // Start with a legal keep set, then release valuable permanents while every cap holds.
             // The displayed minimum is only a lower bound when restrictions overlap or are disjoint.
             val keep = options.toMutableSet()
-            val ranked = rankCardsContextual(state, options, playerId, wantToKeep = true)
+            val ranked = rankCardsContextual(state, options, playerId, wantToKeep = true, legacyOnly = true)
             for (id in ranked) {
                 keep.remove(id)
                 if (untapChoice.untapLimits.any { limit ->
@@ -249,15 +554,25 @@ class DecisionResponder(
 
         // Context-aware ranking
         val prompt = decision.prompt.lowercase()
-        val isDiscard = prompt.contains("discard")
-        val isSacrifice = prompt.contains("sacrifice")
-        val isScryBottom = decision.selectedLabel?.lowercase()?.contains("bottom") == true
+        // A library search says so on the decision; its prompt and label name the filter and the
+        // destination ("… to put into your graveyard"), so the word-matching below must not read it.
+        val isSearch = decision.librarySearch
+        val isDiscard = !isSearch && prompt.contains("discard")
+        val isSacrifice = !isSearch && prompt.contains("sacrifice")
+        val isScryBottom = !isSearch && decision.selectedLabel?.lowercase()?.contains("bottom") == true
+        val isSurveilGraveyard = !isSearch && decision.selectedLabel?.lowercase()?.contains("graveyard") == true
         val isChooseToKeep = prompt.contains("put") && prompt.contains("hand")
+
+        if (selectionCountsByValue && !isDiscard && (isScryBottom || isSurveilGraveyard) &&
+            decision.conditionalMinimums.isEmpty()
+        ) {
+            return CardsSelectedResponse(decision.id, cardsBelowKeepThreshold(state, decision, playerId))
+        }
 
         return when {
             isDiscard || isScryBottom -> {
                 // Pick cards we want LEAST (to discard / put on bottom)
-                val ranked = rankCardsContextual(state, options, playerId, wantToKeep = false)
+                val ranked = rankCardsContextual(state, options, playerId, wantToKeep = false, drawnLater = isScryBottom)
                 CardsSelectedResponse(decision.id, minimumLegalSelection(decision, ranked))
             }
             isSacrifice -> {
@@ -266,7 +581,14 @@ class DecisionResponder(
                     val card = state.getEntity(entityId)?.get<CardComponent>() ?: return@sortedBy 0.0
                     BoardPresence.permanentValue(state, state.projectedState, entityId, card, intents)
                 }
-                CardsSelectedResponse(decision.id, ranked.take(min.coerceAtLeast(1).coerceAtMost(max)))
+                val pick = CardsSelectedResponse(decision.id, ranked.take(min.coerceAtLeast(1).coerceAtMost(max)))
+                if (min > 0) return pick
+                // An optional sacrifice ("you may sacrifice …. If you do, …") asked as one pick:
+                // weigh paying with the cheapest permanent against declining, as the yes/no did.
+                val decline = CardsSelectedResponse(decision.id, emptyList())
+                val pickScore = evaluateChoice(state,simulator.simulateDecision(state, pick), playerId)
+                val declineScore = evaluateChoice(state,simulator.simulateDecision(state, decline), playerId)
+                if (pickScore >= declineScore) pick else decline
             }
             isChooseToKeep -> {
                 // Keep best cards
@@ -278,11 +600,35 @@ class DecisionResponder(
                 val ranked = rankCardsContextual(state, options, playerId, wantToKeep = true)
                 CardsSelectedResponse(decision.id, ranked.take(max))
             }
+            selectionCountsByValue && (isSearch || decision.selectedLabel == null) && max > 0 -> {
+                // A library search is a gain (a Landscape's [Plains]), as is any other unlabelled
+                // "choose up to N". The branch above already takes N when the options outnumber
+                // it; taking `min` (zero) here declined every search with ≤ N candidates.
+                val ranked = rankCardsContextual(state, options, playerId, wantToKeep = true)
+                CardsSelectedResponse(decision.id, ranked.take(max.coerceAtMost(options.size)))
+            }
             else -> {
                 val ranked = rankCardsContextual(state, options, playerId, wantToKeep = true)
                 CardsSelectedResponse(decision.id, ranked.take(min.coerceAtLeast(0)))
             }
         }
+    }
+
+    /**
+     * Scry / surveil: send away exactly the looked-at cards not worth drawing — every card whose
+     * [CardSelectionValue] falls below [LOOK_KEEP_THRESHOLD], widened to the decision's minimum
+     * with the least valuable cards and capped at its maximum. Zero is a legal and common answer.
+     */
+    private fun cardsBelowKeepThreshold(
+        state: GameState,
+        decision: SelectCardsDecision,
+        playerId: EntityId,
+    ): List<EntityId> {
+        val value = CardSelectionValue.of(state, playerId, intents, drawnLater = true)
+        val scored = decision.options.map { it to value.score(it) }.sortedBy { it.second }
+        val count = scored.count { it.second < LOOK_KEEP_THRESHOLD }
+            .coerceIn(decision.minSelections.coerceAtMost(decision.maxSelections), decision.maxSelections)
+        return scored.take(count).map { it.first }
     }
 
     /**
@@ -320,10 +666,102 @@ class DecisionResponder(
     ): DecisionResponse {
         val yesResult = simulator.simulateDecision(state, YesNoResponse(decision.id, true))
         val noResult = simulator.simulateDecision(state, YesNoResponse(decision.id, false))
-        val yesScore = evaluateResult(yesResult, playerId)
-        val noScore = evaluateResult(noResult, playerId)
+        val yesScore = evaluateChoice(state, yesResult, playerId)
+        val noScore = evaluateChoice(state, noResult, playerId)
+        if (holdUnusablePumps && yesScore >= noScore && payoffIsUnspendable(state, yesResult, noResult, yesScore, noScore, playerId)) {
+            return YesNoResponse(decision.id, false)
+        }
         return YesNoResponse(decision.id, yesScore >= noScore)
     }
+
+    /**
+     * Whether saying yes buys nothing but end-of-turn grants on creatures that cannot use them —
+     * the yes/no half of [AiProfile.holdUnusablePumps].
+     *
+     * The leaf reads an until-end-of-turn pump as if it were permanent, so a "you may pay {E}{E}.
+     * When you do, …" whose payoff is a pump always scores at least as well as declining — and the
+     * energy it spends has no price at all. 2026-10-10 logs, game 3 turn 15: Voltstorm Angel paid
+     * {E}{E} at the beginning of combat the turn it was cast, to give itself vigilance and lifelink
+     * it could not attack with.
+     *
+     * Read off the simulation rather than the card: the grants are the floating effects the yes
+     * branch created, so a modal payoff is judged by the mode the AI would actually pick. Each one
+     * that lasts until end of turn and lands only on our creatures, none of which can still attack
+     * or block this turn ([ExpiringGrantWindow.creatureCanStillFight]), is stripped, and the yes
+     * branch is re-scored without them. Anything else it bought — a card, a counter, a token —
+     * survives the strip, so yes still wins when it buys something real; a bare tie goes to no.
+     *
+     * The same tie with nothing stripped — a mode that pumped nobody — goes to no when yes spent
+     * energy: the leaf has no price for energy, so a tie there is a resource given away for nothing.
+     *
+     * With a [combatAdvisor] ([AiProfile.pumpsNeedAPlannedAttack]), a creature that can attack but
+     * that the yes branch's attack plan leaves home counts as unable to use its grant too
+     * ([plannedAttackers]) — game 3 turn 19, a ready Angel that paid and then never attacked.
+     */
+    private fun payoffIsUnspendable(
+        state: GameState,
+        yesResult: SimulationResult,
+        noResult: SimulationResult,
+        yesScore: Double,
+        noScore: Double,
+        playerId: EntityId,
+    ): Boolean {
+        if (yesResult !is SimulationResult.Terminal && yesResult !is SimulationResult.NeedsDecision) return false
+        val yesState = yesResult.state
+        if (yesState.gameOver) return false
+        val before = state.floatingEffects.mapTo(HashSet()) { it.id }
+        val projected = state.projectedState
+        val grants = yesState.floatingEffects.filter { effect ->
+            effect.id !in before &&
+                effect.duration == Duration.EndOfTurn &&
+                effect.effect.dynamicGroupFilter == null &&
+                effect.effect.affectedEntities.isNotEmpty() &&
+                effect.effect.affectedEntities.all { id ->
+                    projected.isCreature(id) && projected.getController(id) == playerId
+                }
+        }
+        val idle: (EntityId) -> Boolean = { id -> !ExpiringGrantWindow.creatureCanStillFight(state, playerId, id) }
+        var unspendable = grants.filter { effect -> effect.effect.affectedEntities.all(idle) }
+        if (unspendable.size < grants.size) {
+            // Some grant lands on a creature that *can* attack. Whether it will is the attack
+            // plan's call — asked only when that plan is the very next thing this turn decides.
+            val planned = plannedAttackers(state, yesState, playerId)
+            if (planned != null) {
+                unspendable = grants.filter { effect ->
+                    effect.effect.affectedEntities.all { id -> idle(id) || id !in planned }
+                }
+            }
+        }
+        if (unspendable.isEmpty()) {
+            return yesScore == noScore && energyOf(yesState, playerId) < energyOf(noResult.state, playerId)
+        }
+        val stripped = yesState.copy(floatingEffects = yesState.floatingEffects - unspendable.toSet())
+        val strippedScore = evaluateChoice(state, SimulationResult.Terminal(stripped, yesResult.events), playerId)
+        return strippedScore <= noScore
+    }
+
+    /**
+     * The creatures [combatAdvisor] would attack with on the yes branch — the
+     * [AiProfile.pumpsNeedAPlannedAttack] half of [payoffIsUnspendable]. Null whenever the plan
+     * cannot be read cheaply and exactly: the flag is off, the decision is not a
+     * beginning-of-combat one on our own turn, it is being answered inside another simulation
+     * (where a full attack search per yes/no would compound), or advancing the yes state does not
+     * land on our declare-attackers step. Null falls back to "can attack".
+     *
+     * The yes state is advanced by passing priority — exactly what the AI does at a quiet
+     * beginning of combat — and the plan is the one `Strategist` would submit there, local search
+     * included, so a creature the AI would keep home reads as kept home.
+     */
+    private fun plannedAttackers(state: GameState, yesState: GameState, playerId: EntityId): Set<EntityId>? {
+        val advisor = combatAdvisor ?: return null
+        if (simulator.resolvingNestedDecision) return null
+        if (!state.isActiveTurnFor(playerId) || state.step != Step.BEGIN_COMBAT) return null
+        if (yesState.step != Step.BEGIN_COMBAT && yesState.step != Step.DECLARE_ATTACKERS) return null
+        return advisor.plannedAttackersFrom(yesState, playerId) { budgetPolicy.budgetForDecision(it, playerId) }
+    }
+
+    private fun energyOf(state: GameState, playerId: EntityId): Int =
+        state.getEntity(playerId)?.get<CountersComponent>()?.getCount(CounterType.ENERGY) ?: 0
 
     /**
      * Batched "you may …" raised once for a run of identical optional triggers. The AI evaluates the
@@ -337,8 +775,8 @@ class DecisionResponder(
     ): DecisionResponse {
         val yesResult = simulator.simulateDecision(state, BatchYesNoResponse(decision.id, choice = true, applyToAll = true))
         val noResult = simulator.simulateDecision(state, BatchYesNoResponse(decision.id, choice = false, applyToAll = true))
-        val yesScore = evaluateResult(yesResult, playerId)
-        val noScore = evaluateResult(noResult, playerId)
+        val yesScore = evaluateChoice(state, yesResult, playerId)
+        val noScore = evaluateChoice(state, noResult, playerId)
         return BatchYesNoResponse(decision.id, choice = yesScore >= noScore, applyToAll = true)
     }
 
@@ -355,7 +793,7 @@ class DecisionResponder(
         }
 
         val best = available.maxByOrNull { mode ->
-            evaluateResult(
+            evaluateResult(state,
                 simulator.simulateDecision(state, ModesChosenResponse(decision.id, listOf(mode.index))),
                 playerId
             )
@@ -370,8 +808,19 @@ class DecisionResponder(
         decision: ChooseColorDecision,
         playerId: EntityId
     ): DecisionResponse {
+        priors?.let { priors ->
+            // Most colour choices are invisible to a one-step simulation — the colour a land will
+            // tap for, the colour a creature gains protection from — so every option ties and the
+            // first one (white) used to win. Break the tie towards the colour that matters.
+            val polarity = priors.polarityOf(state, decision.context.sourceId, ChoicePriors.Polarity.OPPONENT)
+            val weights = priors.colorWeights(state, playerId, polarity)
+            val best = bestWithTieBreak(decision.availableColors.toList(), { weights[it] ?: 0.0 }) { color ->
+                evaluateChoice(state,simulator.simulateDecision(state, ColorChosenResponse(decision.id, color)), playerId)
+            }
+            return ColorChosenResponse(decision.id, best)
+        }
         val best = decision.availableColors.maxByOrNull { color ->
-            evaluateResult(
+            evaluateResult(state,
                 simulator.simulateDecision(state, ColorChosenResponse(decision.id, color)),
                 playerId
             )
@@ -395,7 +844,7 @@ class DecisionResponder(
         }
 
         val best = candidates.maxByOrNull { n ->
-            evaluateResult(
+            evaluateResult(state,
                 simulator.simulateDecision(state, NumberChosenResponse(decision.id, n)),
                 playerId
             )
@@ -510,14 +959,104 @@ class DecisionResponder(
         playerId: EntityId
     ): DecisionResponse {
         if (decision.options.size == 1) return OptionChosenResponse(decision.id, 0)
+        if (priors != null) return respondOptionInformed(state, decision, playerId, priors)
 
         val best = decision.options.indices.maxByOrNull { index ->
-            evaluateResult(
+            evaluateResult(state,
                 simulator.simulateDecision(state, OptionChosenResponse(decision.id, index)),
                 playerId
             )
         }!!
         return OptionChosenResponse(decision.id, best)
+    }
+
+    /**
+     * [respondOption] with [ChoicePriors]. Four shapes are recognised by their option lists, since
+     * a [ChooseOptionDecision] carries no type tag:
+     *
+     * - **Basic land types** and **colours**: simulate all five, break ties with the prior. A
+     *   landwalk grant leans to the land types the opponent controls; a mana source's own choice
+     *   leans to its controller's colours.
+     * - **Creature types** and **card names** — the open-ended lists, hundreds or thousands long.
+     *   Simulating each was the old cost, and it bought nothing: almost every entry names nothing in
+     *   the game, so they all tie and the alphabetically first won ("A Killer Among Us" against a
+     *   Lorwyn deck). Only names and types that actually occur among the players' cards are
+     *   simulated — the best few of each side — and a tie leans to the opponent's cards for names
+     *   (strip, mill, shut off) and to our own for creature types (lords, tribal payoffs).
+     *
+     * Anything else (modes, opponents, a short custom list) keeps the plain simulation.
+     */
+    private fun respondOptionInformed(
+        state: GameState,
+        decision: ChooseOptionDecision,
+        playerId: EntityId,
+        priors: ChoicePriors,
+    ): DecisionResponse {
+        val options = decision.options
+        val simulate = { index: Int ->
+            evaluateChoice(state,simulator.simulateDecision(state, OptionChosenResponse(decision.id, index)), playerId)
+        }
+        val sourceId = decision.context.sourceId
+
+        val landTypes = options.map { option ->
+            ChoicePriors.BASIC_LAND_COLORS.keys.firstOrNull { it.equals(option, ignoreCase = true) }
+        }
+        if (landTypes.all { it != null }) {
+            val polarity = priors.polarityOf(state, sourceId, ChoicePriors.Polarity.OPPONENT)
+            val weights = priors.landTypeWeights(state, playerId, polarity)
+            val best = bestWithTieBreak(options.indices.toList(), { weights[landTypes[it]] ?: 0.0 }, simulate)
+            return OptionChosenResponse(decision.id, best)
+        }
+
+        val colors = options.map { option -> Color.entries.firstOrNull { it.displayName.equals(option, ignoreCase = true) } }
+        if (colors.all { it != null }) {
+            val polarity = priors.polarityOf(state, sourceId, ChoicePriors.Polarity.OPPONENT)
+            val weights = priors.colorWeights(state, playerId, polarity)
+            val best = bestWithTieBreak(options.indices.toList(), { weights[colors[it]] ?: 0.0 }, simulate)
+            return OptionChosenResponse(decision.id, best)
+        }
+
+        if (options.size <= OPEN_LIST_THRESHOLD) {
+            return OptionChosenResponse(decision.id, options.indices.maxByOrNull(simulate)!!)
+        }
+
+        val creatureTypes = options.all { it.lowercase() in CREATURE_TYPES_LOWER }
+        if (!creatureTypes && options.take(3).any { simulator.cardRegistry.getCard(it) == null }) {
+            // A long list that is neither creature types nor card names: no prior applies.
+            return OptionChosenResponse(decision.id, options.indices.maxByOrNull(simulate)!!)
+        }
+        val ours = listOf(playerId)
+        val theirs = state.getOpponents(playerId)
+        val (mine, opposing) = if (creatureTypes) {
+            priors.creatureTypeWeights(state, ours) to priors.creatureTypeWeights(state, theirs)
+        } else {
+            priors.nameWeights(state, ours) to priors.nameWeights(state, theirs)
+        }
+        val key = { option: String -> if (creatureTypes) option.lowercase() else option }
+        fun shortlist(weights: Map<String, Double>): List<Int> = options.indices
+            .filter { (weights[key(options[it])] ?: 0.0) > 0.0 }
+            .sortedByDescending { weights[key(options[it])] }
+            .take(OPEN_LIST_CANDIDATES_PER_SIDE)
+        val candidates = (shortlist(mine) + shortlist(opposing)).distinct()
+        if (candidates.isEmpty()) return OptionChosenResponse(decision.id, 0)
+
+        val lean = if (creatureTypes) mine else opposing
+        val best = bestWithTieBreak(candidates, { lean[key(options[it])] ?: 0.0 }, simulate)
+        return OptionChosenResponse(decision.id, best)
+    }
+
+    /**
+     * The highest-scoring candidate, with ties — equal up to floating-point noise — going to the
+     * one [preference] rates highest, and any tie left after that to the earliest.
+     */
+    private fun <T> bestWithTieBreak(candidates: List<T>, preference: (T) -> Double, score: (T) -> Double): T {
+        val scored = candidates.map { it to score(it) }
+        val top = scored.maxOf { it.second }
+        val tolerance = TIE_EPSILON * maxOf(1.0, kotlin.math.abs(top))
+        val tied = scored.filter { (_, s) -> s == top || top - s <= tolerance }.map { it.first }
+        var best = tied.first()
+        for (candidate in tied) if (preference(candidate) > preference(best)) best = candidate
+        return best
     }
 
     // ── Budget modal ─────────────────────────────────────────────────────
@@ -553,9 +1092,20 @@ class DecisionResponder(
         return DamageAssignmentResponse(decision.id, decision.defaultAssignments)
     }
 
-    private fun respondCombatResolution(decision: CombatResolutionDecision): DecisionResponse {
-        // Confirm the engine-computed default edge amounts (lethal-first, rest to drain).
-        return CombatResolutionResponse(decision.id, decision.edges.map { DamageEdgeAmount(it.id, it.amount) })
+    private fun respondCombatResolution(
+        state: GameState,
+        decision: CombatResolutionDecision,
+        playerId: EntityId,
+    ): DecisionResponse {
+        // The engine's defaults are lethal-in-declaration-order, which can waste a kill; divide the
+        // damage to kill the most valuable creatures instead (CR 510.1c has no assignment order).
+        val projected = state.projectedState
+        return CombatDamagePlanner.plan(
+            decision,
+            playerId,
+            controllerOf = projected::getController,
+            value = { id -> if (projected.hasKeyword(id, Keyword.INDESTRUCTIBLE)) 0.0 else creatureKillValue(state, id) },
+        )
     }
 
     // ── Library search ───────────────────────────────────────────────────
@@ -570,8 +1120,12 @@ class DecisionResponder(
         }
 
         // Context-aware search: what does my board need?
-        val ranked = decision.options.sortedByDescending { entityId ->
-            searchCardContextualScore(state, decision.cards[entityId], playerId)
+        val ranked = if (castabilityAwareCardSelection) {
+            rankCardsContextual(state, decision.options, playerId, wantToKeep = true)
+        } else {
+            decision.options.sortedByDescending { entityId ->
+                searchCardContextualScore(state, decision.cards[entityId], playerId)
+            }
         }
 
         val count = decision.maxSelections.coerceAtMost(ranked.size)
@@ -585,8 +1139,12 @@ class DecisionResponder(
         decision: ReorderLibraryDecision,
         playerId: EntityId
     ): DecisionResponse {
-        val ranked = decision.cards.sortedByDescending { entityId ->
-            searchCardContextualScore(state, decision.cardInfo[entityId], playerId)
+        val ranked = if (castabilityAwareCardSelection) {
+            rankCardsContextual(state, decision.cards, playerId, wantToKeep = true, drawnLater = true)
+        } else {
+            decision.cards.sortedByDescending { entityId ->
+                searchCardContextualScore(state, decision.cardInfo[entityId], playerId)
+            }
         }
         return OrderedResponse(decision.id, ranked)
     }
@@ -639,8 +1197,21 @@ class DecisionResponder(
         state: GameState,
         cards: List<EntityId>,
         playerId: EntityId,
-        wantToKeep: Boolean
+        wantToKeep: Boolean,
+        // The untap-limit choice ranks *permanents* by how much they are worth untapped, a
+        // different question from which card to hold; it keeps the legacy reading either way.
+        legacyOnly: Boolean = false,
+        // The cards stay in the library for a later draw (see [CardSelectionValue.of]).
+        drawnLater: Boolean = false,
     ): List<EntityId> {
+        if (castabilityAwareCardSelection && !legacyOnly) {
+            val value = CardSelectionValue.of(state, playerId, intents, drawnLater)
+            // A stable sort on the score keeps the decision's own order for ties, so identical
+            // copies resolve the same way they always did.
+            val scored = cards.map { it to value.score(it) }
+            return if (wantToKeep) scored.sortedByDescending { it.second }.map { it.first }
+            else scored.sortedBy { it.second }.map { it.first }
+        }
         val projected = state.projectedState
         val myLands = projected.getBattlefieldControlledBy(playerId).count { entityId ->
             state.getEntity(entityId)?.get<CardComponent>()?.isLand == true
@@ -780,18 +1351,194 @@ class DecisionResponder(
      * reached a real boundary: the AI still has to answer the decision it was asked, and refusing
      * to answer at all is how a live game wedges with no backstop able to see it.
      */
-    private fun evaluateResult(result: SimulationResult, playerId: EntityId): Double =
-        result.scoreOrRankLast { evaluator.evaluate(it, it.projectedState, playerId) }
+    private fun evaluateResult(root: GameState, result: SimulationResult, playerId: EntityId): Double {
+        if (result is SimulationResult.Illegal) return Double.NEGATIVE_INFINITY
+        // Rooted: every caller compares answers to one decision taken in [root], and a term that
+        // prices what a line cost (the land-sequencing refund) has to know where the line started.
+        val rooted = evaluator.rootedAt(root, playerId)
+        return result.scoreOrRankLast { rooted.evaluate(it, it.projectedState, playerId) }
+    }
 
-    private fun <T> pickBestBySimulation(
+    /**
+     * [evaluateResult] plus, under [informedChoices], the price of every pending "skip your next
+     * draw step" marker in the result.
+     *
+     * The marker is the whole cost of a Fasting-style "skip your draw step; if you do, gain 2 life",
+     * and a one-step simulation can't see it: the choice is made in the upkeep, the simulation
+     * stops at the next quiet state — still the upkeep — and the card that would have been drawn
+     * never reaches the board either branch is scored on. So the "yes" branch showed +2 life against
+     * nothing, and a player stuck on two lands skipped five draws in a row. Pricing the marker as
+     * the card it costs restores the trade the choice actually is. The marker on an opponent is
+     * the same card from the other side, and so counts for us.
+     */
+    private fun evaluateChoice(root: GameState, result: SimulationResult, playerId: EntityId): Double {
+        val base = evaluateResult(root, result, playerId)
+        if (!informedChoices || result is SimulationResult.Illegal || base.isInfinite()) return base
+        val state = result.state
+        if (state.gameOver) return base
+        var adjusted = base
+        for (player in state.turnOrder) {
+            if (state.getEntity(player)?.has<SkipDrawStepComponent>() != true) continue
+            adjusted -= drawValue(state, player, playerId)
+        }
+        return adjusted
+    }
+
+    /**
+     * What [drawer] drawing one card is worth to [viewer]: the mean evaluation change of that card
+     * arriving, over a spread of [drawer]'s library.
+     *
+     * A spread rather than the top card on purpose — the top card is hidden even from its owner,
+     * and pricing the skip by it would let the answer depend on information the player doesn't
+     * have. Sampling across the library uses only the library's contents, which its owner knows.
+     *
+     * A drawn land the drawer has a land drop waiting for is priced **on the battlefield**, not in
+     * hand. The draw step is followed by a main phase, so that land is played this turn; pricing it
+     * as a card in hand charges a land-starved player the hand curve's marginal rate (0.8 at a hand
+     * of five) for the very land that unlocks the hand — Fasting's game-7 victim was on one mana
+     * source with two-drops stuck behind it, and that is the trade it kept getting wrong. Any other
+     * card is priced in hand.
+     */
+    private fun drawValue(state: GameState, drawer: EntityId, viewer: EntityId): Double {
+        val library = state.getZone(drawer, Zone.LIBRARY)
+        if (library.isEmpty()) return 0.0
+        val samples = DRAW_VALUE_SAMPLES.coerceAtMost(library.size)
+        val stride = library.size.toDouble() / samples
+        // Rooted at the undrawn position, so the drawn card is priced as a card and never as
+        // mana the drawer's tapped lands "would have" spent on it.
+        val rooted = evaluator.rootedAt(state, viewer)
+        val before = rooted.evaluate(state, state.projectedState, viewer)
+        val from = ZoneKey(drawer, Zone.LIBRARY)
+        val dropWaiting = landDropWaiting(state, drawer)
+        return (0 until samples).sumOf { i ->
+            val cardId = library[(i * stride).toInt()]
+            val isLand = state.getEntity(cardId)?.get<CardComponent>()?.typeLine?.isLand == true
+            val drawn = if (isLand && dropWaiting) {
+                state.moveToZone(cardId, from, ZoneKey(drawer, Zone.BATTLEFIELD))
+                    .updateEntity(cardId) { it.with(ControllerComponent(drawer)) }
+            } else {
+                state.moveToZone(cardId, from, ZoneKey(drawer, Zone.HAND))
+            }
+            rooted.evaluate(drawn, drawn.projectedState, viewer) - before
+        } / samples
+    }
+
+    /**
+     * Whether [player]'s next land drop is still open and no land in hand is already queued for it.
+     * Off-turn the drop resets before their next main phase, so it is open by definition.
+     */
+    private fun landDropWaiting(state: GameState, player: EntityId): Boolean {
+        val dropOpen = state.activePlayerId != player ||
+            (state.getEntity(player)?.get<LandDropsComponent>()?.remaining ?: 1) > 0
+        val landInHand = state.getZone(player, Zone.HAND).any {
+            state.getEntity(it)?.get<CardComponent>()?.typeLine?.isLand == true
+        }
+        return dropOpen && !landInHand
+    }
+
+    /**
+     * The target whose simulated result scores best, with ties broken deliberately rather than by
+     * list order.
+     *
+     * Ties are common for effects the board evaluator can't see — it has no library or graveyard
+     * term, so "target player mills N" aimed at either player, or "exile target card from a
+     * graveyard" aimed at either graveyard, scores identically. Breaking that tie toward the first
+     * legal target is how a Screaming Swarm milled its own controller ten cards over four attacks
+     * (the 2026-10-12 VOW-vs-LRW engine log). Among tied candidates the pick goes to the best
+     * [libraryAndGraveyardPreference] of its result, then to [targetHeuristic], then to the earliest.
+     */
+    /**
+     * Whether the line from [root] to [leaf] returned one of [playerId]'s own lands to their hand
+     * while the other lands there already cover this turn's land drop and the next — so the land
+     * can only come back by pushing every later land drop back a turn. [AiProfile.surplusAwareLands].
+     *
+     * A static evaluation sees that line lose one land for one turn; it actually loses a land drop
+     * for the rest of the game. 2026-10-12 AI-vs-AI logs (`live`), game 2 turn 9: Mirkwood
+     * Nurturer's "return up to one other target permanent you control … if you do, put a +1/+1
+     * counter on this creature" sent the AI's own tapped Plains back with Hobbit Hole and Forest in
+     * hand. The evaluator put that pick 2.9 above skipping — the counter alone outscores a fifth land
+     * on its scale — so this is a rule, not a re-weighting. A bounce that is free (no other land in
+     * hand, or one with this turn's drop still unused) is left to the evaluator.
+     */
+    private fun strandsALand(root: GameState, leaf: GameState, playerId: EntityId): Boolean {
+        if (!surplusAwareLands) return false
+        val leafHand = leaf.getZone(playerId, Zone.HAND).toSet()
+        if (leafHand.isEmpty()) return false
+        val projected = root.projectedState
+        val returned = projected.getBattlefieldControlledBy(playerId)
+            .any { it in leafHand && projected.hasType(it, "LAND") }
+        return returned && CardAdvantage.surplusLands(leaf, playerId, lookahead = 1) > 0
+    }
+
+    private fun pickBestBySimulation(
         state: GameState,
-        candidates: List<T>,
+        candidates: List<EntityId>,
         playerId: EntityId,
-        buildResponse: (T) -> DecisionResponse
-    ): T {
-        return candidates.maxByOrNull { candidate ->
-            evaluateResult(simulator.simulateDecision(state, buildResponse(candidate)), playerId)
-        } ?: candidates.first()
+        /** A candidate whose result this accepts ranks last, whatever it scores. */
+        reject: (SimulationResult) -> Boolean = { false },
+        /** The last tie-break between equally scored candidates. */
+        heuristic: (EntityId) -> Double = { targetHeuristic(state, it, playerId) },
+        buildResponse: (EntityId) -> DecisionResponse
+    ): EntityId {
+        val scored = candidates.map { candidate ->
+            val result = simulator.simulateDecision(state, buildResponse(candidate))
+            val score = if (reject(result)) Double.NEGATIVE_INFINITY else evaluateResult(state, result, playerId)
+            Triple(candidate, result, score)
+        }
+        val top = scored.maxOfOrNull { it.third } ?: return candidates.first()
+        if (top == Double.NEGATIVE_INFINITY) return candidates.first()
+        val tolerance = TIE_EPSILON * maxOf(1.0, kotlin.math.abs(top))
+        val tied = scored.filter { (_, _, score) -> score == top || top - score <= tolerance }
+        if (tied.size == 1) return tied.single().first
+        return tied.maxWith(
+            compareBy<Triple<EntityId, SimulationResult, Double>>(
+                { libraryAndGraveyardPreference(state, it.second.state, playerId) },
+                { heuristic(it.first) },
+            )
+        ).first
+    }
+
+    /**
+     * What the library and graveyard changes between [root] and [result] are worth to [playerId] —
+     * the term the board evaluator lacks, used only to break ties between otherwise equal answers.
+     *
+     * Per player, it reads cards **milled** (moved from library to graveyard) and cards **removed
+     * from the graveyard** (exiled, shuffled away):
+     *
+     *  - Milling an opponent is mildly good, and strongly good once their library is near empty —
+     *    unless their deck feeds on its graveyard ([GraveyardSynergy]) and decking is still far off,
+     *    in which case it is a gift.
+     *  - Milling yourself is good only when your deck feeds on its graveyard *and* your library stays
+     *    above [SAFE_LIBRARY_SIZE]; otherwise it is lost cards. It outbids a routine opponent mill,
+     *    never one that threatens to deck them.
+     *  - Emptying an opponent's graveyard is good (more so against a graveyard deck); emptying your
+     *    own is a small loss, a large one when your deck uses it.
+     */
+    private fun libraryAndGraveyardPreference(root: GameState, result: GameState, playerId: EntityId): Double {
+        var value = 0.0
+        for (player in root.turnOrder) {
+            val libraryBefore = root.getZone(player, Zone.LIBRARY)
+            val libraryAfter = result.getZone(player, Zone.LIBRARY)
+            val graveyardBefore = root.getZone(player, Zone.GRAVEYARD)
+            val graveyardAfter = result.getZone(player, Zone.GRAVEYARD).toSet()
+            val milled = libraryBefore.count { it in graveyardAfter }
+            val removed = graveyardBefore.count { it !in graveyardAfter }
+            if (milled == 0 && removed == 0) continue
+            val synergy = GraveyardSynergy.benefitsFromGraveyard(root, player, simulator.cardRegistry)
+            val nearDecked = libraryAfter.size <= NEAR_DECKED_LIBRARY_SIZE
+            if (player == playerId) {
+                val millValue = if (synergy && libraryAfter.size >= SAFE_LIBRARY_SIZE) SELF_MILL_PAYOFF else -SELF_MILL_COST
+                value += milled * millValue - removed * (if (synergy) GRAVEYARD_LOSS_SYNERGY else GRAVEYARD_LOSS_PLAIN)
+            } else if (root.isOpponentTo(player, playerId)) {
+                val millValue = when {
+                    nearDecked -> OPPONENT_MILL_NEAR_DECKED
+                    synergy -> -SELF_MILL_PAYOFF
+                    else -> OPPONENT_MILL
+                }
+                value += milled * millValue + removed * (if (synergy) GRAVEYARD_LOSS_SYNERGY else GRAVEYARD_LOSS_PLAIN)
+            }
+        }
+        return value
     }
 
     /**
@@ -803,9 +1550,7 @@ class DecisionResponder(
      * is why this doubles as the fixed background a per-requirement probe varies one slot against.
      */
     internal fun minimalCompleteSelection(decision: ChooseTargetsDecision): Map<Int, List<EntityId>> =
-        decision.targetRequirements.associate { req ->
-            req.index to (decision.legalTargets[req.index] ?: emptyList()).take(req.minTargets)
-        }
+        decision.minimalSelection()
 
     private fun cancelOrFirst(decision: ChooseTargetsDecision): DecisionResponse {
         if (decision.canCancel) return CancelDecisionResponse(decision.id)
@@ -821,5 +1566,54 @@ class DecisionResponder(
     private fun creatureKillValue(state: GameState, entityId: EntityId): Double {
         val card = state.getEntity(entityId)?.get<CardComponent>() ?: return 0.0
         return BoardPresence.permanentValue(state, state.projectedState, entityId, card, intents)
+    }
+
+    private companion object {
+        /**
+         * An option list longer than this is open-ended — every creature type, every card name —
+         * and is shortlisted from the cards in the game rather than simulated entry by entry. Well
+         * above any closed list the engine offers (five colours, five land types, a card's modes).
+         */
+        const val OPEN_LIST_THRESHOLD = 16
+
+        /** Names or creature types simulated per side of an open-ended list. */
+        const val OPEN_LIST_CANDIDATES_PER_SIDE = 3
+
+        /** A library this size or smaller after a mill is close enough to decking to aim for. */
+        const val NEAR_DECKED_LIBRARY_SIZE = 8
+
+        /** The smallest library a graveyard deck will mill itself down to. */
+        const val SAFE_LIBRARY_SIZE = 15
+
+        /** Per card: milling a graveyard deck's own library (outbids [OPPONENT_MILL]). */
+        const val SELF_MILL_PAYOFF = 0.5
+
+        /** Per card: milling your own library with no use for the graveyard. */
+        const val SELF_MILL_COST = 0.5
+
+        /** Per card: milling an opponent whose library is not yet in danger. */
+        const val OPPONENT_MILL = 0.25
+
+        /** Per card: milling an opponent close to decking. */
+        const val OPPONENT_MILL_NEAR_DECKED = 2.0
+
+        /** Per card leaving a graveyard: the owner uses its graveyard / does not. */
+        const val GRAVEYARD_LOSS_SYNERGY = 1.0
+        const val GRAVEYARD_LOSS_PLAIN = 0.25
+
+        /** Relative score difference treated as a tie: identical boards, up to summation order. */
+        const val TIE_EPSILON = 1e-9
+
+        /** Library cards averaged to price one draw. */
+        const val DRAW_VALUE_SAMPLES = 5
+
+        /**
+         * [CardSelectionValue] below which a scried / surveiled card is not worth drawing. A spell
+         * castable within a turn or two scores well above it; a land with six or more already
+         * coming (1.5 or less) and a spell several land draws away fall below it.
+         */
+        const val LOOK_KEEP_THRESHOLD = 2.0
+
+        val CREATURE_TYPES_LOWER: Set<String> = Subtype.ALL_CREATURE_TYPES.mapTo(HashSet()) { it.lowercase() }
     }
 }

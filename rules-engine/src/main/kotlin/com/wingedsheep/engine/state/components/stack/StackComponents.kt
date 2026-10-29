@@ -85,6 +85,11 @@ data class SpellOnStackComponent(
     /** Snapshots of permanents sacrificed as additional cost (Rule 113.7a — last known info). */
     val sacrificedPermanents: List<EntitySnapshot> = emptyList(),
     val castFaceDown: Boolean = false,  // For morph - creature enters face-down
+    /**
+     * The face-down spell was cast through a permission carrying Illusionary Mask's rider, so the
+     * permanent it becomes gets [com.wingedsheep.engine.state.components.identity.TurnsFaceUpInsteadComponent].
+     */
+    val turnsFaceUpInstead: Boolean = false,
     val damageDistribution: Map<EntityId, Int>? = null,  // For DividedDamageEffect - pre-chosen damage allocation
     val chosenCreatureType: String? = null,  // For spells that choose a creature type during casting (e.g., Aphetto Dredging)
     val exiledCardCount: Int = 0,  // For variable exile additional costs (e.g., Chill Haunting)
@@ -133,6 +138,14 @@ data class SpellOnStackComponent(
      * [ChoiceSlot.CONVOKED_CREATURES]. Empty when convoke paid nothing.
      */
     val convokedCreatures: Map<EntityId, Long> = emptyMap(),
+    /**
+     * Last-known information (CR 113.7a) for each convoker in [convokedCreatures] that has left the
+     * battlefield since it convoked this spell, stamped by `ZoneTransitionService` at the moment it
+     * left. "Each creature that convoked this spell connives" (Lethal Scheme) still has a departed
+     * convoker connive, and which object that was and who controlled it are read from here
+     * (CR 701.50b). Empty while every convoker is still the object that convoked it.
+     */
+    val convokedLastKnown: Map<EntityId, EntitySnapshot> = emptyMap(),
     /**
      * Entity ids of cards discarded to pay this spell's additional discard cost
      * (`Costs.additional.DiscardCards(...)`). Read at resolution via
@@ -219,6 +232,8 @@ data class SpellOnStackComponent(
      * the correct face unlocked. `null` for normal single-face cards.
      */
     val faceIndex: Int? = null,
+    /** The spell has both split halves; copied with the spell and cleared when it leaves the stack. */
+    val castFused: Boolean = false,
     /**
      * Names of the "as you cast this spell" condition captures (CR 601.2i) whose condition was true
      * the moment this spell finished being cast. Frozen here so the resolving effect can branch on
@@ -288,12 +303,23 @@ data class TriggeredAbilityOnStackComponent(
      * Blunderbuss". Null for the source's own printed abilities.
      */
     val granterId: EntityId? = null,
+    /**
+     * The controller already answered this ability's leading "you may" when choosing its target:
+     * picking a target is the yes, so the resolution-time yes/no isn't asked a second time (see
+     * [com.wingedsheep.engine.event.TriggerProcessor.consentAnswerableAtTargeting]). Only the
+     * ability's top-level consent gate reads it; a later "you may" inside the effect still asks.
+     */
+    val consentAnsweredAtTargeting: Boolean = false,
     // Modal fields — populated when this triggered ability is a copy of a modal spell (700.2g).
     // Copies inherit the original's chosen modes; targets either inherit too (StormCopy default)
     // or are re-chosen by the copy controller while modes stay fixed.
     val chosenModes: List<Int> = emptyList(),
     val modeTargetsOrdered: List<List<ChosenTarget>> = emptyList(),
     val modeTargetRequirements: Map<Int, List<TargetRequirement>> = emptyMap(),
+    /** Bound requirements for each occurrence, when the same owner-distributed mode repeats. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val modeTargetRequirementsOrdered: List<List<TargetRequirement>> = emptyList(),
     val modeDamageDistribution: Map<Int, Map<EntityId, Int>> = emptyMap(),
     /** Set when this triggered ability is a Saga chapter ability; on resolution the engine emits a
      *  SagaChapterResolvedEvent so "final chapter of a Saga resolves" triggers (Tom Bombadil) can fire. */
@@ -349,7 +375,9 @@ data class TriggeredAbilityOnStackComponent(
      */
     val isBackup: Boolean = false,
     /** Original state trigger's lifecycle identity (CR 603.8); null on copies and event triggers. */
-    val stateTriggerAbilityId: AbilityId? = null
+    val stateTriggerAbilityId: AbilityId? = null,
+    /** Concrete rules text captured when the trigger fired, independent of later source changes. */
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 ) : Component {
     val hasTargets: Boolean = false  // Will be updated based on effect
 }
@@ -366,6 +394,13 @@ data class ActivatedAbilityOnStackComponent(
     /** Snapshots of permanents sacrificed as additional cost (Rule 113.7a — last known info). */
     val sacrificedPermanents: List<EntitySnapshot> = emptyList(),
     val xValue: Int? = null,
+    /**
+     * The mana spent on the activation's mana cost, by type, so the resolving ability can ask
+     * what was spent on it (Illusionary Mask). Copies keep it: a copy's costs weren't paid, but an
+     * effect that copies an ability copies the choices made for it, and this is what they read.
+     */
+    val manaSpent: com.wingedsheep.engine.mechanics.mana.SpentMana =
+        com.wingedsheep.engine.mechanics.mana.SpentMana(),
     val tappedPermanents: List<EntityId> = emptyList(),
     /** LKI snapshots for [tappedPermanents] — see [sacrificedPermanents]. */
     val tappedEntitySnapshots: List<EntitySnapshot> = emptyList(),
@@ -375,6 +410,13 @@ data class ActivatedAbilityOnStackComponent(
      * Recorded per activation, so a second activation of the same ability never sees the first's.
      */
     val exiledAsCostCards: List<EntityId> = emptyList(),
+    /**
+     * Last-known snapshots (Rule 113.7a) of the entries of [exiledAsCostCards] exiled **from the
+     * battlefield**, taken by the cost's zone transition — what
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.ExiledAsCost] reads "the exiled creature"
+     * from, copiable values included (Curie, Emergent Intelligence). Empty for other exile costs.
+     */
+    val exiledAsCostSnapshots: List<EntitySnapshot> = emptyList(),
     /**
      * Cards discarded to pay this activation's cost, carried to resolution for
      * [com.wingedsheep.sdk.scripting.targets.EffectTarget.DiscardedAsCost] ("the discarded card").
@@ -462,12 +504,17 @@ data class ActivatedAbilityOnStackComponent(
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment =
         com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
     /**
-     * Division chosen at activation for a `DividedDamageEffect` ability (target -> damage), locked
-     * onto the stack object so responding removal can't make the controller re-divide (CR 601.2d).
-     * Mirrors [SpellOnStackComponent.damageDistribution]. Null for every other ability, and for a
-     * divided-damage ability whose controller left the division to resolution time.
+     * Division chosen at activation (CR 601.2d) — damage for a `DividedDamageEffect` ability, counters
+     * for a `DistributeCountersAmongTargetsEffect` one (target -> amount) — locked onto the stack
+     * object so responding removal can't make the controller re-divide. Mirrors
+     * [SpellOnStackComponent.damageDistribution]. Null for every other ability, and for a divided
+     * ability whose controller left the division to resolution time.
      */
-    val damageDistribution: Map<EntityId, Int>? = null
+    val damageDistribution: Map<EntityId, Int>? = null,
+    val chosenModes: List<Int> = emptyList(),
+    val modeTargetsOrdered: List<List<ChosenTarget>> = emptyList(),
+    val modeTargetRequirementsOrdered: List<List<TargetRequirement>> = emptyList(),
+    val modeTargetRequirements: Map<Int, List<TargetRequirement>> = emptyMap()
 ) : Component {
     val activatedAbilityId: AbilityId?
         get() = activatedAbility?.id
@@ -643,11 +690,13 @@ data class SpellCopyTokenRidersComponent(
  * several graveyard-cast grants are active. Read by
  * [com.wingedsheep.engine.mechanics.stack.StackResolver] when the spell resolves onto the
  * battlefield: the permanent enters with one [entersWithCounter] counter and gains
- * [addedSubtype] "in addition to its other types". The component disappears with the spell entity
- * when it leaves the stack (countered / fizzled spells simply never apply it).
+ * [addedSubtype] "in addition to its other types", and gains [grantedAbility] (Serra Paragon) for as
+ * long as it stays on the battlefield. The component disappears with the spell entity when it leaves
+ * the stack (countered / fizzled spells simply never apply it).
  */
 @Serializable
 data class GraveyardCastRiderComponent(
     val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
-    val addedSubtype: String? = null
+    val addedSubtype: String? = null,
+    val grantedAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 ) : Component

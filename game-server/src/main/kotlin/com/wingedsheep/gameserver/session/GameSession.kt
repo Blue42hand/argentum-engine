@@ -467,8 +467,16 @@ class GameSession(
      * start so wish effects (Burning Wish, …) can fetch from it.
      */
     private val sideboards = mutableMapOf<EntityId, List<String>>()
-    /** Per-player commander card name for commander-shape formats. Null = no commander. */
-    private val commanderCardNames = mutableMapOf<EntityId, String>()
+    /**
+     * Per-player commander card names for commander-shape formats — one, or two for a partner pair
+     * (CR 702.124). Absent = no commander.
+     */
+    private val commanderCardNames = mutableMapOf<EntityId, List<String>>()
+    /**
+     * Per-player revealed companion (CR 702.139) — the name of one of that player's sideboard cards.
+     * Absent = no companion. Carried into [Deck.companion] at game start; the engine reveals it.
+     */
+    private val companions = mutableMapOf<EntityId, String>()
     /**
      * Active spectators, keyed by player id. Keyed by *identity* rather than held as a set of
      * sessions because a reconnect (refresh, or leaving and coming back) arrives on a brand-new
@@ -517,6 +525,24 @@ class GameSession(
     /** Which ranked queue this game counts toward when [ranked]; null otherwise. */
     @Volatile
     var rankedMode: com.wingedsheep.gameserver.ranking.RankedMode? = null
+
+    /**
+     * Seats that walked out of this game for a matchmade one — a warm-up against the AI the queue
+     * interrupted. Their concession ends the game as usual, but they get no game-over screen (they
+     * are already in the new lobby) and the game isn't recorded as a loss on their stats.
+     */
+    val departedForMatch: MutableSet<EntityId> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /**
+     * Each seat's account avatar, remembered from the first session that carried one so an AI or
+     * reconnect session swapped in later (which carries none) doesn't blank it.
+     */
+    private val seatAvatars = java.util.concurrent.ConcurrentHashMap<EntityId, String>()
+
+    /** Note a seat's account avatar from a session that carries one (connect, reconnect, swap). */
+    fun rememberAvatar(playerSession: PlayerSession) {
+        playerSession.avatar?.let { seatAvatars[playerSession.playerId] = it }
+    }
 
     /** Player info for persistence (playerId -> (playerName, token)) */
     private val playerPersistenceInfo = mutableMapOf<EntityId, PlayerPersistenceInfo>()
@@ -586,6 +612,30 @@ class GameSession(
     var replayStartedAt: Instant? = null
         private set
 
+    /**
+     * When the last game action was applied (or the game started / was restored). In memory only — a
+     * restored game counts from its restore. Read by the admin Live overview to tell a game that is
+     * being played from one whose players have walked away.
+     */
+    @Volatile
+    var lastActionAt: Instant? = null
+        private set
+
+    /** When this session object was made — the activity clock for a game that never started. */
+    val createdAt: Instant = Instant.now()
+
+    /**
+     * Since when no human seat has had an open socket, or null while one does. Kept by
+     * [com.wingedsheep.gameserver.session.ZombieSessionSweeper] (so it is only as fine-grained as its
+     * sweep) and read by [AbandonedGamePolicy] to end games nobody is playing any more.
+     */
+    @Volatile
+    var unattendedSince: Instant? = null
+
+    /** Why an admin or the sweeper ended this game early — see [abandon]. */
+    @Volatile
+    private var abandonMessage: String? = null
+
     /** Per-player cache of last sent ClientGameState for delta computation */
     private val lastSentState = java.util.concurrent.ConcurrentHashMap<EntityId, ClientGameState>()
 
@@ -653,24 +703,32 @@ class GameSession(
     fun addPlayer(
         playerSession: PlayerSession,
         deckList: Map<String, Int>,
-        commanderCardName: String? = null,
+        commanderCardNames: List<String> = emptyList(),
         sideboard: Map<String, Int> = emptyMap(),
+        companion: String? = null,
     ): EntityId {
         require(!isFull) { "Game session is full" }
 
         val playerId = playerSession.playerId
         players[playerId] = playerSession
+        rememberAvatar(playerSession)
 
         // Convert deck list map to flat list of card names
         val cards = deckList.flatMap { (cardName, count) ->
             List(count) { cardName }
         }
         deckLists[playerId] = cards
-        sideboards[playerId] = sideboard.flatMap { (cardName, count) -> List(count) { cardName } }
-        if (commanderCardName != null) {
-            commanderCardNames[playerId] = commanderCardName
+        // A companion is a sideboard card (CR 702.139a); a deck whose sideboard doesn't list it
+        // (Commander has no other sideboard) carries it there anyway.
+        val companionName = companion?.takeIf { it.isNotBlank() }
+        val effectiveSideboard = if (companionName == null || sideboard.keys.any { it.substringBeforeLast('#') == companionName }) sideboard
+        else sideboard + (companionName to 1)
+        sideboards[playerId] = effectiveSideboard.flatMap { (cardName, count) -> List(count) { cardName } }
+        if (companionName != null) companions[playerId] = companionName else companions.remove(playerId)
+        if (commanderCardNames.isNotEmpty()) {
+            this.commanderCardNames[playerId] = commanderCardNames
         } else {
-            commanderCardNames.remove(playerId)
+            this.commanderCardNames.remove(playerId)
         }
         playerSession.currentGameSessionId = sessionId
 
@@ -694,6 +752,7 @@ class GameSession(
         if (!isStarted) {
             deckLists.remove(playerId)
             sideboards.remove(playerId)
+            companions.remove(playerId)
         }
     }
 
@@ -729,6 +788,7 @@ class GameSession(
     fun replacePlayerSession(playerId: EntityId, newSession: PlayerSession) {
         if (players.containsKey(playerId)) {
             players[playerId] = newSession
+            rememberAvatar(newSession)
         }
     }
 
@@ -781,6 +841,52 @@ class GameSession(
         )
     }
 
+    /** One seat as the admin Live overview sees it. */
+    data class AdminSeat(
+        val name: String,
+        val isAi: Boolean,
+        val connected: Boolean,
+        val life: Int?,
+    )
+
+    /** A point-in-time summary of this game for the admin Live overview. */
+    data class AdminSnapshot(
+        val seats: List<AdminSeat>,
+        val started: Boolean,
+        val gameOver: Boolean,
+        val turnNumber: Int?,
+        val activePlayerName: String?,
+        val step: Step?,
+    )
+
+    /**
+     * Read-only summary for the admin Live overview: seats in turn order with AI/connection flags
+     * and life, plus where the game stands. Reads one [gameState] reference, so it never blocks on
+     * or races the game thread.
+     */
+    fun adminSnapshot(): AdminSnapshot {
+        val state = gameState
+        val seated = getPlayers()
+        val byId = seated.associateBy { it.playerId }
+        val ordered = state?.turnOrder?.mapNotNull { byId[it] }?.takeIf { it.size == seated.size } ?: seated
+        return AdminSnapshot(
+            seats = ordered.map { player ->
+                AdminSeat(
+                    name = player.playerName,
+                    isAi = playerPersistenceInfo[player.playerId]?.isAi == true,
+                    connected = player.isConnected,
+                    life = state?.takeIf { it.getEntity(player.playerId)?.get<LifeTotalComponent>() != null }
+                        ?.lifeTotal(player.playerId),
+                )
+            },
+            started = state != null,
+            gameOver = state?.gameOver == true,
+            turnNumber = state?.turnNumber,
+            activePlayerName = state?.activePlayerId?.let { byId[it]?.playerName },
+            step = state?.step,
+        )
+    }
+
     /**
      * Player names in seat order, for spectator display.
      */
@@ -814,6 +920,7 @@ class GameSession(
             ServerMessage.PlayerSeatInfo(
                 playerId = player.playerId.value,
                 name = player.playerName,
+                avatar = seatAvatars[player.playerId],
                 seatIndex = seatIndex,
                 isYou = viewerId != null && player.playerId == viewerId,
                 isAi = playerPersistenceInfo[player.playerId]?.isAi == true,
@@ -856,9 +963,10 @@ class GameSession(
                     cards = deckLists[playerId]!!,
                     cardEntries = deckLists[playerId]!!.map(::cardEntryFromIdentifier),
                     sideboard = sideboards[playerId].orEmpty().map(::cardEntryFromIdentifier),
+                    companion = companions[playerId],
                 ),
                 playerId = playerId,  // Pass existing player ID to the engine
-                commanderCardName = commanderCardNames[playerId],
+                commanderCardNames = commanderCardNames[playerId].orEmpty(),
             )
         }
 
@@ -875,12 +983,13 @@ class GameSession(
         val result = gameInitializer.initializeGame(config)
         gameState = result.state
         replayStartedAt = Instant.now()
+        lastActionAt = replayStartedAt
         // Capture everything needed to reconstruct this game later, including the seed the engine
         // actually used (so the shuffle / turn order / coin flips replay identically) and the seat
         // roster (now that gameState exists, seatInfos() reflects the real turn order).
         replaySetup = com.wingedsheep.gameserver.replay.ReplaySetup(
             seed = result.seed,
-            preserveGraveyardOrder = config.preserveGraveyardOrder,
+            preserveGraveyardOrder = result.state.preserveGraveyardOrder,
             format = engineFormat,
             attackMode = attackMode,
             startingHandSize = config.startingHandSize,
@@ -895,7 +1004,8 @@ class GameSession(
                     name = pc.name,
                     deck = pc.deck,
                     startingLife = pc.startingLife,
-                    commanderCardName = pc.commanderCardName,
+                    commanderCardName = pc.commanderCardNames.firstOrNull(),
+                    secondCommanderCardName = pc.commanderCardNames.getOrNull(1),
                 )
             },
             seatRoster = seatInfos(),
@@ -1323,6 +1433,10 @@ class GameSession(
     ): ActionResult = synchronized(stateLock) {
         val state = gameState ?: return ActionResult.Failure("Game not started")
 
+        // Opening hands are decided through the mulligan messages, and nobody has priority until
+        // every seat has kept (a restarted game, CR 727, is back at that point mid-session).
+        if (isMulliganPhase && action !is Concede) return ActionResult.Failure("Mulligan phase not complete")
+
         // Only the current input authority may submit a player's actions.
         // The action.playerId always represents the in-game actor (whose mana, cards,
         // and spell-controllership this action is); the controller is just the input
@@ -1429,6 +1543,7 @@ class GameSession(
 
     fun getLegalActions(playerId: EntityId): List<LegalActionInfo> {
         val state = gameState ?: return emptyList()
+        if (isMulliganPhase) return emptyList()
 
         // CR 605.3a — while a rule or effect is asking this seat for a mana payment (ward, "you may
         // pay {B}", an attack tax) they hold no priority, but they may still activate mana
@@ -1488,7 +1603,7 @@ class GameSession(
         val engineLegalActions = getLegalActions(playerId)
 
         // Transform raw engine events to client events
-        val engineClientEvents = ClientEventTransformer.transform(events, playerId, state)
+        val engineClientEvents = ClientEventTransformer.transform(events, playerId, state, visibility)
 
         // Include pending decision only for the player who needs to make it — i.e. the
         // actor for the affected player. During a hijacked turn this routes the
@@ -1793,6 +1908,9 @@ class GameSession(
 
         // Can't auto-pass if game is over
         if (state.gameOver) return null
+
+        // Nor while opening hands are being decided — a restarted game (CR 727) is back there.
+        if (isMulliganPhase) return null
 
         // Nobody may pass priority while the game is waiting on a decision. This used to be
         // implicit — getLegalActions returned nothing during a decision — but a mana-payment
@@ -2152,6 +2270,7 @@ class GameSession(
     }
 
     private fun recordAction(action: GameAction, before: GameState, result: ExecutionResult) {
+        lastActionAt = Instant.now()
         appendToReplayLog(action)
         enforceProgress()
         capture {
@@ -2268,7 +2387,22 @@ class GameSession(
      * own terms. Preferred over the engine's stock reason text because "Draw" alone reads like a
      * rules outcome the players caused.
      */
-    fun stallMessage(): String? = stallGuard.stall?.playerMessage
+    fun stallMessage(): String? = stallGuard.stall?.playerMessage ?: abandonMessage
+
+    /**
+     * End a started game as a draw because nobody is playing it any more (or an admin said so),
+     * exactly the way [enforceProgress] ends a stalled one: `gameOver` with no winner, so the normal
+     * game-over path notifies, saves the replay and frees the session. [message] becomes the
+     * [stallMessage]. Returns false — and changes nothing — when the game hasn't started or is
+     * already over, so a racing natural ending is never overwritten.
+     */
+    fun abandon(message: String): Boolean = synchronized(stateLock) {
+        val state = gameState ?: return false
+        if (state.gameOver) return false
+        abandonMessage = message
+        gameState = state.copy(gameOver = true, winnerId = null)
+        true
+    }
 
     /**
      * Record that [playerId]'s action was rejected and no fallback could be applied either, and
@@ -2729,6 +2863,7 @@ class GameSession(
         // into the log exactly as extending a stale prefix would.
         replayTruncated = record.truncated
         replayStartedAt = runCatching { Instant.parse(record.startedAt) }.getOrNull()
+        lastActionAt = Instant.now()
         return true
     }
 
@@ -2743,6 +2878,7 @@ class GameSession(
     fun associatePlayer(playerSession: PlayerSession) = synchronized(stateLock) {
         if (priorityYields.containsKey(playerSession.playerId)) cancelPriorityYield(playerSession.playerId, stop = true)
         players[playerSession.playerId] = playerSession
+        rememberAvatar(playerSession)
         playerSession.currentGameSessionId = sessionId
     }
 

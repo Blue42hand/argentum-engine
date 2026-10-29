@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.actions.spell
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
@@ -104,8 +106,8 @@ internal class CastCostPayer(
     fun additionalCostsForModes(cardDef: CardDefinition, action: CastSpell): List<AdditionalCost> =
         additionalCosts.additionalCostsForModes(cardDef, action)
 
-    fun declaredSlotCost(action: CastSpell, cardDef: CardDefinition?): AdditionalCost? =
-        additionalCosts.declaredSlotCost(action, cardDef)
+    fun declaredSlotCost(state: GameState, action: CastSpell, cardDef: CardDefinition?): AdditionalCost? =
+        additionalCosts.declaredSlotCost(state, action, cardDef)
 
     fun owedAdditionalCosts(state: GameState, action: CastSpell, cardDef: CardDefinition?): List<AdditionalCost> =
         additionalCosts.owedAdditionalCosts(state, action, cardDef)
@@ -148,11 +150,9 @@ internal class CastCostPayer(
             ?: castCostTotaller.paymentXValue(ledger.state, action, cardDef, totalCost)
         var cost = payWithPermanentsAndCards(ledger, totalCost, cardDef, playForFree)
 
-        // "Mana of any type can be spent" — relax colored requirements for cast-from-exile
-        // permissions that carry the flag (Taster of Wares, Cruelclaw's Heist).
-        if (isCastWithAnyManaType(ledger.state, action)) {
-            cost = cost.relaxColors()
-        }
+        // "Mana of any type can be spent" / "as though it were mana of any color" — relax the
+        // requirements the cast permission waives (Taster of Wares, Stolen Strategy).
+        cost = relaxForCastPermission(ledger.state, action, cost)
         // "Pay 2 life rather than pay that {B}" (K'rrik) over the *whole* mana owed — including
         // mana added after pricing (kicker, X) that the cost calculator never saw.
         cost = LifePayableMana.apply(ledger.state, cardRegistry, action.playerId, cost)
@@ -208,9 +208,10 @@ internal class CastCostPayer(
         for (cost in costs) {
             val lifeToPay = SpellCosts.lifeToPay(SpellCostCheck(ledger.state, ledger.action, costHandler, predicateEvaluator), cost)
             if (lifeToPay == 0) continue
+            if (!ledger.state.canPayLife(ledger.playerId, lifeToPay, LifePaymentPurpose.CAST_SPELL)) return "Cannot pay additional life cost"
             val (afterPayment, paymentEvents) =
                 LifePaymentService.pay(zones, ledger.state, ledger.playerId, lifeToPay)
-                    ?: return "Not enough life to pay additional cost ($lifeToPay life required)"
+                    ?: return "Cannot pay additional life cost"
             ledger.state = afterPayment
             ledger.events.addAll(paymentEvents)
         }
@@ -230,7 +231,7 @@ internal class CastCostPayer(
         for (creatureId in ledger.action.conspiredCreatures) {
             val (tappedState, tapEvent) = tap(ledger.state, creatureId)
             ledger.state = tappedState
-            tapEvent?.let(ledger.events::add)
+            ledger.events.addAll(tapEvent)
         }
     }
 
@@ -524,6 +525,29 @@ internal class CastCostPayer(
             zoneResolver.findLinkedExileGranter(state, action.playerId, action.cardId)?.withAnyManaType == true
     }
 
+    /**
+     * True if mana may be spent **as though it were mana of any color** on this spell (CR 609.4b):
+     * the may-play permission authorising the cast carries the rider (Stolen Strategy). Narrower
+     * than [isCastWithAnyManaType] — a `{C}` pip still needs colorless mana.
+     */
+    fun isCastWithAnyManaColor(state: GameState, action: CastSpell): Boolean {
+        val inGrantableZone = isCastFrom(state, action.cardId, Zone.EXILE) || isCastFrom(state, action.cardId, Zone.GRAVEYARD)
+        return inGrantableZone && state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
+            .any { it.withAnyManaColor }
+    }
+
+    /**
+     * [cost] with the requirements this cast's permissions waive relaxed: every colored and
+     * colorless pip for "mana of any type" ([isCastWithAnyManaType]), only the colored ones for
+     * "as though it were mana of any color" ([isCastWithAnyManaColor]). The one place payment,
+     * validation and the payment window derive the payable cost from.
+     */
+    fun relaxForCastPermission(state: GameState, action: CastSpell, cost: ManaCost): ManaCost = when {
+        isCastWithAnyManaType(state, action) -> cost.relaxColors()
+        isCastWithAnyManaColor(state, action) -> cost.relaxColoredRequirements()
+        else -> cost
+    }
+
     private fun isCastFrom(state: GameState, cardId: EntityId, zone: Zone): Boolean =
         state.turnOrder.any { ownerId -> cardId in state.getZone(ZoneKey(ownerId, zone)) }
 
@@ -540,7 +564,7 @@ internal class CastCostPayer(
         // carries that flag (e.g. Taster of Wares, Cruelclaw's Heist).
         val effectiveCost = LifePayableMana.apply(
             state, cardRegistry, action.playerId,
-            if (isCastWithAnyManaType(state, action)) cost.relaxColors() else cost
+            relaxForCastPermission(state, action, cost)
         )
 
         // "Spend only [colors] on X" restriction (Soul Burn) — limits which mana can pay X.
@@ -621,6 +645,7 @@ internal class CastCostPayer(
             colorless = poolComponent.colorless,
             restrictedMana = poolComponent.restrictedMana,
             snowMana = poolComponent.snowMana,
+            manaUnits = poolComponent.manaUnits,
             snowColorless = poolComponent.snowColorless
         ).withSpendingColors(state, playerId)
     }

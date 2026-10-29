@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.effects
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.model.EntityId
@@ -42,6 +43,9 @@ object KeywordActionReplacements {
      * subject using the *replacement source's* controller as "you", so "a creature you control
      * would connive" only fires for that player's creatures.
      *
+     * [lastKnown] is the subject as it last existed when it performs the action off the
+     * battlefield (CR 701.50b — a departed convoker conniving); the filter is matched against it.
+     *
      * Battlefield order is used for the multi-source case — a faithful APNAP ordering (CR 616)
      * would let the acting player order simultaneous applicable replacements, but no printed card
      * stacks two modifiers on the same keyword action today. Two copies of the same modifier do
@@ -51,7 +55,8 @@ object KeywordActionReplacements {
         state: GameState,
         subjectId: EntityId,
         action: ReplaceableKeywordAction,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        lastKnown: EntitySnapshot? = null
     ): List<Effect> {
         val prefixes = mutableListOf<Effect>()
         for (permanentId in state.getBattlefield()) {
@@ -63,12 +68,15 @@ object KeywordActionReplacements {
                 val filter = subjectFilterFor(replacement.appliesTo, action) ?: continue
                 // A null filter inside the pattern means "any permanent performing this action".
                 if (filter is SubjectFilter.Restricted) {
-                    val matches = predicateEvaluator.matches(
+                    val predicateContext = PredicateContext(controllerId = sourceControllerId, sourceId = permanentId)
+                    val matches = if (lastKnown != null) {
+                        predicateEvaluator.matchesSnapshot(state, lastKnown, filter.filter, predicateContext)
+                    } else predicateEvaluator.matches(
                         state,
                         state.projectedState,
                         subjectId,
                         filter.filter,
-                        PredicateContext(controllerId = sourceControllerId, sourceId = permanentId)
+                        predicateContext
                     )
                     if (!matches) continue
                 }

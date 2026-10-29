@@ -4467,7 +4467,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4846,7 +4848,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -5418,7 +5422,12 @@
                                         "IsCreature"
                                     ]
                                 },
-                                "ManaValueEqualsX"
+                                {
+                                    "type": "CompareNumericProperty",
+                                    "property": "MANA_VALUE",
+                                    "operator": "EQ",
+                                    "amount": "XValue"
+                                }
                             ]
                         }
                     },
@@ -6756,7 +6765,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -9685,7 +9697,12 @@
                                 "filter": {
                                     "cardPredicates": [
                                         "IsPermanent",
-                                        "ManaValueAtMostX"
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "LTE",
+                                            "amount": "XValue"
+                                        }
                                     ]
                                 }
                             },
@@ -9933,7 +9950,7 @@
                         }
                     ]
                 },
-                "descriptionOverride": "Opus — Whenever you cast an instant or sorcery spell, put 1 +1/+1 counter on this creature. If five or more mana was spent to cast that spell, add {R} for each this creature's power."
+                "descriptionOverride": "Opus — Whenever you cast an instant or sorcery spell, put a +1/+1 counter on this creature. If five or more mana was spent to cast that spell, add {R} for each this creature's power."
             }
         ]
     },
@@ -11299,7 +11316,9 @@
                                     "amount": 4
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for up to four basic land cards to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -12141,7 +12160,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -12534,7 +12555,8 @@
                             },
                             "id": "t0"
                         }
-                    ]
+                    ],
+                    "description": "Counter target spell unless its controller pays {2}"
                 },
                 {
                     "effect": {
@@ -13774,7 +13796,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an instant or sorcery card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -16069,7 +16093,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -16149,7 +16175,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -17966,7 +17994,12 @@
                                         "IsCreature"
                                     ]
                                 },
-                                "ManaValueAtMostX"
+                                {
+                                    "type": "CompareNumericProperty",
+                                    "property": "MANA_VALUE",
+                                    "operator": "LTE",
+                                    "amount": "XValue"
+                                }
                             ]
                         }
                     },
@@ -18426,7 +18459,8 @@
                             "type": "Fixed",
                             "amount": 5
                         }
-                    }
+                    },
+                    "description": "You gain 5 life"
                 },
                 {
                     "effect": {
@@ -18621,7 +18655,9 @@
                     ]
                 },
                 "oncePerTurn": true,
-                "fromHandOnly": true
+                "fromZones": [
+                    "Hand"
+                ]
             }
         ]
     },

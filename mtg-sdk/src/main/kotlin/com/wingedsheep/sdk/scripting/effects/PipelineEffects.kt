@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.util.numberToWord
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -20,9 +21,28 @@ import kotlinx.serialization.Serializable
 // Pipeline Vocabulary Types
 // =============================================================================
 
+/** "basic land cards", but a bare filter reads "cards" — never "card cards". */
+private fun cardsPhrase(filter: GameObjectFilter): String =
+    filter.description.let { if (it == "card") "cards" else "$it cards" }
+
 /**
  * Where to gather cards from.
  */
+/**
+ * "the top 3 cards of your library" / "the top X cards of …" — or, when the count is a phrase
+ * rather than a number ("the number of attacking creatures you control"), Oracle's
+ * "a number of cards from the top of … library equal to …", since the phrase can't stand
+ * between "top" and "cards".
+ */
+internal fun libraryEndDescription(end: String, count: DynamicAmount, player: Player): String {
+    val amount = count.description
+    return if (count is DynamicAmount.Fixed || amount.none { it.isWhitespace() }) {
+        "the $end $amount cards of ${player.possessive} library"
+    } else {
+        "a number of cards from the $end of ${player.possessive} library equal to $amount"
+    }
+}
+
 @Serializable
 sealed interface CardSource {
     val description: String
@@ -57,14 +77,19 @@ sealed interface CardSource {
      * Top N cards of a player's library.
      *
      * [isMill] marks this gather as the library half of a *mill* (top N → graveyard), so the
-     * count site applies `ModifyMillAmount` replacement effects (CR 701.17 "mill that many plus
+     * count site applies mill `ModifyKeywordActionAmount` replacement effects (CR 701.17 "mill that many plus
      * four instead"). Only the `Patterns.Library.mill(...)` pipeline sets this; other top-N
      * gathers (scry, surveil, exile-top, look-at-top) leave it `false` so they are never affected
      * by mill-amount replacements.
      *
      * [isScry] is the scry twin (CR 701.22): set only by the scry pipeline
-     * (`Patterns.Library.scryPipeline`), it makes the count site apply `ModifyScryAmount`
-     * replacement effects ("scry that many cards plus one instead"). At most one of the two is set.
+     * (`Patterns.Library.scryPipeline`), it makes the count site apply scry `ModifyKeywordActionAmount`
+     * replacement effects ("scry that many cards plus one instead").
+     *
+     * [isSurveil] is the surveil twin (CR 701.25): set only by the surveil pipeline
+     * (`Patterns.Library.surveilPipeline`), it makes the count site apply surveil `ModifyKeywordActionAmount`
+     * replacement effects ("look at an additional two cards each time you surveil"). At most one of
+     * the three is set.
      */
     @SerialName("TopOfLibrary")
     @Serializable
@@ -72,17 +97,20 @@ sealed interface CardSource {
         val count: DynamicAmount,
         val player: Player = Player.You,
         val isMill: Boolean = false,
-        val isScry: Boolean = false
+        val isScry: Boolean = false,
+        val isSurveil: Boolean = false
     ) : CardSource {
         init {
-            require(!(isMill && isScry)) { "TopOfLibrary can't be both a mill and a scry" }
+            require(listOf(isMill, isScry, isSurveil).count { it } <= 1) {
+                "TopOfLibrary can be at most one of a mill, a scry and a surveil"
+            }
         }
 
         /** The top [count] cards — a constant count ("look at the top three cards"). */
         constructor(count: Int, player: Player = Player.You, isMill: Boolean = false) :
             this(DynamicAmount.Fixed(count), player, isMill)
 
-        override val description: String = "the top ${count.description} cards of ${player.possessive} library"
+        override val description: String = libraryEndDescription("top", count, player)
     }
 
     /**
@@ -101,7 +129,7 @@ sealed interface CardSource {
         /** The bottom [count] cards — a constant count ("the bottom card of their library"). */
         constructor(count: Int, player: Player = Player.You) : this(DynamicAmount.Fixed(count), player)
 
-        override val description: String = "the bottom ${count.description} cards of ${player.possessive} library"
+        override val description: String = libraryEndDescription("bottom", count, player)
     }
 
     /**
@@ -127,7 +155,10 @@ sealed interface CardSource {
         val excludeSacrificedThisWay: Boolean = false
     ) : CardSource {
         override val description: String = buildString {
-            append("${filter.description} cards in ${player.possessive} ${zone.displayName}")
+            // The battlefield is not anyone's zone: its cards are permanents a player controls.
+            val scope = if (zone == Zone.BATTLEFIELD) controlScope(player) else null
+            if (scope != null) append(filter.permanentNounPhrase(plural = true, scope))
+            else append("${cardsPhrase(filter)} in ${player.possessive} ${zone.noun}")
             if (excludeSacrificedThisWay) append(" other than one sacrificed this way")
         }
     }
@@ -147,7 +178,9 @@ sealed interface CardSource {
         val player: Player = Player.You,
         val filter: GameObjectFilter = GameObjectFilter.Companion.Any
     ) : CardSource {
-        override val description: String = "${filter.description} cards in ${player.possessive} ${zones.joinToString(", ") { it.displayName }}"
+        override val description: String = "${cardsPhrase(filter)} in ${player.possessive} ${zones.map { it.noun }.let { nouns ->
+            if (nouns.size <= 2) nouns.joinToString(" or ") else nouns.dropLast(1).joinToString(", ") + ", or " + nouns.last()
+        }}"
     }
 
     /**
@@ -377,19 +410,41 @@ sealed interface CardSource {
     }
 
     /**
-     * The creatures that saddled the effect's source this turn (CR 702.171c) — the union of every
-     * creature tapped to pay a Saddle ability's cost on this Mount, read off the source's
-     * `CrewSaddleContributorsComponent`. Restricted to creatures still on the battlefield, since a
-     * saddler that has since left can't be affected (the component records last-known crew/saddle
-     * contributors and is cleared at cleanup).
+     * The creatures that crewed (CR 702.122) or saddled (CR 702.171c) the effect's source this
+     * turn — the union of every creature tapped to pay a Crew or Saddle cost on it, read off the
+     * source's `CrewSaddleContributorsComponent`. A permanent is a Vehicle or a Mount, so one record
+     * serves both. Restricted to creatures still on the battlefield, since a contributor that has
+     * since left can't be affected. The record is last-known information about the source: it
+     * survives the source leaving the battlefield (cleared at cleanup, or when the card re-enters
+     * as a new object).
      *
-     * Backs "exile … up to one creature that saddled it this turn" (Fortune, Loyal Steed): gather
-     * the saddlers, then [SelectFromCollectionEffect] picks up to one of them.
+     * Backs "exile … up to one creature that saddled it this turn" (Fortune, Loyal Steed) and
+     * "exile each creature that crewed it this turn" (Golden Argosy).
      */
-    @SerialName("CreaturesThatSaddledSource")
+    @SerialName("CreaturesThatCrewedOrSaddledSource")
     @Serializable
-    data object CreaturesThatSaddledSource : CardSource {
-        override val description: String = "creatures that saddled it this turn"
+    data object CreaturesThatCrewedOrSaddledSource : CardSource {
+        override val description: String = "creatures that crewed or saddled it this turn"
+    }
+
+    /**
+     * Each creature that convoked the resolving spell (CR 702.51c), in the order they were tapped
+     * — **including any that has since left the battlefield**. Unlike the
+     * `GameObjectFilter.thatConvokedSource()` group, which can only see convokers still on the
+     * battlefield, this names every creature the spell's convoke record holds, because some
+     * instructions apply to a convoker that is gone: "each creature that convoked this spell
+     * connives" (Lethal Scheme) — a convoker the spell itself destroyed still connives, by its last
+     * known information (CR 701.50b).
+     *
+     * A departed convoker is gathered by its id — the card it became, or nothing at all for a
+     * token — so only pair this with an instruction that reads last-known information for a
+     * convoker that is gone, as `Effects.Connive` does; anything else wants the battlefield-only
+     * group. Empty when the spell wasn't convoked.
+     */
+    @SerialName("CreaturesThatConvokedSource")
+    @Serializable
+    data object CreaturesThatConvokedSource : CardSource {
+        override val description: String = "creatures that convoked it"
     }
 
     /**
@@ -928,8 +983,21 @@ data class GatherCardsEffect(
     val search: Boolean = false,
 ) : Effect {
     override val description: String = buildString {
-        if (revealed) append("Reveal ") else append("Look at ")
-        append(source.description)
+        val zones = when (source) {
+            is CardSource.FromZone -> listOf(source.zone)
+            is CardSource.FromMultipleZones -> source.zones
+            else -> emptyList()
+        }
+        val filter = (source as? CardSource.FromZone)?.filter ?: (source as? CardSource.FromMultipleZones)?.filter
+        val player = (source as? CardSource.FromZone)?.player ?: (source as? CardSource.FromMultipleZones)?.player
+        when {
+            search && filter != null && player != null ->
+                append("Search ${SearchText.zones(player, zones)} for ${SearchText.noun(filter, plural = true)}")
+            revealed -> append("Reveal ${source.description}")
+            // Permanents on the battlefield are public: there is nothing to "look at".
+            zones == listOf(Zone.BATTLEFIELD) -> append("Find ${source.description}")
+            else -> append("Look at ${source.description}")
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -1168,10 +1236,33 @@ data class SelectFromCollectionEffect(
      */
     val alwaysPrompt: Boolean = false
 ) : Effect {
+    /**
+     * "Choose two of those cards" / "An opponent chooses one of those cards" — Oracle's wording,
+     * naming the chooser when it isn't you (never "Choose exactly 2", and never an imperative that
+     * reads as though the controller picks when another player does).
+     */
     override val description: String = buildString {
-        if (chooser == Chooser.Opponent) append("An opponent ")
-        append(selection.description.replaceFirstChar { it.uppercase() })
-        append(" of those cards")
+        val subject = when (chooser) {
+            Chooser.Controller, Chooser.SourceController -> null
+            Chooser.Opponent -> "An opponent"
+            Chooser.ChosenOpponent -> "The chosen player"
+            Chooser.TargetPlayer, Chooser.TriggeringPlayer -> "That player"
+            Chooser.ControllerOfSelection -> "Their controller"
+            Chooser.ControllerOfTarget -> "Its controller"
+            Chooser.DefendingPlayer -> "Defending player"
+        }
+        fun amount(count: DynamicAmount): String =
+            (count as? DynamicAmount.Fixed)?.amount?.let { if (it in 1..10) numberToWord(it) else "$it" }
+                ?: count.description
+        val what = when (val s = selection) {
+            is SelectionMode.ChooseExactly -> "${amount(s.count)} of those cards"
+            is SelectionMode.ChooseUpTo -> "up to ${amount(s.count)} of those cards"
+            is SelectionMode.Random -> "${amount(s.count)} of those cards at random"
+            SelectionMode.ChooseAnyNumber -> "any number of those cards"
+            SelectionMode.All -> "all of those cards"
+            SelectionMode.ChooseSpell -> "up to one spell"
+        }
+        append(if (subject == null) "Choose $what" else "$subject chooses $what")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -1296,6 +1387,8 @@ data class MoveCollectionEffect(
     val noRegenerate: Boolean = false,
     val storeMovedAs: String? = null,
     val underOwnersControl: Boolean = false,
+    /** Each card enters the battlefield with one counter, honoring placement replacements/prevention;
+     * other destinations annotate the arriving card. Redirected/failed moves get no counter. */
     val addCounterType: CounterType? = null,
     /**
      * When true, each card moved to the battlefield is stamped with an
@@ -1323,6 +1416,14 @@ data class MoveCollectionEffect(
     val attachTo: EffectTarget? = null
 ) : Effect {
     override val description: String = buildString {
+        val discardingPlayer = (destination as? CardDestination.ToZone)
+            ?.takeIf { moveType == MoveType.Discard && it.zone == Zone.GRAVEYARD && !revealed }?.player
+        if (discardingPlayer != null) {
+            // A discard is the hand's owner discarding, never "Put those cards into a graveyard".
+            if (discardingPlayer == Player.You) append("Discard those cards")
+            else append("${discardingPlayer.description.replaceFirstChar { it.uppercase() }} discards those cards")
+            return@buildString
+        }
         if (revealed) append("Reveal and put ") else append("Put ")
         append("those cards ")
         // `from` is an internal pipeline-collection key — never surface it to players.
@@ -1527,7 +1628,16 @@ data class SelectTargetEffect(
      * declared at cast, so the prompt has to say what the Giant is for rather than read like a
      * second target. `null` keeps the derived prompt.
      */
-    val prompt: String? = null
+    val prompt: String? = null,
+    /**
+     * Pipeline collections whose members are not offered — "choose a second player", "then
+     * choose a third player" where every pick must differ from the earlier ones (Gluntch, the
+     * Bestower). Each key names a collection an earlier step of the same resolution stored
+     * (typically another [SelectTargetEffect]); anything in them is removed from the legal set
+     * before the choice is offered or auto-picked. A missing collection excludes nothing. Empty
+     * leaves the choice unrestricted, as before.
+     */
+    val excluding: List<String> = emptyList()
 ) : Effect {
     override val description: String = prompt ?: "Choose ${requirement.description}"
 
@@ -1559,6 +1669,14 @@ data class GrantMayPlayFromExileEffect(
      * Cruelclaw's Heist).
      */
     val withAnyManaType: Boolean = false,
+    /**
+     * When true, mana may be spent **as though it were mana of any color** to cast the granted
+     * cards (CR 609.4b) — "and you may spend mana as though it were mana of any color to cast
+     * those spells" (Stolen Strategy, Curse of Hospitality). Every colored pip is relaxed to
+     * generic, but unlike [withAnyManaType] a `{C}` pip still needs colorless mana: colorless is a
+     * type of mana, not a color (CR 106.1, 118.14).
+     */
+    val withAnyManaColor: Boolean = false,
     /**
      * When true, colorless mana may be spent **as though it were mana of any color** to cast the
      * granted cards (CR 609.4b) — "and you may spend colorless mana as though it were mana of any
@@ -1743,6 +1861,7 @@ data class GrantMayPlayFromExileEffect(
         }
         if (asThoughFlash) append(", as though they had flash")
         if (withAnyManaType) append(", and mana of any type can be spent to cast them")
+        if (withAnyManaColor) append(", and you may spend mana as though it were mana of any color to cast them")
         if (colorlessAsAnyColor) append(", and you may spend colorless mana as though it were mana of any color to cast them")
         if (landEntersTapped) append(". Each land played this way enters tapped")
         insteadOfGraveyard?.let { append(it.riderText) }
@@ -1818,7 +1937,7 @@ data class ConditionalOnCollectionEffect(
             append("If those cards include at least $minSize$restrict cards, ")
         }
         append(ifNotEmpty.description.replaceFirstChar { it.lowercase() })
-        if (ifEmpty != null) {
+        if (ifEmpty != null && ifEmpty.description.isNotBlank()) {
             append(". Otherwise, ")
             append(ifEmpty.description.replaceFirstChar { it.lowercase() })
         }
@@ -1835,20 +1954,27 @@ data class ConditionalOnCollectionEffect(
 
 /**
  * Grant "play without paying mana cost" permission to all cards in a named
- * collection until end of turn. Adds a PlayWithoutPayingCostComponent.
+ * collection. Adds a PlayWithoutPayingCostComponent.
  *
  * The card must still be in a playable zone (hand, or exile with
  * [GrantMayPlayFromExileEffect]). Used by Mind's Desire, Cascade, etc.
  *
  * @property from Name of the collection containing the card(s)
+ * @property expiry How long the waiver lasts. Defaults to this turn; give it the same expiry as the
+ *   paired [GrantMayPlayFromExileEffect] when the free play outlasts the turn — "until the end of
+ *   your next turn, you may play those cards … without paying their mana costs" (Ignite the
+ *   Future). A non-turn-keyed expiry ([MayPlayExpiry.Permanent], the source-keyed ones) never
+ *   expires at cleanup: the paired permission's own revocation is what ends the play.
  */
 @SerialName("GrantPlayWithoutPayingCost")
 @Serializable
 data class GrantPlayWithoutPayingCostEffect(
-    val from: String
+    val from: String,
+    val expiry: MayPlayExpiry = MayPlayExpiry.EndOfTurn
 ) : Effect {
     override val description: String =
-        "Until end of turn, you may play those cards without paying their mana costs"
+        if (expiry == MayPlayExpiry.EndOfTurn) "Until end of turn, you may play those cards without paying their mana costs"
+        else "You may play those cards without paying their mana costs ${expiry.description}"
 }
 
 /**

@@ -68,6 +68,10 @@ data class DecisionContext(
      */
     val subjectEntityId: EntityId? = null,
 
+    /** Validated targets of the resolving effect, in announced order. Only ids are sent. */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val targetIds: List<EntityId> = emptyList(),
+
     /**
      * Definition-scoped identity of the ability that raised this decision, when it was raised by a
      * triggered or activated ability of a card. Lets the client offer "always yes/no to this
@@ -137,6 +141,11 @@ data class TargetRequirementInfo(
      * selected card's owner in [DecisionValidators.validateTargets].
      */
     val sameOwner: Boolean = false,
+    val sameNumericProperty: com.wingedsheep.sdk.scripting.values.CardNumericProperty? = null,
+    /** Server-computed pools whose members may be selected together. */
+    val selectionGroups: List<List<EntityId>>? = null,
+    /** Server-computed disjoint groups; at most one target may be picked from each. */
+    val exclusiveGroups: List<List<EntityId>>? = null,
     /**
      * When non-null, the combined mana value of the chosen card targets for this requirement may
      * not exceed this cap — "any number of target creature cards with total mana value X or less"
@@ -171,8 +180,72 @@ data class TargetRequirementInfo(
      * False by default: separate instances of the word "target" may pick the same object
      * (Seeds of Strength), so the client must not strip earlier picks from this pool unless set.
      */
-    val mustDifferFromEarlier: Boolean = false
+    val mustDifferFromEarlier: Boolean = false,
+    /** Player-facing meaning of leaving this optional slot empty. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val emptyChoiceLabel: String? = null,
+    /**
+     * Server-computed choices for a slot whose filter reads an earlier target ("target land that
+     * player controls" on a copy of The Fall of Kroog), keyed by [targetPrefixKey] over the first
+     * [prefixLength] slots. When set it replaces [ChooseTargetsDecision.legalTargets] for this slot;
+     * that entry is the union, kept for display. Read it through [ChooseTargetsDecision.legalTargetsFor].
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val legalTargetsByPrefix: Map<String, List<EntityId>>? = null,
+    /** How many leading slots key [legalTargetsByPrefix]; defaults to every earlier slot. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val prefixLength: Int? = null,
 )
+
+/**
+ * Key of [TargetRequirementInfo.legalTargetsByPrefix]: each of the first [length] slots' picks
+ * comma-joined, slots joined by commas, an empty slot (a kept copy target) contributing "".
+ */
+fun targetPrefixKey(chosen: Map<Int, List<EntityId>>, length: Int): String =
+    (0 until length).joinToString(",") { slot -> chosen[slot].orEmpty().joinToString(",") }
+
+/** Legal choices for slot [index] given the picks already made for earlier slots. */
+fun ChooseTargetsDecision.legalTargetsFor(index: Int, chosen: Map<Int, List<EntityId>>): List<EntityId> {
+    val table = targetRequirements.firstOrNull { it.index == index }?.legalTargetsByPrefix
+        ?: return legalTargets[index].orEmpty()
+    val requirement = targetRequirements.first { it.index == index }
+    return table[targetPrefixKey(chosen, requirement.prefixLength ?: index)].orEmpty()
+}
+
+/** The first `minTargets` legal picks per slot, chosen in slot order so a later slot reads earlier ones. */
+fun ChooseTargetsDecision.minimalSelection(): Map<Int, List<EntityId>> =
+    targetRequirements.fold(emptyMap()) { chosen, req ->
+        val pool = legalTargetsFor(req.index, chosen)
+        val compatible = req.exclusiveGroups?.let { exclusive ->
+            constrainedTargetSelection(pool, req.minTargets, req.minTargets, req.selectionGroups, exclusive)
+        } ?: req.selectionGroups?.firstOrNull { group -> group.count { it in pool } >= req.minTargets }
+            ?.filter { it in pool } ?: if (req.selectionGroups == null) pool else emptyList()
+        chosen + (req.index to compatible.take(req.minTargets))
+    }
+
+/**
+ * Re-pick, minimally, every slot after [index] whose answer the earlier slots no longer allow —
+ * changing who "target opponent" names unseats "target land that player controls". A kept copy
+ * target behind a changed one may be unseated too (CR 115.7d), so it is changed to a legal pick
+ * when there is one; with none, the engine offered the change only because keeping stays legal.
+ */
+fun ChooseTargetsDecision.repairSlotsAfter(index: Int, chosen: Map<Int, List<EntityId>>): Map<Int, List<EntityId>> {
+    if (targetRequirements.none { it.legalTargetsByPrefix != null }) return chosen
+    return targetRequirements.filter { it.index > index }.fold(chosen) { acc, req ->
+        val legal = legalTargetsFor(req.index, acc)
+        val answer = acc[req.index].orEmpty()
+        val keptBehindChange = answer.isEmpty() && req.legalTargetsByPrefix != null &&
+            (0 until (req.prefixLength ?: req.index)).any { acc[it].orEmpty().isNotEmpty() }
+        when {
+            keptBehindChange -> acc + (req.index to legal.take(maxOf(req.minTargets, 1)))
+            legal.containsAll(answer) -> acc
+            else -> acc + (req.index to legal.take(req.minTargets))
+        }
+    }
+}
 
 /**
  * Player must select cards from a set (e.g., discard, sacrifice, search library).
@@ -260,7 +333,22 @@ data class SelectCardsDecision(
      */
     val maxTotalPower: Int? = null,
     /** Conditional lower minimums for decisions like "discard two unless one is a creature". */
-    val conditionalMinimums: List<ConditionalSelectionMinimum> = emptyList()
+    val conditionalMinimums: List<ConditionalSelectionMinimum> = emptyList(),
+    /**
+     * Label for submitting an empty selection when [minSelections] is 0 and selecting nothing
+     * means declining ("Don't sacrifice"). null falls back to the client's generic wording.
+     */
+    val declineLabel: String? = null,
+    /**
+     * True when the options were found by searching a library (CR 701.23) — the pick of a
+     * "search your library for …" pipeline. Selecting is finding, so a selected card is a gain and
+     * an empty selection is "fail to find" (CR 701.23b). Lets consumers (the AI) read the
+     * decision's meaning without parsing [prompt] or [selectedLabel].
+     */
+    val librarySearch: Boolean = false,
+    /** Per-option repeat capacity for allocating units (such as counters) on permanents.
+     * Null means ordinary distinct-card selection. Counts include every repeated occurrence. */
+    val selectionLimits: Map<EntityId, Int>? = null
 ) : PendingDecision
 
 @Serializable
@@ -287,14 +375,23 @@ data class YesNoDecision(
     /** What "no" means (for UI button text) */
     val noText: String = "No",
     /** Optional hint text shown below the prompt (e.g., keyword reminder text) */
-    val hint: String? = null
+    val hint: String? = null,
+    /**
+     * True when "no" is an outcome in its own right rather than a decline (endure: counters *or* a
+     * Spirit), so the client shows the two answers as peer options, not a confirm/cancel pair.
+     */
+    val peerOptions: Boolean = false,
+    /** Optional second line under [yesText] when [peerOptions] is set ("on this creature"). */
+    val yesDetail: String? = null,
+    /** Optional second line under [noText] when [peerOptions] is set. */
+    val noDetail: String? = null
 ) : PendingDecision
 
 /**
  * A single yes/no decision raised once on behalf of N simultaneous, structurally identical
  * optional triggers (same controller + same [DecisionContext.abilityIdentity]) so the controller
  * answers the repeated "you may …" once instead of N times — Magic Online's "auto-stack identical
- * triggers" affordance (see `backlog/stack-collapse-and-batch-decisions.md` §B).
+ * triggers" affordance (see `backlog/archived/stack-collapse-and-batch-decisions.md` §B).
  *
  * The answer is a [BatchYesNoResponse] carrying both `choice` (yes/no) and `applyToAll`:
  *  - `applyToAll = true` resolves the whole run of [count] instances with `choice`.
@@ -464,7 +561,13 @@ data class SplitPilesDecision(
 data class OptionMetadata(
     val id: String? = null,
     val description: String? = null,
-    val iconKey: String? = null
+    val iconKey: String? = null,
+    /**
+     * Optional picture of the option — a card image the frontend shows as the option's tile when
+     * the option is an object outside the game, with no entity to preview (a dungeon card,
+     * CR 309.2a).
+     */
+    val imageUri: String? = null
 )
 
 /**

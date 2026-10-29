@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.costs.CardMeasure
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.costs.PermanentCostAction
+import com.wingedsheep.sdk.scripting.costs.TapCostDirection
 import com.wingedsheep.sdk.scripting.costs.VariableCostMeasure
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -89,6 +90,15 @@ object Costs {
      * Pay life.
      */
     fun PayLife(amount: Int): AbilityCost =
+        AbilityCost.Atom(CostAtom.PayLife(amount))
+
+    /**
+     * Pay life equal to an amount priced from game state as the cost is paid — War Room's "Pay
+     * life equal to the number of colors in your commanders' color identity" is
+     * `PayLife(DynamicAmounts.commanderColorIdentityCount())`. Only amounts [CostAtom.PayLife]
+     * admits (a [DynamicAmount.CommanderColorIdentityCount]) are accepted.
+     */
+    fun PayLife(amount: DynamicAmount): AbilityCost =
         AbilityCost.Atom(CostAtom.PayLife(amount))
 
     /**
@@ -330,16 +340,31 @@ object Costs {
      * nothing downstream reads an X.
      *
      * Pass a controller-scoped [filter] (`.youControl()`): the battlefield zone map is keyed by
-     * **owner**, so the filter is what actually enforces "you control".
+     * **owner**, so the filter is what actually enforces "you control". Pass [excludeSelf] for
+     * "exile **another** …" (Curie, Emergent Intelligence), which the source can't pay with itself.
+     *
+     * The exile is a full zone transition, and the resolving ability can name what it exiled as
+     * `EffectTarget.ExiledAsCost` — read as it last existed on the battlefield.
      */
-    fun ExilePermanentsFixed(count: Int = 1, filter: GameObjectFilter = GameObjectFilter.Any): AbilityCost =
-        AbilityCost.Atom(CostAtom.ExileFrom(Zone.BATTLEFIELD, filter, count))
+    fun ExilePermanentsFixed(
+        count: Int = 1,
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        excludeSelf: Boolean = false,
+    ): AbilityCost =
+        AbilityCost.Atom(CostAtom.ExileFrom(Zone.BATTLEFIELD, filter, count, excludeSelf = excludeSelf))
 
     /**
      * Exile X cards from graveyard, where X is the ability's X value.
      */
     fun ExileXFromGraveyard(filter: GameObjectFilter = GameObjectFilter.Any): AbilityCost =
         AbilityCost.ExileXFromGraveyard(filter)
+
+    /**
+     * Discard X cards, where X is the ability's X value — chosen by how many cards are discarded
+     * when there is no `{X}` mana (Gix, Yawgmoth Praetor: "{4}{B}{B}{B}, Discard X cards: …").
+     */
+    fun DiscardX(filter: GameObjectFilter = GameObjectFilter.Any): AbilityCost =
+        AbilityCost.DiscardX(filter)
 
     /**
      * Collect evidence [amount] (CR 701.59) — exile any number of cards from your graveyard with
@@ -499,6 +524,19 @@ object Costs {
         excludeSelf: Boolean = false,
         sharedCreatureType: Boolean = false
     ): AbilityCost = AbilityCost.Atom(CostAtom.TapPermanents(count, filter, excludeSelf, sharedCreatureType))
+
+    /**
+     * Untap tapped permanents you control — the mirror of [TapPermanents] ("Untap two tapped
+     * creatures you control", Halo Fountain). Not the `{Q}` symbol: it untaps *other* permanents,
+     * summoning-sick ones included, and is unpayable with fewer than [count] tapped matches.
+     */
+    fun UntapPermanents(
+        count: Int,
+        filter: GameObjectFilter = GameObjectFilter.Creature,
+        excludeSelf: Boolean = false
+    ): AbilityCost = AbilityCost.Atom(
+        CostAtom.TapPermanents(count, filter, excludeSelf, direction = TapCostDirection.UNTAP)
+    )
 
     /**
      * Tap another untapped permanent you control (e.g., "Tap another untapped permanent you control").
@@ -771,7 +809,10 @@ object Costs {
             )
         )
 
-        /** Exile a variable number (at least [minCount]) of cards matching [filter] from [fromZone] (Chill Haunting). */
+        /**
+         * Exile X (at least [minCount]) cards matching [filter] from [fromZone] (Chill Haunting). The number
+         * exiled is the spell's X (CR 107.3a) — Summons of Saruman's flashback cost.
+         */
         fun ExileVariableCards(
             minCount: Int = 1,
             filter: GameObjectFilter = GameObjectFilter.Any,
@@ -831,7 +872,7 @@ object Costs {
         /**
          * Pay X life — the caster declares X at cast time and pays X life (X declared at cast time,
          * min [minCount]). X is surfaced to the spell's effects via the resolution context's X value
-         * (read by `DynamicAmount.XValue` / `CardPredicate.ManaValueAtMostX`). The card must not also
+         * (read by `DynamicAmount.XValue` / `manaValueAtMostX()`). The card must not also
          * carry an `{X}` mana cost (they share the same X slot).
          */
         fun PayXLife(minCount: Int = 0): AdditionalCost = AdditionalCost.PayXLife(minCount)

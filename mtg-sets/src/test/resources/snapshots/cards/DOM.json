@@ -4970,7 +4970,9 @@
                                 "amount": 2
                             }
                         },
-                        "storeSelected": "found"
+                        "storeSelected": "found",
+                        "prompt": "Search your library for up to two basic land cards to put onto the battlefield",
+                        "selectedLabel": "Put onto the battlefield"
                     },
                     {
                         "type": "MoveCollection",
@@ -5007,7 +5009,9 @@
                                 "amount": 1
                             }
                         },
-                        "storeSelected": "found"
+                        "storeSelected": "found",
+                        "prompt": "Search your library for a basic land card to put onto the battlefield",
+                        "selectedLabel": "Put onto the battlefield"
                     },
                     {
                         "type": "MoveCollection",
@@ -10289,7 +10293,9 @@
                             "baseFilter": "planeswalker ctrl:you"
                         }
                     },
-                    "storeAs": "target1"
+                    "storeAs": "target1",
+                    "nonTargeting": true,
+                    "prompt": "Choose a planeswalker you control to get two loyalty counters"
                 },
                 {
                     "type": "AddCountersToCollection",
@@ -10663,7 +10669,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -11626,7 +11634,7 @@
                                     {
                                         "type": "GatherCards",
                                         "source": {
-                                            "type": "ControlledPermanents",
+                                            "type": "BattlefieldMatching",
                                             "filter": "land"
                                         },
                                         "storeAs": "gathered0"

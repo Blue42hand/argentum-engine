@@ -242,4 +242,13 @@ data class ReplayPlayerSetup(
     val deck: Deck,
     val startingLife: Int = 20,
     val commanderCardName: String? = null,
-)
+    /**
+     * The other half of a partner pair (CR 702.124), or null. A separate optional field rather
+     * than turning [commanderCardName] into a list keeps every replay already stored readable.
+     */
+    val secondCommanderCardName: String? = null,
+) {
+    /** The seat's commanders in designation order, as [com.wingedsheep.engine.core.PlayerConfig] wants them. */
+    val commanderCardNames: List<String>
+        get() = if (commanderCardName == null) emptyList() else listOfNotNull(commanderCardName, secondCommanderCardName)
+}

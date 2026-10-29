@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.mechanics.targeting
 
+import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.toEntityId
+
 import com.wingedsheep.engine.handlers.SourceTypeTargeting
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
@@ -21,7 +23,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.*
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The card-type names (CR 205.2a). `ProjectedState.getTypes` folds supertypes (LEGENDARY, BASIC,
@@ -69,79 +70,163 @@ class TargetValidator(
          * restriction (Lurker), and a strict one would wrongly block abilities, so every call site
          * is made to say which it is.
          */
-        targetingSourceType: TargetingSourceType
-    ): String? {
-        // Use the game state for validation
-        // StateProjector is used for P/T checks to account for continuous effects
+        targetingSourceType: TargetingSourceType,
+        retainedTargetIndices: Set<Int>? = null,
+        /** How many of [targets] each requirement owns, when the announcer said so; see [bindTargetGroups]. */
+        groupCounts: List<Int>? = null
+    ): String? = bindTargetGroups(
+        state, targets, requirements, casterId, sourceColors, sourceSubtypes, sourceId, xValue,
+        targetingSourceType, retainedTargetIndices, groupCounts
+    ).error
 
-        // Match targets to requirements (assuming targets are in order of requirements).
-        // For TargetObject with a dynamicMaxCount, the resolved dynamic value clamps the
-        // per-req max count (the static `count` field is just a placeholder). XValue is
-        // threaded via the chosen [xValue]; every other DynamicAmount is evaluated against
-        // board state here, mirroring TriggerProcessor.snapshotDynamicCount — so a cast-time
-        // spell with e.g. `dynamicMaxCount = Count(...)` caps correctly instead of falling
-        // back to the static placeholder.
-        // An explicit `dynamicMaxCount` outranks the `unlimited` flag. `unlimited` means "no
-        // *static* upper bound" — it is the count the author didn't write down — whereas a
-        // dynamic cap is a bound the author did write down and is simply not knowable until
-        // cast time. Grove's Bounty needs both: "any number of target creatures you control"
-        // with X counters to hand out, where CR 601.2d still forbids declaring more targets
-        // than there are counters. Checking `unlimited` first would drop that cap on the floor.
-        fun effectiveMaxCount(req: TargetRequirement): Int {
-            val unboundedFallback = if (req.unlimited) Int.MAX_VALUE else req.count
-            if (req is TargetObject) {
-                val dyn = req.dynamicMaxCount
-                if (dyn == DynamicAmount.XValue) {
-                    return xValue ?: unboundedFallback
-                }
-                if (dyn != null) {
-                    return try {
-                        val context = EffectContext(
-                            sourceId = sourceId,
-                            controllerId = casterId,
-                            xValue = xValue
-                        )
-                        amountEvaluator.evaluate(state, dyn, context).coerceAtLeast(0)
-                    } catch (_: Exception) {
-                        unboundedFallback
+    /**
+     * How many of a flat target list each requirement owns, and whether that binding is legal.
+     *
+     * Each requirement is one instance of the word "target" (CR 601.2c), and the announced targets
+     * arrive as one list, requirement after requirement. A group that may hold fewer than its
+     * maximum ("up to two target creatures") makes that list ambiguous: one creature and an opponent
+     * is a short creature group followed by the opponent, not two creature slots. [explicitCounts]
+     * is the announcer's own split and is taken as given when it has one count per requirement. Without it the groups fill greedily —
+     * every group as full as it can be, the historical reading — and only when that reading is
+     * illegal are the other splits tried, earlier groups fullest first, the first legal one winning.
+     *
+     * The returned counts are what the stack object records: narrowing each requirement to its
+     * count (`withCount`) is what keeps every later `req.count` walk over the flat list — named
+     * targets, the 608.2b re-check, splice slices, copies — on the right slots.
+     */
+    fun bindTargetGroups(
+        state: GameState,
+        targets: List<ChosenTarget>,
+        requirements: List<TargetRequirement>,
+        casterId: EntityId,
+        sourceColors: Set<Color> = emptySet(),
+        sourceSubtypes: Set<String> = emptySet(),
+        sourceId: EntityId? = null,
+        xValue: Int? = null,
+        targetingSourceType: TargetingSourceType,
+        retainedTargetIndices: Set<Int>? = null,
+        explicitCounts: List<Int>? = null
+    ): TargetGroupBinding {
+        if (requirements.isEmpty()) return TargetGroupBinding(emptyList(), null)
+        val bounds = requirements.map { countBounds(state, it, casterId, sourceId, xValue, retainedTargetIndices) }
+        val maxCounts = bounds.map { it.max }
+        val minCounts = bounds.map { it.min }
+        fun check(counts: List<Int>) = validateGroups(
+            state, targets, requirements, counts, minCounts, casterId, sourceColors, sourceSubtypes, sourceId, xValue,
+            targetingSourceType, retainedTargetIndices
+        )
+        // Counts for a different requirement list (a client that saw the targets grouped another
+        // way) say nothing about this one; the split is inferred instead, and still fully validated.
+        if (explicitCounts != null && explicitCounts.size == requirements.size) {
+            val shapeError = when {
+                // Each count is bounded before summing so client-supplied values can't wrap the sum.
+                explicitCounts.any { it < 0 || it > targets.size } || explicitCounts.sum() != targets.size ->
+                    "Target groups don't match the chosen targets"
+                else -> requirements.indices.firstNotNullOfOrNull { i ->
+                    when {
+                        explicitCounts[i] < 0 || explicitCounts[i] > maxCounts[i] -> "Too many targets for ${requirements[i].description}"
+                        explicitCounts[i] < minCounts[i] -> "Not enough targets for ${requirements[i].description}"
+                        else -> null
                     }
                 }
             }
-            return unboundedFallback
+            return TargetGroupBinding(explicitCounts, shapeError ?: check(explicitCounts))
         }
-        for ((index, requirement) in requirements.withIndex()) {
-            // Get targets for this requirement (handle multi-target requirements)
-            val targetCount = effectiveMaxCount(requirement)
-            val startIdx = requirements.take(index).sumOf { effectiveMaxCount(it) }
-            // Use Long for the end index so an unlimited requirement (targetCount = Int.MAX_VALUE)
-            // doesn't overflow to a negative value and make subList throw.
-            val endIdx = (startIdx.toLong() + targetCount.toLong())
-                .coerceAtMost(targets.size.toLong()).toInt()
-            val targetsForReq = targets.subList(
-                startIdx.coerceAtMost(targets.size),
-                endIdx
-            )
+        var left = targets.size
+        val greedy = maxCounts.map { max -> minOf(max, left).also { left -= it } }
+        if (left > 0) return TargetGroupBinding(greedy, "Too many targets for ${requirements.first().description}")
+        val greedyError = check(greedy) ?: return TargetGroupBinding(greedy, null)
+        val alternative = splits(minCounts, maxCounts, targets.size)
+            .take(MAX_TARGET_GROUP_SPLITS)
+            .firstOrNull { it != greedy && check(it) == null }
+        return alternative?.let { TargetGroupBinding(it, null) } ?: TargetGroupBinding(greedy, greedyError)
+    }
 
-            // Reject if too many targets were declared. When a requirement is *effectively*
-            // unbounded ("any number of target ...", Drafna's Restoration) there is no upper
-            // bound, so skip this check — summing Int.MAX_VALUE would overflow to a negative cap
-            // and spuriously reject a legal cast. An unlimited requirement that also carries a
-            // resolved `dynamicMaxCount` (Grove's Bounty) is bounded after all, so it is checked.
-            if (requirements.none { effectiveMaxCount(it) == Int.MAX_VALUE }) {
-                val totalMax = requirements.sumOf { effectiveMaxCount(it) }
-                if (targets.size > totalMax) {
-                    return "Too many targets for ${requirement.description}"
-                }
-            }
+    /** Every split of [total] targets into groups within [mins]..[maxes], earlier groups fullest first. */
+    private fun splits(mins: List<Int>, maxes: List<Int>, total: Int, index: Int = 0): Sequence<List<Int>> = sequence {
+        if (index == mins.size) {
+            if (total == 0) yield(emptyList())
+            return@sequence
+        }
+        val restMin = mins.drop(index + 1).sum()
+        for (count in minOf(maxes[index], total - restMin) downTo mins[index]) {
+            for (rest in splits(mins, maxes, total - count, index + 1)) yield(listOf(count) + rest)
+        }
+    }
+
+    /** One requirement's resolved minimum and maximum target count. */
+    private data class CountBounds(val min: Int, val max: Int)
+
+    // For TargetObject with a dynamicMaxCount, the resolved dynamic value clamps the
+    // per-req max count (the static `count` field is just a placeholder). XValue is
+    // threaded via the chosen [xValue]; every other DynamicAmount is evaluated against
+    // board state here, mirroring TriggerProcessor.snapshotDynamicCount — so a cast-time
+    // spell with e.g. `dynamicMaxCount = Count(...)` caps correctly instead of falling
+    // back to the static placeholder. A dynamicMinCount is resolved the same way: "X target
+    // creatures" requires exactly the announced X (CR 601.2c), so fewer is "Not enough targets".
+    // An explicit `dynamicMaxCount` outranks the `unlimited` flag. `unlimited` means "no
+    // *static* upper bound" — it is the count the author didn't write down — whereas a
+    // dynamic cap is a bound the author did write down and is simply not knowable until
+    // cast time. Grove's Bounty needs both: "any number of target creatures you control"
+    // with X counters to hand out, where CR 601.2d still forbids declaring more targets
+    // than there are counters. Checking `unlimited` first would drop that cap on the floor.
+    // A re-check of already-chosen targets (copy, change of targets) keeps the bound counts:
+    // once determined, the number of targets doesn't change (CR 601.2c).
+    private fun countBounds(
+        state: GameState,
+        req: TargetRequirement,
+        casterId: EntityId,
+        sourceId: EntityId?,
+        xValue: Int?,
+        retainedTargetIndices: Set<Int>?
+    ): CountBounds {
+        if (retainedTargetIndices != null) return CountBounds(req.effectiveMinCount, req.count)
+        if (DynamicTargetCount.objectOf(req)?.ownerDistribution != null) {
+            val candidates = com.wingedsheep.engine.handlers.TargetFinder(predicateEvaluator).findLegalTargets(
+                state, req, casterId, sourceId)
+            val distributed = OwnerTargetDistribution.bounds(state, req, candidates)!!
+            return CountBounds(distributed.min, distributed.max ?: 0)
+        }
+        val unboundedFallback = if (req.unlimited) Int.MAX_VALUE else req.count
+        val bounds = DynamicTargetCount.bounds(req, xValue) { amount ->
+            amountEvaluator.evaluate(state, amount, EffectContext(sourceId = sourceId, controllerId = casterId, xValue = xValue))
+        }
+        return CountBounds(bounds.min, bounds.max ?: unboundedFallback)
+    }
+
+    /** Validate one binding of [targets] to [requirements], [counts] targets per requirement. */
+    private fun validateGroups(
+        state: GameState,
+        targets: List<ChosenTarget>,
+        requirements: List<TargetRequirement>,
+        counts: List<Int>,
+        minCounts: List<Int>,
+        casterId: EntityId,
+        sourceColors: Set<Color>,
+        sourceSubtypes: Set<String>,
+        sourceId: EntityId?,
+        xValue: Int?,
+        targetingSourceType: TargetingSourceType,
+        retainedTargetIndices: Set<Int>?
+    ): String? {
+        val starts = counts.runningFold(0, Int::plus)
+        val namedTargets = EffectContext.buildNamedTargets(
+            requirements.mapIndexed { i, req -> req.withCount(counts[i]) }, targets,
+        )
+        for ((index, requirement) in requirements.withIndex()) {
+            val startIdx = starts[index]
+            val endIdx = starts[index + 1]
+            val targetsForReq = targets.subList(startIdx, endIdx)
 
             // Check minimum targets
-            if (targetsForReq.size < requirement.effectiveMinCount) {
+            if (targetsForReq.size < minCounts[index]) {
                 return "Not enough targets for ${requirement.description}"
             }
 
             // Validate each target against the requirement
-            for (target in targetsForReq) {
-                val error = validateSingleTarget(state, target, requirement, casterId, sourceColors, sourceSubtypes, sourceId, xValue, targets, targetingSourceType)
+            for ((offset, target) in targetsForReq.withIndex()) {
+                if (retainedTargetIndices?.contains(startIdx + offset) == true) continue
+                val error = validateSingleTarget(state, target, requirement, casterId, sourceColors, sourceSubtypes, sourceId, xValue, targets, targetingSourceType, namedTargets)
                 if (error != null) return error
             }
 
@@ -163,6 +248,9 @@ class TargetValidator(
                 }
             }
 
+            // Unchanged groups may already be illegal; choosing new targets does not repair them.
+            if (retainedTargetIndices != null && (startIdx until endIdx).all { it in retainedTargetIndices }) continue
+
             // "... controlled by the same player" — every chosen target for this requirement
             // must share a controller (Rule uses current control; projected state respects
             // control-changing effects). No-op for single-target requirements.
@@ -176,6 +264,18 @@ class TargetValidator(
                 }
                 if (controllers.toSet().size > 1) {
                     return "Targets must be controlled by the same player"
+                }
+            }
+
+            if (DynamicTargetCount.objectOf(requirement)?.ownerDistribution != null &&
+                !OwnerTargetDistribution.isSatisfied(state, targetsForReq.map { it.toEntityId() })) {
+                return "Targets must come from different owner groups"
+            }
+            val numericProperty = (requirement as? TargetObject)?.sameNumericProperty
+            if (numericProperty != null) {
+                val ids = targetsForReq.map { it.toEntityId() }
+                if (!NumericTargetEquality.isSatisfied(state, ids, numericProperty)) {
+                    return "Targets must have equal ${numericProperty.description}"
                 }
             }
 
@@ -306,6 +406,23 @@ class TargetValidator(
         return null
     }
 
+    /** One [TargetValidator.bindTargetGroups] answer: the per-requirement counts, and why they're illegal if they are. */
+    data class TargetGroupBinding(val counts: List<Int>, val error: String?)
+
+    companion object {
+        /** A bound on the splits tried for one announcement; real spells have a handful of target words. */
+        private const val MAX_TARGET_GROUP_SPLITS = 512
+
+        /**
+         * Whether every group has one possible size, so a flat list binds only one way and
+         * [bindTargetGroups] would hand back the printed counts unchanged.
+         */
+        fun hasFixedGroups(requirements: List<TargetRequirement>): Boolean = requirements.all {
+            !it.unlimited && it.effectiveMinCount == it.count &&
+                DynamicTargetCount.objectOf(it)?.let { obj -> obj.dynamicMaxCount == null && obj.ownerDistribution == null } != false
+        }
+    }
+
     /** A card's printed creature types; a changeling card has every creature type (CR 702.73a). */
     private fun printedCreatureTypes(card: CardComponent): Set<String> =
         if (Keyword.CHANGELING in card.baseKeywords) Subtype.ALL_CREATURE_TYPES.toSet()
@@ -314,7 +431,7 @@ class TargetValidator(
     /**
      * Validate a single target against a requirement.
      */
-    private fun validateSingleTarget(
+    internal fun validateSingleTarget(
         state: GameState,
         target: ChosenTarget,
         requirement: TargetRequirement,
@@ -324,7 +441,8 @@ class TargetValidator(
         sourceId: EntityId? = null,
         xValue: Int? = null,
         allTargets: List<ChosenTarget> = emptyList(),
-        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY
+        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY,
+        namedTargets: Map<String, ChosenTarget> = emptyMap()
     ): String? {
         // A separately-chosen player target (target index 0 for "target player's graveyard"
         // spells) — lets a later requirement's filter resolve `OwnedByTargetPlayer` /
@@ -355,8 +473,10 @@ class TargetValidator(
             is TargetPlayerOrPlaneswalker -> validatePlayerOrPlaneswalkerTarget(state, target, casterId)
             is TargetCreatureOrPlaneswalker -> validateCreatureOrPlaneswalkerTarget(state, target)
             is TargetSpellOrPermanent -> validateSpellOrPermanentTarget(state, target, requirement, casterId, sourceId, xValue)
-            is TargetObject -> validateObjectTarget(state, target, requirement.filter, casterId, sourceId, xValue, chosenPlayerTarget)
-            is TargetOther -> validateSingleTarget(state, target, requirement.baseRequirement, casterId, sourceColors, sourceSubtypes, sourceId, xValue, allTargets, targetingSourceType)
+            is TargetObject -> validateObjectTarget(state, target, requirement.filter, casterId, sourceId, xValue, chosenPlayerTarget,
+                PredicateContext(controllerId = casterId, sourceId = sourceId, xValue = xValue,
+                    targets = allTargets, namedTargets = namedTargets, targetPlayerId = chosenPlayerTarget))
+            is TargetOther -> validateSingleTarget(state, target, requirement.baseRequirement, casterId, sourceColors, sourceSubtypes, sourceId, xValue, allTargets, targetingSourceType, namedTargets)
         }
         if (error != null) return error
 
@@ -652,7 +772,8 @@ class TargetValidator(
         filter: TargetFilter,
         casterId: EntityId,
         sourceId: EntityId? = null,
-        xValue: Int? = null
+        xValue: Int? = null,
+        targetContext: PredicateContext? = null
     ): String? {
         if (target !is ChosenTarget.Permanent) {
             return "Target must be a permanent"
@@ -675,7 +796,7 @@ class TargetValidator(
 
         // Use unified filter with projection (face-down creatures have CMC 0 per Rule 708.2)
         val projected = state.projectedState
-        val predicateContext = PredicateContext(controllerId = casterId, sourceId = sourceId, xValue = xValue)
+        val predicateContext = targetContext ?: PredicateContext(controllerId = casterId, sourceId = sourceId, xValue = xValue)
         val matches = predicateEvaluator.matches(state, projected, target.entityId, filter.baseFilter, predicateContext)
         if (!matches) {
             return "Target does not match filter: ${filter.description}"
@@ -960,7 +1081,8 @@ class TargetValidator(
         casterId: EntityId,
         sourceId: EntityId? = null,
         xValue: Int? = null,
-        targetPlayerId: EntityId? = null
+        targetPlayerId: EntityId? = null,
+        targetContext: PredicateContext? = null
     ): String? {
         // Cross-zone union: the target is legal if it satisfies *any* clause. Validate against each
         // single-zone clause; succeed on the first that accepts, otherwise report that clause's
@@ -968,7 +1090,7 @@ class TargetValidator(
         // filter). Each clause has no alternatives, so this recursion terminates.
         if (filter.isUnion) {
             val clauseErrors = filter.clauses().map { clause ->
-                validateObjectTarget(state, target, clause, casterId, sourceId, xValue, targetPlayerId)
+                validateObjectTarget(state, target, clause, casterId, sourceId, xValue, targetPlayerId, targetContext)
             }
             if (clauseErrors.any { it == null }) return null
             return clauseErrors.firstOrNull { it != null }
@@ -976,7 +1098,7 @@ class TargetValidator(
         }
         return when (filter.zone) {
             Zone.GRAVEYARD -> validateGraveyardTarget(state, target, filter, casterId, sourceId, xValue, targetPlayerId)
-            Zone.BATTLEFIELD -> validatePermanentTarget(state, target, filter, casterId, sourceId, xValue)
+            Zone.BATTLEFIELD -> validatePermanentTarget(state, target, filter, casterId, sourceId, xValue, targetContext)
             Zone.STACK -> validateSpellTarget(state, target, filter, casterId, xValue, sourceId)
             else -> validateCardInZoneTarget(state, target, filter, casterId, xValue, sourceId)
         }

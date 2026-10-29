@@ -3311,7 +3311,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for an artifact card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -3451,8 +3453,9 @@
                         {
                             "label": "Draw step",
                             "effect": {
-                                "type": "SkipStepOrPhaseThisTurn",
+                                "type": "SkipStepOrPhaseEffect",
                                 "part": "DRAW_STEP",
+                                "duration": "THIS_TURN",
                                 "target": {
                                     "type": "PlayerRef",
                                     "player": "TriggeringPlayer"
@@ -3462,8 +3465,9 @@
                         {
                             "label": "Main phase",
                             "effect": {
-                                "type": "SkipStepOrPhaseThisTurn",
+                                "type": "SkipStepOrPhaseEffect",
                                 "part": "MAIN_PHASE",
+                                "duration": "THIS_TURN",
                                 "target": {
                                     "type": "PlayerRef",
                                     "player": "TriggeringPlayer"
@@ -3473,8 +3477,9 @@
                         {
                             "label": "Combat phase",
                             "effect": {
-                                "type": "SkipStepOrPhaseThisTurn",
+                                "type": "SkipStepOrPhaseEffect",
                                 "part": "COMBAT_PHASE",
+                                "duration": "THIS_TURN",
                                 "target": {
                                     "type": "PlayerRef",
                                     "player": "TriggeringPlayer"
@@ -5764,7 +5769,9 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for up to two basic land cards to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -8921,7 +8928,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 3
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
                     }
                 },
                 "effect": {
@@ -9521,7 +9531,8 @@
                             "Beast"
                         ],
                         "imageUri": "https://cards.scryfall.io/normal/front/4/4/44675b6a-ea5a-44f1-9f2c-3725cdfcc814.jpg?1783934353"
-                    }
+                    },
+                    "description": "Create a 5/5 green Beast creature token"
                 },
                 {
                     "effect": {
@@ -12467,7 +12478,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -13412,7 +13425,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -13565,7 +13580,12 @@
                                                 "type": "HasSubtype",
                                                 "subtype": "Equipment"
                                             },
-                                            "ManaValueAtMostX"
+                                            {
+                                                "type": "CompareNumericProperty",
+                                                "property": "MANA_VALUE",
+                                                "operator": "LTE",
+                                                "amount": "XValue"
+                                            }
                                         ]
                                     }
                                 },
@@ -13582,7 +13602,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for an Equipment artifact card with mana value at most X to put onto the battlefield",
+                                "selectedLabel": "Put onto the battlefield"
                             },
                             {
                                 "type": "MoveCollection",
@@ -14786,7 +14808,9 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for up to two creature cards to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -16005,7 +16029,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 1
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
                     }
                 },
                 "effect": {

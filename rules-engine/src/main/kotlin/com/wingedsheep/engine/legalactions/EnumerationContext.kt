@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.legalactions
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.core.TurnManager
 import com.wingedsheep.engine.handlers.ConditionEvaluator
@@ -19,7 +21,6 @@ import com.wingedsheep.engine.state.forcedPlayFor
 import com.wingedsheep.engine.state.components.player.CantActivateLoyaltyAbilitiesComponent
 import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
 import com.wingedsheep.engine.state.components.player.CantCastFromNonHandZonesComponent
-import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.PlayerCantPlayFromHandComponent
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
@@ -53,6 +54,12 @@ class EnumerationContext(
     val turnManager: TurnManager,
     val mode: EnumerationMode = EnumerationMode.FULL
 ) {
+    val reservedLife: Int by lazy {
+        costCalculator.optionalCostPayments.sumOf { costCalculator.optionalModifier(state, it)?.optionalLifePayment ?: 0 }
+    }
+    /** Whether the caster can pay [amount] more life toward a spell they are casting. */
+    fun canPayLife(amount: Int): Boolean = state.canPayLife(playerId, amount + reservedLife, LifePaymentPurpose.CAST_SPELL)
+
     val skipAutoTapPreview: Boolean get() = mode == EnumerationMode.ACTIONS_ONLY
     // Granted-keyword resolver (e.g., convoke granted by Eirdu via GrantKeywordToOwnSpells)
     val grantedKeywordResolver by lazy { GrantedKeywordResolver(cardRegistry) }
@@ -101,10 +108,7 @@ class EnumerationContext(
 
     // Land drop availability (accounts for static ability bonuses like GrantAdditionalLandDrop)
     val canPlayLand: Boolean by lazy {
-        val landDrops = state.getEntity(playerId)?.get<LandDropsComponent>()
-        val remaining = landDrops?.remaining ?: 0
-        val staticBonus = castPermissionUtils.getAdditionalLandDrops(state, playerId)
-        canPlaySorcerySpeed && state.isActiveTurnFor(playerId) && (remaining + staticBonus > 0) &&
+        canPlaySorcerySpeed && state.isActiveTurnFor(playerId) && castPermissionUtils.hasLandPlayLeft(state, playerId) &&
             // Worms of the Earth's "players can't play lands". Mirrored in PlayLandHandler: a
             // legal-action list that offers a land drop the handler will refuse is worse than
             // either check alone.
@@ -139,7 +143,8 @@ class EnumerationContext(
     // Cast restrictions — blanket, spell-independent locks (a Silence-style CantCastSpellsComponent
     // or a RestrictSpellsCastPerTurn per-turn limit). Cached once per enumeration pass.
     val cantCastSpells: Boolean by lazy {
-        state.getEntity(playerId)?.has<CantCastSpellsComponent>() == true ||
+        state.getEntity(playerId)?.get<CantCastSpellsComponent>()?.restrictions
+            ?.any { it.spellFilter == com.wingedsheep.sdk.scripting.GameObjectFilter.Any } == true ||
             castPermissionUtils.hasReachedSpellCastLimit(state, playerId)
     }
 

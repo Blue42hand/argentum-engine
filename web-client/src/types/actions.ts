@@ -15,6 +15,7 @@ export type GameAction =
   | CycleCardAction
   | TypecycleCardAction
   | PlotCardAction
+  | PutCompanionIntoHandAction
   | SuspendCardFromHandAction
   | CrewVehicleAction
   | SaddleMountAction
@@ -113,6 +114,8 @@ export interface CastSpellAction {
   readonly playerId: EntityId
   readonly cardId: EntityId
   readonly targets?: readonly ChosenTarget[]
+  /** How many of `targets` each target requirement owns, in requirement order (CR 601.2c). */
+  readonly targetGroupCounts?: readonly number[]
   readonly xValue?: number | null
   readonly paymentStrategy?: PaymentStrategy
   readonly additionalCostPayment?: AdditionalCostPayment
@@ -130,6 +133,8 @@ export interface CastSpellAction {
    * "SELF_ALTERNATIVE", "MIRACLE"). Used by the action menu to identify the impending cast option.
    */
   readonly alternativeCostType?: string
+  /** Server-selected escape cost; echoed unchanged with the cast action. */
+  readonly escapeAbility?: { readonly cost: unknown; readonly additionalCost?: unknown } | null
   /**
    * Which optional additional cost this cast declares (the server's `ChoiceSlot` name — "KICKED"
    * for kicker/multikicker/offspring, "BARGAINED" for bargain), or absent when none. The server
@@ -155,6 +160,7 @@ export interface CastSpellAction {
    */
   readonly wasWaterbendPaid?: boolean
   /** Extra generic mana paid for entry +1/+1 counters (Chorus of the Conclave); 0/absent declines. */
+  readonly optionalCostPayments?: readonly { readonly sourceId: string; readonly abilityIndex: number }[]
   readonly additionalManaForCounters?: number
   /**
    * The opponent promised this spell's gift additional cost (Bloomburrow gift — CR 702.174a), or
@@ -192,6 +198,8 @@ export interface CastSpellAction {
    * cast. Required for SPLIT cards; null/omitted for normal single-face cards.
    */
   readonly faceIndex?: number | null
+  /** Cast both halves of a fuse split card from hand as one spell. Mutually exclusive with faceIndex. */
+  readonly castFused?: boolean
 }
 
 export type PaymentStrategy =
@@ -214,6 +222,12 @@ export interface ActivateAbilityAction {
   readonly sourceId: EntityId
   readonly abilityId: string
   readonly targets?: readonly ChosenTarget[]
+  /** Announcement-time modes. Absent/null asks the server to collect the choice before payment. */
+  readonly chosenModes?: readonly number[] | null
+  readonly modeTargetGroupCountsOrdered?: readonly (readonly number[])[]
+  readonly modeTargetsOrdered?: readonly (readonly ChosenTarget[])[]
+  /** How many of `targets` each target requirement owns, in requirement order (CR 601.2c). */
+  readonly targetGroupCounts?: readonly number[]
   /** Payment choices for ability costs (sacrifice, etc.) */
   readonly costPayment?: AdditionalCostPayment
   /** Color chosen for "add one mana of any color" abilities */
@@ -264,6 +278,17 @@ export interface TypecycleCardAction {
  */
 export interface PlotCardAction {
   readonly type: 'PlotCard'
+  readonly playerId: EntityId
+  readonly cardId: EntityId
+  readonly paymentStrategy?: PaymentStrategy
+}
+
+/**
+ * Pay {3} to put your revealed companion from outside the game into your hand (CR 702.139a).
+ * Special action at sorcery timing, once per game; the server offers it while the companion waits.
+ */
+export interface PutCompanionIntoHandAction {
+  readonly type: 'PutCompanionIntoHand'
   readonly playerId: EntityId
   readonly cardId: EntityId
   readonly paymentStrategy?: PaymentStrategy
@@ -464,6 +489,8 @@ export function getActionSubject(action: GameAction): EntityId | null {
     case 'TypecycleCard':
       return action.cardId
     case 'PlotCard':
+      return action.cardId
+    case 'PutCompanionIntoHand':
       return action.cardId
     case 'SuspendCardFromHand':
       return action.cardId

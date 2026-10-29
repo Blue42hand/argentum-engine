@@ -125,6 +125,12 @@ sealed interface KeywordAbility {
     @SerialName("Protection")
     @Serializable
     data class Protection(val scope: ProtectionScope) : KeywordAbility {
+        init {
+            // Monocolored exists for hexproof (CR 105.2a); protection from monocolored has no
+            // engine reading, so it fails here rather than printing text nothing enforces.
+            require(scope != ProtectionScope.Monocolored) { "Protection from monocolored is not supported" }
+        }
+
         override val keyword: Keyword? = when (scope) {
             is ProtectionScope.EachOpponent -> Keyword.PROTECTION_FROM_EACH_OPPONENT
             else -> null
@@ -135,6 +141,7 @@ sealed interface KeywordAbility {
                 scope.colors.joinToString(" and from ") { it.displayName.lowercase() }
             is ProtectionScope.NonColor -> "Protection from non${scope.color.displayName.lowercase()}"
             is ProtectionScope.Multicolored -> "Protection from multicolored"
+            is ProtectionScope.Monocolored -> "Protection from monocolored"
             is ProtectionScope.CardType -> "Protection from ${scope.cardType.lowercase()}"
             is ProtectionScope.Subtype -> "Protection from ${scope.subtype}s"
             is ProtectionScope.Supertype -> "Protection from ${scope.supertype.lowercase()}"
@@ -142,6 +149,7 @@ sealed interface KeywordAbility {
             is ProtectionScope.EachOpponent -> "Protection from each opponent"
             is ProtectionScope.Spells -> "Protection from spells"
             is ProtectionScope.PermanentsCastThisTurn -> "Protection from permanents that were cast this turn"
+            is ProtectionScope.RingBearers -> "Protection from Ring-bearers"
             is ProtectionScope.ActivatedAbilities -> "Protection from activated abilities"
             is ProtectionScope.TriggeredAbilities -> "Protection from triggered abilities"
         }
@@ -150,7 +158,7 @@ sealed interface KeywordAbility {
     /**
      * Hexproof from a quality. Parameterized by [ProtectionScope]; `ProtectionScope.Color`,
      * `ProtectionScope.Colors`, `ProtectionScope.NonColor`, `ProtectionScope.CardType` and the
-     * source-kind scopes (`Spells`, `PermanentsCastThisTurn`, `ActivatedAbilities`,
+     * source-kind scopes (`Spells`, `PermanentsCastThisTurn`, `RingBearers`, `ActivatedAbilities`,
      * `TriggeredAbilities`) are engine-supported (the remaining scopes format the oracle text but
      * have no rules-engine wiring yet).
      *
@@ -171,6 +179,7 @@ sealed interface KeywordAbility {
                 scope.colors.joinToString(" and from ") { it.displayName.lowercase() }
             is ProtectionScope.NonColor -> "Hexproof from non${scope.color.displayName.lowercase()}"
             is ProtectionScope.Multicolored -> "Hexproof from multicolored"
+            is ProtectionScope.Monocolored -> "Hexproof from monocolored"
             is ProtectionScope.CardType -> "Hexproof from ${scope.cardType.lowercase()}"
             is ProtectionScope.Subtype -> "Hexproof from ${scope.subtype}s"
             is ProtectionScope.Supertype -> "Hexproof from ${scope.supertype.lowercase()}"
@@ -178,6 +187,7 @@ sealed interface KeywordAbility {
             is ProtectionScope.EachOpponent -> "Hexproof from each opponent"
             is ProtectionScope.Spells -> "Hexproof from spells"
             is ProtectionScope.PermanentsCastThisTurn -> "Hexproof from permanents that were cast this turn"
+            is ProtectionScope.RingBearers -> "Hexproof from Ring-bearers"
             is ProtectionScope.ActivatedAbilities -> "Hexproof from activated abilities"
             is ProtectionScope.TriggeredAbilities -> "Hexproof from triggered abilities"
         }
@@ -299,7 +309,7 @@ sealed interface KeywordAbility {
 
     /**
      * **Optional additional cost paid at cast time.** Generalises Kicker, Multikicker,
-     * Offspring, Bargain, and the pre-kicker "pay {N} more to cast as though it had flash"
+     * Offspring, Squad, Bargain, and the pre-kicker "pay {N} more to cast as though it had flash"
      * pattern (Ghitu Fire et al.). The card script gates effect variations on the durable
      * fact recorded in [declaredSlot] — read via [WasKicked] / `Conditions.WasBargained`,
      * or `wasKicked` in trigger filters — when [branchesEffect] is `true`.
@@ -379,7 +389,7 @@ sealed interface KeywordAbility {
             }
             require(!multi || additionalCost == null || additionalCostPaid(2) != null) {
                 "A repeatable optional cost's non-mana half must be an amount that scales " +
-                    "(pay life, pay player counters); got ${additionalCost?.description}"
+                    "(pay life, pay player counters, discard, exile); got ${additionalCost?.description}"
             }
         }
 
@@ -403,22 +413,47 @@ sealed interface KeywordAbility {
 
         /**
          * The non-mana half of this cost paid [times] times over, as one cost whose amount is
-         * multiplied — "pay {E}{E}{E}" twice is "pay six energy". Only amount-shaped atoms scale;
+         * multiplied — "pay {E}{E}{E}" twice is "pay six energy". Amount-shaped atoms and composites of them scale;
          * anything else returns null for [times] > 1, which is why a [multi] cost is restricted to
          * them at construction.
          */
         fun additionalCostPaid(times: Int): AdditionalCost? {
             val cost = additionalCost ?: return null
             if (times == 1) return cost
-            val atom = (cost as? AdditionalCost.Atom)?.atom ?: return null
-            return when {
-                atom is CostAtom.PayLife ->
-                    AdditionalCost.Atom(atom.copy(amount = atom.amount * times))
-                atom is CostAtom.PayPlayerCounters &&
-                    atom.amount is DynamicAmount.Fixed ->
-                    AdditionalCost.Atom(atom.copy(amount = DynamicAmount.Fixed((atom.amount as DynamicAmount.Fixed).amount * times)))
+            return scaleAdditionalCost(cost, times)
+        }
+
+        private fun scaleAdditionalCost(cost: AdditionalCost, times: Int): AdditionalCost? = when (cost) {
+            is AdditionalCost.Composite -> {
+                val scaled = cost.steps.map { scaleAdditionalCost(it, times) }
+                val selections = scaled.filterNotNull().flatMap { selectionChannels(it) }
+                // Each selection channel carries one chosen set, not independent per-step picks.
+                if (scaled.any { it == null } || selections.distinct().size != selections.size) null
+                else AdditionalCost.Composite(scaled.filterNotNull())
+            }
+            is AdditionalCost.Atom -> when (val atom = cost.atom) {
+                is CostAtom.PayLife -> atom.fixedAmount?.let { AdditionalCost.Atom(CostAtom.PayLife(it * times)) }
+                is CostAtom.PayPlayerCounters -> (atom.amount as? DynamicAmount.Fixed)?.let {
+                    AdditionalCost.Atom(atom.copy(amount = DynamicAmount.Fixed(it.amount * times)))
+                }
+                is CostAtom.Discard -> AdditionalCost.Atom(atom.copy(count = atom.count * times))
+                is CostAtom.ExileFrom -> if (atom.singleZone) null
+                    else AdditionalCost.Atom(atom.copy(count = atom.count * times))
                 else -> null
             }
+            else -> null
+        }
+
+        private fun selectionChannels(cost: AdditionalCost): List<String> = when (cost) {
+            is AdditionalCost.Composite -> cost.steps.flatMap { selectionChannels(it) }
+            is AdditionalCost.Atom -> listOfNotNull(
+                when (cost.atom) {
+                    is CostAtom.Discard -> "discard"
+                    is CostAtom.ExileFrom -> "exile"
+                    else -> null
+                }
+            )
+            else -> emptyList()
         }
 
         override val description: String = when {
@@ -845,6 +880,53 @@ sealed interface KeywordAbility {
     data object Conspire : KeywordAbility {
         override val keyword: Keyword = Keyword.CONSPIRE
         override val description: String = "Conspire"
+    }
+
+    // =========================================================================
+    // Partner abilities (two commanders)
+    // =========================================================================
+
+    /**
+     * A partner ability (CR 702.124) — a deck-construction keyword for the Commander variant that
+     * lets a deck designate **two** commanders instead of one. It functions before the game begins
+     * (CR 702.124a) and does nothing during play; [kind] says which partner ability it is, and only
+     * two cards whose kinds pair up may be designated together (CR 702.124f).
+     *
+     * Read by [com.wingedsheep.sdk.model.CommanderEligibility.pairingError], which the
+     * game-server deck validator consults before a two-commander deck reaches game setup.
+     * "Partner with [name]" also represents an enters-the-battlefield search trigger
+     * (CR 702.124j); that half is not synthesised from this keyword — see [PartnerKind.With].
+     */
+    @SerialName("Partner")
+    @Serializable
+    data class Partner(val kind: PartnerKind = PartnerKind.Plain) : KeywordAbility {
+        override val description: String = kind.description
+    }
+
+    // =========================================================================
+    // Companion
+    // =========================================================================
+
+    /**
+     * Companion—[condition] (CR 702.139) — a keyword ability that functions **outside the game**.
+     * Before the game, a player may reveal one card they own from outside the game whose companion
+     * condition their starting deck fulfils (CR 103.2b); once during the game, any time they have
+     * priority during a main phase of their turn with the stack empty, they may pay {3} to put it
+     * into their hand — a special action (CR 116.2g, 702.139a).
+     *
+     * Declaring this keyword is the whole implementation: the server's deck validator checks
+     * [condition] against the starting deck through
+     * [com.wingedsheep.sdk.model.CompanionEligibility], game setup reveals the designated card in
+     * its owner's sideboard, and the engine offers the {3} special action. The ability does
+     * nothing in any other zone — a companion card in the starting deck is just a card (ruling).
+     *
+     * Named `CompanionAbility` because a nested `Companion` would collide with this interface's
+     * companion object; it serializes as `"Companion"`.
+     */
+    @SerialName("Companion")
+    @Serializable
+    data class CompanionAbility(val condition: CompanionCondition) : KeywordAbility {
+        override val description: String = "Companion — ${condition.description}"
     }
 
     // =========================================================================
@@ -1599,6 +1681,24 @@ sealed interface KeywordAbility {
          */
         fun conspire(): KeywordAbility = Conspire
 
+        /** "Partner" (CR 702.124h) — pairs with any other card that has plain partner. */
+        fun partner(): KeywordAbility = Partner(PartnerKind.Plain)
+
+        /** "Partner—[text]" (CR 702.124i), e.g. `partnerNamed("Friends forever")`. */
+        fun partnerNamed(text: String): KeywordAbility = Partner(PartnerKind.Named(text))
+
+        /** "Partner with [name]" (CR 702.124j) — pairs only with the named card. */
+        fun partnerWith(name: String): KeywordAbility = Partner(PartnerKind.With(name))
+
+        /** "Choose a Background" (CR 702.124k) — pairs with a legendary Background enchantment. */
+        fun chooseABackground(): KeywordAbility = Partner(PartnerKind.ChooseABackground)
+
+        /** "Doctor's companion" (CR 702.124m) — pairs with a legendary Time Lord Doctor creature. */
+        fun doctorsCompanion(): KeywordAbility = Partner(PartnerKind.DoctorsCompanion)
+
+        /** "Companion—[condition]" (CR 702.139) — see [CompanionAbility] and [CompanionCondition]. */
+        fun companion(condition: CompanionCondition): KeywordAbility = CompanionAbility(condition)
+
         /**
          * Create Casualty N keyword ability.
          */
@@ -1623,6 +1723,16 @@ sealed interface KeywordAbility {
         fun afflict(n: Int): KeywordAbility = Numeric(Keyword.AFFLICT, n)
         fun crew(n: Int, onceEachTurn: Boolean = false): KeywordAbility =
             Numeric(Keyword.CREW, n, onceEachTurn)
+
+        /**
+         * The projected keyword a *granted* "crew [n]" floats — `CREW_<n>` — for
+         * `GrantKeyword(KeywordAbility.grantedCrew(1), vehicles)` ("Vehicles you control have
+         * crew 1", Astor, Bearer of Blades). The same `<KEYWORD>_<n>` encoding granted toxic and
+         * bushido use, but crew instances are separate abilities rather than a sum: a Vehicle
+         * with printed crew 3 that gains crew 1 can be crewed by either (CR 702.122), so the
+         * projection keeps one `CREW_<n>` per distinct N and the crew readers take the cheapest.
+         */
+        fun grantedCrew(n: Int): String = "${Keyword.CREW.name}_$n"
         fun saddle(n: Int): KeywordAbility = Numeric(Keyword.SADDLE, n)
         fun modular(n: Int): KeywordAbility = Numeric(Keyword.MODULAR, n)
         fun fading(n: Int): KeywordAbility = Numeric(Keyword.FADING, n)
@@ -1656,5 +1766,63 @@ sealed interface KeywordAbility {
          * "Hideaway 4"-style display text on the card's keyword list.
          */
         fun hideaway(n: Int): KeywordAbility = Numeric(Keyword.HIDEAWAY, n)
+    }
+}
+
+/**
+ * Which partner ability a [KeywordAbility.Partner] is (CR 702.124a). Each kind has its own pairing
+ * requirement, and different kinds never combine (CR 702.124f) — a card with "partner" can't be
+ * designated alongside one with "partner with [name]".
+ */
+@Serializable
+sealed interface PartnerKind {
+    val description: String
+
+    /** "Partner" (CR 702.124h): both commanders have plain partner. */
+    @SerialName("Plain")
+    @Serializable
+    data object Plain : PartnerKind {
+        override val description: String = "Partner"
+    }
+
+    /**
+     * "Partner—[text]" (CR 702.124i): both commanders have the *same* partner—[text] ability —
+     * "Friends forever", "Character select", "Father & son", "Survivors".
+     */
+    @SerialName("Named")
+    @Serializable
+    data class Named(val text: String) : PartnerKind {
+        override val description: String = "Partner—$text"
+    }
+
+    /**
+     * "Partner with [name]" (CR 702.124j): each commander has "partner with" naming the other.
+     * The keyword's second meaning — "When this permanent enters, target player may search their
+     * library for a card named [name]…" — is a triggered ability the card writes out itself.
+     */
+    @SerialName("With")
+    @Serializable
+    data class With(val name: String) : PartnerKind {
+        override val description: String = "Partner with $name"
+    }
+
+    /**
+     * "Choose a Background" (CR 702.124k): the other commander is a legendary Background
+     * enchantment card — which can't be a commander on its own.
+     */
+    @SerialName("ChooseABackground")
+    @Serializable
+    data object ChooseABackground : PartnerKind {
+        override val description: String = "Choose a Background"
+    }
+
+    /**
+     * "Doctor's companion" (CR 702.124m): the other commander is a legendary Time Lord Doctor
+     * creature card with no other creature types.
+     */
+    @SerialName("DoctorsCompanion")
+    @Serializable
+    data object DoctorsCompanion : PartnerKind {
+        override val description: String = "Doctor's companion"
     }
 }

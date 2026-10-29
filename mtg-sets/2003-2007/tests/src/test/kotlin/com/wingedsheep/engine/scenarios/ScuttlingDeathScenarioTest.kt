@@ -53,8 +53,6 @@ class ScuttlingDeathScenarioTest : ScenarioTestBase() {
                 withClue("activation should succeed: ${activation.error}") { activation.error shouldBe null }
                 game.isInGraveyard(1, "Scuttling Death") shouldBe true
 
-                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(true)
                 val decision = game.getPendingDecision()
                 decision.shouldBeInstanceOf<ChooseTargetsDecision>()
                 val ghostShip = game.findCardsInGraveyard(1, "Ghost Ship").single()

@@ -78,13 +78,24 @@ export type ServerMessage =
   | QuickGameLobbyClosedMessage
   // Presence
   | OnlinePlayersCountMessage
+  // Matchmaking
+  | MatchmakingStatusMessage
+  | MatchFoundMessage
+  | MatchmakingQueuesMessage
   // Friends
   | FriendPresenceMessage
   | FriendRequestReceivedMessage
+  | DirectMessageMessage
+  | DirectMessagesChangedMessage
+  // Table talk and after the game
+  | EmoteMessage
+  | PostGameMessage
   // Liveness
   | PongMessage
   // Session takeover
   | SessionReplacedMessage
+  // Server lifecycle
+  | ServerRestartingMessage
 
 /**
  * Connection confirmed with assigned player ID.
@@ -108,6 +119,8 @@ export interface ReconnectedMessage {
   readonly contextId: string | null
   readonly aiEnabled?: boolean
   readonly availableSets?: readonly AvailableSet[]
+  /** The game's seat roster when `context` is 'game' — recovers account avatars after a refresh. */
+  readonly players?: readonly PlayerSeatInfo[]
 }
 
 /**
@@ -125,6 +138,8 @@ export interface GameCreatedMessage {
 export interface PlayerSeatInfo {
   readonly playerId: string
   readonly name: string
+  /** The seat's account avatar id (a preset portrait); absent for guests and AI. */
+  readonly avatar?: string | null
   readonly seatIndex: number
   readonly isYou: boolean
   readonly isAi: boolean
@@ -250,6 +265,7 @@ export interface StateDelta {
   readonly activePlayerId?: EntityId | null
   readonly priorityPlayerId?: EntityId | null
   readonly turnNumber?: number | null
+  readonly roundNumber?: number | null
   readonly isGameOver?: boolean | null
   readonly winnerId?: EntityId | null
   /** Day/night designation (CR 731). Null means unchanged — the game never returns to neither. */
@@ -327,6 +343,8 @@ export interface DecisionContext {
    * `gameState.cards` — the server sends only the id, so masking still applies.
    */
   readonly subjectEntityId?: EntityId
+  /** Validated resolution targets; render their identities from the masked state. */
+  readonly targetIds?: readonly EntityId[]
 }
 
 /**
@@ -347,6 +365,8 @@ export type DecisionPhase =
  */
 export interface SelectCardsDecision extends PendingDecisionBase {
   readonly type: 'SelectCardsDecision'
+  /** Server-approved unit capacity per option; repeated IDs allocate multiple units. */
+  readonly selectionLimits?: Readonly<Record<EntityId, number>> | null
   readonly options: readonly EntityId[]
   readonly minSelections: number
   readonly maxSelections: number
@@ -407,6 +427,13 @@ export interface SelectCardsDecision extends PendingDecisionBase {
   readonly maxTotalPower?: number | null
   /** Conditional lower minimums for choices like "select two unless one matches this subset". */
   readonly conditionalMinimums?: readonly ConditionalSelectionMinimum[]
+  /**
+   * Label for submitting an empty selection when selecting nothing means declining
+   * ("Don't sacrifice", "Fail to find"). Absent: the generic "Select None".
+   */
+  readonly declineLabel?: string | null
+  /** True when the options were found by searching a library (CR 701.23). */
+  readonly librarySearch?: boolean
 }
 
 export interface ConditionalSelectionMinimum {
@@ -426,6 +453,12 @@ export interface YesNoDecision extends PendingDecisionBase {
   readonly noText: string
   /** Optional hint text shown below the prompt (e.g., keyword reminder text) */
   readonly hint?: string
+  /** "No" is an outcome of its own (endure: counters or a Spirit) — show both answers as peers. */
+  readonly peerOptions?: boolean
+  /** Second line under the yes option when `peerOptions` is set. */
+  readonly yesDetail?: string | null
+  /** Second line under the no option when `peerOptions` is set. */
+  readonly noDetail?: string | null
 }
 
 /**
@@ -439,6 +472,17 @@ export interface ChooseTargetsDecision extends PendingDecisionBase {
 }
 
 export interface TargetRequirementInfo {
+  /** Server-approved pools whose members may be selected together. */
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  readonly emptyChoiceLabel?: string | null
+  /**
+   * Server-computed choices for a slot whose filter reads an earlier target, keyed by the first
+   * `prefixLength` (default: every earlier) slots' picks — each slot's ids comma-joined, an empty
+   * (kept) slot as "", slots joined by commas. Replaces `legalTargets` for this slot when set.
+   */
+  readonly legalTargetsByPrefix?: Readonly<Record<string, readonly EntityId[]>> | null
+  readonly prefixLength?: number | null
   readonly index: number
   readonly minTargets: number
   readonly maxTargets: number
@@ -540,6 +584,8 @@ export interface OptionMetadata {
   readonly id?: string | null
   readonly description?: string | null
   readonly iconKey?: string | null
+  /** A picture of the option — a card image for an object outside the game, such as a dungeon card. */
+  readonly imageUri?: string | null
 }
 
 export interface ChooseOptionDecision extends PendingDecisionBase {
@@ -685,7 +731,7 @@ export interface DamageEdge {
   readonly maximum: number
   /** True lethal need for the target from this source (deathtouch -> 1, else toughness - marked). */
   readonly lethal: number
-  /** Whether this edge participates in CR 510.1c assignment-order gating (banding lifts it). */
+  /** False when banding handed this source's division to the other player (CR 702.22j/k). Historical name: there is no damage-assignment order any more (CR 510.1c). */
   readonly orderConstrained: boolean
   /** Trample overflow edge to a player / planeswalker / battle (CR 702.19b lethal-first). */
   readonly isTrampleDrain: boolean
@@ -788,7 +834,7 @@ export interface BudgetModalDecision extends PendingDecisionBase {
  * One yes/no raised for a run of N identical optional ("you may …") triggers, answered once
  * instead of N times. The response carries both the yes/no `choice` and `applyToAll`:
  * apply-to-all resolves the whole run; otherwise it peels one instance and the batch re-raises for
- * the rest. See `backlog/stack-collapse-and-batch-decisions.md` §B.
+ * the rest. See `backlog/archived/stack-collapse-and-batch-decisions.md` §B.
  */
 export interface BatchYesNoDecision extends PendingDecisionBase {
   readonly type: 'BatchYesNoDecision'
@@ -831,6 +877,11 @@ export type PendingDecision =
  * Includes valid targets so the client knows which entities can be selected.
  */
 export interface LegalActionTargetInfo {
+  /** Server-approved pools whose members may be selected together. */
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  /** Server-computed choices for the comma-joined earlier target IDs. */
+  readonly validTargetsByPrefix?: Readonly<Record<string, readonly EntityId[]>> | null
   readonly index: number
   readonly description: string
   readonly minTargets: number
@@ -862,6 +913,12 @@ export interface LegalActionTargetInfo {
    * selectable targets to the X chosen at cast time.
    */
   readonly xConstrainsCount?: boolean
+  /**
+   * True when that X-driven count is exact — "X target creatures" rather than "up to X target
+   * creatures" (TargetObject.dynamicMinCount == XValue server-side). The client must require
+   * exactly the chosen X selections.
+   */
+  readonly xConstrainsCountExactly?: boolean
   /**
    * True for "another target" wording: a pick here must differ from every target chosen for an
    * earlier requirement. Absent/false lets separate "target" instances choose the same object
@@ -919,12 +976,25 @@ export interface LegalActionInfo {
    * requirement spells, see the per-requirement [LegalActionTargetInfo.xConstrainsCount].
    */
   readonly xConstrainsTargetCount?: boolean
+  /**
+   * True when that X-driven count is exact — "Destroy X target artifacts" (Builder's Bane) means
+   * exactly X, so the targeting overlay requires X selections, not merely at most X. The server
+   * already caps `maxAffordableX` at the number of legal targets.
+   */
+  readonly xConstrainsTargetCountExactly?: boolean
   /** Valid attacker IDs for DeclareAttackers action */
   readonly validAttackers?: readonly EntityId[]
   /** Creature IDs that must attack this combat (from MustAttack, Taunt, etc.) */
   readonly mandatoryAttackers?: readonly EntityId[]
   /** Valid attack targets: opponent planeswalker IDs that can be attacked */
   readonly validAttackTargets?: readonly EntityId[]
+  /**
+   * Sparse per-attacker narrowing of `validAttackTargets`: an attacker listed here may attack only
+   * the targets given (a per-defender restriction rules the rest out — "can't attack unless
+   * defending player controls a Mountain", "creatures can't attack you"). An absent attacker may
+   * attack any of `validAttackTargets`.
+   */
+  readonly attackTargetsByAttacker?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Valid blocker IDs for DeclareBlockers action */
   readonly validBlockers?: readonly EntityId[]
   /** Pairwise legal attacker IDs for each blocker; full declarations are checked by the server. */
@@ -1012,6 +1082,8 @@ export interface LegalActionInfo {
   readonly totalDamageToDistribute?: number
   /** Minimum damage per target (usually 1 per MTG rules) */
   readonly minDamagePerTarget?: number
+  /** What the division divides when it isn't damage — "+1/+1 counter" (Ajani, Sleeper Agent's −3). Absent means damage. */
+  readonly distributionUnit?: string
   /** Preview of which lands/sources would be auto-tapped if this spell is cast (for UI highlighting) */
   readonly autoTapPreview?: readonly EntityId[]
   /** Available mana sources for pre-cast selection */
@@ -1266,6 +1338,11 @@ export interface AdditionalCostInfo {
   readonly tapForPowerCreatures?: readonly TapForPowerCreatureInfo[]
   /** Total power the `tapForPowerCreatures` selection must reach. */
   readonly tapForPowerRequired?: number
+  /**
+   * Further selection costs the same cast demands — "discard a card and sacrifice a creature"
+   * (Ruthless Disposal). Each is a plain single-cost entry, prompted in order after this one.
+   */
+  readonly alsoRequired?: readonly AdditionalCostInfo[]
 }
 
 export interface CounterRemovalCreatureInfo {
@@ -1404,6 +1481,14 @@ export interface SealedCardInfo {
    * latter being `TRANSFORM` and so invisible to a `layout === 'SPLIT'` check.
    */
   readonly isLandscape?: boolean
+  /** Mana value (CR 202.3). Absent from older servers; the client then derives it from the cost. */
+  readonly cmc?: number
+  /** Keyword abilities as `Keyword` enum names (`FLYING`, `FIRST_STRIKE`, …) — drives the pool search's `kw:`. */
+  readonly keywords?: readonly string[]
+  /** Can be a commander on its own (CR 903.3). Absent from older servers. */
+  readonly canBeCommander?: boolean
+  /** Partner abilities by printed name (CR 702.124) — "Partner", "Choose a Background", …. */
+  readonly partnerAbilities?: readonly string[]
 }
 
 /**
@@ -1489,7 +1574,20 @@ export interface AvailableSet {
   readonly products?: readonly { readonly id: string; readonly cardCount: number }[]
 }
 
+/** The four booster rarities a cube card can be printed at. */
+export type CubeRarity = 'COMMON' | 'UNCOMMON' | 'RARE' | 'MYTHIC'
+
+/**
+ * How a cube becomes packs. `SHUFFLED` is the classic cube: the whole list is shuffled once and dealt,
+ * so every physical card appears at most once. The two booster styles print packs the way a real set
+ * does — by rarity slot, with replacement across packs — so a cube can be drafted like a retail set.
+ */
+export type CubeBoosterStyle = 'SHUFFLED' | 'PLAY_BOOSTER' | 'DRAFT_BOOSTER'
+
 export interface LobbySettings {
+  readonly useJumpstart?: boolean
+  readonly jumpstartEligible?: boolean
+  readonly jumpstartActive?: boolean
   readonly setCodes: readonly string[]
   readonly setNames: readonly string[]
   readonly availableSets: readonly AvailableSet[]
@@ -1532,6 +1630,8 @@ export interface LobbySettings {
    */
   readonly cubePoolPlay?: boolean
   readonly packSize?: number | null
+  /** How the lobby's cube becomes packs. Null when catalogued sets are the pack source. */
+  readonly cubeBoosterStyle?: CubeBoosterStyle | null
   /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). */
   readonly aiAssistEnabled: boolean
   /** Lobby mode axis: bracket of 2-player matches vs one multiplayer Free-for-All game. */
@@ -1586,7 +1686,24 @@ export interface LobbyCreatedMessage {
   readonly lobbyId: string
 }
 
+export interface JumpstartOffer {
+  readonly id: string
+  readonly theme: string
+  readonly cards: readonly SealedCardInfo[]
+}
+
+export interface JumpstartState {
+  readonly selectedPacks: readonly string[]
+  /** The packs the first half of the deck is chosen from. */
+  readonly offers: readonly JumpstartOffer[]
+  /** The packs the second half is chosen from, offered alongside the first. */
+  readonly secondOffers?: readonly JumpstartOffer[]
+  /** Full contents of the chosen packs. */
+  readonly selected?: readonly JumpstartOffer[]
+}
+
 export interface LobbyUpdateMessage {
+  readonly jumpstart?: JumpstartState | null
   readonly type: 'lobbyUpdate'
   readonly lobbyId: string
   readonly state: string
@@ -1933,6 +2050,7 @@ export interface SpectatorPlayerState {
   readonly playerName: string
   readonly life: number
   readonly poisonCounters: number
+  readonly radCounters?: number
   readonly handSize: number
   readonly librarySize: number
   readonly battlefield: readonly SpectatorCardInfo[]
@@ -2075,6 +2193,7 @@ export interface TournamentPlayerReconnectedMessage {
  * Matches backend ClientMessage.kt
  */
 export type ClientMessage =
+  | { readonly type: 'pickJumpstartPacks'; readonly firstPackId: string; readonly secondPackId: string }
   | ConnectMessage
   | CreateGameMessage
   | JoinGameMessage
@@ -2127,6 +2246,7 @@ export type ClientMessage =
   | RequestResyncMessage
   // Liveness
   | PingMessage
+  | ReportActivityMessage
   // Quick Game Lobby Messages
   | CreateQuickGameLobbyMessage
   | JoinQuickGameLobbyMessage
@@ -2140,6 +2260,14 @@ export type ClientMessage =
   | AddQuickGameAiMessage
   | RemoveQuickGameAiMessage
   | SetQuickGameLobbyFormatMessage
+  | JoinMatchmakingMessage
+  | LeaveMatchmakingMessage
+  | RespondToMatchMessage
+  | { readonly type: 'sendEmote'; readonly emote: Emote }
+  | { readonly type: 'postGameRematch'; readonly gameId: string; readonly want: boolean }
+  | { readonly type: 'postGameAddFriend'; readonly gameId: string }
+  | { readonly type: 'postGameBlock'; readonly gameId: string; readonly block: boolean }
+  | { readonly type: 'postGameLeave'; readonly gameId: string }
 
 /**
  * Connect to the server with a player name.
@@ -2281,11 +2409,23 @@ export interface SubmitSealedDeckMessage {
   /** Optional pinned printing for the commander. Ignored when `commander` is null. */
   readonly commanderPrinting?: PrintingRef
   /**
+   * The second commander of a partner pair (CR 702.124). Like `commander`, it appears once in
+   * `deckList`. Ignored when `commander` is null; the server rejects an illegal pair.
+   */
+  readonly secondCommander?: string
+  /** Optional pinned printing for the second commander. */
+  readonly secondCommanderPrinting?: PrintingRef
+  /**
    * Constructed sideboard ("outside the game", CR 100.4a), card name → count. Used for
    * constructed/premade lobbies; ignored for Limited lobbies, which derive the sideboard as
    * pool − maindeck server-side (CR 100.4b).
    */
   readonly sideboard?: Record<string, number>
+  /**
+   * The deck's companion (CR 702.139) — a sideboard card the server adds to `sideboard` if it isn't
+   * listed there, checks against the deck, and reveals outside the game at game start.
+   */
+  readonly companion?: string
 }
 
 // ============================================================================
@@ -2450,6 +2590,9 @@ export function createSubmitSealedDeckMessage(
   cardEntries?: readonly DeckEntry[],
   commanderPrinting?: PrintingRef,
   sideboard?: Record<string, number>,
+  secondCommander?: string | null,
+  secondCommanderPrinting?: PrintingRef,
+  companion?: string | null,
 ): SubmitSealedDeckMessage {
   return {
     type: 'submitSealedDeck',
@@ -2457,7 +2600,10 @@ export function createSubmitSealedDeckMessage(
     ...(commander ? { commander } : {}),
     ...(cardEntries && cardEntries.length > 0 ? { cardEntries } : {}),
     ...(commanderPrinting ? { commanderPrinting } : {}),
+    ...(commander && secondCommander ? { secondCommander } : {}),
+    ...(commander && secondCommander && secondCommanderPrinting ? { secondCommanderPrinting } : {}),
     ...(sideboard && Object.keys(sideboard).length > 0 ? { sideboard } : {}),
+    ...(companion ? { companion } : {}),
   }
 }
 
@@ -2535,6 +2681,7 @@ export interface UnsubmitDeckMessage {
 }
 
 export interface UpdateLobbySettingsMessage {
+  readonly useJumpstart?: boolean
   readonly type: 'updateLobbySettings'
   readonly setCodes?: readonly string[]
   readonly format?: TournamentFormat
@@ -2571,6 +2718,10 @@ export interface UpdateLobbySettingsMessage {
   readonly cubeBasicLandSetCode?: string
   /** Cube Sealed only: skip the draft and let everyone build from the whole cube. */
   readonly cubePoolPlay?: boolean
+  /** How the cube becomes packs; sent with `cubeCards`. Omitted = `SHUFFLED`. */
+  readonly cubeBoosterStyle?: CubeBoosterStyle
+  /** Card name → explicit rarity, for the cube's overridden entries only; sent with `cubeCards`. */
+  readonly cubeRarities?: Readonly<Record<string, CubeRarity>>
   /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). Omit to leave unchanged. */
   readonly aiAssistEnabled?: boolean
   /** Lobby mode axis ('TOURNAMENT' / 'FREE_FOR_ALL'). Omit to leave unchanged. */
@@ -2733,6 +2884,16 @@ export interface PingMessage {
   readonly type: 'ping'
 }
 
+/** The top-level page this client shows (`home`, `deckbuilder`, …) — admin-only telemetry. */
+export interface ReportActivityMessage {
+  readonly type: 'reportActivity'
+  readonly page: string
+}
+
+export function createReportActivityMessage(page: string): ReportActivityMessage {
+  return { type: 'reportActivity', page }
+}
+
 // Lobby Message Factories
 export function createCreateTournamentLobbyMessage(
   setCodes: readonly string[],
@@ -2811,6 +2972,7 @@ export function createUnsubmitDeckMessage(): UnsubmitDeckMessage {
 
 export function createUpdateLobbySettingsMessage(
   settings: {
+    useJumpstart?: boolean
     setCodes?: readonly string[]
     format?: TournamentFormat
     boosterCount?: number
@@ -2830,6 +2992,8 @@ export function createUpdateLobbySettingsMessage(
     packSize?: number
     cubeBasicLandSetCode?: string
     cubePoolPlay?: boolean
+    cubeBoosterStyle?: CubeBoosterStyle
+    cubeRarities?: Readonly<Record<string, CubeRarity>>
     aiAssistEnabled?: boolean
     gameMode?: LobbyGameMode
     attackMode?: AttackMode
@@ -3029,6 +3193,8 @@ export interface QuickGameLobbyPlayerView {
   readonly setCode: string | null
   /** All sets used to build a Random deck; empty means any set. */
   readonly setCodes?: readonly string[]
+  /** This seat chose the server-rolled Random deck. Absent on an older server. */
+  readonly randomDeck?: boolean
 }
 
 export type DeckFormat =
@@ -3063,6 +3229,8 @@ export interface QuickGameLobbyStateMessage {
   readonly rankedEligible?: boolean
   /** What the AI seat will play. Present only in a vs-AI lobby. See [AiDeckSpecView]. */
   readonly aiDeck?: AiDeckSpecView | null
+  /** Matchmaking made this lobby: its format and ranked setting are fixed by the queue. */
+  readonly matchmade?: boolean
 }
 
 /**
@@ -3118,6 +3286,57 @@ export interface OnlinePlayersCountMessage {
   readonly count: number
 }
 
+/**
+ * This player's matchmaking state. `searching: false` means idle; `notice` explains a change the
+ * player didn't cause (the opponent didn't accept, the accept window ran out).
+ */
+/**
+ * What kind of game a matchmaking queue makes. Only `CONSTRUCTED` brings a deck (and names a format);
+ * the others hand every seat its cards.
+ */
+export type MatchmakingMode = 'RANDOM_DECK' | 'JUMP_IN' | 'MOMIR_BASIC' | 'CONSTRUCTED'
+
+export interface MatchmakingStatusMessage {
+  readonly type: 'matchmakingStatus'
+  readonly searching: boolean
+  readonly mode?: MatchmakingMode | null
+  /** The Constructed queue's format; null for every other mode. */
+  readonly format?: DeckFormat | null
+  readonly ranked?: boolean
+  /** Epoch millis the search started; kept across a requeue. */
+  readonly searchingSince?: number | null
+  readonly notice?: string | null
+  /** The pair was seated: the cue to bring this player to their lobby or game. */
+  readonly matched?: boolean
+}
+
+/** The queue found an opponent; answer with `respondToMatch` before the window closes. */
+export interface MatchFoundMessage {
+  readonly type: 'matchFound'
+  readonly matchId: string
+  readonly opponentName: string
+  readonly mode: MatchmakingMode
+  readonly format?: DeckFormat | null
+  readonly ranked?: boolean
+  /** Shown for ranked matches only. */
+  readonly opponentRating?: number | null
+  readonly acceptWindowMs: number
+  readonly youAccepted?: boolean
+}
+
+export interface MatchmakingQueueCount {
+  readonly mode: MatchmakingMode
+  readonly format?: DeckFormat | null
+  readonly ranked: boolean
+  readonly searching: number
+}
+
+/** How many players are searching in each queue. Pushed to everyone on change. */
+export interface MatchmakingQueuesMessage {
+  readonly type: 'matchmakingQueues'
+  readonly queues: readonly MatchmakingQueueCount[]
+}
+
 /** A friend's visible online status changed (connected, disconnected, or toggled their visibility). */
 export interface FriendPresenceMessage {
   readonly type: 'friendPresence'
@@ -3130,6 +3349,71 @@ export interface FriendRequestReceivedMessage {
   readonly type: 'friendRequestReceived'
   readonly fromAccountId: string
   readonly fromName: string
+}
+
+/**
+ * A new direct message in your conversation with `withAccountId` — one you received, or one you sent
+ * from another tab. `request` is true when the conversation is, for you, an unanswered message request.
+ */
+export interface DirectMessageMessage {
+  readonly type: 'directMessage'
+  readonly withAccountId: string
+  readonly withName: string
+  readonly message: {
+    readonly id: string
+    readonly senderId: string
+    readonly body: string
+    readonly createdAt: string
+  }
+  readonly request: boolean
+}
+
+/** Your conversation with `withAccountId` was read, accepted, deleted or blocked — refetch it. */
+export interface DirectMessagesChangedMessage {
+  readonly type: 'directMessagesChanged'
+  readonly withAccountId: string
+}
+
+/** The preset messages a player can send the table. A closed set — nothing to moderate. */
+export type Emote =
+  | 'HELLO'
+  | 'GOOD_LUCK'
+  | 'GOOD_GAME'
+  | 'THANKS'
+  | 'WELL_PLAYED'
+  | 'NICE_DECK'
+  | 'NICE_COMBO'
+  | 'NICE_TOPDECK'
+  | 'OUCH'
+  | 'NO_WAY'
+  | 'THINKING'
+  | 'MY_BAD'
+  | 'MANA_SCREW'
+  | 'TAUNT'
+
+/** A seat (possibly you) sent the table an emote. Never delivered from a player you blocked. */
+export interface EmoteMessage {
+  readonly type: 'emote'
+  readonly playerId: EntityId
+  readonly emote: Emote
+}
+
+export type FriendshipState = 'UNAVAILABLE' | 'NONE' | 'REQUEST_SENT' | 'REQUEST_RECEIVED' | 'FRIENDS'
+
+/**
+ * What you can do with your opponent after a human 1v1 game — rematch, add friend, block — and where
+ * each stands. Re-sent whole on every change; render it as-is.
+ */
+export interface PostGameMessage {
+  readonly type: 'postGame'
+  readonly gameId: string
+  readonly opponentName: string
+  readonly canRematch: boolean
+  readonly rematch: { readonly you: boolean; readonly opponent: boolean; readonly starting: boolean }
+  readonly opponentLeft: boolean
+  readonly friendship: FriendshipState
+  readonly blocked: boolean
+  readonly notice?: string | null
 }
 
 /**
@@ -3147,6 +3431,17 @@ export interface PongMessage {
  */
 export interface SessionReplacedMessage {
   readonly type: 'sessionReplaced'
+}
+
+/**
+ * The server is shutting down to restart (a deploy, normally) and closes this socket right
+ * after. Games and lobbies survive the restart; the client keeps the player's screen, says so,
+ * and reconnects on a short fixed interval until the new server answers.
+ */
+export interface ServerRestartingMessage {
+  readonly type: 'serverRestarting'
+  /** Rough downtime to quote to the player — a hint for the copy, not a deadline. */
+  readonly expectedDowntimeSeconds: number
 }
 
 export interface CreateQuickGameLobbyMessage {
@@ -3180,10 +3475,22 @@ export interface SubmitQuickGameLobbyDeckMessage {
   /** Optional pinned printing for the commander. Ignored when `commander` is null. */
   readonly commanderPrinting?: PrintingRef
   /**
+   * The second commander of a partner pair (CR 702.124). Like `commander`, it appears once in
+   * `deckList`. Ignored when `commander` is null; the server rejects an illegal pair.
+   */
+  readonly secondCommander?: string
+  /** Optional pinned printing for the second commander. */
+  readonly secondCommanderPrinting?: PrintingRef
+  /**
    * Constructed sideboard ("outside the game", CR 400.11a), card name → count. Omitted for a
    * random pool, whose sideboard the server derives from the pool instead.
    */
   readonly sideboard?: Record<string, number>
+  /**
+   * The deck's companion (CR 702.139) — a sideboard card the server adds to `sideboard` if it isn't
+   * listed there, checks against the deck, and reveals outside the game at game start.
+   */
+  readonly companion?: string
 }
 
 export interface SetQuickGameLobbyReadyMessage {
@@ -3212,6 +3519,23 @@ export interface SetQuickGameLobbyFormatMessage {
 export interface SetQuickGameLobbyRankedMessage {
   readonly type: 'setQuickGameLobbyRanked'
   readonly ranked: boolean
+}
+
+export interface JoinMatchmakingMessage {
+  readonly type: 'joinMatchmaking'
+  readonly mode: MatchmakingMode
+  readonly format: DeckFormat | null
+  readonly ranked: boolean
+}
+
+export interface LeaveMatchmakingMessage {
+  readonly type: 'leaveMatchmaking'
+}
+
+export interface RespondToMatchMessage {
+  readonly type: 'respondToMatch'
+  readonly matchId: string
+  readonly accept: boolean
 }
 
 export function createCreateQuickGameLobbyMessage(
@@ -3244,6 +3568,9 @@ export function createSubmitQuickGameLobbyDeckMessage(
   cardEntries?: readonly DeckEntry[],
   commanderPrinting?: PrintingRef,
   sideboard?: Record<string, number>,
+  secondCommander?: string | null,
+  secondCommanderPrinting?: PrintingRef,
+  companion?: string | null,
 ): SubmitQuickGameLobbyDeckMessage {
   return {
     type: 'submitQuickGameLobbyDeck',
@@ -3251,7 +3578,10 @@ export function createSubmitQuickGameLobbyDeckMessage(
     ...(commander ? { commander } : {}),
     ...(cardEntries && cardEntries.length > 0 ? { cardEntries } : {}),
     ...(commanderPrinting ? { commanderPrinting } : {}),
+    ...(commander && secondCommander ? { secondCommander } : {}),
+    ...(commander && secondCommander && secondCommanderPrinting ? { secondCommanderPrinting } : {}),
     ...(sideboard && Object.keys(sideboard).length > 0 ? { sideboard } : {}),
+    ...(companion ? { companion } : {}),
   }
 }
 export function createSetQuickGameLobbyReadyMessage(ready: boolean): SetQuickGameLobbyReadyMessage {
@@ -3274,6 +3604,19 @@ export function createRemoveQuickGameAiMessage(): RemoveQuickGameAiMessage {
 }
 export function createSetQuickGameLobbyRankedMessage(ranked: boolean): SetQuickGameLobbyRankedMessage {
   return { type: 'setQuickGameLobbyRanked', ranked }
+}
+export function createJoinMatchmakingMessage(
+  mode: MatchmakingMode,
+  format: DeckFormat | null,
+  ranked: boolean,
+): JoinMatchmakingMessage {
+  return { type: 'joinMatchmaking', mode, format, ranked }
+}
+export function createLeaveMatchmakingMessage(): LeaveMatchmakingMessage {
+  return { type: 'leaveMatchmaking' }
+}
+export function createRespondToMatchMessage(matchId: string, accept: boolean): RespondToMatchMessage {
+  return { type: 'respondToMatch', matchId, accept }
 }
 export function createSetQuickGameLobbyFormatMessage(
   format: DeckFormat | null,

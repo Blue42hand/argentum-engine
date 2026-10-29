@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.util.quantify
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -64,11 +65,38 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
         override val description: String get() = cost.toString()
     }
 
-    /** Pay [amount] life (CR 119.4 — payable only while life total ≥ amount). */
+    /**
+     * Pay [amount] life (CR 119.4 — payable only while life total ≥ amount; CR 119.4b — paying
+     * 0 life is always allowed).
+     *
+     * [amount] is a [DynamicAmount] so a printed cost can be priced from game state as it is
+     * paid — War Room's "pay life equal to the number of colors in your commanders' color
+     * identity" is `PayLife(DynamicAmount.CommanderColorIdentityCount())`. Every
+     * pricing site goes through the engine's `CostAtomAmounts.evaluate` with the payer, so the
+     * legal-action enumerator and the activation validator see the same number. The whitelist in
+     * `init` admits only amounts that price from game state alone (no X, no targets): a
+     * nonnegative [DynamicAmount.Fixed] or a [DynamicAmount.CommanderColorIdentityCount] for
+     * `Player.You` (a cost is priced for its payer alone).
+     */
     @SerialName("AtomPayLife")
     @Serializable
-    data class PayLife(val amount: Int) : CostAtom {
-        override val description: String get() = "pay $amount life"
+    data class PayLife(val amount: DynamicAmount) : CostAtom {
+        constructor(amount: Int) : this(DynamicAmount.Fixed(amount))
+
+        init {
+            require(amount is DynamicAmount.Fixed && amount.amount >= 0 ||
+                amount is DynamicAmount.CommanderColorIdentityCount && amount.player == Player.You) {
+                "Life costs require a nonnegative fixed amount or your commanders' color-identity count"
+            }
+        }
+
+        /** The amount when it is a printed constant, else null — for callers that only price fixed costs. */
+        val fixedAmount: Int? get() = (amount as? DynamicAmount.Fixed)?.amount
+
+        override val description: String get() = when (amount) {
+            is DynamicAmount.Fixed -> "pay ${amount.amount} life"
+            else -> "pay life equal to ${amount.description}"
+        }
     }
 
     /**
@@ -78,7 +106,7 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
      * Takes no selection: the cards milled are the top [count], not a player choice. Per CR 701.17b
      * a player *can't pay a cost that includes milling more cards than their library holds*, so
      * affordability is a plain library-size check — unlike the mill *effect*, which mills as many as
-     * possible. A `ModifyMillAmount` replacement (Bruvac) still applies to the announced number when
+     * possible. A mill `ModifyKeywordActionAmount` replacement (Bruvac) still applies to the announced number when
      * the cost is actually paid, and the resulting library→graveyard zone changes fire mill triggers
      * exactly as an effect's mill does.
      */
@@ -346,6 +374,12 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
      *   type" (Weight of Conscience). The [Sacrifice.distinctNames] twin: the cost is only payable
      *   when some creature type is held by at least [count] candidates, and a payment whose chosen
      *   permanents have no common creature type is rejected.
+     * @property direction which way the chosen permanents turn. [TapCostDirection.TAP] (the default)
+     *   taps [count] *untapped* permanents; [TapCostDirection.UNTAP] is the mirror cost, "untap
+     *   [count] *tapped* creatures you control" (Halo Fountain). Either way the cost is not the
+     *   `{T}`/`{Q}` symbol, so summoning sickness (CR 302.6) does not restrict which creatures are
+     *   chosen. The untap direction is wired for activated-ability costs only; the spell
+     *   additional-cost, "unless you pay" and mana-ability paths report it unpayable.
      */
     @SerialName("AtomTapPermanents")
     @Serializable
@@ -353,13 +387,27 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
         val count: Int = 1,
         val filter: GameObjectFilter = GameObjectFilter.Any,
         val excludeSelf: Boolean = false,
-        val sharedCreatureType: Boolean = false
+        val sharedCreatureType: Boolean = false,
+        val direction: TapCostDirection = TapCostDirection.TAP
     ) : CostAtom {
         override val selectionCount: Int get() = count
+
+        /** True for the untap mirror ("untap N tapped … you control"). */
+        val untaps: Boolean get() = direction == TapCostDirection.UNTAP
+
         override val description: String get() = buildString {
-            append("tap ")
-            if (count == 1) append(if (excludeSelf) "another untapped ${filter.description}" else "an untapped ${filter.description}")
-            else append("$count untapped ${filter.description}s")
+            val verb = if (untaps) "untap" else "tap"
+            val state = if (untaps) "tapped" else "untapped"
+            append("$verb ")
+            // "you control" is this cost's own suffix; a filter that also carries it would render
+            // it twice, once as its leading prefix ("2 untapped you control Halfling creatures
+            // you control").
+            val noun = filter.copy(controllerPredicate = null).description
+            when {
+                count == 1 && excludeSelf -> append("another $state $noun")
+                count == 1 -> append("${if (untaps) "a" else "an"} $state $noun")
+                else -> append(quantify(count, "${if (excludeSelf) "other " else ""}$state $noun"))
+            }
             append(" you control")
             if (sharedCreatureType) append(" that share a creature type")
         }
@@ -422,8 +470,17 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
                     ContextPropertyKey.TARGETS_TOTAL_MANA_VALUE
                 )) { "Player-counter costs require a nonnegative fixed amount, X, its source's mana value, or target mana value" }
         }
-        override val description: String get() = when (amount) {
-            is DynamicAmount.Fixed -> "pay ${amount.amount} ${counterType.printed} counters"
+        override val description: String get() = if (counterType == CounterType.ENERGY) {
+            // Energy is printed as its symbol: "pay {E}{E}", "pay an amount of {E} equal to …".
+            when (amount) {
+                is DynamicAmount.Fixed -> if (amount.amount == 0) "pay 0 {E}" else "pay ${"{E}".repeat(amount.amount)}"
+                is DynamicAmount.XValue -> "pay X {E}"
+                SOURCE_MANA_VALUE -> "pay an amount of {E} equal to its mana value"
+                else -> "pay the targets' total mana value in {E}"
+            }
+        } else when (amount) {
+            is DynamicAmount.Fixed -> "pay ${amount.amount} ${counterType.printed} " +
+                if (amount.amount == 1) "counter" else "counters"
             is DynamicAmount.XValue -> "pay X ${counterType.printed} counters"
             SOURCE_MANA_VALUE -> "pay an amount of ${counterType.printed} counters equal to its mana value"
             else -> "pay the targets' total mana value in ${counterType.printed} counters"
@@ -818,6 +875,16 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
     }
 }
 
+
+/** Which way a [CostAtom.TapPermanents] cost turns the permanents it picks. */
+@Serializable
+enum class TapCostDirection {
+    /** "Tap N untapped … you control" — the common case. */
+    TAP,
+
+    /** "Untap N tapped … you control" (Halo Fountain). */
+    UNTAP
+}
 
 /**
  * What a [CostAtom.VariablePermanents] cost does with the permanents the payer chose.

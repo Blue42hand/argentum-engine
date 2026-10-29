@@ -201,6 +201,46 @@ describe('buildActionOptions — modal double-faced lands', () => {
   })
 })
 
+describe('buildActionOptions — spell-front // land-back modal DFCs', () => {
+  // Pinnacle Monk {3}{R}{R} // Mystic Peak (MH3): cast the creature, or play the land.
+  const pinnacleMonk = card('{3}{R}{R}', {
+    name: 'Pinnacle Monk',
+    typeLine: 'Creature — Djinn Monk',
+    cardTypes: ['CREATURE'],
+    backFaceName: 'Mystic Peak',
+    backFaceTypeLine: 'Land',
+  } as Partial<ClientCard>)
+  const castMonk = action({ description: 'Cast Pinnacle Monk', manaCostString: '{3}{R}{R}' })
+  const playPeak = action({
+    action: { type: 'PlayLand', asBackFace: true },
+    actionType: 'PlayLand',
+    description: 'Play Mystic Peak',
+  })
+
+  it('names each option after its own face and says which side of the card it is', () => {
+    const options = buildActionOptions(pinnacleMonk, [castMonk, playPeak])
+    expect(options.map((o) => [o.label, o.face, o.hint])).toEqual([
+      ['Cast Pinnacle Monk', 'front', 'Front face — Creature — Djinn Monk'],
+      ['Play Mystic Peak', 'back', 'Back face — Land'],
+    ])
+  })
+
+  it('a lone back-face land play is "Play Mystic Peak", never "Play Pinnacle Monk"', () => {
+    // The front is unaffordable, so the server sends only the land play. It used to borrow the
+    // card's (front) name, which read as playing the creature as a land.
+    const options = buildActionOptions(pinnacleMonk, [playPeak])
+    expect(options.map((o) => [o.label, o.isAvailable, o.face])).toEqual([
+      ['Cast Pinnacle Monk', false, 'front'],
+      ['Play Mystic Peak', true, 'back'],
+    ])
+  })
+
+  it('a card offering no back face gets no face tags', () => {
+    const options = buildActionOptions(pinnacleMonk, [castMonk])
+    expect(options.map((o) => [o.label, o.face, o.hint])).toEqual([['Cast Pinnacle Monk', undefined, undefined]])
+  })
+})
+
 describe('buildActionOptions — casting a single face', () => {
   it('a prepare-spell copy is labelled and priced by the face it casts, not by the creature', () => {
     // The exiled copy of Bloodline Recollector casts its prepare spell (faceIndex 0). The server
@@ -222,6 +262,34 @@ describe('buildActionOptions — casting a single face', () => {
       [action({ action: { type: 'CastSpell', faceIndex: null }, description: 'Cast Leech Collector' })],
     )
     expect(options.map((o) => o.label)).toEqual(['Cast Leech Collector'])
+  })
+
+  it('a disturb cast is named after the back face it casts, and says it is disturb', () => {
+    // Mischievous Catgeist lies in the graveyard front face up, but disturb puts Catlike Curiosity
+    // on the stack (CR 712.8c). It used to read "Cast Mischievous Catgeist" over a back-face hint.
+    const catgeist = card('{1}{U}', {
+      name: 'Mischievous Catgeist',
+      typeLine: 'Creature — Cat Spirit',
+      backFaceName: 'Catlike Curiosity',
+      backFaceTypeLine: 'Enchantment — Aura',
+    } as Partial<ClientCard>)
+    const options = buildActionOptions(catgeist, [action({
+      actionType: 'CastWithDisturb',
+      description: 'Cast Catlike Curiosity (Disturb)',
+      manaCostString: '{2}{U}',
+      castsTransformed: true,
+    })])
+    expect(options.map((o) => [o.label, o.manaCost, o.face, o.hint])).toEqual([
+      ['Cast Catlike Curiosity (Disturb)', '{2}{U}', 'back', 'Back face — Enchantment — Aura'],
+    ])
+  })
+
+  it('a lone graveyard keyword cast names its mechanic', () => {
+    const options = buildActionOptions(
+      card('{R}', { name: 'Faithless Looting' } as Partial<ClientCard>),
+      [action({ actionType: 'CastWithFlashback', description: 'Cast Faithless Looting (Flashback)' })],
+    )
+    expect(options.map((o) => o.label)).toEqual(['Cast Faithless Looting (Flashback)'])
   })
 })
 
@@ -366,5 +434,26 @@ describe('buildActionOptions — bestow', () => {
     }), [normal])
     expect(options[1]).toMatchObject({ manaCost: '{G}', isAvailable: false, action: null })
     expect(options[1]!.hint).toContain('Pay 2 life')
+  })
+})
+
+describe('Fuse cast options', () => {
+  const split = card('', { name: 'Wear // Tear', cardTypes: ['INSTANT'] })
+  const fused = action({
+    action: { type: 'CastSpell', castFused: true },
+    description: 'Cast Wear // Tear (fused)', manaCostString: '{1}{R}{W}',
+  })
+  it('keeps the fused label and combined cost when it is the only offered cast', () => {
+    const option = buildActionOptions(split, [fused])[0]!
+    expect(option.label).toBe('Cast Wear // Tear (fused)')
+    expect(option.manaCost).toBe('{1}{R}{W}')
+    expect(option.action?.action).toEqual({ type: 'CastSpell', castFused: true })
+  })
+  it('shows both halves and the fused option using the server descriptions', () => {
+    const options = buildActionOptions(split, [
+      action({ action: { type: 'CastSpell', faceIndex: 0 }, description: 'Cast Wear', manaCostString: '{1}{R}' }),
+      action({ action: { type: 'CastSpell', faceIndex: 1 }, description: 'Cast Tear', manaCostString: '{W}' }), fused,
+    ])
+    expect(options.filter((o) => o.actionType === 'cast').map((o) => o.label)).toEqual(['Cast Wear', 'Cast Tear', 'Cast Wear // Tear (fused)'])
   })
 })

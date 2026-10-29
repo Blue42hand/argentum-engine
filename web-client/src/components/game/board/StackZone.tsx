@@ -6,6 +6,7 @@ import type { EntityId } from '@/types'
 import type { ClientAbilityIdentity, ClientCard } from '@/types/gameState'
 import { getCardImageUrl, faceDownImageUrl } from '@/utils/cardImages.ts'
 import { ActiveEffectBadges } from '../card/CardOverlays'
+import { AbilityArtTile, isArtlessAbility } from '../card/AbilityArtTile'
 import { AbilityText, ManaCost } from '../../ui/ManaSymbols'
 import { useOpenCardMenuOnTap } from '@/hooks/useOpenCardMenuOnTap.ts'
 import { useResponsiveContext, handleImageError } from './shared'
@@ -228,7 +229,16 @@ export function StackDisplay() {
           // Creature" for disguise. Its controller still sees the real card on hover, exactly as
           // for their own face-down permanents.
           const faceDown = card.isFaceDown === true
-          const image = (
+          const image = !faceDown && isArtlessAbility(card) ? (
+            <AbilityArtTile
+              name={card.name}
+              typeLine={card.typeLine}
+              width={stackImageWidth}
+              height={stackImageHeight}
+              fontSize={responsive.isMobile ? 8 : 12}
+              style={{ cursor: isValidTarget || opts.onClick ? 'pointer' : 'default' }}
+            />
+          ) : (
             <img
               src={faceDown
                 ? faceDownImageUrl(card.faceDownMode)
@@ -316,36 +326,39 @@ export function StackDisplay() {
             X={card.chosenX}
           </div>
         )}
-        {/* Show how the spell was cast — "Disturb · Graveyard" — for anything but a plain hand cast.
-            The tooltip carries the whole story, since a spell with something on top of it is clipped
-            to its first badge row. */}
-        {card.castProvenanceLabel && (
-          <div
-            style={{ ...styles.stackCastProvenanceBadge, top: topOf('provenance') }}
-            title={[
-              `Cast: ${card.castProvenanceLabel}`,
-              card.costSacrificeLabel,
-              card.manaPaidCost && `Paid ${card.manaPaidCost}`,
-            ].filter(Boolean).join(' · ')}
-          >
-            {card.castProvenanceLabel}
-          </div>
-        )}
-        {/* The mana that actually paid, for any alternative-cost cast — the printed pips on the card
-            were never what was spent. Top-*right*, so it shares the one badge row that stays visible
-            when a cast trigger (or any later spell) covers the rest of this card. Shifted left when
-            an X badge already owns that corner. */}
-        {card.manaPaidCost && (
+        {/* The top badge row: how the spell was cast ("Disturb · Graveyard") on the left, and the
+            mana that actually paid on the right — the printed pips on an alternative-cost cast were
+            never what was spent. One flex row, so the two share the width instead of overlapping:
+            the provenance label gives way (ellipsis) and the pips never do. It's the one row that
+            stays visible when a cast trigger or a later spell covers the rest of this card, so the
+            tooltip carries the whole story. Ends short of the corner when an X badge owns it. */}
+        {(card.castProvenanceLabel || card.manaPaidCost) && (
           <div
             style={{
-              ...styles.stackManaPaidBadge,
+              ...styles.stackTopBadgeRow,
               top: topOf('provenance'),
               right: card.chosenX != null ? 44 : 4,
             }}
-            title={`Paid ${card.manaPaidCost}`}
           >
-            <span style={{ opacity: 0.75 }}>Paid</span>
-            <ManaCost cost={card.manaPaidCost} size={9} gap={1} />
+            {card.castProvenanceLabel && (
+              <div
+                style={styles.stackCastProvenanceBadge}
+                title={[
+                  `Cast: ${card.castProvenanceLabel}`,
+                  card.costSacrificeLabel,
+                  card.manaPaidCost && `Paid ${card.manaPaidCost}`,
+                ].filter(Boolean).join(' · ')}
+              >
+                {card.castProvenanceLabel}
+              </div>
+            )}
+            {card.manaPaidCost && (
+              <div style={styles.stackManaPaidBadge} title={`Paid ${card.manaPaidCost}`}>
+                {/* The word only fits when it has the row to itself. */}
+                {!card.castProvenanceLabel && <span style={{ opacity: 0.75 }}>Paid</span>}
+                <ManaCost cost={card.manaPaidCost} size={9} gap={1} />
+              </div>
+            )}
           </div>
         )}
         {/* What the alternative cost ate — "Sacrificed Niblis of the Urn". Emerge (CR 702.119a)
@@ -470,7 +483,9 @@ export function StackDisplay() {
     <>
     <div data-learn="stack" style={{
       position: 'fixed',
-      left: responsive.isMobile ? 12 : 120,
+      // A tablet's HUD reaches further left than a desktop's; at 120px the stack sat on the
+      // left life orb's name.
+      left: responsive.isMobile ? 12 : responsive.viewportWidth < 1200 ? 16 : 120,
       top: '50%',
       transform: 'translateY(-50%)',
       display: 'flex',

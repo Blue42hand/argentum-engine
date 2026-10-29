@@ -61,12 +61,18 @@ fun exposeCollectionsToNextFrame(
     chosenValues: Map<String, String> = emptyMap(),
     subtypeGroups: Map<String, List<Set<String>>> = emptyMap(),
     sacrificed: List<com.wingedsheep.engine.state.components.stack.EntitySnapshot> = emptyList(),
+    departed: List<com.wingedsheep.engine.state.components.stack.EntitySnapshot> = emptyList(),
 ): GameState {
-    if (collections.isEmpty() && numbers.isEmpty() && chosenValues.isEmpty() && subtypeGroups.isEmpty() && sacrificed.isEmpty()) return state
+    if (collections.isEmpty() && numbers.isEmpty() && chosenValues.isEmpty() && subtypeGroups.isEmpty() &&
+        sacrificed.isEmpty() && departed.isEmpty()) return state
 
     fun EffectContext.withMergedCollections(): EffectContext =
         copy(
-            sacrificedPermanents = sacrificedPermanents + sacrificed,
+            // Snapshots are merged as a set: a resumer forwards its frame's whole list, which the
+            // frame beneath may already hold (a cost-paid sacrifice), and a duplicate would inflate
+            // any count read off the list.
+            sacrificedPermanents = sacrificedPermanents + sacrificed.filterNot { it in sacrificedPermanents },
+            departedPermanents = departedPermanents + departed.filterNot { it in departedPermanents },
             pipeline = pipeline.copy(
                 storedCollections = pipeline.storedCollections + collections,
                 storedNumbers = pipeline.storedNumbers + numbers,
@@ -79,7 +85,7 @@ fun exposeCollectionsToNextFrame(
         is com.wingedsheep.engine.core.ManaAbilitySourcesContinuation,
         is com.wingedsheep.engine.core.ManaSpendingObligationsContinuation -> {
             val (_, popped) = state.popContinuation()
-            exposeCollectionsToNextFrame(popped, collections, numbers, chosenValues, subtypeGroups, sacrificed)
+            exposeCollectionsToNextFrame(popped, collections, numbers, chosenValues, subtypeGroups, sacrificed, departed)
                 .pushContinuation(next)
         }
         is ForEachContinuation -> {

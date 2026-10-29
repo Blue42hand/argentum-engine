@@ -66,6 +66,7 @@
                                     "selection": "ChooseAnyNumber",
                                     "storeSelected": "toBottom",
                                     "storeRemainder": "toTop",
+                                    "prompt": "Scry: choose cards to put on the bottom of your library",
                                     "selectedLabel": "Put on bottom",
                                     "remainderLabel": "Put on top"
                                 },
@@ -223,6 +224,57 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Curiosity Crafter
+{
+    "name": "Curiosity Crafter",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Bird Wizard",
+    "oracleText": "Flying\nYou have no maximum hand size.\nWhenever a creature token you control deals combat damage to a player, draw a card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Curiosity Crafter:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
+                    "sourceFilter": "creature token ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            "NoMaximumHandSize"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "rarity": "RARE",
+        "artist": "Rudy Siswanto",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/4/0452c73b-4522-4808-8f97-0e84e2944ee9.jpg?1783927604"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -404,6 +456,391 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Perplexing Test
+{
+    "name": "Perplexing Test",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Return all creature tokens to their owners' hands.\n• Return all nontoken creatures to their owners' hands.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "creature token"
+                                },
+                                "storeAs": "returnAllToHand_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "returnAllToHand_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                }
+                            }
+                        ]
+                    },
+                    "description": "Return all creature tokens to their owners' hands."
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "creature nontoken"
+                                },
+                                "storeAs": "returnAllToHand_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "returnAllToHand_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                }
+                            }
+                        ]
+                    },
+                    "description": "Return all nontoken creatures to their owners' hands."
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "RARE",
+        "artist": "Fariba Khamseh",
+        "flavorText": "\"Your proofs were a bit nontraditional, but effective nonetheless. Full marks.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31f2cbcc-d5b8-4659-ae51-e567c555a743.jpg?1783927602",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "A token that is returned to its owner's hand ceases to exist as a state-based action the next time a player would receive priority."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Promise of Loyalty
+{
+    "name": "Promise of Loyalty",
+    "manaCost": "{4}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player puts a vow counter on a creature they control and sacrifices the rest. Each of those creatures can't attack you or planeswalkers you control for as long as it has a vow counter on it.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "ControlledPermanents",
+                                    "filter": "creature"
+                                },
+                                "storeAs": "gathered1"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered1",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "selected2",
+                                "storeRemainder": "remainder2",
+                                "prompt": "Choose a creature to put a vow counter on. The rest are sacrificed.",
+                                "selectedLabel": "Vow",
+                                "remainderLabel": "Sacrifice",
+                                "useTargetingUI": true
+                            }
+                        ]
+                    },
+                    "collectCollections": {
+                        "selected2": "collected3",
+                        "remainder2": "collected4"
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Collection",
+                        "collection": "collected3"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "VOW",
+                                "count": 1,
+                                "target": "IterationEntity"
+                            },
+                            {
+                                "type": "GrantStaticAbility",
+                                "ability": {
+                                    "type": "CantAttackYou",
+                                    "coversPlaneswalkers": true
+                                },
+                                "target": "IterationEntity",
+                                "duration": {
+                                    "type": "WhileAffectedHasCounter",
+                                    "counterType": "VOW"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "collected4",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Sacrifice"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "rarity": "RARE",
+        "artist": "Sara Winters",
+        "flavorText": "\"It's us against the world. Forever.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/c/fc21e7d5-3641-47fe-add0-8becf5173e28.jpg?1783927608"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Tivash, Gloom Summoner
+{
+    "name": "Tivash, Gloom Summoner",
+    "manaCost": "{4}{B}",
+    "typeLine": "Legendary Creature — Human Warlock",
+    "oracleText": "Lifelink\nAt the beginning of your end step, if you gained life this turn, you may pay X life, where X is the amount of life you gained this turn. If you do, create an X/X black Demon creature token with flying.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Tivash, Gloom Summoner:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayDynamicLife",
+                            "amount": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "LIFE_GAINED"
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "CreateToken",
+                        "power": 0,
+                        "toughness": 0,
+                        "colors": [
+                            "BLACK"
+                        ],
+                        "creatureTypes": [
+                            "Demon"
+                        ],
+                        "keywords": [
+                            "FLYING"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c6df5992-9c1c-407d-9602-a6c659342a15.jpg?1783927202",
+                        "dynamicPower": {
+                            "type": "TurnTracking",
+                            "player": "You",
+                            "tracker": "LIFE_GAINED"
+                        },
+                        "dynamicToughness": {
+                            "type": "TurnTracking",
+                            "player": "You",
+                            "tracker": "LIFE_GAINED"
+                        }
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, if you gained life this turn, you may pay X life, where X is the amount of life you gained this turn. If you do, create an X/X black Demon creature token with flying."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e3b2a152-7bb9-495d-ac84-516097754137.jpg?1783927596",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "Tivash's ability counts the total amount of life gained without considering any life you lost during that turn. For example, if you lost 3 life and gained 4 life earlier in the turn, you may pay 4 life to create a 4/4 Demon."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "You can't pay less life than the amount of life you gained to create a smaller but less harmful Demon."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "You need to gain life before the end step begins for the last ability to trigger."
+            }
+        ]
+    }
+}
+
+// Veyran, Voice of Duality
+{
+    "name": "Veyran, Voice of Duality",
+    "manaCost": "{1}{U}{R}",
+    "typeLine": "Legendary Creature — Efreet Wizard",
+    "oracleText": "Magecraft — Whenever you cast or copy an instant or sorcery spell, Veyran gets +1/+1 until end of turn.\nIf you casting or copying an instant or sorcery spell causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Veyran, Voice of Duality:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "SpellCastEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "SpellCopiedEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "Magecraft — Whenever you cast or copy an instant or sorcery spell, Veyran gets +1/+1 until end of turn."
+            }
+        ],
+        "staticAbilities": [
+            "AdditionalCastOrCopyTriggers"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "3",
+        "rarity": "MYTHIC",
+        "artist": "Mathias Kollros",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/56d93855-c749-4bdf-9a90-4f69f4226e46.jpg?1783927615",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "Veyran, Voice of Duality's last ability causes each of your magecraft abilities, including Veyran's own, to trigger an additional time."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If an effect creates a copy of an instant or sorcery spell, this will also cause the magecraft ability to trigger."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "Veyran's effect doesn't copy the triggered ability; it just causes the ability to trigger again. Any choices you make as you put the ability on the stack, such as modes and targets, are made separately for each instance of the ability. Any choices made on resolution are also made individually."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If an effect creates multiple copies of an instant or sorcery spell, magecraft abilities trigger once for each copy created by the effect."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If you somehow control two Veyrans (which would be poetic), you casting an instant or sorcery spell causes abilities to trigger three times. A third Veyran (less poetic) causes abilities to trigger four times, and so on."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
     ]
 }
 

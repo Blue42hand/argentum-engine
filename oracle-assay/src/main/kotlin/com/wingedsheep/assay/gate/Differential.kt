@@ -23,7 +23,7 @@ import java.util.Locale
 private val SLOT_REFERENCE_KEYS = setOf("id", "name")
 
 /** The `CardScript` fields holding a list of abilities with a generated id. See `canonicalizeAbilities`. */
-private val ABILITY_LISTS = listOf("triggeredAbilities", "activatedAbilities")
+private val ABILITY_LISTS = listOf("triggeredAbilities", "stateTriggeredAbilities", "activatedAbilities")
 
 /**
  * The keys under which a requirement-owning object declares its target slots, in the order
@@ -36,9 +36,16 @@ private val ABILITY_LISTS = listOf("triggeredAbilities", "activatedAbilities")
  * reference on an Aura counts the spell's requirements first. It is here at all because it is a
  * `TargetRequirement` like the others — the golden declares it with no `id` and the grammar always
  * mints one, so without this entry every Aura would diverge over a name in neither model.
+ *
+ * `reflexiveTargetRequirements` makes a `ReflexiveTriggerEffect` an owner of its own: a "when you
+ * do" trigger chooses its targets after the action resolves, so its slots number from zero inside
+ * it and its payoff reads only them. The exploit payoff (`Grammar.exploitPayoffLine`) is the first
+ * rule to produce one; the cards name the slot `t0` and the grammar names it `target`.
  */
-private val REQUIREMENT_KEYS =
-    listOf("targetRequirement", "targetRequirements", "additionalTargetRequirements", "auraTarget")
+private val REQUIREMENT_KEYS = listOf(
+    "targetRequirement", "targetRequirements", "additionalTargetRequirements", "auraTarget",
+    "reflexiveTargetRequirements",
+)
 
 /**
  * Gate 2 — the **differential**: Assay's reading of a card against the definition a human wrote
@@ -248,6 +255,7 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
      */
     private fun carriesUnreadAbilities(card: CardScript, text: CardScript): Boolean =
         card.triggeredAbilities.size > text.triggeredAbilities.size ||
+            card.stateTriggeredAbilities.size > text.stateTriggeredAbilities.size ||
             card.activatedAbilities.size > text.activatedAbilities.size ||
             // Statics get the lowering too, and the corpus already has one: affinity is spelled as
             // `KeywordAbility.Affinity` on Frogmite and hand-rolled as a `ModifySpellCost` static on
@@ -266,6 +274,7 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
         spellEffect = script.spellEffect,
         targetRequirements = script.targetRequirements,
         triggeredAbilities = script.triggeredAbilities,
+        stateTriggeredAbilities = script.stateTriggeredAbilities,
         activatedAbilities = script.activatedAbilities,
         staticAbilities = script.staticAbilities,
         replacementEffects = script.replacementEffects,
@@ -280,6 +289,7 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
         spellEffect = null,
         targetRequirements = emptyList(),
         triggeredAbilities = emptyList(),
+        stateTriggeredAbilities = emptyList(),
         activatedAbilities = emptyList(),
         staticAbilities = emptyList(),
         replacementEffects = emptyList(),
@@ -732,7 +742,7 @@ internal object Folds {
     private val PIPELINE_WRITERS = setOf(
         "storeAs", "storeSelected", "storeRemainder", "storeMatching", "storeNonMatching", "storeMatch",
         "storeRevealed", "storeChosenAs", "storeOtherAs", "storeMovedAs", "countVariable", "storeCastTo",
-        "storeCountAs", "excessDamageVariable", "storeHeadsAs", "storeGuessedRightAs", "storeWinsAs",
+        "storeCountAs", "excessDamageVariable", "damageDealtVariable", "storeHeadsAs", "storeGuessedRightAs", "storeWinsAs",
         "storeDestroyedAs", "storeExiledAs", "storeDiscoveredAs",
     )
     private val OPTIONAL_WRITERS = setOf("storeRemainder", "storeNonMatching", "storeMovedAs")

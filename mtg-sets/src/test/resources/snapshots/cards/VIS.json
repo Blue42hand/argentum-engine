@@ -170,6 +170,76 @@
     ]
 }
 
+// Crypt Rats
+{
+    "name": "Crypt Rats",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Rat",
+    "oracleText": "{X}: This creature deals X damage to each creature and each player. Spend only black mana on X.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Crypt Rats:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{X}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "creature"
+                                }
+                            },
+                            "body": {
+                                "type": "DealDamage",
+                                "amount": "XValue",
+                                "target": "IterationEntity"
+                            }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": "Each"
+                            },
+                            "body": {
+                                "type": "DealDamage",
+                                "amount": "XValue",
+                                "target": "Controller"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "{X}: This creature deals X damage to each creature and each player. Spend only black mana on X.",
+                "xManaRestriction": [
+                    "BLACK"
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "artist": "Paul Lee",
+        "flavorText": "\"Once I dreamt of death, but now it dreams of me / And only rats and rotting flesh can hear my silent plea.\"\n—Mundungu chant",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/736455f6-c1b3-4a5a-a91f-a0cd3986ed53.jpg?1783946994"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Elven Cache
 {
     "name": "Elven Cache",
@@ -255,6 +325,73 @@
     ]
 }
 
+// Giant Caterpillar
+{
+    "name": "Giant Caterpillar",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Insect",
+    "oracleText": "{G}, Sacrifice this creature: Create a 1/1 green Insect creature token with flying named Butterfly at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Giant Caterpillar:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{G}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "CreateDelayedTrigger",
+                    "step": "END",
+                    "effect": {
+                        "type": "CreateToken",
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "GREEN"
+                        ],
+                        "creatureTypes": [
+                            "Insect"
+                        ],
+                        "keywords": [
+                            "FLYING"
+                        ],
+                        "name": "Butterfly",
+                        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d7636957-f183-4f58-87a6-056cde657114.jpg?1783916646"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "artist": "Zina Saunders",
+        "flavorText": "\"'I've seen hornworms big as a man's fist,' the traveler said, and nodded soberly when our jaws went slack at his ignorance.\"\n—Afari, Tales",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7f602a6-3d35-49a3-b5cb-d754e03a9573.jpg?1783946983",
+        "rulings": [
+            {
+                "date": "2006-02-01",
+                "text": "It used to make Butterfly tokens. Now it makes Insect tokens named Butterfly."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Hulking Cyclops
 {
     "name": "Hulking Cyclops",
@@ -278,6 +415,74 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Impulse
+{
+    "name": "Impulse",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Look at the top four cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put on bottom"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "artist": "Bryan Talbot",
+        "flavorText": "\"Controlling time ensures you need never look impulsive again.\"\n—Teferi",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d710a97-062f-4773-b6c6-8aeddeb3b6e8.jpg?1783947000"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -514,7 +719,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a creature green card to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
                 },
                 {
                     "type": "MoveCollection",
@@ -1113,6 +1320,80 @@
     ]
 }
 
+// Teferi's Puzzle Box
+{
+    "name": "Teferi's Puzzle Box",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "At the beginning of each player's draw step, that player puts the cards in their hand on the bottom of their library in any order, then draws that many cards.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Teferi's Puzzle Box:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "DRAW",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "TriggeringPlayer"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "gathered0",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Bottom"
+                                },
+                                "order": "OwnerChooses"
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "VariableReference",
+                                    "variableName": "gathered0_count"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "rarity": "RARE",
+        "artist": "Kaja Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/3/1377dab4-b814-46cc-a097-24a3cf8d0f8f.jpg?1783946972",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "You do your normal draw before this ability is put on the stack."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "If you have more than one of these, each effect triggers separately."
+            }
+        ]
+    }
+}
+
 // Tremor
 {
     "name": "Tremor",
@@ -1276,7 +1557,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a card to put on top of your library",
+                    "selectedLabel": "Put on top of your library"
                 },
                 "ShuffleLibrary",
                 {

@@ -202,7 +202,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a basic land card to put onto the battlefield",
+                                    "selectedLabel": "Put onto the battlefield"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -585,7 +587,9 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for up to two basic land or land Gate cards to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -1066,7 +1070,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 2
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     }
                 },
                 "effect": {
@@ -1163,6 +1170,74 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Enhanced Surveillance
+{
+    "name": "Enhanced Surveillance",
+    "manaCost": "{1}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "You may look at an additional two cards each time you surveil.\nExile this enchantment: Shuffle your graveyard into your library.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Enhanced Surveillance:1",
+                "cost": "CostExileSelf",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard"
+                            },
+                            "storeAs": "graveyardCards"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "graveyardCards",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Shuffled"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "ModifyKeywordActionAmount",
+                "appliesTo": "SurveilEvent",
+                "modifier": 2
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "40",
+        "rarity": "UNCOMMON",
+        "artist": "Grzegorz Rutkowski",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/971d254e-da25-494b-a16d-3d7d6bb75c73.jpg?1783934188",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "The additional cards you look at due to Enhanced Surveillance's ability are part of what you surveil. You may put those cards into your graveyard or back on top in any order along with the others."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "If you control a second Enhanced Surveillance, their effects both apply and you may look at an additional four cards. If you control a third, may look at an additional six cards, and so on."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "Enhanced Surveillance's last ability can be activated only while it's on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2216,7 +2291,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": "Self"
-                            }
+                            },
+                            "description": "Put 2 +1/+1 counters on this creature"
                         },
                         {
                             "effect": {
@@ -2246,7 +2322,8 @@
                                     "type": "Fixed",
                                     "amount": 4
                                 }
-                            }
+                            },
+                            "description": "You gain 4 life"
                         }
                     ]
                 }
@@ -2262,6 +2339,163 @@
     "colorIdentityOverride": [
         "GREEN",
         "WHITE"
+    ]
+}
+
+// Kraul Foragers
+{
+    "name": "Kraul Foragers",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Insect Scout",
+    "oracleText": "Undergrowth — When this creature enters, you gain 1 life for each creature card in your graveyard.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kraul Foragers:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "135",
+        "artist": "Aaron Miller",
+        "flavorText": "Feed on food, you eventually rot. Feed on rot, you live forever.\n—Kraul saying",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5ed4b08-8583-4ad4-b0ba-0463d367efc8.jpg?1783934150",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "Because tokens aren't cards, they never count for undergrowth abilities."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "Creature cards with other types, such as artifact creature cards, count for undergrowth abilities."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Kraul Harpooner
+{
+    "name": "Kraul Harpooner",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Insect Warrior",
+    "oracleText": "Reach\nUndergrowth — When this creature enters, choose up to one target creature you don't control with flying. This creature gets +X/+0 until end of turn, where X is the number of creature cards in your graveyard, then you may have this creature fight that creature.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kraul Harpooner:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Count",
+                                "player": "You",
+                                "zone": "Graveyard",
+                                "filter": "creature"
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": "Self"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "EntityMatches",
+                                    "entity": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    },
+                                    "filter": "creature"
+                                }
+                            },
+                            "then": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
+                                    "type": "Fight",
+                                    "target1": "Self",
+                                    "target2": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature kw:flying ctrl:opponent"
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "UNCOMMON",
+        "artist": "Kev Walker",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f6d3c086-9ce4-41c3-8402-2818f1b27192.jpg?1783934150",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "The value of X is determined only as the undergrowth ability resolves. If the number of creature cards in your graveyard changes later in the turn, Kraul Harpooner is unaffected."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "You choose the target of the triggered ability (or that it has no target) as it goes on the stack, but you choose whether the creatures fight as that ability resolves."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "If you choose a target and the target creature is an illegal target when Kraul Harpooner's ability tries to resolve, the ability doesn't resolve and Kraul Harpooner doesn't get +X/+0. If the target creature is legal but Kraul Harpooner is no longer on the battlefield, the target creature won't deal or be dealt damage."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "If you don't choose a target creature, Kraul Harpooner simply gets +X/+0 until end of turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -2571,6 +2805,80 @@
     ]
 }
 
+// Moodmark Painter
+{
+    "name": "Moodmark Painter",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Creature — Human Shaman",
+    "oracleText": "Undergrowth — When this creature enters, target creature gains menace and gets +X/+0 until end of turn, where X is the number of creature cards in your graveyard. (It can't be blocked except by two or more creatures.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Moodmark Painter:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "MENACE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Count",
+                                "player": "You",
+                                "zone": "Graveyard",
+                                "filter": "creature"
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "artist": "Scott Murphy",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82903e5f-c10f-4767-a2c0-6f8cc7280fa0.jpg?1783934172",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "The value of X is determined only as the undergrowth ability resolves. If the number of creature cards in your graveyard changes later in the turn, the target creature is unaffected."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Muse Drake
 {
     "name": "Muse Drake",
@@ -2610,6 +2918,74 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Necrotic Wound
+{
+    "name": "Necrotic Wound",
+    "manaCost": "{B}",
+    "typeLine": "Instant",
+    "oracleText": "Undergrowth — Target creature gets -X/-X until end of turn, where X is the number of creature cards in your graveyard. If that creature would die this turn, exile it instead.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MarkExileOnDeath",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "Count",
+                            "player": "You",
+                            "zone": "Graveyard",
+                            "filter": "creature"
+                        },
+                        "multiplier": -1
+                    },
+                    "toughnessModifier": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "Count",
+                            "player": "You",
+                            "zone": "Graveyard",
+                            "filter": "creature"
+                        },
+                        "multiplier": -1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "flavorText": "The assassins of the Ochran distill toxins from the remains of their previous victims.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/a/9ab636af-5b30-4138-8e68-81f567f10417.jpg?1783934171"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -2675,6 +3051,142 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Niv-Mizzet, Parun
+{
+    "name": "Niv-Mizzet, Parun",
+    "manaCost": "{U}{U}{U}{R}{R}{R}",
+    "typeLine": "Legendary Creature — Dragon Wizard",
+    "oracleText": "This spell can't be countered.\nFlying\nWhenever you draw a card, Niv-Mizzet deals 1 damage to any target.\nWhenever a player casts an instant or sorcery spell, you draw a card.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Niv-Mizzet, Parun:1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Niv-Mizzet, Parun:2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    },
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "192",
+        "rarity": "RARE",
+        "artist": "Svetlin Velinov",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/f/6f3d2dc5-7b9d-4af6-9f3b-4de90fbf63c9.jpg?1783934125",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "If an effect instructs you to draw multiple cards, Niv-Mizzet's first triggered ability triggers that many times. You choose targets for those abilities after you've drawn all of the cards."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "Niv-Mizzet's second triggered ability resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "BLUE"
+    ]
+}
+
+// Ornery Goblin
+{
+    "name": "Ornery Goblin",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Warrior",
+    "oracleText": "Whenever this creature blocks or becomes blocked by a creature, this creature deals 1 damage to that creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ornery Goblin:1",
+                "trigger": {
+                    "type": "BlocksOrBecomesBlockedByEvent",
+                    "partnerFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "TriggeringEntity"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "artist": "Johann Bodin",
+        "flavorText": "\"Nobody ever listens to my complaints! Not even when I use the listening stick.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/e/be1c1353-b315-4a0e-80b5-0d9a2962e35f.jpg?1783934159",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "The triggered ability triggers once for each creature blocking or blocked by Ornery Goblin. The ability resolves and deals damage to that creature before combat damage is dealt. If that damage destroys all creatures blocking Ornery Goblin, Ornery Goblin doesn’t become unblocked."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

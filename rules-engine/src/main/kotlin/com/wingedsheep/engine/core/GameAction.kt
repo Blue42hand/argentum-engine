@@ -124,6 +124,8 @@ data class CastSpell(
      * to this spell; the permanent the spell becomes enters with N extra counters.
      */
     val additionalManaForCounters: Int = 0,
+    /** Battlefield cost-modifier instances elected during spell announcement. */
+    val optionalCostPayments: List<CostModifierPayment> = emptyList(),
     /**
      * The opponent promised this spell's **gift** (CR 702.174a, Bloomburrow — "as an additional
      * cost to cast this spell, you may choose an opponent"), or `null` when the gift wasn't
@@ -192,6 +194,8 @@ data class CastSpell(
      * face's door unlocked (CR 709.5d).
      */
     val faceIndex: Int? = null,
+    /** Cast both halves of a card with fuse from hand as one spell. Mutually exclusive with faceIndex. */
+    val castFused: Boolean = false,
     /**
      * Invokes a `MayCastWithoutPayingManaCost` battlefield permission (e.g. Weftwalking): cast
      * the spell for {0} via the "without paying its mana cost" alternative cost. Per CR 118.9a
@@ -219,7 +223,17 @@ data class CastSpell(
      * synthesized free casts) leave it null. Mirrors how [useWithoutPayingManaCost] was split
      * out as its own flag for the same reason (CR 118.9a — only one alternative cost per cast).
      */
-    val alternativeCostType: AlternativeCostType? = null
+    val alternativeCostType: AlternativeCostType? = null,
+    /** The selected escape cost, echoed from a legal action and checked against current abilities. */
+    val escapeAbility: com.wingedsheep.sdk.scripting.KeywordAbility.Escape? = null,
+    /**
+     * How many of [targets] each of the spell's target requirements owns, in requirement order —
+     * the boundaries between its instances of the word "target" (CR 601.2c), which a flat list loses
+     * when an "up to N" group is only partly filled. `null` lets the engine infer them: groups fill
+     * as fully as they legally can, earlier groups first. A client that knows the boundaries should
+     * send them; an inferred split is the legal one, but not always the one the player meant.
+     */
+    val targetGroupCounts: List<Int>? = null
 ) : GameAction
 
 /**
@@ -246,7 +260,13 @@ data class GraveyardCastRiderSelection(
      * Part of the identity so a player holding both a free grant and a retrace grant picks which
      * one they cast through — and thus whether they discard — rather than the handler choosing.
      */
-    val additionalCost: AdditionalCost? = null
+    val additionalCost: AdditionalCost? = null,
+    /**
+     * The granted-ability entry rider (Serra Paragon's "it gains 'When this permanent is put into a
+     * graveyard from the battlefield, exile it and you gain 2 life.'"). Part of the identity so a
+     * player holding a riderless grant beside it picks whether their permanent takes the ability.
+     */
+    val grantedAbilityOnEntry: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 )
 
 /**
@@ -446,7 +466,15 @@ data class ActivateAbility(
      * directly); ActivateAbilityHandler.validate() rejects any client-submitted action that carries
      * it, so it can't be used to skip the opponent-target pause.
      */
-    val opponentTargetsChosen: Boolean = false
+    val opponentTargetsChosen: Boolean = false,
+    /** Per-requirement target counts, as for [CastSpell.targetGroupCounts]. */
+    val targetGroupCounts: List<Int>? = null,
+    /** Null requests announcement-time mode selection; an empty list explicitly chooses none. */
+    val chosenModes: List<Int>? = null,
+    /** Explicit per-requirement target counts for each mode occurrence. */
+    val modeTargetGroupCountsOrdered: List<List<Int>> = emptyList(),
+    /** Per-mode target bindings, aligned with chosenModes, in addition to outer ability targets. */
+    val modeTargetsOrdered: List<List<ChosenTarget>> = emptyList()
 ) : GameAction
 
 // =============================================================================
@@ -512,6 +540,26 @@ data class PlotCard(
 @Serializable
 @SerialName("ForetellCard")
 data class ForetellCard(
+    override val playerId: EntityId,
+    val cardId: EntityId,
+    val paymentStrategy: PaymentStrategy = PaymentStrategy.AutoPay
+) : GameAction
+
+/**
+ * Player pays {3} to put their revealed companion from outside the game into their hand
+ * (CR 702.139a, 116.2g).
+ *
+ * A special action: it doesn't use the stack and can't be responded to. Legal any time the player
+ * has priority during a main phase of their own turn while the stack is empty, and only once per
+ * game. The companion is tracked on the player by
+ * [com.wingedsheep.engine.state.components.player.CompanionComponent].
+ *
+ * @property playerId The player taking the action
+ * @property cardId The revealed companion card, waiting in the player's sideboard
+ */
+@Serializable
+@SerialName("PutCompanionIntoHand")
+data class PutCompanionIntoHand(
     override val playerId: EntityId,
     val cardId: EntityId,
     val paymentStrategy: PaymentStrategy = PaymentStrategy.AutoPay
@@ -807,3 +855,7 @@ data class UnlockRoomDoor(
 @Serializable
 @SerialName("TakePlayerAction")
 data class TakePlayerAction(override val playerId: EntityId, val permissionId: String) : GameAction
+
+/** Identifies one projected static-ability instance; equal abilities retain distinct indices. */
+@Serializable
+data class CostModifierPayment(val sourceId: EntityId, val abilityIndex: Int)

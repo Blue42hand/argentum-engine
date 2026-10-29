@@ -148,6 +148,13 @@ class TriggerAbilityResolver(
         // one per exalted counter (CR 122.1b).
         val exaltedAbilities = getExaltedTriggeredAbilities(entityId, cardDefinitionId, state)
 
+        // Myriad (CR 702.116) — one "copy attacking each other opponent" trigger per instance.
+        val myriadAbilities = getMyriadTriggeredAbilities(entityId, cardDefinitionId, state)
+
+        // Granted offspring (CR 702.175a) — a spell that gained offspring as it was cast and had the
+        // cost paid becomes a permanent with the token-copy trigger no card prints.
+        val grantedOffspringAbilities = getGrantedOffspringAbilities(entityId, state)
+
         val allGranted = buildList {
             addAll(grantedAbilities)
             addAll(staticGrantedAbilities)
@@ -164,6 +171,8 @@ class TriggerAbilityResolver(
             addAll(renownAbilities)
             addAll(bushidoAbilities)
             addAll(exaltedAbilities)
+            addAll(myriadAbilities)
+            addAll(grantedOffspringAbilities)
         }
         val copyAbilities = if (state.projectedState.hasLostAllAbilities(entityId)) emptyList()
             else state.getEntity(entityId)?.get<CardComponent>()?.copyTriggeredAbilities.orEmpty()
@@ -189,6 +198,24 @@ class TriggerAbilityResolver(
         } else {
             emptyList()
         }
+
+    /**
+     * Grant [com.wingedsheep.sdk.scripting.Offspring.tokenCopyAbility] to a permanent whose cast
+     * paid a *granted* offspring cost — [com.wingedsheep.sdk.scripting.ChoiceSlot.OFFSPRING] in its
+     * durable cast choices ([com.wingedsheep.sdk.scripting.GrantOffspringToOwnSpells], Zinnia,
+     * Valley's Voice). Keyed off the payment, not the granter, so the trigger fires even if the
+     * granter left before the spell resolved; a permanent that has lost all abilities as it enters
+     * doesn't have it (the offspring rulings). The bag is stripped when the permanent leaves the
+     * battlefield, and a token copy doesn't inherit it, so the copy never triggers again.
+     */
+    private fun getGrantedOffspringAbilities(entityId: EntityId, state: GameState): List<TriggeredAbility> {
+        val choices = state.getEntity(entityId)
+            ?.get<com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent>()
+            ?: return emptyList()
+        if (com.wingedsheep.sdk.scripting.ChoiceSlot.OFFSPRING !in choices.chosen) return emptyList()
+        if (state.projectedState.hasLostAllAbilities(entityId)) return emptyList()
+        return listOf(com.wingedsheep.sdk.scripting.Offspring.tokenCopyAbility)
+    }
 
     /**
      * Grant [com.wingedsheep.sdk.scripting.Sieges.defeatAbility] to every Siege on the battlefield
@@ -317,6 +344,13 @@ class TriggerAbilityResolver(
         // one per exalted counter (CR 122.1b).
         val exaltedAbilities = getExaltedTriggeredAbilities(entityId, cardDefinitionId, state)
 
+        // Myriad (CR 702.116) — one "copy attacking each other opponent" trigger per instance.
+        val myriadAbilities = getMyriadTriggeredAbilities(entityId, cardDefinitionId, state)
+
+        // Granted offspring (CR 702.175a) — a spell that gained offspring as it was cast and had the
+        // cost paid becomes a permanent with the token-copy trigger no card prints.
+        val grantedOffspringAbilities = getGrantedOffspringAbilities(entityId, state)
+
         val allGranted = buildList {
             addAll(grantedAbilities)
             addAll(staticGrantedAbilities)
@@ -333,6 +367,8 @@ class TriggerAbilityResolver(
             addAll(renownAbilities)
             addAll(bushidoAbilities)
             addAll(exaltedAbilities)
+            addAll(myriadAbilities)
+            addAll(grantedOffspringAbilities)
         }
         val copyAbilities = if (state.projectedState.hasLostAllAbilities(entityId)) emptyList()
             else state.getEntity(entityId)?.get<CardComponent>()?.copyTriggeredAbilities.orEmpty()
@@ -584,6 +620,9 @@ class TriggerAbilityResolver(
                 result.add(createWardTriggeredAbility(it, "facedown"))
             }
         } else {
+            targetContainer.get<CardComponent>()!!.copyWardCosts.forEachIndexed { index, cost ->
+                result.add(createWardTriggeredAbility(cost, "copy_$index"))
+            }
             val cardDef = cardRegistry.getCard(cardDefinitionId)
             if (cardDef != null) {
                 for (ka in cardDef.keywordAbilities) {
@@ -833,6 +872,24 @@ class TriggerAbilityResolver(
         ) 1 else 0
         val instances = maxOf(printed + counters, 1)
         return List(instances) { com.wingedsheep.sdk.scripting.Exalted.trigger(it) }
+    }
+
+    /**
+     * Myriad (CR 702.116) as the keyword-derived triggered ability it is — see
+     * [com.wingedsheep.sdk.scripting.Myriad]. Gated on the projected keyword; one trigger per
+     * printed instance (CR 702.116b) unless all abilities are lost, and exactly one when the
+     * keyword is present only through a static grant.
+     */
+    private fun getMyriadTriggeredAbilities(
+        entityId: EntityId,
+        cardDefinitionId: String,
+        state: GameState,
+    ): List<TriggeredAbility> {
+        val projected = state.projectedState
+        if (!projected.hasKeyword(entityId, com.wingedsheep.sdk.core.Keyword.MYRIAD)) return emptyList()
+        val printed = if (projected.hasLostAllAbilities(entityId)) 0 else
+            cardRegistry.getCard(cardDefinitionId)?.let { com.wingedsheep.sdk.scripting.Myriad.printedCount(it) } ?: 0
+        return List(maxOf(printed, 1)) { com.wingedsheep.sdk.scripting.Myriad.trigger(it) }
     }
 
     private fun createWardTriggeredAbility(cost: WardCost, source: String): TriggeredAbility {

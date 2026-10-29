@@ -2497,7 +2497,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a creature card to put into your hand",
+                                    "selectedLabel": "Put into your hand"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -3544,6 +3546,66 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Kessig Cagebreakers
+{
+    "name": "Kessig Cagebreakers",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "Whenever this creature attacks, create a 2/2 green Wolf creature token that's tapped and attacking for each creature card in your graveyard.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kessig Cagebreakers:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "creature"
+                    },
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Wolf"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/5/a53f8031-aaa8-424c-929a-5478538a8cc6.jpg?1783940880",
+                    "tapped": true,
+                    "attacking": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "189",
+        "rarity": "RARE",
+        "artist": "Wayne England",
+        "flavorText": "\"They put bars on these noble beasts and then wonder why werewolves target our towns.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/a/fae22886-da03-49f2-873c-98a7ea2ee17d.jpg?1783940916",
+        "rulings": [
+            {
+                "date": "2011-09-22",
+                "text": "You count the number of creature cards in your graveyard when the triggered ability resolves."
+            },
+            {
+                "date": "2011-09-22",
+                "text": "Although the tokens are attacking, they were never declared as attacking creatures (for purposes of abilities that trigger whenever a creature attacks, for example)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -4789,6 +4851,77 @@
     ]
 }
 
+// Moonmist
+{
+    "name": "Moonmist",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Transform all Humans. Prevent all combat damage that would be dealt this turn by creatures other than Werewolves and Wolves. (Only double-faced cards can be transformed.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "permanent Human"
+                        }
+                    },
+                    "body": {
+                        "type": "Transform",
+                        "target": "IterationEntity"
+                    }
+                },
+                {
+                    "type": "PreventDamageShield",
+                    "scope": "CombatOnly",
+                    "direction": "FromTarget",
+                    "sourceFilter": {
+                        "type": "PreventFromMatching",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotSubtype",
+                                    "subtype": "Werewolf"
+                                },
+                                {
+                                    "type": "NotSubtype",
+                                    "subtype": "Wolf"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "artist": "Ryan Yee",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/7/57153c3f-9e55-418c-b67b-36901f29f9c1.jpg?1783940913",
+        "rulings": [
+            {
+                "date": "2011-09-22",
+                "text": "Moonmist causes any double-faced Human to transform, not just Werewolves."
+            },
+            {
+                "date": "2011-09-22",
+                "text": "Whether or not a creature is a Werewolf or a Wolf is checked only as combat damage is dealt. If the creature isn't a Werewolf or a Wolf at that time, its combat damage will be prevented."
+            },
+            {
+                "date": "2011-09-22",
+                "text": "Moonmist will prevent combat damage dealt by a creature that isn't a Werewolf or a Wolf even if that creature wasn't on the battlefield (or was a Werewolf or a Wolf) when Moonmist resolved."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Morkrut Banshee
 {
     "name": "Morkrut Banshee",
@@ -4989,6 +5122,39 @@
         "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d495d85-6458-44d5-b3b4-5e09569057e3.jpg"
     },
     "colorIdentityOverride": []
+}
+
+// Parallel Lives
+{
+    "name": "Parallel Lives",
+    "manaCost": "{3}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "If an effect would create one or more tokens under your control, it creates twice that many of those tokens instead.",
+    "script": {
+        "replacementEffects": [
+            "MultiplyTokenCreation"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "199",
+        "rarity": "RARE",
+        "artist": "Steve Prescott",
+        "flavorText": "\"There will come a time when the only prey left will be each other.\"\n—Ulrich of Krallenhorde Pack",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/1/01033dae-fec1-41f2-b7f2-cc6a43331790.jpg?1783940912",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "If you control two Parallel Lives, then the number of tokens created is four times the original number. If you control three, then the number of tokens created is eight times the original number, and so on."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "Everything that is specified by the effect creating the original token or tokens will also be true about the additional token or tokens created by Parallel Lives's replacement effect. For example, if an effect tells you to create a token \"tapped and attacking,\" the additional tokens will also be tapped and attacking."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
 }
 
 // Pitchburn Devils
@@ -6810,7 +6976,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",

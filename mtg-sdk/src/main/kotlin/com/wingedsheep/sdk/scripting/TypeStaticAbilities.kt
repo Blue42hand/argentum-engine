@@ -42,8 +42,11 @@ data class GrantSubtype(
  * Used by Leyline of Transformation / Conspiracy / Xenograft: "Creatures you control are the
  * chosen type in addition to their other types."
  *
- * This is a Layer 4 (type-changing) continuous effect. If the source has no chosen creature
- * type, no subtype is added.
+ * This is a Layer 4 (type-changing) continuous effect. "The chosen type" is the creature type the
+ * source chose as it entered or, failing that, its chosen basic land type — Thran Portal ("As this
+ * land enters, choose a basic land type. This land is the chosen type in addition to its other
+ * types."), which thereby gains that type's intrinsic mana ability. If the source chose neither,
+ * no subtype is added.
  *
  * The [filter] half is the standard battlefield projection (Layer 4). The two cross-zone flags
  * extend the grant beyond the battlefield, modeling the Conspiracy / Leyline-of-Transformation
@@ -91,16 +94,29 @@ data class GrantChosenSubtype(
  * "Equipped creature ... is all creature types." The card text doesn't say
  * "changeling", so the equipped creature shouldn't display a Changeling badge.
  *
- * This is a Layer 4 (type-changing) continuous effect.
+ * This is a Layer 4 (type-changing) continuous effect. The two cross-zone flags work exactly as
+ * on [GrantChosenSubtype] — Maskwood Nexus: "Creatures you control are every creature type. The
+ * same is true for creature spells you control and creature cards you own that aren't on the
+ * battlefield."
  *
  * @property filter What this ability applies to (typically AttachedCreature for Equipment)
+ * @property includeControlledSpells Whether creature spells the controller controls are also every type.
+ * @property includeOwnedCardsOutsideBattlefield Whether creature cards the controller owns outside
+ *   the battlefield are also every type.
  */
 @SerialName("IsAllCreatureTypes")
 @Serializable
 data class IsAllCreatureTypes(
-    val filter: GroupFilter = GroupFilter.attachedCreature()
+    val filter: GroupFilter = GroupFilter.attachedCreature(),
+    val includeControlledSpells: Boolean = false,
+    val includeOwnedCardsOutsideBattlefield: Boolean = false
 ) : StaticAbility {
-    override val description: String = "is all creature types"
+    override val description: String = buildString {
+        append("is all creature types")
+        if (includeControlledSpells || includeOwnedCardsOutsideBattlefield) {
+            append("; so are your creature spells and creature cards outside the battlefield")
+        }
+    }
 }
 
 /**

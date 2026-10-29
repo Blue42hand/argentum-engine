@@ -871,6 +871,50 @@
     ]
 }
 
+// Fervent Charge
+{
+    "name": "Fervent Charge",
+    "manaCost": "{1}{R}{W}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature you control attacks, it gets +2/+2 until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fervent Charge:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "TriggeringEntity"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "98",
+        "rarity": "RARE",
+        "artist": "Mark Tedin",
+        "flavorText": "Crovax was nearly buried beneath the weight of his opponents.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/6/d610a9d5-c650-45ad-a9b0-b55113701e05.jpg?1783945335"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Flowstone Charger
 {
     "name": "Flowstone Charger",
@@ -1431,7 +1475,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -2841,7 +2887,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an instant card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -2889,7 +2937,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an instant card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",

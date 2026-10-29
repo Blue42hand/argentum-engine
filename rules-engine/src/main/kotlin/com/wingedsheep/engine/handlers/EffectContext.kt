@@ -57,11 +57,19 @@ data class EffectContext(
      */
     val abilityIdentity: com.wingedsheep.sdk.scripting.AbilityIdentity? = null,
     /**
+     * The resolving triggered ability's leading "you may" was answered yes when its target was
+     * chosen ([com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent.consentAnsweredAtTargeting]).
+     * Consumed by the first `Gate.MayDecide` the effect reaches, which clears it for its branch.
+     */
+    val consentAnsweredAtTargeting: Boolean = false,
+    /**
      * The concrete ability captured at activation. Resolution must not rediscover it from a
      * source or grant that can change before resolving (including "retain this ability" copies).
      * Null for spells, triggers, and synthesized activations without an ActivatedAbility.
      */
     val activatedAbility: com.wingedsheep.sdk.scripting.ActivatedAbility? = null,
+    /** Frozen triggered rules text, including target requirements and optionality. */
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
     /**
      * The player currently under consideration as a target, bound while evaluating a
      * `TargetPlayer.restriction` / `TargetOpponent.restriction` (CR 115). Resolves
@@ -107,7 +115,7 @@ data class EffectContext(
     val alignedTargets: List<ChosenTarget?> = emptyList(),
     /**
      * The X chosen for an X-cost spell/ability. Also reused by `ChooseNumberThenEffect` to
-     * carry a "choose a number" value into the inner effect (read via `CardPredicate.ManaValueEqualsX`,
+     * carry a "choose a number" value into the inner effect (read via `manaValueEqualsX()`,
      * Void). These two uses share one slot, so a future card that both pays `{X}` *and* chooses a
      * number would collide here — split the slot before authoring such a card.
      */
@@ -125,6 +133,13 @@ data class EffectContext(
      * Read by `DynamicAmount.ManaSpentOnX`. Empty when X was unrestricted.
      */
     val manaSpentOnXByColor: Map<Color, Int> = emptyMap(),
+    /**
+     * The mana spent to cast the resolving spell or activate the resolving ability, by type — what
+     * `CardPredicate.ManaCostPayableWithManaSpent` (Illusionary Mask) allocates against. Null when
+     * the resolving object recorded no payment (a triggered ability), which that predicate treats
+     * as nothing matching.
+     */
+    val manaSpent: com.wingedsheep.engine.mechanics.mana.SpentMana? = null,
     /**
      * The optional-additional-cost mechanic declared for the spell being cast or resolved
      * ([com.wingedsheep.sdk.scripting.ChoiceSlot.KICKED] for kicker, `BARGAINED` for bargain), or
@@ -187,6 +202,8 @@ data class EffectContext(
      * [modeTargetsOrdered] instead of prompting for a mode decision.
      */
     val chosenModes: List<Int> = emptyList(),
+    /** Activation-bound requirements per occurrence, including repeated modes with different counts. */
+    val modeTargetRequirementsOrdered: List<List<TargetRequirement>> = emptyList(),
     val modeTargetsOrdered: List<List<ChosenTarget>> = emptyList(),
     val modeTargetRequirements: Map<Int, List<TargetRequirement>> = emptyMap(),
     /** Number of cards exiled as an additional cost (for ExileVariableCards) */
@@ -255,6 +272,24 @@ data class EffectContext(
      * [com.wingedsheep.sdk.scripting.targets.EffectTarget.PipelineTarget].
      */
     val chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),
+    /**
+     * LKI snapshots (CR 608.2h) of the permanents an earlier instruction of *this* resolution
+     * moved off the battlefield — a `MoveCollectionEffect` exile, destroy, bounce or sacrifice —
+     * each the same capture its [com.wingedsheep.engine.core.ZoneChangeEvent.lastKnown] carries.
+     * Read by [EffectTarget.IterationEntity] (see
+     * [com.wingedsheep.engine.handlers.effects.LkiPolicy.LIVE_THEN_OWN_MOVE_LKI]) so "for each
+     * permanent exiled this way, … a card that shares a card type with it" compares against the
+     * permanent as it last existed on the battlefield: a token's types, an animated land's
+     * Creature type, a stolen permanent's controller. Scoped to the resolution on purpose — a card
+     * that left the battlefield on some earlier turn is a new object whose current
+     * characteristics are the answer. Threaded between instructions like [sacrificedPermanents];
+     * it rides every continuation frame's context and is handed to the frame beneath when a paused
+     * composite, gate branch or loop drains ([com.wingedsheep.engine.handlers.continuations.exposeCollectionsToNextFrame]),
+     * so it survives a mid-resolution pause.
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val departedPermanents: List<EntitySnapshot> = emptyList(),
     // --- Trigger state ---
     /**
      * Everything the trigger event said about why the resolving ability fired — damage amount,
@@ -347,6 +382,14 @@ data class EffectContext(
     val entryCopies: Map<EntityId, com.wingedsheep.engine.handlers.effects.copy.EntryCopyChoice> = emptyMap(),
     /** Prepared attachment choices; a null host means the Aura cannot enter. */
     val entryAuraHosts: Map<EntityId, EntityId?> = emptyMap(),
+    /**
+     * Prepared CR 508.4 defenders for the tokens this one instruction puts onto the battlefield
+     * attacking, in creation order — what each is attacking (a player, planeswalker or battle).
+     * Filled one answer at a time by
+     * [com.wingedsheep.engine.core.EnteringAttackDefenderContinuation] before any token exists.
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val entryAttackDefenders: List<EntityId> = emptyList(),
     /** Prepared "as this enters, choose …" answers, stamped on each entrant as it arrives. */
     val entryChoices: Map<EntityId, com.wingedsheep.engine.handlers.effects.EntryChoiceAnswers> = emptyMap(),
     /** Answers belong to this one discard instruction, including explicit declines. */
@@ -478,17 +521,16 @@ data class EffectContext(
         resolveTarget(target, state) ?: error("Cannot resolve target: $target")
 
     /**
-     * Resolve a player reference target (e.g., "target player", "each opponent") to a
-     * single player entity id. Stateless overload — see [resolvePlayerTargets] for
-     * multi-player results.
-     */
-    fun resolvePlayerTarget(target: EffectTarget): EntityId? =
-        TargetResolutionUtils.resolvePlayerTarget(target, this)
-
-    /**
-     * Resolve a player reference target, consulting [state] for relational references
-     * like [com.wingedsheep.sdk.scripting.references.Player.OwnerOf] /
-     * [com.wingedsheep.sdk.scripting.references.Player.ControllerOf].
+     * Resolve a player reference target (e.g., "target player", "its controller") to a single
+     * player entity id, consulting [state] for relational references like
+     * [com.wingedsheep.sdk.scripting.references.Player.OwnerOf] /
+     * [com.wingedsheep.sdk.scripting.references.Player.ControllerOf],
+     * [EffectTarget.TargetController], and a player pinned by [EffectTarget.SpecificEntity] (a
+     * delayed trigger's baked recipient). See [resolvePlayerTargets] for multi-player results.
+     *
+     * There is deliberately no stateless overload: one used to exist, and every executor that
+     * reached for it silently returned `null` for exactly those references (Arcane Denial's
+     * "its controller may draw up to two cards" never drew).
      */
     fun resolvePlayerTarget(target: EffectTarget, state: GameState): EntityId? =
         TargetResolutionUtils.resolvePlayerTarget(target, this, state)
@@ -530,7 +572,9 @@ data class EffectContext(
                 val id = req.id
                 if (id != null) {
                     if (req.count == 1) {
-                        targets.getOrNull(targetIndex)?.let { result[id] = it }
+                        // `id[0]` too: a multi-target group narrowed to the one target it holds
+                        // (`withCount`) is still read through its `targets()` handles.
+                        targets.getOrNull(targetIndex)?.let { result[id] = it; result["$id[0]"] = it }
                     } else {
                         for (i in 0 until req.count) {
                             targets.getOrNull(targetIndex + i)?.let { result["$id[$i]"] = it }
@@ -557,10 +601,12 @@ data class EffectContext(
             targets: List<ChosenTarget> = emptyList(),
             targetRequirements: List<TargetRequirement> = emptyList()
         ): EffectContext = EffectContext(
+            resolvingTriggeredAbility = ability.resolvingTriggeredAbility,
             sourceId = ability.sourceId,
             controllerId = ability.controllerId,
             granterId = ability.granterId,
             abilityIdentity = ability.abilityIdentity,
+            consentAnsweredAtTargeting = ability.consentAnsweredAtTargeting,
             sourceFaceChanges = ability.sourceFaceChanges,
             sourceBattlefieldTimestamp = ability.sourceBattlefieldTimestamp,
             objectReferences = ability.objectReferences,
@@ -574,7 +620,10 @@ data class EffectContext(
             chosenModes = ability.chosenModes,
             modeTargetsOrdered = ability.modeTargetsOrdered,
             modeTargetRequirements = ability.modeTargetRequirements,
+            modeTargetRequirementsOrdered = ability.modeTargetRequirementsOrdered,
             pipeline = PipelineState(
+                declaredTargetNames = targetRequirements.mapNotNull { it.id }.toSet() +
+                    (ability.carriedPipeline?.declaredTargetNames ?: emptySet()),
                 namedTargets = buildNamedTargets(targetRequirements, targets) +
                     (ability.carriedPipeline?.namedTargets ?: emptyMap()),
                 // Expose a batch trigger's captured permanents (the matching members of a

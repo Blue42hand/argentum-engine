@@ -21,6 +21,9 @@ import kotlinx.serialization.Serializable
  * @property remainingPlayers Players still to process for "each opponent" sacrifice effects
  * @property filter Filter for valid sacrifice targets (needed to chain remaining players)
  * @property count Number of permanents each player must sacrifice
+ * @property chosen Edict choices already made by earlier players in APNAP order. Nothing is
+ *   sacrificed until the last player has chosen; then every choice is sacrificed at once
+ *   (CR 101.4).
  */
 @Serializable
 data class SacrificeContinuation(
@@ -30,8 +33,16 @@ data class SacrificeContinuation(
     val remainingPlayers: List<EntityId> = emptyList(),
     val filter: GameObjectFilter? = null,
     val count: Int = 1,
+    val chosen: List<SacrificeChoice> = emptyList(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
 ) : AnswerContinuation
+
+/** The permanents [playerId] chose for a multi-player edict, held until every player has chosen. */
+@Serializable
+data class SacrificeChoice(
+    val playerId: EntityId,
+    val permanentIds: List<EntityId>,
+)
 
 /**
  * Resume after a player picked the one permanent they keep for a single category of a
@@ -143,6 +154,7 @@ data class PayOrSufferContinuation(
      */
     val storedCollections: Map<String, List<EntityId>> = emptyMap(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**
@@ -202,6 +214,7 @@ data class PayOrSufferChoiceContinuation(
     /** Mirror of [PayOrSufferContinuation.storedCollections] for the multi-option path. */
     val storedCollections: Map<String, List<EntityId>> = emptyMap(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**
@@ -247,6 +260,7 @@ data class AnyPlayerMayPayContinuation(
     val triggeringEntityId: EntityId? = null,
     val triggeringPlayerId: EntityId? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**

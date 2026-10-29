@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
+import com.wingedsheep.engine.mechanics.targeting.withTargetConstraints
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.CastFromCollectionTargetsContinuation
@@ -81,6 +82,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
             com.wingedsheep.engine.handlers.PipelineState.spellFaceKey(effect.from)
         ]
         val faceIndex = chosenFace?.takeIf { it >= 0 }
+        val castFused = chosenFace == com.wingedsheep.engine.mechanics.SplitSpellCasts.FUSED_FACE
         val castTransformed = effect.castTransformed || chosenFace == -2
         // `Chooser.Controller` (the default) is `context.controllerId`; the only other value a
         // printed card needs is `SourceController`, which survives the per-iteration controller
@@ -112,11 +114,13 @@ class CastFromCollectionWithoutPayingCostExecutor(
         }
 
         // Check targeting *before* granting: a grant made ahead of a cast that never happens
-        // would follow the card out of exile and stay live until end-of-turn cleanup.
-        val prep = prepareTargetSelection(
+        // would follow the card out of exile and stay live until end-of-turn cleanup. A face-down
+        // spell is a vanilla 2/2 (CR 708.2) — nothing on it targets.
+        val prep = if (effect.castFaceDown) TargetPrep.NotNeeded else prepareTargetSelection(
             state, cardId, controllerId, cardRegistry, targetFinder, effect.storeCastTo,
             castTransformed = castTransformed,
             faceIndex = faceIndex,
+            castFused = castFused,
         )
         if (prep is TargetPrep.NoLegalTargets) {
             // CR 601.2c — if no legal targets exist for a required slot, the cast can't
@@ -138,6 +142,8 @@ class CastFromCollectionWithoutPayingCostExecutor(
             faceIndex = faceIndex,
             alternativeCost = alternativeCost,
             additionalManaCost = effect.additionalManaCost,
+            castFaceDown = effect.castFaceDown,
+            turnsFaceUpInstead = effect.turnsFaceUpInstead,
         )
 
         if (prep is TargetPrep.NeedsTargets) {
@@ -148,7 +154,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
         }
 
         // No targets needed (or modal — CastSpellHandler will handle per-mode targets).
-        return invokeCast(newState, controllerId, cardId, permId, emptyList(), effect.storeCastTo, faceIndex)
+        return invokeCast(newState, controllerId, cardId, permId, emptyList(), effect.storeCastTo, faceIndex, effect.castFaceDown, castFused)
     }
 
     /** True when [cardId]'s definition has a back face to be cast transformed as. */
@@ -165,11 +171,13 @@ class CastFromCollectionWithoutPayingCostExecutor(
         targets: List<com.wingedsheep.engine.state.components.stack.ChosenTarget>,
         storeCastTo: String?,
         faceIndex: Int?,
+        castFaceDown: Boolean = false,
+        castFused: Boolean = false,
     ): EffectResult {
         val stateForCast = state.copy(priorityPlayerId = casterId)
         val castResult = castSpellHandlerProvider().execute(
             stateForCast,
-            CastSpell(casterId, cardId, targets, faceIndex = faceIndex),
+            CastSpell(casterId, cardId, targets, faceIndex = faceIndex, castFaceDown = castFaceDown, castFused = castFused),
         )
 
         if (castResult.error != null) {
@@ -237,6 +245,8 @@ class CastFromCollectionWithoutPayingCostExecutor(
             faceIndex: Int? = null,
             alternativeCost: AdditionalCost? = null,
             additionalManaCost: ManaCost? = null,
+            castFaceDown: Boolean = false,
+            turnsFaceUpInstead: Boolean = false,
         ): Pair<EntityId, GameState> {
             var stamped = if (!withoutPayingCost) state else state.updateEntity(cardId) { container ->
                 container.with(PlayWithoutPayingCostComponent(controllerId = controllerId))
@@ -274,6 +284,8 @@ class CastFromCollectionWithoutPayingCostExecutor(
                     controllerId = controllerId,
                     sourceId = sourceId,
                     castTransformed = castTransformed,
+                    castFaceDown = castFaceDown,
+                    turnsFaceUpInstead = turnsFaceUpInstead,
                     castFaceIndex = faceIndex,
                     timestamp = stateWithPerm.timestamp,
                 )
@@ -325,10 +337,11 @@ class CastFromCollectionWithoutPayingCostExecutor(
             storeCastTo: String? = null,
             castTransformed: Boolean = false,
             faceIndex: Int? = null,
+            castFused: Boolean = false,
         ): TargetPrep {
             val cardComponent = state.getEntity(cardId)?.get<CardComponent>()
             val printedDef = cardComponent?.let { cardRegistry.getCard(it.cardDefinitionId) }
-            val cardDef = if (castTransformed) printedDef?.backFace ?: printedDef else printedDef
+            val cardDef = if (castFused && printedDef != null) com.wingedsheep.engine.mechanics.SplitSpellCasts.fusedDefinition(printedDef) else if (castTransformed) printedDef?.backFace ?: printedDef else printedDef
             val selectedFace = faceIndex?.let { printedDef?.cardFaces?.getOrNull(it) }
             val script = selectedFace?.script ?: cardDef?.script
             val isModalSpell = script?.spellEffect is ModalEffect
@@ -349,14 +362,15 @@ class CastFromCollectionWithoutPayingCostExecutor(
                     sourceId = cardId,
                     targetingSourceType = TargetingSourceType.SPELL,
                 )
-                legalTargetsMap[index] = legal
+                val compatible = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.eligible(state, legal, requirement)
+                legalTargetsMap[index] = compatible
                 TargetRequirementInfo(
                     index = index,
                     description = requirement.description,
                     mustDifferFromEarlier = requirement is com.wingedsheep.sdk.scripting.targets.TargetOther,
                     minTargets = requirement.effectiveMinCount,
-                    maxTargets = requirement.count,
-                )
+                    maxTargets = if (requirement.unlimited) compatible.size else requirement.count,
+                ).withTargetConstraints(state, requirement, compatible)
             }
             val mandatoryRequirementHasNoTargets = requirementInfos.any { info ->
                 info.minTargets > 0 && legalTargetsMap[info.index].isNullOrEmpty()
@@ -386,6 +400,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
                 casterId = casterId,
                 storeCastTo = storeCastTo,
                 faceIndex = faceIndex,
+                castFused = castFused,
             )
             return TargetPrep.NeedsTargets(question, continuation)
         }

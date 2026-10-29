@@ -26,6 +26,10 @@ class CardRegistry(private val parent: CardRegistry? = null) {
     private val cardsByName = mutableMapOf<String, CardDefinition>()
     // Secondary index: "CardName#CollectorNumber" -> CardDefinition (for variants like basic lands)
     private val cardsByNameAndNumber = mutableMapOf<String, CardDefinition>()
+    // The same variants grouped by plain name, in registration order, so [getCardsByName] is a
+    // lookup rather than a scan of every variant key — called once per name while the server
+    // builds its printing and booster indexes, a scan made startup quadratic in the corpus size.
+    private val variantsByName = mutableMapOf<String, MutableMap<String, CardDefinition>>()
     // Reverse DFC index: back face name -> front face name
     private val backFaceToFrontFace = mutableMapOf<String, String>()
 
@@ -49,6 +53,7 @@ class CardRegistry(private val parent: CardRegistry? = null) {
                 "${card.name}#$collectorNumber"
             }
             cardsByNameAndNumber[key] = card
+            variantsByName.getOrPut(card.name) { mutableMapOf() }[key] = card
         }
 
         // Auto-register the back face as a standalone entry so lookups by its name succeed.
@@ -153,10 +158,8 @@ class CardRegistry(private val parent: CardRegistry? = null) {
      * @return All cards with that name, including variants
      */
     fun getCardsByName(name: String): List<CardDefinition> {
-        val own = cardsByNameAndNumber.entries
-            .filter { (key, _) -> key.startsWith("$name#") }
-            .map { it.value }
-            .ifEmpty { listOfNotNull(cardsByName[name]) }
+        val own = variantsByName[name]?.values?.toList()
+            ?: listOfNotNull(cardsByName[name])
         if (parent == null) return own
         // Overlay entries shadow the parent's variant with the same identity, but the parent may
         // hold printings this overlay never pinned — keep both, overlay first.
@@ -191,6 +194,7 @@ class CardRegistry(private val parent: CardRegistry? = null) {
     fun clear() {
         cardsByName.clear()
         cardsByNameAndNumber.clear()
+        variantsByName.clear()
         backFaceToFrontFace.clear()
     }
 }

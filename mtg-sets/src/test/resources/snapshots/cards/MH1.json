@@ -42,6 +42,106 @@
     ]
 }
 
+// Ayula, Queen Among Bears
+{
+    "name": "Ayula, Queen Among Bears",
+    "manaCost": "{1}{G}",
+    "typeLine": "Legendary Creature — Bear",
+    "oracleText": "Whenever another Bear you control enters, choose one —\n• Put two +1/+1 counters on target Bear.\n• Target Bear you control fights target creature you don't control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ayula, Queen Among Bears:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Bear ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 2,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "permanent Bear"
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "Put two +1/+1 counters on target Bear"
+                        },
+                        {
+                            "effect": {
+                                "type": "Fight",
+                                "target1": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                },
+                                "target2": {
+                                    "type": "BoundVariable",
+                                    "name": "t2"
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "permanent Bear ctrl:you"
+                                    },
+                                    "id": "t1"
+                                },
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "cardPredicates": [
+                                                "IsCreature"
+                                            ],
+                                            "controllerPredicate": {
+                                                "type": "ControllerNot",
+                                                "predicate": "ControlledByYou"
+                                            }
+                                        }
+                                    },
+                                    "id": "t2"
+                                }
+                            ],
+                            "description": "Target Bear you control fights target creature you don't control"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever another Bear you control enters, choose one — Put two +1/+1 counters on target Bear; or target Bear you control fights target creature you don't control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "RARE",
+        "artist": "Jesper Ejsing",
+        "flavorText": "Born from the oldest red cedar, nursed on the sap of the tallest spruce, coronated under the mightiest pine.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c046dfb0-9ca3-4219-a6b0-d7503bc2fbd0.jpg?1783933100"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Azra Smokeshaper
 {
     "name": "Azra Smokeshaper",
@@ -228,6 +328,75 @@
         "imageUri": "https://cards.scryfall.io/normal/front/1/3/1345ee24-ffa3-44d1-a983-f25f54cda3f3.jpg?1783933075"
     },
     "colorIdentityOverride": []
+}
+
+// Bogardan Dragonheart
+{
+    "name": "Bogardan Dragonheart",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Shaman",
+    "oracleText": "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Bogardan Dragonheart:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "creature",
+                        "excludeSelf": true
+                    }
+                },
+                "effect": {
+                    "type": "BecomeCreature",
+                    "power": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "toughness": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "keywords": [
+                        "FLYING",
+                        "HASTE"
+                    ],
+                    "creatureTypes": [
+                        "Dragon"
+                    ]
+                },
+                "descriptionOverride": "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "artist": "Randy Vargas",
+        "flavorText": "A hunger to soar must be sated.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/feb81f44-8f22-4d28-a452-a50bef69a3e3.jpg?1783933116",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Bogardan Dragonheart's ability overwrites all previous effects that set its creature types, power, and/or toughness to specific values. Other effects that set these characteristics to specific values that start to apply after the ability resolves will overwrite that part of this effect."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Effects that modify Bogardan Dragonheart's power or toughness (such as the effects of Force of Virtue or Giant Growth) will apply no matter when they started to take effect. The same is true for counters that change its power or toughness (such as +1/+1 counters)."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Bogardan Dragonheart doesn't lose any abilities when it becomes a Dragon."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
 }
 
 // Cave of Temptation
@@ -746,6 +915,60 @@
     ]
 }
 
+// Eyekite
+{
+    "name": "Eyekite",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Drake",
+    "oracleText": "Flying\nThis creature gets +2/+0 as long as you've drawn two or more cards this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 2,
+                    "toughnessBonus": 0,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "PlayerDrewCardsThisTurn",
+                    "atLeast": 2
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"This one will need direction. After all, each of its eyes is larger than its brain.\"\n—Cyla, Lord of the Aerie",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49f7bda8-949a-42aa-9254-f39b791cb9a8.jpg?1783933145",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Eyekite's effect applies even if you drew two or more cards only before Eyekite entered the battlefield."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" Eyekite's effect doesn't count them."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Faerie Seer
 {
     "name": "Faerie Seer",
@@ -894,7 +1117,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -916,7 +1142,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -964,6 +1193,84 @@
     "colorIdentityOverride": [
         "RED",
         "BLUE"
+    ]
+}
+
+// Fists of Flame
+{
+    "name": "Fists of Flame",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Draw a card. Until end of turn, target creature gains trample and gets +1/+0 for each card you've drawn this turn. (A creature with trample can deal excess combat damage to the player or planeswalker it's attacking.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "TRAMPLE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "CARDS_DRAWN"
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "artist": "Steve Argyle",
+        "flavorText": "\"Fire has always been my most faithful companion.\"\n—Jared Carthalion",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4fa3c0d8-0a3e-43b0-b81e-a3d22ce6a4b2.jpg?1783933113",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If the target creature is an illegal target by the time Fists of Flame tries to resolve, the spell doesn't resolve. You won't draw a card."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" Fists of Flame's effect doesn't count them."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "The bonus that the target creature receives is locked in as Fists of Flame resolves, counting the card drawn during its first effect. The creature won't get an additional +1/+0 if you draw another card later in the turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -1732,6 +2039,167 @@
     ]
 }
 
+// Marit Lage's Slumber
+{
+    "name": "Marit Lage's Slumber",
+    "manaCost": "{1}{U}",
+    "typeLine": "Legendary Snow Enchantment",
+    "oracleText": "Whenever Marit Lage's Slumber or another snow permanent you control enters, scry 1.\nAt the beginning of your upkeep, if you control ten or more snow permanents, sacrifice Marit Lage's Slumber. If you do, create Marit Lage, a legendary 20/20 black Avatar creature token with flying and indestructible.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Marit Lage's Slumber:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent",
+                            "IsSnow"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Scry",
+                    "count": 1
+                },
+                "descriptionOverride": "Whenever Marit Lage's Slumber or another snow permanent you control enters, scry 1."
+            },
+            {
+                "id": "Marit Lage's Slumber:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.DoAction",
+                        "action": "SacrificeSelf",
+                        "successCriterion": "SuccessCriterion.PermanentsSacrificed"
+                    },
+                    "then": {
+                        "type": "CreateToken",
+                        "power": 20,
+                        "toughness": 20,
+                        "colors": [
+                            "BLACK"
+                        ],
+                        "creatureTypes": [
+                            "Avatar"
+                        ],
+                        "keywords": [
+                            "FLYING",
+                            "INDESTRUCTIBLE"
+                        ],
+                        "name": "Marit Lage",
+                        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b993828-e139-4cb6-a329-487accc1c515.jpg?1783933228",
+                        "legendary": true
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsPermanent",
+                                "IsSnow"
+                            ]
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 10
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, if you control ten or more snow permanents, sacrifice Marit Lage's Slumber. If you do, create Marit Lage, a legendary 20/20 black Avatar creature token with flying and indestructible."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "rarity": "RARE",
+        "artist": "Randy Vargas",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4f5d2a6e-22cd-4493-9e58-e9c2aa3a31ab.jpg?1783933143",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If you don't control ten or more snow permanents as your upkeep begins, the last ability won't trigger. No player may take any actions during a turn before the turn's upkeep begins."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If you don't control ten snow permanents as the last ability resolves, you can't sacrifice Marit Lage's Slumber."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If Marit Lage's Slumber leaves the battlefield before its last ability resolves, you won't be able to sacrifice it, so you won't create Marit Lage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Martyr's Soul
+{
+    "name": "Martyr's Soul",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Spirit Soldier",
+    "oracleText": "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\nWhen this creature enters, if you control no tapped lands, put two +1/+1 counters on it.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "CONVOKE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Martyr's Soul:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 2,
+                    "target": "Self"
+                },
+                "interveningIf": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "land tapped",
+                    "negate": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "artist": "Mila Pesic",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c17428c-e31d-42f3-8811-6734abd96b0b.jpg?1783933158",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If you control any tapped lands as Martyr's Soul enters the battlefield, its last ability doesn't trigger at all. If you control any tapped lands as the ability resolves, you won't put two +1/+1 counters on Martyr's Soul."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Mob
 {
     "name": "Mob",
@@ -1953,7 +2421,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -1975,7 +2446,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -2023,6 +2497,52 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Oneirophage
+{
+    "name": "Oneirophage",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Squid Illusion",
+    "oracleText": "Flying\nWhenever you draw a card, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Oneirophage:1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "rarity": "UNCOMMON",
+        "artist": "Martina Pilcerova",
+        "flavorText": "It manifests at wizard academies to siphon inspiration from young prodigies.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/caefbac6-b2a0-4a70-a912-25173eafd7b3.jpg?1783933142",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" Oneirophage's ability won't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2273,7 +2793,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         },
                         "CostSacrificeSelf"
@@ -2302,7 +2825,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -2744,7 +3269,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Construct card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -2850,6 +3377,95 @@
     ]
 }
 
+// Settle Beyond Reality
+{
+    "name": "Settle Beyond Reality",
+    "manaCost": "{4}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one or both —\n• Exile target creature you don't control.\n• Exile target creature you control, then return it to the battlefield under its owner's control.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Exile"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:opponent"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Exile target creature you don't control"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                },
+                                "destination": "Exile"
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                },
+                                "destination": "Battlefield"
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Exile target creature you control, then return it to the battlefield under its owner's control"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        }
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "artist": "Anthony Palumbo",
+        "flavorText": "Two taken, two judged, one returned.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72ed8e57-61bb-4e89-9484-ff2be800a449.jpg?1783933156",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Once the exiled creature you control returns, it's considered a new object with no relation to the object that it was. Auras attached to the exiled creatures will be put into their owners' graveyards. Equipment attached to the exiled creatures will become unattached and remain on the battlefield. Any counters on the exiled creatures will cease to exist."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a token you control is exiled this way, it will cease to exist and won't return to the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Silent Clearing
 {
     "name": "Silent Clearing",
@@ -2868,7 +3484,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -2890,7 +3509,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3099,6 +3721,93 @@
     ]
 }
 
+// Springbloom Druid
+{
+    "name": "Springbloom Druid",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "When this creature enters, you may sacrifice a land. If you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Springbloom Druid:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ForceSacrifice",
+                                "filter": "land",
+                                "target": "Controller"
+                            },
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Library",
+                                            "filter": "basicland"
+                                        },
+                                        "storeAs": "searchable",
+                                        "search": true
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "searchable",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 2
+                                            }
+                                        },
+                                        "storeSelected": "found",
+                                        "prompt": "Search your library for up to two basic land cards to put onto the battlefield tapped",
+                                        "selectedLabel": "Put onto the battlefield tapped"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "found",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield",
+                                            "placement": "Tapped"
+                                        }
+                                    },
+                                    "ShuffleLibrary",
+                                    "EmitLibrarySearchedEvent"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "When this creature enters, you may sacrifice a land. If you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "181",
+        "artist": "Randy Gallegos",
+        "flavorText": "\"New growth applies a healing poultice to wounds long scabbed over.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/6161d2ed-7cff-4c90-9e74-1d179a6c1498.jpg?1783933092"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Sunbaked Canyon
 {
     "name": "Sunbaked Canyon",
@@ -3117,7 +3826,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3139,7 +3851,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3275,6 +3990,94 @@
     "colorIdentityOverride": [
         "RED",
         "WHITE"
+    ]
+}
+
+// Talisman of Creativity
+{
+    "name": "Talisman of Creativity",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}.\n{T}: Add {U} or {R}. This artifact deals 1 damage to you.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Talisman of Creativity:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Talisman of Creativity:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Talisman of Creativity:3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "UNCOMMON",
+        "artist": "Lindsey Look",
+        "flavorText": "\"Good ideas don't take time. They take a lot of bad ideas first.\"\n—Ral Zarek",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4d9dbadd-c1b6-44fe-92ac-6f69d7178342.jpg?1783933072"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
     ]
 }
 
@@ -3796,7 +4599,8 @@
                             "type": "Fixed",
                             "amount": 2
                         }
-                    }
+                    },
+                    "description": "You gain 2 life"
                 }
             ]
         }
@@ -3806,6 +4610,63 @@
         "artist": "Eric Deschamps",
         "flavorText": "\"Be ever loyal to your own best interests.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/a/f/afbbb742-0317-4266-bcf5-cfea8d21f108.jpg?1783933118"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Undead Augur
+{
+    "name": "Undead Augur",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Zombie Wizard",
+    "oracleText": "Whenever this creature or another Zombie you control dies, you draw a card and lose 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Undead Augur:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Zombie ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever this creature or another Zombie you control dies, you draw a card and lose 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "rarity": "UNCOMMON",
+        "artist": "Sara Winters",
+        "flavorText": "\"To see past the veil of death, cross it.\"\n—The Red Book of Mezdrithalik",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c6e3049e-9397-4bef-914b-e9664661419c.jpg?1783933118"
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -3977,7 +4838,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3999,7 +4863,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]

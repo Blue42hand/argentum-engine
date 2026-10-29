@@ -16,8 +16,6 @@ import com.wingedsheep.engine.state.components.battlefield.CrewSaddleContributor
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
-import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.CrewSaddleCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.AddCardTypeEffect
@@ -35,6 +33,8 @@ class CrewVehicleHandler(
     private val cardRegistry: CardRegistry,
     private val stackResolver: StackResolver,
     private val castPermissionUtils: com.wingedsheep.engine.legalactions.utils.CastPermissionUtils? = null,
+    private val manaSolver: com.wingedsheep.engine.mechanics.mana.ManaSolver? = null,
+    private val costPaymentService: com.wingedsheep.engine.mechanics.cost.CostPaymentService? = null,
 ) : ActionHandler<CrewVehicle> {
     override val actionType: KClass<CrewVehicle> = CrewVehicle::class
 
@@ -46,7 +46,7 @@ class CrewVehicleHandler(
         val vehicleContainer = state.getEntity(action.vehicleId)
             ?: return "Vehicle not found: ${action.vehicleId}"
 
-        val vehicleCard = vehicleContainer.get<CardComponent>()
+        vehicleContainer.get<CardComponent>()
             ?: return "Not a card: ${action.vehicleId}"
 
         // Vehicle must be on the battlefield
@@ -68,23 +68,14 @@ class CrewVehicleHandler(
             return "An effect prevents you from activating that ability right now"
         }
 
-        // Vehicle must have Crew keyword ability
-        val cardDef = cardRegistry.getCard(vehicleCard.cardDefinitionId)
-            ?: return "Card definition not found"
-
-        val crewAbility = cardDef.keywordAbilities
-            .filterIsInstance<KeywordAbility.Numeric>()
-            .firstOrNull { it.keyword == Keyword.CREW }
-            ?: return "This permanent doesn't have crew"
-
-        // "Crew N. Activate only once each turn." (Luxurious Locomotive): block a second crew
-        // activation this turn. Vanilla Crew (onceEachTurn = false) has no such cap.
-        if (crewAbility.onceEachTurn) {
-            val crewActivations = vehicleContainer.get<CrewSaddleContributorsComponent>()?.crewActivations ?: 0
-            if (crewActivations >= 1) {
-                return "This Vehicle's crew ability can only be activated once each turn"
+        // Vehicle must have a crew ability it can activate now — printed or granted, minus a
+        // once-each-turn crew (Luxurious Locomotive) already used this turn.
+        val crewAbility = CrewRequirement.available(state, projected, cardRegistry, action.vehicleId)
+            ?: return if (CrewRequirement.hasAny(state, projected, cardRegistry, action.vehicleId)) {
+                "This Vehicle's crew ability can only be activated once each turn"
+            } else {
+                "This permanent doesn't have crew"
             }
-        }
 
         if (action.crewCreatures.isEmpty()) {
             return "Must select at least one creature to crew"
@@ -134,6 +125,12 @@ class CrewVehicleHandler(
             return "Total power ($totalPower) is less than crew requirement (${crewAbility.n})"
         }
 
+        // A cost-modifying static can add mana to the cost (Anointed Peacekeeper naming this card).
+        val tax = TapForPowerActivationTax.of(castPermissionUtils, state, action.vehicleId, action.playerId)
+        if (!TapForPowerActivationTax.canPay(manaSolver, state, action.playerId, tax, action.crewCreatures)) {
+            return "Not enough mana to pay the crew cost ($tax)"
+        }
+
         return null
     }
 
@@ -152,10 +149,10 @@ class CrewVehicleHandler(
 
         // Pay the cost: tap each crew creature
         for (creatureId in action.crewCreatures) {
-            val (tappedState, tapEvent) = tap(currentState, creatureId)
-            currentState = tappedState
-            tapEvent?.let {
-                events.add(it)
+            val tapOutcome = tap(currentState, creatureId)
+            currentState = tapOutcome.state
+            events.addAll(tapOutcome.events)
+            if (tapOutcome.tapped != null) {
                 events.add(
                     CrewOrSaddleContributionEvent(
                         contributorId = creatureId,
@@ -166,6 +163,14 @@ class CrewVehicleHandler(
                 )
             }
         }
+
+        // Any tax is paid after the creatures are tapped, so none of them is also tapped for mana.
+        val tax = TapForPowerActivationTax.of(castPermissionUtils, state, action.vehicleId, action.playerId)
+        val (paidState, paidEvents) = TapForPowerActivationTax.pay(
+            costPaymentService, currentState, state, action.playerId, action.vehicleId, tax
+        ) ?: return TapForPowerActivationTax.unaffordable(state, "crew")
+        currentState = paidState
+        events.addAll(paidEvents)
 
         // Record the crew so Vehicle payoffs can read "creatures that crewed it this turn"
         // (e.g. Luxurious Locomotive). Union across activations within the turn.
@@ -220,6 +225,8 @@ class CrewVehicleHandler(
                 services.cardRegistry,
                 services.stackResolver,
                 services.castPermissionUtils,
+                services.manaSolver,
+                services.costPaymentService,
             )
         }
     }

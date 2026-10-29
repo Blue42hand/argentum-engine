@@ -18,7 +18,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.ModifyScryAmount
+import com.wingedsheep.sdk.scripting.EventPattern
+import com.wingedsheep.sdk.scripting.ModifyKeywordActionAmount
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
@@ -47,7 +48,7 @@ class KenessosPriestOfThassaScenarioTest : FunSpec({
     val scryLens = card("Test Scry Lens") {
         manaCost = "{1}"
         typeLine = "Artifact"
-        replacementEffect(ModifyScryAmount(modifier = 1))
+        replacementEffect(ModifyKeywordActionAmount(EventPattern.ScryEvent(), modifier = 1))
     }
 
     fun setup(): GameTestDriver = GameTestDriver().apply {
@@ -114,6 +115,9 @@ class KenessosPriestOfThassaScenarioTest : FunSpec({
         val d = setup()
         val you = d.activePlayer!!
         d.putCreatureOnBattlefield(you, "Kenessos, Priest of Thassa")
+        // Two different cards: copies of one card have no order to choose, so no prompt.
+        d.putCardOnTopOfLibrary(you, "Grizzly Bears")
+        d.putCardOnTopOfLibrary(you, "Plains")
         val top = d.state.getLibrary(you).take(2)
         val opt = d.putCardInHand(you, "Opt")
         d.giveMana(you, Color.BLUE, 1)

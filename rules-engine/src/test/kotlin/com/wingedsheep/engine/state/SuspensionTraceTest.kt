@@ -105,10 +105,23 @@ class SuspensionTraceTest : ScenarioTestBase() {
      * which postdates this trace and is verified by ControlHistoryTest and scenario tests.
      * Source-choice target references also postdate the trace; ChosenSourceDamageRedirectionTest
      * independently verifies their capture, retention after departure and serialization.
+     * Exact mana units also postdate the capture; ActivationManaProvenanceTest pins those snapshots.
      */
     private fun normalizeRouting(value: JsonElement, root: Boolean = false): JsonElement = when (value) {
-        is JsonObject -> JsonObject(((if (root) value - "controlAtTurnStart" else value) - "targetObjectRefs" - "referencedObjects").mapValues { (key, child) ->
+        is JsonObject -> JsonObject(((if (root) value - "controlAtTurnStart" else value) - "targetObjectRefs" - "referencedObjects" - "manaUnits" -
+            // The graveyard turn history (Crawling Sensation) postdates the capture, as does the
+            // per-card stamp on a resolved spell; CardsPutIntoGraveyardThisTurnTrackerTest pins both.
+            "com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardThisTurnComponent" -
+            "com.wingedsheep.engine.state.components.identity.PutIntoGraveyardThisTurnComponent").mapValues { (key, child) ->
             when {
+                // Captured ownership also postdates these traces; SourceOwnerLastKnownTest pins it.
+                // Departure object references postdate these historical traces. EnlistTest
+                // checks that the captured reference preserves the old object's power across a blink.
+                // Snapshot names were captured later; DepartedSourceCounterPaymentTest pins the
+                // actual departure metadata and masked prompts. Keep historical input fixtures intact.
+                key == "snapshot" && value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentComponent"
+                ) -> normalizeRouting(JsonObject(child.jsonObject - "objectRef" - "name" - "ownerId"))
                 root && key == "nextRoutingId" -> JsonPrimitive(0)
                 key == "question" && "answer" in value -> {
                     val question = child.jsonObject

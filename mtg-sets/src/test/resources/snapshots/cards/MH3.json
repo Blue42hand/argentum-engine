@@ -1617,31 +1617,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 1,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 1
                 }
             }
         ]
@@ -2272,7 +2249,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Forest, Island, or Mountain card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -2754,7 +2733,9 @@
                                                                 "amount": 1
                                                             }
                                                         },
-                                                        "storeSelected": "found"
+                                                        "storeSelected": "found",
+                                                        "prompt": "Search your library for a Plains land card to put onto the battlefield tapped",
+                                                        "selectedLabel": "Put onto the battlefield tapped"
                                                     },
                                                     {
                                                         "type": "MoveCollection",
@@ -2876,7 +2857,12 @@
                             "baseFilter": {
                                 "cardPredicates": [
                                     "IsCreature",
-                                    "ManaValueEqualsX"
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "EQ",
+                                        "amount": "XValue"
+                                    }
                                 ],
                                 "controllerPredicate": "OwnedByYou"
                             },
@@ -3387,7 +3373,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Plains, Island, or Swamp card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -3951,31 +3939,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 2,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 2
                 }
             }
         ],
@@ -4189,7 +4154,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Plains, Swamp, or Forest card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -5050,31 +5017,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 1,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 1
                 }
             }
         ]
@@ -6075,31 +6019,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 2,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 2
                 },
                 "descriptionOverride": "Adapt 2."
             }
@@ -6527,31 +6448,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 4,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 4
                 },
                 "descriptionOverride": "{6}{B}: Adapt 4. This ability costs {1} less to activate for each other artifact you control.",
                 "genericCostReduction": {
@@ -6685,31 +6583,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 2,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 2
                 }
             }
         ]
@@ -6787,31 +6662,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 1,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 1
                 }
             }
         ]
@@ -7341,31 +7193,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 2,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 2
                 }
             }
         ]
@@ -7802,7 +7631,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Swamp, Forest, or Island card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -8870,7 +8701,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value your devotion to black or less to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -9891,31 +9724,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 2,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 2
                 }
             }
         ],
@@ -11113,6 +10923,7 @@
                                 "chooser": "TargetPlayer",
                                 "storeSelected": "toBottom",
                                 "storeRemainder": "toTop",
+                                "prompt": "Scry X: choose cards to put on the bottom of your library",
                                 "selectedLabel": "Put on bottom",
                                 "remainderLabel": "Put on top"
                             },
@@ -11202,7 +11013,12 @@
                                 "baseFilter": {
                                     "cardPredicates": [
                                         "IsCreature",
-                                        "ManaValueAtMostX"
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "LTE",
+                                            "amount": "XValue"
+                                        }
                                     ]
                                 }
                             },
@@ -12580,7 +12396,10 @@
             }
         ],
         "staticAbilities": [
-            "SkipDrawStep",
+            {
+                "type": "SkipStepOrPhase",
+                "part": "DRAW_STEP"
+            },
             {
                 "type": "SetMaximumHandSize",
                 "amount": {
@@ -13761,7 +13580,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Island, Mountain, or Plains card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -14638,10 +14459,19 @@
                     },
                     "binding": "ANY",
                     "effect": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 1,
-                        "target": "Self"
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "Self"
+                            },
+                            {
+                                "type": "EmitKeywordCounterEvent",
+                                "keyword": "EVOLVE"
+                            }
+                        ]
                     },
                     "interveningIf": {
                         "type": "Any",
@@ -15229,7 +15059,7 @@
                         "change": 1
                     },
                     "effect": {
-                        "type": "ReduceSpellCosts",
+                        "type": "ModifySpellCosts",
                         "spellFilter": {
                             "cardPredicates": [
                                 {
@@ -17013,7 +16843,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Island, Swamp, or Mountain card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -17209,7 +17041,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Mountain, Plains, or Swamp card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -17310,7 +17144,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Mountain, Forest, or Plains card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -18815,7 +18651,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -19673,7 +19511,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                    "selectedLabel": "Put onto the battlefield tapped"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -20297,31 +20137,8 @@
                     }
                 },
                 "effect": {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Not",
-                            "condition": {
-                                "type": "EntityMatches",
-                                "entity": "Self",
-                                "filter": {
-                                    "statePredicates": [
-                                        {
-                                            "type": "HasCounter",
-                                            "counterType": "PLUS_ONE_PLUS_ONE"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "type": "AddCounters",
-                        "counterType": "PLUS_ONE_PLUS_ONE",
-                        "count": 2,
-                        "target": "Self"
-                    }
+                    "type": "Adapt",
+                    "amount": 2
                 }
             }
         ],
@@ -20893,7 +20710,9 @@
                                                         "amount": 1
                                                     }
                                                 },
-                                                "storeSelected": "found"
+                                                "storeSelected": "found",
+                                                "prompt": "Search your library for a creature card with mana value that much or less to put onto the battlefield",
+                                                "selectedLabel": "Put onto the battlefield"
                                             },
                                             {
                                                 "type": "MoveCollection",
@@ -20945,7 +20764,9 @@
                                                         "amount": 1
                                                     }
                                                 },
-                                                "storeSelected": "found"
+                                                "storeSelected": "found",
+                                                "prompt": "Search your graveyard for a creature card with mana value that much or less to put onto the battlefield",
+                                                "selectedLabel": "Put onto the battlefield"
                                             },
                                             {
                                                 "type": "MoveCollection",
@@ -20997,7 +20818,9 @@
                                                         "amount": 1
                                                     }
                                                 },
-                                                "storeSelected": "found"
+                                                "storeSelected": "found",
+                                                "prompt": "Search your library and/or graveyard for a creature card with mana value that much or less to put onto the battlefield",
+                                                "selectedLabel": "Put onto the battlefield"
                                             },
                                             {
                                                 "type": "MoveCollection",
@@ -21601,7 +21424,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Forest, Plains, or Island card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -21945,7 +21770,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic Swamp, Mountain, or Forest card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -22673,7 +22500,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -23188,7 +23017,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         },
                         {
@@ -23335,7 +23167,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for an instant or card with flash to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -23606,7 +23440,9 @@
                                                     "amount": 1
                                                 }
                                             },
-                                            "storeSelected": "found"
+                                            "storeSelected": "found",
+                                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                            "selectedLabel": "Put onto the battlefield tapped"
                                         },
                                         {
                                             "type": "MoveCollection",
@@ -23720,7 +23556,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",

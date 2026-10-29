@@ -34,6 +34,9 @@ import com.wingedsheep.engine.state.components.combat.DamageAssignmentOrderCompo
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.state.components.identity.TurnsFaceUpInsteadComponent
+import com.wingedsheep.engine.mechanics.FaceUpInstead
+import com.wingedsheep.engine.state.components.combat.FirstStrikeStepAssignerComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.sdk.core.Keyword
@@ -79,6 +82,56 @@ internal class CombatDamageManager(
      * @param firstStrike If true, only creatures with first strike/double strike deal damage
      */
     fun applyCombatDamage(state: GameState, firstStrike: Boolean = false): ExecutionResult {
+        // Illusionary Mask: a face-down creature that would assign combat damage is turned face up
+        // first and assigns with its real characteristics (CR 510.1). Assignment happens even when
+        // the damage will be prevented, so this runs ahead of the prevent-all short circuit.
+        val (faceUpState, faceUpEvents) = turnFaceUpAssigners(state, firstStrike)
+        val result = assignAndDealCombatDamage(faceUpState, firstStrike)
+        return if (faceUpEvents.isEmpty()) result else result.copy(events = faceUpEvents + result.events)
+    }
+
+    /**
+     * Stamp [FirstStrikeStepAssignerComponent] on every combatant with first or double strike as the
+     * first-strike combat damage step begins (CR 510.4). Called once, on entering the step — not on
+     * each re-entry after a paused decision — so a creature that gains first strike mid-step (say from
+     * a permanent Illusionary Mask turns face up) neither joins this step nor skips the regular one.
+     */
+    fun stampFirstStrikeStepAssigners(state: GameState): GameState {
+        val projected = state.projectedState
+        val combatants = state.findEntitiesWith<AttackingComponent>().map { it.first } +
+            state.findEntitiesWith<BlockingComponent>().map { it.first }
+        var newState = state
+        for (id in combatants) {
+            if (projected.hasKeyword(id, Keyword.FIRST_STRIKE) || projected.hasKeyword(id, Keyword.DOUBLE_STRIKE)) {
+                newState = newState.updateEntity(id) { it.with(FirstStrikeStepAssignerComponent) }
+            }
+        }
+        return newState
+    }
+
+    /**
+     * Turn face up every face-down creature with Illusionary Mask's rider that would assign combat
+     * damage this step ([FaceUpInstead]). Repeats until nothing more flips, since a creature turned
+     * face up can raise another one's power above 0. Recipients are handled later, once the
+     * assignment is fixed — see [assignAndDealCombatDamage].
+     */
+    private fun turnFaceUpAssigners(state: GameState, firstStrike: Boolean): Pair<GameState, List<GameEvent>> {
+        if (state.findEntitiesWith<TurnsFaceUpInsteadComponent>().isEmpty()) return state to emptyList()
+        var current = state
+        val events = mutableListOf<GameEvent>()
+        while (true) {
+            val assigners = proposeDamageAssignments(current, current.projectedState, firstStrike)
+                .map { it.sourceId }
+                .filter { FaceUpInstead.applies(current, it) }
+                .distinct()
+            if (assigners.isEmpty()) return current to events
+            val (next, flipped) = FaceUpInstead.turnFaceUpAll(current, assigners)
+            current = next
+            events.addAll(flipped)
+        }
+    }
+
+    private fun assignAndDealCombatDamage(state: GameState, firstStrike: Boolean): ExecutionResult {
         if (isAllCombatDamagePrevented(state)) {
             return ExecutionResult.success(state)
         }
@@ -105,7 +158,7 @@ internal class CombatDamageManager(
             // by a face-up source's battlefield-scoped grant; the helper handles both.
             if (!CombatDamageUtils.assignsAsThoughUnblocked(state, projected, attackerId, cardRegistry, predicateEvaluator)) continue
 
-            if (!dealsDamageThisStep(projected, attackerId, firstStrike)) continue
+            if (!dealsDamageThisStep(state, projected, attackerId, firstStrike)) continue
 
             val attackerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, attackerId, cardRegistry, predicateEvaluator = predicateEvaluator)
             if (attackerPower <= 0) continue
@@ -157,7 +210,7 @@ internal class CombatDamageManager(
 
             val cardDef = cardRegistry.getCard(attackerCard.cardDefinitionId) ?: continue
             if (cardDef.staticAbilities.none { it is AssignUnblockedCombatDamageToDefendingCreature }) continue
-            if (!dealsDamageThisStep(projected, attackerId, firstStrike)) continue
+            if (!dealsDamageThisStep(state, projected, attackerId, firstStrike)) continue
             val attackerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, attackerId, cardRegistry, predicateEvaluator = predicateEvaluator)
             if (attackerPower <= 0) continue
 
@@ -201,14 +254,7 @@ internal class CombatDamageManager(
             val hasDivideDamageFreely = cardDef.staticAbilities.any { it is DivideCombatDamageFreely }
             if (!hasDivideDamageFreely) continue
 
-            val hasFirstStrike = projected.hasKeyword(attackerId, Keyword.FIRST_STRIKE)
-            val hasDoubleStrike = projected.hasKeyword(attackerId, Keyword.DOUBLE_STRIKE)
-            val attackerDealsDamageThisStep = if (firstStrike) {
-                hasFirstStrike || hasDoubleStrike
-            } else {
-                !hasFirstStrike || hasDoubleStrike
-            }
-            if (!attackerDealsDamageThisStep) continue
+            if (!dealsDamageThisStep(state, projected, attackerId, firstStrike)) continue
 
             val allDamagePrevented = DamageUtils.isAllDamageFromSourcePrevented(state, attackerId)
             val groupPrevented = isCombatDamagePreventedByGroupFilter(state, attackerId, projected)
@@ -302,10 +348,19 @@ internal class CombatDamageManager(
         // Phase 2: Modify
         // Chosen-source redirection changes the recipient before recipient-specific protection,
         // prevention and amplification are evaluated. Final marking would bypass those effects.
-        val (redirectedState, redirectedAssignments) = redirectChosenSourceAssignments(state, proposedAssignments)
+        val (chosenRedirectState, redirectedAssignments) = redirectChosenSourceAssignments(state, proposedAssignments)
+        // Illusionary Mask: the assignment is fixed, so a face-down recipient that would be dealt
+        // damage is turned face up now (CR 510.2), before prevention — the modifiers below then see
+        // the face-up creature's own protection (CR 616.1f).
+        val (redirectedState, recipientFaceUpEvents) = FaceUpInstead.turnFaceUpAll(
+            chosenRedirectState,
+            redirectedAssignments.filter { it.amount > 0 }.map { it.targetId }.distinct()
+                .filter { FaceUpInstead.applies(chosenRedirectState, it) }
+        )
+        val modifierProjected = if (recipientFaceUpEvents.isEmpty()) projected else redirectedState.projectedState
         var finalAssignments = redirectedAssignments
         for (modifier in damageModifiers) {
-            finalAssignments = modifier.modify(redirectedState, projected, finalAssignments)
+            finalAssignments = modifier.modify(redirectedState, modifierProjected, finalAssignments)
         }
 
         // Pre-check: the "you may" of an optional redirection shield (Blood of the Martyr). Asked off
@@ -335,6 +390,7 @@ internal class CombatDamageManager(
         // the whole simultaneous batch and drops the assignments whose damage it prevents, so the
         // downstream steps (redirect consumption, lifelink) never see prevented damage.
         val events = mutableListOf<GameEvent>()
+        events.addAll(recipientFaceUpEvents)
 
         // Phase 2a: source-side group shields ("prevent all damage that would be dealt by creatures
         // this turn" — Ethereal Haze, Chant of Vitu-Ghazi). Every covered assignment is dropped; a
@@ -391,7 +447,7 @@ internal class CombatDamageManager(
         newState = consumeBatchRedirectShields(newState, finalAssignments)
 
         // Lifelink
-        val lifelinkResult = applyLifelinkFromDamageEvents(newState, events, projected)
+        val lifelinkResult = applyLifelinkFromDamageEvents(newState, events, modifierProjected)
         newState = lifelinkResult.first
         events.addAll(lifelinkResult.second)
 
@@ -479,7 +535,7 @@ internal class CombatDamageManager(
             // Accepting a bypass fixes the whole assignment. Declining stores an empty marker
             // to suppress the yes/no prompt, but still permits the normal blocker division.
             if (attackerContainer.get<DamageAssignmentComponent>()?.assignments?.isNotEmpty() == true) continue
-            if (!dealsDamageThisStep(projected, attackerId, firstStrike)) continue
+            if (!dealsDamageThisStep(state, projected, attackerId, firstStrike)) continue
 
             val blockedBy = attackerContainer.get<BlockedComponent>()
             if (blockedBy == null || blockedBy.blockerIds.isEmpty()) continue
@@ -568,7 +624,7 @@ internal class CombatDamageManager(
                 hasDeathtouch = projected.hasKeyword(blockerId, Keyword.DEATHTOUCH),
                 hasFirstStrike = projected.hasKeyword(blockerId, Keyword.FIRST_STRIKE),
                 hasDoubleStrike = projected.hasKeyword(blockerId, Keyword.DOUBLE_STRIKE),
-                dealsDamageThisStep = dealsDamageThisStep(projected, blockerId, firstStrike),
+                dealsDamageThisStep = dealsDamageThisStep(state, projected, blockerId, firstStrike),
                 blockedAttackerIds = blocking?.blockedAttackerIds.orEmpty(),
                 orderedAttackers = container.get<AttackerOrderComponent>()?.orderedAttackers
                     ?: blocking?.blockedAttackerIds.orEmpty(),
@@ -596,7 +652,7 @@ internal class CombatDamageManager(
         val edges = mutableListOf<DamageEdge>()
 
         // Attacker -> blocker edges, plus a trample drain to the defender. Defaults come from the
-        // lethal-first auto distribution (CR 510.1c order); the player may re-divide within budget.
+        // lethal-first default distribution; the player may re-divide freely within budget (CR 510.1c).
         for (c in candidates) {
             val auto = damageCalculator.calculateAutoDamageDistribution(state, c.attackerId).assignments
             for (blockerId in c.liveBlockers) {
@@ -695,7 +751,7 @@ internal class CombatDamageManager(
         val choosers = attackerChoosers + blockerChoosers
 
         // Names here are the real card names; per-viewer face-down masking is applied downstream at
-        // delivery time (DecisionEnricher), since this one decision graph is shown to both choosers.
+        // delivery time (DecisionMasker), since this one decision graph is shown to both choosers.
         val prompt = if (candidates.size == 1) {
             "Assign ${candidates[0].attackerName}'s ${candidates[0].availablePower} combat damage"
         } else {
@@ -784,7 +840,7 @@ internal class CombatDamageManager(
                 ?: emptyList()
 
             // Attacker damage
-            if (dealsDamageThisStep(projected, attackerId, firstStrike)) {
+            if (dealsDamageThisStep(state, projected, attackerId, firstStrike)) {
                 val power = CombatDamageUtils.getAssignedCombatDamage(state, projected, attackerId, cardRegistry, predicateEvaluator = predicateEvaluator)
                 if (power > 0) {
                     val defenderIsLive = AttackedPermanents.hasLiveTarget(state, attackingComponent)
@@ -871,7 +927,7 @@ internal class CombatDamageManager(
                 if (blockerId !in state.getBattlefield()) continue
                 val blockerContainer = state.getEntity(blockerId) ?: continue
                 blockerContainer.get<CardComponent>() ?: continue
-                if (!dealsDamageThisStep(projected, blockerId, firstStrike)) continue
+                if (!dealsDamageThisStep(state, projected, blockerId, firstStrike)) continue
                 val blockerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, blockerId, cardRegistry, predicateEvaluator = predicateEvaluator)
                 if (blockerPower <= 0) continue
 
@@ -920,13 +976,18 @@ internal class CombatDamageManager(
         return assignments
     }
 
-    private fun dealsDamageThisStep(projected: ProjectedState, creatureId: EntityId, firstStrike: Boolean): Boolean {
-        val hasFirstStrike = projected.hasKeyword(creatureId, Keyword.FIRST_STRIKE)
-        val hasDoubleStrike = projected.hasKeyword(creatureId, Keyword.DOUBLE_STRIKE)
+    /**
+     * Whether [creatureId] assigns combat damage in this step (CR 510.4). The first-strike step's
+     * assigners are the creatures stamped as it began; the regular step's are the double
+     * strikers plus every creature that wasn't one of the first step's assigners — not the ones
+     * lacking first strike *now*, which CR 702.7c rules out in both directions.
+     */
+    private fun dealsDamageThisStep(state: GameState, projected: ProjectedState, creatureId: EntityId, firstStrike: Boolean): Boolean {
+        val stamped = state.getEntity(creatureId)?.has<FirstStrikeStepAssignerComponent>() == true
         return if (firstStrike) {
-            hasFirstStrike || hasDoubleStrike
+            stamped
         } else {
-            !hasFirstStrike || hasDoubleStrike
+            projected.hasKeyword(creatureId, Keyword.DOUBLE_STRIKE) || !stamped
         }
     }
 
@@ -1370,6 +1431,11 @@ internal class CombatDamageManager(
             }
         }
 
+        // CR 120.4a — excess damage to a planeswalker / battle is the amount above its loyalty /
+        // defense, measured before the counters come off.
+        val excess = (amount - currentCount).coerceAtLeast(0)
+        newState = DamageUtils.trackExcessDamageToPermanent(newState, state.projectedState, targetId, excess)
+
         newState = DamageUtils.trackDamageDealt(newState, sourceId, amount, isCombatDamage = true)
         // Combat damage counts toward "sources you controlled dealt damage this turn" too.
         newState = DamageUtils.trackDamageSourceForController(newState, sourceId)
@@ -1384,7 +1450,7 @@ internal class CombatDamageManager(
         val targetName = newState.getEntity(targetId)?.get<CardComponent>()?.name ?: defaultName
         events.add(DamageDealtEvent(sourceId, targetId, amount, true,
             sourceName = sourceName, targetName = targetName, targetIsPlayer = false,
-            targetLastKnown = captureLastKnown(state, targetId),
+            targetLastKnown = captureLastKnown(state, targetId), excessAmount = excess,
             sourceAttachmentIds = attachmentIdsOf(state, sourceId)))
         val removed = amount.coerceAtMost(currentCount)
         if (counterType == com.wingedsheep.sdk.core.CounterType.LOYALTY) {
@@ -1550,10 +1616,15 @@ internal class CombatDamageManager(
             }
             val projected = newState.projectedState
             val hasWither = projected.hasKeyword(sourceId, Keyword.WITHER)
-            // Excess damage (CR 120.4a) is only computed for the non-wither path below.
-            // Wither damage (dealt as -1/-1 counters per CR 702.80a), planeswalker (above
-            // loyalty), and battle (above defense) excess paths are not yet modelled.
-            var excess = 0
+            // Excess damage (CR 120.4a): damage past lethal, whether it is marked or dealt as
+            // wither's -1/-1 counters (CR 702.80a). With deathtouch any damage greater than 1 is
+            // excess — lethal collapses to a flat 1 regardless of marked damage (CR 120.4a refs
+            // 702.2). Trample is already removed by combat damage assignment, so any damage that
+            // reaches this creature was assigned to it — the leftover above lethal is excess.
+            val lethalNeeded = if (projected.hasKeyword(sourceId, Keyword.DEATHTOUCH)) 1
+            else ((projected.getToughness(targetId) ?: 0) -
+                (newState.getEntity(targetId)?.get<DamageComponent>()?.amount ?: 0)).coerceAtLeast(0)
+            val excess = (amount - lethalNeeded).coerceAtLeast(0)
             if (hasWither) {
                 // Wither (CR 702.80): damage to creatures is dealt in the form of -1/-1 counters
                 val counters = newState.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
@@ -1597,16 +1668,8 @@ internal class CombatDamageManager(
                         deathtouchDamageReceived = hasDeathtouch || (existingDamage?.deathtouchDamageReceived == true)
                     ))
                 }
-                // Excess damage (CR 120.4a): damage past lethal needed. With deathtouch any
-                // damage greater than 1 is excess — lethal collapses to a flat 1 regardless
-                // of marked damage (CR 120.4a refs 702.2). Trample is already removed by
-                // combat damage assignment, so any damage that reaches this creature was
-                // assigned to it — the leftover above lethal is excess.
-                val toughness = projected.getToughness(targetId) ?: 0
-                val lethalNeeded = if (hasDeathtouch) 1
-                else (toughness - currentDamage).coerceAtLeast(0)
-                excess = (amount - lethalNeeded).coerceAtLeast(0)
             }
+            newState = DamageUtils.trackExcessDamageToPermanent(newState, projected, targetId, excess)
             // Mark creature as having been dealt damage this turn
             newState = newState.updateEntity(targetId) { container ->
                 container.with(WasDealtDamageThisTurnComponent)
@@ -1788,14 +1851,7 @@ internal class CombatDamageManager(
             val attackerContainer = state.getEntity(attackerId) ?: continue
             attackerContainer.get<CardComponent>() ?: continue
 
-            val hasFirstStrike = projected.hasKeyword(attackerId, Keyword.FIRST_STRIKE)
-            val hasDoubleStrike = projected.hasKeyword(attackerId, Keyword.DOUBLE_STRIKE)
-            val dealsDamageThisStep = if (firstStrike) {
-                hasFirstStrike || hasDoubleStrike
-            } else {
-                !hasFirstStrike || hasDoubleStrike
-            }
-            if (!dealsDamageThisStep) continue
+            if (!dealsDamageThisStep(state, projected, attackerId, firstStrike)) continue
 
             val attackerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, attackerId, cardRegistry, predicateEvaluator = predicateEvaluator)
             if (attackerPower <= 0) continue

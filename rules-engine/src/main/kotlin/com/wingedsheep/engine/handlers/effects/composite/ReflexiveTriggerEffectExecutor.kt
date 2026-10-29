@@ -65,6 +65,7 @@ class ReflexiveTriggerEffectExecutor(
     private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<ReflexiveTriggerEffect> {
     private val predicateEvaluator = amountEvaluator.predicates
+    private val manaSolver = com.wingedsheep.engine.mechanics.mana.ManaSolver(cardRegistry, predicateEvaluator)
 
     override val effectType: KClass<ReflexiveTriggerEffect> = ReflexiveTriggerEffect::class
 
@@ -160,6 +161,10 @@ class ReflexiveTriggerEffectExecutor(
             requirement = action.requirement,
             controllerId = context.controllerId,
             sourceId = context.sourceId,
+            // Mirror SelectTargetPipelineExecutor: a non-targeting choice ("you may sacrifice an
+            // artifact") isn't limited by hexproof, shroud or protection, so an artifact with shroud
+            // must still make the "may" feasible.
+            ignoreTargetingRestrictions = action.nonTargeting,
             targetingSourceType = TargetingSourceType.TRIGGERED_ABILITY,
             // Carry granterId so the "may" feasibility check honors a granter-relative exclusion —
             // e.g. Dire Blunderbuss must NOT offer the sacrifice when the only artifact is the
@@ -169,7 +174,10 @@ class ReflexiveTriggerEffectExecutor(
                 controllerId = context.controllerId,
                 granterId = context.granterId
             )
-        ).isNotEmpty()
+        ).any { candidate ->
+            // Mirror the executor's earlier-pick exclusion, so feasibility and execution agree.
+            action.excluding.none { candidate in context.pipeline.storedCollections[it].orEmpty() }
+        }
         is SacrificeEffect -> {
             // You can only sacrifice permanents you control that match the filter (mirrors
             // SacrificeExecutor.findValidPermanents). Fewer than `count` → can't pay → infeasible.
@@ -180,7 +188,7 @@ class ReflexiveTriggerEffectExecutor(
             ).size >= action.count
         }
         is ChooseActionEffect -> action.choices.any { choice ->
-            checkFeasibility(state, context.controllerId, choice.feasibilityCheck, predicateEvaluator = predicateEvaluator)
+            checkFeasibility(state, context.controllerId, choice.feasibilityCheck, predicateEvaluator = predicateEvaluator, manaSolver = manaSolver)
         }
         is SelectFromCollectionEffect -> {
             val available = gathered?.get(action.from)

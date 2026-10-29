@@ -1,5 +1,9 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
+import com.wingedsheep.engine.mechanics.mana.SpentMana
+
 import com.wingedsheep.engine.mechanics.mana.allocateFloating
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -8,9 +12,10 @@ import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.CountersRemovedEvent
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
+import com.wingedsheep.engine.core.ZoneChangeEvent
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.engine.core.LoyaltyChangedEvent
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.CostPaymentChoices
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
@@ -63,6 +68,18 @@ internal data class ActivationPayment(
     /** The cards the cost exiled, as fed to payment. */
     val exileChoices: List<EntityId>,
     /**
+     * The objects the cost atoms exiled other than the source itself, read off their own zone
+     * changes — the chosen cards, or the ones payment picked when there was no real choice.
+     */
+    val exiledAsCost: List<EntityId> = exileChoices,
+    /**
+     * Last-known snapshots (CR 113.7a / 608.2h) of the permanents the cost exiled from the
+     * battlefield, taken by the zone transition itself — "the exiled creature" as it last existed
+     * there, including its copiable values (Curie, Emergent Intelligence) and a token that has
+     * since ceased to exist.
+     */
+    val exiledAsCostSnapshots: List<EntitySnapshot> = emptyList(),
+    /**
      * The cards the cost atoms discarded — chosen, random, or the source itself — read off the
      * atoms' own discard events, so a mana ability tapped to pay the mana portion never adds one.
      */
@@ -73,6 +90,8 @@ internal data class ActivationPayment(
      */
     val countersRemovedAsCost: Int,
     val snapshots: ActivationCostSnapshots,
+    /** The mana spent on the cost's mana portion, by type (Illusionary Mask reads it). */
+    val manaSpent: SpentMana = SpentMana(),
 )
 
 internal sealed interface ActivationPaymentOutcome {
@@ -125,6 +144,7 @@ internal class ActivationCostPayer(
             manaBySource = poolComponent.manaBySource,
             manaByCardType = poolComponent.manaByCardType,
             snowMana = poolComponent.snowMana,
+            manaUnits = poolComponent.manaUnits,
             snowColorless = poolComponent.snowColorless
         ).withSpendingColors(state, action.playerId)
 
@@ -151,12 +171,14 @@ internal class ActivationCostPayer(
             ) ?: emptyList()
         }
         val phyrexianLife = phyrexianLifePayments.size * 2
-        if (!currentState.canPayLife(action.playerId, phyrexianLife)) {
+        if (!currentState.canPayLife(action.playerId, phyrexianLife, LifePaymentPurpose.activating(ability.isManaAbility))) {
             return ActivationPaymentOutcome.Failed("Insufficient life for Phyrexian mana payment")
         }
         val manaCost = if (reducedManaCost == null) null else reducedManaCost.withPhyrexianPaidByLife(phyrexianLifePayments)
             ?: return ActivationPaymentOutcome.Failed("Invalid Phyrexian mana payment")
 
+        // The post-production pool is the baseline for this activation’s independently saved payment.
+        var spentBaseline = manaPool
         val scopedDirect = currentState.activeManaSpendingScope(action.playerId) != null
         val scopedAllocation = if (scopedDirect && manaCost != null) manaPool.allocateFloating(
             manaCost, paymentContext, if (manaCost.hasX) xValue * manaCost.xCount else 0,
@@ -175,6 +197,9 @@ internal class ActivationCostPayer(
                 is ManaTapOutcome.Failed -> return ActivationPaymentOutcome.Failed(tapped.reason)
                 is ManaTapOutcome.Tapped -> {
                     currentState = tapped.state
+                    // Auto-tap floats what it taps, so the post-tap pool is the baseline; the
+                    // explicit path uses the same floating pool but limits the allowed sources.
+                    spentBaseline = tapped.pool
                     manaPool = tapped.pool
                     events.addAll(tapped.events)
                 }
@@ -215,8 +240,7 @@ internal class ActivationCostPayer(
 
         val snapshots = captureCostSnapshots(currentState, action, effectiveCost, firstTapSlice)
 
-        // When using Explicit payment, mana sources were already tapped above —
-        // strip the Mana portion so payAbilityCost doesn't try to deduct from the pool.
+        // Explicit and automatic sources have both floated their output above.
         // Scoped payments allocate the entire fixed/X cost from the pool before the other atoms.
         // When convoke was applied, replace the mana portion with the reduced cost.
         if (scopedAllocation != null) {
@@ -226,7 +250,7 @@ internal class ActivationCostPayer(
                 reason = "Activate ${activation.sourceName}", white = spent.white, blue = spent.blue,
                 black = spent.black, red = spent.red, green = spent.green, colorless = spent.colorless))
         }
-        val costForPayment = if (scopedDirect || action.paymentStrategy is PaymentStrategy.Explicit) {
+        val costForPayment = if (scopedDirect) {
             effectiveCost.stripManaCost()
         } else if (manaCost != null && (phyrexianLifePayments.isNotEmpty() ||
                 ((ability.hasConvoke || ability.hasWaterbend) && action.alternativePayment != null && !action.alternativePayment.isEmpty))
@@ -254,6 +278,11 @@ internal class ActivationCostPayer(
         }
 
         currentState = costResult.newState!!
+        // What the exile atoms took — a self-exile is the source, not "the exiled card", and
+        // exiling from the top of a library (CostAtom.ExileTopOfLibrary) is no chosen exile pick.
+        val costExiles = costResult.events.filterIsInstance<ZoneChangeEvent>().filter {
+            it.toZone == Zone.EXILE && it.fromZone != Zone.LIBRARY && it.entityId != action.sourceId
+        }
         manaPool = costResult.newManaPool!!
 
         // Collect events from cost payment (e.g., sacrifice events)
@@ -268,12 +297,12 @@ internal class ActivationCostPayer(
 
         // Deduct X mana from the pool. ManaPool.pay() skips X symbols ("handled by caller"),
         // so we must explicitly spend the X portion here (same pattern as CastSpellHandler.autoPay).
-        // Explicit and scoped payments have already paid their entire fixed/X allocation.
-        if (!scopedDirect && action.paymentStrategy !is PaymentStrategy.Explicit && manaCost != null && manaCost.hasX && xValue > 0) {
+        // Scoped payments have already paid their entire fixed/X allocation.
+        if (!scopedDirect && manaCost != null && manaCost.hasX && xValue > 0) {
             manaPool = spendXFromPool(manaPool, manaCost, xValue, ability.xManaRestriction, paymentContext)
         }
 
-        currentState = writeBackPool(currentState, action.playerId, poolComponent, manaPool)
+        currentState = writeBackPool(currentState, action.playerId, spentBaseline, manaPool)
 
         // Emit events for cost types. Tap/TapAttachedCreature/TapXPermanents taps are emitted by
         // the tap atom inside costHandler.payAbilityCost (folded in via costResult.events above), so
@@ -310,9 +339,12 @@ internal class ActivationCostPayer(
                 isTapBatch = isTapBatch,
                 firstTapSlice = firstTapSlice,
                 exileChoices = exileChoices,
+                exiledAsCost = exileChoices.ifEmpty { costExiles.map { it.entityId } },
+                exiledAsCostSnapshots = costExiles.filter { it.isBattlefieldDeparture }.mapNotNull { it.lastKnown },
                 discardedCards = costResult.events.filterIsInstance<CardsDiscardedEvent>().flatMap { it.cardIds },
                 countersRemovedAsCost = costResult.events.filterIsInstance<CountersRemovedEvent>().sumOf { it.amount },
                 snapshots = snapshots,
+                manaSpent = SpentMana.between(spentBaseline, manaPool),
             )
         )
     }
@@ -365,7 +397,11 @@ internal class ActivationCostPayer(
     }
 
     private sealed interface ManaTapOutcome {
-        data class Tapped(val state: GameState, val pool: ManaPool, val events: List<GameEvent>) : ManaTapOutcome
+        data class Tapped(
+            val state: GameState,
+            val pool: ManaPool,
+            val events: List<GameEvent>,
+        ) : ManaTapOutcome
         data class Failed(val reason: String) : ManaTapOutcome
     }
 
@@ -390,41 +426,13 @@ internal class ActivationCostPayer(
         val selfExcludedSources = if (activation.effectiveCost.hasTapCost()) setOf(action.sourceId) else emptySet()
         return when (action.paymentStrategy) {
             is PaymentStrategy.Explicit -> {
-                // Spend floating mana first, then tap only the minimum subset of chosen
-                // sources required to cover what the pool can't — parity with the auto-tap
-                // branch below (ActivationAutoTapper) and CastPaymentProcessor.autoPay. Without
-                // the payPartial, mana already in the pool is stranded: the solver would tap
-                // sources for the whole cost and the pool deduction is skipped (Mana stripped
-                // in costForPayment), so pre-floated mana is never spent. This bit
-                // waterbend/convoke abilities in particular — the client always routes them
-                // through Explicit payment, and the enumerator deems them affordable counting
-                // pool + sources, so ignoring the pool here made a legal activation fail
-                // ("Selected mana sources cannot pay this ability's cost") or over-tap lands.
-                // The reduced pool flows into payAbilityCost and is persisted afterward.
-                var currentState = state
-                val events = mutableListOf<GameEvent>()
-                val partialResult = pool.payPartial(manaCost, paymentContext)
-                val remainingCost = partialResult.remainingCost
-                if (!remainingCost.isEmpty() || manaXValue > 0) {
-                    // Solve the remainder against the chosen sources only (non-chosen excluded),
-                    // matching CastPaymentProcessor.explicitPay so we never tap more than needed.
-                    // The client's auto-tap preview is computed against the full cost and may
-                    // over-select; excluding the rest keeps validation and execution in sync.
-                    val chosen = action.paymentStrategy.manaAbilitiesToActivate.toSet()
-                    val excluded = manaSolver.findAvailableManaSources(currentState, action.playerId)
-                        .map { it.entityId }
-                        .filter { it !in chosen }
-                        .toSet() + selfExcludedSources
-                    val solution = manaSolver.solve(
-                        currentState, action.playerId, remainingCost, manaXValue, excludeSources = excluded, xManaRestriction = ability.xManaRestriction
-                    ) ?: return ManaTapOutcome.Failed("Selected mana sources cannot pay this ability's cost")
-                    for (source in solution.sources) {
-                        val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, action.playerId)
-                        currentState = tappedState
-                        events.addAll(tapEvents)
-                    }
-                }
-                ManaTapOutcome.Tapped(currentState, partialResult.newPool, events)
+                val chosen = action.paymentStrategy.manaAbilitiesToActivate.toSet()
+                val excluded = manaSolver.findAvailableManaSources(state, action.playerId)
+                    .map { it.entityId }.filter { it !in chosen }.toSet() + selfExcludedSources
+                val result = autoTapper.autoTapForManaCost(state, action.playerId, pool, manaCost,
+                    manaXValue, excluded, paymentContext, ability.xManaRestriction)
+                    ?: return ManaTapOutcome.Failed("Selected mana sources cannot pay this ability's cost")
+                ManaTapOutcome.Tapped(result.newState, result.newPool, result.events)
             }
             else -> {
                 val autoTapResult = autoTapper.autoTapForManaCost(
@@ -641,11 +649,11 @@ internal class ActivationCostPayer(
     private fun writeBackPool(
         state: GameState,
         playerId: EntityId,
-        poolComponent: ManaPoolComponent,
+        baseline: ManaPool,
         manaPool: ManaPool,
     ): GameState {
-        val originalUnrestricted = poolComponent.white + poolComponent.blue + poolComponent.black +
-            poolComponent.red + poolComponent.green + poolComponent.colorless
+        val originalUnrestricted = baseline.white + baseline.blue + baseline.black +
+            baseline.red + baseline.green + baseline.colorless
         val finalUnrestricted = manaPool.white + manaPool.blue + manaPool.black +
             manaPool.red + manaPool.green + manaPool.colorless
         val (poolAfterProvenance, _) = manaPool.consumeProvenance(maxOf(0, originalUnrestricted - finalUnrestricted))
@@ -662,9 +670,10 @@ internal class ActivationCostPayer(
                 manaBySource = poolAfterProvenance.manaBySource,
                 manaByCardType = poolAfterProvenance.manaByCardType,
                 snowMana = manaPool.snowMana,
+                manaUnits = manaPool.manaUnits,
                 snowColorless = manaPool.snowColorless
             ))
         }
-        return settleManaObligationPayment(written, playerId, poolComponent.restrictedMana, manaPool.restrictedMana)
+        return settleManaObligationPayment(written, playerId, baseline.restrictedMana, manaPool.restrictedMana)
     }
 }

@@ -37,12 +37,12 @@ class NecriteScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
                 game.declareNoBlockers()
 
-                withClue("the unblocked trigger must ask whether to sacrifice") {
+                withClue("the unblocked trigger must announce a target") {
                     game.state.pendingDecision shouldNotBe null
                 }
                 val bears = game.findPermanent("Grizzly Bears")!!
-                game.answerYesNo(true)
-                game.selectTargets(listOf(bears))
+                // Choosing the target is the "you may" — no second yes/no at resolution.
+                game.selectTargets(listOf(bears)).error shouldBe null
                 game.resolveStack()
 
                 withClue("Necrite paid for the kill with itself") {
@@ -67,8 +67,9 @@ class NecriteScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
                 game.declareNoBlockers()
 
-                game.answerYesNo(false)
-                game.resolveStack()
+                // Declining is an empty target selection: the trigger never goes on the stack.
+                game.selectTargets(emptyList()).error shouldBe null
+                game.state.stack.isEmpty() shouldBe true
 
                 game.isOnBattlefield("Necrite") shouldBe true
                 game.isOnBattlefield("Grizzly Bears") shouldBe true

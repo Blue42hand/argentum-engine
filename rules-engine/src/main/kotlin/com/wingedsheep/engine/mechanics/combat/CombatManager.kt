@@ -61,6 +61,13 @@ class CombatManager(
     fun isRestrictedFromAllDefenders(state: GameState, attackerId: EntityId, attackingPlayer: EntityId): Boolean =
         attackPhase.isRestrictedFromAllDefenders(state, attackerId, attackingPlayer)
 
+    fun legalDefendersFor(
+        state: GameState,
+        attackerId: EntityId,
+        attackingPlayer: EntityId,
+        candidates: List<EntityId>,
+    ): List<EntityId> = attackPhase.legalDefendersFor(state, attackerId, attackingPlayer, candidates)
+
     // =========================================================================
     // Declare Blockers
     // =========================================================================
@@ -103,6 +110,10 @@ class CombatManager(
 
     fun applyCombatDamage(state: GameState, firstStrike: Boolean = false): ExecutionResult =
         damagePhase.applyCombatDamage(state, firstStrike)
+
+    /** Fix the first-strike combat damage step's assigners as the step begins (CR 510.4). */
+    fun stampFirstStrikeStepAssigners(state: GameState): GameState =
+        damagePhase.stampFirstStrikeStepAssigners(state)
 
     /**
      * Drop the damage assignments chosen in the first-strike combat damage step, so the regular
@@ -158,7 +169,7 @@ class CombatManager(
                     .without<DamageAssignmentComponent>()
                     .without<DamageAssignmentOrderComponent>()
                     .without<AttackerOrderComponent>()
-                    .without<DealtFirstStrikeDamageComponent>()
+                    .without<FirstStrikeStepAssignerComponent>()
                     .without<RequiresManualDamageAssignmentComponent>()
                     .without<AttackersDeclaredThisCombatComponent>()
                     .without<BlockersDeclaredThisCombatComponent>()
@@ -166,6 +177,8 @@ class CombatManager(
                     .without<BlockedThisCombatComponent>()
             }
         )
+
+        if (newState.enlistmentsThisCombat.isNotEmpty()) newState = newState.copy(enlistmentsThisCombat = emptyList())
 
         // Expire "until end of combat" effects (CR 511.2: they expire at the end of the combat
         // phase, which per CR 511.3 is once the end of combat step has ended — i.e. here, the same

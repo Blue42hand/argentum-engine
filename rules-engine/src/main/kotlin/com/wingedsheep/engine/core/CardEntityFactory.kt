@@ -110,6 +110,15 @@ object CardEntityFactory {
         cardDef: CardDefinition
     ): ComponentContainer {
         var result = container
+        cardDef.flipSide?.let { alternative ->
+            val front = result.get<CardComponent>()!!
+            if (front.flipSide == null) {
+                val back = create(alternative, requireNotNull(front.ownerId))
+                    .get<CardComponent>()!!.copy(cardDefinitionId = alternative.name,
+                        manaCost = front.manaCost, colors = front.colors)
+                result = result.with(front.copy(flipSide = back))
+            }
+        }
 
         if (cardDef.script.cantBeCountered) {
             result = result.with(CantBeCounteredComponent)
@@ -138,6 +147,15 @@ object CardEntityFactory {
         (cardDef.keywordAbilities.firstOrNull { it is KeywordAbility.Madness } as? KeywordAbility.Madness)
             ?.let { result = result.with(MadnessComponent(it.cost)) }
 
+        // Statics that function from outside the battlefield (CR 113.6b — Anger's "as long as this
+        // is in your graveyard"). Lowered once here so the registry-free projector can read them
+        // off the card in its graveyard — see [ZoneStaticEffectsComponent].
+        val zoneStatics = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
+            .lowerZoneScoped(cardDef.script.staticAbilities)
+        if (zoneStatics.isNotEmpty()) {
+            result = result.with(com.wingedsheep.engine.mechanics.layers.ZoneStaticEffectsComponent(zoneStatics))
+        }
+
         val dredgeAmounts = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Dredge>().map { it.amount }
         if (dredgeAmounts.isNotEmpty()) result = result.with(DredgeComponent(dredgeAmounts))
 
@@ -155,8 +173,9 @@ object CardEntityFactory {
 
         // "Hexproof from [quality]" (CR 702.11d). Only the scopes the rules engine enforces are
         // carried: colors (`HEXPROOF_FROM_<COLOR>`), non-colors (`HEXPROOF_FROM_NON_<COLOR>`),
-        // card types (`HEXPROOF_FROM_CARDTYPE_<TYPE>`) and source kinds
-        // (`HEXPROOF_FROM_SOURCEKIND_<KIND>`, see [SourceKindProtection]).
+        // mono-/multicolored (`HEXPROOF_FROM_MONOCOLORED` / `_MULTICOLORED`), card types
+        // (`HEXPROOF_FROM_CARDTYPE_<TYPE>`) and source kinds (`HEXPROOF_FROM_SOURCEKIND_<KIND>`, see
+        // [SourceKindProtection]).
         // Other [ProtectionScope]s format oracle text but have no targeting wiring yet, so they are
         // dropped rather than projected as a keyword nothing consults.
         val hexproofScopes = cardDef.keywordAbilities
@@ -176,15 +195,23 @@ object CardEntityFactory {
             .map { it.color }
             .toSet()
         val hexproofSourceKinds = hexproofScopes.mapNotNull { SourceKind.of(it) }.toSet()
+        val hexproofMonocolored = ProtectionScope.Monocolored in hexproofScopes
+        val hexproofMulticolored = ProtectionScope.Multicolored in hexproofScopes
         if (hexproofColors.isNotEmpty() || hexproofCardTypes.isNotEmpty() ||
-            hexproofNonColors.isNotEmpty() || hexproofSourceKinds.isNotEmpty()
+            hexproofNonColors.isNotEmpty() || hexproofSourceKinds.isNotEmpty() ||
+            hexproofMonocolored || hexproofMulticolored
         ) {
             result = result.with(
-                HexproofFromComponent(hexproofColors, hexproofCardTypes, hexproofNonColors, hexproofSourceKinds)
+                HexproofFromComponent(
+                    hexproofColors, hexproofCardTypes, hexproofNonColors, hexproofSourceKinds,
+                    monocolored = hexproofMonocolored,
+                    multicolored = hexproofMulticolored,
+                )
             )
         }
 
-        return applyNumericKeywords(result, cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Numeric>())
+        return applyNumericKeywords(result, cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Numeric>() +
+            result.get<CardComponent>()?.copyNumericKeywords.orEmpty())
     }
 
     /**

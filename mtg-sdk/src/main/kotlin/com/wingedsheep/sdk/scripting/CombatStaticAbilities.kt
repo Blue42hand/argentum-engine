@@ -26,6 +26,37 @@ data class CantAttack(
 }
 
 /**
+ * The affected permanents can't attack **you** — and, with [coversPlaneswalkers], planeswalkers
+ * you control — but stay free to attack anyone else (CR 508.1c). The player-scoped sibling of
+ * [CantAttack], and the attacker-side mirror of [CantBeAttackedBy]: that one names a *class* of
+ * attackers from the defender's board, this one names *which creatures* through a [GroupFilter],
+ * so it reaches a single creature, an enchanted creature, or a creature handed the restriction by
+ * a resolving spell.
+ *
+ * "You" is the controller of the ability's source when printed (Vow of Duty's
+ * `CantAttackYou(GroupFilter.attachedCreature(), coversPlaneswalkers = true)`); when granted with
+ * `Effects.GrantStaticAbility`, it is the controller of the **granting effect**, frozen at
+ * resolution — Promise of Loyalty's "each of those creatures can't attack you or planeswalkers you
+ * control for as long as it has a vow counter on it" grants `CantAttackYou(coversPlaneswalkers =
+ * true)` to each chosen creature with `Duration.WhileAffectedHasCounter(CounterType.VOW)`.
+ *
+ * Attacking a battle is never restricted — no printed wording names battles.
+ */
+@SerialName("CantAttackYou")
+@Serializable
+data class CantAttackYou(
+    val filter: GroupFilter = GroupFilter.source(),
+    val coversPlaneswalkers: Boolean = false
+) : StaticAbility {
+    override val description: String =
+        "${filter.description} can't attack you${if (coversPlaneswalkers) " or planeswalkers you control" else ""}"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * Forces the affected permanents to attack each combat if able.
  * Use [GroupFilter.source] for "this creature attacks each combat", or any battlefield
  * filter for "All creatures attack each combat if able" effects (e.g. Grand Melee).
@@ -42,6 +73,26 @@ data class MustAttack(
 ) : StaticAbility {
     override val description: String =
         "${filter.description} attack${if (playersOnly) " a player" else ""} each combat if able"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * The affected creatures are goaded for as long as this ability applies (CR 701.15b): each attacks
+ * each combat if able and attacks a player other than its goader if able. The goader is the
+ * holder's controller — Martial Impetus: "Enchanted creature gets +1/+1 and is goaded" is
+ * [GroupFilter.attachedCreature], and the Aura's controller goads it. A goad from a resolving
+ * [com.wingedsheep.sdk.scripting.effects.GoadEffect] stacks with this one per CR 701.15c; unlike
+ * that designation, a static goad has no "until your next turn" — it ends when the ability does.
+ */
+@SerialName("Goaded")
+@Serializable
+data class Goaded(
+    val filter: GroupFilter = GroupFilter.attachedCreature()
+) : StaticAbility {
+    override val description: String = "${filter.description} is goaded"
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -287,12 +338,22 @@ data class AssignUnblockedCombatDamageToDefendingCreature(
  * Read off the card definition like [CantAttackUnlessSacrifice]; a face-down creature or one that
  * has lost all abilities isn't offered the choice.
  *
- * Hydra Trainer (MH3).
+ * [onlyIfNotExertedThisTurn] is the "If this creature hasn't been exerted this turn, you may exert
+ * it as it attacks" template: the choice isn't offered to a creature exerted earlier this turn, by
+ * any means — an earlier attack's exert or an activated ability's `Costs.Exert` alike.
+ *
+ * Hydra Trainer (MH3); Combat Celebrant (AKH) with [onlyIfNotExertedThisTurn].
  */
 @SerialName("ExertAsItAttacks")
 @Serializable
-data object ExertAsItAttacks : StaticAbility {
-    override val description: String = "You may exert this creature as it attacks"
+data class ExertAsItAttacks(
+    val onlyIfNotExertedThisTurn: Boolean = false,
+) : StaticAbility {
+    override val description: String = if (onlyIfNotExertedThisTurn) {
+        "If this creature hasn't been exerted this turn, you may exert it as it attacks"
+    } else {
+        "You may exert this creature as it attacks"
+    }
 }
 
 @SerialName("CantAttackUnlessSacrifice")
@@ -710,4 +771,16 @@ data class CanAttackAsThoughHasty(
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
     }
+}
+
+/**
+ * Enlist (CR 702.154): each instance offers its own optional attack-declaration tap cost
+ * and creates its own linked power-boost trigger. Multiple instances are independent.
+ * Unlike [ExertAsItAttacks], this chooses another creature and reads its power on resolution;
+ * [CantAttackUnlessSacrifice] is a mandatory restriction, not an optional linked ability.
+ */
+@SerialName("Enlist")
+@Serializable
+data object Enlist : ProjectedStaticAbility {
+    override val description: String = "Enlist"
 }

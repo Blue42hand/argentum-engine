@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.tokens
 
-import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CardType
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.model.CardDefinition.Companion.doubleFacedPermanent
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.CantBlock
@@ -155,6 +156,30 @@ object PredefinedTokens {
 
         metadata {
             imageUri = "https://cards.scryfall.io/normal/front/0/d/0dce2241-e58b-41d4-b57c-9794fc8ee004.jpg?1721425221"
+        }
+    }
+
+    /**
+     * Banana — the colorless artifact token of Kibo, Uktabi Prince (J22):
+     * "{T}, Sacrifice this token: Add {R} or {G}. You gain 2 life." No subtype, only the name.
+     * Still a mana ability with the life-gain rider — it doesn't target (CR 605.1a).
+     * Scryfall has no Banana token printing, so it borrows Kibo's own card art.
+     */
+    val Banana = card("Banana") {
+        typeLine = "Artifact"
+        oracleText = "{T}, Sacrifice this token: Add {R} or {G}. You gain 2 life."
+
+        activatedAbility {
+            cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
+            effect = Effects.AddManaOfChoice(
+                ManaColorSet.Specific(setOf(Color.RED, Color.GREEN))
+            ) then Effects.GainLife(2)
+            manaAbility = true
+            timing = TimingRule.ManaAbility
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/8/b/8b71345a-c3e8-4b35-beb7-6347e41d7626.jpg?1783919180"
         }
     }
 
@@ -703,6 +728,39 @@ object PredefinedTokens {
     }
 
     /**
+     * Squirrel token — a vanilla 1/1 green creature (Chatterfang, Squirrel General's "plus that
+     * many 1/1 green Squirrel creature tokens"). Green from its color indicator, like [Frog].
+     */
+    val Squirrel = card("Squirrel") {
+        typeLine = "Creature — Squirrel"
+        colorIdentity = "G"
+        power = 1
+        toughness = 1
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/5/a/5a6ec62e-0e9b-4312-bfe8-cc85d76fd9e0.jpg?1721425294"
+        }
+    }
+
+    /**
+     * Soldier token — a vanilla 1/1 white creature (Queen Allenal of Ruadach's "those tokens plus a
+     * 1/1 white Soldier creature token"). White from its color indicator, like [Frog]. Registered
+     * under the plain name "Soldier"; ordinary `Effects.CreateToken` Soldiers mint `token:Soldier`
+     * ids, so they never resolve to this definition.
+     */
+    val Soldier = card("Soldier") {
+        typeLine = "Creature — Soldier"
+        colorIdentity = "W"
+        power = 1
+        toughness = 1
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/8/c/8c4b0257-2ca5-4015-9d63-d7cf6e87ab9d.jpg?1783921132"
+            artist = "Justine Cruz"
+        }
+    }
+
+    /**
      * Vehicle token — the 3/2 colorless Vehicle artifact token with crew 1 that Aetherdrift's
      * Pilots hand out (Mu Yanling, Wind Rider; Chandra, Spark Hunter; …).
      *
@@ -716,6 +774,30 @@ object PredefinedTokens {
         toughness = 2
 
         keywordAbility(KeywordAbility.crew(1))
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/a/3/a3803365-ed78-409f-8ca5-7aa3634faf76.jpg?1783907677"
+        }
+    }
+
+    /**
+     * Zeppelin — the 5/5 colorless Vehicle artifact token with flying and crew 3 that Lita,
+     * Mechanical Engineer (Jumpstart 2022) makes.
+     *
+     * Same shape as [Vehicle]: a *noncreature* artifact with power and toughness until crewed, its
+     * crew the ordinary [KeywordAbility.crew] keyword. Registered here because the token is *named*
+     * and carries crew, which the engine reads off the registered definition.
+     *
+     * Scryfall has no Zeppelin token printing (Jumpstart 2022 has no `tj22` token set), so the art
+     * is a stand-in: the generic Aetherdrift Vehicle token.
+     */
+    val Zeppelin = card("Zeppelin") {
+        typeLine = "Artifact — Vehicle"
+        power = 5
+        toughness = 5
+
+        keywords(Keyword.FLYING)
+        keywordAbility(KeywordAbility.crew(3))
 
         metadata {
             imageUri = "https://cards.scryfall.io/normal/front/a/3/a3803365-ed78-409f-8ca5-7aa3634faf76.jpg?1783907677"
@@ -1081,15 +1163,75 @@ object PredefinedTokens {
     }
 
     /**
+     * A green 1/1 Forest Dryad land creature token. The Forest subtype supplies its mana
+     * ability; being a creature makes that tap ability subject to summoning sickness.
+     */
+    val ForestDryad = card("Forest Dryad") {
+        typeLine = "Land Creature — Forest Dryad"
+        colorIdentity = "G"
+        power = 1
+        toughness = 1
+        oracleText = "{T}: Add {G}."
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/7/4/74de70f2-93b6-4fc5-8c4d-464f880d3c54.jpg?1783919910"
+            artist = "Donato Giancola"
+        }
+    }
+
+    /**
+     * Powerstone token — The Brothers' War's colorless artifact token:
+     * "{T}: Add {C}. This mana can't be spent to cast a nonartifact spell."
+     *
+     * The restriction is negative ([ManaRestriction.CannotCastSpellsOtherThan]), so the mana still
+     * pays for activated abilities, ward and other non-cast costs — only a nonartifact spell is
+     * refused. Most cards create it tapped (`Effects.CreatePowerstone(tapped = true)`).
+     */
+    val Powerstone = card("Powerstone") {
+        typeLine = "Artifact — Powerstone"
+        oracleText = "{T}: Add {C}. This mana can't be spent to cast a nonartifact spell."
+
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.AddColorlessMana(
+                1,
+                restriction = ManaRestriction.CannotCastSpellsOtherThan(setOf(CardType.ARTIFACT)),
+            )
+            manaAbility = true
+            description = "{T}: Add {C}. This mana can't be spent to cast a nonartifact spell."
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/d/4/d45fe4b6-aeaf-4f84-b660-c7b482ed8512.jpg?1783919908"
+        }
+    }
+
+    /**
      * All predefined token definitions.
      * Register these in the CardRegistry so token abilities are resolved.
      */
+    val Junk = card("Junk") {
+        typeLine = "Artifact — Junk"
+        activatedAbility {
+            description = "Exile the top card of your library. You may play it this turn."
+            cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
+            effect = Patterns.Exile.impulse()
+            timing = TimingRule.SorcerySpeed
+        }
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/6/2/62c4a6f6-6425-4c0c-b35a-880fcab42aad.jpg?1783912041"
+            artist = "Justine Cruz"
+        }
+    }
+
     val allTokens: List<CardDefinition> = listOf(
+        Junk,
         EldraziSpawn,
         Treasure,
         Vibranium,
         Meteorite,
         Food,
+        Banana,
         Blood,
         Clue,
         Shard,
@@ -1111,9 +1253,12 @@ object PredefinedTokens {
         Munitions,
         Mutagen,
         Frog,
+        Squirrel,
+        Soldier,
         Pest,
         PhyrexianMite,
         Vehicle,
+        Zeppelin,
         TheVoid,
         Redwing,
         Doombot,
@@ -1125,6 +1270,8 @@ object PredefinedTokens {
         Jace,
         Heartwood,
         Lotus,
-        ForestTentacle
+        ForestTentacle,
+        ForestDryad,
+        Powerstone
     )
 }

@@ -409,6 +409,91 @@
     ]
 }
 
+// Archmage Emeritus
+{
+    "name": "Archmage Emeritus",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "Magecraft — Whenever you cast or copy an instant or sorcery spell, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Archmage Emeritus:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "SpellCastEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "SpellCopiedEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Magecraft — Whenever you cast or copy an instant or sorcery spell, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "rarity": "RARE",
+        "artist": "Caio Monteiro",
+        "flavorText": "Some emeritus professors return from their wanderings periodically to share tales of the mystical wonders of Arcavios.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/6/761df6cd-0928-4167-8902-58fdb50181a0.jpg?1783927381",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "If an effect creates a copy of an instant or sorcery spell, this will also cause the magecraft ability to trigger."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "Some effects instruct you to copy an instant or sorcery card in a zone other than the stack. These copies do not cause magecraft abilities to trigger. However, most effects that do this also allow you to cast the copy, and casting the copy will cause magecraft abilities to trigger."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If an effect creates multiple copies of an instant or sorcery spell, magecraft abilities trigger once for each copy created by the effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Archway Commons
 {
     "name": "Archway Commons",
@@ -588,6 +673,81 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Beledros Witherbloom
+{
+    "name": "Beledros Witherbloom",
+    "manaCost": "{5}{B}{G}",
+    "typeLine": "Legendary Creature — Elder Dragon",
+    "oracleText": "Flying\nAt the beginning of each upkeep, create a 1/1 black and green Pest creature token with \"When this token dies, you gain 1 life.\"\nPay 10 life: Untap all lands you control. Activate only once each turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Beledros Witherbloom:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Pest"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Beledros Witherbloom:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomPayLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 10
+                        }
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "land ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "TapUntap",
+                        "target": "IterationEntity",
+                        "tap": false
+                    }
+                },
+                "restrictions": [
+                    "OncePerTurn"
+                ],
+                "descriptionOverride": "Pay 10 life: Untap all lands you control. Activate only once each turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "163",
+        "rarity": "MYTHIC",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/3/93f786a2-a7b7-4f9e-92e8-9a6a11efe290.jpg?1783927324"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 
@@ -852,6 +1012,57 @@
     ]
 }
 
+// Bury in Books
+{
+    "name": "Bury in Books",
+    "manaCost": "{4}{U}",
+    "typeLine": "Instant",
+    "oracleText": "This spell costs {2} less to cast if it targets an attacking creature.\nPut target creature into its owner's library second from the top.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Library",
+            "positionFromTop": 1
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "FixedIfAnyTargetMatches",
+                        "amount": 2,
+                        "filter": "creature attacking"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "artist": "Zoltan Boros",
+        "flavorText": "There are no weapons allowed in the Biblioplex, but a clever mage is never truly defenseless.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/ac2a2cf5-80cf-4c06-8b04-bc04a5460de5.jpg?1783927380"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Campus Guide
 {
     "name": "Campus Guide",
@@ -896,7 +1107,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put on top of your library",
+                                "selectedLabel": "Put on top of your library"
                             },
                             "ShuffleLibrary",
                             {
@@ -1107,6 +1320,107 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Culling Ritual
+{
+    "name": "Culling Ritual",
+    "manaCost": "{2}{B}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy each nonland permanent with mana value 2 or less. Add {B} or {G} for each permanent destroyed this way.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "nonland permanent mv<=2"
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy",
+                            "storeMovedAs": "stored0"
+                        }
+                    ]
+                },
+                {
+                    "type": "AddDynamicMana",
+                    "amountSource": {
+                        "type": "VariableReference",
+                        "variableName": "stored0_count"
+                    },
+                    "allowedColors": [
+                        "BLACK",
+                        "GREEN"
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "rarity": "RARE",
+        "artist": "Lorenzo Mastroianni",
+        "flavorText": "\"Your own frailty is your undoing. I am merely the one to expose it.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f6f91d3-cc07-4a42-99a0-5fb83b29cc25.jpg?1783927321",
+        "rulings": [
+            {
+                "date": "4/16/2021",
+                "text": "You can choose to add either {B} or {G} for each permanent destroyed. You aren't limited to one color."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
+// Curate
+{
+    "name": "Curate",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Surveil 2. (Look at the top two cards of your library, then put any number of them into your graveyard and the rest on top of your library in any order.)\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Surveil",
+                    "count": 2
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "40",
+        "artist": "Izzy",
+        "flavorText": "\"*Kathorran War Chants, Vol. III*? That doesn't even belong in this wing!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2a0e716-22b7-4a5e-9b7a-d4a806ee7427.jpg?1783927381"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -1766,7 +2080,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -1999,6 +2315,112 @@
     ]
 }
 
+// Expressive Iteration
+{
+    "name": "Expressive Iteration",
+    "manaCost": "{U}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top three cards of your library. Put one of them into your hand, put one of them on the bottom of your library, and exile one of them. You may play the exiled card this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
+                    "selectedLabel": "Put into your hand",
+                    "remainderLabel": "Not put into your hand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "remainder1",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected3",
+                    "storeRemainder": "remainder3",
+                    "selectedLabel": "Put on the bottom of your library",
+                    "remainderLabel": "Exile (you may play it this turn)"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected3",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "remainder3",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "remainder3"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "186",
+        "rarity": "UNCOMMON",
+        "artist": "Anastasia Ovchinnikova",
+        "flavorText": "Prismari students dance in the tension between passion and perfection.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31b770cc-09e7-4c0b-b2a4-462ab4f7200d.jpg?1783927314",
+        "rulings": [
+            {
+                "date": "2026-03-20",
+                "text": "If there are fewer than three cards in your library, follow the instructions in the order given for any cards that are there. For example, if there are two cards in your library, you'll put one of them into your hand and one of them on the bottom of your library. You won't have the option to exile either of them."
+            },
+            {
+                "date": "2026-03-20",
+                "text": "If you don't play the exiled card, it remains exiled. It won't be available to be played on future turns."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Eyetwitch
 {
     "name": "Eyetwitch",
@@ -2148,7 +2570,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic Forest card to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -2500,6 +2924,80 @@
             },
             "imageUri": "https://cards.scryfall.io/normal/back/0/d/0dba25e3-2b4f-45d4-965f-3834bcb359ee.jpg?1739656768"
         }
+    ]
+}
+
+// Frostboil Snarl
+{
+    "name": "Frostboil Snarl",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "As this land enters, you may reveal an Island or Mountain card from your hand. If you don't, this land enters tapped.\n{T}: Add {U} or {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Frostboil Snarl:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Frostboil Snarl:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "OnEnterRunEffect",
+                "effect": {
+                    "type": "MayRevealCardFromHand",
+                    "filter": "land Island|Mountain",
+                    "otherwise": {
+                        "type": "TapUntap",
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "265",
+        "rarity": "RARE",
+        "artist": "Sam Burley",
+        "flavorText": "A smoldering storm of chilling fire.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/2/c22ba565-da08-4957-93bb-8d266fe0b0d8.jpg?1783927278",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "The \"Snarl\" itself doesn't have any land subtypes. You can't reveal one to satisfy the ability of another."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If a land card with an appropriate subtype is entering the battlefield from your hand at the same time as one of these lands, you may reveal the other land to have the \"Snarl\" enter untapped."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If an effect instructs you to put one of these lands onto the battlefield tapped, it will still enter the battlefield tapped even if you reveal a land card from your hand."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "You may reveal any land card with either or both of the appropriate subtypes. It doesn't have to be a basic land card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
     ]
 }
 
@@ -3425,7 +3923,8 @@
                         "creatureTypes": [
                             "Spirit"
                         ]
-                    }
+                    },
+                    "description": "Create a 3/2 red and white Spirit creature token"
                 },
                 {
                     "effect": {
@@ -3629,6 +4128,221 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Multiple Choice
+{
+    "name": "Multiple Choice",
+    "manaCost": "{X}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "If X is 1, scry 1, then draw a card.\nIf X is 2, you may choose a player. They return a creature they control to its owner's hand.\nIf X is 3, create a 4/4 blue and red Elemental creature token.\nIf X is 4 or more, do all of the above.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Any",
+                            "conditions": [
+                                {
+                                    "type": "Compare",
+                                    "left": "XValue",
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                {
+                                    "type": "Compare",
+                                    "left": "XValue",
+                                    "operator": "GTE",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 4
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Scry",
+                                "count": 1
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Any",
+                            "conditions": [
+                                {
+                                    "type": "Compare",
+                                    "left": "XValue",
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                {
+                                    "type": "Compare",
+                                    "left": "XValue",
+                                    "operator": "GTE",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 4
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "SelectTarget",
+                                "requirement": {
+                                    "type": "TargetPlayer",
+                                    "optional": true,
+                                    "descriptionOverride": "a player"
+                                },
+                                "storeAs": "multipleChoicePlayer",
+                                "nonTargeting": true,
+                                "prompt": "You may choose a player — they return a creature they control to its owner's hand"
+                            },
+                            {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Players",
+                                    "players": {
+                                        "type": "InCollection",
+                                        "collection": "multipleChoicePlayer"
+                                    }
+                                },
+                                "body": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GatherCards",
+                                            "source": {
+                                                "type": "BattlefieldMatching",
+                                                "filter": "creature",
+                                                "player": "You"
+                                            },
+                                            "storeAs": "multipleChoiceCreatures"
+                                        },
+                                        {
+                                            "type": "SelectFromCollection",
+                                            "from": "multipleChoiceCreatures",
+                                            "selection": {
+                                                "type": "ChooseExactly",
+                                                "count": {
+                                                    "type": "Fixed",
+                                                    "amount": 1
+                                                }
+                                            },
+                                            "storeSelected": "selected2",
+                                            "prompt": "Return a creature you control to its owner's hand",
+                                            "useTargetingUI": true
+                                        },
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "selected2",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Hand"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Any",
+                            "conditions": [
+                                {
+                                    "type": "Compare",
+                                    "left": "XValue",
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
+                                },
+                                {
+                                    "type": "Compare",
+                                    "left": "XValue",
+                                    "operator": "GTE",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 4
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "then": {
+                        "type": "CreateToken",
+                        "power": 4,
+                        "toughness": 4,
+                        "colors": [
+                            "BLUE",
+                            "RED"
+                        ],
+                        "creatureTypes": [
+                            "Elemental"
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "RARE",
+        "artist": "Campbell White",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/08c9890f-7081-42f6-89eb-35c83911b443.jpg?1783927376",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "Multiple Choice doesn't have any targets."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "You can choose 0 as the value of X as you cast Multiple Choice, but it will have no effect when it resolves."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If an effect allows you to cast Multiple Choice without paying its mana cost, you must choose 0 as the value of X."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -4010,6 +4724,100 @@
     ]
 }
 
+// Pilgrim of the Ages
+{
+    "name": "Pilgrim of the Ages",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "When this creature enters, you may search your library for a basic Plains card, reveal it, put it into your hand, then shuffle.\n{6}: Return this card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Pilgrim of the Ages:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland Plains"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic Plains card to put into your hand",
+                                "selectedLabel": "Put into your hand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                },
+                                "revealed": true
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent"
+                        ]
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Pilgrim of the Ages:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{6}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand",
+                    "fromZone": "Graveyard"
+                },
+                "activateFromZone": "Graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "22",
+        "artist": "JiHun Lee",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/8/c86714f5-e909-413f-8eb6-99dbea4d1897.jpg?1783927388"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Pillardrop Rescuer
 {
     "name": "Pillardrop Rescuer",
@@ -4058,6 +4866,91 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Plumb the Forbidden
+{
+    "name": "Plumb the Forbidden",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "As an additional cost to cast this spell, you may sacrifice one or more creatures. When you do, copy this spell for each creature sacrificed this way.\nYou draw a card and lose 1 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Controller"
+                }
+            ]
+        },
+        "triggeredAbilities": [
+            {
+                "id": "Plumb the Forbidden:1",
+                "trigger": "CastThisSpellEvent",
+                "effect": {
+                    "type": "RepeatDynamicTimes",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "TriggeringEntity",
+                        "numericProperty": "PermanentsSacrificedToCast"
+                    },
+                    "body": {
+                        "type": "CopyTargetSpell",
+                        "target": "TriggeringEntity"
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "EntityProperty",
+                        "entity": "TriggeringEntity",
+                        "numericProperty": "PermanentsSacrificedToCast"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "When you do, copy this spell for each creature sacrificed this way."
+            }
+        ],
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomVariablePermanents",
+                    "filter": "creature",
+                    "minCount": 0,
+                    "excludeSelf": false,
+                    "action": "SACRIFICE",
+                    "xMeasure": "COUNT"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "81",
+        "rarity": "UNCOMMON",
+        "artist": "Andrey Kuzinskiy",
+        "flavorText": "Strixhaven forbade all magic from the Blood Age, so that is where Extus began his research.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/5034227f-3b8a-45bf-917c-c2cbd98f2192.jpg?1783927362"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -4693,6 +5586,66 @@
     ]
 }
 
+// Reckless Amplimancer
+{
+    "name": "Reckless Amplimancer",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "{4}{G}: Double this creature's power and toughness until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Reckless Amplimancer:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": "Power"
+                    },
+                    "toughnessModifier": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": "Toughness"
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "{4}{G}: Double this creature's power and toughness until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "artist": "Yigit Koroglu",
+        "flavorText": "\"Linear growth? What am I, a first-year?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc8072b1-6080-45cd-b1c7-353b54a55931.jpg?1783927338",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "If an effect instructs you to \"double\" a creature's power, that creature gets +X/+0, where X is its power as that effect begins to apply. The same is true for toughness."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If a creature's power is less than 0 when it's doubled, instead that creature gets -X/-0, where X is how much less than 0 its power is. For example, if an effect has given Reckless Amplimancer -4/-0 so that it's a -2/2 creature, doubling its power and toughness gives it -2/+2, and it becomes a -4/4 creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Relic Sloth
 {
     "name": "Relic Sloth",
@@ -4977,6 +5930,55 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Secret Rendezvous
+{
+    "name": "Secret Rendezvous",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "You and target opponent each draw three cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "UNCOMMON",
+        "artist": "Manuel Castañón",
+        "flavorText": "Strixhaven's five colleges encourage natural rivalries among the students, but some bonds transcend all barriers.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/9/39528cf0-343e-499b-a69f-c5c3c2898c25.jpg?1783927387"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -5539,6 +6541,106 @@
     ]
 }
 
+// Storm-Kiln Artist
+{
+    "name": "Storm-Kiln Artist",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Dwarf Shaman",
+    "oracleText": "This creature gets +1/+0 for each artifact you control.\nMagecraft — Whenever you cast or copy an instant or sorcery spell, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Storm-Kiln Artist:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "SpellCastEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "SpellCopiedEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                },
+                "descriptionOverride": "Magecraft — Whenever you cast or copy an instant or sorcery spell, create a Treasure token."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "artifact"
+                },
+                "toughnessBonus": {
+                    "type": "Fixed",
+                    "amount": 0
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "115",
+        "rarity": "UNCOMMON",
+        "artist": "Manuel Castañón",
+        "flavorText": "A captured elemental makes for a potent, albeit unstable, power source.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/a/fa96b8dc-233a-4884-ab84-235cbc7df0b6.jpg?1783927352",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "If an effect creates a copy of an instant or sorcery spell, this will also cause the magecraft ability to trigger."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "Some effects instruct you to copy an instant or sorcery card in a zone other than the stack. These copies do not cause magecraft abilities to trigger. However, most effects that do this also allow you to cast the copy, and casting the copy will cause magecraft abilities to trigger."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "If an effect creates multiple copies of an instant or sorcery spell, magecraft abilities trigger once for each copy created by the effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Study Break
 {
     "name": "Study Break",
@@ -5664,6 +6766,66 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Sudden Breakthrough
+{
+    "name": "Sudden Breakthrough",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gets +2/+0 and gains first strike until end of turn.\nCreate a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "FIRST_STRIKE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "artist": "Colin Boyer",
+        "flavorText": "Rootha created constantly, passionately, in hopes of impressing her greatest critic: herself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b011707a-471b-41c2-bc73-376a55d26bee.jpg?1783927349"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

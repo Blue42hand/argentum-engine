@@ -202,6 +202,7 @@ value class Subtype(val value: String) {
 
         // Enchantment subtypes
         val AURA = Subtype("Aura")
+        val BACKGROUND = Subtype("Background")
         val CASE = Subtype("Case")
         val CLASS = Subtype("Class")
         val ROLE = Subtype("Role")
@@ -215,6 +216,7 @@ value class Subtype(val value: String) {
         // Artifact subtypes
         val EQUIPMENT = Subtype("Equipment")
         val FOOD = Subtype("Food")
+        val FORTIFICATION = Subtype("Fortification")
         val LANDER = Subtype("Lander")
         val TREASURE = Subtype("Treasure")
         val VEHICLE = Subtype("Vehicle")

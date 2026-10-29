@@ -377,22 +377,30 @@ data class ManaCost(val symbols: List<ManaSymbol>) {
      * Generic, X, and existing generic-equivalent symbols are preserved; only color/type
      * requirements are dropped.
      */
-    fun relaxColors(): ManaCost {
-        if (symbols.none { it is ManaSymbol.Colored || it is ManaSymbol.Hybrid ||
-                it is ManaSymbol.Phyrexian || it is ManaSymbol.HybridPhyrexian || it is ManaSymbol.Colorless ||
-                it is ManaSymbol.MonocolorHybrid }) return this
-        var addedGeneric = 0
-        val keptSymbols = mutableListOf<ManaSymbol>()
-        for (symbol in symbols) {
-            when (symbol) {
-                // Each of these is a single-mana requirement once colors are relaxed: a
-                // monocolored hybrid's colored side ({B} in {2/B}) is 1 mana of any type.
-                is ManaSymbol.Colored, is ManaSymbol.Hybrid, is ManaSymbol.Phyrexian,
-                is ManaSymbol.HybridPhyrexian, is ManaSymbol.Colorless, is ManaSymbol.MonocolorHybrid -> addedGeneric++
-                // {S} still demands snow mana — "any type" relaxes the type, not the source.
-                is ManaSymbol.Generic, is ManaSymbol.X, ManaSymbol.Snow -> keptSymbols.add(symbol)
-            }
+    fun relaxColors(): ManaCost = relaxRequirements(keepColorless = false)
+
+    /**
+     * Return a relaxed cost for "you may spend mana as though it were mana of any color" (CR
+     * 609.4b — Stolen Strategy, Curse of Hospitality): every colored, hybrid, Phyrexian and
+     * monocolored-hybrid requirement becomes generic, so any mana — colorless included — pays it.
+     * Narrower than [relaxColors]: colorless is a *type*, not a color, so a `{C}` pip still
+     * demands colorless mana.
+     */
+    fun relaxColoredRequirements(): ManaCost = relaxRequirements(keepColorless = true)
+
+    private fun relaxRequirements(keepColorless: Boolean): ManaCost {
+        fun relaxes(symbol: ManaSymbol): Boolean = when (symbol) {
+            // Each of these is a single-mana requirement once colors are relaxed: a
+            // monocolored hybrid's colored side ({B} in {2/B}) is 1 mana of any type.
+            is ManaSymbol.Colored, is ManaSymbol.Hybrid, is ManaSymbol.Phyrexian,
+            is ManaSymbol.HybridPhyrexian, is ManaSymbol.MonocolorHybrid -> true
+            is ManaSymbol.Colorless -> !keepColorless
+            // {S} still demands snow mana — "any type" relaxes the type, not the source.
+            is ManaSymbol.Generic, is ManaSymbol.X, ManaSymbol.Snow -> false
         }
+        if (symbols.none(::relaxes)) return this
+        val addedGeneric = symbols.count(::relaxes)
+        val keptSymbols = symbols.filterNot(::relaxes)
         val existingGeneric = keptSymbols.filterIsInstance<ManaSymbol.Generic>().sumOf { it.amount }
         val nonGenericKept = keptSymbols.filterNot { it is ManaSymbol.Generic }
         val totalGeneric = existingGeneric + addedGeneric

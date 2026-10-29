@@ -1,3 +1,4 @@
+import { CounterAllocationControls } from './CounterAllocationControls'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import { useHasLegalActions } from '@/store/selectors.ts'
@@ -491,6 +492,7 @@ function GameCardImpl({
            (action.type === 'CycleCard' && action.cardId === card.id) ||
            (action.type === 'TypecycleCard' && action.cardId === card.id) ||
            (action.type === 'PlotCard' && action.cardId === card.id) ||
+           (action.type === 'PutCompanionIntoHand' && action.cardId === card.id) ||
            (action.type === 'SuspendCardFromHand' && action.cardId === card.id)
   }), [legalActions, card.id])
   const playableAction = playableActions[0]
@@ -2482,7 +2484,7 @@ function GameCardImpl({
       {!faceDown && card.copyOf && copyBadgeHoverPos && (
         <HoverCardPreview
           name={card.copyOf}
-          imageUri={null}
+          imageUri={card.copyOfImageUri ?? null}
           pos={copyBadgeHoverPos}
         />
       )}
@@ -3008,6 +3010,9 @@ function GameCardImpl({
         {nonLegendaryChip}
         {grantedLegendaryChip}
         {cardElement}
+        {/* Allocation controls stay outside the clipped, rotating card. Narrow cards get a
+            compact count above two full-size buttons, which can extend beyond the art. */}
+        <CounterAllocationControls cardId={card.id} cardName={card.name} cardWidth={width} />
       </div>
       </RenderProfiler>
     )

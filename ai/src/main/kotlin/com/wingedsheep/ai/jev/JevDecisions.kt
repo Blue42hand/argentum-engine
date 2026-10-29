@@ -18,10 +18,15 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
         is ChooseColorDecision -> ColorChosenResponse(d.id, q.pick(d.prompt, d.availableColors.toList()))
         is ChooseModeDecision -> ModesChosenResponse(d.id,
             q.select(d.prompt, d.modes.filter { it.available }, d.minModes, d.maxModes) { it.text }.map { it.index })
-        is SelectCardsDecision -> CardsSelectedResponse(d.id, cards(d.prompt, d.options, d.minSelections, d.maxSelections))
+        is SelectCardsDecision -> if (d.selectionLimits != null) {
+            val full = com.wingedsheep.ai.engine.CounterAllocation.fullPayment(d)
+            val selected = if (full == null) emptyList() else if (d.minSelections > 0) full else
+                q.pick(d.prompt, listOf(full, emptyList())) { if (it.isEmpty()) "Don't pay" else "Pay the full counter cost" }
+            CardsSelectedResponse(d.id, selected)
+        } else CardsSelectedResponse(d.id, cards(d.prompt, d.options, d.minSelections, d.maxSelections))
         is SearchLibraryDecision -> CardsSelectedResponse(d.id, cards(d.prompt, d.options, d.minSelections, d.maxSelections))
-        is ChooseTargetsDecision -> TargetsResponse(d.id, d.targetRequirements.associate { r ->
-            r.index to cards("${d.prompt}: ${r.description}", d.legalTargets[r.index].orEmpty(), r.minTargets, r.maxTargets)
+        is ChooseTargetsDecision -> TargetsResponse(d.id, d.targetRequirements.fold(emptyMap()) { chosen, r ->
+            chosen + (r.index to cards("${d.prompt}: ${r.description}", d.legalTargetsFor(r.index, chosen), r.minTargets, r.maxTargets))
         })
         is OrderObjectsDecision -> OrderedResponse(d.id, cards("${d.prompt}: choose next in order", d.objects, d.objects.size, d.objects.size))
         is ReorderLibraryDecision -> OrderedResponse(d.id, cards("${d.prompt}: top first", d.cards, d.cards.size, d.cards.size))

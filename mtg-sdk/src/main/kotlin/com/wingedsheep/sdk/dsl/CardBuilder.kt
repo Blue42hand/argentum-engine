@@ -406,6 +406,18 @@ class CardBuilder(private val name: String) {
      */
     var meldResult: Boolean = false
 
+    /**
+     * Marks this card as the meld result of [first] and [second] (CR 712.5) — sets [meldResult]
+     * and records the pair, which the meld action checks before combining the two cards
+     * (CR 701.42b). `meldOf("Bruna, the Fading Light", "Gisela, the Broken Blade")`.
+     */
+    fun meldOf(first: String, second: String) {
+        meldResult = true
+        meldParts = listOf(first, second)
+    }
+
+    private var meldParts: List<String> = emptyList()
+
     // The `mayBeginGameOnBattlefield()` helper lives in `dsl/mechanics/BeginGameOnBattlefieldDsl.kt`; it sets this flag.
 
     // =========================================================================
@@ -687,6 +699,15 @@ class CardBuilder(private val name: String) {
                 genericCostReduction = genericCostReduction,
             )
         )
+    }
+
+    /**
+     * "Fortify [cost]" (CR 702.67a) — "[cost]: Attach this Fortification to target land you control.
+     * Activate only as a sorcery." The Fortification analog of [equipAbility]; the lowering is
+     * [ActivatedAbility.fortify]. Equip-keyed permissions and cost modifiers don't apply to it.
+     */
+    fun fortifyAbility(cost: String) {
+        activatedAbilities.add(ActivatedAbility.fortify(cost = ManaCost.parse(cost)))
     }
 
     // =========================================================================
@@ -1045,7 +1066,8 @@ class CardBuilder(private val name: String) {
             // there carries none of CR 202.1b/118.6's "can't be cast normally" implication;
             // scoping the flag to non-lands keeps every land's golden snapshot untouched.
             hasNoManaCost = manaCost.isBlank() && !parsedTypeLine.isLand,
-            meldResult = meldResult
+            meldResult = meldResult,
+            meldParts = meldParts
         )
     }
 }
@@ -1896,17 +1918,27 @@ class StaticAbilityBuilder {
      */
     var ability: StaticAbility? = null
 
+    /**
+     * The zones this static ability functions from (CR 113.6b). Default `{BATTLEFIELD}` — a
+     * permanent's ordinary static. "As long as this card is in your graveyard, …" (Anger, Wonder)
+     * is `setOf(Zone.GRAVEYARD)`, which wraps the ability in a [ZoneScopedStaticAbility]: on in
+     * the graveyard, off on the battlefield. The twin of [TriggeredAbility.activeZones].
+     */
+    var activeZones: Set<Zone> = setOf(Zone.BATTLEFIELD)
+
     fun build(): StaticAbility {
         val baseAbility = requireNotNull(ability) {
             "staticAbility { } requires `ability = <StaticAbility>`"
         }
 
         // Wrap in conditional if condition is set
-        return if (condition != null) {
+        val gated = if (condition != null) {
             ConditionalStaticAbility(baseAbility, condition!!)
         } else {
             baseAbility
         }
+        return if (activeZones == setOf(Zone.BATTLEFIELD)) gated
+        else ZoneScopedStaticAbility(gated, activeZones)
     }
 }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.stack
 
+import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.engine.state.components.identity.TextChanges
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
 import com.wingedsheep.engine.core.*
@@ -57,16 +58,27 @@ internal class NonPermanentSpellResolver(
      * A spliced card contributes its *rules text*, so what is queued is its `spellEffect`; a splice
      * card with no spell effect (nothing splice-able) simply drops out.
      */
-    private fun buildSpliceEntries(spellComponent: SpellOnStackComponent): List<PreTargetedEffectEntry> =
-        spellComponent.splicedCardNames.mapIndexedNotNull { index, name ->
+    private fun buildSpliceEntries(
+        spellComponent: SpellOnStackComponent,
+        boundRequirements: List<TargetRequirement>,
+    ): List<PreTargetedEffectEntry> {
+        // Each spliced card's requirements as the cast bound them — the tail of the recorded list,
+        // in splice order — so a partly filled "up to N" spliced group names the targets it holds.
+        val printed = spellComponent.splicedCardNames.map { cardRegistry.getCard(it)?.script?.targetRequirements.orEmpty() }
+        var cursor = boundRequirements.size - printed.sumOf { it.size }
+        val bound = printed.map { reqs ->
+            (if (cursor >= 0) boundRequirements.subList(cursor, cursor + reqs.size) else reqs).also { cursor += reqs.size }
+        }
+        return spellComponent.splicedCardNames.mapIndexedNotNull { index, name ->
             val splicedDef = cardRegistry.getCard(name) ?: return@mapIndexedNotNull null
             val effect = splicedDef.script.spellEffect ?: return@mapIndexedNotNull null
             PreTargetedEffectEntry(
                 effect = effect,
                 targets = spellComponent.splicedTargetsOrdered.getOrNull(index) ?: emptyList(),
-                targetRequirements = splicedDef.script.targetRequirements
+                targetRequirements = bound[index]
             )
         }
+    }
 
     /**
      * Resolve a non-permanent spell - execute effects, put in graveyard.
@@ -101,15 +113,16 @@ internal class NonPermanentSpellResolver(
         // that consumes "all targets" would swallow the spliced card's as well.
         // A spell with no effect of its own can't be a splice host in practice (a splice card is
         // spliced onto a spell that has text), so the tail lives inside the `spellEffect != null` guard.
-        val spliceEntries = buildSpliceEntries(spellComponent)
         val splicedRequirementCount = spellComponent.splicedCardNames.sumOf { name ->
             cardRegistry.getCard(name)?.script?.targetRequirements?.size ?: 0
         }
+        val allTargetRequirements = state.getEntity(spellId)?.get<TargetsComponent>()?.targetRequirements ?: emptyList()
+        val spliceEntries = buildSpliceEntries(spellComponent, allTargetRequirements)
         val splicedSlotCount = SpliceCasts
-            .splicedTargetSlotCounts(spellComponent.splicedCardNames, cardRegistry).sum()
+            .splicedTargetSlotCounts(spellComponent.splicedCardNames, cardRegistry, allTargetRequirements).sum()
 
-        if (spellEffect != null) {
-            val allTargetRequirements = state.getEntity(spellId)?.get<TargetsComponent>()?.targetRequirements ?: emptyList()
+        val fusedDefinition = resolvedCardDef?.takeIf { spellComponent.castFused }
+        if (spellEffect != null || fusedDefinition != null) {
             // Requirements are never filtered, so the tail comes straight off the end.
             val targetRequirements = allTargetRequirements.dropLast(splicedRequirementCount)
             // The tail is dropped from `alignedTargets`, NOT from `targets`: only the aligned list is
@@ -134,8 +147,15 @@ internal class NonPermanentSpellResolver(
             )
             newState = newState.pushContinuation(finishing)
 
-            val effectResult = runMainEffectThenSplice(
-                newState, spellId, spellComponent, cardComponent, spellEffect, context, spliceEntries
+            val effectResult = if (fusedDefinition != null) {
+                val entries = fusedEntries(state, spellId, fusedDefinition, targetRequirements, mainAlignedTargets)
+                processPreTargetedEffectQueue(newState, entries + spliceEntries,
+                    PreTargetedEffectContext(baseContext = context, controllerId = context.controllerId,
+                        sourceId = spellId, sourceName = cardComponent?.name, xValue = context.xValue,
+                        triggeringEntityId = null, objectReferences = context.objectReferences),
+                    effects::execute, spliceTargetValidator, emptyList())
+            } else runMainEffectThenSplice(
+                newState, spellId, spellComponent, cardComponent, spellEffect!!, context, spliceEntries
             )
 
             if (effectResult.outcome is Outcome.Paused) {
@@ -203,6 +223,29 @@ internal class NonPermanentSpellResolver(
         }
     }
 
+    private fun fusedEntries(
+        state: GameState,
+        spellId: EntityId,
+        definition: com.wingedsheep.sdk.model.CardDefinition,
+        requirements: List<TargetRequirement>,
+        alignedTargets: List<ChosenTarget?>,
+    ): List<PreTargetedEffectEntry> {
+        var requirementIndex = 0
+        var targetIndex = 0
+        val text = TextChanges.forSpell(state, spellId)
+        return definition.cardFaces.mapNotNull { face ->
+            val bound = requirements.drop(requirementIndex).take(face.script.targetRequirements.size)
+            requirementIndex += bound.size
+            val count = bound.sumOf { it.count }
+            val slice = alignedTargets.drop(targetIndex).take(count)
+            targetIndex += count
+            val effect = face.script.spellEffect ?: return@mapNotNull null
+            // A half still does as much as possible when its target is illegal; continue into the other half.
+            PreTargetedEffectEntry(com.wingedsheep.sdk.scripting.effects.CompositeEffect(listOf(text?.let { effect.applyTextReplacement(it) } ?: effect)),
+                slice.filterNotNull(), bound, alignedTargets = slice)
+        }
+    }
+
     /** The context the main spell's effect runs in: its own (non-spliced) targets and every cast-time choice. */
     private fun buildSpellEffectContext(
         state: GameState,
@@ -234,6 +277,11 @@ internal class NonPermanentSpellResolver(
                 spellComponent.manaSpentBlack + spellComponent.manaSpentRed +
                 spellComponent.manaSpentGreen + spellComponent.manaSpentColorless,
             manaSpentOnXByColor = spellComponent.manaSpentOnXByColor,
+            manaSpent = com.wingedsheep.engine.mechanics.mana.SpentMana(
+                white = spellComponent.manaSpentWhite, blue = spellComponent.manaSpentBlue,
+                black = spellComponent.manaSpentBlack, red = spellComponent.manaSpentRed,
+                green = spellComponent.manaSpentGreen, colorless = spellComponent.manaSpentColorless,
+            ),
             declaredCostSlot = spellComponent.declaredCostSlot,
             wasBlightPaid = spellComponent.wasBlightPaid,
             wasWaterbendPaid = spellComponent.wasWaterbendPaid,
@@ -250,6 +298,17 @@ internal class NonPermanentSpellResolver(
             chosenModes = spellComponent.chosenModes,
             modeTargetsOrdered = spellComponent.modeTargetsOrdered,
             modeTargetRequirements = spellComponent.modeTargetRequirements,
+            // A repeated mode can bind a different number of targets on each occurrence.
+            // The flat requirements already carry those announced counts, including zero.
+            modeTargetRequirementsOrdered = spellComponent.chosenModes.takeIf { modes ->
+                modes.all { it in spellComponent.modeTargetRequirements }
+            }?.let { modes ->
+                var cursor = 0
+                modes.map { mode ->
+                    val size = spellComponent.modeTargetRequirements[mode].orEmpty().size
+                    targetRequirements.drop(cursor).take(size).also { cursor += size }
+                }
+            }.orEmpty(),
             chosenCreatureType = spellComponent.chosenCreatureType,
             exiledCardCount = spellComponent.exiledCardCount,
             additionalCostBlightAmount = spellComponent.additionalCostBlightAmount,
@@ -258,6 +317,7 @@ internal class NonPermanentSpellResolver(
                 // Use the positionally-aligned validated list so a sub-effect that
                 // references a target dropped by 608.2b through its BoundVariable id
                 // resolves to null and fizzles (CR 608.2b).
+                declaredTargetNames = targetRequirements.mapNotNull { it.id }.toSet(),
                 namedTargets = EffectContext.buildNamedTargets(targetRequirements, mainAlignedTargets),
                 storedCollections = buildBeheldStoredCollections(spellComponent.beheldCards, resolvedCardDef)
             )
@@ -392,6 +452,11 @@ internal class NonPermanentSpellResolver(
         // CR 712.8a — a card cast transformed with an instant or sorcery back face leaves the stack
         // here, so it turns back to its front face here.
         newState = restoreDfcFrontFace(newState, cardRegistry, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
+        if (destinationZone == Zone.GRAVEYARD) {
+            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .recordSpellGraveyardArrival(newState, spellId, ownerId)
+        }
         val destinationObject = newState.objectRef(spellId)
         newState = applyOwnDestinationRiders(
             state, newState, spellId, spellComponent, cardComponent, ownerId, resolvedScript, destinationZone,
@@ -625,7 +690,8 @@ internal class NonPermanentSpellResolver(
             val (updatedState, extraEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.applyReplacementAdditionalEffect(
                 zones,
                 newState, extra, redirect.effectControllerId, spellId,
-                sourceId = redirect.effectSourceId
+                sourceId = redirect.effectSourceId,
+                riderTiming = redirect.riderTiming
             )
             newState = updatedState
             events.addAll(extraEvents)

@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.ability
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.dsl.Patterns
 
@@ -9,7 +10,6 @@ import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.TypecycleCard
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.EffectContext
@@ -26,6 +26,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.CardsCycledThisGameComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -92,7 +93,7 @@ class TypecycleCardHandler(
                     return "Mana source is already tapped: $sourceId"
                 }
             }
-        } else if (!manaSolver.canPay(state, action.playerId, variant.cost)) {
+        } else if (!manaSolver.canPay(state, action.playerId, reduced(state, action, variant.cost))) {
             return "Not enough mana to typecycle this card"
         }
 
@@ -126,11 +127,13 @@ class TypecycleCardHandler(
             red = poolComponent.red,
             green = poolComponent.green,
             colorless = poolComponent.colorless,
+            restrictedMana = poolComponent.restrictedMana,
             snowMana = poolComponent.snowMana,
+            manaUnits = poolComponent.manaUnits,
             snowColorless = poolComponent.snowColorless
         ).withSpendingColors(currentState, action.playerId)
 
-        val partialResult = pool.payPartial(variant.cost)
+        val partialResult = pool.payPartial(reduced(state, action, variant.cost))
         val poolAfterPayment = partialResult.newPool
         val remainingCost = partialResult.remainingCost
         val manaSpentFromPool = partialResult.manaSpent
@@ -151,7 +154,9 @@ class TypecycleCardHandler(
                     red = poolAfterPayment.red,
                     green = poolAfterPayment.green,
                     colorless = poolAfterPayment.colorless,
+                    restrictedMana = poolAfterPayment.restrictedMana,
                     snowMana = poolAfterPayment.snowMana,
+                    manaUnits = poolAfterPayment.manaUnits,
                     snowColorless = poolAfterPayment.snowColorless
                 )
             )
@@ -160,8 +165,9 @@ class TypecycleCardHandler(
         // Tap lands for remaining cost
         if (!remainingCost.isEmpty()) {
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
+                val credited = manaSolver.creditExplicitSources(currentState, action.playerId, action.paymentStrategy.manaAbilitiesToActivate, remainingCost)
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(zones, currentState, sourceId, action.playerId, credited[sourceId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -279,6 +285,14 @@ class TypecycleCardHandler(
         }
         return false
     }
+
+    /**
+     * [cost] after the board's activated-ability cost reductions — typecycling is an activated
+     * ability of the card in hand (CR 702.29a), so Zirda's "abilities you activate" reaches it.
+     */
+    private fun reduced(state: GameState, action: TypecycleCard, cost: ManaCost): ManaCost =
+        castPermissionUtils?.applyActivatedAbilityCostReduction(cost, state, action.cardId, action.playerId)
+            ?: cost
 
     companion object {
         fun create(services: EngineServices): TypecycleCardHandler {

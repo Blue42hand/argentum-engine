@@ -79,6 +79,8 @@ object PlayerProtectionRules {
                 else scope.color !in card?.colors.orEmpty()
             ProtectionScope.Multicolored -> if (onBattlefield) projected.getColors(sourceId).size >= 2
                 else card?.colors.orEmpty().size >= 2
+            ProtectionScope.Monocolored -> if (onBattlefield) projected.getColors(sourceId).size == 1
+                else card?.colors.orEmpty().size == 1
             is ProtectionScope.Subtype -> if (onBattlefield)
                 projected.getSubtypes(sourceId).any { it.equals(scope.subtype, ignoreCase = true) }
                 else card?.typeLine?.subtypes?.any { it.value.equals(scope.subtype, ignoreCase = true) } == true
@@ -96,6 +98,7 @@ object PlayerProtectionRules {
             ProtectionScope.Everything -> true
             ProtectionScope.Spells -> SourceKindProtection.isSpell(state, sourceId)
             ProtectionScope.PermanentsCastThisTurn -> SourceKindProtection.isPermanentCastThisTurn(state, sourceId)
+            ProtectionScope.RingBearers -> SourceKindProtection.isRingBearer(state, sourceId)
             // An ability kind is a property of the targeting spell-or-ability, not of the source
             // object this reading is given; no player-protection grant names one.
             ProtectionScope.ActivatedAbilities, ProtectionScope.TriggeredAbilities -> false

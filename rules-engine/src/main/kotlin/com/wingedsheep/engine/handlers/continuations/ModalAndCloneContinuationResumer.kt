@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.mechanics.targeting.withTargetConstraints
 import com.wingedsheep.engine.state.components.identity.copiableCardComponent
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
@@ -17,6 +18,7 @@ import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
 import com.wingedsheep.engine.state.components.battlefield.withCastChoice
 import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.targets.withCount
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
@@ -37,6 +39,7 @@ class ModalAndCloneContinuationResumer(
         resumer(EffectDiscardDestinationContinuation::class, ::resumeEffectDiscardDestination),
         resumer(EffectDiscardOrderContinuation::class, ::resumeEffectDiscardOrder),
         resumer(EffectCopyAuraEntryContinuation::class, ::resumeEffectCopyAuraEntry),
+        resumer(EnteringAttackDefenderContinuation::class, ::resumeEnteringAttackDefender),
         resumer(CloneAuraEntryContinuation::class, ::resumeCloneAuraEntry),
         resumer(CloneEntersContinuation::class, ::resumeCloneEnters),
         resumer(CloneEntersOnBattlefieldContinuation::class, ::resumeCloneEntersOnBattlefield),
@@ -62,6 +65,25 @@ class ModalAndCloneContinuationResumer(
         if (response !is TargetsResponse) return ExecutionResult.error(state, "Expected enchant choice")
         val context = continuation.context.copy(entryAuraHosts = continuation.context.entryAuraHosts +
             (continuation.entityId to response.selectedTargets[0]?.firstOrNull()))
+        val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
+        if (result.outcome !is Outcome.Done) return result.toExecutionResult()
+        return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
+    }
+
+    /**
+     * Record what the next token entering attacking is attacking (CR 508.4) and run the creating
+     * effect again: it asks for the following token, or creates every token once all are answered.
+     */
+    private fun resumeEnteringAttackDefender(
+        state: GameState, continuation: EnteringAttackDefenderContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is TargetsResponse) return ExecutionResult.error(state, "Expected a defender choice")
+        val defender = response.selectedTargets[0]?.singleOrNull()
+            ?: return ExecutionResult.error(state, "Choose exactly one player, planeswalker or battle to attack")
+        val context = continuation.context.copy(
+            entryAttackDefenders = continuation.context.entryAttackDefenders + defender
+        )
         val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
         if (result.outcome !is Outcome.Done) return result.toExecutionResult()
         return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
@@ -100,10 +122,18 @@ class ModalAndCloneContinuationResumer(
         checkForMore: CheckForMore,
     ): ExecutionResult {
         val (slot, value) = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
-            .decodeEntersChoice(continuation.question, response)
+            .decodeEntersChoice(state, continuation.question, response)
             ?: return ExecutionResult.error(state, "Unexpected response for ${continuation.question.choiceType} choice")
-        val context = com.wingedsheep.engine.handlers.effects.EffectEntryChoices.answered(
-            continuation.context, continuation.entityId, continuation.question.choiceType, slot, value)
+        val context = if (continuation.question.syntheticRiot) {
+            // A granted-Riot answer (counter or haste) — recorded apart from the printed MODE slot.
+            val modeId = (value as? com.wingedsheep.engine.state.components.battlefield.ChoiceValue.TextChoice)?.text
+                ?: return ExecutionResult.error(state, "Unexpected response for a riot choice")
+            com.wingedsheep.engine.handlers.effects.EffectEntryChoices.answeredRiot(
+                continuation.context, continuation.entityId, modeId)
+        } else {
+            com.wingedsheep.engine.handlers.effects.EffectEntryChoices.answered(
+                continuation.context, continuation.entityId, continuation.question.choiceType, slot, value)
+        }
         val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
         if (result.outcome !is Outcome.Done) return result.toExecutionResult()
         return checkForMore(exposeCollectionsToNextFrame(result.state, result.updatedCollections), result.events)
@@ -240,6 +270,7 @@ class ModalAndCloneContinuationResumer(
             outerTargets = continuation.outerTargets,
             outerNamedTargets = continuation.outerNamedTargets,
             pipeline = continuation.pipeline,
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             objectReferences = continuation.objectReferences,
             accumulatedEvents = emptyList(),
             checkForMore = checkForMore
@@ -275,13 +306,19 @@ class ModalAndCloneContinuationResumer(
                 }
             }
 
+        // Each requirement owns only the targets picked for it, so a short "up to N" group
+        // doesn't absorb a later requirement's targets.
+        val boundRequirements = continuation.targetRequirements.mapIndexed { i, req ->
+            req.withCount(response.selectedTargets[i]?.size ?: 0)
+        }
         val context = EffectContext(
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
             controllerId = continuation.controllerId,
             xValue = continuation.xValue,
             targets = chosenTargets,
-            pipeline = continuation.pipeline.copy(namedTargets = continuation.pipeline.namedTargets + EffectContext.buildNamedTargets(continuation.targetRequirements, chosenTargets)),
+            pipeline = continuation.pipeline.copy(namedTargets = continuation.pipeline.namedTargets + EffectContext.buildNamedTargets(boundRequirements, chosenTargets)),
             triggeringEntityId = continuation.triggeringEntityId
         )
 
@@ -356,6 +393,8 @@ class ModalAndCloneContinuationResumer(
                 isDoubleFaced = originalCardComponent.isDoubleFaced,
             ),
             exceptions,
+            copierColors = originalCardComponent.colors,
+            copierStats = originalCardComponent.baseStats,
         )
         return state.updateEntity(entityId) { c ->
             c.with(copiedCardComponent)
@@ -696,7 +735,7 @@ class ModalAndCloneContinuationResumer(
                 val chosenCreatureId = response.selectedCards.firstOrNull()
                     ?: return ExecutionResult.error(state, "No creature selected")
                 state.updateEntity(spellId) { c ->
-                    c.withCastChoice(ChoiceSlot.CREATURE, ChoiceValue.EntityChoice(chosenCreatureId))
+                    c.withCastChoice(ChoiceSlot.CREATURE, ChoiceValue.EntityChoice(chosenCreatureId, state.objectRef(chosenCreatureId)?.generation))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.MODE -> {
@@ -860,7 +899,7 @@ class ModalAndCloneContinuationResumer(
         val entityId = continuation.entityId
         // Store the chosen value into the unified cast-choices bag.
         val (slot, value) = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
-            .decodeEntersChoice(continuation, response)
+            .decodeEntersChoice(state, continuation, response)
             ?: return ExecutionResult.error(state, "Unexpected response for ${continuation.choiceType} choice")
         var newState = state.updateEntity(entityId) { c ->
             val recorded = c.withCastChoice(slot, value)
@@ -898,6 +937,7 @@ class ModalAndCloneContinuationResumer(
                             syntheticRiotRemaining = continuation.syntheticRiotRemaining - 1,
                             entryOldObject = continuation.entryOldObject, entryNewObject = continuation.entryNewObject,
                             copyOfOriginalName = continuation.copyOfOriginalName,
+                            simultaneousEntryGroup = continuation.simultaneousEntryGroup,
                         )
                     if (repause != null) return repause
                 }
@@ -924,12 +964,21 @@ class ModalAndCloneContinuationResumer(
                 } else emptyList(),
                 entryOldObject = continuation.entryOldObject, entryNewObject = continuation.entryNewObject,
                 copyOfOriginalName = continuation.copyOfOriginalName,
+                simultaneousEntryGroup = continuation.simultaneousEntryGroup,
             )?.let { return it }
         }
 
-        // Final choice resolved — emit the entry event, so the permanent's enters triggers (landfall,
-        // "when ~ enters") fire now that the chosen value is recorded. The permanent already moved to
-        // the battlefield when it was placed; the caller deliberately left this event to us.
+        // Final choice resolved — the Saga's entry lore counters (CR 714.3a / 714.3b). A token that
+        // paused for an as-enters choice left them to us: a read-ahead Saga's count *is* the number
+        // just chosen (CR 702.155b), so they can only be placed now. No-op for a non-Saga, and for a
+        // Saga whose entry already placed them (a land played or moved through the zone pipeline).
+        val (sagaState, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+            .applySagaEntryIfNeeded(newState, entityId)
+        newState = sagaState
+
+        // Emit the entry event, so the permanent's enters triggers (landfall, "when ~ enters") fire
+        // now that the chosen value is recorded. The permanent already moved to the battlefield when
+        // it was placed; the caller deliberately left this event to us.
         val zoneChangeEvent = ZoneChangeEvent(
             entityId,
             cardComponent?.name ?: "Unknown",
@@ -937,9 +986,10 @@ class ModalAndCloneContinuationResumer(
             Zone.BATTLEFIELD,
             continuation.controllerId,
             copyOfOriginalName = continuation.copyOfOriginalName,
+            simultaneousEntryGroup = continuation.simultaneousEntryGroup,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        return checkForMore(newState, syntheticRiotEvents + zoneChangeEvent)
+        return checkForMore(newState, syntheticRiotEvents + zoneChangeEvent + sagaEvents)
     }
 
     /**
@@ -1430,6 +1480,7 @@ class ModalAndCloneContinuationResumer(
         val effects = sortedIndices.map { continuation.modes[it].effect }
 
         val context = EffectContext(
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
             controllerId = continuation.controllerId,
@@ -1497,14 +1548,14 @@ class ModalAndCloneContinuationResumer(
             amountEvaluator = dynamicAmountEvaluator,
             targetFinder = services.targetFinder
         )
-        val created = executor.createTokens(
+        val created = com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(executor.createTokens(
             state = state,
             effect = continuation.effect,
             context = continuation.context,
             controllerId = continuation.controllerId,
             count = 1,
             auraHostId = hostId,
-        )
+        ), com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(continuation.context))
 
         val remaining = continuation.remaining - 1
         if (remaining <= 0) {
@@ -1565,6 +1616,7 @@ class ModalAndCloneContinuationResumer(
         ) }
 
         val modalContinuation = ModalContinuation(
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             controllerId = continuation.controllerId,
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
@@ -1607,6 +1659,7 @@ class ModalAndCloneContinuationResumer(
 
         // Build context preserving original targets so ContextTarget references still work
         val context = EffectContext(
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
             controllerId = continuation.controllerId,
@@ -1659,7 +1712,8 @@ internal fun processChosenModeQueue(
     accumulatedEvents: List<GameEvent>,
     checkForMore: CheckForMore,
     pipeline: PipelineState = PipelineState.EMPTY,
-    objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment()
+    objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 ): ExecutionResult {
     if (queue.isEmpty()) return checkForMore(state, accumulatedEvents)
 
@@ -1672,6 +1726,7 @@ internal fun processChosenModeQueue(
         // EffectTarget.ContextTarget references in the inner effect resolve to the
         // targets chosen by the enclosing spell/ability.
         val context = EffectContext(
+            resolvingTriggeredAbility = resolvingTriggeredAbility,
             sourceId = sourceId,
             objectReferences = objectReferences,
             controllerId = controllerId,
@@ -1696,25 +1751,26 @@ internal fun processChosenModeQueue(
             controllerId = controllerId,
             sourceId = sourceId
         )
-        legalTargetsMap[index] = legalTargets
+        val compatible = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.eligible(state, legalTargets, req)
+        legalTargetsMap[index] = compatible
         TargetRequirementInfo(
             index = index,
             description = req.description,
             mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
             minTargets = req.effectiveMinCount,
-            maxTargets = req.count
-        )
+            maxTargets = if (req.unlimited) compatible.size else req.count
+        ).withTargetConstraints(state, req, compatible)
     }
 
     val allSatisfied = requirementInfos.all { info ->
-        (legalTargetsMap[info.index]?.isNotEmpty() == true) || info.minTargets == 0
+        info.minTargets == 0 || (legalTargetsMap[info.index].orEmpty().size >= info.minTargets && info.maxTargets >= info.minTargets)
     }
     if (!allSatisfied) {
         // Fizzle just this mode; continue with the rest.
         return processChosenModeQueue(
             services, state, tail, controllerId, sourceId, sourceName, xValue,
             triggeringEntityId, allowCancelBackToModesList, outerTargets, outerNamedTargets,
-            accumulatedEvents, checkForMore, pipeline, objectReferences
+            accumulatedEvents, checkForMore, pipeline, objectReferences, resolvingTriggeredAbility
         )
     }
 
@@ -1725,6 +1781,7 @@ internal fun processChosenModeQueue(
         if (TargetEnumerationUtils.shouldAutoSelectPlayerTarget(req, targets)) {
             val chosenTargets = listOf(entityIdToChosenTarget(state, targets[0]))
             val context = EffectContext(
+                resolvingTriggeredAbility = resolvingTriggeredAbility,
                 sourceId = sourceId,
                 objectReferences = objectReferences,
                 controllerId = controllerId,
@@ -1761,6 +1818,7 @@ internal fun processChosenModeQueue(
     ) }
 
     val modalTargetContinuation = ModalTargetContinuation(
+        resolvingTriggeredAbility = resolvingTriggeredAbility,
         controllerId = controllerId,
         sourceId = sourceId,
         sourceName = sourceName,
@@ -1810,6 +1868,7 @@ private fun executeChosenModeWithTail(
     val stateForExecution = if (tail.isNotEmpty()) {
         state.pushContinuation(
             ModalChosenModeTailContinuation(
+                resolvingTriggeredAbility = context.resolvingTriggeredAbility,
                 controllerId = controllerId,
                 sourceId = sourceId,
                 sourceName = sourceName,
@@ -1840,6 +1899,6 @@ private fun executeChosenModeWithTail(
         services, nextState, tail, controllerId, sourceId, sourceName, xValue,
         triggeringEntityId, allowCancelBackToModesList = null,
         outerTargets, outerNamedTargets, events, checkForMore,
-        context.pipeline, context.objectReferences.authorize(result.events)
+        context.pipeline, context.objectReferences.authorize(result.events), context.resolvingTriggeredAbility
     )
 }

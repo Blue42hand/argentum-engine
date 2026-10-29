@@ -4,6 +4,7 @@ import type { DecisionSelectionState } from '@/store/slices'
 import type { SelectCardsDecision } from '@/types'
 import { DraggableBanner } from './DraggableBanner'
 import { AbilityText } from '../ui/ManaSymbols'
+import { CounterAllocationControls } from '../game/card/CounterAllocationControls'
 import styles from './DecisionUI.module.css'
 
 /**
@@ -19,6 +20,7 @@ export function BattlefieldSelectionUI({
   const decisionSelectionState = useGameStore((s) => s.decisionSelectionState)
   const cancelDecisionSelection = useGameStore((s) => s.cancelDecisionSelection)
   const submitDecision = useGameStore((s) => s.submitDecision)
+  const cards = useGameStore((s) => s.gameState?.cards)
 
   // Start decision selection state when this component mounts
   useEffect(() => {
@@ -29,6 +31,7 @@ export function BattlefieldSelectionUI({
       minSelections: decision.minSelections,
       maxSelections: decision.maxSelections,
       prompt: decision.prompt,
+      selectionLimits: decision.selectionLimits ?? null,
     }
     startDecisionSelection(selectionState)
 
@@ -50,7 +53,8 @@ export function BattlefieldSelectionUI({
   const requiredMinimum = conditionalMinimums.length > 0
     ? Math.max(...conditionalMinimums.map((minimum) => minimum.requiredSelections))
     : minSelections
-  const canConfirm = selectedCount >= minSelections &&
+  const canConfirm = (decision.selectionLimits == null || selectedCount === maxSelections) &&
+    selectedCount >= minSelections &&
     selectedCount <= maxSelections &&
     (selectedCount >= requiredMinimum || satisfiesConditionalMinimum)
   const canSkip = minSelections === 0
@@ -77,7 +81,7 @@ export function BattlefieldSelectionUI({
       <div className={styles.hint}>
         {selectedCount > 0
           ? `${selectedCount} / ${maxSelections} selected`
-          : 'Click cards to select'}
+          : decision.selectionLimits != null ? 'Use + and − on permanents to allocate counters' : 'Click cards to select'}
         {conditionalMinimums.length > 0 ? ` (normally ${requiredMinimum})` : minSelections > 0 && ` (min ${minSelections})`}
       </div>
       {conditionalMinimums.map((minimum) => (
@@ -86,11 +90,24 @@ export function BattlefieldSelectionUI({
         </div>
       ))}
 
+      {decision.selectionLimits != null && (
+        <details style={{ marginTop: 8 }}>
+          <summary style={{ cursor: 'pointer', fontSize: 12 }}>Adjust allocations</summary>
+          <div style={{ maxHeight: '35vh', overflowY: 'auto', display: 'flex',
+            flexDirection: 'column', gap: 6, marginTop: 6 }}>
+            {decision.options.map((id) => (
+              <CounterAllocationControls key={id} cardId={id} presentation="inline"
+                cardName={cards?.[id]?.name ?? decision.cardInfo?.[id]?.name ?? 'Permanent'} />
+            ))}
+          </div>
+        </details>
+      )}
+
       {/* Confirm/Skip buttons */}
       <div className={styles.buttonContainerSmall}>
         {canSkip && selectedCount === 0 && (
           <button onClick={handleSkip} className={`${styles.confirmButton} ${styles.confirmButtonSmall}`}>
-            Select None
+            {decision.declineLabel ?? 'Select None'}
           </button>
         )}
         {selectedCount > 0 && (

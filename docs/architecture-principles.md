@@ -562,6 +562,15 @@ actionable references: invalidating a live object does not erase the event's las
 These fields are internal engine data; client event mapping continues to expose the existing game
 log shape.
 
+A meld departure emits the host's ordinary zone event and the partner's card-arrival event, marked
+`meldedPermanent` with the departed host's object reference. `isBattlefieldDeparture` excludes that
+additional arrival from permanent death/leave detection. Both movement outcomes share the departed
+object and identify separate destination objects. Resolution movement permissions preserve that
+one-to-many relationship, including across serialized continuations; zone-return durations record
+both destination visits independently. Card-arrival trackers read each front face, while death
+trackers read the one departed permanent.
+
+
 Graveyards store cards oldest first. `GraveyardOrdering` finishes each atomic effect, SBA pass,
 or action-cost batch: it preserves earlier cards and asks each owner to order simultaneous arrivals,
 in APNAP order. `GraveyardOrderContinuation` holds the move events and pipeline outputs until all
@@ -831,6 +840,15 @@ reads, which then apply the policy above, and `resolveTarget` for actions, which
 object that has changed zones since the ability captured it (CR 400.7) — the source (`Self`), the
 triggering object, or the object a `ForEach` loop is visiting (`IterationEntity`).
 
+Battlefield entry events carry an internal `simultaneousEntryGroup` when a shared mover places several
+cards in one instruction; token-creation executors stamp the same boundary for multiple tokens.
+The group is an opaque game-local routing token, shared by those arrivals
+and distinct from any later instruction. Token groups are allocated before execution and ride the
+existing pipeline context through replacement decisions and remaining-copy continuations; an
+as-enters answer retains the group on its eventual entry event. Trigger detection uses it to let a source entering alongside
+other permanents observe them and bind its new battlefield object, without treating the concatenated
+events of a whole composite resolution as one simultaneous entry. Single-card moves need no group.
+
 ### 2.6 Strategy-Based Registries
 
 **Principle:** Action handling and effect execution are fully decoupled from the core engine loop.
@@ -1089,6 +1107,22 @@ Each step has a `hasPriority` property. Most steps grant priority; UNTAP and CLE
 engine auto-advances past them). Steps that don't grant priority execute their actions (untap all
 permanents, discard to hand size) and immediately advance to the next step.
 
+**Optional triggered effects.** A "you may" gate stays on the triggered stack object. Targets
+are announced before it enters the stack, even when a remembered answer will decline the effect.
+The existing gated executor asks consent (or applies the player's remembered answer) only when
+that instance resolves, after target validation. Simultaneous identical optional triggers retain
+separate targets, priority windows and resolution choices; no put-on-stack consent batch removes
+those choices. The server/client use the ordinary target decision followed by a resolution yes/no.
+
+One shape answers both at once: a trigger whose whole effect is a plain "you may" over exactly one
+mandatory single target, with no "if you don't" branch ("you may tap target permanent" —
+`TriggerProcessor.consentAnswerableAtTargeting`). Asking for the target and then "you may …?" puts
+one question to the player twice, so the target decision offers **Decline** (its slot minimum is
+lowered to zero for that purpose only). A chosen target marks the stack object
+`consentAnsweredAtTargeting`, and the gated executor takes the yes branch without prompting;
+declining skips the ability, which would have resolved doing nothing. A later "you may" nested
+inside the effect still asks.
+
 **Priority and the "both players pass" rule.** `GameState` tracks priority with two fields:
 
 ```kotlin
@@ -1115,7 +1149,9 @@ behavior:
 
 - **UNTAP:** Untap all permanents, remove summoning sickness. No priority — recursively advances.
 - **DRAW:** Draw a card, check draw replacement effects, then run state-based actions.
-- **DECLARE_ATTACKERS / DECLARE_BLOCKERS:** Skip entirely if no valid attackers/blockers exist.
+- **DECLARE_ATTACKERS:** Always happens, with priority (CR 508.2). With no creature able to attack,
+  the empty declaration is made as the turn-based action instead of asking the active player.
+- **DECLARE_BLOCKERS / COMBAT_DAMAGE:** Skipped when no creature is attacking (CR 508.8).
 - **COMBAT_DAMAGE:** Apply all combat damage simultaneously, then run state-based actions.
 - **CLEANUP:** Discard to hand size, remove damage, expire end-of-turn effects. Normally no
   priority — but if SBAs or triggers occur during cleanup, a new cleanup step begins with priority.
@@ -1160,6 +1196,14 @@ contexts:
 `ManaCost` parses string notation into a list of `ManaSymbol` variants — `Colored(color)`,
 `Generic(amount)`, `Hybrid(color1, color2)`, `Phyrexian(color)`, `X`, and `Colorless`. This
 structured representation enables the solver to reason about payment options without string parsing.
+
+**Optional life-funded cost modifiers.** `ModifySpellCost.optionalLifePayment` rides the existing
+additional-cost pipeline. A cast records each elected projected static instance in
+`CastSpell.optionalCostPayments`; validation checks the actual spell face, source and life budget.
+Enumeration uses an immutable `CostCalculator` carrying the same declarations, with the mana solver
+reserving their life budget. Identical instances are offered by count rather than by permutation.
+The totaller applies the discount after additional mana costs, and a mana-action continuation retains
+both its mana total and its non-mana obligations if the granting source departs during payment.
 
 **Tier 2: Mana Solving (Engine).** The `ManaSolver` determines whether a player *can* pay a cost
 and *which sources to tap*. This is a constraint satisfaction problem, not a simple subtraction:
@@ -1223,6 +1267,12 @@ fixed self-counter removal compose without a separate cost simulation. Finite pu
 also use real handler execution: fixed/variable battlefield sacrifices, fixed other-permanent taps,
 tap-X, mana-X, and named self-counter X. Existing number and public object-selection questions branch
 through their registered resumers; action-carried choices use the handler's normal validation.
+Fixed and X public graveyard exile costs reuse the same selection dispatch. Their real payment
+validates filters, owner/single-graveyard constraints and announced X; later prefixes see the cards
+already exiled. A shared action selection cannot represent multiple exile atoms, so the planner
+reports that shape as unsupported. Nested graveyard costs also remain unsupported while the
+activation choice extractors inspect only immediate composite children. Hidden-zone exile remains
+outside the proof boundary.
 Cost objects follow projected control rather than owner-keyed zones, including stolen permanents;
 source-relative tap filters retain the cost's source through query and payment. Choice previews are
 advisory when they lack that context; the real action remains authoritative.
@@ -1245,8 +1295,16 @@ or client contract is added. Standalone
 solvers and intermediate-ability affordability retain the independent fixed-output proof. Face-down
 boards retain a uniform source-proof boundary because legacy enumeration inspects hidden printed
 statics; complete floating payments still work. Hidden-zone/distributed-counter cost choices and
-other unsupported mana-ability execution shapes remain explicit uncertainty. Atomic manual-overactivation
-recovery and closing those proof boundaries remain required before a printed card uses the foundation.
+other unsupported mana-ability execution shapes remain explicit uncertainty. Announced fixed-price
+forced-cast payment windows now validate each accepted manual activation/answer prefix at the public
+action boundary. The planner finishes paused production above the payment-restoration frame before
+proving future contribution coverage; speculative future work is discarded. Impossible or uncertain
+prefixes reject with the original input state, costs, question and no events. This lets the player
+retry a failed source or color without a serialized checkpoint or reverse events. Payment-menu
+confirmation reuses the exact cast allocator instead of legacy menu floating. Unscoped payments and
+scopes without a forced cast are unaffected. Captured X-color/Phyrexian choices, reachable mandatory
+mana windows, other casting-cost resources and the remaining proof boundaries still need completion before a printed card uses
+the foundation.
 
 **Tier 3: Cost Execution (Engine).** The `CostHandler` physically pays costs — tapping permanents,
 deducting from the mana pool, sacrificing creatures, discarding cards, paying life. The `ManaPool`
@@ -1329,6 +1387,24 @@ tagging. Non-tapping and zero-output activations do not fire tap bonuses. This a
 does not prove that future activations can pay a forced card play; forward planning and recovery remain
 separate work.
 
+#### Attack-declaration cost choices
+
+Attack declaration validates the proposed group, taps non-vigilant attackers, collects enlist
+choices, and then pays attack costs before marking the declaration as attacking. Choices use the
+existing battlefield card selector. No player receives priority between these stages.
+
+A tax question carries only the component changes made by declaration taps, tagged with a routing
+ID. The settler tags their queued triggers with the same ID. Cancelling restores those component
+changes on their original objects and removes only those triggers; independent mana actions remain.
+The checkpoint never retains another game state or hidden hands/libraries, so it cannot pin the
+entire hidden world during AI determinization. `AttackDeclarationCancelledEvent` reports rollback
+without emitting false untap triggers. Enlist uses the tap atom and separate enlist/linked-trigger events.
+
+Enlist instances are read from projection. The engine's `Modification.GrantStaticAbility` retains
+point-of-use static abilities in a list through layer-six ordering, including copied token text.
+Ability removal clears this list; a later resolved grant restores only its own instance. Printed
+instances remain dependent on their source's abilities, while resolved grants are independent.
+
 ### 2.11 Copy Effects
 
 **Principle:** Copy effects resolve at entry time by replacing the base `CardComponent`, making
@@ -1378,6 +1454,30 @@ data class CopyOfComponent(
 
 5. **Battlefield entry.** The permanent enters the battlefield with the copied stats, types,
    keywords, and abilities as its base state.
+
+Triggered abilities capture their complete SDK rules text when detected. Target and distribution continuations carry that snapshot onto the stack; `EffectContext.forTriggeredAbility` keeps it through resolution choices. `CopyExceptions.retainResolvingTriggeredAbility` appends the snapshot to the copy’s intrinsic triggered abilities, so later copies inherit it and repeated self-copies add separate instances. Source changes cannot rewrite an ability already on the stack.
+
+Face-down sources use a synthetic `CardComponent` containing only their public copiable values,
+including disguise/cloak ward costs. A copied ward cost travels with the card component, so a
+face-up copy has ward without inheriting face-down status or hidden rules text. Token copies of
+face-down double-faced permanents store public snapshots of both faces on `DoubleFacedComponent`;
+transforming those tokens reads the snapshots rather than the hidden card definitions.
+
+Flip identities store the alternative copiable half on `CardComponent.flipSide`. Copy exceptions
+modify both halves. `FlippedComponent` tracks independent status and the current upright snapshot;
+`withCopyIdentity` selects the active half and refreshes its intrinsic/static/replacement abilities.
+`CopyHistoryComponent` stores ordered identities under temporary copies, separate from the printed
+identity used on zone exit. Expiry removes matching layers even when a newer permanent copy masks them,
+then reselects the exposed identity using current status. Inline numeric/static token text travels
+with the identity rather than only its derived runtime components. Private departure snapshots stay
+separate from public face-down copy-source values. Saved identities missing flip halves recover them
+from their registered definition at identity installation. Serialized snapshots remain source-independent.
+
+Spell copies apply the same `CopyExceptions` to their stored characteristics before placement events.
+Target-choice continuations carry the exceptions, and legal targets are evaluated against a transient
+prospective copy with its own characteristics and controller. This preview is never pushed to the
+stack or published. Later copies inherit the resulting characteristics without inheriting ordinary
+color-changing effects on the original spell. Numeric keyword components travel with copied text.
 
 **Why copy is resolved before entry, not as a continuous effect layer.**
 

@@ -23,23 +23,27 @@ data class LegalActionTargetInfo(
     val minTargets: Int,
     val maxTargets: Int,
     val validTargets: List<EntityId>,
+    /** Server-computed choices keyed by the comma-joined earlier target IDs, in slot order. */
+    val selectionGroups: List<List<EntityId>>? = null,
+    val exclusiveGroups: List<List<EntityId>>? = null,
+    val validTargetsByPrefix: Map<String, List<EntityId>>? = null,
     val targetZone: String? = null,
     /**
      * True when this target requirement filters by "mana value X or less"
-     * (CardPredicate.ManaValueAtMostX). The client must re-filter [validTargets]
+     * (`manaValueAtMostX()`). The client must re-filter [validTargets]
      * by the chosen X after X selection — the engine builds [validTargets]
      * permissively because X is unbound at legal-action enumeration time.
      */
     val xConstrainsManaValue: Boolean = false,
     /**
      * True when this target requirement filters by "mana value X" *exactly*
-     * (CardPredicate.ManaValueEqualsX). The equality sibling of [xConstrainsManaValue]: the client
+     * (`manaValueEqualsX()`). The equality sibling of [xConstrainsManaValue]: the client
      * narrows [validTargets] to cards whose mana value equals the chosen X after X selection
      * (Likeness Looter, Rydia, Summoner of Mist).
      */
     val xConstrainsManaValueExactly: Boolean = false,
     /**
-     * True when this target requirement filters by "power X" (CardPredicate.PowerEqualsX).
+     * True when this target requirement filters by "power X" (`CompareNumericProperty(POWER, EQ, XValue)`).
      * The client must re-filter [validTargets] to creatures whose power equals the chosen X
      * after X selection (Ent-Draught Basin) — the engine builds [validTargets] permissively
      * because X is unbound at legal-action enumeration time.
@@ -51,6 +55,11 @@ data class LegalActionTargetInfo(
      * cap selectable targets at the chosen X after the cast-time `xSelection` phase.
      */
     val xConstrainsCount: Boolean = false,
+    /**
+     * True when that X-driven count is exact — "X target creatures" (`TargetObject.dynamicMinCount`
+     * is XValue too). The client must require exactly the chosen X selections, not merely cap them.
+     */
+    val xConstrainsCountExactly: Boolean = false,
     /**
      * True when a target for this requirement must differ from every target chosen for an
      * earlier requirement ("another target"). False lets separate "target" instances pick the
@@ -80,13 +89,13 @@ data class LegalActionInfo(
     val xConstrainsTargetManaValue: Boolean = false,
     /**
      * True when the (single) target requirement filters by "mana value X" *exactly*
-     * (CardPredicate.ManaValueEqualsX — Likeness Looter). For multi-requirement abilities the
+     * (`manaValueEqualsX()` — Likeness Looter). For multi-requirement abilities the
      * per-requirement flag on [LegalActionTargetInfo.xConstrainsManaValueExactly] is used instead.
      * The client narrows [validTargets] to cards whose mana value equals the chosen X.
      */
     val xConstrainsTargetManaValueExactly: Boolean = false,
     /**
-     * True when the (single) target requirement filters by "power X" (CardPredicate.PowerEqualsX).
+     * True when the (single) target requirement filters by "power X" (`CompareNumericProperty(POWER, EQ, XValue)`).
      * The client must re-filter [validTargets] to creatures whose power equals the chosen X
      * after X selection (Ent-Draught Basin). For multi-requirement abilities the per-requirement
      * flag on [LegalActionTargetInfo.xConstrainsPower] is used instead.
@@ -99,9 +108,22 @@ data class LegalActionInfo(
      * [LegalActionTargetInfo.xConstrainsCount] is used instead.
      */
     val xConstrainsTargetCount: Boolean = false,
+    /**
+     * True when that X-driven count is exact — "X target creatures". The client requires exactly
+     * the chosen X selections; [maxAffordableX] is already capped at the legal-target count. For
+     * multi-requirement spells see [LegalActionTargetInfo.xConstrainsCountExactly].
+     */
+    val xConstrainsTargetCountExactly: Boolean = false,
     val validAttackers: List<EntityId>? = null,
     val mandatoryAttackers: List<EntityId>? = null,
     val validAttackTargets: List<EntityId>? = null,
+    /**
+     * Sparse per-attacker narrowing of [validAttackTargets]: an attacker listed here may attack
+     * only the targets given (a per-defender restriction rules the others out — Goblin Rock Sled,
+     * Blazing Archon); an absent attacker may attack any of [validAttackTargets]. Null when no
+     * attacker is narrowed.
+     */
+    val attackTargetsByAttacker: Map<EntityId, List<EntityId>>? = null,
     val validBlockers: List<EntityId>? = null,
     /** Pairwise legal attacker ids for each blocker; full group restrictions still apply. */
     val validBlockTargets: Map<EntityId, List<EntityId>>? = null,
@@ -167,6 +189,8 @@ data class LegalActionInfo(
     val requiresDamageDistribution: Boolean = false,
     val totalDamageToDistribute: Int? = null,
     val minDamagePerTarget: Int? = null,
+    /** What the division divides when it isn't damage — "+1/+1 counter". Null means damage. */
+    val distributionUnit: String? = null,
     val autoTapPreview: List<EntityId>? = null,
     val availableManaSources: List<ManaSourceInfo>? = null,
     /**
@@ -363,7 +387,13 @@ data class AdditionalCostInfo(
      */
     val tapForPowerCreatures: List<TapForPowerCreatureInfo> = emptyList(),
     /** Total projected power the [tapForPowerCreatures] selection must reach. 0 = no such cost. */
-    val tapForPowerRequired: Int = 0
+    val tapForPowerRequired: Int = 0,
+    /**
+     * Further selection costs the same cast demands ("discard a card and sacrifice a creature"),
+     * prompted in order after this one. Each is a plain single-cost entry. See
+     * [com.wingedsheep.engine.legalactions.AdditionalCostData.alsoRequired].
+     */
+    val alsoRequired: List<AdditionalCostInfo> = emptyList()
 )
 
 @Serializable

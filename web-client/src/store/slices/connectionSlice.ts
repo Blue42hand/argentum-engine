@@ -18,6 +18,14 @@ import {
 import { createMessageHandlers } from './handlers'
 import { useAuthStore } from '@/store/authStore'
 import { receiveAiControllerCatalog } from '@/store/aiControllerStore'
+import { CLOSE_SERVICE_RESTART } from '@/network/websocket.ts'
+import {
+  type ServerRestartState,
+  beginServerRestart,
+  loadServerRestart,
+  DEFAULT_RESTART_SECONDS,
+  RESTART_RETRY_MS,
+} from './serverRestart'
 
 export interface ConnectionSliceState {
   connectionStatus: ConnectionStatus
@@ -33,6 +41,12 @@ export interface ConnectionSliceState {
    * tab/device. Auto-reconnect is stopped; the user reclaims via the takeover overlay.
    */
   sessionReplaced: boolean
+  /** Set while the server is restarting (see `serverRestart.ts`). */
+  serverRestart: ServerRestartState | null
+  /** Epoch ms the server came back after a restart; drives the brief "back online" notice. */
+  serverBackAt: number | null
+  /** Epoch ms an established connection dropped, until it is re-established. */
+  connectionLostAt: number | null
 }
 
 export interface ConnectionSliceActions {
@@ -44,6 +58,8 @@ export interface ConnectionSliceActions {
    */
   connect: (playerName: string, options?: { spectator?: boolean }) => void
   disconnect: () => void
+  /** Skip the pending reconnect wait and try now. */
+  retryConnection: () => void
   setPendingTournamentId: (lobbyId: string | null) => void
   setPendingSpectateGameId: (gameSessionId: string | null) => void
 }
@@ -61,6 +77,9 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
   availableSets: [],
   onlinePlayers: null,
   sessionReplaced: false,
+  serverRestart: loadServerRestart(),
+  serverBackAt: null,
+  connectionLostAt: null,
 
   // Actions
   connect: (playerName, options) => {
@@ -126,22 +145,37 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
         handleServerMessage(msg, wrappedHandlers)
       },
       onStatusChange: (status) => {
-        set({ connectionStatus: status })
+        const wasConnected = get().connectionStatus === 'connected'
+        set({
+          connectionStatus: status,
+          ...(status === 'connected'
+            ? { connectionLostAt: null }
+            : wasConnected && { connectionLostAt: Date.now() }),
+        })
         if (status === 'connected' && getWebSocket()) {
           sendAuth()
         }
       },
+      onClose: (code) => {
+        if (code === CLOSE_SERVICE_RESTART) beginServerRestart(set, get, DEFAULT_RESTART_SECONDS)
+      },
       onError: () => {
+        // Each failed retry fires this. While a restart or a mid-game reconnect is being shown,
+        // a stack of "connection error" toasts only repeats what that notice already says.
+        if (get().serverRestart || get().connectionLostAt) return
         get().setError({
           code: ErrorCode.INTERNAL_ERROR,
           message: 'WebSocket connection error',
           timestamp: Date.now(),
         })
       },
+      shouldResyncOnVisible: () => get().gameState != null && get().gameOverState == null,
     })
 
     setWebSocket(ws)
     setReauthHandler(sendAuth)
+    // A reload mid-update restores the restart window; keep its pacing on the fresh socket.
+    if (get().serverRestart) ws.setFixedRetryInterval(RESTART_RETRY_MS)
     ws.connect()
   },
 
@@ -157,6 +191,7 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
     set({
       sessionReplaced: false,
       connectionStatus: 'disconnected',
+      connectionLostAt: null,
       playerId: null,
       sessionId: null,
       pendingTournamentId: null,
@@ -174,6 +209,10 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
       lobbyState: null,
       tournamentState: null,
     })
+  },
+
+  retryConnection: () => {
+    getWebSocket()?.retryNow()
   },
 
   setPendingTournamentId: (lobbyId) => {

@@ -25,11 +25,16 @@ import com.wingedsheep.engine.core.Outcome
  * requires a choice for each of them — only "up to one target" makes one optional. The card
  * used to spell the consent as `optional = true` on the target requirement, which is the SDK's
  * phrasing for "up to one target" — a strictly different ability, since it lets the controller
- * decline to target at all and never asks for consent. Argentum Assay's differential reported it.
+ * put the ability on the stack without a target. Argentum Assay's differential reported it.
+ *
+ * For this plain "you may <verb> target X" shape the engine takes the may-answer at the target
+ * prompt: choosing a target is the yes (no second yes/no on resolution), and an empty selection
+ * declines — the ability never goes on the stack. That is what tells it apart from "up to one",
+ * where an empty selection would still put a targetless ability on the stack.
  *
  * Two artifact cards go in the graveyard rather than one, deliberately: with a single legal target
- * the engine auto-selects it and no `ChooseTargetsDecision` is raised at all, so the requirement's
- * minimum — the thing that changed — would not be observable.
+ * the engine auto-selects it and no `ChooseTargetsDecision` is raised at all, so the prompt would
+ * not be observable.
  */
 class DaringArchaeologistScenarioTest : FunSpec({
 
@@ -40,7 +45,7 @@ class DaringArchaeologistScenarioTest : FunSpec({
         return d
     }
 
-    /** Cast the Archaeologist over two artifact cards in the graveyard, stopping at its ETB consent. */
+    /** Cast the Archaeologist over two artifact cards in the graveyard, stopping at its ETB target choice. */
     fun GameTestDriver.castOverTwoArtifacts(): Triple<EntityId, EntityId, EntityId> {
         val you = player1
         passPriorityUntil(Step.PRECOMBAT_MAIN)
@@ -55,35 +60,35 @@ class DaringArchaeologistScenarioTest : FunSpec({
                 paymentStrategy = PaymentStrategy.AutoPay,
             ),
         ).outcome shouldBe Outcome.Done
-        bothPass() // the creature resolves and its ETB trigger asks whether you want to do this
+        bothPass() // resolve the creature and announce the trigger target
         return Triple(you, golem, myr)
     }
 
-    test("consenting then asks for a target, and the target is mandatory") {
+    test("choosing a target is the yes: the card returns with no second may-prompt") {
         val d = driver()
         val (you, golem, myr) = d.castOverTwoArtifacts()
-
-        d.submitYesNo(you, true)
 
         val decision = d.pendingDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
         decision.legalTargets[0].shouldNotBeNull() shouldContainAll listOf(golem, myr)
-        // The half that fails when the consent is spelled as `optional = true` on the requirement:
-        // that spelling makes this 0, i.e. "up to one target artifact card".
-        decision.targetRequirements.single().minTargets shouldBe 1
+        // The target prompt carries the decline, so its minimum is zero.
+        decision.targetRequirements.single().minTargets shouldBe 0
 
-        d.submitTargetSelection(you, listOf(golem))
-        while (d.stackSize > 0) d.bothPass()
+        d.submitTargetSelection(you, listOf(golem)).error shouldBe null
+        d.bothPass().error shouldBe null
 
+        d.pendingDecision shouldBe null
         d.getHand(you) shouldContain golem
     }
 
-    test("declining asks for no target at all and both cards stay in the graveyard") {
+    test("declining at the target prompt keeps the ability off the stack and both cards in the graveyard") {
         val d = driver()
         val (you, golem, myr) = d.castOverTwoArtifacts()
 
-        d.submitYesNo(you, false)
-        while (d.stackSize > 0) d.bothPass()
+        d.submitTargetSelection(you, emptyList()).error shouldBe null
 
+        // An "up to one target" spelling would put a targetless ability on the stack here.
+        d.stackSize shouldBe 0
+        d.pendingDecision shouldBe null
         d.getGraveyard(you) shouldContainAll listOf(golem, myr)
     }
 })

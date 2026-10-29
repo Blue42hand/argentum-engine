@@ -7,7 +7,6 @@ import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.PlotCard
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.PredicateContext
@@ -155,7 +154,9 @@ class PlotCardHandler(
             red = poolComponent.red,
             green = poolComponent.green,
             colorless = poolComponent.colorless,
+            restrictedMana = poolComponent.restrictedMana,
             snowMana = poolComponent.snowMana,
+            manaUnits = poolComponent.manaUnits,
             snowColorless = poolComponent.snowColorless
         ).withSpendingColors(state, action.playerId)
         val partialResult = pool.payPartial(plotCost)
@@ -179,7 +180,9 @@ class PlotCardHandler(
                     red = poolAfterPayment.red,
                     green = poolAfterPayment.green,
                     colorless = poolAfterPayment.colorless,
+                    restrictedMana = poolAfterPayment.restrictedMana,
                     snowMana = poolAfterPayment.snowMana,
+                    manaUnits = poolAfterPayment.manaUnits,
                     snowColorless = poolAfterPayment.snowColorless
                 )
             )
@@ -187,8 +190,9 @@ class PlotCardHandler(
 
         if (!remainingCost.isEmpty()) {
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
+                val credited = manaSolver.creditExplicitSources(currentState, action.playerId, action.paymentStrategy.manaAbilitiesToActivate, remainingCost)
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
+                    val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingLife(currentState, sourceId, action.playerId, credited[sourceId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }

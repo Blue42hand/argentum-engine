@@ -119,9 +119,9 @@ export function AdminDashboard({ auth, onBack }: { auth: AdminAuth; onBack: () =
       <Panel title="Games per day (last 30 days)">
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={perDay} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
-            <CartesianGrid stroke="#22223a" strokeDasharray="3 3" />
-            <XAxis dataKey="day" stroke="#666" fontSize={11} tickFormatter={(d: string) => d.slice(5)} />
-            <YAxis stroke="#666" fontSize={11} allowDecimals={false} />
+            <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" />
+            <XAxis dataKey="day" stroke="#8f98ac" fontSize={11} tickFormatter={(d: string) => d.slice(5)} />
+            <YAxis stroke="#8f98ac" fontSize={11} allowDecimals={false} />
             <Tooltip contentStyle={chartTooltipStyle} />
             <Line type="monotone" dataKey="count" stroke={adminTheme.accentSolid} strokeWidth={2} dot={false} />
           </LineChart>
@@ -270,8 +270,8 @@ function BucketBars({ data, fill }: { data: StatBucket[]; fill: string }) {
   return (
     <ResponsiveContainer width="100%" height={Math.max(120, data.length * 28)}>
       <BarChart data={data} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 8 }}>
-        <XAxis type="number" stroke="#666" fontSize={11} allowDecimals={false} />
-        <YAxis type="category" dataKey="label" stroke="#999" fontSize={11} width={90} />
+        <XAxis type="number" stroke="#8f98ac" fontSize={11} allowDecimals={false} />
+        <YAxis type="category" dataKey="label" stroke="#b4bccd" fontSize={11} width={90} />
         <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: '#ffffff10' }} />
         <Bar dataKey="count" fill={fill} radius={[0, 4, 4, 0]} />
       </BarChart>

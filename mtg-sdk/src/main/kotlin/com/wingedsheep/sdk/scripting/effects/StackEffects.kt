@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -758,14 +759,19 @@ data class ChangeTargetEffect(
     /**
      * The object the target is changed *to* — "change the target of target spell … to this
      * creature" (Hydroelectric Specimen, Spellskite). Null (the default) lets the controller choose
-     * among the spell's legal new targets. When set there is no choice: the target changes only if
-     * [newTarget] is a legal target for the spell, judged from the spell's controller (CR 115.7a —
-     * a target can be changed only to another legal target; otherwise it is unchanged).
+     * among the spell's legal new targets. When set there is no choice of new target: a target
+     * changes only if [newTarget] is a legal target for that slot, judged from the spell's
+     * controller (CR 115.7a — a target can be changed only to another legal target; otherwise it is
+     * unchanged). This form also reads "change *a* target …": on a spell or ability with several
+     * targets, one of the slots [newTarget] could legally fill changes, and the controller picks
+     * which when there is more than one (Spellskite). "With a single target" wordings (Hydroelectric
+     * Specimen) say so with `withSingleTarget()` on the targeting filter.
      */
     val newTarget: EffectTarget? = null,
 ) : Effect {
     override val description: String = buildString {
-        append("Change the target of target spell or ability with a single target")
+        if (newTarget != null) append("Change a target of target spell or ability")
+        else append("Change the target of target spell or ability with a single target")
         if (onlyIfCurrentTargetIsController) append(" if that target is you")
         if (newTarget != null) append(" to ${newTarget.description}")
         if (newTargetMustBePlayer) append(". The new target must be a player")
@@ -904,7 +910,7 @@ data class GrantKeywordToSpellEffect(
     constructor(keyword: Keyword, target: EffectTarget = EffectTarget.TriggeringEntity) :
         this(keyword.name, target)
 
-    override val description: String = "${target.description} gains ${keyword.lowercase().replace('_', ' ')}"
+    override val description: String = com.wingedsheep.sdk.scripting.util.describeKeywordGrant(target.description, keyword)
 }
 
 @SerialName("CopyTargetSpell")
@@ -952,51 +958,79 @@ data class CopyTargetSpellEffect(
      * copies the triggering spell once per other instant or sorcery cast before it this turn. A
      * count of zero or less makes no copies at all.
      */
-    val copies: DynamicAmount = DynamicAmount.Fixed(1)
+    val copies: DynamicAmount = DynamicAmount.Fixed(1),
+    /** Copiable characteristic exceptions, applied before the copy is put on the stack. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None
 ) : Effect {
-    override val description: String =
-        if (copies == DynamicAmount.Fixed(1)) "Copy target spell"
-        else "Copy target spell ${copies.description} times"
+    override val description: String = run {
+        val main = if (copies == DynamicAmount.Fixed(1)) "Copy target spell"
+            else "Copy target spell ${copies.description} times"
+        val clauses = exceptions.clauses()
+        if (clauses.isEmpty()) main else "$main except ${clauses.joinToString(" and ")}"
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val rewritten = exceptions.applyTextReplacement(replacer)
+        return if (rewritten === exceptions) this else copy(exceptions = rewritten)
+    }
+
 }
 
 /**
- * Copy a spell once **for each other object it could target** (CR 707.10d), auto-assigning every
- * copy a distinct one of those objects as its target. Models the Zada family:
+ * Copy a spell or ability once **for each other object it could target** (CR 707.10d), auto-assigning
+ * every copy a distinct one of those objects as its target. Models the Zada family:
  *
  *  - Zada, Hedron Grinder — "copy it for each other creature you control that the spell could target"
  *  - Mirrorwing Dragon — "that player copies that spell for each other creature they control that
  *    the spell could target"
+ *  - Agrus Kos, Eternal Soldier — "copy that ability for each other creature you control that ability
+ *    could target"
  *
  * This is the 707.10d shape, not the 707.10c one: **no player decision is involved.** Contrast
  * [CopyTargetSpellEffect] with a `copies` count, which makes N copies and pauses so the controller
  * *may choose* new targets for each — here both the number of copies and each copy's target fall out
  * of the board, so the copies go straight onto the stack.
  *
- * The candidate set is every object matching [candidates] that is a legal target for **every**
- * instance of the word "target" on the copied spell (707.10d: "if that player or object isn't a legal
- * target for each instance of the word *target*, a copy isn't created for that player or object"),
- * minus the objects the spell already targets — the "each **other** …" in the card text. Each copy is
- * put onto the stack with its object filling all of the spell's target slots.
+ * [target] may be an instant/sorcery spell or an activated/triggered ability on the stack; the engine
+ * dispatches on what it finds there. The candidate set is every object matching [candidates] that is a
+ * legal target for **every** instance of the word "target" on the copied object (707.10d: "if that
+ * player or object isn't a legal target for each instance of the word *target*, a copy isn't created
+ * for that player or object"), minus the objects it already targets — the "each **other** …" in the
+ * card text. Each copy is put onto the stack with its object filling all of the original's target
+ * slots, and a modal original keeps its chosen modes (700.2g).
  *
- * **Both [candidates] and control of the copies belong to the copied spell's controller, not to this
- * ability's controller.** That is what lets one effect express both wordings: Zada says "you control"
- * on a trigger only its own controller's casts fire, while Mirrorwing Dragon watches every seat and
- * says "**they** control" / "**that player** copies". So `candidates` written as
- * `GameObjectFilter.Creature.youControl()` reads as "creature the caster controls".
+ * [copier] is the player who copies — who controls every copy, and who [candidates] and the legality
+ * of each candidate are read relative to. "You copy" (Zada, Agrus Kos — whose rulings give Agrus's
+ * controller the copies "no matter which player controlled the original ability") is [Player.You];
+ * Mirrorwing Dragon's "**that player** copies … each other creature **they** control" watches every
+ * seat and is [Player.TriggeringPlayer], the caster. Either way `GameObjectFilter.Creature.youControl()`
+ * reads as "creature the copier controls".
  *
- * A spell flagged "can't be copied" yields no copies.
+ * An object flagged "can't be copied" yields no copies.
  *
- * @property spell The spell to copy — [EffectTarget.TriggeringEntity] for the "copy that spell" wording.
+ * @property target The spell or ability to copy — [EffectTarget.TriggeringEntity] for "copy that
+ *   spell", [EffectTarget.TargetingSource] for "copy that ability" in a becomes-the-target trigger.
  * @property candidates Which objects the copies are distributed over, one copy each.
+ * @property copier Who copies: controls the copies, and the reference player for [candidates].
  */
-@SerialName("CopySpellForEachOtherPossibleTarget")
+@SerialName("CopyForEachOtherPossibleTarget")
 @Serializable
-data class CopySpellForEachOtherPossibleTargetEffect(
-    val spell: EffectTarget = EffectTarget.TriggeringEntity,
-    val candidates: GameObjectFilter
+data class CopyForEachOtherPossibleTargetEffect(
+    val target: EffectTarget = EffectTarget.TriggeringEntity,
+    val candidates: GameObjectFilter,
+    val copier: Player = Player.You
 ) : Effect {
-    override val description: String =
-        "Copy that spell for each other ${candidates.description} it could target"
+    override val description: String = buildString {
+        if (copier != Player.You) append("${copier.description.replaceFirstChar { it.uppercase() }} copies ")
+        else append("Copy ")
+        append(if (target == EffectTarget.TargetingSource) "that ability" else "that spell")
+        // [candidates] reads "you" as the copier, so another copier is "they".
+        val phrase = TargetFilter(candidates).targetPhrase()
+        val candidateText = if (copier == Player.You) phrase else phrase.replace("you control", "they control")
+        append(" for each other $candidateText it could target")
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect =
         copy(candidates = candidates.applyTextReplacement(replacer))
@@ -1266,8 +1300,10 @@ data class GrantNextSpellKeywordEffect(
 }
 
 /**
- * "Spells you cast [duration] that match [spellFilter] cost {X} less to cast" — a duration-bounded,
- * controller-scoped generic cost reduction installed when this effect resolves.
+ * "Spells [player] casts [duration] that match [spellFilter] cost {X} less — or, with
+ * [increase], {X} more — to cast": a duration-bounded, player-scoped generic cost modifier
+ * installed when this effect resolves. Not to be confused with the static
+ * [com.wingedsheep.sdk.scripting.ModifySpellCost], which lasts only while its source is around.
  *
  * The *repeating* counterpart of [GrantNextSpellAffinityEffect]: that rider is consumed by the
  * first matching spell, this one applies to every matching spell until [duration] ends.
@@ -1276,45 +1312,60 @@ data class GrantNextSpellKeywordEffect(
  * cost calculator uses for the whole duration. That is what the Scion cycle's rulings require —
  * "the value of X is determined only once, at the time the ability resolves" — so life gained or
  * lost after activation does not change the discount. Use a static
- * [com.wingedsheep.sdk.scripting.ModifySpellCost] instead when the reduction should track board
+ * [com.wingedsheep.sdk.scripting.ModifySpellCost] instead when the modifier should track board
  * state continuously.
  *
- * The reduction lives on the game state rather than on the source permanent, so it survives the
+ * The modifier lives on the game state rather than on the source permanent, so it survives the
  * source leaving the battlefield (the ability has already resolved; its effect lasts on its own),
- * and it only reduces the generic portion of a cost (CR 601.2f) — never colored mana.
+ * and it only changes the generic portion of a cost (CR 601.2f) — never colored mana.
+ *
+ * [player] is resolved once, at resolution, to the players whose spells are affected — "you" by
+ * default; [Player.TriggeringPlayer] for Academy Loremaster's "spells they cast this turn cost
+ * {2} more", where "they" is the player whose draw step it is.
  *
  * [duration] is [Duration.EndOfTurn] ("this turn") or [Duration.UntilYourNextTurn] (Ral, Leyline
  * Prodigy's +1 — the discount keeps applying to instants cast on opponents' turns and ends when
  * the controller's next turn begins). Any other duration is rejected at construction rather than
- * silently treated as one of these.
+ * silently treated as one of these; so is `UntilYourNextTurn` for anyone but [Player.You], whose
+ * turn it would have to end on.
  *
- * Will, Scion of Peace: `ReduceSpellCostsEffect(Filters.whiteOrBlue,
+ * Will, Scion of Peace: `ModifySpellCostsEffect(Filters.whiteOrBlue,
  * DynamicAmount.TurnTracking(Player.You, TurnTracker.LIFE_GAINED))`.
  *
- * @property spellFilter Which of the controller's spells are discounted.
- * @property amount How much generic mana to take off, resolved at execution time.
- * @property duration How long the discount lasts.
+ * @property spellFilter Which of the affected players' spells are modified.
+ * @property amount How much generic mana to take off (or add), resolved at execution time.
+ * @property duration How long the modifier lasts.
+ * @property player Whose spells are affected, resolved at execution time.
+ * @property increase `true` for a tax ("cost {X} more"), `false` for a discount.
  */
-@SerialName("ReduceSpellCosts")
+@SerialName("ModifySpellCosts")
 @Serializable
-data class ReduceSpellCostsEffect(
+data class ModifySpellCostsEffect(
     val spellFilter: GameObjectFilter,
     val amount: com.wingedsheep.sdk.scripting.values.DynamicAmount,
     val duration: Duration = Duration.EndOfTurn,
+    val player: Player = Player.You,
+    val increase: Boolean = false,
 ) : Effect {
     init {
         require(duration == Duration.EndOfTurn || duration == Duration.UntilYourNextTurn) {
-            "ReduceSpellCostsEffect supports EndOfTurn or UntilYourNextTurn, not $duration"
+            "ModifySpellCostsEffect supports EndOfTurn or UntilYourNextTurn, not $duration"
+        }
+        require(duration == Duration.EndOfTurn || player == Player.You) {
+            "ModifySpellCostsEffect supports UntilYourNextTurn only for Player.You, not $player"
         }
     }
 
     override val description: String = buildString {
-        append("Spells you cast ")
+        append("Spells ")
+        append(if (player == Player.You) "you cast " else "${player.description} casts ")
         append(if (duration == Duration.EndOfTurn) "this turn" else duration.description)
-        append(" that are ${spellFilter.description} cost ")
+        append(" that are ${spellFilter.description}")
+        append(" cost ")
+        val direction = if (increase) "more" else "less"
         val fixed = (amount as? DynamicAmount.Fixed)?.amount
-        if (fixed != null) append("{$fixed} less to cast")
-        else append("{X} less to cast, where X is ${amount.description}")
+        if (fixed != null) append("{$fixed} $direction to cast")
+        else append("{X} $direction to cast, where X is ${amount.description}")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect =

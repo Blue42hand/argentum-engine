@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import type { SealedCardInfo } from '@/types'
 import { ManaSymbol } from '../ui/ManaSymbols'
 import { getCdnArtCropUrl, getScryfallArtCropUrl } from '@/utils/cardImages'
+import ls from './limitedScreen.module.css'
 
 /**
  * Archetype definition for a set's draft strategy.
@@ -19,6 +20,11 @@ export interface Archetype {
    * to fall back to a color-identity gradient.
    */
   readonly keyCard?: string
+  /**
+   * Scryfall set code whose printing of `keyCard` supplies the art, for sets that reprint
+   * cards under new art (OM1 reprints SPM). Omit to take Scryfall's default printing.
+   */
+  readonly keyCardSet?: string
 }
 
 interface SetSynergies {
@@ -35,6 +41,72 @@ interface SetSynergies {
  * Scryfall name is known and representative; otherwise the tile uses a gradient.
  */
 const SET_SYNERGIES: Record<string, SetSynergies> = {
+  J22: {
+    setCode: 'J22',
+    setName: 'Jumpstart 2022',
+    archetypes: [
+      {
+        name: 'Blink Value',
+        colors: ['W', 'U'],
+        keyCard: 'Preston, the Vanisher',
+        description: 'Reuse enter-the-battlefield abilities with blink and bounce effects. Evasive creatures finish the game while each return to the battlefield earns more value.',
+      },
+      {
+        name: 'Draw and Attrition',
+        colors: ['U', 'B'],
+        keyCard: 'Biblioplex Kraken',
+        description: 'Use blue card draw to keep black removal flowing and trade resources until the opponent runs out. Evasive threats and graveyard recursion close the game.',
+      },
+      {
+        name: 'Sacrifice and Raid',
+        colors: ['B', 'R'],
+        keyCard: 'Spark Reaper',
+        description: 'Turn expendable creatures into sacrifice fodder and death-trigger value. Red attackers and burn keep pressure on while black creatures profit from the trades.',
+      },
+      {
+        name: 'Ferocious Ramp',
+        colors: ['R', 'G'],
+        keyCard: 'Rampaging Growth',
+        description: 'Ramp into large creatures, then use red burn to clear their path. Power-based rewards and trample help turn a single big attacker into a decisive threat.',
+      },
+      {
+        name: 'Counters and Tokens',
+        colors: ['G', 'W'],
+        keyCard: 'Iridescent Hornbeetle',
+        description: 'Build a wide board with creature tokens and grow it with +1/+1 counters. White team boosts and green counter payoffs turn small creatures into a threatening army.',
+      },
+      {
+        name: 'Life Gain and Drain',
+        colors: ['W', 'B'],
+        keyCard: 'Marauding Blight-Priest',
+        description: 'Pair white life gain with black drain rewards to pull ahead in a race. Defensive creatures buy time while repeated life-gain triggers wear the opponent down.',
+      },
+      {
+        name: 'Spells and Cycling',
+        colors: ['U', 'R'],
+        keyCard: 'Thermo-Alchemist',
+        description: 'Combine card draw and cycling with creatures that reward casting spells. Cheap interaction keeps attackers clear while repeated spell triggers add damage.',
+      },
+      {
+        name: 'Morbid Recursion',
+        colors: ['B', 'G'],
+        keyCard: 'Reaper from the Abyss',
+        description: 'Trade creatures to enable morbid rewards and recover threats from the graveyard. Tokens and death payoffs help sustain a steady stream of creatures.',
+      },
+      {
+        name: 'Equipment Aggro',
+        colors: ['R', 'W'],
+        keyCard: 'Danitha Capashen, Paragon',
+        description: 'Equip efficient attackers and keep attacking with combat tricks and burn as backup. First strike and other combat abilities make equipment especially effective.',
+      },
+      {
+        name: 'Ramp and Big Spells',
+        colors: ['G', 'U'],
+        keyCard: 'Kenessos, Priest of Thassa',
+        description: 'Use green mana acceleration to cast large threats while blue draw and scry find the next one. Bounce and defensive creatures buy time for expensive finishers.',
+      },
+    ],
+  },
   POR: {
     setCode: 'POR',
     setName: 'Portal',
@@ -1574,6 +1646,139 @@ const SET_SYNERGIES: Record<string, SetSynergies> = {
       },
     ],
   },
+  DMU: {
+    setCode: 'DMU',
+    setName: 'Dominaria United',
+    archetypes: [
+      {
+        name: 'Spells Tempo',
+        colors: ['W', 'U'],
+        keyCard: 'Raff, Weatherlight Stalwart',
+        description: 'Cast instants and sorceries to tap your team for cards and make Soldier tokens, then pump the board with flyers on top. A tempo deck that grinds value out of every spell.',
+      },
+      {
+        name: 'Spells Recursion',
+        colors: ['U', 'B'],
+        keyCard: 'Vohar, Vodalian Desecrator',
+        description: 'Loot instants and sorceries into the graveyard, recast them later, and drain the opponent with every spell. A patient control deck that wins the long game on card quality.',
+      },
+      {
+        name: 'Sacrifice Aggro',
+        colors: ['B', 'R'],
+        keyCard: 'Garna, Bloodfist of Keld',
+        description: 'Attack with expendable creatures and tokens, then turn each one that dies into a card or a point of damage. An aggressive attrition deck that profits from every trade.',
+      },
+      {
+        name: 'Domain Stompy',
+        colors: ['R', 'G'],
+        keyCard: 'Radha, Coalition Warlord',
+        description: 'Assemble basic land types for domain, then tap your creatures to turn that domain count into big pumps. A stompy midrange deck whose threats grow with every land type.',
+      },
+      {
+        name: 'Tokens',
+        colors: ['G', 'W'],
+        keyCard: 'Queen Allenal of Ruadach',
+        description: 'Go wide with Soldier tokens, then grow the team with counters and creature-count payoffs. A swarm deck whose board outsizes every blocker.',
+      },
+      {
+        name: 'Sacrifice Drain',
+        colors: ['W', 'B'],
+        keyCard: 'Elas il-Kor, Sadistic Pilgrim',
+        description: 'Flood the board with small creatures, sacrifice them for value, and drain the opponent each time one enters or dies. A grindy midrange deck that pulls ahead on life.',
+      },
+      {
+        name: 'Spells Aggro',
+        colors: ['U', 'R'],
+        keyCard: 'Balmor, Battlemage Captain',
+        description: 'Chain cheap instants and sorceries to pump and give trample to the whole team, with flash and copy effects for reach. A tempo deck that turns every spell into extra damage.',
+      },
+      {
+        name: 'Lands Graveyard',
+        colors: ['B', 'G'],
+        keyCard: 'Uurg, Spawn of Turg',
+        description: 'Surveil and sacrifice lands to fill the graveyard, then recur creatures with domain and grow graveyard-sized threats. A grindy midrange deck built to outlast the opponent.',
+      },
+      {
+        name: 'Power Aggro',
+        colors: ['R', 'W'],
+        keyCard: 'Baird, Argivian Recruiter',
+        description: 'Curve out with cheap attackers and pump them above their base power to make Soldier tokens each turn. A fast aggro deck that snowballs every combat.',
+      },
+      {
+        name: 'Domain Ramp',
+        colors: ['G', 'U'],
+        keyCard: 'Tatyova, Steward of Tides',
+        description: "Ramp into all five basic land types and the set's biggest domain payoffs, then turn lands into flying creatures. A ramp deck that wins with an oversized late game.",
+      },
+    ],
+  },
+  BRO: {
+    setCode: 'BRO',
+    setName: "The Brothers' War",
+    archetypes: [
+      {
+        name: 'Soldiers',
+        colors: ['W', 'U'],
+        keyCard: 'Yotian Tactician',
+        description: "Build a board of Soldiers and Soldier tokens, then pump them with lords and fly over stalled boards. A go-wide tempo deck that turns cheap bodies into a sturdy, evasive army.",
+        creatureTypes: ['Soldier'],
+      },
+      {
+        name: 'Card Draw',
+        colors: ['U', 'B'],
+        keyCard: 'Evangel of Synthesis',
+        description: "Draw two or more cards each turn to switch on payoffs that grow and grant menace, while removal handles the opponent's threats. A grindy control deck that wins on card advantage.",
+      },
+      {
+        name: 'Artifact Sacrifice',
+        colors: ['B', 'R'],
+        keyCard: 'Junkyard Genius',
+        description: "Make Powerstones and cheap artifacts, then sacrifice them and spare creatures for damage, cards and a hasty, menacing alpha strike. An aggressive attrition deck that cashes in every expendable permanent.",
+      },
+      {
+        name: 'Powerstone Ramp',
+        colors: ['R', 'G'],
+        keyCard: 'Arbalest Engineers',
+        description: "Ramp with Powerstone tokens into huge artifact creatures and prototype threats, using flexible enters-the-battlefield effects along the way. A big midrange deck that outsizes the board.",
+      },
+      {
+        name: 'Artifact Counters',
+        colors: ['G', 'W'],
+        keyCard: 'Yotian Dissident',
+        description: "Play a steady stream of artifacts and spread +1/+1 counters over your team each time one enters. A go-wide midrange deck whose creatures keep getting bigger.",
+      },
+      {
+        name: 'Small Recursion',
+        colors: ['W', 'B'],
+        keyCard: 'Hero of the Dunes',
+        description: "Curve out with cheap artifacts and creatures, then return the ones that die from your graveyard and pump everything with mana value 3 or less. An aggressive value deck that never runs out of bodies.",
+      },
+      {
+        name: 'Noncreature Spells',
+        colors: ['U', 'R'],
+        keyCard: 'Third Path Iconoclast',
+        description: "Chain instants, sorceries and noncreature artifacts, making a Soldier token with each one. A spells deck that builds a board while it interacts.",
+      },
+      {
+        name: 'Creatures Die',
+        colors: ['B', 'G'],
+        keyCard: 'Skyfisher Spider',
+        description: "Sacrifice and trade creatures for value, fill the graveyard and cash it in with reach blockers and removal. A grindy midrange deck that wins long games of attrition.",
+      },
+      {
+        name: 'Go-Wide Aggro',
+        colors: ['R', 'W'],
+        keyCard: 'Fallaji Vanguard',
+        description: "Flood the board with first strikers and tokens, and boost an attacker every time a creature enters. A fast aggro deck that punishes slow starts.",
+      },
+      {
+        name: 'Big Artifacts',
+        colors: ['G', 'U'],
+        keyCard: 'Battery Bearer',
+        description: "Turn your creatures into artifact-mana sources and ramp into expensive artifacts that draw cards as they're cast. A ramp deck that wins with the biggest machines in the set.",
+      },
+    ],
+  },
   MOM: {
     setCode: 'MOM',
     setName: 'March of the Machine',
@@ -1780,6 +1985,94 @@ const SET_SYNERGIES: Record<string, SetSynergies> = {
       },
     ],
   },
+  SPM: {
+    setCode: 'SPM',
+    setName: "Marvel's Spider-Man",
+    archetypes: [
+      {
+        name: 'Modified Heroes',
+        colors: ['W', 'U'],
+        creatureTypes: ['Hero'],
+        keyCard: 'Sun-Spider, Nimble Webber',
+        keyCardSet: 'spm',
+        description: 'Suit up Heroes with Auras, Equipment, and +1/+1 counters, then cash in every modified creature that connects for cards. An evasive tempo deck where each upgrade makes the next attack hurt more.',
+      },
+      {
+        name: 'Villains',
+        colors: ['U', 'B'],
+        creatureTypes: ['Villain'],
+        keyCard: 'Prowler, Clawed Thief',
+        keyCardSet: 'spm',
+        description: 'Assemble a crew of Villains that reward each other for entering and attacking, while connive and graveyard recursion smooth out the draws. A grindy flying-and-menace deck that outvalues the opponent.',
+      },
+      {
+        name: 'Mayhem Discard',
+        colors: ['B', 'R'],
+        keyCard: 'Scarlet Spider, Kaine',
+        keyCardSet: 'spm',
+        description: 'Discard cards on purpose to fuel payoffs, then cast mayhem cards back from the graveyard the same turn. An aggressive attrition deck that turns every rummage into extra threats.',
+      },
+      {
+        name: 'Big Spells',
+        colors: ['R', 'G'],
+        keyCard: 'Rhino, Barreling Brute',
+        keyCardSet: 'spm',
+        description: 'Ramp into spells with mana value 4 or greater and reward casting them with card draw, trample, and fights. A stompy midrange deck whose top end outsizes every blocker.',
+      },
+      {
+        name: 'Go-Wide Counters',
+        colors: ['G', 'W'],
+        creatureTypes: ['Hero'],
+        keyCard: 'Spider-Man India',
+        keyCardSet: 'spm',
+        description: 'Flood the board with Heroes and Citizen tokens, then spread +1/+1 counters across the team with each creature you cast. A go-wide aggro deck that grows into an overwhelming army.',
+      },
+    ],
+  },
+  OM1: {
+    setCode: 'OM1',
+    setName: 'Through the Omenpaths',
+    archetypes: [
+      {
+        name: 'Modified Heroes',
+        colors: ['W', 'U'],
+        creatureTypes: ['Hero'],
+        keyCard: 'Sun-Spider, Nimble Webber',
+        keyCardSet: 'om1',
+        description: 'Suit up Heroes with Auras, Equipment, and +1/+1 counters, then cash in every modified creature that connects for cards. An evasive tempo deck where each upgrade makes the next attack hurt more.',
+      },
+      {
+        name: 'Villains',
+        colors: ['U', 'B'],
+        creatureTypes: ['Villain'],
+        keyCard: 'Prowler, Clawed Thief',
+        keyCardSet: 'om1',
+        description: 'Assemble a crew of Villains that reward each other for entering and attacking, while connive and graveyard recursion smooth out the draws. A grindy flying-and-menace deck that outvalues the opponent.',
+      },
+      {
+        name: 'Mayhem Discard',
+        colors: ['B', 'R'],
+        keyCard: 'Scarlet Spider, Kaine',
+        keyCardSet: 'om1',
+        description: 'Discard cards on purpose to fuel payoffs, then cast mayhem cards back from the graveyard the same turn. An aggressive attrition deck that turns every rummage into extra threats.',
+      },
+      {
+        name: 'Big Spells',
+        colors: ['R', 'G'],
+        keyCard: 'Rhino, Barreling Brute',
+        keyCardSet: 'om1',
+        description: 'Ramp into spells with mana value 4 or greater and reward casting them with card draw, trample, and fights. A stompy midrange deck whose top end outsizes every blocker.',
+      },
+      {
+        name: 'Go-Wide Counters',
+        colors: ['G', 'W'],
+        creatureTypes: ['Hero'],
+        keyCard: 'Spider-Man India',
+        keyCardSet: 'om1',
+        description: 'Flood the board with Heroes and Citizen tokens, then spread +1/+1 counters across the team with each creature you cast. A go-wide aggro deck that grows into an overwhelming army.',
+      },
+    ],
+  },
 }
 
 /**
@@ -1823,25 +2116,10 @@ export function SetSynergiesButton({
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        style={{
-          padding: '6px 14px',
-          fontSize: 13,
-          backgroundColor: 'rgba(124, 58, 237, 0.2)',
-          color: '#b388ff',
-          border: '1px solid rgba(124, 58, 237, 0.4)',
-          borderRadius: 6,
-          cursor: 'pointer',
-          fontWeight: 600,
-          transition: 'background-color 0.15s ease',
-          ...style,
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.35)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.2)'
-        }}
+        className={ls.button}
+        style={style}
       >
         Archetypes
       </button>
@@ -1984,7 +2262,7 @@ function SetSynergiesOverlay({
                   background: 'none',
                   border: 'none',
                   borderBottom: i === activeTab
-                    ? '2px solid #7c3aed'
+                    ? '2px solid #f2b45c'
                     : '2px solid transparent',
                   cursor: 'pointer',
                   transition: 'color 0.15s, border-color 0.15s',
@@ -2222,8 +2500,8 @@ function ArchetypeCard({
   const artUrl = useMemo(() => {
     if (!archetype.keyCard) return null
     const poolMatch = cardPool?.find((c) => c.name === archetype.keyCard)
-    return getCdnArtCropUrl(poolMatch?.imageUri) ?? getScryfallArtCropUrl(archetype.keyCard)
-  }, [archetype.keyCard, cardPool])
+    return getCdnArtCropUrl(poolMatch?.imageUri) ?? getScryfallArtCropUrl(archetype.keyCard, archetype.keyCardSet)
+  }, [archetype.keyCard, archetype.keyCardSet, cardPool])
   const showArt = artUrl != null && !artFailed
 
   const rarities = useMemo(() => {
@@ -2248,7 +2526,7 @@ function ArchetypeCard({
         borderRadius: 10,
         overflow: 'hidden',
         minHeight: 148,
-        border: `1px solid ${hovered && clickable ? 'rgba(124, 58, 237, 0.65)' : borderColor}`,
+        border: `1px solid ${hovered && clickable ? 'rgba(242, 180, 92, 0.65)' : borderColor}`,
         boxShadow: hovered
           ? '0 12px 28px rgba(0, 0, 0, 0.55)'
           : '0 1px 3px rgba(0, 0, 0, 0.45)',

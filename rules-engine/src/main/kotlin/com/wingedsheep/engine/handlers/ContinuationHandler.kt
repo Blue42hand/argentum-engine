@@ -23,6 +23,7 @@ class ContinuationHandler(
         registerModule(forcedPlayResumer)
         registerAutoResumerModule(forcedPlayResumer)
         registerAutoResumerModule(ManaAbilitySourcesResumer())
+        registerModule(ForcedManaActivationResumer(services))
         registerAutoResumerModule(ManaSpendingObligationsResumer())
         registerAutoResumerModule(ScopedManaProductionResumer(services))
         // Core engine resumers
@@ -55,9 +56,11 @@ class ContinuationHandler(
         registerModule(ModalAndCloneContinuationResumer(services))
         registerModule(RoomDoorContinuationResumer(services))
         registerModule(CastModalContinuationResumer(services))
+        registerModule(ActivationModalContinuationResumer(services))
         registerModule(ModalTriggerContinuationResumer(services))
         registerModule(TokenContinuationResumer(services))
         registerModule(RingTemptContinuationResumer(services))
+        registerModule(DungeonContinuationResumer(services))
         registerModule(AmassContinuationResumer(services))
         val leylineResumer = LeylineContinuationResumer(services)
         registerModule(leylineResumer)
@@ -112,6 +115,11 @@ class ContinuationHandler(
             )
         }
 
+        if (response is TargetsResponse) {
+            val error = com.wingedsheep.engine.handlers.effects.stack.SpellCopyTargets.validate(
+                state, services.targetFinder, suspension.answer, response)
+            if (error != null) return ExecutionResult.error(state, error)
+        }
         val (_, stateAfterPop) = state.popContinuation()
         val result = registry.resume(stateAfterPop, suspension.answer, suspension.question, response, continueWithin)
         // Casting resumers can finish a local picker without draining enclosing work.

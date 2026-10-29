@@ -18,6 +18,7 @@ import {
   autoBuildDeck as apiAutoBuildDeck,
 } from '@/api/aiAssist'
 import { getWebSocket, saveDeckState } from './shared'
+import { sameDeck, type AssistUndo, type DeckSnapshot } from './assistDeck'
 import { rulesFromLobbySettings } from '@/components/lobby/axes'
 
 export type { PickScore }
@@ -67,6 +68,12 @@ export interface DraftSliceState {
    * asks for them; persists across edits (re-score to refresh) so the badges stay visible.
    */
   deckCardScores: Readonly<Record<string, PickScore>> | null
+  /** The deck the card scores were computed against (their colour context), to tell when they're stale. */
+  deckCardScoresContext: DeckSnapshot | null
+  /** Which deck-builder request `aiAssistBusy` is for, so the UI can say what it's waiting on. */
+  deckAssistTask: 'build' | 'score' | null
+  /** The deck before the last Auto-build, for Undo. */
+  assistUndo: AssistUndo | null
 }
 
 export interface DraftSliceActions {
@@ -77,9 +84,11 @@ export interface DraftSliceActions {
   clearDeck: () => void
   setLandCount: (landType: string, count: number) => void
   setDeck: (deck: readonly string[], landCounts: Record<string, number>) => void
-  /** Set or clear the commander for Commander Draft / Sealed lobbies. */
-  setCommander: (cardName: string | null) => void
-  setLlmHighlights: (cardNames: readonly string[] | null) => void
+  /**
+   * Set the commander designation for Commander Draft / Sealed lobbies: none, one, or a partner
+   * pair (CR 702.124). Further names are ignored.
+   */
+  setCommanders: (cardNames: readonly string[]) => void
   submitSealedDeck: () => void
   unsubmitDeck: () => void
   makePick: (cardNames: string[]) => void
@@ -102,6 +111,14 @@ export interface DraftSliceActions {
   scoreDeckCards: (advisorId?: string) => Promise<void>
   /** Hide the deck-builder per-card score badges. */
   clearDeckCardScores: () => void
+  /** Replace the deck with an Auto-build, remembering the deck it replaced so it can be undone. */
+  applyAssistDeck: (deck: readonly string[], landCounts: Record<string, number>) => void
+  /** Restore the deck from before the last Auto-build. */
+  undoAssistDeck: () => void
+  /** Dismiss the Auto-build outcome (its build choices and Undo). */
+  clearAutoBuildResult: () => void
+  /** Dismiss the last AI-assist error. */
+  clearAiAssistError: () => void
 }
 
 export type DraftSlice = DraftSliceState & DraftSliceActions
@@ -117,6 +134,9 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
   draftAdvisorId: null,
   deckbuildAdvisorId: null,
   deckCardScores: null,
+  deckCardScoresContext: null,
+  deckAssistTask: null,
+  assistUndo: null,
 
   // Actions
   createSealedGame: (setCode) => {
@@ -144,7 +164,6 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           ...state.deckBuildingState,
           deck: newDeck,
         },
-        autoBuildResult: null,
       }
     })
   },
@@ -165,7 +184,6 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           ...state.deckBuildingState,
           deck: newDeck,
         },
-        autoBuildResult: null,
       }
     })
   },
@@ -185,7 +203,6 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           deck: [],
           landCounts: emptyLandCounts,
         },
-        autoBuildResult: null,
       }
     })
   },
@@ -205,7 +222,6 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           ...state.deckBuildingState,
           landCounts: newLandCounts,
         },
-        autoBuildResult: null,
       }
     })
   },
@@ -257,26 +273,14 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     })
   },
 
-  setCommander: (cardName) => {
+  setCommanders: (cardNames) => {
     set((state) => {
       if (!state.deckBuildingState) return state
       return {
         deckBuildingState: {
           ...state.deckBuildingState,
-          commander: cardName,
-        },
-      }
-    })
-  },
-
-  setLlmHighlights: (cardNames) => {
-    set((state) => {
-      if (!state.deckBuildingState) return state
-      const next = cardNames && cardNames.length > 0 ? Array.from(new Set(cardNames)) : null
-      return {
-        deckBuildingState: {
-          ...state.deckBuildingState,
-          llmHighlightedCards: next,
+          commander: cardNames[0] ?? null,
+          secondCommander: cardNames[1] ?? null,
         },
       }
     })
@@ -307,19 +311,27 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     // above, so only add the +1 when it isn't — otherwise the server strips one too few and
     // the pool gets allocated twice for the commander, surfacing as "not enough copies of
     // your commander" on a singleton sealed pool.
+    // A partner pair's second commander (CR 702.124) follows the same rule.
     const commander = deckBuildingState.commander
-    if (commander && !(commander in deckList)) {
-      deckList[commander] = 1
+    const secondCommander = commander ? deckBuildingState.secondCommander : null
+    const commanders = [commander, secondCommander].filter((c): c is string => !!c)
+    let commandersOutsideDeck = 0
+    for (const name of commanders) {
+      if (!(name in deckList)) {
+        deckList[name] = 1
+        commandersOutsideDeck++
+      }
     }
 
     const landCount = Object.values(deckBuildingState.landCounts).reduce((a, b) => a + b, 0)
-    const commanderAlreadyInDeck = commander != null && deckBuildingState.deck.includes(commander)
     trackEvent('sealed_deck_submitted', {
-      deck_size: deckBuildingState.deck.length + landCount + (commander && !commanderAlreadyInDeck ? 1 : 0),
+      deck_size: deckBuildingState.deck.length + landCount + commandersOutsideDeck,
       land_count: landCount,
       nonland_count: deckBuildingState.deck.length,
     })
-    getWebSocket()?.send(createSubmitSealedDeckMessage(deckList, commander))
+    getWebSocket()?.send(
+      createSubmitSealedDeckMessage(deckList, commander, undefined, undefined, undefined, secondCommander),
+    )
   },
 
   unsubmitDeck: () => {
@@ -395,7 +407,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     if (!deckBuildingState) return
 
     trackEvent('deckbuild_auto_build', { advisor: advisorId ?? 'default' })
-    set({ aiAssistBusy: true, aiAssistError: null })
+    set({ aiAssistBusy: true, aiAssistError: null, deckAssistTask: 'build' })
     try {
       // Treat the player's current deck (non-land picks + basic lands) as locked, so an empty deck
       // builds fresh and a partial deck is completed without dropping their existing cards.
@@ -423,7 +435,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
       })
 
       if (result.builds.length === 0) {
-        set({ aiAssistBusy: false, aiAssistError: 'Auto-build produced no deck', autoBuildResult: null })
+        set({ aiAssistBusy: false, deckAssistTask: null, aiAssistError: 'Auto-build produced no deck', autoBuildResult: null })
         return
       }
 
@@ -431,9 +443,10 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
       const applied = Math.min(Math.max(result.recommended, 0), result.builds.length - 1)
       const basicNames = new Set(deckBuildingState.basicLands.map((c) => c.name))
       const { deck, landCounts } = splitDeckList(result.builds[applied]!.deckList, basicNames)
-      get().setDeck(deck, landCounts)
+      get().applyAssistDeck(deck, landCounts)
       set({
         aiAssistBusy: false,
+        deckAssistTask: null,
         autoBuildResult: {
           advisorId: result.advisorId,
           options: result.builds.map((b) => ({
@@ -448,6 +461,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     } catch (e) {
       set({
         aiAssistBusy: false,
+        deckAssistTask: null,
         aiAssistError: e instanceof Error ? e.message : 'Auto-build failed',
         autoBuildResult: null,
       })
@@ -458,11 +472,12 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     const { deckBuildingState, autoBuildResult } = get()
     if (!deckBuildingState || !autoBuildResult) return
     const option = autoBuildResult.options[index]
-    if (!option || index === autoBuildResult.appliedIndex) return
+    if (!option) return
 
+    // Re-applying the build already on the table is a no-op unless the player has edited it since.
     const basicNames = new Set(deckBuildingState.basicLands.map((c) => c.name))
     const { deck, landCounts } = splitDeckList(option.deckList, basicNames)
-    get().setDeck(deck, landCounts)
+    get().applyAssistDeck(deck, landCounts)
     set({ autoBuildResult: { ...autoBuildResult, appliedIndex: index } })
   },
 
@@ -474,7 +489,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     if (!deckBuildingState) return
 
     trackEvent('deckbuild_score_cards', { advisor: advisorId ?? 'default' })
-    set({ aiAssistBusy: true, aiAssistError: null })
+    set({ aiAssistBusy: true, aiAssistError: null, deckAssistTask: 'score' })
     try {
       // Score every distinct pool card via the per-card scorer, using the current deck as colour
       // context (the suggest-pick endpoint returns a score for every card in `pack`).
@@ -491,15 +506,49 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
       })
       const scores: Record<string, PickScore> = {}
       for (const s of advice.scores) scores[s.cardName] = { score: s.score, reason: s.reason }
-      set({ deckCardScores: scores, aiAssistBusy: false })
+      set({
+        deckCardScores: scores,
+        deckCardScoresContext: {
+          deck: deckBuildingState.deck,
+          landCounts: deckBuildingState.landCounts,
+        },
+        aiAssistBusy: false,
+        deckAssistTask: null,
+      })
     } catch (e) {
       set({
         aiAssistBusy: false,
+        deckAssistTask: null,
         aiAssistError: e instanceof Error ? e.message : 'Scoring failed',
         deckCardScores: null,
+        deckCardScoresContext: null,
       })
     }
   },
 
-  clearDeckCardScores: () => set({ deckCardScores: null }),
+  clearDeckCardScores: () => set({ deckCardScores: null, deckCardScoresContext: null }),
+
+  applyAssistDeck: (deck, landCounts) => {
+    const { deckBuildingState, assistUndo } = get()
+    if (!deckBuildingState) return
+    const before: DeckSnapshot = { deck: deckBuildingState.deck, landCounts: deckBuildingState.landCounts }
+    // Switching between Auto-build's candidates without touching the deck in between keeps the
+    // original deck as the undo point, so Undo always means "my deck".
+    const previous = assistUndo && sameDeck(before, assistUndo.applied) ? assistUndo.previous : before
+    get().setDeck(deck, landCounts)
+    const after = get().deckBuildingState
+    if (!after) return
+    set({ assistUndo: { previous, applied: { deck: after.deck, landCounts: after.landCounts } } })
+  },
+
+  undoAssistDeck: () => {
+    const { assistUndo } = get()
+    if (!assistUndo) return
+    get().setDeck(assistUndo.previous.deck, { ...assistUndo.previous.landCounts })
+    set({ assistUndo: null, autoBuildResult: null })
+  },
+
+  clearAutoBuildResult: () => set({ autoBuildResult: null, assistUndo: null }),
+
+  clearAiAssistError: () => set({ aiAssistError: null }),
 })

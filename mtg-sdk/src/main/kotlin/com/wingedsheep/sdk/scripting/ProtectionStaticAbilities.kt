@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting
 
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.scripting.effects.protectionDescription
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
@@ -103,49 +104,103 @@ data class GrantHexproofFromOwnColorsToGroup(
 }
 
 /**
- * Grants each affected creature "hexproof from monocolored" — they can't be the targets of
- * monocolored (exactly one color, CR 105.2) spells or abilities opponents control. Colorless
- * and multicolored sources are unaffected.
+ * Grants each affected permanent "hexproof from [scope]" (CR 702.11d) — it can't be the target of
+ * spells or abilities with that quality that its controller's opponents control.
  *
- * Used by Dragonfire Blade ("Equipped creature ... has hexproof from monocolored."). The
- * default filter applies it to the attached creature; pass a wider [GroupFilter] for cards that
- * blanket a group.
+ * - `ProtectionScope.Monocolored` — Dragonfire Blade ("Equipped creature ... has hexproof from
+ *   monocolored"; exactly one color, CR 105.2a).
  *
- * @property filter The group of creatures that gain the hexproof
+ * A permanent's own printed "hexproof from [quality]" is [KeywordAbility.Hexproof] instead (Niv-Mizzet,
+ * Guildpact: `keywordAbility(KeywordAbility.Hexproof(ProtectionScope.Multicolored))`).
+ *
+ * Realized as the same projected `HEXPROOF_FROM_*` keyword a printed
+ * [KeywordAbility.Hexproof] uses, so every targeting site that reads printed hexproof-from reads
+ * this too. Only the scopes with such a keyword are accepted ([isSupported]): a color or
+ * colors, a non-color, monocolored, multicolored, a card type, and the source kinds (spells,
+ * permanents cast this turn, activated/triggered abilities). "Hexproof from each of its colors"
+ * varies per creature and is [GrantHexproofFromOwnColorsToGroup].
+ *
+ * @property scope The quality the hexproof is from
+ * @property filter The group of permanents that gain the hexproof (default: the equipped or
+ *   enchanted creature)
  */
-@SerialName("GrantHexproofFromMonocoloredToGroup")
+@SerialName("GrantHexproofFromToGroup")
 @Serializable
-data class GrantHexproofFromMonocoloredToGroup(
+data class GrantHexproofFromToGroup(
+    val scope: ProtectionScope,
     val filter: GroupFilter = GroupFilter.attachedCreature()
 ) : StaticAbility {
-    override val description: String = "${filter.description} have hexproof from monocolored"
+    init {
+        require(isSupported(scope)) { "GrantHexproofFromToGroup has no hexproof keyword for $scope" }
+    }
+
+    override val description: String = "${filter.description} have hexproof from ${scope.protectionDescription()}"
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
     }
+
+    companion object {
+        /** Whether the engine projects a `HEXPROOF_FROM_*` keyword for [scope]. */
+        fun isSupported(scope: ProtectionScope): Boolean = when (scope) {
+            is ProtectionScope.Color, is ProtectionScope.Colors, is ProtectionScope.NonColor,
+            ProtectionScope.Monocolored, ProtectionScope.Multicolored, is ProtectionScope.CardType,
+            ProtectionScope.Spells, ProtectionScope.PermanentsCastThisTurn, ProtectionScope.RingBearers,
+            ProtectionScope.ActivatedAbilities, ProtectionScope.TriggeredAbilities -> true
+            is ProtectionScope.Subtype, is ProtectionScope.Supertype,
+            ProtectionScope.Everything, ProtectionScope.EachOpponent -> false
+        }
+    }
 }
 
 /**
- * Grants each affected permanent "hexproof from multicolored" — it can't be the target of
- * multicolored (two or more colors, CR 105.2b) spells or abilities opponents control. Monocolored
- * and colorless sources are unaffected.
+ * Grants each affected permanent "protection from [scope]" (CR 702.16) — the protection twin of
+ * [GrantHexproofFromToGroup], for lords whose quality isn't a single color or card type.
  *
- * The exact mirror of [GrantHexproofFromMonocoloredToGroup], down to the projected keyword idiom
- * (`HEXPROOF_FROM_MULTICOLORED`) and the targeting sites that read it. Used by Niv-Mizzet,
- * Guildpact, where the ability is printed on the permanent itself — pass `GroupFilter.source()`
- * for that self-only shape, or a wider [GroupFilter] for a card that blankets a group.
+ * - `ProtectionScope.RingBearers` — Lord of the Nazgûl ("Wraiths you control have protection from
+ *   Ring-bearers").
  *
- * @property filter The group of permanents that gain the hexproof
+ * Realized as the same projected `PROTECTION_FROM_*` keyword a printed [KeywordAbility.Protection]
+ * with that scope projects, so every leg that enforces printed protection (targeting, damage,
+ * enchanting/equipping, blocking) honors the granted one unchanged. Only the scopes with such a
+ * keyword are accepted ([isSupported]); a single color or card type is rejected, since it keeps its
+ * older spellings, [GrantProtection] and [GrantProtectionFromCardType].
+ *
+ * @property scope The quality the protection is from
+ * @property filter The group of permanents that gain the protection (default: the equipped or
+ *   enchanted creature)
  */
-@SerialName("GrantHexproofFromMulticoloredToGroup")
+@SerialName("GrantProtectionFromToGroup")
 @Serializable
-data class GrantHexproofFromMulticoloredToGroup(
+data class GrantProtectionFromToGroup(
+    val scope: ProtectionScope,
     val filter: GroupFilter = GroupFilter.attachedCreature()
 ) : StaticAbility {
-    override val description: String = "${filter.description} have hexproof from multicolored"
+    init {
+        require(isSupported(scope)) { "GrantProtectionFromToGroup has no protection keyword for $scope" }
+    }
+
+    override val description: String = "${filter.description} have protection from ${scope.protectionDescription()}"
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+
+    companion object {
+        /**
+         * Whether the engine projects a `PROTECTION_FROM_*` keyword for [scope] and no older spelling
+         * already says it — a single color is [GrantProtection], a card type is
+         * [GrantProtectionFromCardType].
+         */
+        fun isSupported(scope: ProtectionScope): Boolean = when (scope) {
+            is ProtectionScope.Colors, ProtectionScope.Multicolored,
+            is ProtectionScope.Subtype, is ProtectionScope.Supertype,
+            ProtectionScope.EachOpponent,
+            ProtectionScope.Spells, ProtectionScope.PermanentsCastThisTurn, ProtectionScope.RingBearers,
+            ProtectionScope.ActivatedAbilities, ProtectionScope.TriggeredAbilities -> true
+            is ProtectionScope.Color, is ProtectionScope.CardType,
+            is ProtectionScope.NonColor, ProtectionScope.Monocolored, ProtectionScope.Everything -> false
+        }
     }
 }
 
@@ -312,6 +367,7 @@ data class GrantProtectionToController(
             is ProtectionScope.Colors -> s.colors.joinToString(" and ") { it.displayName.lowercase() }
             is ProtectionScope.NonColor -> "non" + s.color.displayName.lowercase()
             ProtectionScope.Multicolored -> "multicolored"
+            ProtectionScope.Monocolored -> "monocolored"
             is ProtectionScope.CardType -> s.cardType.lowercase() + "s"
             is ProtectionScope.Subtype -> s.subtype + "s"
             is ProtectionScope.Supertype -> s.supertype.lowercase() + " permanents"
@@ -319,6 +375,7 @@ data class GrantProtectionToController(
             ProtectionScope.EachOpponent -> "each of your opponents"
             ProtectionScope.Spells -> "spells"
             ProtectionScope.PermanentsCastThisTurn -> "permanents that were cast this turn"
+            ProtectionScope.RingBearers -> "Ring-bearers"
             ProtectionScope.ActivatedAbilities -> "activated abilities"
             ProtectionScope.TriggeredAbilities -> "triggered abilities"
         }

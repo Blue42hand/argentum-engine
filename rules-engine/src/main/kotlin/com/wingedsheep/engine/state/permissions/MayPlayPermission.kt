@@ -51,6 +51,8 @@ data class MayPlayPermission(
     val sourceId: EntityId? = null,
     val condition: Condition? = null,
     val withAnyManaType: Boolean = false,
+    /** "Spend mana as though it were mana of any color" — colored pips relaxed, `{C}` kept (CR 609.4b). */
+    val withAnyManaColor: Boolean = false,
     val colorlessAsAnyColor: Boolean = false,
     /**
      * If true, cards played via this permission may be cast at instant speed — "as though they
@@ -183,6 +185,19 @@ data class MayPlayPermission(
      * Ignored for a card with no back face, so it is safe on a permission covering a mixed pile.
      */
     val castTransformed: Boolean = false,
+    /**
+     * When true, this permission authorizes casting the card **face down** as a 2/2 creature spell
+     * (CR 708.4) even though it has no morph or disguise — the permission is what allows it.
+     * Mirrors [com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
+     * .castFaceDown] (Illusionary Mask); the cast it authorizes carries `CastSpell.castFaceDown`.
+     */
+    val castFaceDown: Boolean = false,
+    /**
+     * With [castFaceDown]: the spell cast through this permission puts Illusionary Mask's
+     * turns-face-up-instead rider on the permanent it becomes
+     * ([com.wingedsheep.engine.state.components.identity.TurnsFaceUpInsteadComponent]).
+     */
+    val turnsFaceUpInstead: Boolean = false,
     /**
      * When true, playing any one card in [cardIds] through this permission revokes it for the
      * whole group — "you may cast an instant or sorcery spell from among those cards" (Chandra,

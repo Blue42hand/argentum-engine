@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.CardCycledEvent
 import com.wingedsheep.engine.core.CardsDiscardedEvent
@@ -9,7 +10,6 @@ import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.EngineServices
@@ -30,6 +30,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.CardsCycledThisGameComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.PreventCycling
@@ -96,7 +97,7 @@ class CycleCardHandler(
 
         // Affordability is judged against X=0 when the player hasn't announced X yet — the
         // handler raises the choice, and X=0 is always a legal announcement (CR 107.3a).
-        val effectiveCost = cyclingAbility.cost.withXAs(action.xValue ?: 0)
+        val effectiveCost = reduced(state, action, cyclingAbility.cost.withXAs(action.xValue ?: 0))
 
         if (action.paymentStrategy is PaymentStrategy.Explicit) {
             for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
@@ -165,7 +166,7 @@ class CycleCardHandler(
         // X is settled from here on. Substituting it into the cost leaves an ordinary X-free cost,
         // so every payment path below (pool, auto-tap, explicit taps) works unchanged.
         val announcedX = action.xValue?.takeIf { cyclingAbility.cost.hasX }
-        val cyclingCost = cyclingAbility.cost.withXAs(announcedX ?: 0)
+        val cyclingCost = reduced(state, action, cyclingAbility.cost.withXAs(announcedX ?: 0))
 
         var currentState = state
         val events = mutableListOf<GameEvent>()
@@ -181,7 +182,9 @@ class CycleCardHandler(
             red = poolComponent.red,
             green = poolComponent.green,
             colorless = poolComponent.colorless,
+            restrictedMana = poolComponent.restrictedMana,
             snowMana = poolComponent.snowMana,
+            manaUnits = poolComponent.manaUnits,
             snowColorless = poolComponent.snowColorless
         ).withSpendingColors(currentState, action.playerId)
 
@@ -206,7 +209,9 @@ class CycleCardHandler(
                     red = poolAfterPayment.red,
                     green = poolAfterPayment.green,
                     colorless = poolAfterPayment.colorless,
+                    restrictedMana = poolAfterPayment.restrictedMana,
                     snowMana = poolAfterPayment.snowMana,
+                    manaUnits = poolAfterPayment.manaUnits,
                     snowColorless = poolAfterPayment.snowColorless
                 )
             )
@@ -216,8 +221,9 @@ class CycleCardHandler(
         if (!remainingCost.isEmpty()) {
             if (action.paymentStrategy is PaymentStrategy.Explicit) {
                 // Tap specified sources explicitly
+                val credited = manaSolver.creditExplicitSources(currentState, action.playerId, action.paymentStrategy.manaAbilitiesToActivate, remainingCost)
                 for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(zones, currentState, sourceId, action.playerId, credited[sourceId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -300,6 +306,15 @@ class CycleCardHandler(
         // Cycling doesn't change priority
         return ExecutionResult.success(currentState, events)
     }
+
+    /**
+     * [cost] after the board's activated-ability cost reductions — cycling is an activated ability
+     * of the card in hand (CR 702.29a), so Zirda's "abilities you activate" reaches it. Applied to
+     * the X-substituted cost: the total is locked in once X is announced (CR 601.2f via 602.2b).
+     */
+    private fun reduced(state: GameState, action: CycleCard, cost: ManaCost): ManaCost =
+        castPermissionUtils?.applyActivatedAbilityCostReduction(cost, state, action.cardId, action.playerId)
+            ?: cost
 
     private fun isCyclingPrevented(state: GameState): Boolean {
         for (entityId in state.getBattlefield()) {

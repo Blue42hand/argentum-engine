@@ -3,6 +3,7 @@ package com.wingedsheep.gameserver.handler
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.gameserver.lobby.TournamentLobby
+import com.wingedsheep.gameserver.protocol.DeckRequestConverter
 import com.wingedsheep.gameserver.protocol.ErrorCode
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.repository.GameRepository
@@ -767,8 +768,11 @@ class TournamentMatchHandler(
             logger.warn("Tournament ${lobby.lobbyId}: cannot start Commander match — missing commander for $missing")
             return false
         }
-        val unpinnedDeck1 = if (commander1 != null) stripCommanderFromCards(deck1WithEgg, commander1) else deck1WithEgg
-        val unpinnedDeck2 = if (commander2 != null) stripCommanderFromCards(deck2WithEgg, commander2) else deck2WithEgg
+        // A partner pair (CR 702.124) seats both commanders; the second only rides beside a first.
+        val commanders1 = listOfNotNull(commander1, player1State.secondCommander?.takeIf { commander1 != null })
+        val commanders2 = listOfNotNull(commander2, player2State.secondCommander?.takeIf { commander2 != null })
+        val unpinnedDeck1 = DeckRequestConverter.stripCommanders(deck1WithEgg, commanders1)
+        val unpinnedDeck2 = DeckRequestConverter.stripCommanders(deck2WithEgg, commanders2)
         val deck1 = BoosterGenerator.withCardArt(unpinnedDeck1, deckPrintings1)
         val deck2 = BoosterGenerator.withCardArt(unpinnedDeck2, deckPrintings2)
 
@@ -804,16 +808,18 @@ class TournamentMatchHandler(
         val ps2 = player2State.identity.toPlayerSession()
 
         gameSession.addPlayer(
-            ps1, deck1, commanderCardName = commander1,
+            ps1, deck1, commanderCardNames = commanders1,
             sideboard = BoosterGenerator.withCardArt(
                 lobby.getSubmittedSideboard(match.player1Id), deckPrintings1,
             ),
+            companion = lobby.getSubmittedCompanion(match.player1Id),
         )
         gameSession.addPlayer(
-            ps2, deck2, commanderCardName = commander2,
+            ps2, deck2, commanderCardNames = commanders2,
             sideboard = BoosterGenerator.withCardArt(
                 lobby.getSubmittedSideboard(match.player2Id), deckPrintings2,
             ),
+            companion = lobby.getSubmittedCompanion(match.player2Id),
         )
 
         // Carry isAi / aiModelOverride from each identity so a server restart can rehydrate and
@@ -1242,20 +1248,5 @@ class TournamentMatchHandler(
                 },
             )
         )
-    }
-
-    /**
-     * Subtract one copy of [commander] from [deckList]. The wire format and lobby state both
-     * keep the commander counted in the deck list; the engine's `Deck.cards` excludes it.
-     * Mirrors QuickGameLobbyHandler.stripCommanderFromCards.
-     */
-    private fun stripCommanderFromCards(
-        deckList: Map<String, Int>,
-        commander: String,
-    ): Map<String, Int> {
-        val current = deckList[commander] ?: return deckList
-        val next = deckList.toMutableMap()
-        if (current <= 1) next.remove(commander) else next[commander] = current - 1
-        return next
     }
 }

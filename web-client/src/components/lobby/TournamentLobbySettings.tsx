@@ -162,14 +162,14 @@ export function TournamentLobbySettings({
           <div className={styles.variantGroup}>
             <div className={styles.settingsButtons}>
               {([
-                ['MULTIPLE', 'Any opponent', 'Each creature may attack any opponent (CR 802)'],
-                ['LEFT', 'Left only', 'Each creature may attack only the player to your left (CR 803)'],
+                ['LEFT', 'Left only', 'Each creature may attack only the player to your left (CR 803) — the default outside Commander'],
                 ['RIGHT', 'Right only', 'Each creature may attack only the player to your right (CR 803)'],
+                ['MULTIPLE', 'Any opponent', 'Each creature may attack any opponent (CR 802) — the Commander default'],
               ] as const).map(([mode, label, title]) => (
                 <button
                   key={mode}
                   onClick={() => updateLobbySettings({ attackMode: mode })}
-                  className={`${styles.settingsButton} ${(s.attackMode ?? 'MULTIPLE') === mode ? styles.settingsButtonActive : ''}`}
+                  className={`${styles.settingsButton} ${(s.attackMode ?? 'LEFT') === mode ? styles.settingsButtonActive : ''}`}
                   title={title}
                 >
                   {label}
@@ -227,6 +227,31 @@ export function TournamentLobbySettings({
                 accent={isAnyDraft ? 'draft' : 'sealed'}
               />
             )}
+          </div>
+        </div>
+      )}
+
+      {group === 'CARDS' && s.jumpstartEligible && (
+        <div className={styles.settingsRow}>
+          <span className={styles.settingsLabel}>Jump In</span>
+          <div className={styles.variantGroup}>
+            <div className={styles.settingsButtons}>
+              <button aria-pressed={s.useJumpstart !== false}
+                onClick={() => updateLobbySettings({ useJumpstart: true })}
+                className={`${styles.settingsButton} ${s.useJumpstart !== false ? styles.settingsButtonActive : ''}`}>
+                Choose themed packs
+              </button>
+              <button aria-pressed={s.useJumpstart === false}
+                onClick={() => updateLobbySettings({ useJumpstart: false })}
+                className={`${styles.settingsButton} ${s.useJumpstart === false ? styles.settingsButtonActive : ''}`}>
+                Traditional {isDraft ? 'draft' : 'sealed'}
+              </button>
+            </div>
+            <p className={styles.variantCaption}>
+              {s.useJumpstart !== false
+                ? 'Choose two themed 20-card packs, lands included. Your 40-card deck is ready to play. Only fully implemented published packs are offered.'
+                : 'Open regular boosters and build your deck using the selected draft or sealed format.'}
+            </p>
           </div>
         </div>
       )}
@@ -301,7 +326,7 @@ export function TournamentLobbySettings({
 
       {/* Booster/pack counts. Grid Draft uses fixed counts, Premade generates none, and Pool Play
           deals no packs at all — so it gets no pack count rather than an inert one. */}
-      {group === 'CARDS' && !isPremade && !isGridDraft && !isPoolPlay && (
+      {group === 'CARDS' && !s.jumpstartActive && !isPremade && !isGridDraft && !isPoolPlay && (
         perSetCounts ? (
           <div className={styles.settingsRow} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
             <span className={styles.settingsLabel}>{boosterCountLabel(isWinston, countsPacks)}</span>
@@ -362,7 +387,7 @@ export function TournamentLobbySettings({
       )}
 
       {/* Draft timing and pick size. */}
-      {group === 'CARDS' && isAnyDraft && (
+      {group === 'CARDS' && !s.jumpstartActive && isAnyDraft && (
         <div className={styles.settingsRow}>
           <span className={styles.settingsLabel}>{isWinston ? 'Turn timer' : 'Pick timer'}</span>
           <select

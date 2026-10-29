@@ -1,6 +1,10 @@
 package com.wingedsheep.ai.engine.knowledge
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.RoomComponent
@@ -9,9 +13,11 @@ import com.wingedsheep.engine.state.components.stack.AbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 
 /**
  * Card-name → [CardIntent] lookup, and the switch that turns Phase 6 on.
@@ -33,6 +39,25 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
 
     /** Whether this catalog can answer anything at all. False for [NONE]. */
     val isEnabled: Boolean get() = registry != null
+
+    /**
+     * A predicate evaluator over this catalog's registry, for the readers that must match a filter
+     * against real cards ([DeadSearch]). Null for [NONE], like every other answer here.
+     */
+    val predicates: PredicateEvaluator? by lazy { registry?.let(::PredicateEvaluator) }
+
+    private val manaSolver: ManaSolver? by lazy {
+        val registry = registry ?: return@lazy null
+        predicates?.let { ManaSolver(registry, it) }
+    }
+
+    /**
+     * The mana [playerId] could produce right now — floating mana plus untapped sources, as the
+     * engine's own solver counts it. Null for [NONE]. Read by [AmbushWindow]'s mana-contention
+     * release.
+     */
+    fun availableMana(state: GameState, playerId: EntityId): Int? =
+        manaSolver?.getAvailableManaCount(state, playerId)
 
     /**
      * The intent of the card called [name], or null when the catalog is off or the name is not a
@@ -133,6 +158,97 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
             face.script.activatedAbilities.find { it.id == abilityId }
         }
     }
+
+    /**
+     * Whether the planeswalker called [cardName] can only *spend* loyalty: it prints at least one
+     * loyalty ability and every one of them costs −N or −X. The empower-Jace token
+     * ("−1: Surveil 1. −3: Draw a card.") is the shape. Such a walker's loyalty is nothing but a
+     * budget of activations, so a counter it does not spend this turn is not saved for anything a
+     * later turn could not also spend it on.
+     *
+     * Printed abilities only, like [activatedAbility]: a "+1" granted by another permanent is not
+     * seen, and false (no information) is the answer for anything the catalog cannot read.
+     */
+    fun loyaltyIsOnlyFuel(cardName: String): Boolean {
+        val definition = registry?.getCard(cardName) ?: return false
+        val loyalty = definition.script.activatedAbilities.filter { it.isPlaneswalkerAbility }
+        return loyalty.isNotEmpty() && loyalty.all { ability ->
+            when (val cost = ability.cost) {
+                is AbilityCost.Loyalty -> cost.change < 0
+                AbilityCost.LoyaltyX -> true
+                else -> false
+            }
+        }
+    }
+
+    /**
+     * [TargetPolarity] of each target slot of the card called [cardName] cast as a spell, in
+     * requirement order. Empty when the catalog is off, the name is not a real card, or the card's
+     * targeting cannot be read — callers treat every missing slot as [TargetPolarity.UNKNOWN].
+     *
+     * [transformed] reads the card's **back face** — the face a disturb, modal-back-face or
+     * cast-transformed cast puts on the stack, whose targets are its own (Catlike Curiosity's
+     * "enchant creature", not Mischievous Catgeist's none).
+     */
+    fun spellTargetPolarities(cardName: String, transformed: Boolean = false, faceIndex: Int? = null, castFused: Boolean = false): List<TargetPolarity> {
+        val printed = registry?.getCard(cardName) ?: return emptyList()
+        if (castFused) return printed.cardFaces.flatMap { face ->
+            TargetPolarityAnalyzer.forSpell(printed.copy(name = face.name, script = face.script, cardFaces = emptyList()), ::tokenDefinition)
+        }
+        val definition = if (transformed) printed.backFace ?: return emptyList()
+            else faceIndex?.let { printed.cardFaces.getOrNull(it)?.let { face -> printed.copy(name = face.name, script = face.script, cardFaces = emptyList()) } } ?: printed
+        return TargetPolarityAnalyzer.forSpell(definition, ::tokenDefinition)
+    }
+
+    /**
+     * [TargetPolarity] of each target slot of the modes [modeIndices] of the modal spell called
+     * [cardName] — a choose-one spell is offered once per mode, so its slots are the chosen
+     * mode's, not the card's (which has none). Empty under the same conditions as
+     * [spellTargetPolarities], or when the card is not a plain modal spell.
+     */
+    fun spellModeTargetPolarities(
+        cardName: String,
+        modeIndices: List<Int>,
+        transformed: Boolean = false,
+    ): List<TargetPolarity> {
+        val printed = registry?.getCard(cardName) ?: return emptyList()
+        val definition = if (transformed) printed.backFace ?: return emptyList() else printed
+        return TargetPolarityAnalyzer.forSpellModes(definition, modeIndices, ::tokenDefinition)
+    }
+
+    /**
+     * [TargetPolarity] of each of [requirements], read off [effect] — a triggered ability being put
+     * on the stack, whose effect and requirements travel on its continuation rather than on a card
+     * the catalog can look up. Empty when the catalog is off.
+     */
+    fun effectTargetPolarities(effect: Effect, requirements: List<TargetRequirement>): List<TargetPolarity> =
+        if (!isEnabled) emptyList()
+        else TargetPolarityAnalyzer.forRequirements(effect, requirements, ::tokenDefinition)
+
+    /**
+     * [TargetPolarity] of each target slot of the printed activated ability [abilityId] on the card
+     * called [cardName]. Empty under the same conditions as [activatedAbility] answers null.
+     */
+    fun abilityTargetPolarities(cardName: String, abilityId: AbilityId): List<TargetPolarity> {
+        val definition = registry?.getCard(cardName) ?: return emptyList()
+        val ability = activatedAbility(cardName, abilityId) ?: return emptyList()
+        return TargetPolarityAnalyzer.forAbility(definition, ability, ::tokenDefinition)
+    }
+
+    /**
+     * What the printed activated ability [abilityId] on the card called [cardName] does to the
+     * permanent that card is attached to — Strands of Undeath's "{B}: Regenerate enchanted
+     * creature" is [TargetPolarity.BENEFICIAL] to whoever controls the creature it enchants.
+     * [TargetPolarity.UNKNOWN] when the catalog is off, the ability cannot be found, or it does
+     * nothing readable to the host.
+     */
+    fun abilityHostPolarity(cardName: String, abilityId: AbilityId): TargetPolarity {
+        val ability = activatedAbility(cardName, abilityId) ?: return TargetPolarity.UNKNOWN
+        return TargetPolarityAnalyzer.forAttachedHost(ability.effect, ::tokenDefinition)
+    }
+
+    /** A definition the polarity reader needs by name — a Role token a card creates. */
+    private fun tokenDefinition(name: String): CardDefinition? = registry?.getCard(name)
 
     /**
      * The intent of one ability's [effect] — what a triggered or activated ability sitting on the

@@ -40,7 +40,7 @@ export interface ActionOption {
   /** The legal action info if available */
   action: LegalActionInfo | null
   /** Action type for coloring */
-  actionType: 'cast' | 'castFaceDown' | 'castWithKicker' | 'cycle' | 'plot' | 'suspend' | 'playLand' | 'activate' | 'turnFaceUp'
+  actionType: 'cast' | 'castFaceDown' | 'castWithKicker' | 'cycle' | 'plot' | 'suspend' | 'companion' | 'playLand' | 'activate' | 'turnFaceUp'
   /**
    * Signed loyalty change for planeswalker loyalty abilities (+1, -2, -8, 0).
    * When present, the button renders a mana-font loyalty icon instead of a text prefix.
@@ -53,6 +53,13 @@ export interface ActionOption {
    * impending. Undefined for every other option.
    */
   impendingTime?: number
+  /**
+   * Which printed face of a double-faced card this option puts onto the stack or battlefield.
+   * Set only when the card offers its back face somewhere in the menu — a back-face land play
+   * (Mystic Peak behind Pinnacle Monk, CR 712.12) or a back-face cast (CR 712.8c) — so the menu
+   * can show the face being chosen instead of always the front. Undefined for every other card.
+   */
+  face?: 'front' | 'back'
 }
 
 /**
@@ -403,21 +410,39 @@ export function buildActionOptions(
       })
     })
   } else if (castAction) {
-    // 1c. Normal cast (for non-land, non-modal cards). When the *only* offered cast is an
-    // alternative-cost one (emerge with the hard cast unaffordable), the server's description names
-    // the mechanic — "Cast X" would hide that the cast eats a creature. Likewise a cast of one
-    // specific face (a prepare-spell copy in exile, an adventure-only permission) is named by the
-    // server after that face: "Cast Bloodline Recollector" would hide that it casts Ancestral Craving.
+    // 1c. Normal cast (for non-land, non-modal cards). When the *only* offered cast is a keyword or
+    // alternative-cost one (emerge with the hard cast unaffordable, flashback or disturb out of the
+    // graveyard), the server's description names the mechanic — "Cast X" would hide that the cast
+    // eats a creature, or that it's the graveyard cast at all. Likewise a cast of one specific face
+    // is named by the server after that face: a disturb cast or a modal DFC's back (CR 712.8c) puts
+    // the back on the stack, so "Cast Mischievous Catgeist" would hide that it casts Catlike
+    // Curiosity; a prepare-spell copy in exile or an adventure-only permission, that it casts
+    // Ancestral Craving rather than Bloodline Recollector.
     const castFaceIndex = (castAction.action as { faceIndex?: number | null }).faceIndex
+    const castFused = (castAction.action as { castFused?: boolean }).castFused === true
     const castPrototyped = (castAction.action as { castPrototyped?: boolean }).castPrototyped === true
     options.push({
       key: 'cast',
-      label: castAction.actionType === 'CastWithAlternativeCost' || castFaceIndex != null || castPrototyped
+      label: castAction.actionType !== 'CastSpell' || castAction.castsTransformed === true ||
+        castFaceIndex != null || castPrototyped || castFused
         ? castAction.description
         : `Cast ${cardInfo.name}`,
       ...costFieldsFor(castAction, cardInfo.manaCost),
       isAvailable: castAction.isAffordable !== false, // default true if not set
       action: castAction,
+      actionType: 'cast',
+    })
+  } else if (playLandActions.some(playsBackFace) && !cardInfo.cardTypes.includes('LAND')) {
+    // A spell-front // land-back modal DFC (Pinnacle Monk // Mystic Peak) whose front the player
+    // can't cast right now: the server sends only the back-face land play. Keep the front in the
+    // menu, grayed out, so the land play reads as one of the card's two faces rather than as the
+    // only thing the card does.
+    options.push({
+      key: 'cast',
+      label: `Cast ${cardInfo.name}`,
+      manaCost: cardInfo.manaCost || null,
+      isAvailable: false,
+      action: null,
       actionType: 'cast',
     })
   } else if ((cycleAction || typecycleAction || plotAction || suspendAction) && !cardInfo.cardTypes.includes('LAND')) {
@@ -439,9 +464,12 @@ export function buildActionOptions(
       options.push({
         // One entry per land face. The server's description already names the face being
         // played ("Play Lavaglide Pathway"), which is the only thing telling the two apart —
-        // `cardInfo.name` is the front face's name for both.
+        // `cardInfo.name` is the front face's name for both. A lone back-face play (Mystic Peak,
+        // with Pinnacle Monk's front unaffordable) needs it just as much.
         key: index === 0 ? 'playLand' : `playLand-${index}`,
-        label: playLandActions.length > 1 ? playLandAction.description : `Play ${cardInfo.name}`,
+        label: playLandActions.length > 1 || playsBackFace(playLandAction)
+          ? playLandAction.description
+          : `Play ${cardInfo.name}`,
         manaCost: null,
         isAvailable: playLandAction.isAffordable !== false,
         action: playLandAction,
@@ -533,6 +561,19 @@ export function buildActionOptions(
       isAvailable: suspendAction.isAffordable !== false,
       action: suspendAction,
       actionType: 'suspend',
+    })
+  }
+
+  // 4e. Companion (CR 702.139a) — the {3} special action on a companion waiting outside the game.
+  const companionAction = legalActions.find((a) => a.action.type === 'PutCompanionIntoHand')
+  if (companionAction) {
+    options.push({
+      key: 'companion',
+      label: 'Put into your hand',
+      manaCost: companionAction.manaCostString || null,
+      isAvailable: companionAction.isAffordable !== false,
+      action: companionAction,
+      actionType: 'companion',
     })
   }
 
@@ -630,5 +671,34 @@ export function buildActionOptions(
     })
   })
 
-  return options
+  return tagFaces(cardInfo, options)
+}
+
+/**
+ * Whether [action] plays or casts the card's **back** face: a modal DFC's back-face land play
+ * (CR 712.12) or a cast the server flags as putting the card on the stack back face up
+ * (CR 712.8c — a modal DFC's permanent back, or disturb). Server-decided either way.
+ */
+function playsBackFace(action: LegalActionInfo): boolean {
+  return (action.action.type === 'PlayLand' && action.action.asBackFace === true) ||
+    (action.action.type === 'CastSpell' && action.castsTransformed === true)
+}
+
+/**
+ * Marks which face each cast / land-play option is for, once any option reaches the back face.
+ * A spell-front // land-back card otherwise reads as two unrelated buttons under one picture of
+ * the front — "Cast Pinnacle Monk" next to "Play Mystic Peak" with nothing saying the land is
+ * the same card turned over. The hint names the face and its type line; the menu swaps the image.
+ */
+function tagFaces(cardInfo: ClientCard, options: ActionOption[]): ActionOption[] {
+  const isBack = (o: ActionOption) => o.action != null && playsBackFace(o.action)
+  if (!options.some(isBack)) return options
+  return options.map((o) => {
+    if (o.actionType !== 'cast' && o.actionType !== 'playLand' && o.actionType !== 'castWithKicker') return o
+    const face = isBack(o) ? 'back' : 'front'
+    const typeLine = face === 'back' ? cardInfo.backFaceTypeLine : cardInfo.typeLine
+    const faceLabel = face === 'back' ? 'Back face' : 'Front face'
+    const faceHint = typeLine ? `${faceLabel} — ${typeLine}` : faceLabel
+    return { ...o, face, hint: o.hint ? `${faceHint} · ${o.hint}` : faceHint }
+  })
 }

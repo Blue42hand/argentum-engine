@@ -126,6 +126,7 @@ class StackResolver(
         manaSpentOnXByColor: Map<Color, Int> = emptyMap(),
         phyrexianLifePips: Int = 0,
         faceIndex: Int? = null,
+        castFused: Boolean = false,
         spentManaProvenance: com.wingedsheep.engine.mechanics.mana.SpentManaProvenance =
             com.wingedsheep.engine.mechanics.mana.SpentManaProvenance(),
         castTimeFlags: Set<String> = emptySet(),
@@ -188,6 +189,7 @@ class StackResolver(
             manaSpentOnXByColor = manaSpentOnXByColor,
             phyrexianLifePips = phyrexianLifePips,
             faceIndex = faceIndex,
+            castFused = castFused,
             spentManaProvenance = spentManaProvenance,
             castTimeFlags = castTimeFlags,
             alternativeCost = alternativeCost,
@@ -215,11 +217,13 @@ class StackResolver(
         modeTargetRequirements: Map<Int, List<TargetRequirement>>? = null,
         copyIndex: Int? = null,
         copyTotal: Int? = null,
-        controllerId: EntityId? = null
+        controllerId: EntityId? = null,
+        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+        retainedTargetIndices: Set<Int>? = null
     ): ExecutionResult =
         StackPlacement.putSpellCopy(
             state, sourceSpellId, targets, targetRequirements, chosenModes, modeTargetsOrdered,
-            modeTargetRequirements, copyIndex, copyTotal, controllerId
+            modeTargetRequirements, copyIndex, copyTotal, controllerId, exceptions, retainedTargetIndices
         )
 
     /** Put an activated ability on the stack. See [StackPlacement.putActivatedAbility]. */

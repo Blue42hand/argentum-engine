@@ -317,7 +317,13 @@ Deliberately still open:
   Partners / Backgrounds and colourless-identity commanders are out of its scope too (Phase 4).
 - AI politics (group dynamics, kingmaker avoidance) — separate research project.
 - **Out of scope permanently:** range of influence (CR 801) — `backlog/multiplayer.md` says so too — and
-  the politics mechanics (monarch / initiative / voting).
+  voting.
+- **Done, no longer out of scope:** the monarch (CR 725) and the initiative (CR 726) with dungeons and
+  venturing (CR 309, 701.49). Both are single-holder designations on `GameState`
+  (`MonarchService` / `InitiativeService`), hand off on combat damage and when the holder leaves, and
+  show as badges on the HUD and the opponent rail; the dungeon map and room-choice UI live in
+  `web-client/src/components/game/dungeon/`. The AI answers venture choices through its generic
+  option simulation — it doesn't yet value one dungeon or branch over another strategically.
 
 ## Phase 4 — Partner / Background / Companion / commander variants
 

@@ -134,61 +134,175 @@ class DeathAndLeaveTriggerDetector(
     }
 
     /**
-     * Rule 603.10: Handle "look back in time" for simultaneous deaths.
-     * When multiple creatures die at the same time, each dead creature should
-     * still see the others dying for trigger purposes. The main battlefield loop
-     * misses these because the creatures are already in the graveyard.
+     * Rule 603.10a: "look back in time" for permanents that leave the battlefield together.
+     * When several permanents leave at once (a wipe, a mass exile, or one dying while another is
+     * exiled), each departed permanent's leaves-the-battlefield abilities still see the others
+     * leaving. The main battlefield loop misses these because the sources are already gone.
      *
-     * This checks dead creatures' non-self death triggers (e.g., ZoneChangeEvent with OTHER/ANY binding)
-     * against other death events in the same batch.
+     * Checks departed permanents' non-self triggers (OTHER/ANY binding) against the batch's other
+     * battlefield departures. Death-to-death pairs match any trigger, as they always have; a pair
+     * where either side left for a zone other than the graveyard only fires abilities that are
+     * themselves leaves-the-battlefield abilities ([TriggerMatcher.battlefieldExitAtoms]), the
+     * class CR 603.10a names — Slagstone Refinery exiled alongside another artifact still sees it.
      */
-    fun detectSimultaneousDeathTriggers(
+    fun detectSimultaneousDepartureTriggers(
         state: GameState,
         statics: BattlefieldStaticsIndex,
         events: List<EngineGameEvent>,
         triggers: MutableList<PendingTrigger>
     ) {
-        // Collect all death events from this batch
-        val deathEvents = events.filterIsInstance<ZoneChangeEvent>().filter {
-            it.toZone == Zone.GRAVEYARD &&
-                it.fromZone == Zone.BATTLEFIELD
-        }
-        if (deathEvents.size < 2) return // Need at least 2 simultaneous deaths
+        val departures = events.filterIsInstance<ZoneChangeEvent>().filter { it.isBattlefieldDeparture }
+        if (departures.size < 2) return // Need at least 2 simultaneous departures
 
-        // For each dead creature, check its triggers against OTHER death events
-        for (deadEvent in deathEvents) {
-            val deadEntityId = deadEvent.entityId
+        for (departedEvent in departures) {
+            val departedId = departedEvent.entityId
 
-            // Skip if this creature is still on the battlefield (already handled by main loop)
-            if (deadEntityId in state.getBattlefield()) continue
+            // Skip if this permanent is still on the battlefield (already handled by main loop)
+            if (departedId in state.getBattlefield()) continue
 
-            // Skip creatures whose abilities were stripped at leaving time (Xu-Ifit's
+            // Skip permanents whose abilities were stripped at leaving time (Xu-Ifit's
             // ability-stripped reanimate target contributes no triggers of its own even
             // when it dies alongside other creatures).
-            if (deadEvent.lastKnown?.lostAllAbilities == true) continue
+            if (departedEvent.lastKnown?.lostAllAbilities == true) continue
 
-            val info = resolveDyingEntity(state, deadEvent) ?: continue
+            val info = resolveDyingEntity(state, departedEvent) ?: continue
 
-            val abilities = abilityResolver.getDepartedTriggeredAbilities(deadEvent, info.cardDefinitionId, state, statics)
-            val controllerId = deadEvent.lastKnown?.controllerId ?: deadEvent.ownerId
+            val abilities = abilityResolver.getDepartedTriggeredAbilities(departedEvent, info.cardDefinitionId, state, statics)
+            val controllerId = departedEvent.lastKnown?.controllerId ?: departedEvent.ownerId
 
             for (ability in abilities) {
-                for (otherDeathEvent in deathEvents) {
-                    if (otherDeathEvent.entityId == deadEntityId) continue // Skip self
+                val isLeaveAbility = matcher.battlefieldExitAtoms(ability.trigger).isNotEmpty()
+                for (otherEvent in departures) {
+                    if (otherEvent.entityId == departedId) continue // Skip self
+                    val bothDied = departedEvent.toZone == Zone.GRAVEYARD && otherEvent.toZone == Zone.GRAVEYARD
+                    if (!bothDied && !isLeaveAbility) continue
 
-                    if (matcher.matchesTrigger(ability.trigger, ability.binding, otherDeathEvent, deadEntityId, controllerId, state)) {
+                    if (matcher.matchesTrigger(ability.trigger, ability.binding, otherEvent, departedId, controllerId, state)) {
                         triggers.add(
                             PendingTrigger(
                                 ability = ability,
-                                sourceId = deadEntityId,
+                                sourceId = departedId,
                                 sourceName = info.name,
                                 controllerId = controllerId,
-                                triggerContext = TriggerContext.fromEvent(otherDeathEvent)
+                                triggerContext = TriggerContext.fromEvent(otherEvent)
                             )
                         )
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Rule 603.10a look-back for "whenever a creature dealt damage by this creature this turn dies"
+     * (SELF shape: Soul Collector, Dread Slaver) when the damaging creature died in the same event as
+     * its victim — the combat where they trade, or a source that damaged itself (Dread Slaver ruling,
+     * 2012-05-01). [detectCreatureDealtDamageBySourceDiesTriggers] only walks live battlefield
+     * trackers, and the source's own damage tracker is stripped as it leaves, so the damaging source
+     * is read off the *victim's* last-known damage snapshot ([DamageSourceLki.sourceId]) instead.
+     */
+    fun detectDepartedDamagingSourceDiesTriggers(
+        state: GameState,
+        statics: BattlefieldStaticsIndex,
+        events: List<EngineGameEvent>,
+        triggers: MutableList<PendingTrigger>
+    ) {
+        val deathEvents = events.filterIsInstance<ZoneChangeEvent>().filter {
+            it.toZone == Zone.GRAVEYARD && it.isBattlefieldDeparture
+        }
+        if (deathEvents.isEmpty()) return
+
+        for (sourceEvent in deathEvents) {
+            val sourceId = sourceEvent.entityId
+            // Still on the battlefield → the live tracker path already saw it.
+            if (sourceId in state.getBattlefield()) continue
+            if (sourceEvent.lastKnown?.lostAllAbilities == true) continue
+
+            val info = resolveDyingEntity(state, sourceEvent) ?: continue
+            val abilities = abilityResolver.getDepartedTriggeredAbilities(sourceEvent, info.cardDefinitionId, state, statics)
+                .filter {
+                    val trigger = it.trigger
+                    trigger is EventPattern.CreatureDealtDamageBySourceDiesEvent &&
+                        trigger.sourceFilter == null &&
+                        it.binding == TriggerBinding.SELF &&
+                        Zone.BATTLEFIELD in it.activeZones
+                }
+            if (abilities.isEmpty()) continue
+            val controllerId = sourceEvent.lastKnown?.controllerId ?: sourceEvent.ownerId
+
+            for (victimEvent in deathEvents) {
+                val damagedBySource = victimEvent.lastKnown?.damageSources?.any { it.sourceId == sourceId } == true
+                if (!damagedBySource) continue
+                for (ability in abilities) {
+                    val dyingFilter = (ability.trigger as EventPattern.CreatureDealtDamageBySourceDiesEvent).dyingFilter
+                    if (dyingFilter != null && !matcher.matchesZoneChangeTrigger(
+                            EventPattern.ZoneChangeEvent(filter = dyingFilter, from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
+                            TriggerBinding.ANY,
+                            victimEvent,
+                            sourceId,
+                            controllerId,
+                            state
+                        )
+                    ) continue
+                    triggers.add(
+                        PendingTrigger(
+                            ability = ability,
+                            sourceId = sourceId,
+                            sourceName = info.name,
+                            controllerId = controllerId,
+                            triggerContext = TriggerContext.fromEvent(victimEvent)
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Detect ATTACHED zone-change triggers on auras that went to graveyard with their creature.
+     * When an aura goes to graveyard because its enchanted creature died/left, the ZoneChangeEvent
+     * for the aura carries [ZoneChangeEvent.lastKnown?.attachedTo] = the creature's ID.
+     * We look up the aura's card definition for ATTACHED-bound ZoneChangeEvent triggers.
+     *
+     * Handles both "enchanted creature dies" and "enchanted permanent leaves the battlefield".
+     */
+    fun detectDeadAuraAttachmentTriggers(
+        state: GameState,
+        statics: BattlefieldStaticsIndex,
+        event: ZoneChangeEvent,
+        triggers: MutableList<PendingTrigger>
+    ) {
+        // An aura whose abilities were stripped at leaving time (e.g. via a Xu-Ifit-shaped
+        // reanimate on an aura, or Humility-style suppression in effect at LTB) contributes
+        // no attached zone-change triggers.
+        if (event.lastKnown?.lostAllAbilities == true) return
+
+        val attachedEntityId = event.lastKnown?.attachedTo ?: return
+
+        val auraEntityId = event.entityId
+        val info = resolveDyingEntity(state, event) ?: return
+        val abilities = abilityResolver.getDepartedTriggeredAbilities(event, info.cardDefinitionId, state, statics)
+        val controllerId = event.lastKnown?.controllerId ?: event.ownerId
+
+        for (ability in abilities) {
+            if (ability.binding != TriggerBinding.ATTACHED) continue
+            val trigger = ability.trigger
+            if (trigger !is EventPattern.ZoneChangeEvent) continue
+            if (trigger.from != null && trigger.from != Zone.BATTLEFIELD) continue
+            if (trigger.to != null) {
+                // "Dies" trigger: verify creature is actually in graveyard (not exiled or bounced)
+                val inTargetZone = state.turnOrder.any { attachedEntityId in state.getGraveyard(it) }
+                if (!inTargetZone) continue
+            }
+            triggers.add(
+                PendingTrigger(
+                    ability = ability,
+                    sourceId = auraEntityId,
+                    sourceName = info.name,
+                    controllerId = controllerId,
+                    triggerContext = TriggerContext(triggeringEntityId = attachedEntityId)
+                )
+            )
         }
     }
 
@@ -330,7 +444,7 @@ class DeathAndLeaveTriggerDetector(
         event: ZoneChangeEvent,
         triggers: MutableList<PendingTrigger>
     ) {
-        if (event.fromZone != Zone.BATTLEFIELD || event.toZone != Zone.GRAVEYARD) return
+        if (!event.isBattlefieldDeparture || event.toZone != Zone.GRAVEYARD) return
         if (event.lastKnown?.wasToken == true) return
         if ((event.lastKnown?.minusOneMinusOneCounters ?: 0) > 0) return
         if (Keyword.PERSIST.name !in (event.lastKnown?.keywords ?: emptySet())) return
@@ -384,7 +498,7 @@ class DeathAndLeaveTriggerDetector(
         event: ZoneChangeEvent,
         triggers: MutableList<PendingTrigger>
     ) {
-        if (event.fromZone != Zone.BATTLEFIELD || event.toZone != Zone.GRAVEYARD) return
+        if (!event.isBattlefieldDeparture || event.toZone != Zone.GRAVEYARD) return
         if ((event.lastKnown?.plusOnePlusOneCounters ?: 0) > 0) return
         if (Keyword.UNDYING.name !in (event.lastKnown?.keywords ?: emptySet())) return
 
@@ -451,7 +565,7 @@ class DeathAndLeaveTriggerDetector(
         event: ZoneChangeEvent,
         triggers: MutableList<PendingTrigger>
     ) {
-        if (event.fromZone != Zone.BATTLEFIELD || event.toZone != Zone.GRAVEYARD) return
+        if (!event.isBattlefieldDeparture || event.toZone != Zone.GRAVEYARD) return
         if (event.lastKnown?.wasToken == true) return
         if (event.lastKnown?.typeLine?.isCreature != true) return
         if (Keyword.ENDURING.name !in event.lastKnown.keywords) return
@@ -525,6 +639,10 @@ class DeathAndLeaveTriggerDetector(
             val isSpecificZoneLeave =
                 matcher.isLeavesBattlefieldToZoneTrigger(ability.trigger, event.toZone)
             if (!isGenericLeave && !isSpecificZoneLeave) continue
+            // A disjunction naming both a dies atom and a generic leaves atom
+            // (`Triggers.or(self.dies(), self.leaves())`) is owned by [detectDeathTriggers] when the
+            // permanent went to the graveyard; firing it here too would trigger it twice for one event.
+            if (event.toZone == Zone.GRAVEYARD && matcher.isDeathTrigger(ability.trigger)) continue
 
             when (ability.binding) {
                 TriggerBinding.SELF -> {
@@ -532,12 +650,10 @@ class DeathAndLeaveTriggerDetector(
                     // qualifiers on the pattern (e.g. `requireCraftMaterial` — "while you're
                     // activating a craft ability", Market Gnome) still gate it, so an unrelated
                     // exile doesn't fire it. Verify those against the event.
-                    val trig = ability.trigger
-                    if (trig is EventPattern.ZoneChangeEvent && trig.requireCraftMaterial &&
-                        !event.craftMaterial
-                    ) {
-                        continue
-                    }
+                    // Under a disjunction, only the atoms this departure can satisfy count.
+                    val satisfiable = matcher.battlefieldExitAtoms(ability.trigger)
+                        .filter { it.to == null || it.to == event.toZone }
+                    if (satisfiable.all { it.requireCraftMaterial } && !event.craftMaterial) continue
                     triggers.add(
                         PendingTrigger(
                             ability = ability,

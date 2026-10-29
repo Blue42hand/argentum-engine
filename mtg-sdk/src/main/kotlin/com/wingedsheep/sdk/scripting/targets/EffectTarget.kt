@@ -145,13 +145,36 @@ sealed interface EffectTarget {
     @SerialName("BoundVariable")
     @Serializable
     data class BoundVariable(val name: String) : SingleEntity {
-        override val description: String = "target"
+        /**
+         * What this handle targets, as its requirement words it ("target creature you control"),
+         * so an effect over the handle reads "target creature you control gets +1/+1" rather than
+         * a bare "target gets +1/+1". Display only: stamped by the DSL's `target(...)` declaration,
+         * which is the one place the requirement is known; it takes no part in equality or
+         * serialization, so a handle built from its [name] alone still binds the same target.
+         */
+        @kotlinx.serialization.Transient
+        var requirementDescription: String? = null
+            private set
+
+        constructor(name: String, requirementDescription: String?) : this(name) {
+            this.requirementDescription = requirementDescription
+        }
+
+        /**
+         * The `description` key older encodings carried (a persisted game state, a captured
+         * suspension) — read so they still decode, and preferred as the noun when present. Never
+         * set by new code, so new encodings never write it.
+         */
+        @SerialName("description")
+        private val encodedDescription: String? = null
+
+        override val description: String get() = requirementDescription ?: encodedDescription ?: "target"
 
         /**
          * This target read as a player, for the slots typed as [Player] — "the cards in *that
          * player's* hand" (`CardSource.FromZone(Zone.HAND, opponent.asPlayer)`).
          */
-        val asPlayer: Player get() = Player.BoundVariable(name)
+        val asPlayer: Player get() = Player.BoundVariable(name, description)
     }
 
     /**
@@ -259,7 +282,10 @@ sealed interface EffectTarget {
 
     /**
      * CHOSEN CREATURE: Refers to the creature chosen when this permanent entered the battlefield.
-     * Used by cards like Dauntless Bodyguard that store a chosen creature reference.
+     * Used by cards like Dauntless Bodyguard that store a chosen creature reference. Resolves only
+     * while that is still the chosen object (CR 400.7); the source's own leaves trigger reads the
+     * choice as it last existed (Tyrannical Pitlord). The static-ability twin is
+     * [com.wingedsheep.sdk.scripting.filters.unified.Scope.ChosenCreature].
      */
     @SerialName("ChosenCreature")
     @Serializable
@@ -372,6 +398,23 @@ sealed interface EffectTarget {
     @Serializable
     data class SacrificedAsCost(val index: Int = 0) : SingleEntity {
         override val description: String = "the sacrificed creature"
+    }
+
+    /**
+     * EXILED AS COST: an object exiled to pay this activated ability's cost, by index — "the exiled
+     * creature" / "the exiled card". The exile counterpart of [SacrificedAsCost], reading
+     * `EffectContext.exiledAsCostCards`. A permanent exiled from the battlefield is read as it last
+     * existed there (CR 608.2h) from the snapshot its departure captured — copiable values included,
+     * so "becomes a copy of the exiled creature" copies what that creature was copying (Curie,
+     * Emergent Intelligence), and a token that has ceased to exist can still be read. A card exiled
+     * from any other zone is read as the card it now is in exile.
+     *
+     * @property index Which exiled object to reference (defaults to the first/only one).
+     */
+    @SerialName("ExiledAsCost")
+    @Serializable
+    data class ExiledAsCost(val index: Int = 0) : SingleEntity {
+        override val description: String = "the exiled creature"
     }
 
     /**

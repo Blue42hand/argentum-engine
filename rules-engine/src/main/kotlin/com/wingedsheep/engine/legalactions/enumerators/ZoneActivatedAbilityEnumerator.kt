@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.legalactions.surfacedRequirements
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -37,7 +39,16 @@ import com.wingedsheep.sdk.scripting.TimingRule
  * non-battlefield `activateFromZone` generically (owner + zone-membership check), so no handler
  * change is needed.
  */
-class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predicateEvaluator: PredicateEvaluator) : ActionEnumerator {
+class ZoneActivatedAbilityEnumerator(
+    private val zone: Zone,
+    private val predicateEvaluator: PredicateEvaluator,
+    /**
+     * Surface only mana abilities — the CR 605.3a payment-window surface
+     * ([com.wingedsheep.engine.legalactions.LegalActionEnumerator.enumerateManaAbilities]), where
+     * a hand mana ability (Simian Spirit Guide) is as activatable as a land.
+     */
+    private val manaOnly: Boolean = false,
+) : ActionEnumerator {
 
     override fun enumerate(context: EnumerationContext): List<LegalAction> {
         val result = mutableListOf<LegalAction>()
@@ -45,6 +56,8 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
         val playerId = context.playerId
 
         val zoneCards = state.getZone(playerId, zone)
+        if (zoneCards.isEmpty()) return emptyList()
+        val hasStaticGrants = context.castPermissionUtils.hasStaticActivatedAbilityGrantsInZone(state, zone)
         for (entityId in zoneCards) {
             val container = state.getEntity(entityId) ?: continue
             val cardComponent = container.get<CardComponent>() ?: continue
@@ -60,10 +73,22 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                 ?.script?.activatedAbilities
                 ?.filter { it.activateFromZone == zone }
                 .orEmpty()
-            val zoneAbilities = printedZoneAbilities + grantedZoneAbilities
+            val staticZoneAbilities = if (hasStaticGrants) context.castPermissionUtils
+                .getStaticGrantedActivatedAbilities(entityId, state)
+                .filter { it.activateFromZone == zone } else emptyList()
+            val zoneAbilities = (printedZoneAbilities + grantedZoneAbilities + staticZoneAbilities)
+                .distinctBy { it.id }
             if (zoneAbilities.isEmpty()) continue
 
             for (ability in zoneAbilities) {
+                if (manaOnly && !ability.isManaAbility) continue
+                if (ability.effect is com.wingedsheep.sdk.scripting.effects.ModalEffect) {
+                    val picker = com.wingedsheep.engine.handlers.actions.ability.ActivationModalChoices(
+                        com.wingedsheep.engine.handlers.TargetFinder(context.predicateEvaluator), context.conditionEvaluator)
+                    if (picker.validate(state, ActivateAbility(playerId, entityId, ability.id), ability.effect) != null) continue
+                }
+
+
                 // "Activate only as a sorcery" — Renew and similar zone-activated abilities are
                 // gated to sorcery timing. Mirrors ActivatedAbilityEnumerator's battlefield check
                 // so the action is never offered at instant speed (where the handler would reject
@@ -94,11 +119,17 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                 // ("costs {1} less to activate for each legendary creature you control", activated
                 // by discarding it from hand) is hidden from the menu whenever the player can
                 // afford only the reduced price.
-                val effectiveCost = AbilityCostReduction.apply(
-                    context.castPermissionUtils
-                        .applyDefinedXValue(ability.cost, ability, state, entityId, playerId),
-                    ability, state, entityId, playerId, context.targetUtils,
-                    predicateEvaluator = predicateEvaluator
+                // Then the board's statics, as the activation handler's totaller applies them —
+                // an "abilities you activate" reduction (Zirda) reaches a hand or graveyard card.
+                val effectiveCost = context.castPermissionUtils.applyActivatedAbilityCostReduction(
+                    AbilityCostReduction.apply(
+                        context.castPermissionUtils
+                            .applyDefinedXValue(ability.cost, ability, state, entityId, playerId),
+                        ability, state, entityId, playerId, context.targetUtils,
+                        predicateEvaluator = predicateEvaluator
+                    ),
+                    state, entityId, playerId, ability.isExhaust, ability.isPowerUp, ability.isManaAbility,
+                    chosenTargetIds = if (ability.targetRequirements.isEmpty()) emptyList() else null
                 )
                 val displayDescription = AbilityCostReduction.describe(ability, effectiveCost)
 
@@ -221,7 +252,8 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                 val abilityHasXCost = abilityManaCost?.hasX == true || context.costUtils.hasPlayerChosenNonManaX(effectiveCost)
                 val abilityMaxAffordableX: Int? = if (abilityHasXCost) {
                     context.costUtils.calculateMaxAffordableX(state, playerId, effectiveCost, abilityManaCost,
-                        precomputedSources = context.availableManaSources, sourceId = entityId)
+                        precomputedSources = context.availableManaSources, sourceId = entityId,
+                        lifePurpose = LifePaymentPurpose.activating(ability.isManaAbility))
                 } else null
 
                 // Compute auto-tap preview for UI highlighting (skipped in ACTIONS_ONLY mode)
@@ -254,7 +286,9 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                                 hasXCost = abilityHasXCost,
                                 maxAffordableX = abilityMaxAffordableX,
                                 autoTapPreview = abilityAutoTapPreview,
-                                manaCostString = zoneManaCostString
+                                manaCostString = zoneManaCostString,
+                                isManaAbility = ability.isManaAbility,
+                                sourceZone = zone.name
                             )
                         )
                     } else {
@@ -269,11 +303,18 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                                 minTargets = firstReq.effectiveMinCount,
                                 targetDescription = firstReq.description,
                                 targetRequirements = targetInfos.surfacedRequirements(),
+                                xConstrainsTargetManaValue = targetInfos.size == 1 && firstInfo.xConstrainsManaValue,
+                                xConstrainsTargetManaValueExactly = targetInfos.size == 1 && firstInfo.xConstrainsManaValueExactly,
+                                xConstrainsTargetPower = targetInfos.size == 1 && firstInfo.xConstrainsPower,
+                                xConstrainsTargetCount = targetInfos.size == 1 && firstInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = targetInfos.size == 1 && firstInfo.xConstrainsCountExactly,
                                 additionalCostInfo = costInfo,
                                 hasXCost = abilityHasXCost,
                                 maxAffordableX = abilityMaxAffordableX,
                                 autoTapPreview = abilityAutoTapPreview,
-                                manaCostString = zoneManaCostString
+                                manaCostString = zoneManaCostString,
+                                isManaAbility = ability.isManaAbility,
+                                sourceZone = zone.name
                             )
                         )
                     }
@@ -287,7 +328,9 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predica
                             hasXCost = abilityHasXCost,
                             maxAffordableX = abilityMaxAffordableX,
                             autoTapPreview = abilityAutoTapPreview,
-                            manaCostString = zoneManaCostString
+                            manaCostString = zoneManaCostString,
+                            isManaAbility = ability.isManaAbility,
+                            sourceZone = zone.name
                         )
                     )
                 }

@@ -56,17 +56,21 @@ class Settler(
      * Runs a prevention effect's owed result (see [ReplacementRiders]). Combat damage isn't an
      * effect, so the results its prevention owes are run here, before detection and SBAs.
      */
-    private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)? = null
+    private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)? = null,
+    /** Carries out a "restart the game" once the resolution that asked for it is over (CR 727). */
+    private val gameRestarter: GameRestarter? = null
 ) {
 
     fun settle(executed: ExecutionResult): ExecutionResult {
         if (executed.outcome is Outcome.Rejected) return executed
         if (executed.state.gameOver) return executed.copy(state = executed.state.withoutPendingTriggers())
+        val current = restartIfRequested(executed)
         // Nothing has happened yet before the first turn begins: mulligans draw and shuffle, but
-        // no one receives priority, and no permanent can have triggered.
-        if (mulligansInProgress(executed.state)) return executed
+        // no one receives priority, and no permanent can have triggered. A restarted game is back
+        // at that point, and nothing from the game it ended can trigger in the new one.
+        if (mulligansInProgress(current.state)) return current
 
-        val raw = runReplacementRiders(endTheTurnIfRequested(executed))
+        val raw = runReplacementRiders(endTheTurnIfRequested(current))
         val result = com.wingedsheep.engine.mechanics.GraveyardOrdering.finish(raw)
         if (result.outcome is Outcome.Rejected) return result
         val state = result.state
@@ -109,6 +113,18 @@ class Settler(
         return ended.copy(events = result.events + ended.events)
     }
 
+    /**
+     * A "restart the game" effect (CR 727) records its request while its ability resolves; the game
+     * is restarted once that resolution is over, whether or not it stopped to ask a question first.
+     */
+    private fun restartIfRequested(result: ExecutionResult): ExecutionResult {
+        val request = result.state.pendingRestart ?: return result
+        val restarter = gameRestarter ?: return result
+        if (result.state.pendingDecision != null) return result
+        val restarted = restarter.restart(result.state, request)
+        return restarted.copy(events = result.events + restarted.events)
+    }
+
     private fun runReplacementRiders(result: ExecutionResult): ExecutionResult {
         val executor = effectExecutor ?: return result
         if (result.state.pendingReplacementRiders.isEmpty() || result.outcome !is Outcome.Done) return result
@@ -128,7 +144,18 @@ class Settler(
     /** Queue every trigger [events] caused, including those of a step they began. */
     private fun detect(state: GameState, events: List<GameEvent>): GameState {
         var working = ControlHistory.record(CounterHistory.record(state, events), events)
-        val triggers = triggerDetector.detectTriggers(working, events).toMutableList()
+        val checkpoint = state.attackDeclarationCheckpoint()
+        val declarationEvents = checkpoint?.events.orEmpty().toSet()
+        val provisional = events.filter { it in declarationEvents }
+        val triggers = if (provisional.isEmpty()) {
+            triggerDetector.detectTriggers(working, events).toMutableList()
+        } else {
+            // No priority occurs before payment; keep these triggers queued but individually
+            // reversible, without erasing triggers from later mana abilities on cancellation.
+            (triggerDetector.detectTriggers(working, provisional).map {
+                it.copy(attackDeclarationId = checkpoint!!.id)
+            } + triggerDetector.detectTriggers(working, events.filter { it !in declarationEvents })).toMutableList()
+        }
 
         val stepChanged = events.filterIsInstance<StepChangedEvent>().lastOrNull()
         if (stepChanged != null) {

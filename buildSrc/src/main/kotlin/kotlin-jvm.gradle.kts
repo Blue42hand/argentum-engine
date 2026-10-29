@@ -61,7 +61,9 @@ tasks.withType<Test>().configureEach {
         "argentum.ai.apprentice.dir",
         "eclCollect", "eclCollectGames", "eclCollectSeed", "eclCollectOutput", "eclCollectBaseDir",
         "eclCollectRunId", "eclCollectStartIndex",
-        "arenaGames", "arenaSeed", "arenaSet", "arenaMaxTurns", "arenaThreads",
+        "arenaGames", "arenaSeed", "arenaSet", "arenaMaxTurns", "arenaThreads", "arenaGameTimeoutSec",
+        "arenaReport",
+        "gameLog", "gameLogGames", "gameLogSeed", "gameLogAgent", "gameLogSeats", "gameLogAttackMode", "gameLogDir",
     )) {
         System.getProperty(prop)?.let { systemProperty(prop, it) }
     }

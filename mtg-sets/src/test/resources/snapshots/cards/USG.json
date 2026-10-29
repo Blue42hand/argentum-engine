@@ -1160,6 +1160,74 @@
     ]
 }
 
+// Corrupt
+{
+    "name": "Corrupt",
+    "manaCost": "{5}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Corrupt deals damage to any target equal to the number of Swamps you control. You gain life equal to the damage dealt this way.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "land Swamp"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "damageDealtVariable": "storedNumber0"
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "VariableReference",
+                        "variableName": "storedNumber0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "124",
+        "artist": "Vincent Evans",
+        "flavorText": "Yawgmoth brushed Urza's mind, and Urza's world convulsed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/2/32e1c65c-ced6-484d-b3b4-db913c6bf84b.jpg?1783946347",
+        "rulings": [
+            {
+                "date": "2022-10-14",
+                "text": "Corrupt counts any land you control with the subtype Swamp, not just ones named Swamp."
+            },
+            {
+                "date": "2010-08-15",
+                "text": "The life you gain is equal to the damage dealt by Corrupt, not necessarily to the number of Swamps you control (if some or all of the damage is prevented, for example)."
+            },
+            {
+                "date": "2010-08-15",
+                "text": "The amount of damage dealt to a creature is not bounded by its toughness, and the amount of damage dealt to a player is not bounded by that player's life total. For example, if Corrupt deals 6 damage to a 2/2 creature, you'll gain 6 life."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "The swamps are counted on resolution."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Crazed Skirge
 {
     "name": "Crazed Skirge",
@@ -2023,6 +2091,29 @@
     "colorIdentityOverride": []
 }
 
+// Exploration
+{
+    "name": "Exploration",
+    "manaCost": "{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "You may play an additional land on each of your turns.",
+    "script": {
+        "staticAbilities": [
+            "GrantAdditionalLandDrop"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "250",
+        "rarity": "RARE",
+        "artist": "Brian Snõddy",
+        "flavorText": "The first explorers found Argoth a storehouse of natural wealth—towering forests grown over rich veins of ore.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2f09e451-0246-45a2-8bfd-07d3c65ddfe6.jpg?1783946316"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Expunge
 {
     "name": "Expunge",
@@ -2083,6 +2174,41 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Fertile Ground
+{
+    "name": "Fertile Ground",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional one mana of any color.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "AdditionalManaOnTap",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "anyColor": true
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "land"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "252",
+        "artist": "Heather Hudson",
+        "flavorText": "The forest was too lush for the brothers to despoil—almost.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/9/091dda35-59e5-456d-8804-61513a610aed.jpg?1783946315"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -2234,7 +2360,9 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for up to two Forest land cards to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -2327,7 +2455,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -2427,25 +2557,35 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "ForEach",
-                    "space": "IterationSpace.Targets",
-                    "body": {
-                        "type": "TapUntap",
-                        "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "land"
+                            },
+                            "storeAs": "gathered0"
                         },
-                        "tap": false
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "count": 7,
-                    "optional": true,
-                    "filter": {
-                        "baseFilter": "land"
-                    },
-                    "id": "t0"
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 7
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose up to seven lands to untap"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1",
+                            "tap": false
+                        }
+                    ]
                 }
             }
         ]
@@ -3386,25 +3526,35 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "ForEach",
-                    "space": "IterationSpace.Targets",
-                    "body": {
-                        "type": "TapUntap",
-                        "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "land"
+                            },
+                            "storeAs": "gathered0"
                         },
-                        "tap": false
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "count": 5,
-                    "optional": true,
-                    "filter": {
-                        "baseFilter": "land"
-                    },
-                    "id": "t0"
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 5
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose up to five lands to untap"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1",
+                            "tap": false
+                        }
+                    ]
                 }
             }
         ]
@@ -5265,6 +5415,86 @@
     ]
 }
 
+// Windfall
+{
+    "name": "Windfall",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player discards their hand, then draws cards equal to the greatest number of cards a player discarded this way.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "StoreNumber",
+                    "name": "windfallGreatestDiscard",
+                    "amount": {
+                        "type": "GreatestAmongPlayers",
+                        "inner": {
+                            "type": "Count",
+                            "player": "You",
+                            "zone": "Hand"
+                        }
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "discardedHand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discardedHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "VariableReference",
+                            "variableName": "windfallGreatestDiscard"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "UNCOMMON",
+        "artist": "Pete Venters",
+        "flavorText": "\"To fill your mind with knowledge, we must start by emptying it.\"\n—Barrin, master wizard",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/a/2aef4608-5ba8-4636-b5e7-cac57c5c0608.jpg?1783946351"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Witch Engine
 {
     "name": "Witch Engine",
@@ -5321,6 +5551,62 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Wizard Mentor
+{
+    "name": "Wizard Mentor",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "{T}: Return this creature and target creature you control to their owner's hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Wizard Mentor:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Hand"
+                        },
+                        {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Hand"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "artist": "Jeff Miracola",
+        "flavorText": "Although some of the students quickly grasped the concept, the others could summon only blackboards.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49805401-9bd9-48a3-9b99-0120a8bb1fb5.jpg?1783946351"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

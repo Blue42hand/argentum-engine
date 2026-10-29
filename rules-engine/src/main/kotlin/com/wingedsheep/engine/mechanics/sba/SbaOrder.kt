@@ -16,6 +16,7 @@ object SbaOrder {
     const val DURATION_EXPIRY = 240         // 611.2b ("for as long as" durations end one-way)
     const val ATTACHED_COPY_EXPIRY = 245    // 611.2b ("becomes a copy for as long as attached")
     const val CONTROL_CHANGED_COMBAT = 250  // 506.4 (controller change removes from combat)
+    const val STOPPED_BEING_CREATURE_COMBAT = 252 // 506.4 (an attacker/blocker stops being a creature)
     const val ATTACKED_PERMANENT_COMBAT = 255 // 506.4 (attacked planeswalker/battle leaves combat)
     const val ZERO_TOUGHNESS = 300          // 704.5f
     const val LETHAL_DAMAGE = 400           // 704.5g/h
@@ -27,6 +28,7 @@ object SbaOrder {
     const val UNATTACHED_AURAS = 800        // 704.5m/n/p
     const val SOULBOND_UNPAIRING = 850      // 702.95e (a soulbond pair whose halves no longer qualify)
     const val SAGA_SACRIFICE = 900          // 714.4
+    const val DUNGEON_COMPLETION = 920      // 704.5t / 309.6 (a dungeon whose last room has resolved)
     const val COMMANDER_ZONE_CHOICE = 950   // 903.9a (Commander format)
     const val TOKENS_IN_WRONG_ZONES = 1000  // 704.5s
     const val PHANTOM_CARD_COPIES = 1050    // 707.10a

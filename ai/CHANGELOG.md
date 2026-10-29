@@ -1,0 +1,135 @@
+# Engine AI changelog
+
+One line per change to how the built-in engine AI **plays or builds its decks** — the changes whose
+effect you'd expect to see in its record against humans. The admin dashboard's **AI vs humans**
+screen reads this file (baked into the server jar at build time by `game-server`'s
+`generateEngineAiHistory` task): each entry becomes a marker on the win-rate timeline, an item in its
+"Engine AI changes" list, and a count against the first deployed build that carried it.
+
+**When you open a PR that changes the engine AI's behaviour, add a line at the top of the list in the
+same PR.** That's a change under `ai/src/main/kotlin/com/wingedsheep/ai/engine/` that alters a
+decision — what it casts, attacks, blocks, targets, pays, keeps or drafts — or which profile live
+players face. Leave out refactors, performance work, tooling, per-card AI advisors, and set archetype
+data — they'd bury the changes worth correlating with the win rate.
+
+Format — newest first, one bullet each:
+
+```
+- #<pr> <what the AI now does differently, in a sentence>
+```
+
+- Anchor the line with the PR number. Don't know it yet? Write the line without one: the build then
+  ties it to the commit that added the line, which on `main` is the PR's own merge. Add `#<pr>` once
+  the PR exists if you like.
+- A change that landed without a PR is anchored by its commit sha on `main` instead: `- 1a2b3c4d5e6f …`.
+- The date shown is when the change merged; never write one by hand.
+- Describe the behaviour, not the code: "Blocks for survival when facing lethal", not "Add
+  `survivalBlocks` flag".
+
+## Changes
+
+- Leaves an "up to one/up to N target" slot empty rather than aim it at the wrong side: Tam's Resistance with only an opposing creature is cast for its Empower Jace alone instead of buffing their creature, an "up to two" destroy or an optional harmful trigger never hits our own permanents, and when the effect's side can't be read the AI simulates leaving the slot empty and takes that when it scores strictly better.
+- Casts enablers before the spells they discount: a spell is scored as at least the best spell in hand it makes cheaper or castable, so a noncreature spell goes down before a "costs {2} less if you've cast a noncreature spell this turn" creature instead of the creature being cast at full price.
+- Casts a pump before combat when it changes who attacks: a combat trick or pump ability that lets a creature make an attack it otherwise wouldn't is priced by what that attack is worth over the unpumped one, instead of being deferred to a beginning-of-combat window the AI never stops in.
+
+- Holds instant-speed deploys for the opponent's turn: a flash creature is judged by what it can do the turn it lands (an attack-trigger loot no longer gets it jammed in its own main phase), an instant that only makes no-haste tokens or empowers a walker it lets act at instant speed waits for their turn too, and either is cast into idle mana when holding it would leave another instant in hand without mana.
+
+- Deck building for sets without rating data values planeswalkers as the engines they are instead of as filler (an on-color rare walker no longer loses its slot to a vanilla 3/9), and counts a legend's second copy at a discount for the legend rule, so it stops running doubles of filler legends.
+
+- Defends its own planeswalkers: a walker is priced by the loyalty the next attack leaves it, so one about to die spends its loyalty first (the biggest useful minus) instead of dying with counters unspent, a blocker kept home for it counts, and blocks on attackers aimed at it are worth the walker they save — a chump or trade for a valuable walker, nothing for a near-dead token.
+
+- On Auto against a deck the human brought, plays from that deck's set(s) — another built-in starter from them when one exists (Boros Mice meets another Bloomburrow tribe), else a deck built from those sets in the same 60-card or 40-card shape — instead of a sealed pool from an unrelated set.
+
+- Attacks opposing planeswalkers: each attacker that will connect goes at the walker its damage hurts most — killing it, or knocking it below its biggest ability — when that is worth more than the life it would take, while a lethal or nearly-won race keeps its damage on the player; attack search also tries retargeting each attacker and runs when a walker is in reach and nothing can block.
+
+- Chump-blocks to stay out of the opponent's next-attack range when one body now saves more bodies next turn (menace needs two blockers), instead of only when this hit alone is lethal.
+
+- Stops paying for until-end-of-turn pumps nothing spends: a temporary +X/+X counts only on a creature already attacking or blocking, a precombat pump activation needs an attack plan that uses it, and an action that merely ties passing no longer wins on rounding.
+
+- Casts wishes (Extrapolate the Impossible, Burning Wish) with idle mana in its last main phase instead of holding them all game, unless nothing outside the game is fetchable.
+
+- Allocates the full required counter payment across permanents, including several counters on one, and compares paying against declining.
+
+- The AI spreads required graveyard targets across owners instead of selecting several cards from one graveyard.
+
+- #3182 AI puts shield counters, pumps and protection from triggered abilities and from modal or tiered spells (Proud Pack-Rhino, Restoration Magic) on its own permanents instead of an opponent's
+- #3180 Chooses targets for the face being cast — a split half, both fused halves, an Adventure, Room or prepare face — avoiding beneficial enemy targets and harmful friendly targets.
+
+- #3181 Scry and surveil no longer keep a surplus land on top just because this turn's land drop is unspent — a card left in the library is drawn next turn at the earliest
+
+- #3174 Chooses compatible groups for spells and abilities whose targets must have equal toughness or another numeric value.
+
+- #3170 Values every token payoff in a mixed token-creation batch when assessing cards for play and deckbuilding.
+
+- Keeps ranked secret bids at their floor, chooses matching numbers independently, and casts creature ballots from the visible board without reading unrevealed answers.
+
+- #3137 AI plays its land before a cheaper spell when the land makes a bigger spell castable — hard-casting Shriekmaw instead of casting a 2-drop and then evoking it
+- #3135 AI seats on a random deck now own the rest of their sealed pool (or a fifteen-card wishboard) outside the game, so their Learn and wish cards fetch a card instead of whiffing
+- #3132 AI puts helpful Role tokens and Auras like Strands of Undeath on its own creatures, and no longer pays to regenerate an opponent's creature
+- #3129 AI pays sacrifice, discard, bounce and tap costs with its least valuable candidates (the source included) instead of the first legal ones
+- #3128 In multiplayer the AI sends each attacker at a defender it may legally attack (skipping a seat behind Blazing Archon, routing Goblin Rock Sled to a seat with a Mountain) instead of aiming everything at the lowest-life opponent and getting the whole attack rejected
+- #3120 AI holds flash creatures for the opponent's turn and no longer releases them for its own triggers on the stack
+- #3114 AI keeps modal double-faced spells instead of playing them as lands it doesn't need, prices surplus lands in hand near zero, and won't bounce its own land into a hand that already holds the next land drops
+- #3079 AI divides multi-block combat damage to kill what it can
+- #3078 AI treats its own stack objects as never threats; block-only grants need a blocker
+- #3065 A draw or tutor while tapped out no longer forfeits the idle-land refund
+- #3063 AI spends idle mana on drawing in the last window that can
+- #3046 AI refuses precombat Equipment moves onto no better an attacker
+- #3042 AI activates sacrifice-mana sources before a cast auto-pay can't cover
+- #3040 AI spends a minus-only planeswalker's loyalty (the empower-Jace token)
+- #3037 AI refuses activations whose payoff lands on nothing
+- #3032 A library search's pick knows what it searches for and where it goes
+- #3030 A beginning-of-combat pump counts only on creatures the attack plan sends
+- #3027 AI refuses a fetch whose library holds nothing it can find
+- #3025 AI holds end-of-turn pumps nothing this turn can use
+- #3024 The pending land drop counts as mana in the idle-mana refund
+- #3023 AI fills "up to N targets" decisions past one target while each helps
+- #3021 Selection counts are picked by value: searches take, scry and surveil sift
+- #3020 An optional sacrifice is asked once: pick the permanent or decline
+- #2992 AI attacks price the crack-back as life and keep evasion after attacking
+- #2988 AI deploys castable permanents instead of hoarding them
+- #2986 AI blocks seed legal menace and protection plans; no high-life chump blocks
+- #2984 AI aims targets by the polarity the effect implies
+- #2981 AI refuses end-of-turn payoffs nothing can spend
+- #2979 AI answers colour, land-type, card-name and skip-a-draw choices by what they are for
+- #2976 AiProfile.LIVE becomes the one profile real players face
+- #2975 Castability-aware card selection (keep, take, discard) behind a profile flag
+- #2526 AI targeting fixed for beneficial activated stat boosts
+- #2319 AI stops paying to re-equip where its Equipment already is
+- #1982 AI stops looping on a free redundant Equip activation
+- #1833 AI stops livelocking on a combat tax it cannot pay
+- #1821 Momir: never flips a creature with no mana cost, never activates for X=0
+- #1799 AI chooses a value for {X}
+- #1791 AI blocks for survival when facing lethal
+- #1715 AI stops paying for expiring grants in windows that can't spend them
+- #1711 AI holds flash creatures for the ambush window instead of jamming them
+- #1709 AI holds a counterspell for a spell worth the card
+- f62a05ddfa34 AI prices a land in hand as mana, on a curve, and values the cantrip window
+- 427daa8dcef8 AI prices a creature by what it can still do
+- 32742ee91787 AI holds removal for a target worth a card
+- #1692 AI scores its race in urgency instead of turns
+- #1690 AI spends a combat trick in the window that decides the fight
+- 6cf4f514151d AI plays lands in the order its hand can actually use
+- 1cd9c5d3309a A combat trick must earn its response window
+- #1687 A land drop no longer counts as card loss
+- #1686 The rollout AI goes to production, with two evaluation fixes
+- #1665 AI understands what a Room's two halves do
+- #1663 AI stops going in circles
+- #1605 AI seats build and play their own Commander decks
+- #1559 Resource-backed AI evaluation weights
+- #1531 Fair hidden-information determinization for the engine AI
+- #1511 Engine AI phase 7: the rollout evaluator
+- #1508 AI constructed decks are built with Draftsim
+- #1504 Engine AI phase 6: CardIntent — card knowledge that generalizes
+- #1493 Engine AI phase 4: branching factor and decision budget
+- #1487 Engine AI phase 3: multiplayer evaluation
+- #761 AI stops mulliganing every Momir Basic opening hand
+- ebdbcba38671 Better Momir Basic activation strategy
+- #737 AI no longer loops casting a "target spell" instant
+- #658 Quick Game AI decks are built with the Draftsim autobuilder
+- #624 AI stops aiming two "can't block" effects at the same creature
+- #613 AI fills targets for activated abilities, not just spells
+- #338 AI skips attack simulation when the opponent has no creatures
+- 0dfce8d95fd2 AI no longer freezes when only Treasures can pay
+- 5917a66bff8d AI sealed deck building fixed for Lorwyn Eclipsed
+- 8891a5f4189b AI gang-block cost miscalculation fixed

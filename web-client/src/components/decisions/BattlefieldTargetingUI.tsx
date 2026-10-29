@@ -78,6 +78,8 @@ export function BattlefieldTargetingUI({
       decisionId: decision.id,
       validOptions: [...legalTargets],
       selectedOptions: [...initialSelection],
+      selectionGroups: targetReq?.selectionGroups ?? null,
+      exclusiveGroups: targetReq?.exclusiveGroups ?? null,
       minSelections: minTargets,
       maxSelections: maxTargets,
       prompt: targetReq?.description ?? decision.prompt,
@@ -177,7 +179,7 @@ export function BattlefieldTargetingUI({
         )}
         {canDecline && selectedCount === 0 && (
           <button onClick={handleDecline} className={`${styles.confirmButton} ${styles.confirmButtonSmall}`}>
-            Decline
+            {targetReq?.emptyChoiceLabel ?? 'Decline'}
           </button>
         )}
         {selectedCount > 0 && (

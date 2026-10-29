@@ -25,36 +25,6 @@ data class PutFromHandContinuation(
 ) : AnswerContinuation
 
 /**
- * Resume after a player chooses a number for secret bidding effects (Menacing Ogre).
- *
- * Each player secretly chooses a number. After all players have chosen,
- * execute outcome effects per matching bidder (xValue = bid, controllerId = bidder).
- *
- * @property sourceId The creature that entered the battlefield
- * @property sourceName Name of the source for display
- * @property controllerId The controller of the source creature
- * @property currentPlayerId The player whose choice we are waiting for
- * @property remainingPlayers Players who still need to choose (APNAP order)
- * @property chosenNumbers Numbers chosen so far by each player
- * @property highestBidderEffect Effect executed per highest bidder
- * @property lowestBidderEffect Effect executed per lowest non-zero bidder
- * @property tiedBidderEffect Effect executed per bidder when all non-zero bids are equal
- */
-@Serializable
-data class SecretBidContinuation(
-    val sourceId: EntityId?,
-    val sourceName: String?,
-    val controllerId: EntityId,
-    val currentPlayerId: EntityId,
-    val remainingPlayers: List<EntityId>,
-    val chosenNumbers: Map<EntityId, Int>,
-    val highestBidderEffect: Effect?,
-    val lowestBidderEffect: Effect?,
-    val tiedBidderEffect: Effect?,
-    val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
-) : AnswerContinuation
-
-/**
  * Which step of the [OpenLifeBidContinuation] the pending decision belongs to.
  */
 @Serializable
@@ -460,6 +430,9 @@ data class StormCopyTargetContinuation(
     val keywordsForCopy: Set<String> = emptySet(),
     val removeLegendary: Boolean = false,
     val tokenRiders: com.wingedsheep.engine.state.components.stack.SpellCopyTokenRidersComponent? = null,
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
 ) : AnswerContinuation
 
@@ -516,25 +489,43 @@ data class StormCopyModalTargetContinuation(
     val chosenModes: List<Int>,
     val modeTargetRequirements: Map<Int, List<TargetRequirement>>,
     val accumulatedOrdinalTargets: List<List<ChosenTarget>>,
+    /** Flat target positions kept across earlier mode questions, including their old object identity. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val retainedTargetIndices: Set<Int> = emptySet(),
     val currentOrdinal: Int,
     /** Keyword enum names (e.g., "WITHER") to grant to each copy while it's on the stack. */
     val keywordsForCopy: Set<String> = emptySet(),
     /** If true, strip the Legendary supertype from each resulting copy. */
     val removeLegendary: Boolean = false,
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
 ) : AnswerContinuation
 
 /**
- * Resume after Meddle's controller chooses a new creature target for a spell.
+ * Resume after Meddle's controller chooses a new creature target for a spell — or, when
+ * [fixedNewTarget] is set, after Spellskite's controller chooses *which* of a multi-target spell's
+ * targets changes to that fixed object.
  *
  * @property spellEntityId The spell whose target is being changed
  * @property sourceId The source of the change-target effect (Meddle)
+ * @property fixedNewTarget The object every candidate slot would change to; the answer then names
+ *   the current target being replaced, not the new one
+ * @property candidateSlots Target slots that may legally change to [fixedNewTarget]
  */
 @Serializable
 data class ChangeSpellTargetContinuation(
     val spellEntityId: EntityId,
     val sourceId: EntityId?,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val fixedNewTarget: EntityId? = null,
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val candidateSlots: List<Int> = emptyList(),
 ) : AnswerContinuation
 
 /**
@@ -687,6 +678,24 @@ data class ActivateAbilityExileFromGraveyardContinuation(
 data class ActivateAbilityExileXFromGraveyardContinuation(
     val action: ActivateAbility,
     val exileCandidates: List<EntityId>,
+    val fixedCount: Int? = null
+) : AnswerContinuation
+
+/**
+ * Resume after a player picks the hand cards for an
+ * [com.wingedsheep.sdk.scripting.AbilityCost.DiscardX] cost — the hand-side twin of
+ * [ActivateAbilityExileXFromGraveyardContinuation]. The resumer re-enters the handler with the
+ * chosen cards in `costPayment.discardedCards` and `xValue` bound to how many were chosen.
+ *
+ * @property action The original [ActivateAbility] (`costPayment.discardedCards` still empty).
+ * @property discardCandidates The hand cards matching the cost's filter, offered as options.
+ * @property fixedCount Non-null when a `{X}` mana symbol already fixed X; the selection must then
+ *   be exactly this many. Null when X is defined by the discard alone (Gix, Yawgmoth Praetor).
+ */
+@Serializable
+data class ActivateAbilityDiscardXContinuation(
+    val action: ActivateAbility,
+    val discardCandidates: List<EntityId>,
     val fixedCount: Int? = null
 ) : AnswerContinuation
 

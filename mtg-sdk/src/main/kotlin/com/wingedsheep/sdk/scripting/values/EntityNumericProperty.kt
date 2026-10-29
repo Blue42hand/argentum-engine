@@ -27,6 +27,18 @@ sealed interface EntityNumericProperty {
         override val description: String = "damage dealt this turn"
     }
 
+    /**
+     * Paid enlist instances for this rules object during the current combat. Unlike
+     * [DamageDealtThisTurn], this is combat-scoped and records optional attack costs rather than
+     * damage; [PermanentsSacrificedToCast] records spell costs, not a permanent's attack costs.
+     * Survives removal from combat and departure for captured references; a new object starts at zero.
+     */
+    @SerialName("EnlistmentsThisCombat")
+    @Serializable
+    data object EnlistmentsThisCombat : EntityNumericProperty {
+        override val description: String = "the number of creatures it enlisted this combat"
+    }
+
     @SerialName("Power")
     @Serializable
     data object Power : EntityNumericProperty {
@@ -40,10 +52,11 @@ sealed interface EntityNumericProperty {
     }
 
     /**
-     * The entity's printed **base** power — its power before counters, Auras, Equipment, anthems,
-     * and any other continuous modification. Reads the fixed
-     * [com.wingedsheep.sdk.model.CreatureStats.basePower] assigned when the card was printed; a
-     * creature with characteristic-defining `*`/CDA power has no fixed base and reads 0.
+     * The entity's **base** power — its power after copy effects, characteristic-defining abilities
+     * and effects that set power (layers 1–7b), before counters, Auras, Equipment, anthems and any
+     * other modification. Off the battlefield it is the printed (or CDA-evaluated) power, except
+     * that a departed object read through a last-known reference (the triggering entity of a dies
+     * trigger, a sacrificed cost) reads its base power as it last existed on the battlefield.
      *
      * This is the *same* notion of "base power" that [com.wingedsheep.sdk.scripting.predicates
      * .CardPredicate.PowerGreaterThanBase] tests against, so pairing the two stays consistent:
@@ -58,8 +71,7 @@ sealed interface EntityNumericProperty {
     }
 
     /**
-     * The entity's printed **base** toughness — the toughness sibling of [BasePower]. Reads the
-     * fixed [com.wingedsheep.sdk.model.CreatureStats.baseToughness]; `*`/CDA toughness reads 0.
+     * The entity's **base** toughness — the toughness sibling of [BasePower], read the same way.
      */
     @SerialName("BaseToughness")
     @Serializable
@@ -88,6 +100,20 @@ sealed interface EntityNumericProperty {
     @Serializable
     data object ManaSpent : EntityNumericProperty {
         override val description: String = "the amount of mana spent to cast it"
+    }
+
+    /**
+     * The number of permanents sacrificed to pay the costs of casting a spell on the stack — the
+     * snapshots recorded on its `SpellOnStackComponent` as the cost was paid. The sibling of
+     * [ManaSpent]: a cast record read off a specific spell, so a "when you cast this spell"
+     * trigger can read it off `EffectTarget.TriggeringEntity` (Plumb the Forbidden's "copy this
+     * spell for each creature sacrificed this way"). Returns 0 if the entity is not a spell on
+     * the stack. A copy inherits the original's snapshots (CR 707.10), so it reads the same count.
+     */
+    @SerialName("PermanentsSacrificedToCast")
+    @Serializable
+    data object PermanentsSacrificedToCast : EntityNumericProperty {
+        override val description: String = "the number of permanents sacrificed to cast it"
     }
 
     /**

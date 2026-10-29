@@ -601,6 +601,69 @@
     ]
 }
 
+// Crashing Tide
+{
+    "name": "Crashing Tide",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "This spell has flash as long as you control a Merfolk.\nReturn target creature to its owner's hand.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "conditionalFlash": {
+            "type": "Exists",
+            "player": "You",
+            "zone": "Battlefield",
+            "filter": "permanent Merfolk"
+        }
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "artist": "Carmen Sinek",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e312980a-7b3c-43f8-81cf-53ff818cea30.jpg?1783935328",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "Once you announce that you're casting Crashing Tide, players can't try to remove your Merfolk to make it lose flash until you're done casting it. If it loses flash after it's been cast, it will still resolve if able."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "If the target creature is an illegal target by the time Crashing Tide tries to resolve, the spell doesn't resolve. You won't draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Crested Herdcaller
 {
     "name": "Crested Herdcaller",
@@ -969,7 +1032,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a Pirate card to put on top of your library",
+                                "selectedLabel": "Put on top of your library"
                             },
                             "ShuffleLibrary",
                             {
@@ -1074,7 +1139,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a Merfolk card to put on top of your library",
+                                "selectedLabel": "Put on top of your library"
                             },
                             "ShuffleLibrary",
                             {
@@ -1170,7 +1237,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a Vampire card to put on top of your library",
+                                "selectedLabel": "Put on top of your library"
                             },
                             "ShuffleLibrary",
                             {
@@ -2093,6 +2162,64 @@
     ]
 }
 
+// Oathsworn Vampire
+{
+    "name": "Oathsworn Vampire",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Vampire Knight",
+    "oracleText": "This creature enters tapped.\nYou may cast this card from your graveyard if you gained life this turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "MayCastSelfFromZones",
+                "zones": [
+                    "Graveyard"
+                ],
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "UNCOMMON",
+        "artist": "Greg Opalinski",
+        "flavorText": "\"My conquistadors are never slain, merely laid to rest.\"\n—Queen Miralda the Pious",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/0/405f82d6-2991-4958-a563-572f0d298346.jpg?1783935309",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "Oathsworn Vampire's last ability cares only whether you gained life in the turn, even if Oathsworn Vampire wasn't in your graveyard when that happened. It doesn't care how much you gained, whether you also lost life, or even whether you lost more life than you gained."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "Casting Oathsworn Vampire from your graveyard follows the normal rules for casting that card. You must pay its costs, and you must follow all applicable timing rules."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Orazca Frillback
 {
     "name": "Orazca Frillback",
@@ -2199,7 +2326,7 @@
                     "filter": "creature ctrl:you",
                     "to": "Battlefield"
                 },
-                "binding": "OTHER",
+                "binding": "ANY",
                 "effect": {
                     "type": "Explore",
                     "target": "TriggeringEntity"
@@ -2915,6 +3042,49 @@
         "artist": "Josu Hernaiz",
         "flavorText": "Though small, goblins can hold their own in a fight. Foolhardy confidence goes a long way.",
         "imageUri": "https://cards.scryfall.io/normal/front/0/4/0403b8e5-29c5-4a4a-b9e7-1e79a7452f14.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Swaggering Corsair
+{
+    "name": "Swaggering Corsair",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Pirate",
+    "oracleText": "Raid — This creature enters with a +1/+1 counter on it if you attacked this turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true,
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "119",
+        "artist": "Scott Murphy",
+        "flavorText": "\"I'm about to make you famous. From the golden city to High and Dry, they'll talk about how fast you died!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/22da9f6a-9598-4cfe-b465-719266b65dee.jpg?1783935291"
     },
     "colorIdentityOverride": [
         "RED"

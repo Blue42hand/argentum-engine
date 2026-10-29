@@ -154,11 +154,18 @@ data class UserTournamentEntry(
     val name: String?,
     val format: String?,
     val gameMode: String?,
-    /** Final placement (1 = winner); 0 while the tournament is still in progress. */
+    /**
+     * Final placement (1 = winner). For an in-progress or abandoned tournament, the standing after the
+     * last recorded match (0 if none was recorded yet).
+     */
     val placement: Int,
     val playerCount: Int,
     /** IN_PROGRESS / COMPLETED / ABANDONED — see [TournamentStatus]. */
     val status: String,
+    /** Match record so far — final once COMPLETED, last-known for an in-progress or abandoned one. */
+    val wins: Int,
+    val losses: Int,
+    val draws: Int,
 )
 
 /** One player's final standing in a tournament. */
@@ -218,6 +225,8 @@ data class AdminUserStat(
     // Pin the wire name (see SetAdminBody) — the admin Players list reads `u.isAdmin` for the ADMIN
     // badge; without this Jackson emits `admin` and the badge never shows for promoted accounts.
     @JsonProperty("isAdmin") val isAdmin: Boolean,
+    /** Chosen avatar id (see `profile.Avatars`); null shows the display name's initial. */
+    val avatar: String?,
     val createdAt: String,
     val games: Long,
     val wins: Long,
@@ -275,6 +284,7 @@ class StatsQueryService(
     private val cardRegistry: CardRegistry,
     private val printingRegistry: PrintingRegistry,
     private val geoIp: GeoIpService,
+    private val engineAiHistory: EngineAiHistory,
 ) {
     private companion object {
         /** Table names safe to splice into `count(*)` SQL — see [databaseStats]. */
@@ -720,15 +730,22 @@ class StatsQueryService(
     private fun imageUriFor(name: String): String? =
         lookupCard(name)?.let { printingRegistry.defaultPrinting(it.name)?.imageUri ?: it.metadata.imageUri }
 
-    /** The user's tournaments, newest first — including any in-progress or abandoned ones. */
+    /**
+     * The user's tournaments, newest first — including any in-progress or abandoned ones. A
+     * tournament that isn't COMPLETED is listed only once a game of it has been recorded: one torn
+     * down before anyone played says nothing about the player, so it is left out.
+     */
     fun tournamentHistory(userId: UUID, limit: Int): List<UserTournamentEntry> = jdbc.query(
         """
         SELECT t.id AS id, COALESCE(t.ended_at, t.started_at, now()) AS ended_at, t.name AS name,
                t.format AS format, t.game_mode AS game_mode, tp.placement AS placement,
-               t.player_count AS player_count, t.status AS status
+               t.player_count AS player_count, t.status AS status,
+               tp.wins AS wins, tp.losses AS losses, tp.draws AS draws
         FROM tournament_participants tp
         JOIN tournaments t ON t.id = tp.tournament_id
         WHERE tp.user_id = ?
+          AND (t.status = 'COMPLETED'
+               OR EXISTS (SELECT 1 FROM match_results r WHERE r.lobby_id = t.lobby_id))
         ORDER BY COALESCE(t.ended_at, t.started_at, now()) DESC
         LIMIT ?
         """.trimIndent(),
@@ -742,6 +759,9 @@ class StatsQueryService(
                 placement = rs.getInt("placement"),
                 playerCount = rs.getInt("player_count"),
                 status = rs.getString("status"),
+                wins = rs.getInt("wins"),
+                losses = rs.getInt("losses"),
+                draws = rs.getInt("draws"),
             )
         },
         userId, limit,
@@ -859,14 +879,14 @@ class StatsQueryService(
     fun allUsersWithStats(): List<AdminUserStat> = jdbc.query(
         """
         SELECT u.id AS id, u.email AS email, u.display_name AS display_name, u.is_admin AS is_admin,
-               u.created_at AS created_at,
+               u.avatar AS avatar, u.created_at AS created_at,
                count(p.id) AS games,
                count(p.id) FILTER (WHERE p.won) AS wins,
                max(r.ended_at) AS last_played
         FROM users u
         LEFT JOIN match_participants p ON p.user_id = u.id
         LEFT JOIN match_results r ON r.id = p.match_id
-        GROUP BY u.id, u.email, u.display_name, u.is_admin, u.created_at
+        GROUP BY u.id, u.email, u.display_name, u.is_admin, u.avatar, u.created_at
         ORDER BY games DESC, u.created_at ASC
         """.trimIndent(),
     ) { rs, _ ->
@@ -875,6 +895,7 @@ class StatsQueryService(
             email = rs.getString("email"),
             displayName = rs.getString("display_name"),
             isAdmin = rs.getBoolean("is_admin"),
+            avatar = rs.getString("avatar"),
             createdAt = rs.getTimestamp("created_at").toInstant().toString(),
             games = rs.getLong("games"),
             wins = rs.getLong("wins"),
@@ -961,6 +982,72 @@ class StatsQueryService(
         { rs, _ -> DailyCount(rs.getString("day"), rs.getLong("n")) },
         days,
     )
+
+    /**
+     * How the AI fares against human players over the last [days] days (null = all time), bucketed by
+     * [bucket] — see [AiVsHumanReport]. Reads the range plus the equally long window before it, so the
+     * report can show the change against the previous period. The build each game ran on comes from
+     * its replay row; a game whose replay was never stored still counts everywhere but per-build.
+     */
+    fun aiVsHuman(days: Int?, bucket: AiBucket): AiVsHumanReport {
+        val now = java.time.Instant.now()
+        val since = java.sql.Timestamp.from(days?.let { now.minusSeconds(2L * it * 86_400L) } ?: java.time.Instant.EPOCH)
+        val games = jdbc.query(
+            """
+            SELECT mr.id, mr.ended_at, mr.game_mode, mr.format, gr.engine_version,
+                   bool_or(mp.won AND mp.is_ai) AS ai_won,
+                   bool_or(mp.won AND NOT mp.is_ai) AS human_won
+            FROM match_results mr
+            JOIN match_participants mp ON mp.match_id = mr.id
+            LEFT JOIN game_replays gr ON gr.game_id = mr.game_id
+            WHERE mr.ended_at >= ?
+            GROUP BY mr.id, mr.ended_at, mr.game_mode, mr.format, gr.engine_version
+            HAVING bool_or(mp.is_ai) AND bool_or(NOT mp.is_ai)
+            ORDER BY mr.ended_at
+            """.trimIndent(),
+            { rs, _ ->
+                val aiWon = rs.getBoolean("ai_won")
+                val humanWon = rs.getBoolean("human_won")
+                AiMatchGame(
+                    matchId = rs.getLong("id"),
+                    endedAt = rs.getTimestamp("ended_at").toInstant(),
+                    gameMode = rs.getString("game_mode"),
+                    format = rs.getString("format"),
+                    engineVersion = rs.getString("engine_version"),
+                    outcome = when {
+                        aiWon && !humanWon -> AiMatchOutcome.AI
+                        humanWon && !aiWon -> AiMatchOutcome.HUMAN
+                        else -> AiMatchOutcome.DRAW
+                    },
+                )
+            },
+            since,
+        )
+        val humanSeats = jdbc.query(
+            """
+            SELECT mp.match_id, mp.user_id, mp.player_name, u.display_name, mp.won
+            FROM match_participants mp
+            JOIN match_results mr ON mr.id = mp.match_id
+            LEFT JOIN users u ON u.id = mp.user_id
+            WHERE mp.is_ai = false AND mr.ended_at >= ?
+              AND EXISTS (SELECT 1 FROM match_participants a WHERE a.match_id = mp.match_id AND a.is_ai)
+            ORDER BY mr.ended_at
+            """.trimIndent(),
+            { rs, _ ->
+                val userId = rs.getObject("user_id")?.toString()
+                val name = rs.getString("player_name")
+                AiMatchHumanSeat(
+                    matchId = rs.getLong("match_id"),
+                    playerKey = userId?.let { "user:$it" } ?: "guest:$name",
+                    displayName = rs.getString("display_name") ?: name,
+                    isGuest = userId == null,
+                    won = rs.getBoolean("won"),
+                )
+            },
+            since,
+        )
+        return AiVsHumanAggregator.aggregate(games, humanSeats, days, bucket, now, engineAiHistory.timeline)
+    }
 
     /**
      * Global game-mode distribution, most-played first. The label is a composite `"<gameMode>~<format>"`

@@ -911,6 +911,62 @@
     ]
 }
 
+// Declare Dominance
+{
+    "name": "Declare Dominance",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target creature gets +3/+3 until end of turn. All creatures able to block it this turn do so.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MustBeBlocked",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "175",
+        "rarity": "UNCOMMON",
+        "artist": "Simon Dominic",
+        "flavorText": "\"If you think yourself a chief, then prove your might.\"\n—Gar-Tun, Mistvalley silverback",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/78271f34-f62e-4771-b430-b121097b8fb6.jpg?1783934538"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Demon of Catastrophes
 {
     "name": "Demon of Catastrophes",
@@ -1938,6 +1994,90 @@
     ]
 }
 
+// Goreclaw, Terror of Qal Sisma
+{
+    "name": "Goreclaw, Terror of Qal Sisma",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Bear",
+    "oracleText": "Creature spells you cast with power 4 or greater cost {2} less to cast.\nWhenever Goreclaw, Terror of Qal Sisma attacks, each creature you control with power 4 or greater gets +1/+1 and gains trample until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Goreclaw, Terror of Qal Sisma:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature pow>=4 ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": "IterationEntity"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "TRAMPLE",
+                                "target": "IterationEntity"
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "creature pow>=4"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 2
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "186",
+        "rarity": "RARE",
+        "artist": "Svetlin Velinov",
+        "flavorText": "You don't want to know how she got that name.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/36d4574a-3266-4497-b145-fb25820d8a7f.jpg?1783934534",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If you cast a creature spell that will enter the battlefield with a number of +1/+1 counters, such as Hungering Hydra, those counters aren't considered when determining whether Goreclaw reduces that spell's cost. Similarly, effects that will raise the creature's power once it has entered the battlefield won't apply."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "Goreclaw's last ability affects only creatures you control with the appropriate power at the time it resolves. Creatures you begin to control later in the turn won't get either bonus, and a creature you control whose power decreases later in the turn won't lose either bonus."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Greenwood Sentinel
 {
     "name": "Greenwood Sentinel",
@@ -2436,6 +2576,67 @@
     ]
 }
 
+// Leonin Warleader
+{
+    "name": "Leonin Warleader",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Creature — Cat Soldier",
+    "oracleText": "Whenever this creature attacks, create two 1/1 white Cat creature tokens with lifelink that are tapped and attacking.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Leonin Warleader:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Cat"
+                    ],
+                    "keywords": [
+                        "LIFELINK"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/3/b31f1580-5bba-4cef-b0c8-f2837a597b7d.jpg?1783934470",
+                    "tapped": true,
+                    "attacking": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "RARE",
+        "artist": "Jakub Kasper",
+        "flavorText": "When one leonin hunts, many more are surely nearby.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b31b2e5e-6572-462a-9fa0-1b2e660099e3.jpg?1783934603",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "You choose which players or planeswalkers the two tokens are attacking. They don't have to be attacking the same player or planeswalker that Leonin Warleader is attacking, and they can each be attacking different players and/or planeswalkers."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "Although the tokens are attacking, they were never declared as attacking creatures (for the purposes of abilities that trigger whenever a creature attacks, for example)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Lich's Caress
 {
     "name": "Lich's Caress",
@@ -2753,6 +2954,51 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Mirror Image
+{
+    "name": "Mirror Image",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Shapeshifter",
+    "oracleText": "You may have this creature enter as a copy of a creature you control.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        "IsCreature"
+                    ],
+                    "controllerPredicate": "ControlledByYou"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "61",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "flavorText": "The life of a shapeshifter is one of constant change.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5b3ffc69-f21b-410e-8993-8c1b4669fc19.jpg?1783934585",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If the chosen creature is copying something else (for example, if the chosen creature is another Mirror Image), then Mirror Image enters the battlefield as whatever the chosen creature copied."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "If Mirror Image somehow enters the battlefield at the same time as another creature, it can't become a copy of that creature. You may choose only a creature that's already on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -3300,6 +3546,70 @@
     ]
 }
 
+// Sarkhan's Whelp
+{
+    "name": "Sarkhan's Whelp",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhenever you activate an ability of a Sarkhan planeswalker, this creature deals 1 damage to any target.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sarkhan's Whelp:1",
+                "trigger": {
+                    "type": "AbilityActivatedEvent",
+                    "sourceFilter": {
+                        "cardPredicates": [
+                            "IsPlaneswalker",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Sarkhan"
+                            }
+                        ],
+                        "statePredicates": [
+                            "IsOnBattlefield"
+                        ]
+                    },
+                    "includeManaAbilities": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                },
+                "descriptionOverride": "Whenever you activate an ability of a Sarkhan planeswalker, this creature deals 1 damage to any target."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "299",
+        "rarity": "UNCOMMON",
+        "artist": "Craig J Spearing",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/07135c4d-b4de-4054-800a-11090ed32692.jpg?1783934487"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Satyr Enchanter
 {
     "name": "Satyr Enchanter",
@@ -3556,6 +3866,88 @@
     ]
 }
 
+// Skilled Animator
+{
+    "name": "Skilled Animator",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "When this creature enters, target artifact you control becomes an artifact creature with base power and toughness 5/5 for as long as this creature remains on the battlefield.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Skilled Animator:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "BecomeCreature",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "power": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "toughness": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "duration": {
+                        "type": "WhileSourceOnBattlefield",
+                        "sourceDescription": "Skilled Animator"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact ctrl:you"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, target artifact you control becomes an artifact creature with base power and toughness 5/5 for as long as this creature remains on the battlefield."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "rarity": "UNCOMMON",
+        "artist": "Jason A. Engle",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/8/586d5000-1fdb-4bfe-aa34-63b25ee94bb9.jpg?1783934583",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Skilled Animator doesn't remove any abilities the target artifact has."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The artifact retains any types, subtypes, or supertypes it has."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an Equipment becomes an artifact creature, it usually can't be attached to another creature. If it was attached to a creature, it becomes unattached."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If the artifact was already a creature, its base power and toughness will each become 5. This overwrites any previous effects that set the creature's base power and toughness to specific values. Any power- or toughness-setting effects that start to apply after Skilled Animator's ability resolves will overwrite this effect."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The resulting artifact creature will be able to attack on your turn if it's been under your control continuously since the turn began. That is, it doesn't matter how long it's been a creature, just how long it's been on the battlefield."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Effects that modify a creature's power and/or toughness, such as the ones created by Titanic Growth or a +/1+1 counter, will apply to the creature no matter when they started to take effect. The same is true for any counters that change its power and/or toughness and effects that switch power and toughness."
+            }
+        ]
+    }
+}
+
 // Skyscanner
 {
     "name": "Skyscanner",
@@ -3642,6 +4034,74 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Sparktongue Dragon
+{
+    "name": "Sparktongue Dragon",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhen this creature enters, you may pay {2}{R}. When you do, it deals 3 damage to any target.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sparktongue Dragon:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "PayManaCost",
+                        "cost": "{2}{R}"
+                    },
+                    "reflexiveEffect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "damageSource": "Self"
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "AnyTarget",
+                            "id": "t0"
+                        }
+                    ],
+                    "descriptionOverride": "it deals 3 damage to any target"
+                },
+                "descriptionOverride": "When this creature enters, you may pay {2}{R}. When you do, it deals 3 damage to any target."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "artist": "Daarken",
+        "flavorText": "Fools believe that Kolaghan's brood follows lightning storms. The wise know that it is the other way around.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc0dbc86-cc12-49e7-9721-dd52b35efcbe.jpg?1783934547",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "You don't choose a target for Sparktongue Dragon's last ability at the time it triggers. Rather, a second \"reflexive\" ability triggers when you pay {2}{R} this way. You choose a target for that ability as it goes on the stack. Each player may respond to this triggered ability as normal."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -4076,6 +4536,159 @@
         "imageUri": "https://cards.scryfall.io/normal/front/8/c/8cf74535-31e3-4d2c-b42a-072580fa4ba0.jpg"
     },
     "colorIdentityOverride": []
+}
+
+// Tezzeret, Artifice Master
+{
+    "name": "Tezzeret, Artifice Master",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Legendary Planeswalker — Tezzeret",
+    "oracleText": "+1: Create a 1/1 colorless Thopter artifact creature token with flying.\n0: Draw a card. If you control three or more artifacts, draw two cards instead.\n−9: You get an emblem with \"At the beginning of your end step, search your library for a permanent card, put it onto the battlefield, then shuffle.\"",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Tezzeret, Artifice Master:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Thopter"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0044cd9-2136-423e-aa2a-829e8f007535.jpg?1783934464",
+                    "artifactToken": true
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Tezzeret, Artifice Master:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 0
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "otherwise": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Tezzeret, Artifice Master:4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -9
+                },
+                "effect": {
+                    "type": "CreateGlobalTriggeredAbility",
+                    "ability": {
+                        "id": "Tezzeret, Artifice Master:3",
+                        "trigger": {
+                            "type": "StepEvent",
+                            "step": "END"
+                        },
+                        "binding": "ANY",
+                        "effect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Library",
+                                        "filter": "permanent"
+                                    },
+                                    "storeAs": "searchable",
+                                    "search": true
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "searchable",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a permanent card to put onto the battlefield",
+                                    "selectedLabel": "Put onto the battlefield"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "found",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                },
+                                "ShuffleLibrary",
+                                "EmitLibrarySearchedEvent"
+                            ]
+                        }
+                    },
+                    "descriptionOverride": "At the beginning of your end step, search your library for a permanent card, put it onto the battlefield, then shuffle."
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "MYTHIC",
+        "artist": "Josh Hass",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/5/e5e12371-f05c-41cf-92ca-7cb17c2f7f1a.jpg?1783934576",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If you put a permanent onto the battlefield with Tezzeret's emblem's ability, any triggered abilities of that permanent that trigger during your end step won't trigger during that same end step."
+            }
+        ]
+    },
+    "startingLoyalty": 5,
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Trusty Packbeast

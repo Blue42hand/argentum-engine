@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.targets.*
 
 /**
@@ -74,7 +75,7 @@ internal object StackPlacement {
 
         // Emit BecomesTargetEvent for each permanent, spell, or player target
         // Use abilityId (the entity on the stack) as source so ward can counter it
-        for (target in targets) {
+        for (target in targets.distinct()) {
             newState = emitBecomesTarget(
                 newState, target, abilityId, ability.controllerId, events, sourceIsSpell = false
             )
@@ -109,7 +110,9 @@ internal object StackPlacement {
         modeTargetRequirements: Map<Int, List<TargetRequirement>>? = null,
         copyIndex: Int? = null,
         copyTotal: Int? = null,
-        controllerId: EntityId? = null
+        controllerId: EntityId? = null,
+        exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+        retainedTargetIndices: Set<Int>? = null
     ): ExecutionResult {
         val sourceContainer = state.getEntity(sourceSpellId)
             ?: return ExecutionResult.error(state, "Source spell not found: $sourceSpellId")
@@ -145,10 +148,11 @@ internal object StackPlacement {
 
         // Clone the card characteristics. The CardComponent keeps the same cardDefinitionId,
         // name, types, colors, mana cost, and spellEffect (707.10).
-        val copiedCardComp = sourceCard.copy(ownerId = copyController)
+        val copiedCardComp = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
+            .apply(sourceCard, exceptions).copy(ownerId = copyController)
 
         // Clone cast-time state; per 707.10 the copy inherits every decision made for
-        // the original. The data-class copy preserves: xValue, declaredCostSlot, wasBlightPaid,
+        // the original. The data-class copy preserves: xValue, declaredCostSlot (bar a granted offspring), wasBlightPaid,
         // wasWarped, wasEvoked, sacrificedPermanents (snapshots of P/T + subtypes), damageDistribution,
         // chosenCreatureType, exiledCardCount, beheldCards, convokedCreatures (CR 707.10: an
         // effect of the copy that refers to objects used to pay its costs uses the original's).
@@ -162,6 +166,9 @@ internal object StackPlacement {
         val copiedSpellComp = sourceSpell.copy(
             casterId = copyController,
             castFromZone = null,
+            // A granted offspring (Zinnia) came from an effect on spells *cast*, not from the
+            // copiable values (CR 707.2), so the uncast copy has no offspring to have paid.
+            declaredCostSlot = sourceSpell.declaredCostSlot.takeUnless { it == ChoiceSlot.OFFSPRING },
             entryKeywordGrants = emptyList(),
             manaSpentWhite = 0,
             manaSpentBlue = 0,
@@ -175,19 +182,53 @@ internal object StackPlacement {
             manaSpentOnXByColor = emptyMap(),
             chosenModes = effectiveModes,
             modeTargetsOrdered = effectiveModeTargets,
-            modeTargetRequirements = effectiveModeRequirements
+            modeTargetRequirements = effectiveModeRequirements,
+            // A copy of a spliced spell copies the spliced text (Fork's 2004-12-01 ruling), whose
+            // targets are the tail of the flat list. A copy keeps one slot per original target, so
+            // each spliced card's slice keeps its size and is re-read from the copy's own targets.
+            splicedTargetsOrdered = if (sourceSpell.splicedTargetsOrdered.isEmpty() || targets.isEmpty()) {
+                sourceSpell.splicedTargetsOrdered
+            } else {
+                var cursor = effectiveTargets.size - sourceSpell.splicedTargetsOrdered.sumOf { it.size }
+                sourceSpell.splicedTargetsOrdered.map { old ->
+                    effectiveTargets.subList(cursor.coerceIn(0, effectiveTargets.size), (cursor + old.size).coerceIn(0, effectiveTargets.size))
+                        .toList().also { cursor += old.size }
+                }
+            },
+            damageDistribution = if (sourceSpell.damageDistribution.isNullOrEmpty() || (targets.isEmpty() && modeTargetsOrdered == null)) sourceSpell.damageDistribution else buildMap {
+                sourceTargets?.targets.orEmpty().zip(effectiveTargets).forEach { (old, new) ->
+                    fun id(t: ChosenTarget): EntityId = when (t) {
+                        is ChosenTarget.Player -> t.playerId
+                        is ChosenTarget.Permanent -> t.entityId
+                        is ChosenTarget.Spell -> t.spellEntityId
+                        is ChosenTarget.Card -> t.cardId
+                    }
+                    sourceSpell.damageDistribution?.get(id(old))?.let { amount -> put(id(new), (get(id(new)) ?: 0) + amount) }
+                }
+            }
         )
 
-        var container = ComponentContainer.of(copiedCardComp, copiedSpellComp)
+        var container = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier.withNumericKeywords(
+            ComponentContainer.of(copiedCardComp, copiedSpellComp), sourceContainer, exceptions
+        )
         if (effectiveTargets.isNotEmpty()) {
-            // Inheriting targets also inherits their identity; only a new choice captures
-            // the current objects. Otherwise copying could revive a now-illegal target.
-            val copyTargets = if (targets.isEmpty() && modeTargetsOrdered == null && sourceTargets != null) {
-                sourceTargets.copy(targets = effectiveTargets, targetRequirements = effectiveRequirements)
-            } else {
-                TargetsComponent.capture(state, effectiveTargets, effectiveRequirements)
-            }
-            container = container.with(copyTargets)
+            val captured = TargetsComponent.capture(state, effectiveTargets, effectiveRequirements)
+            // Explicit replacements capture the current object even when its entity id is unchanged.
+            val inheritsAllTargets = targets.isEmpty() && modeTargetsOrdered == null
+            val inherited = sourceTargets?.targets.orEmpty().mapIndexedNotNull { i, old ->
+                val retained = retainedTargetIndices?.contains(i) ?: inheritsAllTargets
+                if (old == effectiveTargets.getOrNull(i) && retained) old else null
+            }.toSet()
+            val ids = inherited.mapTo(mutableSetOf()) { target -> when (target) {
+                is ChosenTarget.Player -> target.playerId
+                is ChosenTarget.Permanent -> target.entityId
+                is ChosenTarget.Spell -> target.spellEntityId
+                is ChosenTarget.Card -> target.cardId
+            } }
+            container = container.with(captured.copy(
+                targetEntryStamps = captured.targetEntryStamps.filterKeys { it !in ids } + sourceTargets?.targetEntryStamps.orEmpty().filterKeys { it in ids },
+                targetObjectRefs = captured.targetObjectRefs.filterKeys { it !in ids } + sourceTargets?.targetObjectRefs.orEmpty().filterKeys { it in ids }
+            ))
         }
         container = container.with(
             CopyOfComponent(
@@ -198,25 +239,29 @@ internal object StackPlacement {
 
         var newState = stateWithId.withEntity(copyId, container)
         sourceContainer.get<com.wingedsheep.engine.mechanics.BestowedComponent>()?.let { bestowed ->
-            newState = newState.updateEntity(copyId) { it.with(bestowed.copy(original = bestowed.original.copy(ownerId = copyController))) }
+            // Bestow restores this identity on entry or when its target becomes illegal.
+            // Restore the copy's exceptions as well as its printed characteristics.
+            val original = com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
+                .apply(bestowed.original, exceptions).copy(ownerId = copyController)
+            newState = newState.updateEntity(copyId) { it.with(bestowed.copy(original = original)) }
         }
         newState = newState.pushToStack(copyId).copy(priorityPassedBy = emptySet())
 
         val events = mutableListOf<GameEvent>(
             SpellCopiedEvent(
                 copyEntityId = copyId,
-                cardName = sourceCard.name,
+                cardName = copiedCardComp.name,
                 controllerId = copyController,
                 originalSpellId = sourceSpellId,
                 copyIndex = copyIndex,
                 copyTotal = copyTotal,
-                manaValue = sourceCard.manaValue
+                manaValue = copiedCardComp.manaValue
             )
         )
 
         // Emit BecomesTargetEvent for each permanent, spell, or player target — the copy is its own
         // source on the stack (ward on the target can counter the copy independently).
-        for (target in effectiveTargets) {
+        for (target in effectiveTargets.distinct()) {
             newState = emitBecomesTarget(newState, target, copyId, copyController, events, sourceIsSpell = true)
         }
 
@@ -294,7 +339,7 @@ internal object StackPlacement {
 
         // Emit BecomesTargetEvent for each permanent, spell, or player target
         // Use abilityId (the entity on the stack) as source so ward can counter it
-        for (target in targets) {
+        for (target in targets.distinct()) {
             newState = emitBecomesTarget(
                 newState, target, abilityId, ability.controllerId, events, sourceIsSpell = false
             )
@@ -323,10 +368,16 @@ internal object StackPlacement {
      * Returns the updated state.
      *
      * Spell targets are left out of the "targeted by this controller this turn" tracking (Valiant's
-     * "first time each turn") and always carry `firstTime = true`: a spell's stack entity can be
+     * "first time each turn", and Angelic Cub's controller-blind reading of it) and always carry
+     * both first-time flags `true`: a spell's stack entity can be
      * reused as the resolved permanent's entity, so marking it would leak a stale flag onto the
      * permanent. Permanents and players are tracked; `CleanupPhaseManager` clears the component for
      * every entity, players included.
+     *
+     * Callers emit once per **distinct** target: an object chosen for several instances of the word
+     * "target" still becomes the target of that spell or ability once, so its becomes-target
+     * triggers fire once (the heroic ruling: "only once per spell, even if that spell targets the
+     * creature … multiple times").
      *
      * [sourceIsSpell] is required rather than defaulted so every call site has to state whether a
      * spell or an ability did the targeting — `spellsOnly` / `abilitiesOnly` read nothing else.
@@ -352,7 +403,9 @@ internal object StackPlacement {
         } else {
             state.getEntity(targetEntityId)?.get<CardComponent>()?.name ?: "Unknown"
         }
-        val firstTime = isSpell || !hasBeenTargetedByController(state, targetEntityId, controllerId)
+        val targetedBy = state.getEntity(targetEntityId)?.get<TargetedByControllerThisTurnComponent>()
+        val firstTime = isSpell || targetedBy?.hasBeenTargetedBy(controllerId) != true
+        val firstTimeByAnyone = isSpell || targetedBy?.controllerIds.isNullOrEmpty()
         events.add(
             BecomesTargetEvent(
                 targetEntityId,
@@ -360,6 +413,7 @@ internal object StackPlacement {
                 sourceEntityId,
                 controllerId,
                 firstTime,
+                firstTimeThisTurn = firstTimeByAnyone,
                 targetIsSpell = isSpell,
                 sourceIsSpell = sourceIsSpell,
                 targetIsPlayer = isPlayer
@@ -371,14 +425,6 @@ internal object StackPlacement {
     // =========================================================================
     // Valiant / "first time targeted" tracking
     // =========================================================================
-
-    /**
-     * Check if the target entity has already been targeted by the given controller this turn.
-     */
-    private fun hasBeenTargetedByController(state: GameState, targetId: EntityId, controllerId: EntityId): Boolean {
-        val component = state.getEntity(targetId)?.get<TargetedByControllerThisTurnComponent>()
-        return component?.hasBeenTargetedBy(controllerId) == true
-    }
 
     /**
      * Mark the target entity as having been targeted by the given controller this turn.

@@ -182,6 +182,7 @@ fun ProtectionScope.protectionDescription(): String = when (this) {
     is ProtectionScope.Colors -> colors.joinToString(" and ") { it.name.lowercase() }
     is ProtectionScope.NonColor -> "non" + color.name.lowercase()
     ProtectionScope.Multicolored -> "multicolored"
+    ProtectionScope.Monocolored -> "monocolored"
     is ProtectionScope.CardType -> cardType.lowercase() + "s"
     is ProtectionScope.Subtype -> subtype + "s"
     is ProtectionScope.Supertype -> supertype.lowercase() + " permanents"
@@ -189,6 +190,7 @@ fun ProtectionScope.protectionDescription(): String = when (this) {
     ProtectionScope.EachOpponent -> "each opponent"
     ProtectionScope.Spells -> "spells"
     ProtectionScope.PermanentsCastThisTurn -> "permanents that were cast this turn"
+    ProtectionScope.RingBearers -> "Ring-bearers"
     ProtectionScope.ActivatedAbilities -> "activated abilities"
     ProtectionScope.TriggeredAbilities -> "triggered abilities"
 }

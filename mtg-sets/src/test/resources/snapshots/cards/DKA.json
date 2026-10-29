@@ -299,7 +299,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -629,6 +631,72 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Feed the Pack
+{
+    "name": "Feed the Pack",
+    "manaCost": "{5}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your end step, you may sacrifice a nontoken creature. If you do, create X 2/2 green Wolf creature tokens, where X is the sacrificed creature's toughness.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Feed the Pack:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature nontoken"
+                        }
+                    },
+                    "then": {
+                        "type": "CreateToken",
+                        "count": {
+                            "type": "EntityProperty",
+                            "entity": "SacrificedAsCost",
+                            "numericProperty": "Toughness"
+                        },
+                        "power": 2,
+                        "toughness": 2,
+                        "colors": [
+                            "GREEN"
+                        ],
+                        "creatureTypes": [
+                            "Wolf"
+                        ]
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, you may sacrifice a nontoken creature. If you do, create X 2/2 green Wolf creature tokens, where X is the sacrificed creature's toughness."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "114",
+        "rarity": "RARE",
+        "artist": "Steve Prescott",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/9831e3cc-659b-4408-b5d8-a27ae2738680.jpg?1783940809",
+        "rulings": [
+            {
+                "date": "2011-01-22",
+                "text": "You choose whether to sacrifice a nontoken creature and which creature to sacrifice when Feed the Pack's ability resolves."
+            },
+            {
+                "date": "2011-01-22",
+                "text": "Check the sacrificed creature's toughness as it last existed on the battlefield to determine how many Wolves you put onto the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -1081,6 +1149,59 @@
         "artist": "Dave Kendall",
         "flavorText": "In a world of monsters, it's the stuff of nightmares.",
         "imageUri": "https://cards.scryfall.io/normal/front/0/5/052ab91f-ac01-43f4-9276-9af35dbfbf71.jpg?1783940805"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Hunger of the Howlpack
+{
+    "name": "Hunger of the Howlpack",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "Put a +1/+1 counter on target creature.\nMorbid — Put three +1/+1 counters on that creature instead if a creature died this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": "CreatureDiedThisTurn"
+            },
+            "then": {
+                "type": "AddCounters",
+                "counterType": "PLUS_ONE_PLUS_ONE",
+                "count": 3,
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                }
+            },
+            "otherwise": {
+                "type": "AddCounters",
+                "counterType": "PLUS_ONE_PLUS_ONE",
+                "count": 1,
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "119",
+        "artist": "Nils Hamm",
+        "flavorText": "\"Werewolves are an unholy mix of a predator's instinct and a human's hatred.\"\n—Alena, trapper of Kessig",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b38a0dbc-3ebd-4f87-a5fb-bc2ee8a48a8d.jpg?1783940804"
     },
     "colorIdentityOverride": [
         "GREEN"

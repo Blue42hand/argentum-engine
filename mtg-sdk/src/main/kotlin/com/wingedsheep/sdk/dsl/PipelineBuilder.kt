@@ -294,7 +294,7 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     )
 
     /**
-     * Mill [count] cards from [player]'s library (CR 701.13) and return the milled cards —
+     * Mill [count] cards from [player]'s library (CR 701.17) and return the milled cards —
      * "mill three cards, then … a creature card milled this way".
      */
     fun mill(count: DynamicAmount, player: Player = Player.You): CollectionSlot {
@@ -861,19 +861,23 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * Only for non-targeting choices or choices that depend on earlier pipeline results —
      * printed "target" wording must use cast-time targeting instead. [prompt] replaces the
      * derived "Choose <requirement>" the player sees when the choice needs context to make sense.
+     * [excluding] drops whatever earlier slots already hold, so "choose a second player … then a
+     * third player" picks someone different each time (Gluntch, the Bestower).
      */
     fun selectTarget(
         requirement: TargetRequirement,
         nonTargeting: Boolean = false,
         name: String? = null,
-        prompt: String? = null
+        prompt: String? = null,
+        excluding: List<CollectionSlot> = emptyList()
     ): CollectionSlot {
         val slot = CollectionSlot(slotKey("target", nextIndex(), name))
         steps += SelectTargetEffect(
             requirement = requirement,
             storeAs = slot.key,
             nonTargeting = nonTargeting,
-            prompt = prompt
+            prompt = prompt,
+            excluding = excluding.map { it.key }
         )
         return slot
     }
@@ -1223,6 +1227,21 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         val slot = CollectionSlot(slotKey("stored", nextIndex(), null))
         steps += effect(slot.key)
         return slot
+    }
+
+    /**
+     * Roll one batch and return a numeric handle for each matching result set, in input order.
+     * All slots are fresh, so separate rolls cannot accidentally share a tally.
+     */
+    fun rollDice(
+        count: DynamicAmount = DynamicAmount.Fixed(1),
+        sides: Int = 6,
+        player: EffectTarget = EffectTarget.Controller,
+        resultSets: List<Set<Int>> = emptyList(),
+    ): List<NumberSlot> {
+        val slots = resultSets.map { NumberSlot(slotKey("diceCount", nextIndex(), null)) }
+        steps += Effects.RollDice(count, sides, player, slots.zip(resultSets).associate { (slot, results) -> slot.key to results })
+        return slots
     }
 
     /** Like [runStoringCollection], for an effect that records a number (`storeHeadsAs = it`). */

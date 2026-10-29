@@ -23,7 +23,7 @@ export function createLobbyHandlers(set: SetState, get: GetState): Pick<MessageH
           lobbyId: msg.lobbyId,
           state: 'WAITING_FOR_PLAYERS',
           players: [],
-          settings: { setCodes: [], setNames: [], availableSets: [], format: 'SEALED', boosterCount: 6, boosterDistribution: {}, maxPlayers: 8, pickTimeSeconds: 45, picksPerRound: 1, gamesPerMatch: 1, isPublic: false, deckSizeMin: 60, allowDuplicates: true, commanderPreset: 'BRAWL', chaosBoosters: false, includedSetProducts: {}, bannedCardNames: [], aiAssistEnabled: false, gameMode: 'TOURNAMENT', attackMode: 'MULTIPLE', randomTeams: true, teamAssignments: {} },
+          settings: { setCodes: [], setNames: [], availableSets: [], format: 'SEALED', boosterCount: 6, boosterDistribution: {}, maxPlayers: 8, pickTimeSeconds: 45, picksPerRound: 1, gamesPerMatch: 1, isPublic: false, deckSizeMin: 60, allowDuplicates: true, commanderPreset: 'BRAWL', chaosBoosters: false, includedSetProducts: {}, bannedCardNames: [], aiAssistEnabled: false, gameMode: 'TOURNAMENT', attackMode: 'LEFT', randomTeams: true, teamAssignments: {} },
           isHost: true,
           draftState: null,
           winstonDraftState: null,
@@ -46,6 +46,7 @@ export function createLobbyHandlers(set: SetState, get: GetState): Pick<MessageH
           state: msg.state as LobbyState['state'],
           players: msg.players,
           settings: msg.settings,
+          jumpstart: msg.jumpstart ?? null,
           isHost: msg.isHost,
           draftState: msg.state === 'DRAFTING' && msg.settings.format === 'DRAFT' ? (lobbyState?.draftState ?? null) : null,
           winstonDraftState: msg.state === 'DRAFTING' && msg.settings.format === 'WINSTON_DRAFT' ? (lobbyState?.winstonDraftState ?? null) : null,
@@ -54,7 +55,7 @@ export function createLobbyHandlers(set: SetState, get: GetState): Pick<MessageH
         // Update deck building phase during DECK_BUILDING or TOURNAMENT_ACTIVE
         // This allows returning to deck building after unsubmitting during tournament
         deckBuildingState:
-          state.deckBuildingState && (msg.state === 'DECK_BUILDING' || msg.state === 'TOURNAMENT_ACTIVE')
+          msg.settings.jumpstartActive ? null : state.deckBuildingState && (msg.state === 'DECK_BUILDING' || msg.state === 'TOURNAMENT_ACTIVE')
             ? { ...state.deckBuildingState, phase: isDeckSubmitted ? 'submitted' : 'building' }
             : state.deckBuildingState,
       }))
@@ -95,6 +96,7 @@ export function createLobbyHandlers(set: SetState, get: GetState): Pick<MessageH
         teamByPlayerId: seatTeams,
         teamSharedLife: sharedLife,
       })
+      get().setSeatAvatars(msg.players)
     },
 
     onFreeForAllGameComplete: (msg) => {

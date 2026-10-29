@@ -48,8 +48,23 @@ data class PhasedOutComponent(
      */
     val phaseInOnSourceLeaves: EntityId? = null,
     /** Tap this permanent when it phases back in (Oubliette: "Tap that creature as it phases in"). */
-    val tapOnPhaseIn: Boolean = false
+    val tapOnPhaseIn: Boolean = false,
+    /**
+     * When non-null, this permanent "can't phase in for as long as [PhaseInLock.controllerId]
+     * controls [PhaseInLock.sourceId]" (The Phasing of Zhalfir). The untap step skips it while the
+     * lock is present; `EndedDurationExpiryCheck` removes the lock the moment the source leaves the
+     * battlefield or changes controller (one-way, CR 611.2b). Releasing the lock does not phase the
+     * permanent in — it phases in at its controller's next untap step like any other.
+     */
+    val phaseInLock: PhaseInLock? = null
 ) : Component
+
+/** The "for as long as you control [sourceId]" prohibition on a [PhasedOutComponent]'s phase-in. */
+@Serializable
+data class PhaseInLock(
+    val sourceId: EntityId,
+    val controllerId: EntityId
+)
 
 /**
  * Marks a permanent as having been cast from its controller's hand.
@@ -58,6 +73,14 @@ data class PhasedOutComponent(
  */
 @Serializable
 data object CastFromHandComponent : Component
+
+/**
+ * Marks a permanent that entered the battlefield by resolving as a cast spell, from whatever zone
+ * it was cast — including the command zone, which has no zone-specific marker. "If you cast it" /
+ * "if it wasn't cast" (Preston, the Vanisher) read this rather than OR-ing the per-zone markers.
+ */
+@Serializable
+data object WasCastComponent : Component
 
 /**
  * Marks a permanent as having been cast from a graveyard (e.g., flashback, encore,
@@ -206,9 +229,14 @@ data object MonstrousComponent : Component
  *    persist even after a contributor leaves the battlefield, so the count includes creatures no
  *    longer present as the ability resolves (per the Luxurious Locomotive ruling).
  *
+ *  - gather, via [com.wingedsheep.sdk.scripting.effects.CardSource.CreaturesThatCrewedOrSaddledSource],
+ *    for "exile each creature that crewed it this turn" (Golden Argosy, Fortune, Loyal Steed).
+ *
  * Transient: the union across every crew/saddle activation this turn (saddle may be activated
- * repeatedly), cleared in [CleanupPhaseManager.cleanupEndOfTurn] and naturally gone if this
- * permanent itself leaves the battlefield (a fresh entity has no battlefield components).
+ * repeatedly), cleared in [CleanupPhaseManager.cleanupEndOfTurn]. Last-known information: it is
+ * deliberately *not* stripped when the permanent leaves the battlefield, so an attack trigger that
+ * resolves after its Vehicle is gone still knows who crewed it. It is stripped when the card
+ * re-enters the battlefield, because that is a new object that was never crewed (CR 400.7).
  */
 @Serializable
 data class CrewSaddleContributorsComponent(
@@ -513,6 +541,22 @@ data class AttachedToComponent(
 ) : Component
 
 /**
+ * The enchant ability an Aura *gained* in place of its printed one — "it loses 'enchant creature
+ * card in a graveyard' and gains 'enchant creature put onto the battlefield with this Aura'"
+ * (Animate Dead), set by `EnchantPutOntoBattlefieldEffect`. While present it is the Aura's whole
+ * enchant restriction (CR 303.4c): the Aura may enchant only one of [hosts] — each pinned to the
+ * object it was when it was put onto the battlefield, so one that leaves and returns is a new object
+ * it can't enchant (CR 400.7) — and only while that object matches [filter]. The printed
+ * `auraTarget` is no longer consulted. A battlefield-scoped characteristic of this object, so it is
+ * stripped when the Aura leaves the battlefield.
+ */
+@Serializable
+data class GainedEnchantRestrictionComponent(
+    val filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
+    val hosts: Set<com.wingedsheep.engine.state.ObjectRef>
+) : Component
+
+/**
  * Tracks what is attached to this permanent.
  */
 @Serializable
@@ -582,6 +626,15 @@ data object EnteredThisTurnComponent : Component
  */
 @Serializable
 data object ExertedComponent : Component
+
+/**
+ * Permanent was exerted at some point this turn (CR 701.43a), by any means — an attack's exert
+ * (CR 701.43d) or an activated ability's exert cost. Unlike [ExertedComponent], which lives until
+ * its controller's next untap step, this is cleared at cleanup. Backs the "If this creature hasn't
+ * been exerted this turn" gate of [com.wingedsheep.sdk.scripting.ExertAsItAttacks] (Combat Celebrant).
+ */
+@Serializable
+data object ExertedThisTurnComponent : Component
 
 /**
  * Stores replacement effects on a permanent (e.g., Daunting Defender's damage prevention).
@@ -738,7 +791,7 @@ data class AbilityActivatedEverComponent(
  *
  * NOT cleared at end of turn — the memory persists for as long as the permanent
  * remains the same object on the battlefield (it resets when the permanent leaves
- * and returns as a new object, per CR 700.4 / object identity).
+ * and returns as a new object).
  */
 @Serializable
 data class ChosenModesEverComponent(
@@ -758,7 +811,7 @@ data class ChosenModesEverComponent(
  *
  * The turn-scoped sibling of [ChosenModesEverComponent]: cleared at end of turn by
  * CleanupPhaseManager, so every mode becomes available again next turn. Keyed to the source
- * object, so two copies of the same source track their chosen modes independently (CR 700.4).
+ * object, so two copies of the same source track their chosen modes independently.
  */
 @Serializable
 data class ChosenModesThisTurnComponent(
@@ -916,10 +969,14 @@ data class DamageDealtToCreaturesThisTurnComponent(
  * need to evaluate a source filter ("dealt damage by a Spider you controlled"): the source's
  * controller and creature-subtypes as they were when it dealt the damage. Stored on the *damaged*
  * creature so it survives a source that died in the same combat.
+ *
+ * [sourceId] names the damaging object itself, so a "dealt damage by this creature" trigger on a
+ * source that left the battlefield alongside its victim can still look back and find it (CR 603.10a).
  */
 @Serializable
 data class DamageSourceLki(
     val sourceControllerId: EntityId,
+    val sourceId: EntityId? = null,
     val sourceSubtypes: Set<com.wingedsheep.sdk.core.Subtype> = emptySet(),
     val sourceWasCreature: Boolean = true,
 )
@@ -1124,6 +1181,21 @@ data class GrantsOpponentsCantWinGameComponent(
 data class GrantsCantLoseGameFromLifeComponent(
     override val condition: Condition? = null
 ) : Component, ControllerGrantMarker
+
+/**
+ * Marks a permanent whose static ability forbids every player from paying life as a cost of casting
+ * a spell or activating an ability — [com.wingedsheep.sdk.scripting.PlayersCantPayLifeForCosts]
+ * (Karn's Sylex). Read through [com.wingedsheep.engine.state.GameState.canPayLife] with a
+ * [com.wingedsheep.engine.state.LifePaymentPurpose]; leaves with the permanent, and is ignored
+ * while the permanent has lost its abilities.
+ *
+ * Unconditional by construction: the reader sits on `GameState`, which can't evaluate a
+ * condition, so `StaticAbilityHandler` stamps only the bare ability.
+ */
+@Serializable
+data class ForbidsLifePaymentForCostsComponent(
+    val excludeManaAbilities: Boolean = false
+) : Component
 
 /**
  * Marks a permanent as granting the Station-using-toughness effect to creatures its

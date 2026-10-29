@@ -6,15 +6,20 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
-/** Spire of Industry — Aether Revolt #184. */
+/**
+ * Spire of Industry — Aether Revolt #184 (canonical printing)
+ * Land
+ *
+ * {T}: Add {C}.
+ * {T}, Pay 1 life: Add one mana of any color. Activate only if you control an artifact.
+ */
 val SpireOfIndustry = card("Spire of Industry") {
-    colorIdentity = ""
     typeLine = "Land"
-    oracleText = "{T}: Add {C}.\n" +
-        "{T}, Pay 1 life: Add one mana of any color. Activate only if you control an artifact."
+    colorIdentity = ""
+    oracleText = "{T}: Add {C}.\n{T}, Pay 1 life: Add one mana of any color. Activate only if you control an artifact."
 
     activatedAbility {
         cost = Costs.Tap

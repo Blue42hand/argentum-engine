@@ -14,8 +14,11 @@ import com.wingedsheep.sdk.scripting.CompositeStaticAbility
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.StaticAbility
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
-import com.wingedsheep.sdk.scripting.SkipUntapStep
+import com.wingedsheep.sdk.core.TurnPart
+import com.wingedsheep.sdk.scripting.SkipStepOrPhase
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import kotlin.reflect.KClass
+import kotlin.reflect.cast
 
 /** Standing skip restrictions are read before phasing or any other untap-step action. */
 internal fun skipsUntapStep(
@@ -23,17 +26,57 @@ internal fun skipsUntapStep(
     registry: CardRegistry,
     predicates: PredicateEvaluator,
     player: EntityId,
-): Boolean {
+): Boolean = hasStandingSkip(state, registry, predicates, player, TurnPart.UNTAP_STEP)
+
+/**
+ * Whether a standing [SkipStepOrPhase] for [part] applies to [player], whose `player` scope is
+ * resolved from the source's controller. Sources are read by [standingStatics].
+ */
+internal fun hasStandingSkip(
+    state: GameState,
+    registry: CardRegistry,
+    predicates: PredicateEvaluator,
+    player: EntityId,
+    part: TurnPart,
+): Boolean = standingStatics(state, registry, predicates, SkipStepOrPhase::class) { ability, source, controller ->
+    ability.part == part && player in TargetResolutionUtils.resolvePlayerTargets(
+        EffectTarget.PlayerRef(ability.player), state, EffectContext(sourceId = source, controllerId = controller))
+}.isNotEmpty()
+
+/**
+ * Every functioning standing static of [type] that [applies] accepts: one on any face-up
+ * battlefield permanent that hasn't lost its abilities (Room faces only while unlocked, text
+ * changes applied), or any live granted static (a player-held grant is controlled by that player).
+ * [ConditionalStaticAbility] and [CompositeStaticAbility] wrappers are unwrapped; a condition is
+ * evaluated against its own source, and only once the wrapped static has already been accepted.
+ *
+ * The shared reader for player-scoped restrictions that a turn-based action or a game event
+ * consults directly rather than through projection — skipped steps, per-turn draw caps.
+ */
+internal fun <T : StaticAbility> standingStatics(
+    state: GameState,
+    registry: CardRegistry,
+    predicates: PredicateEvaluator,
+    type: KClass<T>,
+    applies: (ability: T, source: EntityId, controller: EntityId) -> Boolean,
+): List<T> {
     val projected = state.projectedState
-    fun matches(ability: StaticAbility, source: EntityId, controller: EntityId): Boolean = when (ability) {
-        // Reject unrelated statics before evaluating their potentially expensive conditions.
-        is ConditionalStaticAbility -> matches(ability.ability, source, controller) &&
-            predicates.conditions.evaluate(state, ability.condition,
-                EffectContext(sourceId = source, controllerId = controller))
-        is CompositeStaticAbility -> ability.abilities.any { matches(it, source, controller) }
-        is SkipUntapStep -> player in TargetResolutionUtils.resolvePlayerTargets(
-            EffectTarget.PlayerRef(ability.player), state, EffectContext(sourceId = source, controllerId = controller))
-        else -> false
+    val found = mutableListOf<T>()
+    fun collect(ability: StaticAbility, source: EntityId, controller: EntityId, into: MutableList<T>) {
+        when {
+            // Reject unrelated statics before evaluating their potentially expensive conditions.
+            ability is ConditionalStaticAbility -> {
+                val inner = mutableListOf<T>()
+                collect(ability.ability, source, controller, inner)
+                if (inner.isNotEmpty() && predicates.conditions.evaluate(state, ability.condition,
+                        EffectContext(sourceId = source, controllerId = controller))) into.addAll(inner)
+            }
+            ability is CompositeStaticAbility -> ability.abilities.forEach { collect(it, source, controller, into) }
+            type.isInstance(ability) -> {
+                val typed = type.cast(ability)
+                if (applies(typed, source, controller)) into.add(typed)
+            }
+        }
     }
     val battlefield = state.getBattlefield()
     for (source in battlefield) {
@@ -42,9 +85,9 @@ internal fun skipsUntapStep(
         val controller = projected.getController(source) ?: continue
         val definition = entity.get<CardComponent>()?.let { registry.getCard(it.cardDefinitionId) } ?: continue
         val text = TextChanges.of(state, source)
-        if (RoomFaceStatics.activeStaticAbilities(entity, definition).any {
-                matches(if (text == null) it else it.applyTextReplacement(text), source, controller)
-            }) return true
+        for (ability in RoomFaceStatics.activeStaticAbilities(entity, definition)) {
+            collect(if (text == null) ability else ability.applyTextReplacement(text), source, controller, found)
+        }
     }
     for (grant in state.grantedStaticAbilities) {
         val source = grant.entityId
@@ -52,7 +95,7 @@ internal fun skipsUntapStep(
         if (!isPlayer && (source !in battlefield || projected.hasLostAllAbilities(source))) continue
         if (!GrantDurationGate.holds(state, source, grant.sourceId, grant.duration)) continue
         val controller = if (isPlayer) source else projected.getController(source) ?: continue
-        if (matches(grant.ability, source, controller)) return true
+        collect(grant.ability, source, controller, found)
     }
-    return false
+    return found
 }

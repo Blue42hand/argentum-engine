@@ -108,6 +108,9 @@ data class TargetFilter(
         /** Target creature you control */
         val CreatureYouControl = TargetFilter(GameObjectFilter.Companion.Creature.youControl())
 
+        /** Target land you control — the fortify ability's target (CR 702.67a). */
+        val LandYouControl = TargetFilter(GameObjectFilter.Companion.Land.youControl())
+
         /** Target creature an opponent controls */
         val CreatureOpponentControls = TargetFilter(GameObjectFilter.Companion.Creature.opponentControls())
 
@@ -321,8 +324,22 @@ data class TargetFilter(
             zone = Zone.STACK
         )
 
-        /** Target any spell or ability on the stack (spells and activated/triggered abilities) */
-        val SpellOrAbilityOnStack = TargetFilter(GameObjectFilter.Companion.Any, zone = Zone.STACK)
+        /**
+         * Target any spell or ability on the stack (spells and activated/triggered abilities).
+         *
+         * The ability branch is spelled out as an explicit [CardPredicate.IsActivatedOrTriggeredAbility]
+         * sub-filter because the stack-targeting seam offers an ability only when the filter *names*
+         * one (CR 112.1 vs 113.3b/c) — a bare `Any` here reads as "target spell".
+         */
+        val SpellOrAbilityOnStack = TargetFilter(
+            GameObjectFilter(
+                anyOf = listOf(
+                    GameObjectFilter.Companion.Any,
+                    GameObjectFilter(cardPredicates = listOf(CardPredicate.IsActivatedOrTriggeredAbility))
+                )
+            ),
+            zone = Zone.STACK
+        )
 
         /**
          * Target an instant spell, sorcery spell, activated ability, or triggered ability on the

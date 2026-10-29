@@ -41,6 +41,7 @@ data class CounterUnlessPaysContinuation(
     val controllerId: EntityId? = null,
     val onPaid: Effect? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**
@@ -220,6 +221,7 @@ data class CounterUnlessPaysManaSelectionContinuation(
      */
     val waterbend: Boolean = false,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**
@@ -483,6 +485,7 @@ data class WardTapPermanentsSubCostContinuation(
     /** See [CounterUnlessPaysManaSelectionContinuation.wardSourceId]. */
     val wardSourceId: EntityId? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
 ) : AnswerContinuation
 
 /**
@@ -545,3 +548,15 @@ data class AddManaPipsContinuation(
 data class ReopenManaPaymentDecisionContinuation(
     val suspension: Suspension
 ) : AutomaticContinuation
+
+/**
+ * Resume after the controller of [source] picks which of its mana abilities to activate for an
+ * instructed activation ([com.wingedsheep.sdk.scripting.effects.ActivateManaAbilityEffect]).
+ * [options] are the activatable abilities, aligned with the decision's options.
+ */
+@Serializable
+data class ActivateManaAbilityChoiceContinuation(
+    val playerId: EntityId,
+    val source: com.wingedsheep.engine.state.ObjectRef,
+    val options: List<ActivateAbility>,
+) : AnswerContinuation

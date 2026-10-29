@@ -45,8 +45,16 @@ class CastAdditionalCosts(
      * it carries the declared mechanic's identity, which is what names a tap's cause
      * ([com.wingedsheep.sdk.scripting.TapReason.forChoiceSlot]).
      */
-    fun declaredSlotCost(action: CastSpell, cardDef: CardDefinition?): AdditionalCost? =
-        optionalCostsAdditionalPaid(declaredOptionalCosts(action, cardDef), action.declaredCostTimes)
+    fun declaredSlotCost(state: GameState, action: CastSpell, cardDef: CardDefinition?): AdditionalCost? =
+        optionalCostsAdditionalPaid(
+            declaredOptionalCosts(
+                action,
+                com.wingedsheep.engine.mechanics.OffspringGrants.effectiveOptionalCosts(
+                    state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
+                )
+            ),
+            action.declaredCostTimes
+        )
 
     /**
      * Every additional cost this cast owes: the card's (or its chosen modes'), the declared optional
@@ -54,8 +62,17 @@ class CastAdditionalCosts(
      * permission attaches.
      */
     fun owedAdditionalCosts(state: GameState, action: CastSpell, cardDef: CardDefinition?): List<AdditionalCost> = buildList {
-        if (cardDef != null) addAll(additionalCostsForModes(cardDef, action))
-        declaredSlotCost(action, cardDef)?.let { add(it) }
+        for (payment in action.optionalCostPayments) {
+            costCalculator.optionalModifier(state, payment)?.optionalLifePayment?.let {
+                add(com.wingedsheep.sdk.dsl.Costs.additional.PayLife(it))
+            }
+        }
+        val costDefinition = if (action.alternativeCostType == AlternativeCostType.ESCAPE) {
+            action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it) }
+                ?.let { face -> cardDef?.let { costCalculator.faceCharacteristics(it, face) } } ?: cardDef
+        } else cardDef
+        if (costDefinition != null) addAll(additionalCostsForModes(costDefinition, action))
+        declaredSlotCost(state, action, costDefinition)?.let { add(it) }
         if (action.useAlternativeCost && cardDef != null) {
             // Each bundled additional cost is gated by the chosen alternative-cost type so a
             // collision (e.g. granted warp on a card also being evoked) doesn't drag in the
@@ -89,7 +106,7 @@ class CastAdditionalCosts(
             if (action.altAllows(AlternativeCostType.ESCAPE) &&
                 zoneResolver.hasEscapePermission(state, action.playerId, action.cardId)
             ) {
-                EscapeCasts.printedEscape(cardDef)
+                EscapeCasts.effectiveEscape(state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator, action.escapeAbility)
                     ?.additionalCost
                     ?.let { add(it) }
             }

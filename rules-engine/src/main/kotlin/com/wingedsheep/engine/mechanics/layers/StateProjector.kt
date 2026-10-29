@@ -69,7 +69,8 @@ private val KEYWORD_COUNTER_MAP = mapOf(
     CounterType.REACH to Keyword.REACH.name,
     CounterType.HASTE to Keyword.HASTE.name,
     CounterType.MENACE to Keyword.MENACE.name,
-    CounterType.EXALTED to Keyword.EXALTED.name
+    CounterType.EXALTED to Keyword.EXALTED.name,
+    CounterType.SHADOW to Keyword.SHADOW.name
 )
 
 class StateProjector {
@@ -147,6 +148,8 @@ class StateProjector {
                             hexproof.cardTypes.forEach { add("HEXPROOF_FROM_CARDTYPE_$it") }
                             hexproof.nonColors.forEach { add(HexproofFromRules.nonColorKeyword(it)) }
                             hexproof.sourceKinds.forEach { add(SourceKindProtection.hexproofKeyword(it)) }
+                            if (hexproof.monocolored) add(HexproofFromRules.MONOCOLORED)
+                            if (hexproof.multicolored) add(HexproofFromRules.MULTICOLORED)
                         }
                         container.get<ToxicComponent>()?.let { add("TOXIC_${it.amount}") }
                         // Dash supplies haste from the live marker on every projection.
@@ -247,7 +250,7 @@ class StateProjector {
             .map { effect -> applyControllerGate(effect, projectedValues) }
             .map { effect ->
                 if (effect.affectsFilter != null && filterResolver.isControllerDependentFilter(effect.affectsFilter)) {
-                    effect.copy(affectedEntities = filterResolver.resolveAffectedEntities(state, effect.sourceId, effect.affectsFilter, projectedValues))
+                    effect.copy(affectedEntities = filterResolver.resolveAffectedEntities(state, effect.sourceId, effect.affectsFilter, projectedValues, effect.controllerId))
                 } else {
                     effect
                 }
@@ -279,13 +282,27 @@ class StateProjector {
         }
         for (effect in creatureDependentTypeEffects) {
             val resolved = effect.affectsFilter
-                ?.let { filterResolver.resolveAffectedEntities(state, effect.sourceId, it, projectedValues) }
+                ?.let { filterResolver.resolveAffectedEntities(state, effect.sourceId, it, projectedValues, effect.controllerId) }
                 ?: effect.affectedEntities
             effectApplicator.applyEffect(
                 effect.copy(affectedEntities = lockAffected(effect, resolved)),
                 state,
                 projectedValues
             )
+        }
+
+        // CR 205.1a: "If an object's card type is removed, the subtypes correlated with that card
+        // type will remain if they are also the subtypes of a card type the object currently has;
+        // otherwise, they are also removed for the entire time the object's card type is removed."
+        // Run once Layer 4 is complete, so a creature type granted later in the layer by timestamp
+        // is stripped too ("for the entire time"), while a later effect that makes the object a
+        // creature again keeps them. Creature types are shared with kindred (CR 205.3m). A Theros
+        // god below its devotion threshold is a legendary enchantment without the creature type God.
+        for (values in projectedValues.values) {
+            if ("CREATURE" !in values.removedCardTypes) continue
+            if ("CREATURE" in values.types || "KINDRED" in values.types) continue
+            values.subtypes.removeAll(creatureTypeSet)
+            values.types.removeAll(creatureTypeSet)
         }
 
         // CR 701.54c: a player's Ring-bearer is legendary (the Ring emblem's first ability).
@@ -308,7 +325,7 @@ class StateProjector {
         val postTypeEffects = nonControlNonPTEffects.filter { it.layer != Layer.TEXT && it.layer != Layer.TYPE }
             .map { effect ->
                 val resolved = if (effect.affectsFilter != null && filterResolver.isCreatureDependentFilter(effect.affectsFilter)) {
-                    filterResolver.resolveAffectedEntities(state, effect.sourceId, effect.affectsFilter, projectedValues)
+                    filterResolver.resolveAffectedEntities(state, effect.sourceId, effect.affectsFilter, projectedValues, effect.controllerId)
                 } else {
                     effect.affectedEntities
                 }
@@ -325,17 +342,59 @@ class StateProjector {
         for (values in projectedValues.values) {
             values.keywords.removeAll { keyword -> values.cantHaveKeywords.any { keyword == it || keyword.startsWith(it + "_") } }
         }
+        // Collect sources that generate RemoveAllAbilities effects. These sources (e.g., Humility)
+        // should not have their own effects suppressed even when they themselves lose abilities,
+        // because their continuous effects are self-sustaining (removing the ability that removes
+        // abilities would create a paradox).
+        val removeAllAbilitiesSources = sortedEffects
+            .filter { it.modification is Modification.RemoveAllAbilities }
+            .map { it.sourceId }
+            .toSet()
+        // The Layer-6 checks below exempt only *static* removers (Humility): a creature that
+        // stripped its own abilities with a resolved ability is no paradox and loses them all.
+        val staticRemoveAllAbilitiesSources = sortedEffects
+            .filter { it.modification is Modification.RemoveAllAbilities && it.fromStaticAbility }
+            .mapTo(HashSet()) { it.sourceId }
 
         // === Layers 5-6 (Color + Ability) ===
+        val deferredCantBlock = mutableListOf<Pair<ContinuousEffect, Boolean>>()
         for (effect in postTypeEffects) {
             if (effect.modification is Modification.CanAttackAsThoughHasty) continue
+            if (effect.modification is Modification.GrantStaticAbility && effect.fromStaticAbility &&
+                projectedValues[effect.sourceId]?.isFaceDown == true) continue
             // CR 613.6: a prohibition belonging to an effect begun in an earlier layer
             // keeps applying even when the source loses the ability during Layer 6.
             val startedBeforeAbility = effect.groupId?.let { groupId ->
                 (groupFirstLayer[effect.sourceId to groupId]?.ordinal ?: Int.MAX_VALUE) < Layer.ABILITY.ordinal
             } ?: false
+            // A static keyword grant whose source has already lost all abilities this pass no
+            // longer exists (CR 604.2) — e.g. a creature's own "can't be blocked" under a Humility
+            // that predates it. EffectSorter orders such a grant after the removal that strips its
+            // source (CR 613.8a), so the source's lostAllAbilities is settled by the time we get here.
+            if ((effect.modification is Modification.GrantKeyword ||
+                    effect.modification is Modification.GrantStaticAbility) && effect.fromStaticAbility &&
+                !startedBeforeAbility && effect.sourceId !in staticRemoveAllAbilitiesSources &&
+                projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
+            // "Can't block" is a rules effect, not a characteristic: it applies once Layer 6 has
+            // settled who still has which ability (CR 613.11), so a lose-all-abilities effect
+            // strips a static's restriction whatever the two timestamps are.
+            if (effect.modification is Modification.SetCantBlock) {
+                deferredCantBlock += effect to startedBeforeAbility
+                continue
+            }
             effectApplicator.applyEffect(effect, state, projectedValues,
                 restrictionSurvivesSourceAbilityRemoval = startedBeforeAbility)
+        }
+        // A static ability's effect exists only while its source has the ability (CR 604.2): a
+        // Craven Giant that lost all abilities can block, and so can a creature whose "can't
+        // block" came from an enchantment that lost its abilities. A restriction created by a
+        // resolved spell or ability is independent of anyone's abilities (CR 611.2a), as is one
+        // belonging to an effect that started applying before Layer 6 (CR 613.6).
+        for ((effect, startedBeforeAbility) in deferredCantBlock) {
+            if (effect.fromStaticAbility && !startedBeforeAbility &&
+                effect.sourceId !in staticRemoveAllAbilitiesSources &&
+                projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
+            effectApplicator.applyEffect(effect, state, projectedValues)
         }
 
         // Rule 122.1b: re-apply keyword counters after Layer 6.
@@ -367,15 +426,6 @@ class StateProjector {
 
         // Resolve CDAs (Layer 7a) - evaluate dynamic power/toughness
         resolveCDAs(state, projectedValues, dynamicStatEntities)
-
-        // Collect sources that generate RemoveAllAbilities effects. These sources (e.g., Humility)
-        // should not have their own effects suppressed even when they themselves lose abilities,
-        // because their continuous effects are self-sustaining (removing the ability that removes
-        // abilities would create a paradox).
-        val removeAllAbilitiesSources = sortedEffects
-            .filter { it.modification is Modification.RemoveAllAbilities }
-            .map { it.sourceId }
-            .toSet()
 
         // Re-resolve affected entities for Layer 7 effects that depend on subtypes, controller, or creature type.
         // Also suppress effects from sources that lost all abilities in Layer 6 (Rule 613: Humility
@@ -415,7 +465,7 @@ class StateProjector {
                 (filterResolver.isSubtypeDependentFilter(effect.affectsFilter) ||
                     filterResolver.isControllerDependentFilter(effect.affectsFilter) ||
                     filterResolver.isCreatureDependentFilter(effect.affectsFilter))) {
-                filterResolver.resolveAffectedEntities(state, effect.sourceId, effect.affectsFilter, projectedValues)
+                filterResolver.resolveAffectedEntities(state, effect.sourceId, effect.affectsFilter, projectedValues, effect.controllerId)
             } else {
                 effect.affectedEntities
             }
@@ -466,7 +516,7 @@ class StateProjector {
                 } == true) continue
             val effect = applyControllerGate(rawEffect, projectedValues)
             val affected = effect.affectsFilter?.let {
-                filterResolver.resolveAffectedEntities(state, effect.sourceId, it, projectedValues)
+                filterResolver.resolveAffectedEntities(state, effect.sourceId, it, projectedValues, effect.controllerId)
             } ?: effect.affectedEntities
             effectApplicator.applyEffect(effect.copy(affectedEntities = affected), state, projectedValues)
         }
@@ -479,6 +529,7 @@ class StateProjector {
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self -> AffectsFilter.Self
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.AttachedTo -> AffectsFilter.AttachedPermanent
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.SoulbondPair -> AffectsFilter.SoulbondPair
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.ChosenCreature -> AffectsFilter.ChosenCreature
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.Specific -> AffectsFilter.SpecificEntities(setOf(scope.entityId))
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield -> AffectsFilter.Generic(ability.filter)
                     }
@@ -491,6 +542,7 @@ class StateProjector {
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self -> AffectsFilter.Self
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.AttachedTo -> AffectsFilter.AttachedPermanent
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.SoulbondPair -> AffectsFilter.SoulbondPair
+                        is com.wingedsheep.sdk.scripting.filters.unified.Scope.ChosenCreature -> AffectsFilter.ChosenCreature
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.Specific -> AffectsFilter.SpecificEntities(setOf(scope.entityId))
                         is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield -> AffectsFilter.Generic(ability.filter)
                     }
@@ -533,6 +585,8 @@ class StateProjector {
                 name = v.name,
                 keywords = v.keywords,
                 cantHaveKeywords = v.cantHaveKeywords,
+                staticAbilities = v.staticAbilities.toList(),
+                staticAbilitySourceIds = v.staticAbilitySourceIds.toList(),
                 enchantmentRestrictions = v.enchantmentRestrictions.toList(),
                 colors = v.colors,
                 types = v.types,
@@ -550,27 +604,38 @@ class StateProjector {
                 cantBeBlockedExceptByFilters = v.cantBeBlockedExceptByFilters.toList(),
                 canOnlyBlockCreaturesWithFilters = v.canOnlyBlockCreaturesWithFilters.toList(),
                 additionalBlockCount = v.additionalBlockCount,
+                manaAbilityLifeTax = v.manaAbilityLifeTax,
                 lostAllAbilities = v.lostAllAbilities,
                 basicLandTypesSetByEffect = v.basicLandTypesSetByEffect
             )
         }
 
-        // Collect cross-zone "is the chosen type" grants (Conspiracy / Leyline of Transformation).
-        // A GrantChosenSubtype with cross-zone flags lowers to a Modification.AddChosenSubtype whose
-        // Layer 4 application above only touched battlefield permanents; here we additionally record
-        // an overlay entry so the non-battlefield subtype read-sites (spells on the stack, cards in
-        // hand/library/graveyard/exile) can honor it. Reads the source's *projected* controller (so
-        // it follows control changes) and the creature type it was made with.
+        // Collect cross-zone creature-type grants: "is the chosen type" (Conspiracy / Leyline of
+        // Transformation, Modification.AddChosenSubtype) and "is every creature type" (Maskwood
+        // Nexus, Modification.AddAllCreatureTypes). Their Layer 4 application above only touched
+        // battlefield permanents; here we additionally record an overlay entry so the
+        // non-battlefield subtype read-sites (spells on the stack, cards in hand/library/graveyard/
+        // exile) can honor it. Reads the source's *projected* controller (so it follows control
+        // changes) and, for the chosen-type form, the creature type it was made with.
         val crossZoneGrants = sortedEffects.mapNotNull { effect ->
-            val mod = effect.modification as? Modification.AddChosenSubtype ?: return@mapNotNull null
-            if (!mod.includeControlledSpells && !mod.includeOwnedCardsOutsideBattlefield) return@mapNotNull null
+            val (spells, ownedCards, subtypes) = when (val mod = effect.modification) {
+                is Modification.AddChosenSubtype -> {
+                    if (!mod.includeControlledSpells && !mod.includeOwnedCardsOutsideBattlefield) return@mapNotNull null
+                    val chosenType = state.getEntity(effect.sourceId)?.chosenCreatureType() ?: return@mapNotNull null
+                    Triple(mod.includeControlledSpells, mod.includeOwnedCardsOutsideBattlefield, setOf(chosenType))
+                }
+                is Modification.AddAllCreatureTypes -> {
+                    if (!mod.includeControlledSpells && !mod.includeOwnedCardsOutsideBattlefield) return@mapNotNull null
+                    Triple(mod.includeControlledSpells, mod.includeOwnedCardsOutsideBattlefield, creatureTypeSet)
+                }
+                else -> return@mapNotNull null
+            }
             val controllerId = projectedValues[effect.sourceId]?.controllerId ?: return@mapNotNull null
-            val chosenType = state.getEntity(effect.sourceId)?.chosenCreatureType() ?: return@mapNotNull null
             CrossZoneSubtypeGrant(
                 controllerId = controllerId,
-                chosenType = chosenType,
-                includeControlledSpells = mod.includeControlledSpells,
-                includeOwnedCardsOutsideBattlefield = mod.includeOwnedCardsOutsideBattlefield
+                subtypes = subtypes,
+                includeControlledSpells = spells,
+                includeOwnedCardsOutsideBattlefield = ownedCards
             )
         }
 
@@ -806,6 +871,46 @@ class StateProjector {
             }
         }
 
+        // 1a. Static abilities that function from a graveyard (CR 113.6b — Anger's "As long as
+        // Anger is in your graveyard and you control a Mountain, creatures you control have
+        // haste"). Lowered once per card at entity creation ([ZoneStaticEffectsComponent]), so the
+        // per-projection cost is one component read per graveyard card.
+        //
+        // "You" is the card's owner (CR 108.4a / 109.5: an object with no controller is read
+        // through its owner) — passed as `youId` for the affected set and as the effect's
+        // [ContinuousEffect.controllerId] fallback, which the later re-resolves and the
+        // [EffectApplicator]'s condition check both read, since a graveyard card has no projected
+        // controller of its own.
+        //
+        // Timestamp: CR 613.7a gives the effect its object's timestamp, and CR 613.7d stamps an
+        // object as it enters a zone. The engine doesn't record graveyard entry, so the current
+        // state timestamp stands in — every printed graveyard static is a keyword or stat grant,
+        // whose order among same-layer effects doesn't change the result.
+        for (playerId in state.turnOrder) {
+            for (entityId in state.getZone(playerId, Zone.GRAVEYARD)) {
+                val container = state.getEntity(entityId) ?: continue
+                val zoneEffects = container.get<ZoneStaticEffectsComponent>()
+                    ?.effectsByZone?.get(Zone.GRAVEYARD) ?: continue
+                val ownerId = container.get<CardComponent>()?.ownerId ?: playerId
+                for (effect in zoneEffects) {
+                    effects.add(
+                        ContinuousEffect(
+                            sourceId = entityId,
+                            timestamp = state.timestamp,
+                            modification = effect.modification,
+                            affectedEntities = filterResolver.resolveAffectedEntities(
+                                state, entityId, effect.affectsFilter, projectedValues, youId = ownerId
+                            ),
+                            sourceCondition = effect.sourceCondition,
+                            affectsFilter = effect.affectsFilter,
+                            controllerId = ownerId,
+                            groupId = effect.groupId
+                        )
+                    )
+                }
+            }
+        }
+
         // 1b. Hone counters (CR 122.1j): "A hone counter on an Equipment gives +1/+0 to any
         // creature that Equipment is attached to." Synthesized here rather than lowered from a
         // static ability because the bonus belongs to the *counter*, not to the permanent holding
@@ -897,12 +1002,15 @@ class StateProjector {
             }
 
             var validAffectedEntities = if (floating.effect.dynamicGroupFilter != null) {
-                // Rule 611.2c: re-evaluate filter dynamically to include entities that entered later
+                // Rule 611.2c: re-evaluate filter dynamically to include entities that entered later.
+                // "You" is the effect's controller, fixed at resolution — the source may have left
+                // the battlefield (and with it its controller) or changed hands since.
                 filterResolver.resolveAffectedEntities(
                     state,
                     floating.sourceId ?: EntityId("floating-${floating.id}"),
                     AffectsFilter.Generic(floating.effect.dynamicGroupFilter),
-                    projectedValues
+                    projectedValues,
+                    youId = floating.controllerId
                 )
             } else {
                 // Floating effects normally target battlefield permanents, but a color-change
@@ -952,13 +1060,19 @@ class StateProjector {
             // recurse). Include the effect now; the fix-up reverts control for any affected
             // entity whose final projected power exceeds the source's final projected power.
 
-            if (validAffectedEntities.isNotEmpty()) {
+            // A dynamic group stays in even while it matches nothing: it carries its filter as
+            // [ContinuousEffect.affectsFilter], so the post-Layer-2 and post-Layer-4 re-resolves pick
+            // up a creature that becomes yours or becomes a creature this frame (a Threaten after
+            // the effect resolved) — the pre-layer set above reads base control and types only.
+            val dynamicGroup = floating.effect.dynamicGroupFilter
+            if (validAffectedEntities.isNotEmpty() || dynamicGroup != null) {
                 effects.add(
                     ContinuousEffect(
                         sourceId = floating.sourceId ?: EntityId("floating-${floating.id}"),
                         timestamp = floating.timestamp,
                         modification = floating.effect.modification.toModification(),
                         affectedEntities = validAffectedEntities,
+                        affectsFilter = dynamicGroup?.let { AffectsFilter.Generic(it) },
                         // A conditional clause inside a durational grant ("becomes a creature with
                         // 'During your turn, this creature has first strike'"). Re-asked on every
                         // projection by EffectApplicator against the *source's* projected controller,
@@ -992,6 +1106,44 @@ class StateProjector {
                         // is independent of its source's abilities — stripping those abilities in
                         // Layer 6 must not retract it.
                         fromStaticAbility = false
+                    )
+                )
+            }
+        }
+
+        // 3. Static abilities a permanent gained from a resolved effect ("target creature gains
+        // 'This creature can't block' until end of turn"). Once gained, the ability is the
+        // holder's own, so it lowers exactly as a printed one does — sourced from the holder,
+        // filters resolved relative to it, and suppressed by the same lose-all-abilities rules
+        // (fromStaticAbility). CR 613.7a: its timestamp is the later of the holder's and the grant's.
+        for ((index, grant) in state.grantedStaticAbilities.withIndex()) {
+            val grantTimestamp = grant.layerTimestamp ?: continue
+            val holderId = grant.entityId
+            if (!state.getBattlefield().contains(holderId)) continue
+            if (!com.wingedsheep.engine.mechanics.durations.GrantDurationGate.holds(
+                    state, holderId, grant.sourceId, grant.duration)) continue
+            val holderTimestamp = state.getEntity(holderId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.TimestampComponent>()?.timestamp
+                ?: grantTimestamp
+            for (data in StaticAbilityHandler.lower(listOf(grant.ability))) {
+                // Attack-as-though-hasty grants keep their dedicated post-layer pass in [project]:
+                // that pass is the one that knows a face-down holder keeps an externally granted
+                // permission, which the printed-static path deliberately drops.
+                if (data.modification is Modification.CanAttackAsThoughHasty) continue
+                effects.add(
+                    ContinuousEffect(
+                        sourceId = holderId,
+                        timestamp = maxOf(holderTimestamp, grantTimestamp),
+                        modification = data.modification,
+                        affectedEntities = filterResolver.resolveAffectedEntities(state, holderId, data.affectsFilter, projectedValues),
+                        sourceCondition = data.sourceCondition,
+                        affectsFilter = data.affectsFilter,
+                        // Namespaced so a multi-layer grant can't share a CR 613.6 lock with one of
+                        // the holder's printed groups (both are keyed by the holder's id).
+                        groupId = data.groupId?.let { "grant$index-$it" },
+                        // This node represents gaining the ability itself, not an effect generated
+                        // by the holder's ability. A later grant survives an earlier ability loss.
+                        fromStaticAbility = data.modification !is Modification.GrantStaticAbility
                     )
                 )
             }
@@ -1125,3 +1277,5 @@ class StateProjector {
 
 /** The zones "cards you own that aren't on the battlefield" reach (the stack is the spells half). */
 private val OWNED_ZONES_OUTSIDE_BATTLEFIELD = listOf(Zone.HAND, Zone.LIBRARY, Zone.GRAVEYARD, Zone.EXILE, Zone.COMMAND)
+
+private val creatureTypeSet: Set<String> = com.wingedsheep.sdk.core.Subtype.ALL_CREATURE_TYPES.toSet()

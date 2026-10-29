@@ -9,15 +9,14 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 
 /**
- * Tireless Provisioner
- * {2}{G}
- * Creature — Elf Scout
- * 3/2
+ * Tireless Provisioner — Modern Horizons 2 #180 (canonical printing)
+ * {2}{G} · Creature — Elf Scout · 3/2
  *
  * Landfall — Whenever a land you control enters, create a Food token or a Treasure token.
  *
- * The printed “or” is a resolution-time choice. It uses a non-modal-spell [ModalEffect], matching
- * Ant-Man's Army, so choosing a token does not count as casting a modal spell.
+ * The landfall trigger of Zendikar's Roil carrying Ant-Man's Army's resolution-time token choice:
+ * a [ModalEffect.chooseOne] with `countsAsModalSpell = false`, since "a Food token or a Treasure
+ * token" is not a printed "choose one —".
  */
 val TirelessProvisioner = card("Tireless Provisioner") {
     manaCost = "{2}{G}"

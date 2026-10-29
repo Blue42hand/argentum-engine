@@ -21,6 +21,7 @@ import {
 import { teamLabel } from './teamLabel'
 import { castOfferFace } from '@/utils/castFace'
 import { isBattle, tableSideOf } from '@/utils/combatTargets'
+import { attackNeighbours, type AttackNeighbours } from '@/utils/attackDirection'
 
 /**
  * Select the game state (works for both normal play and spectating).
@@ -233,6 +234,20 @@ export function useViewingPlayer(): ClientPlayer | null {
     if (!gameState || !playerId) return null
     return gameState.players.find((p) => p.playerId === playerId) ?? null
   }, [gameState, playerId])
+}
+
+/**
+ * Attack left / attack right (CR 803.1) seen from the bottom-anchored seat — normally you: the one
+ * opponent it may attack and the one who may attack it. Null when the game has no such restriction
+ * or it no longer bites (two players left). Display only; `validAttackTargets` stays the authority.
+ */
+export function useAttackNeighbours(): AttackNeighbours | null {
+  const gameState = useGameStore(selectGameState)
+  const playerId = useGameStore(selectViewingPlayerId)
+  return useMemo(
+    () => (gameState ? attackNeighbours(gameState.players, gameState.attackMode, playerId) : null),
+    [gameState, playerId],
+  )
 }
 
 /**
@@ -536,6 +551,7 @@ export function cardIdForAction(info: LegalActionInfo): EntityId | undefined {
     case 'CycleCard':
     case 'TypecycleCard':
     case 'PlotCard':
+    case 'PutCompanionIntoHand':
     case 'SuspendCardFromHand':
       return a.cardId
     case 'ActivateAbility':
@@ -562,7 +578,10 @@ export function isHighlightable(a: LegalActionInfo): boolean {
   // The X exception needs its own guard: a storage land with no counters still enumerates the
   // ability (X = 0 is legal), so without this the land glows, the picker opens with maxX 0, and
   // confirming taps it for nothing.
+  // A mana ability that works from another zone (Simian Spirit Guide, exiled from the hand) is
+  // never offered by the payment flow — clicking the card is the only way to use it.
   const needsPlayerInput =
+    (a.sourceZone != null && a.sourceZone !== 'BATTLEFIELD') ||
     a.additionalCostInfo != null ||
     a.manaCostString != null ||
     (a.hasXCost === true && (a.maxAffordableX ?? 0) > 0)

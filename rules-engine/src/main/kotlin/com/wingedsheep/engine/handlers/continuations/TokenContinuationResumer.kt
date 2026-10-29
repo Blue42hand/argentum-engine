@@ -38,7 +38,7 @@ class TokenContinuationResumer(
             // Player chose to replace: create copies of the attached permanent.
             // Pass cardRegistry so the token applies the attached permanent's printed
             // "enters with N counters" replacement effects (per Mirrormind Crown rulings).
-            val result = TokenCreationReplacementHelper.createAttachedPermanentCopies(
+            val created = TokenCreationReplacementHelper.createAttachedPermanentCopies(
                 state,
                 continuation.attachedPermanentId,
                 context.controllerId,
@@ -47,6 +47,8 @@ class TokenContinuationResumer(
                 staticAbilityHandler = StaticAbilityHandler(services.cardRegistry),
                 predicateEvaluator = services.predicateEvaluator
             )
+            val result = com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(created,
+                com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(context))
             if (result.outcome is Outcome.Paused) return result.toExecutionResult()
             return checkForMore(result.state, result.events)
         } else {

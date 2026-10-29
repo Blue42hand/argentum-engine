@@ -2,7 +2,6 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseTargetsDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.definitions.chk.cards.BurrGrafter
@@ -53,9 +52,6 @@ class BurrGrafterScenarioTest : ScenarioTestBase() {
                 withClue("activation should succeed: ${activation.error}") { activation.error shouldBe null }
                 game.isInGraveyard(1, "Burr Grafter") shouldBe true
 
-                val yesNo = game.getPendingDecision()
-                yesNo.shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(true)
                 val decision = game.getPendingDecision()
                 decision.shouldBeInstanceOf<ChooseTargetsDecision>()
                 val hunt = game.findCardsInGraveyard(1, "Kami of the Hunt").single()

@@ -1514,7 +1514,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -7018,7 +7021,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -7107,7 +7113,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put on top of your library",
+                                "selectedLabel": "Put on top of your library"
                             },
                             "ShuffleLibrary",
                             {
@@ -7956,7 +7964,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -8002,7 +8012,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -9785,7 +9797,8 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 }
-                            }
+                            },
+                            "description": "Draw a card"
                         }
                     ]
                 }
@@ -11166,7 +11179,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -16023,7 +16039,9 @@
                                         "baseFilter": "creature ctrl:you"
                                     }
                                 },
-                                "storeAs": "target0"
+                                "storeAs": "target0",
+                                "nonTargeting": true,
+                                "prompt": "Choose a creature you control to get a +1/+1 counter, vigilance, and trample"
                             },
                             {
                                 "type": "AddCounters",
@@ -16658,50 +16676,6 @@
     ]
 }
 
-// Serra Redeemer
-{
-    "name": "Serra Redeemer",
-    "manaCost": "{3}{W}{W}",
-    "typeLine": "Creature — Angel Soldier",
-    "oracleText": "Flying\nWhenever another creature you control with power 2 or less enters, put two +1/+1 counters on that creature.",
-    "creatureStats": {
-        "power": 2,
-        "toughness": 4
-    },
-    "keywords": [
-        "FLYING"
-    ],
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "Serra Redeemer:1",
-                "trigger": {
-                    "type": "ZoneChangeEvent",
-                    "filter": "creature pow<=2 ctrl:you",
-                    "to": "Battlefield"
-                },
-                "binding": "OTHER",
-                "effect": {
-                    "type": "AddCounters",
-                    "counterType": "PLUS_ONE_PLUS_ONE",
-                    "count": 2,
-                    "target": "TriggeringEntity"
-                }
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "387",
-        "rarity": "RARE",
-        "artist": "Joshua Raphael",
-        "imageUri": "https://cards.scryfall.io/normal/front/2/3/230b9aef-bd9c-4332-ace4-b5b065bac6d8.jpg?1721428078",
-        "inBooster": false
-    },
-    "colorIdentityOverride": [
-        "WHITE"
-    ]
-}
-
 // Shore Up
 {
     "name": "Shore Up",
@@ -17017,7 +16991,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         },
                         "CostSacrificeSelf"
@@ -17219,7 +17196,8 @@
                                 "zone": "Stack"
                             }
                         }
-                    ]
+                    ],
+                    "description": "Counter target spell"
                 },
                 {
                     "effect": {
@@ -19544,7 +19522,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Squirrel creature card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",

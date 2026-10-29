@@ -9,6 +9,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.abilities.GainAllActiva
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantActivatedAbilityExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantActivatedAbilityToGroupExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantEmbalmExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantEscapeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantFlashbackExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantHarmonizeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantKeywordExecutor
@@ -27,6 +28,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachEquip
 import com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachTargetEquipmentToCreatureExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachToChosenHostExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.attachments.UnattachEquipmentExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.attachments.EnchantPutOntoBattlefieldExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.attachments.GrantExileOnLeaveExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.control.ExchangeControlExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.control.GainControlByActivePlayerExecutor
@@ -96,6 +98,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.types.SetCreatureSubtyp
 import com.wingedsheep.engine.handlers.effects.permanent.types.SetGroupCreatureSubtypesExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.SetLandTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ExileAndReturnTransformedExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.types.MeldEffectExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ReturnSelfFromExileTransformedExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ReturnSelfFromZoneTransformedExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.TransformEffectExecutor
@@ -141,6 +144,8 @@ class PermanentExecutors(
         // counters
         com.wingedsheep.engine.handlers.effects.permanent.counters.AddCountersWithLimitExecutor(amountEvaluator),
         AddCountersExecutor(predicateEvaluator = zones.predicateEvaluator),
+        com.wingedsheep.engine.handlers.effects.permanent.counters.AdaptExecutor(predicateEvaluator = zones.predicateEvaluator),
+        com.wingedsheep.engine.handlers.effects.permanent.counters.AdaptAsThoughNoCountersExecutor(),
         AddDynamicCountersExecutor(amountEvaluator = amountEvaluator),
         com.wingedsheep.engine.handlers.effects.permanent.counters.AddCountersUpToExecutor(amountEvaluator = amountEvaluator),
         com.wingedsheep.engine.handlers.effects.permanent.counters.AddCountersOfChosenKindExecutor(predicateEvaluator = zones.predicateEvaluator),
@@ -155,6 +160,7 @@ class PermanentExecutors(
         com.wingedsheep.engine.handlers.effects.permanent.counters.ConvertCountersToTokensExecutor(),
         MoveCountersEachKindMissingExecutor(predicateEvaluator = zones.predicateEvaluator),
         MoveCountersExecutor(amountEvaluator = amountEvaluator),
+        com.wingedsheep.engine.handlers.effects.permanent.counters.MoveAllCountersExecutor(predicateEvaluator = zones.predicateEvaluator),
         MoveChosenCountersToTargetExecutor(predicates = zones.predicateEvaluator, recursion = recursion),
         RemoveAllCountersExecutor(),
         RemoveAllCountersOfTypeExecutor(),
@@ -162,7 +168,7 @@ class PermanentExecutors(
         DistributeCountersAmongTargetsExecutor(amountEvaluator = amountEvaluator),
         DistributeCountersAmongFilteredExecutor(predicateEvaluator = zones.predicateEvaluator),
         ProliferateExecutor(predicateEvaluator = zones.predicateEvaluator),
-        com.wingedsheep.engine.handlers.effects.permanent.counters.EmitTrainedEventExecutor(predicateEvaluator = zones.predicateEvaluator),
+        com.wingedsheep.engine.handlers.effects.permanent.counters.EmitKeywordCounterEventExecutor(predicateEvaluator = zones.predicateEvaluator),
         // control
         ExchangeControlExecutor(),
         GainControlExecutor(),
@@ -192,8 +198,8 @@ class PermanentExecutors(
         ChangeColorExecutor(),
         ChangeColorToChosenExecutor(),
         ChangeGroupColorExecutor(predicateEvaluator = zones.predicateEvaluator),
-        EachPermanentBecomesCopyOfTargetExecutor(predicateEvaluator = zones.predicateEvaluator),
-        BecomeCopyOfLinkedExileExecutor(),
+        EachPermanentBecomesCopyOfTargetExecutor(predicateEvaluator = zones.predicateEvaluator, cardRegistry = cardRegistry),
+        BecomeCopyOfLinkedExileExecutor(cardRegistry),
         LoseAllCreatureTypesExecutor(),
         MassAnimateExecutor(predicateEvaluator = zones.predicateEvaluator),
         SetCreatureSubtypesExecutor(),
@@ -203,6 +209,7 @@ class PermanentExecutors(
         ReturnSelfFromExileTransformedExecutor(zones, cardRegistry),
         ReturnSelfFromZoneTransformedExecutor(zones, cardRegistry),
         ExileAndReturnTransformedExecutor(zones, cardRegistry),
+        MeldEffectExecutor(zones, cardRegistry),
         TurnFaceDownExecutor(),
         TurnFaceUpExecutor(cardRegistry),
         RevealFaceDownPermanentExecutor(),
@@ -211,6 +218,7 @@ class PermanentExecutors(
         com.wingedsheep.engine.handlers.effects.permanent.attachments.AttachToPermanentExecutor(zones.predicateEvaluator, cardRegistry),
         AttachTargetEquipmentToCreatureExecutor(zones.predicateEvaluator, cardRegistry),
         AttachToChosenHostExecutor(zones.predicateEvaluator, cardRegistry),
+        EnchantPutOntoBattlefieldExecutor(zones.predicateEvaluator, cardRegistry),
         UnattachEquipmentExecutor(),
         GrantExileOnLeaveExecutor(),
         // stats
@@ -223,6 +231,7 @@ class PermanentExecutors(
         GrantActivatedAbilityToGroupExecutor(predicateEvaluator = zones.predicateEvaluator),
         GrantEmbalmExecutor(),
         GrantFlashbackExecutor(),
+        GrantEscapeExecutor(cardRegistry),
         GrantHarmonizeExecutor(),
         GrantKeywordExecutor(),
         GrantStaticAbilityExecutor(),

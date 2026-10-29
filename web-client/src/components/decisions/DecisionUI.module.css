@@ -17,6 +17,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* "safe" falls back to start alignment when the content is taller than the screen, so a
+     tall decision scrolls instead of losing its title off the top and its buttons off the
+     bottom (landscape phones). */
+  justify-content: safe center;
+  overflow-y: auto;
   pointer-events: auto;
   z-index: var(--z-modal);
   gap: var(--space-6);
@@ -27,6 +32,17 @@
   .overlay {
     gap: var(--space-3);
     padding: var(--space-1);
+  }
+}
+
+.overlay > * {
+  flex-shrink: 0;
+}
+
+@media (max-height: 500px) {
+  .overlay {
+    gap: var(--space-2);
+    padding: var(--space-2);
   }
 }
 
@@ -76,6 +92,11 @@
   pointer-events: none;
 }
 
+/* Targeting banners let board clicks through; their explicit controls remain clickable. */
+.sideBannerTarget button {
+  pointer-events: auto;
+}
+
 .sideBannerSelection {
   composes: sideBanner;
   border: 2px solid var(--color-target);
@@ -123,6 +144,12 @@
 @media (max-width: 639px) {
   .bannerCardImage {
     width: 80px;
+  }
+}
+
+@media (max-height: 500px) {
+  .bannerCardImage {
+    width: 56px;
   }
 }
 
@@ -389,6 +416,75 @@
 
 .noButton:hover {
   filter: brightness(1.2);
+}
+
+/* Yes/no whose two answers are peer outcomes (endure): two equal tiles split by "or". */
+.peerOptions {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.peerOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 220px;
+  padding: var(--space-5) var(--space-4);
+  background: linear-gradient(180deg, var(--bg-surface-3), var(--bg-surface-2));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.peerOption:hover,
+.peerOption:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-accent), 0 0 18px rgba(79, 195, 247, 0.25);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.peerOption:active {
+  transform: translateY(0);
+}
+
+.peerOptionLabel {
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.peerOptionDetail {
+  font-size: var(--font-sm);
+  color: var(--text-tertiary);
+}
+
+.peerOptionsOr {
+  align-self: center;
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 639px) {
+  .peerOptions {
+    gap: var(--space-2);
+  }
+
+  .peerOption {
+    width: 150px;
+    padding: var(--space-4) var(--space-3);
+  }
 }
 
 .confirmButton {
@@ -1070,12 +1166,16 @@
   padding: var(--space-4) var(--space-8);
   font-size: var(--font-lg);
   min-width: 120px;
-  background-color: var(--color-primary);
-  color: var(--text-primary);
+  /* Secondary action: a quiet glass button, so the decision's own confirm stays the one loud
+     button in the row instead of competing with a second saturated fill. */
+  background-color: var(--chrome-bg);
+  color: var(--chrome-text);
+  box-shadow: inset 0 0 0 1px var(--chrome-border);
 }
 
 .viewBattlefieldButton:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.25);
+  color: var(--text-primary);
 }
 
 .floatingReturnButton {
@@ -1210,4 +1310,14 @@
 
 .zoneSectionSelected {
   color: var(--color-selected, #4ade80);
+}
+
+/* Short (landscape-phone) screens: compact the decision buttons so they stay on screen. Last in
+   the file so it wins over the base button rules above. */
+@media (max-height: 500px) {
+  .confirmButton,
+  .viewBattlefieldButton {
+    padding: var(--space-2) var(--space-5);
+    font-size: var(--font-md);
+  }
 }

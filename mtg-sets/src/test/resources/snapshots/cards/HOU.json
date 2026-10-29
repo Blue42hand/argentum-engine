@@ -286,6 +286,66 @@
     ]
 }
 
+// Fraying Sanity
+{
+    "name": "Fraying Sanity",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment — Aura Curse",
+    "oracleText": "Enchant player\nAt the beginning of each end step, enchanted player mills X cards, where X is the number of cards put into their graveyard from anywhere this turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fraying Sanity:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "TurnTracking",
+                                    "player": "EnchantedPlayer",
+                                    "tracker": "CARDS_PUT_INTO_GRAVEYARD"
+                                },
+                                "player": "EnchantedPlayer",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "EnchantedPlayer"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "auraTarget": "TargetPlayer"
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "RARE",
+        "artist": "Ryan Alexander Lee",
+        "flavorText": "Those wound tightest are first to unravel.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/9/79e5c1ab-eebd-41ca-a1ca-29b00370f6e8.jpg?1783936053"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Gift of Strength
 {
     "name": "Gift of Strength",
@@ -359,6 +419,41 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Marauding Boneslasher
+{
+    "name": "Marauding Boneslasher",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Zombie Minotaur",
+    "oracleText": "This creature can't block unless you control another Zombie.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBlockUnless",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "permanent Zombie",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "artist": "Victor Adame Minguez",
+        "flavorText": "With the Hekma destroyed, the wandering dead that sought entrance to Naktamun had free rein to lay waste to the city.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/d/ddfb7f50-14b1-4c7d-b4c8-f50bc14f4fb7.jpg?1783936039"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -481,6 +576,43 @@
     ]
 }
 
+// Ramunap Excavator
+{
+    "name": "Ramunap Excavator",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Snake Cleric",
+    "oracleText": "You may play lands from your graveyard.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            "MayPlayLandsFromGraveyard"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "129",
+        "rarity": "RARE",
+        "artist": "Mark Behm",
+        "flavorText": "\"This world was once so much more than the confines of Naktamun.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90a54d18-8403-441d-a115-ee462fabdabb.jpg?1783936015",
+        "rulings": [
+            {
+                "date": "2017-07-14",
+                "text": "Ramunap Excavator doesn't change the times when you can play those land cards. You can still play only one land per turn, and only during your main phase when you have priority and the stack is empty."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "Ramunap Excavator doesn't allow you to activate activated abilities (such as cycling) of land cards in your graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Scavenger Grounds
 {
     "name": "Scavenger Grounds",
@@ -572,4 +704,86 @@
         ]
     },
     "colorIdentityOverride": []
+}
+
+// Tragic Lesson
+{
+    "name": "Tragic Lesson",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Draw two cards. Then discard a card unless you return a land you control to its owner's hand.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "PayAtom",
+                        "atom": {
+                            "type": "AtomReturnToHand",
+                            "filter": "land"
+                        }
+                    },
+                    "suffer": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "hand"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "hand",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "discarded",
+                                "prompt": "Choose 1 card to discard"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discarded",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "artist": "Joseph Meehan",
+        "flavorText": "Though Kefnet's followers feverishly searched his last words for some final riddle, they found only the gurgles of a dying god.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/0/a0f0353c-f1e0-49db-9edc-eea9090de872.jpg?1783936046",
+        "rulings": [
+            {
+                "date": "2017-07-14",
+                "text": "You don't choose which land to return to its owner's hand or whether to discard a card instead until you see the two cards you draw."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }

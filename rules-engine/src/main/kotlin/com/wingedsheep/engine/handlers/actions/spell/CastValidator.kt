@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.actions.spell
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.core.AdditionalCostSelectionKind
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CardsDiscardedEvent
@@ -149,6 +151,7 @@ internal enum class CastSourceRoute {
     HARMONIZE,
     MAYHEM,
     ESCAPE,
+    AFTERMATH,
     GRAVEYARD_PERMISSION,
     FORAGE_FROM_GRAVEYARD,
     WARP_FROM_GRAVEYARD,
@@ -200,10 +203,13 @@ internal class CastValidator(
 ) {
 
     fun validate(inputState: GameState, action: CastSpell, duringResolution: Boolean = false): String? {
+        if (action.declaredCostTimes > MAX_OPTIONAL_COST_REPEATS) {
+            return "Optional cost payment count exceeds the engine safety limit"
+        }
         if (com.wingedsheep.engine.mechanics.BestowCasts.selected(action) &&
-            (action.castFaceDown || action.faceIndex != null)) return "Bestow cannot be combined with another face or face-down casting"
+            (action.castFaceDown || action.faceIndex != null || action.castFused)) return "Bestow cannot be combined with another face or face-down casting"
         if (action.castPrototyped) {
-            if (action.castFaceDown || action.faceIndex != null || com.wingedsheep.engine.mechanics.BestowCasts.selected(action)) {
+            if (action.castFaceDown || action.faceIndex != null || action.castFused || com.wingedsheep.engine.mechanics.BestowCasts.selected(action)) {
                 return "A prototyped spell is cast with its own characteristics only"
             }
             val printed = inputState.getEntity(action.cardId)?.get<CardComponent>()
@@ -218,13 +224,36 @@ internal class CastValidator(
             ?: return "Card not found: ${action.cardId}"
         val cardComponent = container.get<CardComponent>()
             ?: return "Not a card: ${action.cardId}"
+        com.wingedsheep.engine.mechanics.SplitSpellCasts.choiceFailure(
+            inputState, cardRegistry.getCard(cardComponent.cardDefinitionId), action
+        )?.let { return it }
         val source = castSource(state, action, cardComponent)
             ?: return "Card is not in your hand"
         val cardDef = com.wingedsheep.engine.mechanics.CastCharacteristics.definitionForCast(
             cardRegistry.getCard(cardComponent.cardDefinitionId), action
         )
 
+        action.escapeAbility?.let { selected ->
+            if (!action.useAlternativeCost || action.alternativeCostType != AlternativeCostType.ESCAPE ||
+                com.wingedsheep.engine.mechanics.EscapeCasts.effectiveEscape(
+                    state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator, selected
+                ) == null) return "This escape cost is not available"
+        }
         validateAuthority(state, action, cardComponent, cardDef, source)?.let { return it }
+        if (action.optionalCostPayments.isNotEmpty()) {
+            if (action.optionalCostPayments.distinct().size != action.optionalCostPayments.size) return "An optional cost can only be paid once"
+            if (action.castFaceDown) return "This optional cost does not apply to a face-down spell"
+            val spell = source.transformedFace ?: action.faceIndex?.let { index ->
+                cardDef?.cardFaces?.getOrNull(index)?.let { costCalculator.faceCharacteristics(cardDef, it) }
+            } ?: cardDef ?: return "Spell definition missing"
+            val fromZone = castCostTotaller.castSourceZone(state, action.cardId)
+            for (payment in action.optionalCostPayments) {
+                if (!costCalculator.optionalPaymentApplies(state, payment, spell, action.playerId, fromZone,
+                    action.targets.map { it.toEntityId() }, action.declaredCostSlot)) return "Optional cost is not available for this spell"
+            }
+            val life = action.optionalCostPayments.sumOf { costCalculator.optionalModifier(state, it)?.optionalLifePayment ?: 0 }
+            if (!state.canPayLife(action.playerId, life, LifePaymentPurpose.CAST_SPELL)) return "Cannot pay optional life cost"
+        }
         if (action.castFaceDown) return validateFaceDownCast(state, action, cardDef, duringResolution)
         if (!duringResolution) validateTiming(state, action, cardComponent, cardDef, source)?.let { return it }
         validateAlternativeCostSelections(state, action, cardDef)?.let { return it }
@@ -235,6 +264,7 @@ internal class CastValidator(
         validateTotalCost(state, action, cardComponent, cardDef, source)?.let { return it }
         validateTargets(state, action, cardDef, source)?.let { return it }
         validateDamageDistribution(state, action, cardDef)?.let { return it }
+        validateGraveyardLifeCost(state, action)?.let { return it }
         return validateTargetLifeTaxes(state, action)
     }
 
@@ -251,7 +281,7 @@ internal class CastValidator(
         if (action.splicedCardIds.any { it !in state.getHand(action.playerId) }) {
             return "Spliced card is not in your hand"
         }
-        if (!state.canPayLife(action.playerId, locked.additionalLifeCost)) {
+        if (!state.canPayLife(action.playerId, locked.additionalLifeCost, LifePaymentPurpose.CAST_SPELL)) {
             return "Not enough life to pay additional life cost (${locked.additionalLifeCost} life required)"
         }
         when (locked.dedicatedAlternativeCostType) {
@@ -289,6 +319,11 @@ internal class CastValidator(
         }
         return castCostPayer.validateManaPayment(state, action, lockedCost, locked.paymentXValue)
     }
+    /** The life a graveyard-cast permission charges (Festival of Embers) is life paid to cast. */
+    private fun validateGraveyardLifeCost(state: GameState, action: CastSpell): String? =
+        if (!state.canPayLife(action.playerId, action.graveyardLifeCost, LifePaymentPurpose.CAST_SPELL)) {
+            "Cannot pay ${action.graveyardLifeCost} life to cast this spell"
+        } else null
 
     /**
      * The route this card is being cast by (CR 601.2a), or null when none applies. A card outside
@@ -320,6 +355,14 @@ internal class CastValidator(
             CastSourceRoute.ESCAPE to {
                 action.useAlternativeCost && action.altAllows(AlternativeCostType.ESCAPE) &&
                     zoneResolver.hasEscapePermission(state, playerId, cardId)
+            },
+            // Aftermath (CR 702.127a) — the aftermath half of a split card, cast from its owner's
+            // graveyard for its printed mana cost. Only the half the action names: the other half
+            // gains no graveyard permission from it.
+            CastSourceRoute.AFTERMATH to {
+                com.wingedsheep.engine.mechanics.AftermathCasts.graveyardCastFace(
+                    state, playerId, cardRegistry.getCard(cardComponent.cardDefinitionId), action
+                ) != null
             },
             CastSourceRoute.GRAVEYARD_PERMISSION to {
                 zoneResolver.hasMayCastFromGraveyardPermission(state, playerId, cardId, cardComponent)
@@ -411,7 +454,7 @@ internal class CastValidator(
         // Single cast-legality chokepoint: per-turn spell limit (Yawgmoth's Agenda), Silence-style
         // can't-cast, Mana Maze color sharing, and PlayersCantCastSpells (Voice of Victory, …) all
         // resolve to a reason here, or null if the cast is allowed.
-        castPermissionUtils.reasonCannotCast(state, action.playerId, action.cardId)?.let { return it }
+        castPermissionUtils.reasonCannotCast(state, action.playerId, action.cardId, action)?.let { return it }
 
         // The spell being cast can't be one of the three cards it exiles to pay for itself, so it's
         // excluded from the forage exile pool here just as it is at payment time.
@@ -482,12 +525,20 @@ internal class CastValidator(
         val castableFaceDown = cardDef?.keywordAbilities?.any {
             it is KeywordAbility.Morph || it is KeywordAbility.Disguise
         } == true
-        if (!castableFaceDown) {
+        // An effect may allow casting any card face down (Illusionary Mask), through a permission
+        // naming the card; without one, only morph and disguise do (CR 702.37d / 702.168a).
+        val permittedFaceDown = state.mayPlayPermissions.any {
+            it.castFaceDown && it.controllerId == action.playerId && action.cardId in it.cardIds
+        }
+        if (!castableFaceDown && !permittedFaceDown) {
             return "This card cannot be cast face down (no morph or disguise ability)"
         }
         if (!duringResolution && !turnManager.canPlaySorcerySpeed(state, action.playerId)) {
             return "You can only cast face-down creatures at sorcery speed"
         }
+        // "Cast it face down without paying its mana cost": the face-down {3} is waived too — but
+        // only under that permission; morph's {3} is itself an alternative cost (CR 118.9a).
+        if (permittedFaceDown && zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId)) return null
         return castCostPayer.validateManaPayment(state, action, costCalculator.calculateFaceDownCost(state, action.playerId))
     }
 
@@ -514,15 +565,16 @@ internal class CastValidator(
         // grants none to a sorcery-speed back. `transformedFace` is null for an ordinary cast, which
         // leaves this reading the card's own keywords. A *granted* flash below is a property of the
         // card object, not of a face, so it is unaffected.
-        val faceKeywords = transformedFace?.keywords ?: cardDef?.keywords ?: emptySet()
-        val grantedFlash = faceKeywords.contains(Keyword.FLASH) || zoneResolver.hasGrantedFlash(state, action.cardId)
+        val faceKeywords = action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.keywords }
+            ?: transformedFace?.keywords ?: cardDef?.keywords ?: emptySet()
+        val grantedFlash = faceKeywords.contains(Keyword.FLASH) || zoneResolver.hasGrantedFlash(state, action.cardId, action.playerId, action.xValue)
         // A from-exile may-play permission with an "as though it had flash" rider (Azula, Cunning
         // Usurper) lets a non-instant exiled card be cast at instant speed (CR 702.8).
         val mayPlayFlash = state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
             .any { it.asThoughFlash }
         // A flash-timing kicker unlocks instant-speed casting when paid — whether the optional cost
         // is mana (Ghitu Fire) or a non-mana cost like Behold (Molten Exhale).
-        val flashTimingKicker = declaredOptionalCosts(action, cardDef).any { it.grantsFlashTiming }
+        val flashTimingKicker = declaredOptionalCosts(action, optionalCosts(state, action, cardDef)).any { it.grantsFlashTiming }
         // A battlefield-granted alternative cost whose cast carries flash (Primal Prayers: "If you
         // cast a spell this way, you may cast it as though it had flash"). Reads the same grant the
         // totaller charges, so the timing and the price can't come from two different grants. Needs
@@ -615,7 +667,7 @@ internal class CastValidator(
         state: GameState, action: CastSpell, cardDef: CardDefinition?
     ): String? {
         if (action.declaredCostTimes <= 1) return null
-        val costs = declaredOptionalCosts(action, cardDef)
+        val costs = declaredOptionalCosts(action, optionalCosts(state, action, cardDef))
         if (costs.none { it.multi }) return null // validateAnnouncements reports this case.
         val alternative = action.alternativePayment
         val extraMana = if (alternative == null) 0L else {
@@ -647,6 +699,12 @@ internal class CastValidator(
      * the action arrives with modes chosen — the cast-time continuation flow starts with none, which
      * falls through to the pause in execute().
      */
+    /** The spell's printed optional costs plus any offspring a permanent grants it as it's cast. */
+    private fun optionalCosts(state: GameState, action: CastSpell, cardDef: CardDefinition?) =
+        com.wingedsheep.engine.mechanics.OffspringGrants.effectiveOptionalCosts(
+            state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
+        )
+
     private fun validateAnnouncements(state: GameState, action: CastSpell, cardDef: CardDefinition?): String? {
         if (cardDef == null) return null
         if (cardDef.script.castRestrictions.isNotEmpty()) {
@@ -661,7 +719,7 @@ internal class CastValidator(
         // The declared optional additional cost (kicker/offspring/bargain): the card must actually
         // have a keyword declaring that slot, so a hand-built action can't claim to have bargained a
         // kicker spell (or bargained a card with no bargain at all).
-        if (action.declaredCostSlot != null && declaredOptionalCosts(action, cardDef).isEmpty()) {
+        if (action.declaredCostSlot != null && declaredOptionalCosts(action, optionalCosts(state, action, cardDef)).isEmpty()) {
             val mechanic = when (action.declaredCostSlot) {
                 ChoiceSlot.BARGAINED -> "bargain"
                 ChoiceSlot.KICKED -> "kicker"
@@ -672,7 +730,7 @@ internal class CastValidator(
         // Picking among a slot's costs ("Kicker [A] and/or [B]", CR 702.33b): each index must name
         // one of the costs the card lists under that slot.
         if (action.declaredCostSlot != null && action.declaredCostIndices.isNotEmpty() &&
-            action.declaredCostIndices.any { it !in slotOptionalCosts(action, cardDef).indices }
+            action.declaredCostIndices.any { it !in slotOptionalCosts(action, optionalCosts(state, action, cardDef)).indices }
         ) {
             return "This card does not have that optional cost"
         }
@@ -680,7 +738,7 @@ internal class CastValidator(
         // CR 702.56a); a zero or negative count is not a declaration at all.
         if (action.declaredCostTimes < 1) return "An optional cost must be paid at least once"
         if (action.declaredCostTimes > 1 &&
-            (action.declaredCostSlot == null || declaredOptionalCosts(action, cardDef).none { it.multi })
+            (action.declaredCostSlot == null || declaredOptionalCosts(action, optionalCosts(state, action, cardDef)).none { it.multi })
         ) {
             return "This spell's optional cost can only be paid once"
         }
@@ -714,8 +772,12 @@ internal class CastValidator(
             it is AdditionalCost.Choice && it.choiceSlot != null && it.choiceSlot !in action.additionalCostChoices
         }
         val check = SpellCostCheck(state, action, costHandler, predicateEvaluator)
-        return SpellCosts.reduceAlternatives(announcedCosts, state, action.playerId, action.additionalCostPayment, costHandler, action.additionalCostChoices)
-            .firstNotNullOfOrNull { SpellCosts.validate(check, it) }
+        val reduced = SpellCosts.reduceAlternatives(announcedCosts, state, action.playerId,
+            action.additionalCostPayment, costHandler, action.additionalCostChoices)
+        reduced.firstNotNullOfOrNull { SpellCosts.validate(check, it) }?.let { return it }
+        val totalLife = reduced.sumOf { SpellCosts.lifeToPay(check, it) }
+        if (!state.canPayLife(action.playerId, totalLife, LifePaymentPurpose.CAST_SPELL)) return "Cannot pay combined additional life costs"
+        return null
     }
 
     /**
@@ -781,7 +843,7 @@ internal class CastValidator(
             if (action.useAlternativeCost) {
                 return "Cannot combine 'without paying its mana cost' with another alternative cost"
             }
-            // Pass the spell's origin zone so a `fromExileOnly` source (Warped Space) validates an
+            // Pass the spell's origin zone so a zone-scoped `fromZones` source (Warped Space) validates an
             // exile cast while staying withheld from hand casts.
             if (!costCalculator.hasFreeCastPermission(state, action.playerId, cardDef, castCostTotaller.castSourceZone(state, action.cardId))) {
                 return "'Without paying its mana cost' is not available (gate closed or no source on the battlefield)"
@@ -833,9 +895,21 @@ internal class CastValidator(
      * The chosen targets (CR 601.2c), against the requirements of the face and modes being cast —
      * the aura target included, and each spliced card's own after the spell's.
      */
-    private fun validateTargets(state: GameState, action: CastSpell, cardDef: CardDefinition?, source: CastSource): String? {
+    private fun validateTargets(state: GameState, action: CastSpell, cardDef: CardDefinition?, source: CastSource): String? =
+        targetBinding(state, action, cardDef, source.transformedFace)?.error
+
+    /**
+     * How the cast's flat target list splits across its requirements (CR 601.2c) — see
+     * [TargetValidator.bindTargetGroups] — or null when the cast has no targets to bind. The same
+     * requirements [validate] checks, so the handler records exactly the split that was validated.
+     */
+    internal fun targetBinding(
+        state: GameState,
+        action: CastSpell,
+        cardDef: CardDefinition?,
+        transformedFace: CardDefinition?,
+    ): TargetValidator.TargetGroupBinding? {
         if (cardDef == null) return null
-        val transformedFace = source.transformedFace
         // Adventure / split face cast (CR 715 / 709) — read targets from the face's script. A
         // disturb cast reads the back face's script instead (CR 712.8c): the Innistrad disturb
         // cycle's Aura backs choose what to enchant as the spell is cast.
@@ -867,7 +941,7 @@ internal class CastValidator(
         } else if (isOverloadCast(action, cardDef)) {
             // Overload (CR 702.96b): "target" became "each", so the spell takes no targets — and a
             // client-supplied target list on an overloaded cast is malformed, not ignorable.
-            if (action.targets.isNotEmpty()) return "An overloaded spell has no targets"
+            if (action.targets.isNotEmpty()) return TargetValidator.TargetGroupBinding(emptyList(), "An overloaded spell has no targets")
             emptyList()
         } else {
             effectiveScript.targetRequirements
@@ -886,20 +960,55 @@ internal class CastValidator(
             addAll(SpliceCasts.targetRequirementsFor(state, action.splicedCardIds, cardRegistry))
         }.map { req -> castText?.let { req.applyTextReplacement(it) } ?: req }
         if (targetRequirements.isEmpty()) return null
-        // Reject casting if spell requires targets but none were provided
-        if (action.targets.isEmpty() && targetRequirements.sumOf { it.effectiveMinCount } > 0) {
-            return "No valid targets available"
+        val sourceColors = (transformedFace ?: cardDef).colors
+        val sourceSubtypes = (transformedFace ?: cardDef).typeLine.subtypes.map { it.value }.toSet()
+        // A choose-N modal cast that sends its targets per mode already says which mode each target
+        // belongs to, and those slices are what the stack records. Bind each slice against its own
+        // mode — inferring a split of the union could hand one mode's target to another mode's
+        // optional group — then the tail (spliced cards' targets) after them.
+        val modeSlices = action.modeTargetsOrdered.takeIf {
+            modalEffect != null && !modalTargetsDeferred && it.isNotEmpty() && it.size == action.chosenModes.size
         }
-        return targetValidator.validateTargets(
+        var modeCounts: List<Int>? = null
+        val flatTargets = if (modeSlices == null) action.targets else {
+            val union = modeSlices.flatten()
+            if (action.targets.isNotEmpty() && action.targets.take(union.size) != union) {
+                return TargetValidator.TargetGroupBinding(targetRequirements.map { 0 }, "Targets don't match the per-mode targets")
+            }
+            var cursor = 0
+            val perMode = action.chosenModes.zip(modeSlices).map { (mode, modeTargets) ->
+                val size = modalEffect!!.modes.getOrNull(mode)?.targetRequirements?.size ?: 0
+                targetValidator.bindTargetGroups(
+                    state, modeTargets, targetRequirements.subList(cursor, cursor + size), action.playerId,
+                    sourceColors, sourceSubtypes, action.cardId, action.xValue, TargetingSourceType.SPELL,
+                ).also { cursor += size }
+            }
+            val tailTargets = action.targets.drop(union.size)
+            val tail = targetValidator.bindTargetGroups(
+                state, tailTargets, targetRequirements.subList(cursor, targetRequirements.size), action.playerId,
+                sourceColors, sourceSubtypes, action.cardId, action.xValue, TargetingSourceType.SPELL,
+            )
+            (perMode + tail).firstNotNullOfOrNull { it.error }?.let {
+                return TargetValidator.TargetGroupBinding(targetRequirements.map { 0 }, it)
+            }
+            modeCounts = (perMode + tail).flatMap { it.counts }
+            union + tailTargets
+        }
+        // Reject casting if spell requires targets but none were provided
+        if (flatTargets.isEmpty() && targetRequirements.sumOf { it.effectiveMinCount } > 0) {
+            return TargetValidator.TargetGroupBinding(targetRequirements.map { 0 }, "No valid targets available")
+        }
+        return targetValidator.bindTargetGroups(
             state,
-            action.targets,
+            flatTargets,
             targetRequirements,
             action.playerId,
-            sourceColors = (transformedFace ?: cardDef).colors,
-            sourceSubtypes = (transformedFace ?: cardDef).typeLine.subtypes.map { it.value }.toSet(),
+            sourceColors = sourceColors,
+            sourceSubtypes = sourceSubtypes,
             sourceId = action.cardId,
             xValue = action.xValue,
-            targetingSourceType = TargetingSourceType.SPELL
+            targetingSourceType = TargetingSourceType.SPELL,
+            explicitCounts = action.targetGroupCounts ?: modeCounts
         )
     }
 
@@ -950,7 +1059,7 @@ internal class CastValidator(
     private fun validateTargetLifeTaxes(state: GameState, action: CastSpell): String? {
         if (action.targets.isEmpty()) return null
         val additionalLifeCost = costCalculator.calculateAdditionalLifeCost(state, action.playerId, action.targets)
-        if (!state.canPayLife(action.playerId, additionalLifeCost)) { // CR 810.9a — team's shared total
+        if (!state.canPayLife(action.playerId, additionalLifeCost, LifePaymentPurpose.CAST_SPELL)) { // CR 810.9a — team's shared total
             return "Not enough life to pay additional life cost ($additionalLifeCost life required)"
         }
         return null

@@ -1,5 +1,7 @@
 package com.wingedsheep.ai.engine.knowledge
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+
 /**
  * What a card is *for*, derived structurally from its [com.wingedsheep.sdk.model.CardScript].
  *
@@ -139,7 +141,72 @@ data class CardIntent(
      * ambush policy most wants — from being mistaken for one that aims at us.
      */
     val targetsOnlyOurPermanents: Boolean = false,
+    /**
+     * Whether the card carries an **untargeted group pump that expires** — "creatures you control
+     * get +2/+1 until end of turn" (Rabbit Response), which `Patterns.Group.modifyStatsForAll`
+     * lowers to a `ForEachEffect` over a group.
+     *
+     * [EffectWalker] treats a `ForEach` as a leaf, so such a card never reaches
+     * [IntentTag.COMBAT_TRICK] and [HoldPolicy] never asks whether there is a fight to spend it in.
+     * Kept as its own field rather than folded into that tag so the tag — and every profile that
+     * reads it — stays exactly as it was; the one consumer is [HoldPolicy] behind
+     * [com.wingedsheep.ai.engine.AiProfile.holdUnusablePumps].
+     */
+    val expiringGroupPump: Boolean = false,
+    /**
+     * Whether the card **looks at the top of its library and puts what it picks into hand** —
+     * Sleight of Hand's "look at the top two, put one into your hand", which
+     * `Patterns.Library.lookAtTopAndKeep` lowers to a gather from the top of the library and a move
+     * to hand.
+     *
+     * Neither half is a [IntentTag.DRAW] (no card is drawn) nor a [IntentTag.TUTOR] (the gather is
+     * not a search), so such a card reads with no tags at all. Kept as its own field, like
+     * [expiringGroupPump], so no tag — and nothing that prices one — moves; the one consumer is
+     * [HoldPolicy] behind [com.wingedsheep.ai.engine.AiProfile.drawWithIdleMana].
+     *
+     * Also true for a **wish** — a card brought from outside the game into hand ([wishFilters]):
+     * the same card-for-a-card trade, from the other hidden zone its owner can draw on.
+     */
+    val selectsIntoHand: Boolean = false,
+    /**
+     * The filters of every gather that brings a card its owner holds **outside the game** (the
+     * private `Zone.SIDEBOARD`) into hand — Burning Wish's "a sorcery card you own from outside the
+     * game", Extrapolate the Impossible's "two cards you own … from outside the game". Empty when
+     * the card is not a wish.
+     *
+     * Read so [HoldPolicy] can tell a live wish from a dead one: the evaluator prices the trade as
+     * a card spent and a card gained, so a wish into a sideboard holding nothing it can take is a
+     * card thrown away, and must not collect the idle-mana nudge a live one does.
+     */
+    val wishFilters: List<GameObjectFilter> = emptyList(),
+    /**
+     * The subset of [tags] the card can cash in **the turn it arrives** — everything except what
+     * sits behind a later event of the permanent's own: a trigger on it attacking, blocking, being
+     * blocked, dealing damage or leaving the battlefield, and (for a creature without haste) an
+     * ability that taps or untaps it.
+     *
+     * [AmbushWindow] asks "does this card pay off before the ambush?" and [tags] cannot answer it:
+     * a tag says what the card does *anywhere*. Sphinx of False Conclusions loots when it attacks,
+     * so it reads [IntentTag.DRAW], and the hold treated that as an ETB card draw and jammed the
+     * Sphinx in its own main phase (2026-10-14, Reality Fracture draft) — though a no-haste body
+     * cannot attack before the opponent's turn whichever window it lands in.
+     *
+     * Null means "same as [tags]": what an intent built by hand, or [UNKNOWN], should read.
+     * Only [AmbushWindow] reads it, behind
+     * [com.wingedsheep.ai.engine.AiProfile.holdInstantSpeedDeploys].
+     */
+    val arrivalTags: Set<IntentTag>? = null,
+    /**
+     * Whether the card lets its controller activate planeswalker loyalty abilities **at instant
+     * speed** (Jace's Machinations). A walker it deploys or empowers can then be used at the
+     * opponent's end step as well as in our main phase, so its loyalty is no reason to cast it now.
+     * Read by [AmbushWindow].
+     */
+    val grantsInstantSpeedLoyalty: Boolean = false,
 ) {
+    /** [arrivalTags], falling back to [tags] where the analyzer did not split them. */
+    val tagsOnArrival: Set<IntentTag> get() = arrivalTags ?: tags
+
     operator fun contains(tag: IntentTag): Boolean = tag in tags
 
     companion object {

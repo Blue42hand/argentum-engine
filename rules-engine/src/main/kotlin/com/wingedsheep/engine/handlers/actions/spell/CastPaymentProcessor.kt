@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.actions.spell
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.mechanics.mana.allocateFloating
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
@@ -92,6 +94,7 @@ class CastPaymentProcessor(
         manaBySource = component.manaBySource,
         manaByCardType = component.manaByCardType,
         snowMana = component.snowMana,
+        manaUnits = component.manaUnits,
         snowColorless = component.snowColorless
     )
 
@@ -107,6 +110,7 @@ class CastPaymentProcessor(
         manaBySource = pool.manaBySource,
         manaByCardType = pool.manaByCardType,
         snowMana = pool.snowMana,
+        manaUnits = pool.manaUnits,
         snowColorless = pool.snowColorless
     )
 
@@ -153,8 +157,9 @@ class CastPaymentProcessor(
             is PaymentStrategy.FromPool -> emptyList()
         }
         val lifeToPay = lifePayments.size * 2
-        val currentLife = state.lifeTotal(action.playerId)
-        if (lifeToPay > 0 && lifeToPay > currentLife) {
+        // CR 119.4 / 119.8, and a cost-scoped prohibition (Karn's Sylex) — a Phyrexian pip paid
+        // with life is life paid to cast the spell.
+        if (!state.canPayLife(action.playerId, lifeToPay, LifePaymentPurpose.CAST_SPELL)) {
             return PaymentResult(state, emptyList(), "Insufficient life for Phyrexian mana payment")
         }
         val manaCost = effectiveCost.withPhyrexianPaidByLife(lifePayments)
@@ -243,8 +248,8 @@ class CastPaymentProcessor(
             ?: return PaymentResult(state, emptyList(), "Insufficient mana in pool")
 
         // Track mana spent for the event (unrestricted only — restricted changes tracked by count difference)
-        val unrestrictedBefore = ManaPool(poolComponent.white, poolComponent.blue, poolComponent.black, poolComponent.red, poolComponent.green, poolComponent.colorless, snowMana = poolComponent.snowMana, snowColorless = poolComponent.snowColorless)
-        val unrestrictedAfter = ManaPool(poolAfterPayment.white, poolAfterPayment.blue, poolAfterPayment.black, poolAfterPayment.red, poolAfterPayment.green, poolAfterPayment.colorless, snowMana = poolAfterPayment.snowMana, snowColorless = poolAfterPayment.snowColorless)
+        val unrestrictedBefore = ManaPool(poolComponent.white, poolComponent.blue, poolComponent.black, poolComponent.red, poolComponent.green, poolComponent.colorless, snowMana = poolComponent.snowMana, manaUnits = poolComponent.manaUnits, snowColorless = poolComponent.snowColorless)
+        val unrestrictedAfter = ManaPool(poolAfterPayment.white, poolAfterPayment.blue, poolAfterPayment.black, poolAfterPayment.red, poolAfterPayment.green, poolAfterPayment.colorless, snowMana = poolAfterPayment.snowMana, manaUnits = poolAfterPayment.manaUnits, snowColorless = poolAfterPayment.snowColorless)
         val restrictedSpent = poolComponent.restrictedMana.size - poolAfterPayment.restrictedMana.size
 
         var whiteSpent = poolComponent.white - poolAfterPayment.white
@@ -560,6 +565,13 @@ class CastPaymentProcessor(
                             entry.restriction != null ->
                                 pool.addRestricted(entry.color, entry.amount, entry.restriction)
                             else -> pool.add(entry.color, entry.amount)
+                        }
+                        if (!entry.countsTowardSpent && entry.sourceId != null) {
+                            val tag = ManaProvenanceTracker.sourceTag(state, entry.sourceId)
+                            val color = if (entry.colorless) null else entry.color
+                            pool = if (entry.restriction == null) pool.copy(manaUnits = pool.manaUnits +
+                                List(entry.amount) { com.wingedsheep.engine.mechanics.mana.ManaUnit(color, tag) })
+                            else pool.withRestrictedProvenance(tag, entry.amount)
                         }
                     }
                     container.with(pool)

@@ -6,6 +6,7 @@ import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.gameserver.deck.EasterEggDeckInjector
 import com.wingedsheep.gameserver.lobby.FfaTerminalResult
 import com.wingedsheep.gameserver.lobby.TournamentLobby
+import com.wingedsheep.gameserver.protocol.DeckRequestConverter
 import com.wingedsheep.gameserver.protocol.ErrorCode
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.repository.GameRepository
@@ -142,16 +143,19 @@ class FreeForAllHandler(
                 identity.playerName, baseDeck, gameProperties.easterEggs.enabled
             )
             val commander = if (usesCommanders) playerState.commander else null
-            val unpinnedDeck = if (commander != null) stripCommanderFromCards(deckWithEgg, commander) else deckWithEgg
+            // A partner pair (CR 702.124) seats both commanders; the second only rides beside a first.
+            val commanders = listOfNotNull(commander, playerState.secondCommander?.takeIf { commander != null })
+            val unpinnedDeck = DeckRequestConverter.stripCommanders(deckWithEgg, commanders)
             val poolPrintings = playerState.cardPool + lobby.basicLands.values
             val deck = BoosterGenerator.withCardArt(unpinnedDeck, poolPrintings)
 
             val playerSession = identity.toPlayerSession()
             gameSession.addPlayer(
-                playerSession, deck, commanderCardName = commander,
+                playerSession, deck, commanderCardNames = commanders,
                 sideboard = BoosterGenerator.withCardArt(
                     lobby.getSubmittedSideboard(identity.playerId), poolPrintings,
                 ),
+                companion = lobby.getSubmittedCompanion(identity.playerId),
             )
             gameSession.setPlayerPersistenceInfo(
                 playerSession.playerId, playerSession.playerName, identity.token,
@@ -251,6 +255,7 @@ class FreeForAllHandler(
                 playerId = playerId,
                 playerName = identity.playerName,
                 currentGameSessionId = gameSession.sessionId,
+                avatar = identity.avatar,
             ))
         }
     }
@@ -489,13 +494,5 @@ class FreeForAllHandler(
                 isConnected = identity?.isConnected ?: false,
             )
         }
-    }
-
-    /** Mirrors TournamentMatchHandler.stripCommanderFromCards — wire decks count the commander, the library doesn't. */
-    private fun stripCommanderFromCards(deckList: Map<String, Int>, commander: String): Map<String, Int> {
-        val current = deckList[commander] ?: return deckList
-        val next = deckList.toMutableMap()
-        if (current <= 1) next.remove(commander) else next[commander] = current - 1
-        return next
     }
 }

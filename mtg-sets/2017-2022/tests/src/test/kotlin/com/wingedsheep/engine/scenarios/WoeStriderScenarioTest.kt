@@ -46,12 +46,13 @@ class WoeStriderScenarioTest : ScenarioTestBase() {
                 costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(body)))).error shouldNotBe null
             game.execute(ActivateAbility(game.player1Id, body, ability,
                 costPayment = AdditionalCostPayment(sacrificedPermanents = listOf(goat)))).error shouldBe null
+            val topCard = game.state.getLibrary(game.player1Id).single()
             game.resolveStack()
             (game.getPendingDecision() is SelectCardsDecision) shouldBe true
             game.selectCards(emptyList()).error shouldBe null
             game.resolveStack()
-            game.keepLibraryOrder().error shouldBe null
             game.getPendingDecision() shouldBe null
+            game.state.getLibrary(game.player1Id) shouldBe listOf(topCard)
         }
     }
 }

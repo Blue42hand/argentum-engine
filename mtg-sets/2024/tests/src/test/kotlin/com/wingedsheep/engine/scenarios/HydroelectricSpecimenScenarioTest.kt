@@ -50,16 +50,19 @@ class HydroelectricSpecimenScenarioTest : ScenarioTestBase() {
     }
 
     /**
-     * Use the optional trigger on [spell] — the "you may" is asked as the trigger is put on the
-     * stack, then its target is chosen (auto-picked when [spell] is the only legal one) — and
-     * resolve the trigger, leaving [spell] alone on the stack.
+     * Answer the trigger's "you may" at its target prompt — targeting [spell] accepts (the trigger
+     * then resolves with no second yes/no), an empty selection declines (the trigger never goes on
+     * the stack) — leaving [spell] alone on the stack.
      */
-    private fun TestGame.useTriggerOn(spell: com.wingedsheep.sdk.model.EntityId) {
-        getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-        answerYesNo(true).error shouldBe null
-        if (getPendingDecision() is ChooseTargetsDecision) selectTargets(listOf(spell)).error shouldBe null
+    private fun TestGame.useTriggerOn(spell: com.wingedsheep.sdk.model.EntityId, accept: Boolean = true) {
+        val prompt = getPendingDecision().shouldBeInstanceOf<ChooseTargetsDecision>()
+        prompt.targetRequirements.single().minTargets shouldBe 0
+        selectTargets(if (accept) listOf(spell) else emptyList()).error shouldBe null
         var guard = 0
         while (state.stack.size > 1 && getPendingDecision() == null && guard++ < 10) passPriority()
+        withClue("no second may-prompt on resolution") {
+            (getPendingDecision() is YesNoDecision) shouldBe false
+        }
         state.stack shouldBe listOf(spell)
     }
 
@@ -142,8 +145,7 @@ class HydroelectricSpecimenScenarioTest : ScenarioTestBase() {
                 val bolt = game.state.stack.last()
 
                 game.flashInSpecimen()
-                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(false).error shouldBe null
+                game.useTriggerOn(bolt, accept = false)
 
                 game.targetsOf(bolt) shouldBe listOf(ChosenTarget.Permanent(bears))
                 game.resolveStack()

@@ -1,26 +1,21 @@
 package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
- * Tear Asunder
- * {1}{G}
- * Instant
+ * Tear Asunder — Dominaria United #183
+ * {1}{G} · Instant
+ *
  * Kicker {1}{B}
+ * Exile target artifact or enchantment. If this spell was kicked, exile target nonland
+ * permanent instead.
  *
- * Exile target artifact or enchantment. If this spell was kicked, exile target
- * nonland permanent instead.
- *
- * The kicked cast changes the legal target domain, not merely the effect at
- * resolution. This uses the same kicker target/effect replacement rail as
- * Fight with Fire so cast-time target validation matches the Oracle ruling.
+ * "Instead" swaps the target restriction, so the kicked cast announces a different target
+ * through the `kickerTarget` / `kickerEffect` slots (as Expel the Unworthy does).
  */
 val TearAsunder = card("Tear Asunder") {
     manaCost = "{1}{G}"
@@ -32,11 +27,11 @@ val TearAsunder = card("Tear Asunder") {
     keywordAbility(KeywordAbility.kicker("{1}{B}"))
 
     spell {
-        val chosen = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Move(chosen, Zone.EXILE)
+        val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
+        effect = Effects.Exile(artifactOrEnchantment)
 
-        val kicked = kickerTarget(TargetFilter.NonlandPermanent)
-        kickerEffect = Effects.Move(kicked, Zone.EXILE)
+        val nonlandPermanent = kickerTarget(TargetFilter.NonlandPermanent)
+        kickerEffect = Effects.Exile(nonlandPermanent)
     }
 
     metadata {

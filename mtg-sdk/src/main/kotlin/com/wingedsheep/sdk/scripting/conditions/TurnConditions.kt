@@ -3,6 +3,7 @@ package com.wingedsheep.sdk.scripting.conditions
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Phase
+import com.wingedsheep.sdk.core.PlayerDesignation
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -32,6 +33,24 @@ data object IsYourTurn : Condition {
 @Serializable
 data object IsNotYourTurn : Condition {
     override val description: String = "if it's not your turn"
+}
+
+/**
+ * Condition: "If you could cast a sorcery now" — CR 307.5: it is a main phase of your turn and the
+ * stack is empty (priority is implied wherever the condition is asked: at cast legality, the player
+ * acting holds it). Having a sorcery to cast doesn't matter, and nor do effects that would stop you
+ * casting one.
+ *
+ * The gate behind "each opponent can cast spells only any time they could cast a sorcery" (Teferi,
+ * Time Raveler; Teferi, Mage of Zhalfir): `PlayersCantCastSpells(EachOpponent, condition =
+ * Not(CouldCastSorcery), conditionFromCaster = true)`, so "you" is the player casting. Board-derived,
+ * so it reads the same at resolution and under projection. Distinct from [IsInPhase], which
+ * can't see the stack.
+ */
+@SerialName("CouldCastSorcery")
+@Serializable
+data object CouldCastSorcery : Condition {
+    override val description: String = "if you could cast a sorcery"
 }
 
 /**
@@ -206,13 +225,11 @@ data class PlayerAttackedWithCreaturesThisTurn(
 }
 
 /**
- * Condition: "If [attacker] attacked [defender] this turn" (CR 508.6) — i.e. [attacker]
- * declared one or more creatures as attackers whose defending player was [defender] (the
- * player itself, or the controller of a planeswalker / protector of a battle the creature
- * attacked). Reads [attacker]'s per-turn attacked-players record.
+ * Condition: "If [attacker] attacked [defender] this turn" — the attacker declared one or
+ * more creatures attacking that player directly. Attacking a planeswalker or battle does
+ * not attack its controller or protector. Reads the attacker's per-turn attacked-player record.
  *
- * Negate via `Conditions.Not(...)` for "didn't attack you that turn" (Faramir, Prince of
- * Ithilien: "you draw a card if they didn't attack you that turn").
+ * Negate via `Conditions.Not(...)` for "didn't attack you that turn" (Faramir, Prince of Ithilien).
  */
 @SerialName("PlayerAttackedPlayerThisTurn")
 @Serializable
@@ -648,19 +665,29 @@ data object ControlledCreatureDiedThisTurnCondition : Condition {
  *
  *  - Undead Sprinter (DSK): `CreatureWithSubtypeDiedThisTurn(Subtype.ZOMBIE.value, present = false)`
  *    gates its conditional cast-from-graveyard permission ("if a non-Zombie creature died this turn").
+ *  - Cult Conscript (DMU): `player = Player.You` — "a non-Skeleton creature died under your control
+ *    this turn". Each death is recorded under its last-known controller, so the scoped form reads
+ *    only that player's records and a single death must satisfy both the subtype test and the
+ *    controller scope (unlike `ControlledCreatureDiedThisTurn` AND a global subtype test, which two
+ *    different deaths could satisfy between them).
  *
  * @property subtype The creature subtype to test for, stored as its raw string (e.g. "Zombie").
  * @property present Whether a creature *with* the subtype (true) or *without* it (false) must have died.
+ * @property player Whose deaths count — [Player.Each] (default, global) or a single player resolved
+ *   relative to the source ([Player.You] = died under the source controller's control).
  */
 @SerialName("CreatureWithSubtypeDiedThisTurn")
 @Serializable
 data class CreatureWithSubtypeDiedThisTurn(
     val subtype: String,
-    val present: Boolean = true
+    val present: Boolean = true,
+    val player: Player = Player.Each
 ) : Condition {
-    override val description: String =
-        if (present) "if a $subtype creature died this turn"
-        else "if a non-$subtype creature died this turn"
+    override val description: String = buildString {
+        append(if (present) "if a $subtype creature died" else "if a non-$subtype creature died")
+        if (player != Player.Each) append(" under ${player.possessive} control")
+        append(" this turn")
+    }
 }
 
 /**
@@ -761,6 +788,47 @@ data object YouDiscardedThisCardThisTurn : Condition {
 @Serializable
 data class PlayerHasCitysBlessing(val player: Player = Player.You) : Condition {
     override val description: String = "if ${player.description} has the city's blessing"
+}
+
+// =============================================================================
+// Single-holder designations — the monarch (CR 725) and the initiative (CR 726)
+// =============================================================================
+
+/**
+ * Intervening-if / static condition: "if [player] has [designation]" — "if you're the monarch",
+ * "if you have the initiative".
+ *
+ * [Player.You] reads "if you're the monarch" (Palace Jailer's "Monarch" payoffs) / "if you have the
+ * initiative" (Feywild Caretaker); [Player.AnOpponent] and [Player.EachOpponent] read "if an opponent
+ * is the monarch" (Queen Marchesa) and are *existential* — true when the holder is any opponent of
+ * the controller, which is what matters in multiplayer, where the first opponent is not necessarily
+ * the one holding it. Any other [Player] resolves to one player and asks whether that player holds it.
+ *
+ * False while nobody holds [designation] (CR 725.1 / 726.1 — there is none until an effect hands it
+ * out, and CR 725.4 can leave the game without a monarch), so "if you're not the monarch" is
+ * `Conditions.Not(Conditions.YouAreTheMonarch)` and is true then.
+ *
+ * One type over a [PlayerDesignation] axis rather than one per title: the two designations are read
+ * the same way, and only the engine's inherent abilities tell them apart.
+ */
+@SerialName("PlayerHasDesignation")
+@Serializable
+data class PlayerHasDesignation(
+    val player: Player = Player.You,
+    val designation: PlayerDesignation,
+) : Condition {
+    override val description: String = when (designation) {
+        PlayerDesignation.MONARCH -> when (player) {
+            Player.You -> "if you're the monarch"
+            Player.AnOpponent, Player.EachOpponent -> "if an opponent is the monarch"
+            else -> "if ${player.description} is the monarch"
+        }
+        PlayerDesignation.INITIATIVE -> when (player) {
+            Player.You -> "if you have the initiative"
+            Player.AnOpponent, Player.EachOpponent -> "if an opponent has the initiative"
+            else -> "if ${player.description} has the initiative"
+        }
+    }
 }
 
 // =============================================================================

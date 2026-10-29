@@ -70,7 +70,7 @@ object CombatDefenders {
      *
      * - [AttackMode.MULTIPLE] — every opponent still in the game (CR 802.2).
      * - [AttackMode.LEFT] — only the opponent in the next remaining seat (CR 803.1a). Turn order
-     *   proceeds to the left (CR 103.7b), so "the player to your left" is [GameState.getNextPlayer].
+     *   proceeds to the left (CR 101.4), so "the player to your left" is [GameState.getNextPlayer].
      * - [AttackMode.RIGHT] — only the opponent in the previous remaining seat (CR 803.1b), via
      *   [GameState.getPreviousPlayer].
      *
@@ -86,6 +86,47 @@ object CombatDefenders {
             com.wingedsheep.sdk.core.AttackMode.RIGHT ->
                 setOf(state.getPreviousPlayer(attackingPlayer)).minus(attackingPlayer)
         }
+
+    /**
+     * True if a creature [controllerId] puts onto the battlefield attacking may attack
+     * [defenderId] (CR 508.4 / 506.3c): a defending player still in the game, a planeswalker on the
+     * battlefield controlled by a defending player, or a battle on the battlefield protected by a
+     * defending player that [controllerId] may attack (CR 310.9b). The one legality check every
+     * "enters attacking" path shares — a carried defender (Sneak) is re-validated with it, and a
+     * chosen one ([enteringAttackTargets]) is drawn from it.
+     */
+    fun isLegalEnteringAttackTarget(state: GameState, controllerId: EntityId, defenderId: EntityId): Boolean {
+        val defending = legalDefendingPlayers(state, controllerId)
+        if (defenderId in state.turnOrder) return defenderId in defending
+        if (defenderId !in state.getBattlefield()) return false
+        val projected = state.projectedState
+        return (projected.isPlaneswalker(defenderId) && projected.getController(defenderId) in defending) ||
+            (projected.isBattle(defenderId) &&
+                com.wingedsheep.engine.mechanics.battle.Battles.canBeAttackedBy(state, defenderId, controllerId, defending))
+    }
+
+    /**
+     * Everything a creature [controllerId] puts onto the battlefield attacking could be attacking
+     * (CR 508.4) — the defending players, then their planeswalkers, then the battles they protect.
+     * Empty outside the combat phase or when [controllerId] isn't an attacking player — the active
+     * player, or under shared team turns any player on the active team (CR 805.10a): such a
+     * creature enters but is never attacking (CR 506.3b).
+     */
+    fun enteringAttackTargets(state: GameState, controllerId: EntityId): List<EntityId> {
+        val active = state.activePlayerId
+        if (state.step.phase != com.wingedsheep.sdk.core.Phase.COMBAT || active == null ||
+            controllerId !in state.sharedTurnTeam(active)
+        ) {
+            return emptyList()
+        }
+        val defending = legalDefendingPlayers(state, controllerId)
+        val projected = state.projectedState
+        val permanents = state.getBattlefield()
+            .filter { isLegalEnteringAttackTarget(state, controllerId, it) }
+        return state.turnOrder.filter { it in defending } +
+            permanents.filter { projected.isPlaneswalker(it) } +
+            permanents.filterNot { projected.isPlaneswalker(it) }
+    }
 
     /**
      * All defending seats during combat, including before attackers are declared and seats

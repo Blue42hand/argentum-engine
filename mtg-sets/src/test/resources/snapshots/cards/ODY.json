@@ -1997,6 +1997,98 @@
     ]
 }
 
+// Decimate
+{
+    "name": "Decimate",
+    "manaCost": "{2}{R}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target artifact, target creature, target enchantment, and target land. (You can't cast this spell unless you have legal choices for all its targets.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t2"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t3"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t1"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "enchantment"
+                },
+                "id": "t2"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                },
+                "id": "t3"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "287",
+        "rarity": "RARE",
+        "artist": "Alex Horley-Orlandelli",
+        "flavorText": "\"Anyone can admire creation. Only a barbarian sees the beauty in demolition.\"\n—Kamahl, pit fighter",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/1/912c398a-e49a-4399-ac41-7b1d4328a59d.jpg?1783945206"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Dedicated Martyr
 {
     "name": "Dedicated Martyr",
@@ -2084,7 +2176,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -2329,7 +2423,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -5491,6 +5587,97 @@
         "rarity": "UNCOMMON",
         "artist": "Jerry Tiritilli",
         "imageUri": "https://cards.scryfall.io/normal/front/f/5/f56f195e-a80c-4447-8d3f-cc1259035d1b.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Squirrel Mob
+{
+    "name": "Squirrel Mob",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Creature — Squirrel",
+    "oracleText": "This creature gets +1/+1 for each other Squirrel on the battlefield.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "Each",
+                    "filter": "permanent Squirrel",
+                    "excludeSelf": true
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "Each",
+                    "filter": "permanent Squirrel",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "273",
+        "rarity": "RARE",
+        "artist": "Carl Critchlow",
+        "flavorText": "An army of squirrels is still an army.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/8/181254ce-259a-4b31-8937-728564f2baf3.jpg?1783945210"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Squirrel Nest
+{
+    "name": "Squirrel Nest",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant land\nEnchanted land has \"{T}: Create a 1/1 green Squirrel creature token.\"",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantActivatedAbility",
+                "ability": {
+                    "id": "Squirrel Nest:1",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "CreateToken",
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "GREEN"
+                        ],
+                        "creatureTypes": [
+                            "Squirrel"
+                        ]
+                    }
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "land"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "274",
+        "rarity": "UNCOMMON",
+        "artist": "Anthony S. Waters",
+        "flavorText": "In the Krosan Forest, you've got to keep an eye out for the squirrels.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/22eccb27-1723-4c5a-96b8-85e6e5739c30.jpg?1783945210"
     },
     "colorIdentityOverride": [
         "GREEN"

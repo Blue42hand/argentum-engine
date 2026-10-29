@@ -7,6 +7,7 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.GainedEnchantRestrictionComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
@@ -72,6 +73,10 @@ object EnchantRestriction {
         lastKnownHost: com.wingedsheep.engine.state.components.stack.EntitySnapshot? = null
     ): Boolean {
         if (!hostAllowsAura(state, projected, predicateEvaluator, auraId, hostId)) return false
+        val gained = gainedRestrictionAdmits(state, projected, predicateEvaluator, auraId, hostId, controllerId)
+        if (gained != null) {
+            if (!gained) return false
+        } else {
         val requirement = if (state.getEntity(auraId)?.has<com.wingedsheep.engine.mechanics.BestowedComponent>() == true) {
             if (!projected.hasKeyword(auraId, com.wingedsheep.engine.mechanics.BestowCasts.ENCHANT_CREATURE)) return false
             com.wingedsheep.engine.mechanics.BestowCasts.enchantCreature
@@ -85,7 +90,31 @@ object EnchantRestriction {
             } == true
         } else hostSatisfies(state, projected, predicateEvaluator, requirement, hostId, controllerId, auraId) == true
         if (!satisfies) return false
+        }
         return !hostProtectedFromAttachment(state, projected, cardRegistry, auraId, auraCard, hostId)
+    }
+
+    /**
+     * The verdict of an enchant ability the Aura *gained* in place of its printed one
+     * ([GainedEnchantRestrictionComponent] — Animate Dead's "enchant creature put onto the
+     * battlefield with this Aura"), or null when the Aura has none and its printed `auraTarget`
+     * still rules. The host must be the very object recorded (CR 400.7: one that left and returned
+     * is a new object), still on the battlefield, and still match the gained filter.
+     */
+    fun gainedRestrictionAdmits(
+        state: GameState,
+        projected: ProjectedState,
+        predicateEvaluator: PredicateEvaluator,
+        auraId: EntityId,
+        hostId: EntityId,
+        controllerId: EntityId
+    ): Boolean? {
+        val gained = state.getEntity(auraId)?.get<GainedEnchantRestrictionComponent>() ?: return null
+        if (hostId !in state.getBattlefield()) return false
+        if (gained.hosts.none { it.entityId == hostId && state.isCurrentObject(it) }) return false
+        return predicateEvaluator.matches(
+            state, projected, hostId, gained.filter, PredicateContext(controllerId = controllerId, sourceId = auraId)
+        )
     }
 
     /** Host-side prohibitions, shared by targeting, entry, reattachment, and state-based actions. */
@@ -189,16 +218,27 @@ object EnchantRestriction {
         requirement: TargetRequirement,
         hostId: EntityId,
         controllerId: EntityId,
-        auraId: EntityId?
+        auraId: EntityId?,
+        hostZone: Zone = Zone.BATTLEFIELD
     ): Boolean? {
         val filter = filterOf(requirement) ?: return null
-        // Match the host in its current zone; a graveyard Aura has a card host.
-        val hostZone = state.logicalZone(hostId)?.zoneType ?: return false
-        val zoneClauses = filter.clauses().filter { it.zone == hostZone }
-        if (zoneClauses.isEmpty()) return false
+        // A cross-zone union requirement is satisfied by any one clause; only the clauses scoped to
+        // [hostZone] can describe the host. Usually that is the battlefield — and "an Aura card
+        // that could enchant it" asks the battlefield question even of a host that has since left
+        // — but the enchant state-based action also asks it of a card an Aura enchants in another
+        // zone ("Enchant creature card in a graveyard", Animate Dead; CR 303.4a).
+        val clauses = filter.clauses().filter { it.zone == hostZone }
+        if (clauses.isEmpty()) return null
         val context = PredicateContext(controllerId = controllerId, sourceId = auraId)
-        return zoneClauses.any {
+        return clauses.any {
             predicateEvaluator.matches(state, projected, hostId, it.baseFilter, context)
         }
+    }
+
+    /** The zone [entityId] is in right now — the battlefield, or the card zone it actually sits in. */
+    fun zoneOf(state: GameState, entityId: EntityId): Zone? {
+        if (entityId in state.getBattlefield()) return Zone.BATTLEFIELD
+        val key = state.logicalZone(entityId) ?: return null
+        return key.zoneType.takeIf { entityId in state.getZone(key) }
     }
 }

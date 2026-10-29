@@ -191,7 +191,7 @@ private class ReplayEngine(
                     deck = it.deck,
                     startingLife = it.startingLife,
                     playerId = EntityId(it.playerId),
-                    commanderCardName = it.commanderCardName,
+                    commanderCardNames = it.commanderCardNames,
                 )
             },
             startingHandSize = setup.startingHandSize,

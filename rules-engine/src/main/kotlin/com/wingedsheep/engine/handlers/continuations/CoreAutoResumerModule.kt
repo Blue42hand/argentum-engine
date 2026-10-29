@@ -60,7 +60,11 @@ class CoreAutoResumerModule(
                     result.state, events + result.events
                 )
             }
-            val published = exposeCollectionsToNextFrame(result.state, result.updatedCollections)
+            val published = exposeCollectionsToNextFrame(
+                result.state, result.updatedCollections,
+                sacrificed = continuation.effectContext.sacrificedPermanents + result.updatedSacrificedPermanents,
+                departed = continuation.effectContext.departedPermanents + result.updatedDepartedPermanents,
+            )
             checkForMore(published, events + result.events)
         },
 
@@ -154,6 +158,11 @@ class CoreAutoResumerModule(
                 continuation.effectContext.pipeline.storedCollections + runResult.updatedCollections,
                 continuation.effectContext.pipeline.storedNumbers + runResult.updatedStoredNumbers,
                 continuation.effectContext.pipeline.chosenValues + runResult.updatedChosenValues,
+                // Last-known snapshots of permanents this frame's instructions sacrificed or moved off
+                // the battlefield ride along too, so an outer "for each permanent exiled this way"
+                // loop reads them whether or not a question paused the frame.
+                sacrificed = continuation.effectContext.sacrificedPermanents + runResult.updatedSacrificedPermanents,
+                departed = continuation.effectContext.departedPermanents + runResult.updatedDepartedPermanents,
             )
             checkForMore(stateWithCollections, events + runResult.events)
         },
@@ -183,6 +192,7 @@ class CoreAutoResumerModule(
 
         autoResumer(ModalPreChosenContinuation::class, canResume = { it.remainingEntries.isNotEmpty() }) { state, continuation, events, checkForMore ->
             val ctx = com.wingedsheep.engine.handlers.effects.composite.PreTargetedEffectContext(
+                resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
                 controllerId = continuation.controllerId,
                 sourceId = continuation.sourceId,
                 sourceName = continuation.sourceName,
@@ -190,7 +200,8 @@ class CoreAutoResumerModule(
                 triggeringEntityId = continuation.triggeringEntityId,
                 triggerContext = continuation.triggerContext,
                 pipeline = continuation.pipeline,
-                objectReferences = continuation.objectReferences
+                objectReferences = continuation.objectReferences,
+                baseContext = continuation.baseContext
             )
             val result = com.wingedsheep.engine.handlers.effects.composite.processPreTargetedEffectQueue(
                 state = state,
@@ -243,6 +254,7 @@ class CoreAutoResumerModule(
                 outerTargets = continuation.outerTargets,
                 outerNamedTargets = continuation.outerNamedTargets,
                 pipeline = continuation.pipeline,
+                resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
                 objectReferences = continuation.objectReferences,
                 accumulatedEvents = events,
                 checkForMore = checkForMore
@@ -275,7 +287,9 @@ class CoreAutoResumerModule(
                     )
                 else -> com.wingedsheep.engine.core.EffectResult.success(state)
             }
-            mergeAndContinue(result.toExecutionResult(), events, checkForMore)
+            val grouped = com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(
+                result, com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(continuation.context))
+            mergeAndContinue(grouped.toExecutionResult(), events, checkForMore)
         },
 
         // CR 605.3a — the player activated a mana ability while the engine was asking them for a

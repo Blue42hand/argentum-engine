@@ -113,6 +113,82 @@
     ]
 }
 
+// Ancestral Statue
+{
+    "name": "Ancestral Statue",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Golem",
+    "oracleText": "When this creature enters, return a nonland permanent you control to its owner's hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ancestral Statue:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "nonland permanent",
+                                "player": "You"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose a nonland permanent you control to return to its owner's hand",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "234",
+        "artist": "Tomasz Jedruszek",
+        "flavorText": "The mage awakened the statue in hopes of learning the lost lore of her clan, but the statue was interested only in war.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/7/c7124a6f-b690-4326-93b5-036a8c520c1f.jpg?1783938569",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Ancestral Statue's ability is mandatory. If Ancestral Statue is the only nonland permanent you control when its ability resolves, you must return it to its owner's hand."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "The triggered ability doesn't target any permanent. You choose which one to return as the ability resolves. No player can respond to this choice once the ability starts resolving."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Ancient Carp
 {
     "name": "Ancient Carp",
@@ -910,6 +986,104 @@
     "colorIdentityOverride": []
 }
 
+// Deathbringer Regent
+{
+    "name": "Deathbringer Regent",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhen this creature enters, if you cast it from your hand and there are five or more other creatures on the battlefield, destroy all other creatures.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Deathbringer Regent:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        {
+                                            "type": "StateNot",
+                                            "predicate": "IsSource"
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                },
+                "interveningIf": {
+                    "type": "All",
+                    "conditions": [
+                        "WasCastFromHand",
+                        {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateBattlefield",
+                                "player": "Each",
+                                "filter": "creature",
+                                "excludeSelf": true
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 5
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, if you cast it from your hand and there are five or more other creatures on the battlefield, destroy all other creatures."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "rarity": "RARE",
+        "artist": "Adam Paquette",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/75cad378-129f-41da-8db2-065fc45c76eb.jpg?1783938598",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "If you cast a creature spell that enters the battlefield as a copy of Deathbringer Regent, the enters-the-battlefield ability will trigger (assuming the \"five or more other creatures\" requirement is also met)."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "Deathbringer Regent's last ability destroys all creatures except Deathbringer Regent, including the five other creatures required for the ability to have an effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Defeat
 {
     "name": "Defeat",
@@ -1164,6 +1338,80 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Epic Confrontation
+{
+    "name": "Epic Confrontation",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target creature you control gets +1/+2 until end of turn. It fights target creature you don't control. (Each deals damage equal to its power to the other.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "Fight",
+                    "target1": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "controllerPredicate": {
+                            "type": "ControllerNot",
+                            "predicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "185",
+        "artist": "Wayne Reynolds",
+        "flavorText": "No matter the timeline, some legends will endure.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f587436e-51ff-4c9c-a6ce-e2768844a71a.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -1999,7 +2247,8 @@
                             "type": "Fixed",
                             "amount": 4
                         }
-                    }
+                    },
+                    "description": "You gain 4 life"
                 },
                 {
                     "effect": "Counter",
@@ -2022,7 +2271,8 @@
                             "type": "Fixed",
                             "amount": 1
                         }
-                    }
+                    },
+                    "description": "Draw a card"
                 }
             ],
             "chooseCount": 2
@@ -2477,6 +2727,74 @@
     ]
 }
 
+// Sarkhan's Rage
+{
+    "name": "Sarkhan's Rage",
+    "manaCost": "{4}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Sarkhan's Rage deals 5 damage to any target. If you control no Dragons, Sarkhan's Rage deals 2 damage to you.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Dragon",
+                            "negate": true
+                        }
+                    },
+                    "then": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": "Controller"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "153",
+        "artist": "Chris Rahn",
+        "flavorText": "The people of Tarkir speak of an ancient legend, of the dragon-man called Sarkhan who was greatest of all khans.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/4787924f-3186-4e18-b53c-dd67c5f42220.jpg?1783938586",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Sarkhan's Rage checks whether you control a Dragon as it resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Sarkhan's Triumph
 {
     "name": "Sarkhan's Triumph",
@@ -2507,7 +2825,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a Dragon creature card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",

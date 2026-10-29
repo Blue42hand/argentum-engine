@@ -32,6 +32,13 @@ data class EffectResult(
      * the cost-sacrifice path, which captures the same snapshots at cost-payment time.
      */
     val updatedSacrificedPermanents: List<EntitySnapshot> = emptyList(),
+    /**
+     * LKI snapshots of every permanent this step moved off the battlefield (any move — exile,
+     * destroy, bounce, sacrifice). Composite executors merge these into
+     * [com.wingedsheep.engine.handlers.EffectContext.departedPermanents] so a later instruction
+     * iterating "each permanent exiled this way" reads them as they last existed (CR 608.2h).
+     */
+    val updatedDepartedPermanents: List<EntitySnapshot> = emptyList(),
 ) {
     /** The rejection's message, or null when the effect was not rejected. */
     val error: String? get() = (outcome as? Outcome.Rejected)?.reason?.message

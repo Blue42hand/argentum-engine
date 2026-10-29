@@ -21,6 +21,22 @@ data class ContinuousEffectSourceComponent(
 ) : Component
 
 /**
+ * Card-intrinsic: the continuous effects a card's static abilities generate while it sits in a
+ * zone *other than the battlefield* — [com.wingedsheep.sdk.scripting.ZoneScopedStaticAbility]
+ * (CR 113.6b), e.g. Anger's "As long as Anger is in your graveyard and you control a Mountain,
+ * creatures you control have haste".
+ *
+ * Stamped once at entity creation by [com.wingedsheep.engine.core.CardEntityFactory] (like
+ * [com.wingedsheep.engine.state.components.identity.MadnessComponent]) so it rides the card through
+ * every zone, and the registry-free [StateProjector] can read it straight off a graveyard card
+ * without a definition lookup per projection. The battlefield never reads it.
+ */
+@Serializable
+data class ZoneStaticEffectsComponent(
+    val effectsByZone: Map<com.wingedsheep.sdk.core.Zone, List<ContinuousEffectData>>
+) : Component
+
+/**
  * Data for a single continuous effect.
  *
  * The [layer] and [sublayer] are derived from the [modification], which declares
@@ -132,6 +148,14 @@ sealed interface AffectsFilter {
     }
 
     /**
+     * The creature the source chose as it entered ([com.wingedsheep.sdk.scripting.filters.unified.Scope.ChosenCreature]),
+     * while it is still that object on the battlefield. Empty once it leaves (CR 400.7).
+     */
+    @Serializable
+    data object ChosenCreature : AffectsFilter {
+    }
+
+    /**
      * All creatures that have a specific counter type.
      * Used for Aurification: "Each creature with a gold counter on it..."
      */
@@ -210,8 +234,10 @@ data class ContinuousEffect(
      * left the battlefield (so its [ControllerComponent] is gone). Needed for floating effects
      * that outlive their source — e.g. Titania's Song's "this effect continues until end of
      * turn" linger, whose Layer-7b dynamic P/T must still resolve a controller for the
-     * [EffectContext] after the enchantment has left. Null for static-ability effects, which
-     * always resolve their controller from the source permanent on the battlefield.
+     * [EffectContext] after the enchantment has left. Also the "you" of a static that functions
+     * from a graveyard (CR 113.6b) — the card's owner, since a card in a graveyard has no controller
+     * (CR 108.4a). Read as the fallback controller for the effect's [sourceCondition] too. Null for
+     * battlefield static-ability effects, which resolve their controller from the source permanent.
      */
     val controllerId: EntityId? = null,
     /**
@@ -377,9 +403,17 @@ sealed interface Modification {
      * Add every creature type to the affected entity, in addition to its other
      * subtypes. Used for cards that say "is all creature types" without granting
      * the Changeling keyword (e.g., Stalactite Dagger).
+     *
+     * As with [AddChosenSubtype], the two cross-zone flags are not read by [EffectApplicator]:
+     * [StateProjector] reads them to register an every-creature-type entry in
+     * [ProjectedState.crossZoneSubtypeGrants] (Maskwood Nexus: "The same is true for creature
+     * spells you control and creature cards you own that aren't on the battlefield").
      */
     @Serializable
-    data object AddAllCreatureTypes : Modification {
+    data class AddAllCreatureTypes(
+        val includeControlledSpells: Boolean = false,
+        val includeOwnedCardsOutsideBattlefield: Boolean = false
+    ) : Modification {
         override val layer get() = Layer.TYPE
     }
 
@@ -482,6 +516,11 @@ sealed interface Modification {
     data class GrantKeyword(val keyword: String) : Modification {
         override val layer get() = Layer.ABILITY
     }
+    /** Carries point-of-use static abilities through ability gains and losses, preserving instances. */
+    @Serializable
+    data class GrantStaticAbility(val ability: com.wingedsheep.sdk.scripting.StaticAbility) : Modification {
+        override val layer get() = Layer.ABILITY
+    }
     @Serializable
     data class CantHaveKeywords(val keywords: Set<String>) : Modification {
         override val layer get() = Layer.ABILITY
@@ -549,22 +588,24 @@ sealed interface Modification {
     }
 
     /**
-     * Grants "hexproof from monocolored" to each affected entity — adds the keyword
-     * `HEXPROOF_FROM_MONOCOLORED`, which blocks targeting by monocolored (exactly one color)
-     * spells and abilities opponents control. Used for Dragonfire Blade.
+     * Grants "hexproof from <quality>" to each affected entity — adds the projected
+     * `HEXPROOF_FROM_*` [keywords] that [com.wingedsheep.engine.mechanics.targeting.HexproofFromRules]
+     * reads at targeting (`HexproofFromRules.keywordsFor`). Used for Dragonfire Blade (monocolored)
+     * and Niv-Mizzet, Guildpact (multicolored).
      */
     @Serializable
-    data object GrantHexproofFromMonocolored : Modification {
+    data class GrantHexproofFrom(val keywords: Set<String>) : Modification {
         override val layer get() = Layer.ABILITY
     }
 
     /**
-     * Grants "hexproof from multicolored" to each affected entity — adds the keyword
-     * `HEXPROOF_FROM_MULTICOLORED`, which blocks targeting by multicolored (two or more colors)
-     * spells and abilities opponents control. Used for Niv-Mizzet, Guildpact.
+     * Grants "protection from <quality>" to each affected entity — adds the projected
+     * `PROTECTION_FROM_*` [keywords] a printed protection with that scope projects
+     * ([com.wingedsheep.engine.mechanics.targeting.ProtectionKeywords.keywordsFor]). Used for
+     * Lord of the Nazgûl (Ring-bearers).
      */
     @Serializable
-    data object GrantHexproofFromMulticolored : Modification {
+    data class GrantProtectionFrom(val keywords: Set<String>) : Modification {
         override val layer get() = Layer.ABILITY
     }
 
@@ -657,6 +698,16 @@ sealed interface Modification {
     /** Grants "can block an additional N creatures" to affected entities. Cumulative. */
     @Serializable
     data class CanBlockAdditional(val count: Int = 1) : Modification {
+        override val layer get() = Layer.ABILITY
+    }
+
+    /**
+     * "Mana abilities of this land cost an additional N life to activate" (Thran Portal) — lowered
+     * from [com.wingedsheep.sdk.scripting.ManaAbilitiesCostAdditionalLife]. Cumulative; read via
+     * [ProjectedState.getManaAbilityLifeTax].
+     */
+    @Serializable
+    data class ManaAbilitiesCostLife(val amount: Int) : Modification {
         override val layer get() = Layer.ABILITY
     }
 
@@ -788,6 +839,9 @@ internal data class MutableProjectedValues(
     var name: String? = null,
     val keywords: MutableSet<String> = mutableSetOf(),
     val cantHaveKeywords: MutableSet<String> = mutableSetOf(),
+    val staticAbilities: MutableList<com.wingedsheep.sdk.scripting.StaticAbility> = mutableListOf(),
+    /** Parallel to [staticAbilities]: the source of the effect that gave each entry. */
+    val staticAbilitySourceIds: MutableList<EntityId> = mutableListOf(),
     val enchantmentRestrictions: MutableList<ActiveEnchantmentRestriction> = mutableListOf(),
     val colors: MutableSet<String> = mutableSetOf(),
     val types: MutableSet<String> = mutableSetOf(),
@@ -805,7 +859,14 @@ internal data class MutableProjectedValues(
     val cantBeBlockedExceptByFilters: MutableList<GameObjectFilter> = mutableListOf(),
     val canOnlyBlockCreaturesWithFilters: MutableList<GameObjectFilter> = mutableListOf(),
     var additionalBlockCount: Int = 0,
+    var manaAbilityLifeTax: Int = 0,
     var lostAllAbilities: Boolean = false,
     /** See [com.wingedsheep.engine.mechanics.layers.ProjectedValues.basicLandTypesSetByEffect]. */
-    var basicLandTypesSetByEffect: Boolean = false
+    var basicLandTypesSetByEffect: Boolean = false,
+    /**
+     * Card types a Layer 4 effect removed this pass ([Modification.RemoveType]). Projection-only
+     * bookkeeping for CR 205.1a: once Layer 4 is done, a removed creature type takes its creature
+     * subtypes with it unless the object still has a card type those subtypes belong to.
+     */
+    val removedCardTypes: MutableSet<String> = mutableSetOf()
 )

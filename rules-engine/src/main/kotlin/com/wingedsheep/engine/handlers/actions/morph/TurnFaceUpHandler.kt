@@ -5,7 +5,6 @@ import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.core.tapForMana
 import com.wingedsheep.engine.core.TurnFaceUp
 import com.wingedsheep.engine.core.TurnFaceUpEvent
 import com.wingedsheep.engine.handlers.CostHandler
@@ -147,6 +146,7 @@ class TurnFaceUpHandler(
                             colorless = poolComponent.colorless,
                             restrictedMana = poolComponent.restrictedMana,
                             snowMana = poolComponent.snowMana,
+                            manaUnits = poolComponent.manaUnits,
                             snowColorless = poolComponent.snowColorless
                         ).withSpendingColors(state, action.playerId)
                         if (!costHandler.canPayManaCost(pool, withXResolved(manaCost, xValue), faceUpContext)) {
@@ -232,6 +232,7 @@ class TurnFaceUpHandler(
                             colorless = poolComponent.colorless,
                             restrictedMana = poolComponent.restrictedMana,
                             snowMana = poolComponent.snowMana,
+                            manaUnits = poolComponent.manaUnits,
                             snowColorless = poolComponent.snowColorless
                         ).withSpendingColors(currentState, action.playerId)
 
@@ -249,6 +250,7 @@ class TurnFaceUpHandler(
                                     colorless = newPool.colorless,
                                     restrictedMana = newPool.restrictedMana,
                                     snowMana = newPool.snowMana,
+                                    manaUnits = newPool.manaUnits,
                                     snowColorless = newPool.snowColorless
                                 )
                             )
@@ -281,6 +283,7 @@ class TurnFaceUpHandler(
                             colorless = poolComponent.colorless,
                             restrictedMana = poolComponent.restrictedMana,
                             snowMana = poolComponent.snowMana,
+                            manaUnits = poolComponent.manaUnits,
                             snowColorless = poolComponent.snowColorless
                         ).withSpendingColors(currentState, action.playerId)
 
@@ -336,6 +339,7 @@ class TurnFaceUpHandler(
                                     colorless = poolAfterPayment.colorless,
                                     restrictedMana = poolAfterPayment.restrictedMana,
                                     snowMana = poolAfterPayment.snowMana,
+                                    manaUnits = poolAfterPayment.manaUnits,
                                     snowColorless = poolAfterPayment.snowColorless
                                 )
                             )
@@ -378,8 +382,9 @@ class TurnFaceUpHandler(
                     }
 
                     is PaymentStrategy.Explicit -> {
+                        val credited = manaSolver.creditExplicitSources(currentState, action.playerId, action.paymentStrategy.manaAbilitiesToActivate, manaCost, xValue, faceUpContext)
                         for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                            val (tappedState, tapEvents) = tapForMana(currentState, sourceId, action.playerId)
+                            val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingLife(currentState, sourceId, action.playerId, credited[sourceId])
                             currentState = tappedState
                             events.addAll(tapEvents)
                         }
@@ -426,7 +431,10 @@ class TurnFaceUpHandler(
         // goes with it: the characteristic-defining effect (and with it disguise's/cloak's ward
         // {2}) ends when the permanent is turned face up — CR 701.40a / 701.58a / 702.168a.
         currentState = currentState.updateEntity(action.sourceId) { c ->
-            var updated = c.without<FaceDownComponent>().without<FaceDownModeComponent>()
+            // Turned face up — Illusionary Mask's "has not been turned face up" rider ends for good.
+            var updated = com.wingedsheep.engine.mechanics.FaceUpInstead.removeRider(
+                c.without<FaceDownComponent>().without<FaceDownModeComponent>()
+            )
             updated = staticAbilityHandler.addContinuousEffectComponent(updated)
             updated = staticAbilityHandler.addReplacementEffectComponent(updated)
             updated

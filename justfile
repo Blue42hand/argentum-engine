@@ -11,14 +11,15 @@ gradle *ARGS:
     scripts/gradle-locked {{ARGS}}
 
 # Build the entire project
+# Build the project, excluding deprecated mtgish tests (explicit coverage commands still run them)
 [group: 'build']
 build:
-    scripts/gradle-locked build
+    scripts/gradle-locked build -x :mtgish-tooling:test
 
-# Run all tesats
+# Run all tests except deprecated mtgish tests
 [group: 'build']
 test:
-    scripts/gradle-locked test
+    scripts/gradle-locked test -x :mtgish-tooling:test
 
 # Card scenarios now live in the per-era `:mtg-sets:<era>:tests` modules, which `:mtg-sets:scenarioTest`
 # fans out to, so both are run here — same coverage as before the split.
@@ -62,10 +63,31 @@ where QUERY:
 test-class CLASS *ARGS:
     scripts/test-class "{{CLASS}}" {{ARGS}}
 
+# The agent loops' pre-PR gate: only the tests the branch's diff can break (CI runs the full suite)
+# Run the narrow diff-based gate; --plan prints what it would run
+[group: 'build']
+loop-gate *ARGS:
+    scripts/loop-gate {{ARGS}}
+
 # Re-bless per-set card snapshot goldens after an intentional change (review the diff: only your cards should move)
 [group: 'build']
 rebless-cards:
     scripts/gradle-locked :mtg-sets:test --tests "*CardDefinitionSnapshotTest" -DupdateSnapshots=true
+
+# Regenerate docs/sdk-index.md — one line per sealed SDK type (name, fields, first KDoc sentence),
+# grouped by family. SdkIndexTest fails when the checked-in index is stale.
+[group: 'build']
+sdk-index:
+    scripts/gradle-locked :mtg-sdk:test --tests "*SdkIndexTest" -DupdateSdkIndex=true --rerun
+
+# Fossil candidates are rarely-used types whose fields fit inside a same-family type, and engine lines
+# that lower one SDK type 1:1 into another — heuristics to read, not verdicts. Read it in a set-loop's
+# finishing PR; more than about one net new type per loop PR is a review flag.
+# THE SDK TAIL — share of each sealed SDK family used by only 1–2 cards, plus fossil candidates
+[group: 'build']
+sdk-tail:
+    scripts/gradle-locked :mtg-sdk:test --tests "*SdkTailReport" -DsdkTail=true --rerun
+    @cat mtg-sdk/build/reports/sdk-tail.md
 
 # List every token our cards create that has no set-scoped art, so it renders with generic
 # stand-in art. Writes backlog/token-art-gaps.md with a suggested image path and a paste-ready
@@ -106,12 +128,37 @@ benchmark-throughput GAMES="20" SET="BLB":
 # Play two AI agents head-to-head over paired-swap games and report a win rate with a confidence
 # interval (e.g., just arena v0 blb-advisors 1000). Agents: v0, current, production, blb-advisors,
 # ons-advisors, v0-blind. 1000 games is the merge gate; 300 is directional; 100 is a smoke test.
-# Results land in benchmarks/arena/. How to read one: docs/ai/measurement.md.
+# Results land in benchmarks/arena/, appended pair by pair as they finish — a killed run keeps
+# them (`just arena-report DIR`). One game is capped at ARENA_GAME_TIMEOUT_SEC of wall clock
+# (default 600, 0 = off); a capped game is a `timeout` draw and is not reproducible from its seed.
+# How to read one: docs/ai/measurement.md.
 [group: 'ai']
 arena A B GAMES="300" SET="BLB" SEED="20260727" ARTIFACT_DIR="":
     scripts/gradle-locked :ai:test --tests "*.ArenaBenchmark" -Dbenchmark=true -Darena=true \
         -DarenaA={{A}} -DarenaB={{B}} -DarenaGames={{GAMES}} -DarenaSet={{SET}} -DarenaSeed={{SEED}} \
+        -DarenaGameTimeoutSec=${ARENA_GAME_TIMEOUT_SEC:-600} \
         -Dargentum.ai.apprentice.dir={{ARTIFACT_DIR}}
+
+# Rebuild the summary of an arena or arena-pod run from its results directory (or results.csv) —
+# the way to read a run that was killed or never finished. A partial report says PARTIAL up top.
+[group: 'ai']
+arena-report DIR:
+    scripts/gradle-locked :ai:test --tests "*.ArenaBenchmark" -Dbenchmark=true \
+        -DarenaReport="$(cd "{{invocation_directory()}}" && realpath "{{DIR}}")"
+
+# Play AI-vs-AI games with sealed decks from random sets (a different set per seat) and write one
+# readable log per game — board, hand, every action, and what was on offer when the AI passed.
+# For reading where the AI misplays; logs land in ai/build/game-logs/. AGENT defaults to `live`
+# (AiProfile.LIVE, what real players face), so the logs don't resurface misplays it already fixes.
+# SEATS > 2 plays a Free-for-All game, e.g. `just ai-game-logs 1 20261013 live 4`. ATTACK picks its
+# attack rule (case-insensitive): LEFT (default — the FFA lobby's non-Commander rule, CR 803.1a), RIGHT
+# (CR 803.1b), or MULTIPLE / ALL (attack any opponent, CR 802), e.g. `just ai-game-logs 1 20261013 live 4 all`.
+[group: 'ai']
+ai-game-logs GAMES="24" SEED="20261009" AGENT="live" SEATS="2" ATTACK="LEFT":
+    rm -rf ai/build/game-logs
+    scripts/gradle-locked :ai:test --tests "*.GameLogBenchmark" -Dbenchmark=true -DgameLog=true \
+        -DgameLogGames={{GAMES}} -DgameLogSeed={{SEED}} -DgameLogAgent={{AGENT}} -DgameLogSeats={{SEATS}} \
+        -DgameLogAttackMode={{ATTACK}} -DgameLogDir={{justfile_directory()}}/ai/build/game-logs
 
 # ECL apprentice promotion ladder. Artifacts are installed outside the repository and selected with
 # -Dargentum.ai.apprentice.dir; missing or invalid files safely use the production evaluator.
@@ -164,7 +211,7 @@ arena-puzzles-compare:
 arena-pod TABLE A B GAMES="300" SET="BLB" SEED="20260727":
     scripts/gradle-locked :ai:test --tests "*.ArenaBenchmark" -Dbenchmark=true -DarenaPod=true \
         -DarenaTable={{TABLE}} -DarenaA={{A}} -DarenaB={{B}} -DarenaGames={{GAMES}} \
-        -DarenaSet={{SET}} -DarenaSeed={{SEED}}
+        -DarenaSet={{SET}} -DarenaSeed={{SEED}} -DarenaGameTimeoutSec=${ARENA_GAME_TIMEOUT_SEC:-600}
 
 # Run every agent in ai/src/test/resources/arena/gauntlet.json against every other and print the
 # full pairwise matrix plus Bradley-Terry Elo. The matrix is the deliverable — MTG agents are
@@ -172,7 +219,8 @@ arena-pod TABLE A B GAMES="300" SET="BLB" SEED="20260727":
 [group: 'ai']
 arena-gauntlet GAMES="200" SET="BLB" SEED="20260727":
     scripts/gradle-locked :ai:test --tests "*.ArenaBenchmark" -Dbenchmark=true -DarenaGauntlet=true \
-        -DarenaGames={{GAMES}} -DarenaSet={{SET}} -DarenaSeed={{SEED}}
+        -DarenaGames={{GAMES}} -DarenaSet={{SET}} -DarenaSeed={{SEED}} \
+        -DarenaGameTimeoutSec=${ARENA_GAME_TIMEOUT_SEC:-600}
 
 # Play the same agent against itself at 100 / 1000 / 3000 ms of decision budget. Strength must be
 # MONOTONE in the budget; if it isn't, the search is generating noise and the fix is a better leaf
@@ -207,25 +255,46 @@ prune-worktrees DAYS="7" *ARGS:
     scripts/prune-worktree-builds.sh --days {{DAYS}} {{ARGS}}
 
 # `org.gradle.daemon.idletimeout` covers only the Gradle daemon; the Kotlin compile daemon is a
-# separate 6g JVM that outlives it, and a handful of hours-old idle ones is what pushes the box
-# into swap and makes the next compile OOM. Never touches kotlin-lsp.
+# separate 6g JVM that outlives it. Reaps idle, orphaned (worktree deleted) and sick (GC-thrashing)
+# daemons; scripts/gradle-locked runs it automatically. Never touches kotlin-lsp.
 #   just kill-daemons                    # what would be reaped, 60-minute threshold
 #   just kill-daemons 30 --apply         # kill anything idle for 30m+
-# Reap idle Kotlin/Gradle compile daemons (DRY RUN unless --apply)
+# Reap idle, orphaned or GC-thrashing Kotlin/Gradle daemons (DRY RUN unless --apply)
 [group: 'env']
 kill-daemons MIN_AGE="60" *ARGS:
     scripts/kill-stale-daemons.sh --min-age {{MIN_AGE}} {{ARGS}}
 
-# Format and check code
+# Format and check code, excluding deprecated mtgish tests
 [group: 'build']
 check:
-    ./gradlew check
+    scripts/gradle-locked check -x :mtgish-tooling:test
+
+# What every agent loop is doing now, its last result, and its open PR (--all for older loops)
+[group: 'ai']
+loops *ARGS:
+    scripts/loop-status {{ARGS}}
+
+# Live dashboard for a running loop (set code, commander or assay); s = stop after the current job
+[group: 'ai']
+loop-watch NAME:
+    scripts/loop-tui --name "{{NAME}}"
 
 # Waits out subscription usage limits; stop with `touch .claude/loop-runs/<code>.stop`.
 # Implement a set: set-loop ecl sonnet|opus|astra|codex:<model-id>|pick; no args shows help
 [group: 'ai']
-set-loop CODE="" MODEL="":
-    scripts/set-loop "{{CODE}}" "{{MODEL}}"
+set-loop CODE="" MODEL="" PRIORITY="":
+    scripts/set-loop "{{CODE}}" "{{MODEL}}" "{{PRIORITY}}"
+
+# Waits out subscription usage limits; stop with `touch .claude/loop-runs/commander.stop`.
+# Make EDHREC's top Commander decks playable, one deck at a time: commander-loop [model] [top]
+[group: 'ai']
+commander-loop MODEL="" TOP="":
+    scripts/commander-loop "{{MODEL}}" "{{TOP}}"
+
+# Rank the cards EDHREC's top Commander decks run that we lack, in deck-completion order
+[group: 'build']
+commander-staples *ARGS:
+    scripts/commander-staples {{ARGS}}
 
 # Waits out subscription usage limits; stop with `touch .claude/loop-runs/assay.stop`.
 # Widen Assay's grammar, one band per PR, over text the engine already expresses: assay-loop [model] [focus]
@@ -238,6 +307,8 @@ assay-loop MODEL="" FOCUS="":
 card-status *ARGS:
     scripts/card-status {{ARGS}}
 
+# DEPRECATED — the coverage* recipes below drive the legacy :mtgish-tooling pipeline, which Argentum
+# Assay replaced (see the assay* recipes). Kept runnable for reference; nothing depends on them.
 # Build the Kotlin coverage tooling once so the recipes below can call its CLI (fast no-op when
 # up to date). The bridge + lenses live in the :mtgish-tooling module (Kotlin port of the mtgish spike).
 _coverage-tool:
@@ -461,6 +532,29 @@ assay-ready SET *ARGS:
 server:
     @if [ -f .env ]; then set -a && . ./.env && set +a; fi && ./gradlew :game-server:bootRun --args='--spring.profiles.active=local'
 
+# Accounts need Postgres: a container on port 5433, created on first use and kept between runs. No
+# mail is configured, so the login modal offers "Sign in now" instead of emailing a link.
+#
+# Start the game server with accounts on (login, profile, stats, friends)
+[group: 'dev']
+server-accounts PORT="8080":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -f .env ]; then set -a; . ./.env; set +a; fi
+    db=argentum-accounts-db
+    if ! docker container inspect "$db" >/dev/null 2>&1; then
+      docker run -d --name "$db" -e POSTGRES_DB=argentum -e POSTGRES_USER=argentum \
+        -e POSTGRES_PASSWORD=argentum -p 5433:5432 -v argentum_accounts_db:/var/lib/postgresql/data \
+        postgres:16-alpine >/dev/null
+    else
+      docker start "$db" >/dev/null
+    fi
+    until docker exec "$db" pg_isready -U argentum >/dev/null 2>&1; do sleep 1; done
+    ACCOUNTS_ENABLED=true ACCOUNTS_AUTOCONFIG_EXCLUDE= \
+      ACCOUNTS_DB_URL=jdbc:postgresql://localhost:5433/argentum ACCOUNTS_DB_USER=argentum ACCOUNTS_DB_PASSWORD=argentum \
+      MAIL_USERNAME= GAME_DEV_ENDPOINTS_ENABLED=true \
+      ./gradlew :game-server:bootRun --args="--spring.profiles.active=local --server.port={{PORT}}"
+
 # Start the game server and web client together
 [group: 'dev']
 dev:
@@ -512,6 +606,12 @@ client-build:
 [group: 'dev']
 client-typecheck:
     cd web-client && npm run typecheck
+
+# Recompile the card search language (:mtg-search) to JavaScript into web-client/src/generated/mtg-search.
+# The web-client runs that copy, so commit it with any change to mtg-search; `:mtg-search:test` fails when stale.
+[group: 'build']
+search-js:
+    scripts/gradle-locked :mtg-search:syncWebClientSearch
 
 # Initialize local environment (copy .env.example to .env)
 [group: 'env']
@@ -626,6 +726,16 @@ e2e-install-browsers:
 [group: 'e2e']
 e2e-test PATTERN:
     cd e2e-scenarios && npx playwright test {{PATTERN}}
+
+# Isolated Chromium verification for agent loops; choose two unused ports per worktree.
+[group: 'e2e']
+e2e-loop PATTERN CLIENT_PORT SERVER_PORT:
+    cd e2e-scenarios && E2E_CLIENT_PORT='{{CLIENT_PORT}}' E2E_SERVER_PORT='{{SERVER_PORT}}' npx playwright test --config=playwright.loop.config.ts '{{PATTERN}}'
+
+# Started and stopped by Playwright's loop config, with the machine-global build semaphore.
+[group: 'e2e']
+e2e-server PORT:
+    GAME_DEV_ENDPOINTS_ENABLED=true scripts/gradle-locked :game-server:bootRun --args='--spring.profiles.active=local --server.port={{PORT}}'
 
 # Run E2E tests under the Playwright Inspector (step through, inspect selectors)
 [group: 'e2e']

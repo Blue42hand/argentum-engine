@@ -70,11 +70,12 @@ class GraveyardTargetObjectIdentityTest : ScenarioTestBase() {
                 game.submitManaSourcesAutoPay().error shouldBe null
             }
             game.resolveStack()
-            game.answerYesNo(true).error shouldBe null
             game.getPendingDecision().shouldBeInstanceOf<ChooseTargetsDecision>()
             game.selectTargets(listOf(target)).error shouldBe null
             game.exileAndReturn(target)
             game.resolveStack()
+            game.getPendingDecision() shouldBe null
+            game.state.stack shouldBe emptyList()
 
             (target in game.state.getGraveyard(game.player1Id)) shouldBe true
             (target in game.state.getHand(game.player1Id)) shouldBe false

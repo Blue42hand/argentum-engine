@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.mechanics.cost.spell
 
+import com.wingedsheep.engine.state.LifePaymentPurpose
+
 import com.wingedsheep.engine.mechanics.cost.SharedCreatureTypeTapCost
 import com.wingedsheep.engine.mechanics.cost.PlayerCounterPayment
 import com.wingedsheep.engine.core.CardsRevealedEvent
@@ -60,6 +62,14 @@ internal fun handCandidates(env: SpellCostEnumeration, filter: GameObjectFilter)
 internal fun exileFromOwnZone(ledger: SpellCostLedger, cardIds: List<EntityId>, fromZone: Zone) {
     for (cardId in cardIds) {
         val card = ledger.state.getEntity(cardId)?.get<CardComponent>() ?: continue
+        if (fromZone == Zone.BATTLEFIELD) {
+            // Leaving the battlefield is a full zone transition (CR 400.7): counters and Auras
+            // fall off and a copy reverts, exactly as for any other exile of a permanent.
+            val transition = ledger.zones.moveToZone(ledger.state, cardId, Zone.EXILE)
+            ledger.state = transition.state
+            ledger.events.addAll(transition.events)
+            continue
+        }
         val sourceZone = ZoneKey(ledger.playerId, fromZone)
         val exileZone = ZoneKey(ledger.playerId, Zone.EXILE)
 
@@ -200,7 +210,8 @@ internal object DiscardCostKind : SpellCostKind<CostAtom.Discard> {
     override fun validate(check: SpellCostCheck, cost: CostAtom.Discard): String? {
         val state = check.state
         val discarded = check.payment?.discardedCards ?: emptyList()
-        if (discarded.size < cost.count) {
+        if (discarded.distinct().size != discarded.size) return "Cannot discard the same card more than once"
+        if (discarded.size != cost.count) {
             return "You must discard ${cost.count} card(s) to cast this spell"
         }
         val handCards = state.getZone(ZoneKey(check.playerId, Zone.HAND))
@@ -307,7 +318,8 @@ internal object ExileFromCostKind : SpellCostKind<CostAtom.ExileFrom> {
         val state = check.state
         val exiled = check.payment?.exiledCards ?: emptyList()
         val zoneDesc = cost.zone.name.lowercase()
-        if (exiled.distinct().size < cost.count) {
+        if (exiled.distinct().size != exiled.size) return "Cannot exile the same card more than once"
+        if (exiled.size != cost.count) {
             return "You must exile ${cost.count} ${cost.filter.description}(s) from your $zoneDesc"
         }
         val zoneCards = state.getZone(ZoneKey(check.playerId, cost.zone))
@@ -510,14 +522,17 @@ internal object ExileFromGraveyardForTotalCostKind : SpellCostKind<CostAtom.Exil
 
 /** "Tap an untapped artifact you control" (Zahid, Guardian of the Great Door). */
 internal object TapPermanentsCostKind : SpellCostKind<CostAtom.TapPermanents> {
+    // The untap mirror (Halo Fountain) is wired for activated abilities only; no printed spell
+    // asks for it, so it is unpayable here rather than paid as a tap.
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.TapPermanents, costHandler: CostHandler) =
-        SharedCreatureTypeTapCost.eligible(
+        !cost.untaps && SharedCreatureTypeTapCost.eligible(
             state, cost, costHandler.findUntappedMatchingPermanentsUnified(state, payerId, cost.filter)
         ).size >= cost.count
 
     // Mirrors ReturnToHand's selection model — permanents you control, chosen by the caster — but
     // the payment taps instead of bouncing.
     override fun enumerate(env: SpellCostEnumeration, cost: CostAtom.TapPermanents, offer: SpellCostOffer): Boolean {
+        if (cost.untaps) return false
         val validTapTargets = candidates(env, cost)
         offer.tapTargets = validTapTargets
         offer.tapCount = cost.count
@@ -548,6 +563,7 @@ internal object TapPermanentsCostKind : SpellCostKind<CostAtom.TapPermanents> {
     override fun validate(check: SpellCostCheck, cost: CostAtom.TapPermanents): String? {
         val state = check.state
         val projected = state.projectedState
+        if (cost.untaps) return "Untap costs are not supported on spells"
         val tapped = check.payment?.tappedPermanents ?: emptyList()
         if (tapped.size < cost.count) {
             return "You must tap ${cost.count} ${cost.filter.description}(s) to cast this spell"
@@ -581,7 +597,7 @@ internal object TapPermanentsCostKind : SpellCostKind<CostAtom.TapPermanents> {
         for (permId in ledger.payment.tappedPermanents) {
             val (tappedState, tapEvent) = tap(ledger.state, permId)
             ledger.state = tappedState
-            tapEvent?.let(ledger.events::add)
+            ledger.events.addAll(tapEvent)
         }
         return null
     }
@@ -977,28 +993,38 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
     }
 }
 
-/** "Pay 2 life" (Timeline Culler's warp). Auto-paid: the amount is fixed, so there is nothing to choose. */
+/**
+ * "Pay 2 life" (Timeline Culler's warp). Auto-paid: the amount is priced from game state alone
+ * (a constant, or a [com.wingedsheep.sdk.scripting.values.DynamicAmount.CommanderColorIdentityCount]), so there is
+ * nothing to choose.
+ */
 internal object PayLifeCostKind : SpellCostKind<CostAtom.PayLife> {
     // CR 810.9a — affordability uses the team's shared total in Two-Headed Giant.
     // CR 119.4 — a player may pay life only if their life total is >= the payment.
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.PayLife, costHandler: CostHandler) =
-        state.canPayLife(payerId, cost.amount)
+        CostAtomAmounts.canPayLife(
+            state, payerId, CostAtomAmounts.life(state, cost, payerId, costHandler.predicateEvaluator), LifePaymentPurpose.CAST_SPELL
+        )
 
     // Mode-level and cast-level affordability gate, so "discard a card or pay 3 life" doesn't
     // surface a Pay-3-Life action to a caster with fewer than 3 life (Bitter Triumph). Validation
     // still backstops it.
-    override fun enumerate(env: SpellCostEnumeration, cost: CostAtom.PayLife, offer: SpellCostOffer) =
-        env.state.canPayLife(env.playerId, cost.amount)
+    override fun enumerate(env: SpellCostEnumeration, cost: CostAtom.PayLife, offer: SpellCostOffer): Boolean {
+        offer.lifeRequired += CostAtomAmounts.life(env.state, cost, env.playerId, env.predicateEvaluator, env.castCardId)
+        return CostAtomAmounts.canPayLife(env.state, env.playerId, env.reservedLife + offer.lifeRequired, LifePaymentPurpose.CAST_SPELL)
+    }
 
     override fun validate(check: SpellCostCheck, cost: CostAtom.PayLife): String? {
         // CR 119.4 — you can't pay life unless you have at least that much (CR 810.9a — team total)
-        if (!check.state.canPayLife(check.playerId, cost.amount)) {
-            return "Not enough life to pay ${cost.amount} life"
+        val life = lifeToPay(check, cost)
+        if (!CostAtomAmounts.canPayLife(check.state, check.playerId, life, LifePaymentPurpose.CAST_SPELL)) {
+            return "Not enough life to pay $life life"
         }
         return null
     }
 
-    override fun lifeToPay(check: SpellCostCheck, cost: CostAtom.PayLife) = cost.amount
+    override fun lifeToPay(check: SpellCostCheck, cost: CostAtom.PayLife) =
+        CostAtomAmounts.life(check.state, cost, check.playerId, check.predicateEvaluator, check.action.cardId)
 }
 
 /**

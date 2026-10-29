@@ -490,6 +490,64 @@ object Triggers {
         Steps.triggeredStep,
     )
 
+    /**
+     * "Whenever you draw your second card each turn, …" — the ordinal draw trigger, and
+     * [nthCastRule]'s twin over `NthCardDrawnEvent`.
+     *
+     * The same shape for the same reasons: the drawer is a parameter of the event, so it is a row
+     * with its possessive baked into the prefix ("you draw **your**", "an opponent draws **their**")
+     * rather than a subject vocabulary, and the ordinal is the one slot. What differs is the effect
+     * clause. A draw event names **no object** — CR 121.2 makes every draw its own event, so the
+     * trigger counts draws and never binds the drawn card — so "it" in the payoff can only be the source, and
+     * the payoff is [Steps.step]'s source cascade, as the expend row's is. [Steps.triggeredStep]
+     * would offer a third anaphor with nothing behind it.
+     *
+     * "Whenever you draw your **first or second** card each turn" (Lady Octopus) is not a row: it is
+     * one ability over two events, which this surface's single ordinal cannot spell.
+     */
+    private fun nthDrawRule(prefix: String, name: String, player: Player): Prefix = Prefix(
+        phrase("$prefix {ordinal} card each turn", name = name) {
+            slot("ordinal", Cardinals.ordinal)
+            build { SdkTriggers.player(player).drawsNth(it.int("ordinal")) }
+            match { spec ->
+                val event = spec.event as? EventPattern.NthCardDrawnEvent ?: return@match null
+                if (SdkTriggers.player(player).drawsNth(event.nthCard) != spec) return@match null
+                bind("ordinal" to event.nthCard)
+            }
+        },
+        Steps.step,
+    )
+
+    /**
+     * "Whenever you draw a card, put a +1/+1 counter on ~." — Clinquant Skymage, Ravenhill Flock;
+     * "Whenever an opponent draws a card, you may draw two cards." — Consecrated Sphinx.
+     *
+     * The every-draw sibling of [nthDrawRule], over `DrawEvent`: the drawer is a row for the same
+     * reason it is one there, and the payoff takes the same source cascade, because a draw binds no
+     * object either (CR 121.2 makes each card its own draw, and the event never names it). "That
+     * player" in the payoff is the drawer, which [Steps.step] already spells as
+     * `Player.TriggeringPlayer`.
+     *
+     * Orcish Bowmasters' "except the first one they draw in each of their draw steps" is the
+     * event's `exceptFirstInDrawStep` flag — the turn-based draw of CR 504.1 — and is its own row
+     * rather than a suffix slot, because only the opponent's surface prints it ("they", "their").
+     */
+    private val everyDrawPrefixes: List<Prefix> = listOf(
+        triggerRule("whenever you draw a card", SdkTriggers.player(Player.You).draws()),
+        triggerRule("whenever an opponent draws a card", SdkTriggers.player(Player.EachOpponent).draws()),
+        triggerRule("whenever a player draws a card", SdkTriggers.player(Player.Each).draws()),
+        triggerRule(
+            "whenever an opponent draws a card except the first one they draw in each of their draw steps",
+            SdkTriggers.player(Player.EachOpponent).draws(exceptFirstInDrawStep = true),
+        ),
+    )
+
+    private val drawPrefixes: List<Prefix> = everyDrawPrefixes + listOf(
+        nthDrawRule("whenever you draw your", "whenever you draw your nth card", Player.You),
+        nthDrawRule("whenever an opponent draws their", "whenever an opponent draws their nth card", Player.EachOpponent),
+        nthDrawRule("whenever a player draws their", "whenever a player draws their nth card", Player.Each),
+    )
+
     // ---------------------------------------------------------------------------------------
     // Batch triggers — CR 603.2c's "one or more …"
     // ---------------------------------------------------------------------------------------
@@ -531,9 +589,9 @@ object Triggers {
      *
      * **Attacks.** "Whenever one or more Merfolk you control attack" is `YouAttackEvent`, and the
      * family is left out rather than half-read for two reasons that would each cost more than the
-     * rows are worth: 8 of its lines print "attack **a player**", which is a narrowing
-     * (`AttackPredicate.DefenderIsPlayer` exists only on the per-creature `AttackEvent`) that the
-     * batch event cannot carry — so the two English sentences would collapse to one model — and the
+     * rows are worth: 8 of its lines print "attack **a player**", a per-attacked-player narrowing
+     * (`YouAttackEvent.perAttackedPlayer`, `Triggers.you.attacksAPlayer`) that a reading must keep
+     * apart from the once-per-declaration form — so the two English sentences don't collapse — and the
      * corpus writes the attacker filter's card type three different ways. A probe over the family's
      * declined lines puts the payoff at 6 readable lines out of 48; the rest are blocked on "that
      * many" and "them" regardless.
@@ -695,7 +753,8 @@ object Triggers {
                 "whenever one or more {filter} are put into your graveyard from anywhere",
                 "whenever one or more cards are put into your graveyard from anywhere",
                 Filters.pluralCards,
-                { (it as? EventPattern.CardsPutIntoYourGraveyardEvent)?.filter },
+                // The first-time-each-turn variant is a different sentence; this row doesn't read it.
+                { (it as? EventPattern.CardsPutIntoYourGraveyardEvent)?.takeUnless { e -> e.firstTimeEachTurn }?.filter },
             ) { SdkTriggers.oneOrMore(it).putIntoYourGraveyard() },
             // The library variant publishes only two fixed vals rather than a function of the
             // filter, so this row writes the `TriggerSpec` the way the two hand-written cards do.
@@ -1035,7 +1094,7 @@ object Triggers {
      * drift the kernel's [com.wingedsheep.assay.syntax.PhraseBuilder.alsoSpelled] exists to make
      * impossible one rule at a time and this list makes impossible across a whole family.
      */
-    private val prefixes: List<Prefix> = eventPrefixes + castPrefixes + phasePrefixes + batchPrefixes
+    private val prefixes: List<Prefix> = eventPrefixes + castPrefixes + drawPrefixes + phasePrefixes + batchPrefixes
 
     /** The `when` clause vocabulary as one alternation, for the contexts that slot it. */
     private val event: Phrase<TriggerSpec> = oneOf("a trigger event", prefixes.map { it.phrase })

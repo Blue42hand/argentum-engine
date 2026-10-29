@@ -21,6 +21,7 @@ import com.wingedsheep.gameserver.session.SessionRegistry
 import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.gameserver.deck.EasterEggDeckInjector
 import com.wingedsheep.engine.core.GameEvent
+import com.wingedsheep.engine.core.GameRestartedEvent
 import com.wingedsheep.engine.core.PlayerLostEvent
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
@@ -60,6 +61,15 @@ class GamePlayHandler(
      * would throw on the first one and fail the whole game start. See [SideboardSanitizer] for
      * why unknown names are dropped rather than the submission rejected.
      */
+    /**
+     * These quick games aren't deck-validated, so a named companion is kept only when the engine
+     * can actually reveal it — a known card with a companion ability (CR 702.139) — rather than
+     * failing the game at setup.
+     */
+    private fun sanitizeCompanion(companion: String?): String? =
+        companion?.let { cardRegistry.getCard(it) }
+            ?.takeIf { com.wingedsheep.sdk.model.CompanionEligibility.hasCompanion(it) }?.name
+
     private fun sanitizeSideboard(sideboard: Map<String, Int>?, playerName: String): Map<String, Int> =
         SideboardSanitizer.sanitize(sideboard.orEmpty(), cardRegistry).also { result ->
             if (result.hasDrops) {
@@ -99,6 +109,10 @@ class GamePlayHandler(
     // ignores game ids it doesn't own, so this is safe to fire unconditionally.
     var llmTournamentGameOverCallback: ((String, EntityId?, Int) -> Unit)? = null
 
+    // Callback fired when a game outside any tournament lobby ends, before the session is removed,
+    // so the post-game service can offer a rematch / add friend / block to two human opponents.
+    var postGameCallback: ((GameSession) -> Unit)? = null
+
     fun handle(session: WebSocketSession, message: ClientMessage) {
         when (message) {
             is ClientMessage.CreateGame -> handleCreateGame(session, message)
@@ -137,10 +151,10 @@ class GamePlayHandler(
             message.setCode ?: deckGenerator.randomSetCode()
         } else null
 
-        val baseDeck = if (quickGameSetCode != null) {
-            val randomDeck = deckGenerator.generate(quickGameSetCode)
-            logger.info("Generated random deck for ${playerSession.playerName} from set $quickGameSetCode: ${randomDeck.entries.take(5)}... (${randomDeck.values.sum()} cards)")
-            randomDeck
+        val randomDeck = quickGameSetCode?.let { deckGenerator.generateDeck(it) }
+        val baseDeck = if (randomDeck != null) {
+            logger.info("Generated random deck for ${playerSession.playerName} from set $quickGameSetCode: ${randomDeck.deckList.entries.take(5)}... (${randomDeck.deckList.values.sum()} cards)")
+            randomDeck.deckList
         } else {
             message.deckList
         }
@@ -156,15 +170,13 @@ class GamePlayHandler(
             tokenArtRegistry = tokenArtRegistry,
         )
         gameSession.quickGameSetCode = quickGameSetCode
-        // A generated random/quick deck has no sideboard; only a real submitted deck carries one.
-        // Sanitize whatever the client sent: an unimplemented name would throw out of
+        // A generated random/quick deck's sideboard is the rest of its sealed pool (CR 100.4b).
+        // Sanitize whatever a submitted deck sent: an unimplemented name would throw out of
         // GameInitializer and fail the game creation outright (see SideboardSanitizer).
-        val sideboard = if (quickGameSetCode != null) {
-            emptyMap()
-        } else {
-            sanitizeSideboard(message.sideboard, playerSession.playerName)
-        }
-        gameSession.addPlayer(playerSession, deckList, sideboard = sideboard)
+        val sideboard = randomDeck?.sideboard
+            ?: sanitizeSideboard(message.sideboard, playerSession.playerName)
+        val companion = if (randomDeck != null) null else sanitizeCompanion(message.companion)
+        gameSession.addPlayer(playerSession, deckList, sideboard = sideboard, companion = companion)
 
         // Store player info for persistence
         val token = sessionRegistry.getTokenByWsId(session.id)
@@ -291,25 +303,24 @@ class GamePlayHandler(
             return
         }
 
-        val baseDeck = if (message.deckList.isEmpty()) {
+        val randomDeck = if (message.deckList.isEmpty()) {
             val setCode = gameSession.quickGameSetCode ?: deckGenerator.randomSetCode()
-            val randomDeck = deckGenerator.generate(setCode)
-            logger.info("Generated random deck for ${playerSession.playerName} from set $setCode: ${randomDeck.entries.take(5)}... (${randomDeck.values.sum()} cards)")
-            randomDeck
+            deckGenerator.generateDeck(setCode).also {
+                logger.info("Generated random deck for ${playerSession.playerName} from set $setCode: ${it.deckList.entries.take(5)}... (${it.deckList.values.sum()} cards)")
+            }
         } else {
-            message.deckList
+            null
         }
+        val baseDeck = randomDeck?.deckList ?: message.deckList
         val deckList = EasterEggDeckInjector.maybeInjectEasterEggs(
             playerSession.playerName, baseDeck, gameProperties.easterEggs.enabled
         )
 
-        // A generated random deck (empty submission) has no sideboard.
-        val sideboard = if (message.deckList.isEmpty()) {
-            emptyMap()
-        } else {
-            sanitizeSideboard(message.sideboard, playerSession.playerName)
-        }
-        gameSession.addPlayer(playerSession, deckList, sideboard = sideboard)
+        // A generated random deck (empty submission) brings the rest of its sealed pool.
+        val sideboard = randomDeck?.sideboard
+            ?: sanitizeSideboard(message.sideboard, playerSession.playerName)
+        val companion = if (randomDeck != null) null else sanitizeCompanion(message.companion)
+        gameSession.addPlayer(playerSession, deckList, sideboard = sideboard, companion = companion)
 
         // Store player info for persistence
         val token = sessionRegistry.getTokenByWsId(session.id)
@@ -694,7 +705,9 @@ class GamePlayHandler(
             ?: events.filterIsInstance<PlayerLostEvent>().firstOrNull()?.message
         val message = ServerMessage.GameOver(winnerId, gameOverReason, customMessage, gameSession.sessionId, winnerIds)
 
-        gameSession.getPlayers().forEach { sender.send(it.webSocketSession, message) }
+        gameSession.getPlayers()
+            .filterNot { it.playerId in gameSession.departedForMatch }
+            .forEach { sender.send(it.webSocketSession, message) }
 
         // Notify spectators that the game has ended and return them to tournament overview
         for (spectator in gameSession.getSpectators()) {
@@ -800,7 +813,8 @@ class GamePlayHandler(
         // are enabled, and only persists games with at least one human seat. We resolve each seat's
         // account/IP via its live identity (null for guests/AI). Only meaningful games count: ones
         // that reached a winner, or had more than a trivial number of actions (>= 10 frames).
-        val meaningful = winnerId != null || frameCount >= 10
+        // A warm-up the queue interrupted is nobody's result: the conceding seat left for a real match.
+        val meaningful = (winnerId != null || frameCount >= 10) && gameSession.departedForMatch.isEmpty()
         if (meaningful) {
             val statsLobby = lobbyId?.let { lobbyRepository.findLobbyById(it) }
             val persistenceInfo = gameSession.getPlayerPersistenceInfo()
@@ -888,9 +902,49 @@ class GamePlayHandler(
             callback(gameSessionId, winnerId, winnerLife)
         }
 
+        if (lobbyId == null) {
+            runCatching { postGameCallback?.invoke(gameSession) }
+                .onFailure { logger.error("Post-game setup failed for game $gameSessionId", it) }
+        }
+
         gameRepository.remove(gameSessionId)
         mulliganBroadcastSent.remove(gameSessionId)
         aiGameManager.cleanupGame(gameSessionId)
+    }
+
+    /**
+     * End a game nobody is playing — the sweeper's [com.wingedsheep.gameserver.session.AbandonedGamePolicy]
+     * or an admin from the Live overview. A started game ends as a draw through the normal game-over
+     * path, so seats, spectators, the lobby, the replay and the AI controllers are all finalized as for
+     * any other ending. A game still in its pregame has nothing to record and is simply dropped,
+     * unless a tournament lobby is waiting on it (that lobby's own sweep owns it). Returns whether
+     * anything was ended.
+     */
+    fun abandonGame(gameSession: GameSession, message: String): Boolean {
+        if (gameSession.abandon(message)) {
+            logger.info("Abandoning game ${gameSession.sessionId}: $message")
+            handleGameOver(gameSession, GameOverReason.DRAW)
+            return true
+        }
+        if (gameSession.isGameOver() || gameSession.adminSnapshot().started) return false
+        if (gameRepository.getLobbyForGame(gameSession.sessionId) != null) return false
+        logger.info("Dropping unstarted game ${gameSession.sessionId}: $message")
+        gameRepository.remove(gameSession.sessionId)
+        mulliganBroadcastSent.remove(gameSession.sessionId)
+        aiGameManager.cleanupGame(gameSession.sessionId)
+        return true
+    }
+
+    /**
+     * [playerId] leaves a game against the AI because matchmaking found them a human opponent. The
+     * seat concedes so the game ends cleanly and the AI shuts down, but quietly — see
+     * [GameSession.departedForMatch].
+     */
+    fun leavePracticeGame(gameSession: GameSession, playerId: EntityId) {
+        if (gameSession.isGameOver()) return
+        logger.info("Player ${playerId.value} left practice game ${gameSession.sessionId} for a matchmade game")
+        gameSession.departedForMatch += playerId
+        concedeSeat(gameSession, playerId)
     }
 
     fun broadcastStateUpdate(gameSession: GameSession, events: List<GameEvent>) {
@@ -946,6 +1000,8 @@ class GamePlayHandler(
                 // has re-seated behind the overlay) but before the spectator feed.
                 notifyEliminatedSeats(gameSession)
 
+                if (allEvents.any { it is GameRestartedEvent }) beginRestartedGameMulligans(gameSession)
+
                 // Update spectators. (Replay recording no longer happens here — the compact replay
                 // records the input stream as actions are applied, and reconstructs snapshots on demand.)
                 val spectatorState = gameSession.buildSpectatorState()
@@ -976,6 +1032,26 @@ class GamePlayHandler(
         }
         // Lobby callbacks can acquire other game/lobby locks; invoke after ordered delivery.
         activeLobbyToNotify?.let { broadcastActiveMatchesCallback?.invoke(it) }
+    }
+
+    /**
+     * A card restarted the game (CR 727): the new game starts with mulligans like any other, so
+     * every seat gets its opening-hand decision again — AI seats answer it through the same
+     * message — and the "everyone has kept" broadcast is re-armed for this round.
+     */
+    private fun beginRestartedGameMulligans(gameSession: GameSession) {
+        mulliganBroadcastSent.remove(gameSession.sessionId)
+        val players = gameSession.getPlayers()
+        for (player in players) {
+            if (!gameSession.hasMulliganComplete(player.playerId)) sendMulliganDecision(gameSession, player)
+        }
+        // A hotseat seat has no connection of its own to answer the decision, so it keeps its seven.
+        val connected = players.map { it.playerId }.toSet()
+        val seats = gameSession.getStateSnapshot()?.turnOrder.orEmpty()
+        for (seat in seats) {
+            if (seat !in connected && !gameSession.hasMulliganComplete(seat)) gameSession.keepHand(seat)
+        }
+        checkMulliganPhaseComplete(gameSession)
     }
 
     private fun processAutoPassLoop(gameSession: GameSession, initialEvents: List<GameEvent>): List<GameEvent> {
@@ -1284,7 +1360,11 @@ class GamePlayHandler(
             return
         }
 
-        val gameSession = getGameSession(session, playerSession) ?: return
+        // Resync is a best-effort recovery probe the client fires on every tab return, including
+        // from the game-over screen after the game has been torn down. With no live game there is
+        // nothing to resync, so this is a silent no-op rather than a "Game not found" error.
+        val gameSessionId = playerSession.currentGameSessionId ?: return
+        val gameSession = gameRepository.findById(gameSessionId) ?: return
 
         logger.info("Player ${playerSession.playerName} requested state resync")
         gameSession.deliverWhileOpen {

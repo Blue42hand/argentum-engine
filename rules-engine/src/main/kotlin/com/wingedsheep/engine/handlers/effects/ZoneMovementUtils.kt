@@ -5,6 +5,7 @@ import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.consumeShieldCounter
 import com.wingedsheep.engine.core.tap
+import com.wingedsheep.engine.core.ReflexiveAbilityTriggeredEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.PermanentsSacrificedEvent
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
@@ -29,6 +30,7 @@ import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTur
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.ExileOnLeaveBattlefieldComponent
 import com.wingedsheep.engine.state.components.battlefield.SagaComponent
+import com.wingedsheep.engine.state.components.battlefield.numberChoice
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.WarpedComponent
@@ -46,7 +48,7 @@ import com.wingedsheep.engine.state.components.combat.BlockedComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.DamageAssignmentComponent
 import com.wingedsheep.engine.state.components.combat.DamageAssignmentOrderComponent
-import com.wingedsheep.engine.state.components.combat.DealtFirstStrikeDamageComponent
+import com.wingedsheep.engine.state.components.combat.FirstStrikeStepAssignerComponent
 import com.wingedsheep.engine.state.components.combat.RequiresManualDamageAssignmentComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CommanderComponent
@@ -67,6 +69,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.ZoneChangeCause
+import com.wingedsheep.sdk.scripting.ReplacementRiderTiming
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.predicates.evaluateWith
@@ -79,10 +82,9 @@ import com.wingedsheep.sdk.scripting.predicates.evaluateWith
  *        (e.g., TakeExtraTurnEffect from Ugin's Nexus)
  * @param effectControllerId The controller of the replacement effect source
  * @param effectSourceId The permanent that hosts the replacement effect. Passed to
- *        [ZoneMovementUtils.applyReplacementAdditionalEffect] as the rider's source so a created
- *        token resolves the minting set's art (Head of the Hunt's Wolf), exactly as it would if
- *        the rider had resolved as an ability. May already be off the battlefield by then — the
- *        replacement applied while it was still there (CR 704.3).
+ *        [ZoneMovementUtils.applyReplacementAdditionalEffect] as the rider's source — a "when you
+ *        do" rider's reflexive trigger is sourced from it. May already be off the battlefield by
+ *        then — the replacement applied while it was still there (CR 704.3).
  * @param linkSourceId When non-null (and [destinationZone] is [Zone.EXILE]), the redirected
  *        card should be linked to this source permanent's `LinkedExileComponent` after the move
  *        — set by a [RedirectZoneChange] with `linkToSource = true` (Valgavoth, Terror Eater).
@@ -92,6 +94,8 @@ import com.wingedsheep.sdk.scripting.predicates.evaluateWith
  *        Progenitus. Movers translate this into [LibraryPlacement.Shuffled].
  * @param reveal When true, the card is revealed as it is redirected (informational — the shuffle
  *        destination is otherwise hidden). Darksteel Colossus / Progenitus.
+ * @param riderTiming Whether [additionalEffect] runs inline as part of the replacement or as a
+ *        "when you do" reflexive trigger ([ReplacementRiderTiming]).
  */
 data class ZoneChangeRedirectResult(
     val destinationZone: Zone,
@@ -100,7 +104,8 @@ data class ZoneChangeRedirectResult(
     val effectSourceId: EntityId? = null,
     val linkSourceId: EntityId? = null,
     val shuffleIntoLibrary: Boolean = false,
-    val reveal: Boolean = false
+    val reveal: Boolean = false,
+    val riderTiming: ReplacementRiderTiming = ReplacementRiderTiming.WITH_REPLACEMENT
 )
 
 /**
@@ -126,26 +131,54 @@ object ZoneMovementUtils {
     )
 
     /**
-     * Apply Saga entry setup to an entity entering the battlefield (Rule 714.3a).
-     * Adds SagaComponent with chapter 1 marked as triggered, and adds an initial lore counter.
+     * Apply Saga entry setup to an entity entering the battlefield (CR 714.3a / 714.3b): adds the
+     * [SagaComponent] with the entry chapters marked as triggered and the entry lore counter(s).
+     *
+     * Idempotent per battlefield stint — a Saga that already carries a [SagaComponent] (stripped
+     * whenever it leaves the battlefield) is left alone. That lets every token-placement path defer
+     * this to the as-enters choice resumer when it pauses for a choice (a read-ahead Saga's lore
+     * count is that choice) while entries that placed the counters before pausing aren't doubled.
      *
      * @return Pair of (updated state, list of events to emit) — empty events if not a Saga
      */
     fun applySagaEntryIfNeeded(
         state: GameState,
-        entityId: EntityId
+        entityId: EntityId,
+        counterTotals: MutableMap<CounterType, Int>? = null
     ): Pair<GameState, List<EngineGameEvent>> {
         val container = state.getEntity(entityId) ?: return state to emptyList()
         val cardComponent = container.get<CardComponent>() ?: return state to emptyList()
         if (!cardComponent.typeLine.isSaga) return state to emptyList()
+        if (counterTotals != null && container.has<FaceDownComponent>()) return state to emptyList()
+        if (container.has<SagaComponent>()) return state to emptyList()
 
         val current = container.get<CountersComponent>() ?: CountersComponent()
-        val sagaComponent = SagaComponent(triggeredChapters = setOf(1))
+        val loreCount = sagaEntryLoreCount(container)
+        val sagaComponent = SagaComponent(triggeredChapters = (1..loreCount).toSet())
+        if (counterTotals != null) {
+            counterTotals[CounterType.LORE] = (counterTotals[CounterType.LORE] ?: 0) + loreCount
+            return state.updateEntity(entityId) { it.with(sagaComponent) } to emptyList()
+        }
         val newState = state.updateEntity(entityId) { c ->
             c.with(sagaComponent)
-                .with(current.withAdded(CounterType.LORE, 1))
+                .with(current.withAdded(CounterType.LORE, loreCount))
         }.let { DamageUtils.markCounterOnControlledPermanent(it, entityId, CounterType.LORE, entering = true) }
-        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, 1, cardComponent.name))
+        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, loreCount, cardComponent.name))
+    }
+
+    /**
+     * How many lore counters a Saga enters with: one (CR 714.3a), or — for a Saga with read ahead —
+     * the number chosen as it entered (CR 714.3b), recorded by its `EntersWithChoice(NUMBER)` in the
+     * [com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER] slot before this runs — on every entry
+     * route: a cast, an effect's put-onto-the-battlefield (asked before entry), or a token or copy
+     * (asked on arrival, with the counters placed by the choice resumer). A read-ahead Saga whose
+     * choice couldn't be recorded falls back to one.
+     */
+    fun sagaEntryLoreCount(container: ComponentContainer): Int {
+        val cardComponent = container.get<CardComponent>() ?: return 1
+        if (com.wingedsheep.sdk.core.Keyword.READ_AHEAD !in cardComponent.baseKeywords) return 1
+        return container.numberChoice(com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER)
+            ?.coerceAtLeast(1) ?: 1
     }
 
     /**
@@ -187,7 +220,8 @@ object ZoneMovementUtils {
         controllerId: EntityId,
         cardRegistry: CardRegistry,
         predicateEvaluator: PredicateEvaluator,
-        replacementSourceState: GameState = state
+        replacementSourceState: GameState = state,
+        counterTotals: MutableMap<CounterType, Int>? = null
     ): Pair<GameState, List<EngineGameEvent>> {
         val container = state.getEntity(entityId) ?: return state to emptyList()
         if (container.has<FaceDownComponent>()) return state to emptyList()
@@ -200,6 +234,10 @@ object ZoneMovementUtils {
             else -> return state to emptyList()
         }
         if (amount == null) return state to emptyList()
+        if (counterTotals != null) {
+            counterTotals[counterType] = (counterTotals[counterType] ?: 0) + amount
+            return state to emptyList()
+        }
 
         return EntersWithReplacements.placeEntryCounters(
             state, entityId, counterType, amount, controllerId, cardComponent.name,
@@ -385,7 +423,7 @@ object ZoneMovementUtils {
             ?: return state to emptyList()
 
         var newState = cleanupReverseAttachmentLink(state, attachmentId)
-        newState = newState.updateEntity(attachmentId) { c -> c.without<AttachedToComponent>() }
+        newState = newState.updateEntity(attachmentId) { c -> c.without<AttachedToComponent>().without<AttachmentHostLeftComponent>() }
         newState = com.wingedsheep.engine.mechanics.BestowCasts.end(newState, attachmentId)
 
         return newState to listOf(
@@ -454,11 +492,13 @@ object ZoneMovementUtils {
             .without<FaceDownComponent>()
             .without<com.wingedsheep.engine.state.components.identity.FaceDownModeComponent>()
             .without<MorphDataComponent>()
+            .without<com.wingedsheep.engine.state.components.identity.TurnsFaceUpInsteadComponent>()
             .without<RevealedToComponent>()
             // Copy effects on permanents end when the object leaves the battlefield
             // (CR 400.7 / 707.2). ZoneTransitionService restores the printed
             // CardComponent before this strip runs.
             .without<com.wingedsheep.engine.state.components.identity.CopyOfComponent>()
+            .without<com.wingedsheep.engine.state.components.identity.CopyHistoryComponent>()
             // …and so do the markers that would have reverted a temporary copy later: the card is
             // already its printed self, and a new object must not inherit a stale revert.
             .without<com.wingedsheep.engine.state.components.identity.RevertCopyAtEndOfTurnComponent>()
@@ -474,6 +514,7 @@ object ZoneMovementUtils {
             .without<TappedComponent>()
             .without<SummoningSicknessComponent>()
             .without<CastFromHandComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.WasCastComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromLibraryComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromGraveyardComponent>()
@@ -497,9 +538,13 @@ object ZoneMovementUtils {
             .without<WasDealtDamageThisTurnComponent>()
             .without<HasDealtDamageComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.DamageDealtThisTurnComponent>()
-            // Per-turn activation tallies and "was activated this turn" belong to this object; one
-            // that leaves and returns is a new object with fresh activations (CR 400.7).
+            // Per-turn activation and resolution tallies and "was activated this turn" belong to this
+            // object; one that leaves and returns is a new object with fresh tallies (CR 400.7).
             .without<com.wingedsheep.engine.state.components.battlefield.AbilityActivatedThisTurnComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.AbilityResolutionCountThisTurnComponent>()
+            // Exert (CR 701.43a) is a fact about the old object; a new one is unexerted.
+            .without<com.wingedsheep.engine.state.components.battlefield.ExertedComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.ExertedThisTurnComponent>()
             // The number chosen as it entered (Nameless Race) belongs to *this* object; one
             // that leaves and returns chooses afresh as it enters (CR 400.7).
             .without<com.wingedsheep.engine.state.components.battlefield.EnteredWithValueComponent>()
@@ -522,6 +567,8 @@ object ZoneMovementUtils {
             // otherwise a blinked/bounced-and-recast exhaust permanent could never use its ability
             // again. Mirrors the documented intent of the sibling "ever" trackers.
             .without<AbilityActivatedEverComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.ChosenModesEverComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.ChosenModesThisTurnComponent>()
             .without<AttachedToComponent>()
             .without<AttachmentsComponent>()
             // A creature that leaves the battlefield becomes unpaired (CR 702.95e), and the object
@@ -531,6 +578,9 @@ object ZoneMovementUtils {
             // A blink returns a new object (CR 400.7); it must not carry a stale "host left" marker
             // from a prior attachment, and an Equipment that itself re-enters starts unmarked.
             .without<AttachmentHostLeftComponent>()
+            // An enchant ability the Aura gained on the battlefield (Animate Dead) belongs to that
+            // object; the card that leaves has its printed enchant ability again (CR 400.7).
+            .without<com.wingedsheep.engine.state.components.battlefield.GainedEnchantRestrictionComponent>()
             .without<EnteredThisTurnComponent>()
             .without<ExileOnLeaveBattlefieldComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.EnteredViaAbilityComponent>()
@@ -558,7 +608,7 @@ object ZoneMovementUtils {
             .without<DamageAssignmentComponent>()
             .without<DamageAssignmentOrderComponent>()
             .without<AttackerOrderComponent>()
-            .without<DealtFirstStrikeDamageComponent>()
+            .without<FirstStrikeStepAssignerComponent>()
             .without<RequiresManualDamageAssignmentComponent>()
     }
 
@@ -881,7 +931,8 @@ object ZoneMovementUtils {
                             effect.additionalEffect,
                             sourceControllerId,
                             effectSourceId = permanentId,
-                            linkSourceId = linkSource
+                            linkSourceId = linkSource,
+                            riderTiming = effect.riderTiming
                         )
                     }
                     else -> continue
@@ -993,26 +1044,24 @@ object ZoneMovementUtils {
     }
 
     /**
-     * Apply the additional effect from a RedirectZoneChangeWith replacement.
-     * Supports TakeExtraTurnEffect (Ugin's Nexus), AddCountersEffect (Darigaaz Reincarnated),
-     * and GainLifeEffect (The Darkness Crystal — "instead exile it and you gain 2 life").
+     * Execute the rider a [RedirectZoneChangeWith] carries.
      *
-     * Returns the updated state plus any events the effect emitted (e.g. LifeGainedEvent, so
-     * "whenever you gain life" triggers see the rider). Callers must fold the events into their
-     * own event stream.
+     * [ReplacementRiderTiming.WITH_REPLACEMENT] riders run inline, as part of the replacement, from
+     * a small whitelist: TakeExtraTurnEffect (Ugin's Nexus), AddCountersEffect on the redirected card
+     * (Darigaaz Reincarnated) and a fixed GainLifeEffect (The Darkness Crystal).
+     * [ReplacementRiderTiming.WHEN_YOU_DO] riders ("…exile it instead. When you do, create a 2/2
+     * green Wolf creature token") run nothing here: they emit a [ReflexiveAbilityTriggeredEvent]
+     * the settle boundary puts on the stack (CR 603.12).
      *
-     * @param entityId The entity that was redirected (for effects that target it, like adding counters)
-     */
-    /**
-     * Execute the rider a zone-change replacement carries — the "When you do, …" half of
-     * "…exile it instead. When you do, create a 2/2 green Wolf creature token".
+     * Returns the updated state plus any events the rider emitted. Callers must fold the events
+     * into their own event stream — that is how life-gain triggers see the rider and how the
+     * reflexive trigger reaches the trigger detector.
      *
      * @param controllerId Controller of the replacement's source; the rider's "you".
      * @param entityId The card that was redirected, for riders that act on it (Darigaaz's egg
-     *   counters).
-     * @param sourceId The permanent hosting the replacement, used as the rider's source. Only
-     *   token art reads it today; it may already have left the battlefield (CR 704.3), which is
-     *   fine — nothing here requires the source to still be there.
+     *   counters); a reflexive rider sees it as its triggering entity.
+     * @param sourceId The permanent hosting the replacement; the reflexive trigger's source. It may
+     *   already have left the battlefield (CR 704.3) — nothing here requires it to still be there.
      */
     fun applyReplacementAdditionalEffect(
         zones: ZoneTransitionService,
@@ -1020,8 +1069,25 @@ object ZoneMovementUtils {
         effect: com.wingedsheep.sdk.scripting.effects.Effect,
         controllerId: EntityId?,
         entityId: EntityId? = null,
-        sourceId: EntityId? = null
+        sourceId: EntityId? = null,
+        riderTiming: ReplacementRiderTiming = ReplacementRiderTiming.WITH_REPLACEMENT
     ): Pair<GameState, List<EngineGameEvent>> {
+        if (riderTiming == ReplacementRiderTiming.WHEN_YOU_DO) {
+            // "When you do, …" is a reflexive triggered ability (CR 603.12), not part of the
+            // replacement: emit the event the settle boundary turns into a PendingTrigger, so the
+            // rider goes on the stack and can be responded to. Any effect may ride this way.
+            val cid = controllerId ?: return state to emptyList()
+            val sid = sourceId ?: return state to emptyList()
+            return state to listOf(
+                ReflexiveAbilityTriggeredEvent(
+                    sourceId = sid,
+                    sourceName = state.getEntity(sid)?.get<CardComponent>()?.name ?: "",
+                    controllerId = cid,
+                    reflexiveEffect = effect,
+                    carriedTriggerContext = com.wingedsheep.engine.event.TriggerContext(triggeringEntityId = entityId)
+                )
+            )
+        }
         if (effect is com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect) {
             // Check if extra turns are prevented by any permanent on the battlefield
             if (ReplacementEffectUtils.isExtraTurnPrevented(state)) return state to emptyList()
@@ -1052,21 +1118,6 @@ object ZoneMovementUtils {
                 ?: return state to emptyList()
             val (newState, event) = DamageUtils.gainLife(state, cid, amount, predicateEvaluator = zones.predicateEvaluator)
             return newState to listOfNotNull(event)
-        }
-        if (effect is com.wingedsheep.sdk.scripting.effects.CreateTokenEffect) {
-            // Head of the Hunt. Delegated to the real executor rather than open-coded: that is
-            // what gives the token the minting set's art, its keywords and static abilities, and
-            // the enters-the-battlefield events that ETB triggers read. Its controller is the
-            // replacement's controller — the rider's "you" — so a token minted while an opponent's
-            // creature is redirected still lands on the shield controller's side.
-            val cid = controllerId ?: return state to emptyList()
-            val result = zones.riderTokenExecutor.execute(
-                state,
-                effect,
-                com.wingedsheep.engine.handlers.EffectContext(sourceId = sourceId, controllerId = cid)
-            )
-            if (result.error != null) return state to emptyList()
-            return result.state to result.events
         }
         return state to emptyList()
     }
@@ -1180,7 +1231,7 @@ object ZoneMovementUtils {
             }
         }
 
-        return EffectResult.success(newState, listOfNotNull(tappedEvent))
+        return EffectResult.success(newState, tappedEvent)
     }
 
     /**

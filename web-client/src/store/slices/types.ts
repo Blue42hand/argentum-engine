@@ -2,6 +2,7 @@
  * Shared types for store slices.
  */
 import type { StateCreator } from 'zustand'
+import type { ServerRestartState } from './serverRestart'
 import type {
   EntityId,
   ClientGameState,
@@ -34,9 +35,14 @@ import type {
   AiDeckSpec,
   DeckFormat,
   YieldKind,
+  MatchmakingMode,
+  MatchmakingStatusMessage,
+  MatchFoundMessage,
+  MatchmakingQueueCount,
 } from '@/types'
 import type { ConnectionStatus } from '@/network/websocket.ts'
-import type { CounterRemovalCreatureInfo, SpectatorCombatState, SpectatorDecisionStatus, UpdateLobbySettingsMessage } from '@/types/messages.ts'
+import type { AssistUndo, DeckSnapshot } from './assistDeck'
+import type { CounterRemovalCreatureInfo, PlayerSeatInfo, SpectatorCombatState, SpectatorDecisionStatus, UpdateLobbySettingsMessage } from '@/types/messages.ts'
 
 /**
  * Every field of the omnibus lobby-settings message except its discriminator.
@@ -77,6 +83,11 @@ export interface MulliganState {
  * Targeting state when selecting targets for a spell/ability.
  */
 export interface TargetingState {
+  /** Original pool, preserved while selections narrow the highlighted choices. */
+  selectionPool?: readonly EntityId[]
+  /** Server-approved pools whose members may be selected together. */
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
   action: GameAction
   validTargets: readonly EntityId[]
   selectedTargets: readonly EntityId[]
@@ -195,6 +206,11 @@ export interface CombatState {
   attackerTargets: Readonly<Record<EntityId, EntityId>>
   /** Planeswalker IDs that can be attacked */
   validAttackTargets: readonly EntityId[]
+  /**
+   * Server-sent per-attacker narrowing of `validAttackTargets` (sparse): an attacker listed here
+   * may attack only these targets. Read it through `attackTargetsFor`.
+   */
+  attackTargetsByAttacker: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Blocker assignments: blocker ID -> attacker IDs (supports blocking multiple attackers) */
   blockerAssignments: Record<EntityId, EntityId[]>
   /** Valid creatures that can participate (attackers or blockers depending on mode) */
@@ -240,6 +256,12 @@ export interface GameOverState {
  * Decision selection state for SelectCardsDecision with useTargetingUI=true.
  */
 export interface DecisionSelectionState {
+  selectionLimits?: Readonly<Record<EntityId, number>> | null
+  /** Original pool, preserved while selections narrow the highlighted choices. */
+  selectionPool?: readonly EntityId[]
+  /** Server-approved pools whose members may be selected together. */
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
   /** The pending decision this selection is for */
   decisionId: string
   /** Valid card IDs that can be selected */
@@ -349,6 +371,8 @@ export interface DamageDistributionState {
   totalDamage: number
   /** Minimum damage per target (usually 1 per MTG rules) */
   minPerTarget: number
+  /** What is divided when it isn't damage — "+1/+1 counter". Absent means damage. */
+  unit?: string
   /** Current distribution (targetId -> damage amount) */
   distribution: Record<EntityId, number>
 }
@@ -569,16 +593,16 @@ export interface DeckBuildingState {
   landCounts: Record<string, number>
   opponentReady: boolean
   /**
-   * Card names highlighted by the LLM deckbuilding assistant. When non-null,
-   * these replace any archetype-driven highlights in the pool view.
-   */
-  llmHighlightedCards: readonly string[] | null
-  /**
    * Selected commander name for Commander Draft / Sealed lobbies. Null when no commander
    * is chosen yet, or when the lobby format isn't commander-shape. The card MUST exist in
    * [cardPool] (the deckbuilder UI gates the picker to eligible pool cards).
    */
   commander: string | null
+  /**
+   * The second commander of a partner pair (CR 702.124) for Commander Draft / Sealed. Null
+   * without [commander] or when only one is designated; like it, the card MUST be in [deck].
+   */
+  secondCommander: string | null
   /**
    * Cube Pool Play: [cardPool] is the entire cube and copies are unlimited (bounded only by the
    * usual 4-of cap), so adding a card must not remove it from the pool view.
@@ -653,6 +677,7 @@ export interface GridDraftState {
  * Lobby state for tournament lobbies (sealed, draft, Winston draft, or grid draft).
  */
 export interface LobbyState {
+  jumpstart?: import('@/types/messages').JumpstartState | null
   lobbyId: string
   state: 'WAITING_FOR_PLAYERS' | 'DRAFTING' | 'DECK_BUILDING' | 'TOURNAMENT_ACTIVE' | 'TOURNAMENT_COMPLETE'
   players: readonly LobbyPlayerInfo[]
@@ -746,6 +771,9 @@ export interface MatchIntro {
   opponentName: string
   /** Every opponent's name in seat order (length > 1 in a multiplayer game). */
   opponentNames: string[]
+  /** Account avatars from the seat roster — yours, then each opponent's in `opponentNames` order. */
+  playerAvatar?: string | null
+  opponentAvatars?: (string | null)[]
   round?: number
   playerRecord?: string
   opponentRecord?: string
@@ -851,7 +879,11 @@ export type PipelinePhase =
   | { type: 'tapForGeneric' }
   | { type: 'harmonize' }
   | { type: 'manaSource' }
-  | { type: 'costPayment' }
+  /**
+   * Pays one additional cost. `costIndex` picks it out of `[additionalCostInfo, ...alsoRequired]`
+   * for a spell with several selection costs; absent means the first.
+   */
+  | { type: 'costPayment'; costIndex?: number }
   /**
    * Non-mana escalate (CR 702.120a): pay the escalate cost once for each mode chosen beyond the
    * first. Its own phase rather than a plain `costPayment` because the cost and its count come
@@ -888,7 +920,7 @@ export type PhaseResult =
   | { type: 'blightVariable'; blightAmount: number }
   | { type: 'payXLife'; payXLifeAmount: number }
   | { type: 'manaColorChoice'; color: string }
-  | { type: 'targeting'; selectedTargets: EntityId[] }
+  | { type: 'targeting'; selectedTargets: EntityId[]; targetGroupCounts?: number[] }
   | { type: 'damageDistribution'; distribution: Record<EntityId, number> }
 
 /**
@@ -923,8 +955,15 @@ export type GameStore = {
   onlinePlayers: number | null
   /** True when another tab/device took over this identity; auto-reconnect is stopped. */
   sessionReplaced: boolean
+  /** Set while the server is restarting (see `serverRestart.ts`). */
+  serverRestart: ServerRestartState | null
+  /** Epoch ms the server came back after a restart; drives the brief "back online" notice. */
+  serverBackAt: number | null
+  /** Epoch ms an established connection dropped, until it is re-established. */
+  connectionLostAt: number | null
   connect: (playerName: string, options?: { spectator?: boolean }) => void
   disconnect: () => void
+  retryConnection: () => void
   setPendingTournamentId: (lobbyId: string | null) => void
   setPendingSpectateGameId: (gameSessionId: string | null) => void
 
@@ -1014,6 +1053,7 @@ export type GameStore = {
   /** Host picks what one AI seat plays (premade-decks lobbies — elsewhere it builds from its pool). */
   setLobbyAiDeck: (playerId: string, spec: AiDeckSpec) => void
   stopLobby: () => void
+  pickJumpstartPacks: (firstPackId: string, secondPackId: string) => void
   updateLobbySettings: (settings: LobbySettingsUpdate) => void
   /** Disconnected tournament players: playerId -> info */
   disconnectedPlayers: Record<string, { playerName: string; secondsRemaining: number; disconnectedAt: number }>
@@ -1030,6 +1070,10 @@ export type GameStore = {
     deckList: Record<string, number>,
     commander?: string | null,
     sideboard?: Record<string, number>,
+    /** The second commander of a partner pair; ignored without `commander`. */
+    secondCommander?: string | null,
+    /** The deck's companion (CR 702.139), a sideboard card; null for none. */
+    companion?: string | null,
   ) => void
   unsubmitLobbyDeck: () => void
 
@@ -1044,6 +1088,10 @@ export type GameStore = {
     deckList: Record<string, number>,
     commander?: string | null,
     sideboard?: Record<string, number>,
+    /** The second commander of a partner pair; ignored without `commander`. */
+    secondCommander?: string | null,
+    /** The deck's companion (CR 702.139), a sideboard card; null for none. */
+    companion?: string | null,
   ) => void
   setQuickGameLobbyReady: (ready: boolean) => void
   setQuickGameLobbySetCode: (setCodes: readonly string[]) => void
@@ -1052,6 +1100,18 @@ export type GameStore = {
   setQuickGameLobbyFormat: (format: DeckFormat | null, momirBasic?: boolean) => void
   /** Host-only: choose what the AI opponent plays (auto / built from sets / an exact list). */
   setQuickGameAiDeck: (spec: AiDeckSpec) => void
+
+  // Matchmaking (lives in the quick-game slice: a confirmed match becomes a quick-game lobby)
+  /** The server's last matchmaking status for this player; null before any. */
+  matchmaking: MatchmakingStatusMessage | null
+  /** An open "match found" prompt, stamped with its arrival time for the local countdown. */
+  matchOffer: (MatchFoundMessage & { readonly receivedAt: number }) | null
+  /** Searching players per queue; null until first loaded. */
+  matchmakingQueues: readonly MatchmakingQueueCount[] | null
+  joinMatchmaking: (mode: MatchmakingMode, format: DeckFormat | null, ranked: boolean) => void
+  leaveMatchmaking: () => void
+  respondToMatch: (accept: boolean) => void
+  dismissMatchmakingNotice: () => void
 
   // Draft slice
   deckBuildingState: DeckBuildingState | null
@@ -1063,10 +1123,11 @@ export type GameStore = {
   setLandCount: (landType: string, count: number) => void
   /** Replace the entire deck (non-basic cards as a flat list) and basic land counts. */
   setDeck: (deck: readonly string[], landCounts: Record<string, number>) => void
-  /** Set or clear the commander for Commander Draft / Sealed lobbies. */
-  setCommander: (cardName: string | null) => void
-  /** Set the LLM-driven highlight set. Pass null to clear. */
-  setLlmHighlights: (cardNames: readonly string[] | null) => void
+  /**
+   * Set the commander designation for Commander Draft / Sealed lobbies: none, one, or a partner
+   * pair (CR 702.124). Further names are ignored.
+   */
+  setCommanders: (cardNames: readonly string[]) => void
   submitSealedDeck: () => void
   unsubmitDeck: () => void
   makePick: (cardNames: string[]) => void
@@ -1089,6 +1150,13 @@ export type GameStore = {
   deckCardScores: Readonly<Record<string, PickScore>> | null
   scoreDeckCards: (advisorId?: string) => Promise<void>
   clearDeckCardScores: () => void
+  deckCardScoresContext: DeckSnapshot | null
+  deckAssistTask: 'build' | 'score' | null
+  assistUndo: AssistUndo | null
+  applyAssistDeck: (deck: readonly string[], landCounts: Record<string, number>) => void
+  undoAssistDeck: () => void
+  clearAutoBuildResult: () => void
+  clearAiAssistError: () => void
   suggestPick: (advisorId?: string) => Promise<void>
   clearPickSuggestion: () => void
   autoBuildDeck: (advisorId?: string) => Promise<void>
@@ -1117,6 +1185,7 @@ export type GameStore = {
   teamByPlayerId: Readonly<Record<EntityId, number>>
   teamSharedLife: boolean
   teamSharedTurns: boolean
+  avatarByPlayerId: Readonly<Record<EntityId, string>>
   viewOpponent: (playerId: EntityId, opts?: { pin?: boolean }) => void
   unpinView: () => void
   toggleFollowAction: () => void
@@ -1132,6 +1201,7 @@ export type GameStore = {
     sharedLife?: boolean,
     sharedTurns?: boolean,
   ) => void
+  setSeatAvatars: (players: readonly PlayerSeatInfo[]) => void
   resetBoardView: () => void
 
   // UI slice
@@ -1273,6 +1343,7 @@ export type GameStore = {
   cancelManaColorSelection: (interactionEpoch: string | null) => void
   startDecisionSelection: (state: DecisionSelectionState) => void
   toggleDecisionSelection: (cardId: EntityId) => void
+  decrementDecisionSelection: (cardId: EntityId) => void
   cancelDecisionSelection: (decisionId: string) => void
   confirmDecisionSelection: (decisionId: string) => void
   startDamageDistribution: (state: DamageDistributionState) => void

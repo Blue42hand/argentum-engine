@@ -194,6 +194,25 @@ sealed interface StatePredicate {
         override val description: String = "attacking the defender of ${reference.description}"
     }
 
+    /**
+     * Attacking [player] themself — "target nontoken creature that's attacking **that player**"
+     * (Echoing Assault, with `PlayerRef(Player.TriggeringPlayer)` bound by a per-attacked-player
+     * `YouAttackEvent`). The player-only sibling of [IsAttackingDefenderOf], which also matches
+     * attackers aimed at the reference's planeswalkers, battles and teammates; and the
+     * reference-parameterised form of [IsAttackingEnchantedPlayer], which resolves its player from
+     * the source's attachment during projection (where no trigger context exists).
+     *
+     * No last-known fallback, for [IsAttackingAnOpponent]'s reason. Fails closed when [player]
+     * resolves to nothing.
+     */
+    @SerialName("IsAttackingPlayer")
+    @Serializable
+    data class IsAttackingPlayer(
+        val player: com.wingedsheep.sdk.scripting.targets.EffectTarget
+    ) : Entity {
+        override val description: String = "attacking ${player.description}"
+    }
+
     @SerialName("IsAttackingYouOrYourPlaneswalkers")
     @Serializable
     data object IsAttackingYouOrYourPlaneswalkers : Entity {
@@ -758,6 +777,21 @@ sealed interface StatePredicate {
     }
 
     /**
+     * This card is currently in a graveyard *and* got there by being milled (CR 701.17) this
+     * turn — Raul, Trouble Shooter's "cards in your graveyard that were milled this turn", Tato
+     * Farmer's "target land card in a graveyard that was milled this turn". A card put there from
+     * the library any other way (surveil, "put the top card into your graveyard") doesn't count.
+     *
+     * The mill-restricted sibling of [PutIntoGraveyardThisTurn]: same
+     * `PutIntoGraveyardThisTurnComponent` and lifecycle, additionally requiring its `milled` flag.
+     */
+    @SerialName("MilledThisTurn")
+    @Serializable
+    data object MilledThisTurn : History {
+        override val description: String = "milled this turn"
+    }
+
+    /**
      * This creature blocked, or was blocked by, a legendary creature at some point during the
      * current turn. Used as a target predicate:
      *
@@ -814,6 +848,23 @@ sealed interface StatePredicate {
     @Serializable
     data object IsFaceUp : Entity {
         override val description: String = "face-up"
+    }
+
+    // =============================================================================
+    // Commander designation (Entity)
+    // =============================================================================
+
+    /**
+     * Is a **commander** — any player's (CR 903.3). Being a commander is "not a characteristic of
+     * the object represented by the card; rather, it is an attribute of the card itself", so it
+     * survives zone changes and face-down status, and a copy of a commander (token or Clone) is
+     * not one. Compose with a zone: "you control a commander" is a battlefield permanent that is a
+     * commander (CR 903.3d) — `Conditions.YouControlACommander`.
+     */
+    @SerialName("IsCommander")
+    @Serializable
+    data object IsCommander : Entity {
+        override val description: String = "commander"
     }
 
     /**

@@ -93,8 +93,14 @@ class LegalityKernel(
         }
         is ActivationRestriction.OncePerTurn -> {
             val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-            if (tracker != null && tracker.hasActivated(ability.id)) "This ability can only be activated once each turn"
-            else null
+            when {
+                tracker == null || !tracker.hasActivated(ability.id) -> null
+                // Boast's once-each-turn can be raised ("Creatures you control can boast twice").
+                ability.isBoast && OnceOnlyActivationAllowance.mayActivateThisTurn(
+                    state, playerId, tracker.activationCount(ability.id), ability, cardRegistry, conditionEvaluator
+                ) -> null
+                else -> "This ability can only be activated once each turn"
+            }
         }
         is ActivationRestriction.MaxPerTurn -> {
             val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()

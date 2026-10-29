@@ -12,6 +12,7 @@ import { YesNoDecisionUI } from './YesNoDecisionUI'
 import { BatchYesNoDecisionUI } from './BatchYesNoDecisionUI'
 import { ChooseNumberDecisionUI } from './ChooseNumberDecisionUI'
 import { ChooseOptionDecisionUI } from './ChooseOptionDecisionUI'
+import { DungeonChoiceDecisionUI, dungeonChoiceKind } from './DungeonChoiceDecisionUI'
 import { ChooseReplacementDecisionUI } from './ChooseReplacementDecisionUI'
 import { BudgetModalDecisionUI } from './BudgetModalDecisionUI'
 import { ChooseColorDecisionUI } from './ChooseColorDecisionUI'
@@ -172,6 +173,10 @@ export function DecisionUI() {
 
   // Handle ChooseOptionDecision (e.g., "Choose a creature type")
   if (pendingDecision.type === 'ChooseOptionDecision') {
+    // Venturing into the dungeon (CR 701.49): pick a dungeon card, or a room on the map.
+    if (dungeonChoiceKind(pendingDecision) !== null) {
+      return <DungeonChoiceDecisionUI key={pendingDecision.id} decision={pendingDecision} />
+    }
     return (
       <ChooseOptionDecisionUI key={pendingDecision.id} decision={pendingDecision} />
     )

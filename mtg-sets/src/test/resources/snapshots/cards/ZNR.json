@@ -1,3 +1,149 @@
+// Ancient Greenwarden
+{
+    "name": "Ancient Greenwarden",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Elemental",
+    "oracleText": "Reach (This creature can block creatures with flying.)\nYou may play lands from your graveyard.\nIf a land entering causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 7
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "script": {
+        "staticAbilities": [
+            "MayPlayLandsFromGraveyard",
+            {
+                "type": "AdditionalETBOrLTBTriggers",
+                "filter": "land",
+                "mustBeYouControl": false,
+                "description": "If a land entering causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "rarity": "MYTHIC",
+        "artist": "Grzegorz Rutkowski",
+        "flavorText": "When the ruins awakened, so did their defenses.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/dfe08e59-fdc4-436f-b05c-6ad386c46310.jpg?1783929342",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "Ancient Greenwarden doesn't change the times when you can play those lands. You can still play only one land per turn, and only during your main phase when you have priority and the stack is empty."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Ancient Greenwarden allows you to play a modal double-faced card's land face, but not a nonland face."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Ancient Greenwarden's third ability affects a land's own enters-the-battlefield triggered abilities as well as other triggered abilities that trigger when that land enters the battlefield, such as landfall abilities."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Replacement effects are unaffected by Ancient Greenwarden's third ability."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "An ability that triggers whenever you play a land won't trigger an additional time."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If you control two Ancient Greenwardens, a land entering the battlefield causes abilities to trigger three times, not four."
+            }
+        ]
+    }
+}
+
+// Attended Healer
+{
+    "name": "Attended Healer",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Kor Cleric",
+    "oracleText": "Whenever you gain life for the first time each turn, create a 1/1 white Cat creature token.\n{2}{W}: Another target Cleric gains lifelink until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Attended Healer:1",
+                "trigger": {
+                    "type": "LifeGainEvent",
+                    "firstTimeEachTurn": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Cat"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f458f39-27b6-4121-bda9-1a0d1b42f5fb.jpg?1783929500"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Attended Healer:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "LIFELINK",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent Cleric",
+                            "excludeSelf": true
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}{W}: Another target Cleric gains lifelink until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "UNCOMMON",
+        "artist": "Wisnu Tan",
+        "flavorText": "\"My cats have taught me more about the sacred than anything in some old ruin.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/c/6ca80b5a-3943-41ca-8cd1-8e3db1b2a1c8.jpg?1783929423",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "An ability that triggers whenever you gain life \"for the first time each turn\" won't trigger if you gain life during a turn before the permanent with that ability is on the battlefield, even if you gain life again later in the turn."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "In a Two-Headed Giant game, life gained by your teammate won't cause the ability to trigger, even though it caused your team's life total to increase."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Blood Price
 {
     "name": "Blood Price",
@@ -693,7 +839,8 @@
                                     "Beast"
                                 ],
                                 "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2c91781-acf9-4cff-be1a-85148ad2a683.jpg?1783929500"
-                            }
+                            },
+                            "description": "Create a 2/2 white Cat Beast creature token"
                         },
                         {
                             "effect": {
@@ -993,6 +1140,130 @@
     ]
 }
 
+// Magmatic Channeler
+{
+    "name": "Magmatic Channeler",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "As long as there are four or more instant and/or sorcery cards in your graveyard, this creature gets +3/+1.\n{T}, Discard a card: Exile the top two cards of your library, then choose one of them. You may play that card this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Magmatic Channeler:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected2",
+                            "prompt": "Choose a card you may play this turn"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "selected2"
+                        }
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantDynamicStats",
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    },
+                    "powerBonus": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "toughnessBonus": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "instant|sorcery"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "148",
+        "rarity": "RARE",
+        "artist": "Bryan Sola",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d8be6570-5b5f-4ffc-a5e5-67d7c41c8caa.jpg?1783929356",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "Magmatic Channeler gets just +3/+1 from its first ability, no matter how many instant and sorcery cards are in your graveyard beyond the fourth."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "You choose which card you'll be allowed to play this turn while Magmatic Channeler's ability is resolving, but you must follow the normal timing permissions and restrictions for the card when you play it. If it's a land, you can't play it unless you have land plays available."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If you don't play the exiled card you chose, it remains exiled. The card you didn't choose remains exiled whether you play the chosen card or not."
+            }
+        ]
+    }
+}
+
 // Malakir Rebirth
 {
     "name": "Malakir Rebirth",
@@ -1216,6 +1487,44 @@
     ]
 }
 
+// Mesa Lynx
+{
+    "name": "Mesa Lynx",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Cat",
+    "oracleText": "During turns other than yours, this creature gets +0/+2.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 0,
+                    "toughnessBonus": 2,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": "IsNotYourTurn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "artist": "Svetlin Velinov",
+        "flavorText": "Its ferocity is tempered by patience, knowing it must wait for just the right moment to strike a killing blow.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f65af09b-656f-4d81-b95d-b4f902e56bb7.jpg?1783929411"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Murasa Brute
 {
     "name": "Murasa Brute",
@@ -1297,6 +1606,192 @@
     "layout": "MODAL_DFC"
 }
 
+// Nissa of Shadowed Boughs
+{
+    "name": "Nissa of Shadowed Boughs",
+    "manaCost": "{2}{B}{G}",
+    "typeLine": "Legendary Planeswalker — Nissa",
+    "oracleText": "Landfall — Whenever a land you control enters, put a loyalty counter on Nissa.\n+1: Untap target land you control. You may have it become a 3/3 Elemental creature with haste and menace until end of turn. It's still a land.\n−5: You may put a creature card with mana value less than or equal to the number of lands you control onto the battlefield from your hand or graveyard with two +1/+1 counters on it.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nissa of Shadowed Boughs:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "LOYALTY",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Nissa of Shadowed Boughs:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "tap": false
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
+                                "type": "BecomeCreature",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "power": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "toughness": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "keywords": [
+                                    "HASTE",
+                                    "MENACE"
+                                ],
+                                "creatureTypes": [
+                                    "Elemental"
+                                ]
+                            },
+                            "descriptionOverride": "You may have it become a 3/3 Elemental creature with haste and menace until end of turn. It's still a land."
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land ctrl:you"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Nissa of Shadowed Boughs:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -5
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromMultipleZones",
+                                "zones": [
+                                    "Hand",
+                                    "Graveyard"
+                                ],
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "ManaValueAtMostDynamic",
+                                            "amount": {
+                                                "type": "AggregateBattlefield",
+                                                "player": "You",
+                                                "filter": "land"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "You may put a creature card with mana value less than or equal to the number of lands you control onto the battlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "storeMovedAs": "moved2"
+                        },
+                        {
+                            "type": "AddCountersToCollection",
+                            "collectionName": "moved2",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 2
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "MYTHIC",
+        "artist": "Yongjae Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d69f943-d474-47c0-bc6b-1b247a5dd6f3.jpg?1783929321",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "Nissa's middle ability can target a land that's already untapped or that's already a creature."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Nissa's middle ability doesn't remove any abilities the land creature has."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Nissa's middle ability overwrites any previous effects that set the land creature's power and/or toughness to specific values. Other effects that set these characteristics to specific values that start to apply after the ability resolves will overwrite that part of the effect."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "The creature card's mana value is checked only in your hand or graveyard. You may put a creature card onto the battlefield whose mana value becomes greater than the number of lands you control once it's on the battlefield, most likely because it enters as a copy of another permanent."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If a card in a player's hand or graveyard has {X} in its mana cost, X is considered to be 0."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Nullpriest of Oblivion
 {
     "name": "Nullpriest of Oblivion",
@@ -1355,6 +1850,177 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Omnath, Locus of Creation
+{
+    "name": "Omnath, Locus of Creation",
+    "manaCost": "{R}{G}{W}{U}",
+    "typeLine": "Legendary Creature — Elemental",
+    "oracleText": "When Omnath enters, draw a card.\nLandfall — Whenever a land you control enters, you gain 4 life if this is the first time this ability has resolved this turn. If it's the second time, add {R}{G}{W}{U}. If it's the third time, Omnath deals 4 damage to each opponent and each planeswalker you don't control.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Omnath, Locus of Creation:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            {
+                "id": "Omnath, Locus of Creation:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        "IncrementAbilityResolutionCount",
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceAbilityResolvedNTimesThisTurn",
+                                    "count": 1
+                                }
+                            },
+                            "then": {
+                                "type": "GainLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceAbilityResolvedNTimesThisTurn",
+                                    "count": 2
+                                }
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "AddMana",
+                                        "color": "RED"
+                                    },
+                                    {
+                                        "type": "AddMana",
+                                        "color": "GREEN"
+                                    },
+                                    {
+                                        "type": "AddMana",
+                                        "color": "WHITE"
+                                    },
+                                    {
+                                        "type": "AddMana",
+                                        "color": "BLUE"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceAbilityResolvedNTimesThisTurn",
+                                    "count": 3
+                                }
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "DealDamage",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 4
+                                        },
+                                        "target": {
+                                            "type": "PlayerRef",
+                                            "player": "EachOpponent"
+                                        }
+                                    },
+                                    {
+                                        "type": "ForEach",
+                                        "space": {
+                                            "type": "IterationSpace.Group",
+                                            "filter": {
+                                                "baseFilter": {
+                                                    "cardPredicates": [
+                                                        "IsPlaneswalker"
+                                                    ],
+                                                    "controllerPredicate": {
+                                                        "type": "ControllerNot",
+                                                        "predicate": "ControlledByYou"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "body": {
+                                            "type": "DealDamage",
+                                            "amount": {
+                                                "type": "Fixed",
+                                                "amount": 4
+                                            },
+                                            "target": "IterationEntity"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, you gain 4 life if this is the first time this ability has resolved this turn. If it's the second time, add {R}{G}{W}{U}. If it's the third time, Omnath deals 4 damage to each opponent and each planeswalker you don't control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "232",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rahn",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/e/4e4fb50c-a81f-44d3-93c5-fa9a0b37f617.jpg?1783929320",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "Omnath's landfall ability has no effect each time beyond the third it resolves in a turn."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "Omnath's landfall ability always uses the stack and players may respond to it. It isn't a mana ability because the event that causes it to trigger isn't a mana ability, even if it's the second time the ability has resolved in a turn."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "In a Two-Headed Giant game, Omnath's second ability causes the opposing team to lose 8 life the third time it resolves. Each other player's planeswalkers—including your teammate's—are dealt 4 damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN",
+        "WHITE",
+        "BLUE"
     ]
 }
 
@@ -1477,6 +2143,260 @@
     "layout": "MODAL_DFC"
 }
 
+// Scale the Heights
+{
+    "name": "Scale the Heights",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Put a +1/+1 counter on up to one target creature. You gain 2 life. You may play an additional land this turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "PlayAdditionalLands",
+                    "count": 1
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "202",
+        "artist": "Cristi Balanescu",
+        "flavorText": "Ever onward, ever skyward.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e781d6ad-950e-49bf-9645-e2354086ae49.jpg?1783929332",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "If you choose a target creature and it's an illegal target by the time Scale the Heights tries to resolve, the spell doesn't resolve. You don't gain life, draw a card, or get to play an additional land."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "The permission to play lands is cumulative with other effects that allow you to play additional lands, such as that of Nahiri's Lithoforming."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "You don't play a land as Scale the Heights resolves; Scale the Heights fully resolves first and you draw a card, perhaps including a land you'll play later. If it's not your turn, you won't be able to play a land this turn at all."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Scute Swarm
+{
+    "name": "Scute Swarm",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Insect",
+    "oracleText": "Landfall — Whenever a land you control enters, create a 1/1 green Insect creature token. If you control six or more lands, create a token that's a copy of this creature instead.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Scute Swarm:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "land"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 6
+                            }
+                        }
+                    },
+                    "then": "CreateTokenCopyOfSource",
+                    "otherwise": {
+                        "type": "CreateToken",
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "GREEN"
+                        ],
+                        "creatureTypes": [
+                            "Insect"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/8/4/84da9c36-5d9c-4e29-b6cc-c5c10e490f2e.jpg?1783929499"
+                    }
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, create a 1/1 green Insect creature token. If you control six or more lands, create a token that's a copy of this creature instead."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "203",
+        "rarity": "RARE",
+        "artist": "Alex Konstad",
+        "flavorText": "\"Survival rule 782: There are *always* more scute bugs.\"\n—Zurdi, goblin shortcutter",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/61f42823-8a48-4b81-a037-664ba1c69f29.jpg?1783929333",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "The token copy will have Scute Swarm's ability. It will also be able to create copies of itself."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "The token copy won't copy counters or damage marked on Scute Swarm, nor will it copy other effects that have changed Scute Swarm's power, toughness, types, color, and so on. Normally, this means the token will simply be a Scute Swarm, but if any copy effects have affected the original Scute Swarm, the token will take those into account."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If Scute Swarm leaves the battlefield before its triggered ability resolves, the token will still enter the battlefield as a copy of Scute Swarm, using Scute Swarm's copiable values from when it was last on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Skyclave Apparition
+{
+    "name": "Skyclave Apparition",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Creature — Kor Spirit",
+    "oracleText": "When this creature enters, exile up to one target nonland, nontoken permanent you don't control with mana value 4 or less.\nWhen this creature leaves the battlefield, the exiled card's owner creates an X/X blue Illusion creature token, where X is the mana value of the exiled card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Skyclave Apparition:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Exile",
+                    "linkToSource": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "nonland permanent nontoken mv<=4 ctrl:opponent"
+                    },
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Skyclave Apparition:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "OwnersOfLinkedExile"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "FromLinkedExile",
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "CreateToken",
+                                "count": {
+                                    "type": "VariableReference",
+                                    "variableName": "gathered0_count"
+                                },
+                                "power": 0,
+                                "toughness": 0,
+                                "colors": [
+                                    "BLUE"
+                                ],
+                                "creatureTypes": [
+                                    "Illusion"
+                                ],
+                                "imageUri": "https://cards.scryfall.io/normal/front/2/3/2300635e-7771-4676-a5a5-29a9d8f49f1a.jpg?1783929499",
+                                "dynamicPower": {
+                                    "type": "StoredCardManaValue",
+                                    "collectionName": "gathered0"
+                                },
+                                "dynamicToughness": {
+                                    "type": "StoredCardManaValue",
+                                    "collectionName": "gathered0"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "RARE",
+        "artist": "Donato Giancola",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b83cfbaa-7890-4f6f-878b-4edb45677371.jpg?1783929406"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Spitfire Lagac
 {
     "name": "Spitfire Lagac",
@@ -1519,5 +2439,111 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Swarm Shambler
+{
+    "name": "Swarm Shambler",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Fungus Beast",
+    "oracleText": "This creature enters with a +1/+1 counter on it.\nWhenever a creature you control with a +1/+1 counter on it becomes the target of a spell an opponent controls, create a 1/1 green Insect creature token.\n{1}, {T}: Put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Swarm Shambler:1",
+                "trigger": {
+                    "type": "BecomesTargetEvent",
+                    "targetFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "HasCounter",
+                                "counterType": "PLUS_ONE_PLUS_ONE"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "byOpponent": true,
+                    "spellsOnly": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Insect"
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Swarm Shambler:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "207",
+        "rarity": "RARE",
+        "artist": "Nicholas Gregory",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/a/7a7e4f99-ece4-473e-b712-40e4c53558e8.jpg?1783929330",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "If a spell targets a creature you control with a +1/+1 counter on it more than once, Swarm Shambler’s ability triggers only once."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "You create just one Insect token, no matter how many +1/+1 counters the target creature has on it."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "An ability that triggers when a creature becomes the target of a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If a creature without a +1/+1 counter on it becomes the target of a spell an opponent controls, putting a +1/+1 counter on it after that won’t cause Swarm Shambler’s middle ability to trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }

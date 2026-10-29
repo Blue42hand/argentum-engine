@@ -115,3 +115,12 @@ For a constrained split, `pileOptions` limits the cards eligible for each pile a
 server-validated plan for automated responders. After randomized assignment, these fields let the
 player choose a legal subset on the battlefield without rerolling or enumerating every combination.
 The continuation also checks the resulting combat restrictions before committing any block.
+
+### Repeated battlefield selections
+
+A `SelectCardsDecision` with `selectionLimits` assigns a maximum number of units to each
+offered permanent. A response repeats its entity ID once per unit; typed counter-removal
+payments use this to distribute a fixed cost across permanents. The engine validates each
+capacity and requires the full `maxSelections` total or an empty response to decline.
+The client renders allocation controls on the battlefield, using only these supplied limits.
+Absent `selectionLimits`, ordinary selection behavior is unchanged.

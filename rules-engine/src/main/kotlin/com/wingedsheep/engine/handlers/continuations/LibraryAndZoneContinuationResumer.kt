@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CastAnyNumberFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
+import com.wingedsheep.sdk.scripting.effects.PlayFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -66,9 +67,9 @@ class LibraryAndZoneContinuationResumer(
         var reordered = com.wingedsheep.engine.mechanics.GraveyardOrdering.reorder(
             state, continuation.ownerId, continuation.cards, response.orderedObjects)
         if (continuation.remaining.isNotEmpty()) return com.wingedsheep.engine.mechanics.GraveyardOrdering.ask(
-            reordered, continuation.remaining, continuation.events + GraveyardOrderedEvent(continuation.ownerId, response.orderedObjects), continuation.collections, continuation.numbers, continuation.chosenValues, continuation.subtypeGroups, continuation.sacrificed)
+            reordered, continuation.remaining, continuation.events + GraveyardOrderedEvent(continuation.ownerId, response.orderedObjects), continuation.collections, continuation.numbers, continuation.chosenValues, continuation.subtypeGroups, continuation.sacrificed, continuation.sourceId, continuation.departed)
         reordered = exposeCollectionsToNextFrame(reordered, continuation.collections, continuation.numbers,
-            continuation.chosenValues, continuation.subtypeGroups, continuation.sacrificed)
+            continuation.chosenValues, continuation.subtypeGroups, continuation.sacrificed, continuation.departed)
         return checkForMore(reordered, continuation.events + GraveyardOrderedEvent(continuation.ownerId, response.orderedObjects))
     }
 
@@ -484,6 +485,7 @@ class LibraryAndZoneContinuationResumer(
                         when (it) {
                             -1 -> card.name
                             -2 -> definition!!.backFace!!.name
+                            com.wingedsheep.engine.mechanics.SplitSpellCasts.FUSED_FACE -> "${card.name} (fused)"
                             else -> definition!!.cardFaces[it].name
                         }
                     },
@@ -646,8 +648,19 @@ class LibraryAndZoneContinuationResumer(
 
         // Build the updated collections
         val updatedCollections = mutableMapOf(continuation.storeSelected to selected)
+        // The chooser just saw these cards, so a later move that would pause only to show them
+        // again — one card back on top, or copies of one card with no order to pick — can skip it
+        // (scry / surveil keeping them on top, or sending identical cards to the bottom).
+        fun publishShown(collection: String, cards: List<EntityId>) {
+            val shown = continuation.shownCards?.let { s -> cards.filter { it in s } }.orEmpty()
+            if (shown.isNotEmpty()) {
+                updatedCollections[com.wingedsheep.engine.handlers.PipelineState.shownKey(collection, continuation.playerId)] = shown
+            }
+        }
+        publishShown(continuation.storeSelected, selected)
         if (continuation.storeRemainder != null) {
             updatedCollections[continuation.storeRemainder] = remainder
+            publishShown(continuation.storeRemainder, remainder)
         }
 
         // Inject updated collections into the consumer frame beneath (if any)
@@ -1132,6 +1145,7 @@ class LibraryAndZoneContinuationResumer(
         var stateForCast = granted
         if (continuation.thenEffect != null) {
             val thenCtx = EffectContext(
+                resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
                 sourceId = continuation.sourceId,
                 objectReferences = continuation.objectReferences,
                 controllerId = continuation.playerId,
@@ -1201,6 +1215,7 @@ class LibraryAndZoneContinuationResumer(
         val thenEffect = continuation.thenEffect
             ?: return checkForMore(state, leadingEvents)
         val ctx = EffectContext(
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
             controllerId = continuation.playerId,
@@ -1243,7 +1258,14 @@ class LibraryAndZoneContinuationResumer(
         val stateForCast = state.copy(priorityPlayerId = continuation.casterId)
         val castResult = castSpellHandler.execute(
             stateForCast,
-            CastSpell(continuation.casterId, continuation.cardId, chosenTargets, faceIndex = continuation.faceIndex),
+            CastSpell(
+                continuation.casterId, continuation.cardId, chosenTargets, faceIndex = continuation.faceIndex,
+                castFused = continuation.castFused,
+                // The response is keyed by requirement, so it knows each group's size; inference
+                // can't always recover it (two optional groups with overlapping filters).
+                targetGroupCounts = response.selectedTargets.keys.maxOrNull()
+                    ?.let { last -> (0..last).map { response.selectedTargets[it]?.size ?: 0 } },
+            ),
         )
 
         if (castResult.error != null) {
@@ -1357,7 +1379,12 @@ class LibraryAndZoneContinuationResumer(
         // CastFromCollectionWithoutPayingCostExecutor no-ops on it, leaving it in exile. Ask the
         // executor's own precondition the same question it will ask, so that pick doesn't burn a
         // cast. Deterministic over the same state, so the two answers can't disagree.
-        val castWillInitiate = (continuation.maxCasts == null && continuation.maxTotalManaValue == null) ||
+        // A land under "play lands and cast spells" is played, not cast: it goes through the
+        // land-play path and spends nothing from a spell budget.
+        val playsLand = continuation.playLands &&
+            CastAnyNumberFromCollectionWithoutPayingCostExecutor.isLand(state, chosenId)
+        val castWillInitiate = !playsLand && (
+            (continuation.maxCasts == null && continuation.maxTotalManaValue == null) ||
             CastFromCollectionWithoutPayingCostExecutor.prepareTargetSelection(
                 state = state,
                 cardId = chosenId,
@@ -1365,9 +1392,11 @@ class LibraryAndZoneContinuationResumer(
                 cardRegistry = services.cardRegistry,
                 targetFinder = targetFinder,
             ) !is CastFromCollectionWithoutPayingCostExecutor.TargetPrep.NoLegalTargets
+            )
 
         val effects = listOf(
-            CastFromCollectionWithoutPayingCostEffect(from = singleKey, payManaCost = continuation.payManaCost),
+            if (playsLand) PlayFromCollectionWithoutPayingCostEffect(from = singleKey)
+            else CastFromCollectionWithoutPayingCostEffect(from = singleKey, payManaCost = continuation.payManaCost),
             CastAnyNumberFromCollectionWithoutPayingCostEffect(
                 from = continuation.from,
                 payManaCost = continuation.payManaCost,
@@ -1382,6 +1411,7 @@ class LibraryAndZoneContinuationResumer(
                         budget - CastAnyNumberFromCollectionWithoutPayingCostExecutor.manaValueOf(state, chosenId)
                     } else budget
                 },
+                playLands = continuation.playLands,
             ),
         )
         val result = effectRunner.executeRemainingEffects(state, effects, loopContext)

@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
  * are frozen — **a new copy exception goes here, never onto another flat rider.**
  *
  * Everything here is a *copiable* value (CR 707.2): anything that later copies the copy sees these
- * modifications too. Riders that are **not** characteristics — "and this ability", "it enters
+ * modifications too. Riders that are **not** characteristics — "it enters
  * tapped", "it enters with a +1/+1 counter" — deliberately stay on the individual effects.
  *
  * Add/override pairs follow Magic's own templating, which the rules make load-bearing: a stated
@@ -65,6 +65,13 @@ import kotlinx.serialization.Serializable
  *   exception. Applied even when the copied object had no P/T at all (Absorbing Man copying a
  *   land), in which case base P/T are created from scratch.
  * @property toughnessOverride Replaces the copied base toughness.
+ * @property retainPowerToughness "except its power and toughness are equal to this creature's power
+ *   and toughness" (Hulking Metamorph) — the copy keeps the *copying* object's own pre-copy base P/T
+ *   instead of the copied one, the P/T twin of [retainColors]. Reads the copier's current copiable
+ *   P/T, so a prototyped copier (CR 718.3b) keeps its prototype size. Only meaningful on a path with
+ *   a copier — an existing permanent becoming a copy, or a permanent entering as one; a minted token
+ *   has no prior self, so there it leaves the copied P/T alone. Can't combine with a stated
+ *   [powerOverride] / [toughnessOverride].
  * @property noManaCost "except it … has no mana cost" — the copy has no mana cost and so mana
  *   value 0 (Embalm / Eternalize, CR 702.128a).
  * @property addedNumericKeywords Numeric keywords the copy has *in addition* to the ones it copied —
@@ -84,10 +91,15 @@ data class CopyExceptions(
     val overrideSubtypes: Set<Subtype>? = null,
     val addedColors: Set<Color> = emptySet(),
     val overrideColors: Set<Color>? = null,
+    /** Do not copy color; keep the copying object's pre-copy copiable colors. */
+    val retainColors: Boolean = false,
     val powerOverride: Int? = null,
     val toughnessOverride: Int? = null,
+    val retainPowerToughness: Boolean = false,
     val noManaCost: Boolean = false,
     val addedNumericKeywords: List<com.wingedsheep.sdk.scripting.KeywordAbility.Numeric> = emptyList(),
+    /** Add the frozen resolving trigger as copiable rules text; no-op outside a triggered ability. */
+    val retainResolvingTriggeredAbility: Boolean = false,
     /** Abilities added as copiable rules text, including multiple identical instances. */
     val addedTriggeredAbilities: List<com.wingedsheep.sdk.scripting.TriggeredAbility> = emptyList(),
     /**
@@ -100,6 +112,12 @@ data class CopyExceptions(
     val addedActivatedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
 ) {
     init {
+        require(!retainColors || (overrideColors == null && addedColors.isEmpty())) {
+            "CopyExceptions.retainColors cannot combine with color additions or overrides"
+        }
+        require(!retainPowerToughness || (powerOverride == null && toughnessOverride == null)) {
+            "CopyExceptions.retainPowerToughness cannot combine with a power/toughness override"
+        }
         require(addedActivatedAbilities.none { it.isManaAbility }) {
             "CopyExceptions.addedActivatedAbilities can't carry a mana ability"
         }
@@ -136,12 +154,16 @@ data class CopyExceptions(
             overrideCardTypes = overrideCardTypes ?: base.overrideCardTypes,
             addedSubtypes = base.addedSubtypes + addedSubtypes,
             overrideSubtypes = overrideSubtypes ?: base.overrideSubtypes,
-            addedColors = base.addedColors + addedColors,
-            overrideColors = overrideColors ?: base.overrideColors,
-            powerOverride = powerOverride ?: base.powerOverride,
-            toughnessOverride = toughnessOverride ?: base.toughnessOverride,
+            addedColors = if (retainColors) emptySet() else base.addedColors + addedColors,
+            overrideColors = if (retainColors) null else overrideColors ?: base.overrideColors,
+            retainColors = retainColors || (base.retainColors && overrideColors == null && addedColors.isEmpty()),
+            powerOverride = if (retainPowerToughness) null else powerOverride ?: base.powerOverride,
+            toughnessOverride = if (retainPowerToughness) null else toughnessOverride ?: base.toughnessOverride,
+            retainPowerToughness = retainPowerToughness ||
+                (base.retainPowerToughness && powerOverride == null && toughnessOverride == null),
             noManaCost = noManaCost || base.noManaCost,
             addedNumericKeywords = base.addedNumericKeywords + addedNumericKeywords,
+            retainResolvingTriggeredAbility = base.retainResolvingTriggeredAbility || retainResolvingTriggeredAbility,
             addedTriggeredAbilities = base.addedTriggeredAbilities + addedTriggeredAbilities,
             addedActivatedAbilities = base.addedActivatedAbilities + addedActivatedAbilities,
         )
@@ -149,11 +171,15 @@ data class CopyExceptions(
 
     /** Text changes affect the added rules text before the copy is made. */
     fun applyTextReplacement(replacer: com.wingedsheep.sdk.scripting.text.TextReplacer): CopyExceptions {
-        if (addedTriggeredAbilities.isEmpty() && addedActivatedAbilities.isEmpty()) return this
+        if (isEmpty) return this
+        val colors = addedColors.mapTo(mutableSetOf(), replacer::replaceColor)
+        val overrides = overrideColors?.mapTo(mutableSetOf(), replacer::replaceColor)
         val triggered = addedTriggeredAbilities.map { it.applyTextReplacement(replacer) }
         val activated = addedActivatedAbilities.map { it.applyTextReplacement(replacer) }
-        return if (triggered == addedTriggeredAbilities && activated == addedActivatedAbilities) this
-        else copy(addedTriggeredAbilities = triggered, addedActivatedAbilities = activated)
+        return if (colors == addedColors && overrides == overrideColors &&
+            triggered == addedTriggeredAbilities && activated == addedActivatedAbilities) this
+        else copy(addedColors = colors, overrideColors = overrides,
+            addedTriggeredAbilities = triggered, addedActivatedAbilities = activated)
     }
 
     /**
@@ -162,10 +188,12 @@ data class CopyExceptions(
      * sentence. Empty when [isEmpty].
      */
     fun clauses(): List<String> = buildList {
+        if (retainColors) add("it doesn't copy that creature's color")
         if (nameOverride != null) add("its name is $nameOverride")
         if (powerOverride != null || toughnessOverride != null) {
             add("it's ${powerOverride ?: "*"}/${toughnessOverride ?: "*"}")
         }
+        if (retainPowerToughness) add("its power and toughness are equal to this creature's power and toughness")
         overrideColors?.let { add("it's ${it.joinToString(" ") { c -> c.displayName.lowercase() }}") }
         if (addedColors.isNotEmpty()) {
             add(
@@ -198,6 +226,7 @@ data class CopyExceptions(
         }
         for (numeric in addedNumericKeywords) add("it has ${numeric.keyword.displayName.lowercase()} ${numeric.n}")
         if (noManaCost) add("it has no mana cost")
+        if (retainResolvingTriggeredAbility) add("it has this ability")
         for (ability in addedTriggeredAbilities) add("it has \"${ability.description}\"")
         for (ability in addedActivatedAbilities) add("it has \"${ability.description}\"")
     }

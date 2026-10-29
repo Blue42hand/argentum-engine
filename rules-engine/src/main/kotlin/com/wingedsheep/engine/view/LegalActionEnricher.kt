@@ -107,9 +107,11 @@ class LegalActionEnricher(
             xConstrainsTargetManaValueExactly = action.xConstrainsTargetManaValueExactly,
             xConstrainsTargetPower = action.xConstrainsTargetPower,
             xConstrainsTargetCount = action.xConstrainsTargetCount,
+            xConstrainsTargetCountExactly = action.xConstrainsTargetCountExactly,
             validAttackers = action.validAttackers,
             mandatoryAttackers = action.mandatoryAttackers,
             validAttackTargets = action.validAttackTargets,
+            attackTargetsByAttacker = action.attackTargetsByAttacker,
             validBlockers = action.validBlockers,
             validBlockTargets = action.validBlockTargets,
             blockerMaxBlockCounts = action.blockerMaxBlockCounts,
@@ -143,6 +145,7 @@ class LegalActionEnricher(
             requiresDamageDistribution = action.requiresDamageDistribution,
             totalDamageToDistribute = action.totalDamageToDistribute,
             minDamagePerTarget = action.minDamagePerTarget,
+            distributionUnit = action.distributionUnit,
             autoTapPreview = action.autoTapPreview,
             availableManaSources = if (shouldExposeManaSources(action)) manaSourceInfos else null,
             eligibleRestrictedMana = eligibleRestrictedMana,
@@ -222,6 +225,12 @@ class LegalActionEnricher(
         return floor.toString().ifEmpty { "{0}" }
     }
 
+    /**
+     * A Phyrexian cost always exposes its sources: the server's [LegalAction.autoTapPreview] solves
+     * the cost with mana only, so `{4}{G/P}` off four Plains has no preview even though it's
+     * affordable with 2 life — and without sources the client's picker can't tap the Plains for
+     * the {4} once the player chooses to pay the pip with life (CR 107.4f).
+     */
     private fun shouldExposeManaSources(action: LegalAction): Boolean =
         action.autoTapPreview != null ||
             // A life/mana split can be affordable without a mana-only auto-tap preview.
@@ -230,7 +239,12 @@ class LegalActionEnricher(
             action.hasConvoke ||
             action.hasTapForGeneric ||
             action.hasDelve ||
-            action.hasHarmonize
+            action.hasHarmonize ||
+            hasPhyrexianPip(action.manaCostString)
+
+    private fun hasPhyrexianPip(manaCostString: String?): Boolean =
+        manaCostString != null && manaCostString.contains("/P}") &&
+            ManaCost.parse(manaCostString).phyrexianSymbols.isNotEmpty()
 
     private fun ModalLegalEnumeration.toDto() = ModalLegalEnumerationInfo(
         chooseCount = chooseCount,
@@ -286,15 +300,19 @@ class LegalActionEnricher(
         minTargets = minTargets,
         maxTargets = maxTargets,
         validTargets = validTargets,
+        validTargetsByPrefix = validTargetsByPrefix,
+        selectionGroups = selectionGroups,
+        exclusiveGroups = exclusiveGroups,
         targetZone = targetZone,
         xConstrainsManaValue = xConstrainsManaValue,
         xConstrainsManaValueExactly = xConstrainsManaValueExactly,
         xConstrainsPower = xConstrainsPower,
         xConstrainsCount = xConstrainsCount,
+        xConstrainsCountExactly = xConstrainsCountExactly,
         mustDifferFromEarlier = mustDifferFromEarlier
     )
 
-    private fun AdditionalCostData.toDto() = AdditionalCostInfo(
+    private fun AdditionalCostData.toDto(): AdditionalCostInfo = AdditionalCostInfo(
         description = description,
         costType = costType,
         validSacrificeTargets = validSacrificeTargets,
@@ -329,7 +347,8 @@ class LegalActionEnricher(
         craftMinCount = craftMinCount,
         craftMaxCount = craftMaxCount,
         tapForPowerCreatures = tapForPowerCreatures.map { it.toDto() },
-        tapForPowerRequired = tapForPowerRequired
+        tapForPowerRequired = tapForPowerRequired,
+        alsoRequired = alsoRequired.map { it.toDto() }
     )
 
     private fun ConvokeCreatureData.toDto() = ConvokeCreatureInfo(

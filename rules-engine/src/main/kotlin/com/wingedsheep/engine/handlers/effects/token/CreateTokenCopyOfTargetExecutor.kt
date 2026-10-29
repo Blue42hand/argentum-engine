@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.handlers.effects.token
 
+import com.wingedsheep.engine.state.components.identity.copiableContainer
 import com.wingedsheep.engine.state.components.identity.copiableCardComponent
+import com.wingedsheep.engine.state.components.identity.copiableDoubleFacedComponent
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.ZoneChangeEvent
@@ -8,7 +10,6 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.copy.CopyExceptionApplier
-import com.wingedsheep.engine.mechanics.layers.ContinuousEffectSourceComponent
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.event.DelayedTriggeredAbility
@@ -21,18 +22,22 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.BattlefieldEntryTimestampComponent
+import com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentComponent
+import com.wingedsheep.engine.state.components.stack.snapshotFor
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
-import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
@@ -74,25 +79,6 @@ class CreateTokenCopyOfTargetExecutor(
         CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry)
     }
 
-    /** Self is a value read for a copy, not an instruction that acts on the departed card. */
-    private fun copySource(
-        state: GameState,
-        effect: CreateTokenCopyOfTargetEffect,
-        context: EffectContext,
-    ): ComponentContainer? {
-        context.resolveTarget(effect.target, state)?.let { targetId ->
-            return state.getEntity(targetId)
-        }
-        if (effect.target != EffectTarget.Self) return null
-        val snapshot = context.departedCopiableSource ?: return null
-        val sourceRef = context.objectReferences.source ?: return null
-        if (snapshot.objectRef.entityId != context.sourceId ||
-            context.objectReferences.followed(sourceRef) != snapshot.objectRef ||
-            context.objectReferences.permittedMoves.none { it.newObject == snapshot.objectRef }
-        ) return null
-        return snapshot.asContainer()
-    }
-
     override fun execute(
         state: GameState,
         effect: CreateTokenCopyOfTargetEffect,
@@ -126,7 +112,7 @@ class CreateTokenCopyOfTargetExecutor(
         // "If one or more artifact tokens would be created under your control, that many … are
         // created instead" (Draconic Visitor): a token copy of an artifact is an artifact token.
         // The copy's characteristics are the copiable values plus this effect's exceptions.
-        val prospective = CopyExceptionApplier.apply(targetCard, effect.copyExceptions)
+        val prospective = CopyExceptionApplier.apply(targetCard, resolvedExceptions(state, effect, context))
             .copy(ownerId = controllerId, isDoubleFaced = false)
         TokenCreationReplacementHelper.findTokenSubstitution(state, controllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
             ?.let { substitute ->
@@ -176,6 +162,111 @@ class CreateTokenCopyOfTargetExecutor(
      * [prescribedHostId] is that host as resolved (null if it no longer exists); each token is
      * attached to it only if it could legally be, and an Aura token that couldn't is not created.
      */
+    /**
+     * The object whose copiable values the tokens copy. Normally the live object the effect's
+     * target names. When that is the **triggering** object and it has left the battlefield since
+     * the ability triggered ("Whenever a creature … enters, create a token that's a copy of that
+     * creature" with the creature killed in response — Molten Echoes, Necroduality), the token
+     * copies it as it last existed on the battlefield (CR 608.2h, CR 707.2): the copiable
+     * [CardComponent] frozen into its [LastKnownPermanentComponent] snapshot at departure, so a
+     * creature that was itself a copy is copied as what it was copying. The snapshot is stripped
+     * on the card's next zone change, so it only ever describes the departed battlefield object.
+     * A token that left has ceased to exist (CR 704.5d) and leaves nothing to copy.
+     */
+    private fun copySource(
+        state: GameState,
+        effect: CreateTokenCopyOfTargetEffect,
+        context: EffectContext,
+    ): ComponentContainer? {
+        if (effect.target == EffectTarget.IterationEntity) departedCapturedEntity(state, context)?.let { return it }
+        context.resolveTarget(effect.target, state)?.let { id ->
+            val entity = state.getEntity(id) ?: return null
+            return departedPermanentTarget(state, effect, context, id, entity) ?: entity
+        }
+        if (effect.target == EffectTarget.Self) {
+            val snapshot = context.departedCopiableSource ?: return null
+            val sourceRef = context.objectReferences.source ?: return null
+            if (snapshot.objectRef.entityId != context.sourceId ||
+                context.objectReferences.followed(sourceRef) != snapshot.objectRef ||
+                context.objectReferences.permittedMoves.none { it.newObject == snapshot.objectRef }
+            ) return null
+            return snapshot.asContainer()
+        }
+        if (effect.target != EffectTarget.TriggeringEntity) return null
+        // The departure snapshot belongs to the captured object, even after a blink or a
+        // second zone change has erased the card's temporary last-known component.
+        context.triggerContext?.triggeringLastKnownSnapshot?.copiableContainer()?.let { return it }
+        val departed = context.triggeringEntityId?.let { state.getEntity(it) } ?: return null
+        return departed.get<LastKnownPermanentComponent>()?.snapshot?.copiableContainer()
+    }
+
+    /**
+     * A permanent the trigger captured ("a spell that targets only a single artifact or creature
+     * you control, … a copy of that artifact or creature" — Vesuvan Duplimancy) that is no longer
+     * the same object on the battlefield when the payoff iterates it. It is copied as it last
+     * existed there (CR 608.2h): its departure snapshot while that still describes the captured
+     * visit, else the copiable values frozen when the ability triggered — all a token that has
+     * ceased to exist (CR 704.5d) leaves behind. Null while the captured permanent is still there.
+     */
+    private fun departedCapturedEntity(state: GameState, context: EffectContext): ComponentContainer? {
+        val id = context.iterationEntityId ?: return null
+        val captured = context.triggerContext?.capturedEntitySnapshots?.snapshotFor(id) ?: return null
+        val visit = captured.battlefieldEntryTimestamp
+        val entity = state.getEntity(id)
+        val sameVisit = entity?.get<BattlefieldEntryTimestampComponent>()?.timestamp == visit
+        if (id in state.getBattlefield() && sameVisit) return null
+        entity?.get<LastKnownPermanentComponent>()?.snapshot
+            ?.takeIf { it.battlefieldEntryTimestamp == visit }
+            ?.copiableContainer()
+            ?.let { return it }
+        return captured.copiableContainer()
+    }
+
+    /**
+     * A **permanent** chosen as a target that has since left the battlefield — "Destroy target
+     * creature. If that creature dies this way, … create two tokens that are copies of that
+     * creature" (Saw in Half). "That creature" is the object that was on the battlefield, so the
+     * copy uses its last-known copiable values (CR 608.2h): a dead Clone is copied as what it was
+     * copying, not as the Clone card now in the graveyard. Only a target chosen *as a permanent*
+     * qualifies — a creature **card** targeted in a graveyard is copied as the card it is, even if
+     * an old departure snapshot is still riding on it.
+     */
+    private fun departedPermanentTarget(
+        state: GameState,
+        effect: CreateTokenCopyOfTargetEffect,
+        context: EffectContext,
+        id: EntityId,
+        entity: ComponentContainer,
+    ): ComponentContainer? {
+        val chosen = when (val target = effect.target) {
+            is EffectTarget.ContextTarget -> context.positionalTarget(target.index)
+            is EffectTarget.BoundVariable -> context.pipeline.namedTargets[target.name]
+            else -> return null
+        }
+        if (chosen !is ChosenTarget.Permanent) return null
+        if (id in state.getBattlefield()) return null
+        return entity.get<LastKnownPermanentComponent>()?.snapshot?.copiableContainer()
+    }
+
+    /**
+     * The effect's copy exceptions with a game-dependent base P/T
+     * ([CreateTokenCopyOfTargetEffect.basePower] / [CreateTokenCopyOfTargetEffect.baseToughness])
+     * evaluated into fixed values. Re-evaluated on a resumed batch, which reads the same snapshotted
+     * pipeline number, so every token of one effect gets the same P/T.
+     */
+    private fun resolvedExceptions(
+        state: GameState,
+        effect: CreateTokenCopyOfTargetEffect,
+        context: EffectContext,
+    ): CopyExceptions {
+        val power = effect.basePower ?: return effect.copyExceptions
+        val toughness = effect.baseToughness ?: return effect.copyExceptions
+        return CopyExceptions(
+            powerOverride = amountEvaluator.evaluate(state, power, context),
+            toughnessOverride = amountEvaluator.evaluate(state, toughness, context),
+        ).over(effect.copyExceptions)
+    }
+
     internal fun createTokens(
         state: GameState,
         effect: CreateTokenCopyOfTargetEffect,
@@ -198,13 +289,17 @@ class CreateTokenCopyOfTargetExecutor(
         // colors, no-mana-cost — is applied by the shared CopyExceptionApplier, so the token
         // path and the "permanent becomes a copy" path can't drift. Both the exceptions view and
         // the resulting component are loop-invariant, so they are built once rather than per token.
-        val exceptions = effect.copyExceptions
+        val exceptions = resolvedExceptions(state, effect, context)
         // `isDoubleFaced` is cleared rather than inherited: it answers "is this a double-faced
         // *card*", and a token is not a card (CR 111.1) — nor is being double-faced a copiable value
         // (CR 707.2 lists them; layout isn't one). A token copy of a double-faced permanent is a
         // double-faced *token* and can still transform (CR 707.8a / 712.9), which is what the
         // DoubleFacedComponent copied below is for.
-        val tokenCard = CopyExceptionApplier.apply(targetCard, exceptions)
+        fun withAddedStatics(card: CardComponent): CardComponent = card.copy(
+            copyStaticAbilities = card.copyStaticAbilities + effect.addedStaticAbilities,
+            flipSide = card.flipSide?.let(::withAddedStatics),
+        )
+        val tokenCard = withAddedStatics(CopyExceptionApplier.apply(targetCard, exceptions, context.resolvingTriggeredAbility))
             .copy(ownerId = controllerId, isDoubleFaced = false)
 
         val cappedCount = com.wingedsheep.engine.core.GameLimits.cappedTokenCount(count, "target-copy tokens")
@@ -236,9 +331,18 @@ class CreateTokenCopyOfTargetExecutor(
             // creature (e.g. an animated permanent exiled and reverted to its printed type) still
             // enters tapped but never attacking — see Mardu Siegebreaker's rulings.
             if (effect.attacking && tokenCard.typeLine.isCreature) {
-                // The token joins the source's attack (CR 802.2a) — see CreateTokenExecutor.
-                val defenderId = com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
-                    .defenderForEnteringAttacker(context, newState, controllerId)
+                // A specified defender ("attacking that player" — myriad) is honoured only while
+                // it is still in the game and one of the creator's opponents; otherwise the copy
+                // enters but never attacking (CR 508.4a). Unspecified, the token joins the
+                // source's attack (CR 802.2a) — see CreateTokenExecutor.
+                val defenderId = if (effect.attackedPlayer != null) {
+                    com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
+                        .resolvePlayerTarget(effect.attackedPlayer!!, context, newState)
+                        ?.takeIf { it in newState.getOpponents(controllerId) }
+                } else {
+                    com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
+                        .defenderForEnteringAttacker(context, newState, controllerId)
+                }
                 if (defenderId != null) {
                     components.add(AttackingComponent(defenderId, defendingPlayerId = com.wingedsheep.engine.mechanics.combat.CombatDefenders.defendingPlayerOf(newState, defenderId)))
                 }
@@ -247,39 +351,18 @@ class CreateTokenCopyOfTargetExecutor(
             // with the same face up as the source. Counters
             // are intentionally not copied (handled by the absence of CountersComponent copy
             // throughout this executor).
-            targetContainer.get<DoubleFacedComponent>()?.let { sourceDfc ->
-                components.add(
-                    DoubleFacedComponent(
-                        frontCardDefinitionId = sourceDfc.frontCardDefinitionId,
-                        backCardDefinitionId = sourceDfc.backCardDefinitionId,
-                        currentFace = sourceDfc.currentFace
-                    )
-                )
-            }
+            targetContainer.copiableDoubleFacedComponent {
+                withAddedStatics(CopyExceptionApplier.apply(it, exceptions, context.resolvingTriggeredAbility))
+                    .copy(ownerId = controllerId, isDoubleFaced = false)
+            }?.let { components.add(it) }
 
             var container = ComponentContainer.of(*components.toTypedArray())
             // Toxic N / bushido N ride components, not the CardComponent — carry them over too.
-            container = CopyExceptionApplier.withNumericKeywords(container, targetContainer, exceptions)
+            container = CopyExceptionApplier.withNumericKeywords(container, targetContainer, exceptions, cardRegistry)
 
             if (staticAbilityHandler != null) {
                 container = staticAbilityHandler.addContinuousEffectComponent(container)
                 container = staticAbilityHandler.addReplacementEffectComponent(container)
-                // The "except it has \"[static ability]\"" clause has to *project*, not just be
-                // recorded. `grantedStaticAbilities` (written below) is a lookup table each static
-                // reader consults by hand — the equip-cost reducer, the combat rules — and the
-                // layer projector is not one of those readers. A granted ability that lives in a
-                // CR 613 layer (Dollhouse of Horrors' "This token gets +1/+1 for each Construct you
-                // control") was therefore silently inert, which for a 0/0 copy meant the token died
-                // to state-based actions the instant it entered. Lower it onto the token's own
-                // ContinuousEffectSourceComponent so the projector sees it like any printed static.
-                if (effect.addedStaticAbilities.isNotEmpty()) {
-                    val granted = staticAbilityHandler
-                        .lowerToContinuousEffectData(effect.addedStaticAbilities)
-                    val existing = container.get<ContinuousEffectSourceComponent>()?.effects.orEmpty()
-                    container = container.with(
-                        ContinuousEffectSourceComponent(existing + granted)
-                    )
-                }
             }
 
             newState = newState.withEntity(tokenId, container)

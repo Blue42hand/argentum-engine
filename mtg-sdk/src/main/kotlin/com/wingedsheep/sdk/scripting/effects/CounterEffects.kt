@@ -1,6 +1,7 @@
 package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.Recipient
@@ -27,8 +28,13 @@ data class AddCountersEffect(
     val target: EffectTarget
 ) : Effect {
     override val description: String =
-        "Put $count ${counterType.printed} counter${if (count != 1) "s" else ""} on ${target.description}"
+        "Put ${if (count == 1) counterArticle(counterType.printed) else "$count"} ${counterType.printed} " +
+            "counter${if (count != 1) "s" else ""} on ${target.description}"
 }
+
+/** "a +1/+1 counter", "an oil counter" — Oracle's article for a single counter. */
+private fun counterArticle(printed: String): String =
+    if (printed.firstOrNull()?.lowercaseChar() in setOf('a', 'e', 'i', 'o', 'u')) "an" else "a"
 
 /**
  * Add counters with a dynamic amount.
@@ -400,7 +406,7 @@ data class AddCountersToCollectionEffect(
         if (amount != null) {
             "Put ${amount.description} ${counterType.printed} counters on each of those permanents"
         } else {
-            "Put $count ${counterType.printed} counter${if (count != 1) "s" else ""} on each of those permanents"
+            "Put ${if (count == 1) "a" else "$count"} ${counterType.printed} counter${if (count != 1) "s" else ""} on each of those permanents"
         }
 }
 
@@ -515,6 +521,29 @@ data class MoveCountersEffect(
 ) : Effect {
     override val description: String =
         "Move ${amount.description} ${counterType.printed} counters from ${source.description} onto ${destination.description}"
+}
+
+/**
+ * Move every counter, of every kind, from a [source] permanent onto a [destination] permanent.
+ *
+ * "You may move all counters from The Ozolith onto target creature." (The Ozolith.)
+ *
+ * The all-kinds, all-of-them sibling of [MoveCountersEffect] (one kind, a counted amount) and the
+ * live-source counterpart to [MoveAllLastKnownCountersEffect] (which reads a permanent that already
+ * left the battlefield). Deterministic — no per-kind prompt, so "you may" wraps the whole move in
+ * `Effects.May`, never a partial one. Each kind is added to the destination as its own placement,
+ * honoring counter-placement replacement effects (Hardened Scales). No-op when source/destination
+ * is missing, they're the same permanent, the source has no counters, or the destination can't
+ * receive counters (in which case none leave the source).
+ */
+@SerialName("MoveAllCounters")
+@Serializable
+data class MoveAllCountersEffect(
+    val source: EffectTarget,
+    val destination: EffectTarget
+) : Effect {
+    override val description: String =
+        "Move all counters from ${source.description} onto ${destination.description}"
 }
 
 /**
@@ -691,27 +720,77 @@ data class GrantCounterPlacementModifierEffect(
 }
 
 /**
- * Emit a `TrainedEvent` (CR 702.149c) after a training ability's +1/+1 counter placement resolves —
- * the training twin of [EmitExploitedEventEffect] / `EmitScriedEventEffect`. Appended internally by
- * [com.wingedsheep.sdk.dsl.training] as the tail of the training triggered ability, immediately after
- * its [AddCountersEffect], so "When this creature trains" payoffs
- * ([com.wingedsheep.sdk.scripting.EventPattern.TrainedEvent], e.g. Savior of Ollenbock) fire.
+ * Emit the keyword-action event of a self-growing keyword ability after that ability's +1/+1 counter
+ * placement resolves — the training/evolve twin of [EmitExploitedEventEffect] / `EmitScriedEventEffect`.
+ * Appended internally as the tail of the keyword's triggered ability, immediately after its
+ * [AddCountersEffect], so "when this creature [trains/evolves]" payoffs fire:
+ *  - [com.wingedsheep.sdk.core.Keyword.TRAINING] → `TrainedEvent` (CR 702.149c, Savior of Ollenbock),
+ *    wired by [com.wingedsheep.sdk.dsl.training];
+ *  - [com.wingedsheep.sdk.core.Keyword.EVOLVE] → `EvolvedEvent` (CR 702.100b, Watchful Radstag),
+ *    wired by [com.wingedsheep.sdk.dsl.evolve].
  *
- * CR 702.149c: "'When this creature trains' means 'When a resolving training ability puts one or more
- * +1/+1 counters on this creature.'" The executor honours the "puts one or more" clause: it emits the
- * event **only if** the source is still on the battlefield and can actually receive counters — a
- * Solemnity-type "can't have counters put on it" prohibition (the only way a training ability places
- * zero) trains nothing and fires no event. This gating is what distinguishes it from a raw
- * [com.wingedsheep.sdk.scripting.EventPattern.CountersPlacedEvent] watcher, which would fire for a
- * +1/+1 counter from any source; the emit only ever runs inside the training ability's own resolution.
+ * Both rules define the action as "a resolving [keyword] ability puts one or more +1/+1 counters on
+ * this creature". The executor honours the "puts one or more" clause: it emits the event **only if**
+ * the source is still on the battlefield and can actually receive counters — a Solemnity-type "can't
+ * have counters put on it" prohibition places zero and fires no event. This gating is what
+ * distinguishes it from a raw [com.wingedsheep.sdk.scripting.EventPattern.CountersPlacedEvent]
+ * watcher, which would fire for a +1/+1 counter from any source; the emit only ever runs inside the
+ * keyword ability's own resolution.
  *
- * The trained creature is the ability's source ([com.wingedsheep.engine.handlers.EffectContext.sourceId]);
- * the `TrainedEvent`'s subject is selected by the watching ability's `TriggerBinding` (SELF for
- * "this creature trains"). Card authors should not use this directly; it is wired into `training()`.
+ * The growing creature is the ability's source; the event's subject is selected by the watching
+ * ability's `TriggerBinding` (SELF for "this creature"). Card authors should not use this directly.
+ *
+ * @property keyword The keyword whose action the event marks — [com.wingedsheep.sdk.core.Keyword.TRAINING]
+ *   or [com.wingedsheep.sdk.core.Keyword.EVOLVE].
  */
-@SerialName("EmitTrainedEvent")
+@SerialName("EmitKeywordCounterEvent")
 @Serializable
-data object EmitTrainedEventEffect : Effect {
-    // Intentionally blank: this is an internal training-ability tail with no player-facing text.
+data class EmitKeywordCounterEventEffect(val keyword: Keyword) : Effect {
+    init {
+        require(keyword == Keyword.TRAINING || keyword == Keyword.EVOLVE) {
+            "EmitKeywordCounterEventEffect supports TRAINING and EVOLVE, not $keyword"
+        }
+    }
+
+    // Intentionally blank: this is an internal keyword-ability tail with no player-facing text.
     override val description: String = ""
+}
+
+/**
+ * Adapt [amount] (CR 701.46a): "If this permanent has no +1/+1 counters on it, put [amount] +1/+1
+ * counters on it." The check happens as the effect resolves; a permanent that already has a +1/+1
+ * counter for any reason gets none.
+ *
+ * Named rather than composed from `If(Not(SourceHasCounter), AddCounters)` because "adapts" is an
+ * event other cards key to: [AdaptAsThoughNoCountersEffect] ("the next time target creature adapts
+ * this turn, it adapts as though it had no +1/+1 counters on it" — Biomancer's Familiar) is
+ * consumed by the next adapt of its creature, and only an adapt can consume it.
+ *
+ * @property amount How many +1/+1 counters to put.
+ * @property target The permanent that adapts — almost always the ability's source.
+ */
+@SerialName("Adapt")
+@Serializable
+data class AdaptEffect(
+    val amount: Int,
+    val target: EffectTarget = EffectTarget.Self
+) : Effect {
+    override val description: String =
+        if (target == EffectTarget.Self) "Adapt $amount" else "${target.description} adapts $amount"
+}
+
+/**
+ * "The next time [target] adapts this turn, it adapts as though it had no +1/+1 counters on it."
+ * (Biomancer's Familiar.) A one-shot shield on the creature that expires at end of turn: the next
+ * [AdaptEffect] of that creature ignores its existing +1/+1 counters and uses the shield up — even
+ * when it had none, since that adapt was still "the next time". It adds and removes no counters
+ * itself.
+ */
+@SerialName("AdaptAsThoughNoCounters")
+@Serializable
+data class AdaptAsThoughNoCountersEffect(
+    val target: EffectTarget
+) : Effect {
+    override val description: String =
+        "The next time ${target.description} adapts this turn, it adapts as though it had no +1/+1 counters on it"
 }

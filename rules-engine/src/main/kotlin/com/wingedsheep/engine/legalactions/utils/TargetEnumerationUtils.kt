@@ -10,6 +10,7 @@ import com.wingedsheep.engine.legalactions.TargetInfo
 import com.wingedsheep.engine.mechanics.targeting.ColorProtection
 import com.wingedsheep.engine.mechanics.targeting.ControllerHexproof
 import com.wingedsheep.engine.mechanics.targeting.ControllerShroud
+import com.wingedsheep.engine.mechanics.targeting.DynamicTargetCount
 import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
@@ -28,6 +29,8 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.*
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.values.CardNumericProperty
+import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 
 /**
  * Extracted target-finding helpers from LegalActionsCalculator.
@@ -345,14 +348,32 @@ class TargetEnumerationUtils(
         sourceId: EntityId? = null,
         targetingSourceType: TargetingSourceType = TargetingSourceType.ANY
     ): List<TargetInfo> {
+        if (com.wingedsheep.engine.handlers.DependentTargetSelection.isRequired(targetReqs)) {
+            return dependentTargetInfos(state, playerId, targetReqs, sourceId, targetingSourceType)
+        }
         return targetReqs.mapIndexed { index, req ->
-            val validTargets = findValidTargets(state, playerId, req, sourceId, targetingSourceType)
+            // A board-state count ("X target creatures, where X is …") is knowable now; an X from
+            // the cost is not, and stays at the static bounds until the player announces it.
+            val candidates = findValidTargets(state, playerId, req, sourceId, targetingSourceType)
+            val bounds = com.wingedsheep.engine.mechanics.targeting.OwnerTargetDistribution.bounds(state, req, candidates)
+                ?: DynamicTargetCount.bounds(req, xValue = null) { amount ->
+                predicateEvaluator.amounts.evaluate(state, amount, EffectContext(sourceId = sourceId, controllerId = playerId))
+            }
+            val validTargets = candidates
                 .takeIf { satisfiesControllerSpread(state, req, it) }
+                // Too few distinct legal objects for the required count leaves no legal choice
+                // (CR 601.2c, 115.3), so the requirement reports none and the action isn't offered.
+                ?.takeIf { it.size >= bounds.min }
                 ?: emptyList()
+            val equalityGroups = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality
+                .compatibleGroups(state, validTargets, req, bounds.min)
             TargetInfo(
+                exclusiveGroups = if ((req as? TargetObject)?.ownerDistribution != null)
+                    com.wingedsheep.engine.mechanics.targeting.OwnerTargetDistribution.groups(state, validTargets) else null,
+                selectionGroups = equalityGroups,
                 index = index,
                 description = req.description,
-                minTargets = req.effectiveMinCount,
+                minTargets = bounds.min,
                 // "Any number of target ..." has no fixed cap; the real maximum is the
                 // number of legal targets on the board, so the client offers all of them.
                 // A board-state `dynamicMaxCount` (anything but XValue, which is unbound
@@ -365,21 +386,49 @@ class TargetEnumerationUtils(
                 // the cap the player could pick a ninth target and then be unable to produce a
                 // legal division.
                 maxTargets = when {
-                    req.unlimited ->
-                        minOf(
-                            validTargets.size,
-                            resolveStaticDynamicMax(state, req, playerId, sourceId) ?: validTargets.size
-                        )
-                    else -> resolveStaticDynamicMax(state, req, playerId, sourceId) ?: req.count
+                    (req as? TargetObject)?.ownerDistribution != null -> bounds.max ?: 0
+                    req.unlimited -> minOf(validTargets.size, bounds.max ?: validTargets.size)
+                    else -> bounds.max ?: req.count
                 },
-                validTargets = validTargets,
+                validTargets = equalityGroups?.flatten() ?: validTargets,
                 targetZone = getTargetZone(req),
                 mustDifferFromEarlier = req is TargetOther,
-                xConstrainsManaValue = requirementUsesManaValueAtMostX(req),
-                xConstrainsManaValueExactly = requirementUsesManaValueEqualsX(req),
-                xConstrainsPower = requirementUsesPowerEqualsX(req),
+                xConstrainsManaValue = requirementComparesToX(req, CardNumericProperty.MANA_VALUE, ComparisonOperator.LTE),
+                xConstrainsManaValueExactly = requirementComparesToX(req, CardNumericProperty.MANA_VALUE, ComparisonOperator.EQ),
+                xConstrainsPower = requirementComparesToX(req, CardNumericProperty.POWER, ComparisonOperator.EQ),
                 xConstrainsCount = requirementXConstrainsCount(req),
+                xConstrainsCountExactly = requirementXConstrainsCountExactly(req),
                 differentControllers = (req as? TargetObject)?.differentControllers == true,
+            )
+        }
+    }
+
+    private fun dependentTargetInfos(
+        state: GameState,
+        playerId: EntityId,
+        requirements: List<TargetRequirement>,
+        sourceId: EntityId?,
+        sourceType: TargetingSourceType,
+    ): List<TargetInfo> {
+        val tables = com.wingedsheep.engine.handlers.DependentTargetSelection.prefixTables(
+            state, requirements, PredicateContext(controllerId = playerId, sourceId = sourceId),
+            com.wingedsheep.engine.handlers.TargetFinder(predicateEvaluator), sourceType,
+        )
+        return requirements.mapIndexed { index, req ->
+            val legal = tables[index].values.flatten().distinct()
+            val groups = (req as? TargetObject)?.sameNumericProperty?.let {
+                com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.groups(state, legal, it)
+            }
+            TargetInfo(
+                index = index,
+                description = req.description,
+                minTargets = if (com.wingedsheep.engine.handlers.DependentTargetSelection.canStopAt(requirements, index)) 0
+                    else maxOf(1, req.effectiveMinCount),
+                maxTargets = if (req.unlimited) legal.size else req.count,
+                validTargets = legal,
+                targetZone = getTargetZone(req),
+                selectionGroups = groups,
+                validTargetsByPrefix = if (index == 0) null else tables[index],
             )
         }
     }
@@ -399,94 +448,41 @@ class TargetEnumerationUtils(
     }
 
     /**
-     * Resolve a [TargetObject.dynamicMaxCount] that is knowable at enumeration time —
-     * i.e. any [DynamicAmount] except [DynamicAmount.XValue] (which depends on the X the
-     * player hasn't chosen yet and is instead clamped client-side via [requirementXConstrainsCount]).
-     * Returns null when there is no dynamic cap, so callers fall back to the static `count`.
-     */
-    private fun resolveStaticDynamicMax(
-        state: GameState,
-        req: TargetRequirement,
-        playerId: EntityId,
-        sourceId: EntityId?
-    ): Int? {
-        val dyn = (req as? TargetObject)?.dynamicMaxCount ?: return null
-        if (dyn == DynamicAmount.XValue) return null
-        return try {
-            val context = EffectContext(
-                sourceId = sourceId,
-                controllerId = playerId,
-            )
-            predicateEvaluator.amounts.evaluate(state, dyn, context).coerceAtLeast(0)
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    /**
-     * True when [requirement] is a [TargetObject] whose filter contains
-     * [CardPredicate.ManaValueAtMostX] (anywhere in the predicate tree).
-     *
-     * Surfaced to the client so it can re-filter [TargetInfo.validTargets] by the
-     * chosen X after X selection — the enumerator's list is permissive (X is unbound
-     * at enumeration time) and would otherwise let the player click an over-MV
-     * target that the server then rejects on cast.
-     */
-    /**
      * True when [requirement] is a [TargetObject] whose `dynamicMaxCount` is the
      * [DynamicAmount.XValue] sentinel. Surfaced to the client so the targeting UI
      * caps selectable targets at the X chosen for the spell's cost.
      */
     fun requirementXConstrainsCount(requirement: TargetRequirement): Boolean {
-        val target = requirement as? TargetObject ?: return false
+        val target = DynamicTargetCount.objectOf(requirement) ?: return false
         return target.dynamicMaxCount == DynamicAmount.XValue
     }
 
-    fun requirementUsesManaValueAtMostX(requirement: TargetRequirement): Boolean {
-        val filter = (requirement as? TargetObject)?.filter ?: return false
-        return filter.baseFilter.cardPredicates.any { containsManaValueAtMostX(it) }
-    }
-
-    private fun containsManaValueAtMostX(predicate: CardPredicate): Boolean = when (predicate) {
-        CardPredicate.ManaValueAtMostX -> true
-        is CardPredicate.And -> predicate.predicates.any { containsManaValueAtMostX(it) }
-        is CardPredicate.Or -> predicate.predicates.any { containsManaValueAtMostX(it) }
-        is CardPredicate.Not -> containsManaValueAtMostX(predicate.predicate)
-        else -> false
+    /**
+     * True when [requirement]'s X-driven count is also its minimum — "X target creatures", exactly
+     * X — so the client must require the chosen X selections rather than cap at them.
+     */
+    fun requirementXConstrainsCountExactly(requirement: TargetRequirement): Boolean {
+        val target = DynamicTargetCount.objectOf(requirement) ?: return false
+        return target.dynamicMaxCount == DynamicAmount.XValue && target.dynamicMinCount == DynamicAmount.XValue
     }
 
     /**
-     * True when [requirement] is a [TargetObject] whose filter contains
-     * [CardPredicate.ManaValueEqualsX] (anywhere in the predicate tree). The *equality* sibling of
-     * [requirementUsesManaValueAtMostX] — "target creature card in your graveyard with mana value
-     * X" (Likeness Looter, Rydia, Summoner of Mist) rather than "mana value X or less". Surfaced to
-     * the client so it narrows the permissive enumeration to cards whose mana value equals the
-     * chosen X once X is picked.
+     * True when [requirement] is a [TargetObject] whose filter compares [property] with X by
+     * [operator] — [CardPredicate.CompareNumericProperty] over [DynamicAmount.XValue], anywhere in
+     * the predicate tree: "mana value X or less" (`MANA_VALUE LTE`), "mana value X" (Likeness
+     * Looter, `MANA_VALUE EQ`), "power X" (Ent-Draught Basin, `POWER EQ`).
+     *
+     * Surfaced to the client so it can re-filter [TargetInfo.validTargets] by the chosen X after X
+     * selection — the enumerator's list is permissive (X is unbound at enumeration time) and would
+     * otherwise let the player click a target the server then rejects.
      */
-    fun requirementUsesManaValueEqualsX(requirement: TargetRequirement): Boolean {
+    fun requirementComparesToX(
+        requirement: TargetRequirement,
+        property: CardNumericProperty,
+        operator: ComparisonOperator
+    ): Boolean {
         val filter = (requirement as? TargetObject)?.filter ?: return false
-        return filter.baseFilter.cardPredicates.any { containsManaValueEqualsX(it) }
-    }
-
-    private fun containsManaValueEqualsX(predicate: CardPredicate): Boolean = Companion.containsManaValueEqualsX(predicate)
-
-    /**
-     * True when [requirement] is a [TargetObject] whose filter contains
-     * [CardPredicate.PowerEqualsX] (anywhere in the predicate tree). Surfaced to the client
-     * so it re-filters the permissive enumeration down to creatures whose power equals the
-     * chosen X after X selection (Ent-Draught Basin).
-     */
-    fun requirementUsesPowerEqualsX(requirement: TargetRequirement): Boolean {
-        val filter = (requirement as? TargetObject)?.filter ?: return false
-        return filter.baseFilter.cardPredicates.any { containsPowerEqualsX(it) }
-    }
-
-    private fun containsPowerEqualsX(predicate: CardPredicate): Boolean = when (predicate) {
-        CardPredicate.PowerEqualsX -> true
-        is CardPredicate.And -> predicate.predicates.any { containsPowerEqualsX(it) }
-        is CardPredicate.Or -> predicate.predicates.any { containsPowerEqualsX(it) }
-        is CardPredicate.Not -> containsPowerEqualsX(predicate.predicate)
-        else -> false
+        return filter.baseFilter.cardPredicates.any { comparesToX(it, property, operator) }
     }
 
     fun allRequirementsSatisfied(targetInfos: List<TargetInfo>): Boolean {
@@ -517,18 +513,25 @@ class TargetEnumerationUtils(
 
     companion object {
         /**
-         * True when [filter] pins a mana value to X ([CardPredicate.ManaValueEqualsX] anywhere in
-         * its predicate tree) — the shape of a cost that *defines* X, "sacrifice an artifact or
+         * True when [filter] pins a mana value to X (`MANA_VALUE EQ XValue` anywhere in its
+         * predicate tree) — the shape of a cost that *defines* X, "sacrifice an artifact or
          * creature with mana value X" (Nahiri's Sacrifice).
          */
         fun filterUsesManaValueEqualsX(filter: GameObjectFilter): Boolean =
-            filter.cardPredicates.any { containsManaValueEqualsX(it) }
+            filter.cardPredicates.any { comparesToX(it, CardNumericProperty.MANA_VALUE, ComparisonOperator.EQ) }
 
-        private fun containsManaValueEqualsX(predicate: CardPredicate): Boolean = when (predicate) {
-            CardPredicate.ManaValueEqualsX -> true
-            is CardPredicate.And -> predicate.predicates.any { containsManaValueEqualsX(it) }
-            is CardPredicate.Or -> predicate.predicates.any { containsManaValueEqualsX(it) }
-            is CardPredicate.Not -> containsManaValueEqualsX(predicate.predicate)
+        private fun comparesToX(
+            predicate: CardPredicate,
+            property: CardNumericProperty,
+            operator: ComparisonOperator
+        ): Boolean = when (predicate) {
+            is CardPredicate.CompareNumericProperty ->
+                predicate.property == property &&
+                    predicate.operator == operator &&
+                    predicate.amount == DynamicAmount.XValue
+            is CardPredicate.And -> predicate.predicates.any { comparesToX(it, property, operator) }
+            is CardPredicate.Or -> predicate.predicates.any { comparesToX(it, property, operator) }
+            is CardPredicate.Not -> comparesToX(predicate.predicate, property, operator)
             else -> false
         }
 

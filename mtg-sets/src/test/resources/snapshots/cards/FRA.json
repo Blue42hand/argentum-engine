@@ -1915,7 +1915,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put into your graveyard",
+                            "selectedLabel": "Put into your graveyard"
                         },
                         {
                             "type": "MoveCollection",
@@ -2051,22 +2053,18 @@
                                         "count": {
                                             "type": "Fixed",
                                             "amount": 1
-                                        }
+                                        },
+                                        "isSurveil": true
                                     },
                                     "storeAs": "surveiled"
                                 },
                                 {
                                     "type": "SelectFromCollection",
                                     "from": "surveiled",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
+                                    "selection": "ChooseAnyNumber",
                                     "storeSelected": "toGraveyard",
                                     "storeRemainder": "toTop",
+                                    "prompt": "Surveil 1: choose cards to put into your graveyard",
                                     "selectedLabel": "Put in graveyard",
                                     "remainderLabel": "Put on top"
                                 },
@@ -3099,7 +3097,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4362,22 +4362,18 @@
                                         "count": {
                                             "type": "Fixed",
                                             "amount": 1
-                                        }
+                                        },
+                                        "isSurveil": true
                                     },
                                     "storeAs": "surveiled"
                                 },
                                 {
                                     "type": "SelectFromCollection",
                                     "from": "surveiled",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
+                                    "selection": "ChooseAnyNumber",
                                     "storeSelected": "toGraveyard",
                                     "storeRemainder": "toTop",
+                                    "prompt": "Surveil 1: choose cards to put into your graveyard",
                                     "selectedLabel": "Put in graveyard",
                                     "remainderLabel": "Put on top"
                                 },
@@ -4536,7 +4532,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a planeswalker card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -5066,7 +5064,8 @@
                                 "descriptionOverride": "Empower Jace 2"
                             }
                         ]
-                    }
+                    },
+                    "description": "Draw a card. Empower Jace 2"
                 },
                 {
                     "effect": {
@@ -7779,7 +7778,9 @@
                                         "key": "TRIGGER_DAMAGE_AMOUNT"
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for land cards (up to the damage dealt) to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -8506,7 +8507,7 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "GrantInstantSpeedLoyaltyAbilities",
+                    "type": "GrantLoyaltyActivationPermission",
                     "planeswalkerFilter": {
                         "cardPredicates": [
                             "IsPlaneswalker",
@@ -8516,7 +8517,8 @@
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
-                    }
+                    },
+                    "instantSpeed": true
                 },
                 {
                     "type": "Composite",
@@ -9505,7 +9507,8 @@
                             "type": "Fixed",
                             "amount": 3
                         }
-                    }
+                    },
+                    "description": "Add {C}{C}{C}"
                 }
             ]
         }
@@ -10256,7 +10259,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a planeswalker card to put on top of your library",
+                    "selectedLabel": "Put on top of your library"
                 },
                 "ShuffleLibrary",
                 {
@@ -11480,7 +11485,9 @@
                         }
                     ]
                 },
-                "fromHandOnly": true
+                "fromZones": [
+                    "Hand"
+                ]
             }
         ]
     },
@@ -11880,7 +11887,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for an enchantment card to put into your hand",
+                                    "selectedLabel": "Put into your hand"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -14828,7 +14837,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -15506,7 +15517,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your library for a Sphinx creature card to put onto the battlefield",
+                                    "selectedLabel": "Put onto the battlefield"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -19397,7 +19410,8 @@
                                 "descriptionOverride": "Empower Jace 6"
                             }
                         ]
-                    }
+                    },
+                    "description": "You lose 2 life. Empower Jace 6"
                 }
             ]
         }

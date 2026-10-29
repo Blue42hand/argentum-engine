@@ -18,6 +18,7 @@ import com.wingedsheep.engine.state.components.combat.*
 import com.wingedsheep.engine.state.components.identity.*
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
+import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.engine.state.permissions.hasMayPlayFor
 import com.wingedsheep.engine.view.ClientCard
@@ -260,11 +261,12 @@ internal class CardProjector(
             else projectedValues?.toughness ?: if (frame.isFaceDown) 2 else cardComponent.baseStats?.baseToughness
         val rawKeywords = projectedValues?.keywords?.mapNotNull {
             when {
-                // Granted toxic / bushido float as TOXIC_<N> / BUSHIDO_<N> (Skrelv's activated
-                // ability, Sensei Golden-Tail); collapse to the bare keyword so the icon-render
-                // path picks it up.
+                // Granted toxic / bushido / crew float as TOXIC_<N> / BUSHIDO_<N> / CREW_<N>
+                // (Skrelv's activated ability, Sensei Golden-Tail, Astor); collapse to the bare
+                // keyword so the icon-render path picks it up.
                 it.startsWith("TOXIC_") -> Keyword.TOXIC
                 it.startsWith("BUSHIDO_") -> Keyword.BUSHIDO
+                it.startsWith("CREW_") -> Keyword.CREW
                 else -> try { Keyword.valueOf(it) } catch (_: Exception) { null }
             }
         }?.toSet() ?: cardComponent.baseKeywords
@@ -574,6 +576,10 @@ internal class CardProjector(
             copyOf = container.get<CopyOfComponent>()?.let { copyComp ->
                 cardRegistry.getCard(copyComp.originalCardDefinitionId)?.name
             },
+            copyOfImageUri = container.get<CopyOfComponent>()?.let { copyComp ->
+                copyComp.originalCardComponent?.imageUri
+                    ?: cardRegistry.getCard(copyComp.originalCardDefinitionId)?.metadata?.imageUri
+            },
             // The two legendary flags are complements, and the `!in supertypes` clause is what
             // makes them so: a non-legendary copy that an effect then makes legendary again (Impostor
             // Syndrome's copy designated Ring-bearer) is simply legendary, so "not legendary" is a lie
@@ -595,7 +601,9 @@ internal class CardProjector(
             } else frame.projectedState.crossZoneGrantedCardTypes(frame.entityId)
                 .filterNot { name -> cardComponent.typeLine.cardTypes.any { it.name == name } }
                 .toSet(),
-            damageDistribution = (spellOnStack?.damageDistribution ?: container.get<TriggeredAbilityOnStackComponent>()?.damageDistribution)?.takeIf { it.isNotEmpty() },
+            damageDistribution = (spellOnStack?.damageDistribution
+                ?: container.get<TriggeredAbilityOnStackComponent>()?.damageDistribution
+                ?: container.get<ActivatedAbilityOnStackComponent>()?.damageDistribution)?.takeIf { it.isNotEmpty() },
             sagaTotalChapters = cardDef?.finalChapter,
             classLevel = container.get<ClassLevelComponent>()?.currentLevel,
             classMaxLevel = cardDef?.maxClassLevel,

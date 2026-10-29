@@ -136,6 +136,91 @@
     ]
 }
 
+// Eidolon of Blossoms
+{
+    "name": "Eidolon of Blossoms",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Enchantment Creature — Spirit",
+    "oracleText": "Constellation — Whenever this creature or another enchantment you control enters, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Eidolon of Blossoms:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "enchantment ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Constellation — Whenever this creature or another enchantment you control enters, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "RARE",
+        "artist": "Min Yum",
+        "flavorText": "The emotional echoes of dryad gatherings attract lost souls.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/d/8dbb2112-85b9-49cf-9ed5-9273829c34f1.jpg?1783939415",
+        "rulings": [
+            {
+                "date": "2014-04-26",
+                "text": "A constellation ability triggers whenever an enchantment enters the battlefield under your control for any reason. Enchantments with other card types, such as enchantment creatures, will also cause constellation abilities to trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Eidolon of Rhetoric
+{
+    "name": "Eidolon of Rhetoric",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment Creature — Spirit",
+    "oracleText": "Each player can't cast more than one spell each turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "RestrictSpellsCastPerTurn",
+                "eachPlayer": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "10",
+        "rarity": "UNCOMMON",
+        "artist": "Ryan Yee",
+        "flavorText": "It is the soul of a philosopher who died of starvation contemplating the universe.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c3bc8b9e-4d22-41ba-b593-d383fd301ef9.jpg?1783939461",
+        "rulings": [
+            {
+                "date": "2014-04-26",
+                "text": "Eidolon of Rhetoric will look at the entire turn to see if a player has cast a spell yet that turn, even if Eidolon of Rhetoric wasn't on the battlefield when that spell was cast. Specifically, you can't cast Eidolon of Rhetoric and then cast another spell that turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Flurry of Horns
 {
     "name": "Flurry of Horns",
@@ -248,6 +333,71 @@
     ]
 }
 
+// Interpret the Signs
+{
+    "name": "Interpret the Signs",
+    "manaCost": "{5}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Scry 3, then reveal the top card of your library. Draw cards equal to that card's mana value. (To scry 3, look at the top three cards of your library, then put any number of them on the bottom and the rest on top in any order.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Scry",
+                    "count": 3
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "RevealCollection",
+                            "from": "gathered0"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "StoredCardManaValue",
+                                "collectionName": "gathered0"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "rarity": "UNCOMMON",
+        "artist": "Cynthia Sheppard",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/696f2da6-3943-4555-9610-e6b925b3d6bc.jpg?1783939447",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If you reveal a card with mana value 0, such as a land card, you won't draw any cards. Otherwise, the card you revealed will be the first card you draw."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If a card in a player's library has {X} in its mana cost, X is considered to be 0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Lightning Diadem
 {
     "name": "Lightning Diadem",
@@ -323,7 +473,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -381,6 +534,67 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Returned Reveler
+{
+    "name": "Returned Reveler",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Zombie Satyr",
+    "oracleText": "When this creature dies, each player mills three cards.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Returned Reveler:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "player": "Each",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "Each"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature dies, each player mills three cards."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "artist": "Allen Williams",
+        "flavorText": "The flesh is dead and the life forgotten, but old habits persist.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9ea61098-2c6a-48d2-b99f-f3065c67d8e3.jpg?1783939432"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

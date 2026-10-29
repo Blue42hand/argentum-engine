@@ -1,6 +1,7 @@
 package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.selfNounToken
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -85,6 +86,48 @@ data class ExileAndReturnTransformedEffect(
 }
 
 /**
+ * Meld (CR 701.42) — "If you both own and control [this] and a [partner], exile them, then meld
+ * them into [into]." The ability lives on one card of a meld pair (CR 712.4a); its source is always
+ * the meld card itself.
+ *
+ * Resolution, in order:
+ *  1. The source must be on the battlefield and both owned and controlled by the ability's
+ *     controller, and a *different* permanent matching [partner] must be too. Otherwise nothing
+ *     happens — nothing is exiled. [partner] carries the "named …" predicate and any extra
+ *     requirement on it ("a creature named Phyrexian Dragon Engine" that is attacking).
+ *  2. Both are exiled together.
+ *  3. If the two exiled objects are the two cards of [into]'s meld pair (`meldOf`, CR 701.42b),
+ *     they are put onto the battlefield combined as [into] — one new object represented by two
+ *     cards. Anything else (a token, a copy of a meld card) stays in exile (CR 701.42c).
+ *
+ * The melded permanent's mana value is the sum of the two front faces' (CR 712.8g). When it leaves
+ * the battlefield, one permanent leaves and both cards go to the new zone, front face up
+ * (CR 712.21). Meld cards can't be transformed (CR 712.4c), and a melded permanent is never a
+ * "transformed permanent" (CR 701.27g).
+ *
+ * @property partner The other meld card, as the oracle text names it.
+ * @property into The meld result's card name; its definition must declare this pair via `meldOf`.
+ * @property tappedAndAttacking "It enters tapped and attacking" (Mishra, Claimed by Gix).
+ */
+@SerialName("Meld")
+@Serializable
+data class MeldEffect(
+    val partner: GameObjectFilter,
+    val into: String,
+    val tappedAndAttacking: Boolean = false
+) : Effect {
+    override val description: String = buildString {
+        append("If you both own and control this and a ${partner.description}, exile them, then meld them into $into")
+        if (tappedAndAttacking) append(". It enters tapped and attacking")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newPartner = partner.applyTextReplacement(replacer)
+        return if (newPartner !== partner) copy(partner = newPartner) else this
+    }
+}
+
+/**
  * Return the source of a Craft activated ability (CR 702.167a) from exile to the battlefield
  * transformed under its owner's control.
  *
@@ -133,6 +176,6 @@ data class ReturnSelfFromZoneTransformedEffect(
     val tapped: Boolean = false,
 ) : Effect {
     override val description: String =
-        "Return this card from your ${fromZone.displayName.lowercase()} to the battlefield transformed" +
+        "Return this card from your ${fromZone.noun} to the battlefield transformed" +
             if (tapped) " tapped" else ""
 }

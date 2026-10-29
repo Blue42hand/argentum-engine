@@ -12,6 +12,7 @@ import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.sdk.core.ManaCost
@@ -178,13 +179,16 @@ class CounterEffectExecutor(
         onPaid: com.wingedsheep.sdk.scripting.effects.Effect?,
         context: EffectContext
     ): EffectResult {
+        // Name the card asking (Spell Stutter, Mana Leak, …) — the prompt is about *its* demand.
+        val sourceName = context.sourceId?.let { state.getEntity(it)?.get<CardComponent>()?.name }
         val continuation = CounterUnlessPaysContinuation(
+            resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             payingPlayerId = payingPlayerId,
             spellEntityId = spellEntityId,
             manaCost = manaCost,
             sourceId = context.sourceId,
             objectReferences = context.objectReferences,
-            sourceName = "Counter unless pays",
+            sourceName = sourceName,
             counterDestination = effect.counterDestination,
             controllerId = context.controllerId,
             onPaid = onPaid
@@ -194,7 +198,7 @@ class CounterEffectExecutor(
             state = state,
             playerId = payingPlayerId,
             sourceId = context.sourceId,
-            sourceName = "Counter unless pays",
+            sourceName = sourceName,
             prompt = "Pay $manaCost to prevent your spell from being countered?",
             yesText = "Pay $manaCost",
             noText = "Don't pay",

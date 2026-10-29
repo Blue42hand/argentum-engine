@@ -47,8 +47,11 @@ data class ClientGameState(
     /** Who currently has priority */
     val priorityPlayerId: EntityId,
 
-    /** Turn number */
+    /** Turn number — counts player turns, see [com.wingedsheep.engine.state.GameState.turnNumber] */
     val turnNumber: Int,
+
+    /** Round number for display — one number per pass around the table */
+    val roundNumber: Int = turnNumber,
 
     /** Whether the game is over */
     val isGameOver: Boolean,
@@ -76,6 +79,15 @@ data class ClientGameState(
      * transform cues.
      */
     val dayNight: com.wingedsheep.sdk.core.DayNight? = null,
+
+    /**
+     * The Free-for-All attack restriction (CR 803 — attack left / attack right), or `null` when
+     * every opponent may be attacked (CR 802.2, and every two-player game). Fixed for the whole
+     * game and public, so never masked and never carried in a delta. Drives the rail's attack
+     * direction header and the "target" / "attacks you" seat tags; the server's
+     * `validAttackTargets` stays the authority on what a declaration may actually name.
+     */
+    val attackMode: com.wingedsheep.sdk.core.AttackMode? = null,
 
     /**
      * If non-null, the affected player whose choices the viewing player is currently
@@ -540,6 +552,13 @@ data class ClientCard(
     val copyOf: String? = null,
 
     /**
+     * Art of the original card's own printing when this permanent is a copy, so the copy badge's
+     * preview shows the version the player actually has (a Jumpstart 2022 Pirated Copy) rather
+     * than whatever printing a by-name lookup lands on.
+     */
+    val copyOfImageUri: String? = null,
+
+    /**
      * True when this permanent's printed card has the Legendary supertype but it is not legendary
      * now — i.e. a copy effect explicitly stripped legendariness ("except it isn't legendary" /
      * Impostor Syndrome). Lets the UI flag the difference between an original legendary creature
@@ -877,6 +896,14 @@ data class ClientPlayer(
      * serializes it away and the field costs nothing.
      */
     val energyCounters: Int = 0,
+    val radCounters: Int = 0,
+
+    /**
+     * This player's current experience counter total (CR 122.1 — a counter on a player; Aang,
+     * Airbending Master and Toph, Earthbending Master give and read them). Public information like
+     * poison and energy, so it is not masked. Defaulted so every game without them serializes it away.
+     */
+    val experienceCounters: Int = 0,
 
     /**
      * Team membership in a team variant (Two-Headed Giant — CR 810; Team vs. Team — CR 808):
@@ -909,7 +936,45 @@ data class ClientPlayer(
      * (CR 808.4), so it leaves this false — which is exactly why it can't be folded into
      * [teamSharedLife] or into "has a team".
      */
-    val teamSharedTurns: Boolean = false
+    val teamSharedTurns: Boolean = false,
+
+    /**
+     * This player's revealed companion while it waits outside the game (CR 103.2b, 702.139a), or
+     * `null` when they have none or have already put it into their hand. Public: every viewer
+     * gets the card itself in [ClientGameState.cards], from its owner's sideboard zone, which is
+     * otherwise private. The client shows it beside the command zone.
+     */
+    val companionId: EntityId? = null,
+
+    /**
+     * The dungeon this player owns in the command zone and where their venture marker is
+     * (CR 309.4), or `null` when they aren't in a dungeon. Public information — dungeons and the
+     * marker are on the table for everyone.
+     */
+    val dungeon: ClientDungeon? = null,
+
+    /** Names of the dungeons this player has completed, in order (CR 309.7). Empty in most games. */
+    val completedDungeons: List<String> = emptyList()
+)
+
+/**
+ * A player's dungeon in the command zone (CR 309): the whole room graph, so the client can draw the
+ * map, and the room the venture marker is on.
+ */
+@Serializable
+data class ClientDungeon(
+    val name: String,
+    val imageUri: String? = null,
+    val currentRoom: Int,
+    val rooms: List<ClientDungeonRoom>
+)
+
+/** One room of a [ClientDungeon]: its name, its printed effect, and the rooms its arrows lead to. */
+@Serializable
+data class ClientDungeonRoom(
+    val name: String,
+    val text: String,
+    val leadsTo: List<Int>
 )
 
 /**
@@ -957,7 +1022,13 @@ data class ClientPlayerEffect(
      */
     val progress: ClientEffectProgress? = null,
     /** When the effect ends, e.g. "until end of turn"; `null` when no end is stated. */
-    val duration: String? = null
+    val duration: String? = null,
+    /**
+     * The emblem entity behind this badge, when the emblem has activated abilities of its own
+     * (Karn, Living Legacy's). The client matches it against legal actions' `sourceId` so the
+     * badge is where the player activates them; `null` for every other effect.
+     */
+    val sourceId: EntityId? = null
 )
 
 /**
@@ -986,7 +1057,13 @@ data class ClientCardEffect(
     /** Optional icon identifier for UI rendering */
     val icon: String? = null,
     /** When the effect ends, e.g. "until end of turn"; `null` when no end is stated. */
-    val duration: String? = null
+    val duration: String? = null,
+    /**
+     * The emblem entity behind this badge, when the emblem has activated abilities of its own
+     * (Karn, Living Legacy's). The client matches it against legal actions' `sourceId` so the
+     * badge is where the player activates them; `null` for every other effect.
+     */
+    val sourceId: EntityId? = null
 )
 
 /**

@@ -35,14 +35,14 @@ class SuspendEnumerator : ActionEnumerator {
             // CR 702.62c: "take into consideration any effects that would prohibit that card from
             // being cast" — the same blanket/per-spell cast-prohibition check every other cast
             // enumerator consults, even though suspend never actually casts the card.
-            if (context.cantCastSpell(cardId)) continue
+            if (context.castPermissionUtils.reasonCannotCast(state, playerId, cardId) != null) continue
 
             // Printed flash is read off the CardDefinition, not projected state: projection is
             // only ever built for battlefield entities, so hasKeyword() on a hand-zone card
             // silently returns false regardless of what's actually printed. A battlefield-granted
             // flash (GrantFlashToSpellType, e.g. Quick Sliver) counts too.
             val hasFlash = cardDef.keywords.contains(Keyword.FLASH) ||
-                context.castPermissionUtils.hasGrantedFlash(state, cardId)
+                context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             val isInstantSpeed = cardComponent.typeLine.isInstant || hasFlash
             if (!isInstantSpeed && !context.canPlaySorcerySpeed) continue
 

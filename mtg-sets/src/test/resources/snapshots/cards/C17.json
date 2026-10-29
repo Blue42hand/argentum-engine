@@ -1,3 +1,96 @@
+// Balan, Wandering Knight
+{
+    "name": "Balan, Wandering Knight",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Legendary Creature — Cat Knight",
+    "oracleText": "First strike\nBalan has double strike as long as two or more Equipment are attached to it.\n{1}{W}: Attach all Equipment you control to Balan.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Balan, Wandering Knight:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "artifact Equipment ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AttachTargetEquipmentToCreature",
+                        "equipmentTarget": "IterationEntity",
+                        "creatureTarget": "Self"
+                    }
+                },
+                "descriptionOverride": "{1}{W}: Attach all Equipment you control to Balan."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": {
+                            "type": "AttachmentCount",
+                            "kind": "EQUIPMENT"
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "rarity": "RARE",
+        "artist": "Svetlin Velinov",
+        "flavorText": "\"What weapon will you bear against one who's mastered them all?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d0b279c-9a6d-4a56-878e-0ebf3f609f65.jpg?1783935951",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Balan's activated ability has no timing restriction. You can activate it any time you have priority."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If Balan deals first-strike damage and then gains double strike (most likely because it picked up some Equipment with its activated ability after first-strike damage was dealt), it will also deal regular combat damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Edgar Markov
 {
     "name": "Edgar Markov",
@@ -198,6 +291,146 @@
     "colorIdentityOverride": []
 }
 
+// Heirloom Blade
+{
+    "name": "Heirloom Blade",
+    "manaCost": "{3}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +3/+1.\nWhenever equipped creature dies, you may reveal cards from the top of your library until you reveal a creature card that shares a creature type with it. Put that card into your hand and the rest on the bottom of your library in a random order.\nEquip {1}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Heirloom Blade:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherUntilMatch",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "SharesCreatureTypeWith",
+                                            "entity": "TriggeringEntity"
+                                        }
+                                    ]
+                                },
+                                "storeMatch": "ignored",
+                                "storeRevealed": "revealed"
+                            },
+                            {
+                                "type": "RevealCollection",
+                                "from": "revealed"
+                            },
+                            {
+                                "type": "FilterCollection",
+                                "from": "revealed",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "SharesCreatureTypeWith",
+                                            "entity": "TriggeringEntity"
+                                        }
+                                    ]
+                                },
+                                "storeMatching": "matchedToHand",
+                                "storeNonMatching": "rest"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "matchedToHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                },
+                                "revealed": true
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "rest",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Bottom"
+                                },
+                                "order": "Random"
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Heirloom Blade:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 3,
+                "toughnessBonus": 1
+            }
+        ]
+    },
+    "equipCost": "{1}",
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "UNCOMMON",
+        "artist": "Carmen Sinek",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aae598eb-871d-45af-b12c-346c344ae74b.jpg?1783935931",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Compare the revealed cards to the creature as it last existed before it died, not to the creature card as it exists in its owner's graveyard, to determine which one you put into your hand."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If the equipped creature has no creature type, no card can share a creature type with it."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If Heirloom Blade leaves the battlefield at the same time that the equipped creature dies, its triggered ability triggers."
+            }
+        ]
+    }
+}
+
 // Herald's Horn
 {
     "name": "Herald's Horn",
@@ -312,6 +545,10 @@
             {
                 "date": "2017-08-25",
                 "text": "You must choose an existing creature type, such as Vampire or Cat. Card types such as \"artifact\" can't be chosen."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If you somehow control a Herald's Horn with no chosen creature type, no spells will cost less to cast, not even creature spells with no creature type. You'll be able to look at the top card of your library at the beginning of each of your upkeeps, but you can never put it into your hand this way, even if it's a creature card with no creature type."
             },
             {
                 "date": "2017-08-25",
@@ -530,5 +767,76 @@
         "BLACK",
         "RED",
         "GREEN"
+    ]
+}
+
+// Teferi's Protection
+{
+    "name": "Teferi's Protection",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Until your next turn, your life total can't change and you gain protection from everything. All permanents you control phase out. (While they're phased out, they're treated as though they don't exist. They phase in before you untap during your untap step.)\nExile Teferi's Protection.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "LockLifeGain",
+                    "target": "Controller",
+                    "duration": "UntilYourNextTurn"
+                },
+                {
+                    "type": "LockLifeLoss",
+                    "target": "Controller",
+                    "duration": "UntilYourNextTurn"
+                },
+                "GrantPlayerProtection",
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "permanent ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "PhaseOut",
+                        "target": "IterationEntity"
+                    }
+                }
+            ]
+        },
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "RARE",
+        "artist": "Chase Stone",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/77f130c7-0138-4a1a-9f67-62d2c302dc48.jpg?1783935950",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Gaining protection from everything causes a spell or ability on the stack to have an illegal target if it targets you."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "Spells and abilities that would normally cause you to gain or lose life still resolve while your life total can't change, but the life-gain or life-loss part simply has no effect."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "You can't pay a cost that includes the payment of any amount of life other than 0 life."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "Phasing out doesn't cause any \"leaves the battlefield\" abilities to trigger. Similarly, phasing in won't cause any \"enters\" abilities to trigger."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If a token is phased out, it will phase in as your next untap step begins. This is a change from previous rules."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }

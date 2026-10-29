@@ -25,10 +25,12 @@ class MeaningfulActionFilterTest : FunSpec({
         validAttackers: List<EntityId>? = null,
         validBlockers: List<EntityId>? = null,
         unfillableRequirement: Boolean = false,
+        minTargets: Int = 1,
     ) = object : PriorityAction {
         override val actionType = type
         override val requiresTargets = requiresTargets
         override val validTargets = validTargets
+        override val minTargets = minTargets
         override val validAttackers = validAttackers
         override val validBlockers = validBlockers
         override val isManaAbility = manaAbility
@@ -59,6 +61,14 @@ class MeaningfulActionFilterTest : FunSpec({
         ) shouldBe false
         MeaningfulActionFilter.isMeaningful(
             action("CastSpell", requiresTargets = true, validTargets = listOf(someone))
+        ) shouldBe true
+    }
+
+    test("an up-to-N spell with no legal target is still a candidate — it is cast choosing none") {
+        // Tam's Resistance ("put a +1/+1 counter on up to one target creature … Empower Jace 4")
+        // on a board with no creatures: castable, and its empower is the whole point.
+        MeaningfulActionFilter.isMeaningful(
+            action("CastSpell", requiresTargets = true, validTargets = emptyList(), minTargets = 0)
         ) shouldBe true
     }
 

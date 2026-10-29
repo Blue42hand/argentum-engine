@@ -127,6 +127,13 @@ class CompositeEffectExecutor(
                     sacrificedPermanents = currentContext.sacrificedPermanents + result.updatedSacrificedPermanents
                 )
             }
+            // Likewise every permanent the step moved off the battlefield, for "each permanent
+            // exiled this way … shares a card type with it" reads of IterationEntity (CR 608.2h).
+            if (result.updatedDepartedPermanents.isNotEmpty()) {
+                currentContext = currentContext.copy(
+                    departedPermanents = currentContext.departedPermanents + result.updatedDepartedPermanents
+                )
+            }
         }
 
         // Return accumulated collections / subtype groups / stored numbers / chosen values so parent composites can see them
@@ -135,6 +142,7 @@ class CompositeEffectExecutor(
         val accumulatedStoredNumbers = currentContext.pipeline.storedNumbers - context.pipeline.storedNumbers.keys
         val accumulatedChosenValues = currentContext.pipeline.chosenValues - context.pipeline.chosenValues.keys
         val accumulatedSacrificed = currentContext.sacrificedPermanents.drop(context.sacrificedPermanents.size)
+        val accumulatedDeparted = currentContext.departedPermanents.drop(context.departedPermanents.size)
         return EffectResult(
             currentState,
             allEvents,
@@ -142,7 +150,8 @@ class CompositeEffectExecutor(
             updatedSubtypeGroups = accumulatedSubtypeGroups,
             updatedStoredNumbers = accumulatedStoredNumbers,
             updatedChosenValues = accumulatedChosenValues,
-            updatedSacrificedPermanents = accumulatedSacrificed
+            updatedSacrificedPermanents = accumulatedSacrificed,
+            updatedDepartedPermanents = accumulatedDeparted
         )
     }
 }

@@ -281,8 +281,20 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
      * independently verifies their capture, retention after departure and serialization.
      */
     private fun normalizeRouting(value: JsonElement, root: Boolean = false): JsonElement = when (value) {
-        is JsonObject -> JsonObject(((if (root) value - "controlAtTurnStart" else value) - "targetObjectRefs" - "referencedObjects").mapValues { (key, child) ->
+        is JsonObject -> JsonObject(((if (root) value - "controlAtTurnStart" else value) - "targetObjectRefs" - "referencedObjects" - "manaUnits" -
+            // The graveyard turn history (Crawling Sensation) postdates the capture, as does the
+            // per-card stamp on a resolved spell; CardsPutIntoGraveyardThisTurnTrackerTest pins both.
+            "com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardThisTurnComponent" -
+            "com.wingedsheep.engine.state.components.identity.PutIntoGraveyardThisTurnComponent").mapValues { (key, child) ->
             when {
+                // Captured ownership also postdates these traces; SourceOwnerLastKnownTest pins it.
+                // Departure object references postdate these historical traces. EnlistTest
+                // checks that the captured reference preserves the old object's power across a blink.
+                // Snapshot names were captured later; DepartedSourceCounterPaymentTest pins the
+                // actual departure metadata and masked prompts. Keep historical input fixtures intact.
+                key == "snapshot" && value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentComponent"
+                ) -> normalizeRouting(JsonObject(child.jsonObject - "objectRef" - "name" - "ownerId"))
                 root && key == "nextRoutingId" -> JsonPrimitive(0)
                 key == "question" && "answer" in value -> {
                     val question = child.jsonObject
@@ -297,7 +309,7 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
 
     /**
      * Added copiable rules data postdates the capture; old identities must default those lists empty.
-     * Likewise a may-play permission's later `colorlessAsAnyColor` rider and the card's later
+     * Likewise a may-play permission's later `colorlessAsAnyColor` / `withAnyManaColor` riders and the card's later
      * `hasCycling` flag must default false.
      */
     private fun withoutPostCaptureCardDefaults(value: JsonElement): JsonElement = when (value) {
@@ -305,22 +317,57 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
             val fields = if (value["type"] == JsonPrimitive(
                     "com.wingedsheep.engine.state.components.identity.CardComponent"
                 )) {
+                value.getValue("flipSide") shouldBe JsonNull
+                value.getValue("copyNumericKeywords") shouldBe JsonArray(emptyList())
+                value.getValue("copyStaticAbilities") shouldBe JsonArray(emptyList())
+                value.getValue("copyWardCosts") shouldBe JsonArray(emptyList())
                 value.getValue("copyTriggeredAbilities") shouldBe JsonArray(emptyList())
                 value.getValue("copyActivatedAbilities") shouldBe JsonArray(emptyList())
                 value.getValue("manaSpendingGrants") shouldBe JsonArray(emptyList())
                 value.getValue("hasCycling") shouldBe JsonPrimitive(false)
-                value - "copyTriggeredAbilities" - "copyActivatedAbilities" - "manaSpendingGrants" - "hasCycling"
+                value - "copyStaticAbilities" - "copyNumericKeywords" - "flipSide" - "copyWardCosts" - "copyTriggeredAbilities" - "copyActivatedAbilities" - "manaSpendingGrants" - "hasCycling"
             } else if (value["type"] == JsonPrimitive(
                     "com.wingedsheep.engine.state.components.player.ManaPoolComponent"
                 )) {
                 // Snow-mana tracking (CR 107.4h) postdates the capture.
                 value.getValue("snowMana") shouldBe JsonObject(emptyMap())
                 value.getValue("snowColorless") shouldBe JsonPrimitive(0)
-                value - "snowMana" - "snowColorless"
+                // Exact mana-source units postdate this trace; ActivationManaProvenanceTest
+                // separately verifies their consumption, retention and round-trip serialization.
+                value - "snowMana" - "snowColorless" - "manaUnits"
+            } else if (value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.player.LandDropsComponent"
+                )) {
+                // The direct lands-played count postdates the capture.
+                value.getValue("playedThisTurn") shouldBe JsonPrimitive(0)
+                value - "playedThisTurn"
             } else if ("colorlessAsAnyColor" in value && "singleUse" in value) {
-                // MayPlayPermission's colorless-as-any-color rider postdates the capture.
+                // MayPlayPermission's any-color, colorless-as-any-color and face-down riders postdate the capture.
+                value.getValue("withAnyManaColor") shouldBe JsonPrimitive(false)
                 value.getValue("colorlessAsAnyColor") shouldBe JsonPrimitive(false)
-                value - "colorlessAsAnyColor"
+                value.getValue("castFaceDown") shouldBe JsonPrimitive(false)
+                value.getValue("turnsFaceUpInstead") shouldBe JsonPrimitive(false)
+                value - "withAnyManaColor" - "colorlessAsAnyColor" - "castFaceDown" - "turnsFaceUpInstead"
+            } else if (value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.stack.SpellOnStackComponent"
+                )) {
+                // The turns-face-up-instead rider (Illusionary Mask) and the departed-convoker
+                // last-known information postdate the capture.
+                value.getValue("turnsFaceUpInstead") shouldBe JsonPrimitive(false)
+                value.getValue("convokedLastKnown") shouldBe JsonObject(emptyMap())
+                value - "turnsFaceUpInstead" - "convokedLastKnown"
+            } else if (value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent"
+                )) {
+                // The recorded activation payment postdates the capture.
+                value - "manaSpent"
+            } else if (value["type"] == JsonPrimitive(
+                    "com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent"
+                )) {
+                // The turn-keyed waiver expiry (Ignite the Future) postdates the capture.
+                value.getValue("expiresAfterTurn") shouldBe JsonNull
+                value.getValue("expiryControllerId") shouldBe JsonNull
+                value - "expiresAfterTurn" - "expiryControllerId"
             } else value
             JsonObject(fields.mapValues { withoutPostCaptureCardDefaults(it.value) })
         }
@@ -352,7 +399,9 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
             "playerActionPermissions",
             "objectIdentities", "nextObjectGeneration", "zoneReturns", "pendingTriggers", "controlAtTurnStart",
             "playersDealtNoncombatDamageThisTurn", "playersDealtNoncombatDamageLastTurn", "playersWhoLostLifeLastTurn",
-            "pendingReplacementRiders", "playersDealtCombatDamageSinceTheirLastTurn",
+            "playersWithPermanentDealtExcessDamageThisTurn",
+            "pendingReplacementRiders", "playersDealtCombatDamageSinceTheirLastTurn", "roundNumber", "monarch",
+            "initiative",
         )
     }
 }

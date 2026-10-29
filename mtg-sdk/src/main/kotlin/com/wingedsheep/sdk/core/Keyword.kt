@@ -46,6 +46,13 @@ enum class Keyword(val displayName: String) {
     EXALTED("Exalted"),
 
     /**
+     * Myriad (CR 702.116) — engine-live: the "copy attacking each other opponent" trigger is
+     * derived from the projected keyword, one trigger per instance. See
+     * [com.wingedsheep.sdk.scripting.Myriad].
+     */
+    MYRIAD("Myriad"),
+
+    /**
      * Banding (CR 702.22). As they declare attackers, a player may group one or more
      * attacking creatures with banding plus up to one without banding into a "band"
      * (CR 702.22c). A band attacks the same defender and is blocked as a group.
@@ -131,6 +138,20 @@ enum class Keyword(val displayName: String) {
      * RIOT keyword.
      */
     RIOT("Riot"),
+
+    /**
+     * Read ahead (CR 702.155). Found on Sagas: "As this Saga enters, choose a number between one
+     * and this Saga's final chapter number" and "This Saga enters with the chosen number of lore
+     * counters on it" (CR 714.3b), plus "Chapter abilities of this Saga can't trigger the turn it
+     * entered the battlefield unless it has exactly the number of lore counters on it specified in
+     * the chapter symbol of that ability" (CR 702.155a).
+     *
+     * Composed in the DSL via [com.wingedsheep.sdk.dsl.readAhead], which pairs this keyword with an
+     * [com.wingedsheep.sdk.scripting.EntersWithChoice] (`ChoiceType.NUMBER`, 1..final chapter). The
+     * engine reads the keyword at Saga entry (the chosen number replaces the single intrinsic lore
+     * counter) and in chapter-trigger detection (the entered-this-turn exactly-N rule).
+     */
+    READ_AHEAD("Read ahead"),
 
     /**
      * Devour (CR 702.82). "Devour N" — "As this creature enters, you may sacrifice
@@ -257,6 +278,24 @@ enum class Keyword(val displayName: String) {
      * triggered half is the synthesized [com.wingedsheep.sdk.scripting.Madness.castAbility].
      */
     MADNESS("Madness"),
+
+    /**
+     * Aftermath (CR 702.127, Amonkhet). Printed on one half of a [com.wingedsheep.sdk.model.CardLayout.SPLIT] card and
+     * declared on that **face** (`face("Dawn") { keywords(Keyword.AFTERMATH) }`), never on the
+     * card. It is three static abilities (CR 702.127a): "You may cast this half of this split card
+     * from your graveyard", "This half of this split card can't be cast from any zone other than a
+     * graveyard", and "If this spell was cast from a graveyard, exile it instead of putting it
+     * anywhere else any time it would leave the stack." The other half is an ordinary split half,
+     * cast from hand as usual and *not* from the graveyard. No cost of its own: the aftermath half
+     * is cast for its printed mana cost, at the normal timing for its type.
+     *
+     * Unlike [FLASHBACK] there is no alternative cost, so the engine keys it off the cast face
+     * (`CastSpell.faceIndex`), not an `AlternativeCostType`.
+     */
+    AFTERMATH("Aftermath"),
+
+    /** Fuse (CR 702.102): cast both halves of a split card as one spell from hand. Declared on the card, not its faces. */
+    FUSE("Fuse"),
     DREDGE("Dredge"),
 
     /**
@@ -375,6 +414,9 @@ enum class Keyword(val displayName: String) {
      * optional-additional-cost rail, declaring [com.wingedsheep.sdk.scripting.ChoiceSlot.REPLICATED].
      */
     REPLICATE("Replicate"),
+
+    /** Optional repeated additional cost followed by an enters-the-battlefield token-copy trigger. */
+    SQUAD("Squad"),
 
     /**
      * Bargain (CR 702.166, Wilds of Eldraine). A static ability that functions while the spell is
@@ -576,6 +618,19 @@ enum class Keyword(val displayName: String) {
     ETERNALIZE("Eternalize"),
 
     /**
+     * Unearth [cost] (CR 702.84, Shards of Alara). "[Cost]: Return this card from your graveyard
+     * to the battlefield. It gains haste. Exile it at the beginning of the next end step. If it
+     * would leave the battlefield, exile it instead of putting it anywhere else. Activate only as
+     * a sorcery."
+     *
+     * Like [EMBALM], a graveyard-activated ability composed of existing primitives (return to the
+     * battlefield, permanent haste grant, timestamp-tracked delayed exile, exile-on-leave
+     * replacement). Wired in one call via the `unearth(cost)` helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder]; the keyword itself is display-only.
+     */
+    UNEARTH("Unearth"),
+
+    /**
      * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
      * enters, if you control ten or more permanents, you get the city's blessing
      * for the rest of the game." Engine wires the trigger explicitly per card; the
@@ -745,6 +800,12 @@ enum class Keyword(val displayName: String) {
     MODULAR("Modular"),
     FADING("Fading"),
     VANISHING("Vanishing"),
+
+    /**
+     * Cumulative upkeep [cost] (CR 702.24). Display-only; the `cumulativeUpkeep(cost)` DSL helper
+     * composes the upkeep trigger (age counter, then pay the cost per age counter or sacrifice).
+     */
+    CUMULATIVE_UPKEEP("Cumulative upkeep"),
 
     /**
      * Soulshift N (CR 702.46). Display-only; the `soulshift(n)` DSL helper composes the optional

@@ -89,16 +89,18 @@ object LegalityData {
         return stream.use { it.readBytes().toString(Charsets.UTF_8) }
     }
 
+    private val formatsByName: Map<String, DeckFormat> = DeckFormat.entries.associateBy { it.name }
+
     private fun parseRaw(text: String): Map<String, Set<DeckFormat>> {
         val raw: Map<String, List<String>> = parser.decodeFromString(mapSerializer, text)
         return raw.mapValues { (_, names) ->
             // The sync scripts write a sentinel for cards Scryfall returns 404 on (custom test
-            // cards, tokens). It is not a real format — drop it. valueOf() also tolerates Scryfall
-            // formats not represented in our DeckFormat enum (e.g. brawl, alchemy) by returning
-            // null and being filtered out.
+            // cards, tokens). It is not a real format — drop it. Scryfall formats not represented in
+            // our DeckFormat enum (e.g. brawl, alchemy) miss the lookup and are dropped too — a map
+            // lookup rather than valueOf(), whose exception per miss per card added up at startup.
             names.asSequence()
                 .filter { it != NOT_FOUND_MARKER }
-                .mapNotNullTo(mutableSetOf()) { runCatching { DeckFormat.valueOf(it) }.getOrNull() }
+                .mapNotNullTo(mutableSetOf()) { formatsByName[it] }
         }
     }
 }

@@ -499,7 +499,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your graveyard and/or hand and/or library for a card named Magnifying Glass to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -538,7 +540,9 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "found"
+                                    "storeSelected": "found",
+                                    "prompt": "Search your graveyard and/or hand and/or library for a card named Thinking Cap to put onto the battlefield",
+                                    "selectedLabel": "Put onto the battlefield"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -1038,7 +1042,9 @@
                                 "amount": 1
                             }
                         },
-                        "storeSelected": "found"
+                        "storeSelected": "found",
+                        "prompt": "Search your library for a creature or land card to put into your hand",
+                        "selectedLabel": "Put into your hand"
                     },
                     {
                         "type": "MoveCollection",
@@ -1076,7 +1082,9 @@
                                 "amount": 1
                             }
                         },
-                        "storeSelected": "found"
+                        "storeSelected": "found",
+                        "prompt": "Search your library for a basic land card to put into your hand",
+                        "selectedLabel": "Put into your hand"
                     },
                     {
                         "type": "MoveCollection",
@@ -4471,7 +4479,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4718,7 +4728,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -6029,7 +6041,9 @@
                                         "baseFilter": "artifact ctrl:you"
                                     }
                                 },
-                                "storeAs": "target0"
+                                "storeAs": "target0",
+                                "nonTargeting": true,
+                                "prompt": "Choose an artifact to sacrifice"
                             },
                             {
                                 "type": "SacrificeTarget",
@@ -7536,11 +7550,12 @@
         "targetRequirements": [
             {
                 "type": "TargetObject",
-                "optional": true,
                 "filter": {
                     "baseFilter": "permanent"
                 },
-                "dynamicMaxCount": "XValue"
+                "id": "t0",
+                "dynamicMaxCount": "XValue",
+                "dynamicMinCount": "XValue"
             }
         ]
     },
@@ -7971,7 +7986,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -8745,31 +8762,31 @@
                     ]
                 },
                 "effect": {
-                    "type": "Modal",
-                    "modes": [
+                    "type": "ChooseAction",
+                    "choices": [
                         {
+                            "label": "Ezrim gains vigilance until end of turn",
                             "effect": {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
                                 "target": "Self"
-                            },
-                            "description": "Ezrim gains vigilance until end of turn"
+                            }
                         },
                         {
+                            "label": "Ezrim gains lifelink until end of turn",
                             "effect": {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
                                 "target": "Self"
-                            },
-                            "description": "Ezrim gains lifelink until end of turn"
+                            }
                         },
                         {
+                            "label": "Ezrim gains hexproof until end of turn",
                             "effect": {
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
                                 "target": "Self"
-                            },
-                            "description": "Ezrim gains hexproof until end of turn"
+                            }
                         }
                     ]
                 },
@@ -10540,7 +10557,7 @@
                 "id": "Goblin Maskmaker:1",
                 "trigger": "AttackEvent",
                 "effect": {
-                    "type": "ReduceSpellCosts",
+                    "type": "ModifySpellCosts",
                     "spellFilter": {
                         "statePredicates": [
                             "IsFaceDown"
@@ -13306,7 +13323,9 @@
                                                         "amount": 1
                                                     }
                                                 },
-                                                "storeSelected": "found"
+                                                "storeSelected": "found",
+                                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                                "selectedLabel": "Put onto the battlefield tapped"
                                             },
                                             {
                                                 "type": "MoveCollection",
@@ -14492,11 +14511,12 @@
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
-                    "optional": true,
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "dynamicMaxCount": "CastX"
+                    "id": "t0",
+                    "dynamicMaxCount": "CastX",
+                    "dynamicMinCount": "CastX"
                 },
                 "descriptionOverride": "When this enchantment enters, tap X target creatures. Put a stun counter on each of those creatures you don't control."
             }
@@ -15489,7 +15509,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Plains, Island, Swamp, Mountain, or Forest land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -15596,6 +15618,12 @@
     "keywords": [
         "FLYING"
     ],
+    "keywordAbilities": [
+        {
+            "type": "Hexproof",
+            "scope": "ProtectionScope.Multicolored"
+        }
+    ],
     "script": {
         "triggeredAbilities": [
             {
@@ -15658,15 +15686,6 @@
                         "id": "t1"
                     }
                 ]
-            }
-        ],
-        "staticAbilities": [
-            {
-                "type": "GrantHexproofFromMulticoloredToGroup",
-                "filter": {
-                    "baseFilter": "permanent",
-                    "scope": "Self"
-                }
             }
         ]
     },
@@ -16863,7 +16882,7 @@
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
-                        "baseFilter": "creature Detective"
+                        "baseFilter": "permanent Detective"
                     },
                     "id": "t0"
                 },
@@ -20561,7 +20580,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",

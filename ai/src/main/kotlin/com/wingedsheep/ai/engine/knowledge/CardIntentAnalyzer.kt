@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.CantAttack
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
@@ -22,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.*
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.Scope
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
@@ -170,6 +172,22 @@ object CardIntentAnalyzer {
         var cardsDrawn: Int? = null
         var expiringPump = false
         var pumpToughness = 0
+        var expiringGroupPump = false
+        // Hand selection reads gated interiors too — see [handSelectionLeaves] for why only here.
+        val handLeaves = scripts.flatMap { script ->
+            EffectWalker.slots(script).map { it.effect } +
+                script.stateTriggeredAbilities.map { it.effect }
+        }.flatMap { handSelectionLeaves(it) }
+        var gathersLibraryTop = false
+        var movesToHand = false
+        val wishFilters = mutableListOf<GameObjectFilter>()
+        for (effect in handLeaves) {
+            if (effect is GatherCardsEffect && effect.source is CardSource.TopOfLibrary) gathersLibraryTop = true
+            wishFilterOf(effect)?.let { wishFilters += it }
+            if (effect is MoveCollectionEffect && (effect.destination as? CardDestination.ToZone)?.zone == Zone.HAND) {
+                movesToHand = true
+            }
+        }
 
         for (effect in leaves) {
             tags += tagsOf(effect)
@@ -179,6 +197,7 @@ object CardIntentAnalyzer {
                 expiringPump = true
                 pumpToughness = maxOf(pumpToughness, expiringToughnessOf(effect))
             }
+            if (isExpiringGroupPump(effect)) expiringGroupPump = true
         }
 
         var anthemBonus = 0
@@ -204,6 +223,7 @@ object CardIntentAnalyzer {
         if (speed == Speed.INSTANT && expiringPump) tags += IntentTag.COMBAT_TRICK
 
         val repeatable = repeatableOf(card, scripts)
+        val arrivalTags = arrivalTagsOf(card, scripts, tags)
         val intent = CardIntent(
             tags = tags,
             speed = speed,
@@ -218,8 +238,99 @@ object CardIntentAnalyzer {
             flashPermanent = card.typeLine.isPermanent && Keyword.FLASH in card.keywords,
             hasHaste = Keyword.HASTE in card.keywords,
             targetsOnlyOurPermanents = targetsOnlyOurPermanents(scripts),
+            expiringGroupPump = expiringGroupPump,
+            selectsIntoHand = (gathersLibraryTop || wishFilters.isNotEmpty()) && movesToHand,
+            wishFilters = if (movesToHand) wishFilters else emptyList(),
+            arrivalTags = arrivalTags.takeIf { it != tags },
+            grantsInstantSpeedLoyalty = leaves.any { it is GrantLoyaltyActivationPermissionEffect && it.instantSpeed },
         )
         return intent.copy(staticPriorValue = priorValueOf(card, intent))
+    }
+
+    /**
+     * [CardIntent.arrivalTags]: [tags] less whatever only a later event of the permanent's own can
+     * cash in.
+     *
+     * Built by subtraction rather than by re-deriving the set: the tags the deferred slots add are
+     * taken away only when no slot that can fire this turn adds them too, so a card that draws on
+     * entering *and* on attacking keeps [IntentTag.DRAW]. Everything that is not a deferred slot —
+     * static abilities, ETBs, "whenever you cast" triggers, activations with no tap symbol — is
+     * left exactly as [tags] read it.
+     */
+    private fun arrivalTagsOf(card: CardDefinition, scripts: List<CardScript>, tags: Set<IntentTag>): Set<IntentTag> {
+        if (!card.typeLine.isPermanent) return tags
+        // A creature without haste cannot pay a tap or untap cost on the turn it arrives (CR 302.6).
+        val sick = card.typeLine.isCreature && Keyword.HASTE !in card.keywords
+        val deferred = mutableListOf<Effect>()
+        val immediate = mutableListOf<Effect>()
+        for (script in scripts) {
+            script.spellEffect?.let { immediate += it }
+            immediate += script.stateTriggeredAbilities.map { it.effect }
+            for (trigger in script.triggeredAbilities) {
+                if (waitsForALaterEventOfItsOwn(trigger)) deferred += trigger.effect else immediate += trigger.effect
+            }
+            for (ability in script.activatedAbilities.filterNot { it.isManaAbility }) {
+                if (sick && tapsOrUntapsItself(ability.cost)) deferred += ability.effect else immediate += ability.effect
+            }
+        }
+        // A mana ability is [IntentTag.RAMP] — and a summoning-sick dork's taps for nothing yet.
+        val manaAbilities = scripts.flatMap { it.activatedAbilities }.filter { it.isManaAbility }
+        val sickRamp = sick && manaAbilities.isNotEmpty() && manaAbilities.all { tapsOrUntapsItself(it.cost) }
+        if (deferred.isEmpty() && !sickRamp) return tags
+        fun tagsOfRoots(roots: List<Effect>) = roots.flatMap { EffectWalker.leaves(it) }.flatMapTo(HashSet()) { tagsOf(it) }
+        val later = tagsOfRoots(deferred) + if (sickRamp) setOf(IntentTag.RAMP) else emptySet()
+        val onlyLater = later - tagsOfRoots(immediate) -
+            scripts.flatMap { it.staticAbilities }.flatMapTo(HashSet()) { tagsOf(it) }
+        return tags - onlyLater
+    }
+
+    /**
+     * A trigger bound to the permanent itself whose event is the permanent fighting or leaving —
+     * attacking, blocking, being blocked or unblocked, dealing damage, or leaving the battlefield.
+     * None of those can happen to a no-haste body before the opponent's turn, and the ones that
+     * can (blocking, dying in a block) happen *in* the ambush rather than before it.
+     */
+    private fun waitsForALaterEventOfItsOwn(trigger: TriggeredAbility): Boolean {
+        if (trigger.binding != TriggerBinding.SELF) return false
+        return when (val pattern = trigger.trigger) {
+            is EventPattern.AttackEvent, is EventPattern.BlockEvent, is EventPattern.BecomesBlockedEvent,
+            EventPattern.BecomesUnblockedEvent, is EventPattern.BlocksOrBecomesBlockedByEvent,
+            is EventPattern.DealsDamageEvent -> true
+            is EventPattern.ZoneChangeEvent -> pattern.from == Zone.BATTLEFIELD
+            else -> false
+        }
+    }
+
+    private fun tapsOrUntapsItself(cost: AbilityCost): Boolean = when (cost) {
+        AbilityCost.Tap, AbilityCost.Untap -> true
+        is AbilityCost.Composite -> cost.costs.any { tapsOrUntapsItself(it) }
+        else -> false
+    }
+
+    /**
+     * [EffectWalker.leaves], plus the interiors of the gated effects it stops at — the action of an
+     * "if you do" ([Gate.DoAction]) and the branches of any gate the walk does not already open.
+     *
+     * Extrapolate the Impossible is the shape that needs it: "you may reveal two cards from outside
+     * the game; an opponent chooses one; put it into your hand" lowers to `May(IfYouDo(reveal, then
+     * = put into hand))`, and [EffectWalker] treats the `IfYouDo` as a leaf, so the card read as
+     * doing nothing at all. Used only for [CardIntent.selectsIntoHand] / [CardIntent.wishFilters]:
+     * widening the shared walk would move every tag and the rater's numbers with it, which is a
+     * separate change.
+     */
+    private fun handSelectionLeaves(effect: Effect): List<Effect> =
+        EffectWalker.leaves(effect).flatMap { leaf ->
+            if (leaf !is GatedEffect) return@flatMap listOf(leaf)
+            listOfNotNull((leaf.gate as? Gate.DoAction)?.action, leaf.then, leaf.otherwise)
+                .flatMap { handSelectionLeaves(it) }
+        }
+
+    /** The filter of a gather from its controller's own sideboard — "from outside the game". */
+    private fun wishFilterOf(effect: Effect): GameObjectFilter? {
+        if (effect !is GatherCardsEffect) return null
+        val source = effect.source as? CardSource.FromZone ?: return null
+        if (source.zone != Zone.SIDEBOARD || source.player != Player.You) return null
+        return source.filter
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -271,7 +382,9 @@ object CardIntentAnalyzer {
                     removalTags(effect.target)
 
                 toughness < 0 -> emptySet()
-                power > 0 || toughness > 0 -> setOf(IntentTag.PUMP)
+                AmountSign.of(effect.toughnessModifier) == AmountSign.LOSS -> emptySet()
+                // "+X/+X where X is …" is a pump whenever X cannot go negative — see [AmountSign].
+                raises(effect.powerModifier) || raises(effect.toughnessModifier) -> setOf(IntentTag.PUMP)
                 else -> emptySet()
             }
         }
@@ -370,10 +483,25 @@ object CardIntentAnalyzer {
     private fun isExpiringPump(effect: Effect): Boolean {
         if (effect !is ModifyStatsEffect) return false
         if (effect.duration != Duration.EndOfTurn) return false
-        val power = fixed(effect.powerModifier) ?: 0
-        val toughness = fixed(effect.toughnessModifier) ?: 0
-        return power > 0 || toughness > 0
+        return raises(effect.powerModifier) || raises(effect.toughnessModifier)
     }
+
+    /**
+     * Whether a stat modifier only ever adds. A dynamic "+X" (a count, a mana value) counts: reading
+     * only [DynamicAmount.Fixed] left Accelerated Mutation's +X/+X out of [IntentTag.COMBAT_TRICK].
+     */
+    private fun raises(amount: DynamicAmount): Boolean = AmountSign.of(amount) == AmountSign.GAIN
+
+    /**
+     * A group `ForEach` whose body pumps each member until end of turn — the lowered form of
+     * "creatures you control get +2/+1 until end of turn". Only the group's own members are
+     * pumped ([EffectTarget.IterationEntity]); a body aimed anywhere else is not this shape.
+     */
+    private fun isExpiringGroupPump(effect: Effect): Boolean =
+        effect is ForEachEffect && effect.space is IterationSpace.Group &&
+            EffectWalker.leaves(effect.body).any {
+                isExpiringPump(it) && (it as ModifyStatsEffect).target == EffectTarget.IterationEntity
+            }
 
     private fun drawsOf(effect: Effect): Int? = when (effect) {
         is DrawCardsEffect -> fixed(effect.count)

@@ -1,30 +1,53 @@
 package com.wingedsheep.mtg.sets.definitions.afr.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.filters.unified.*
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.NoMaximumHandSize
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
+/**
+ * Wizard Class {U}
+ * Enchantment — Class
+ *
+ * (Gain the next level as a sorcery to add its ability.)
+ * You have no maximum hand size.
+ *
+ * {2}{U}: Level 2
+ * When this Class becomes level 2, draw two cards.
+ *
+ * {4}{U}: Level 3
+ * Whenever you draw a card, put a +1/+1 counter on target creature you control.
+ */
 val WizardClass = card("Wizard Class") {
     manaCost = "{U}"
     colorIdentity = "U"
     typeLine = "Enchantment — Class"
     oracleText = "(Gain the next level as a sorcery to add its ability.)\nYou have no maximum hand size.\n{2}{U}: Level 2\nWhen this Class becomes level 2, draw two cards.\n{4}{U}: Level 3\nWhenever you draw a card, put a +1/+1 counter on target creature you control."
 
-    staticAbility { ability = NoMaximumHandSize }
-    classLevel(2, "{2}{U}") {
-        triggeredAbility { trigger = Triggers.self.enters(); effect = Effects.DrawCards(2) }
+    // Level 1: no maximum hand size.
+    staticAbility {
+        ability = NoMaximumHandSize
     }
+
+    // Level 2: when this Class becomes level 2, draw two cards.
+    classLevel(2, "{2}{U}") {
+        triggeredAbility {
+            trigger = Triggers.self.enters()
+            effect = Effects.DrawCards(2)
+            description = "When this Class becomes level 2, draw two cards."
+        }
+    }
+
+    // Level 3: each card you draw puts a +1/+1 counter on target creature you control.
     classLevel(3, "{4}{U}") {
         triggeredAbility {
             trigger = Triggers.you.draws()
-            val creature = target(TargetFilter.CreatureYouControl)
+            val creature = target(TargetFilter.Creature.youControl())
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
+            description = "Whenever you draw a card, put a +1/+1 counter on target creature you control."
         }
     }
 

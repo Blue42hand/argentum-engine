@@ -168,7 +168,7 @@ describe('browser live action origins', () => {
   it('drops a combat selection from the replaced timeline without relabeling it', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
-      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
       blockerAssignments: { [MANA]: [TARGET] }, validCreatures: [MANA], mandatoryAttackers: [],
       attackingCreatures: [TARGET], mustBeBlockedAttackers: [], blockerMaxBlockCounts: {}, bands: [],
     }
@@ -198,7 +198,7 @@ describe('browser live action origins', () => {
   it('ignores a blocker target absent from the engine-offered pair map', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
-      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
       blockerAssignments: {}, validCreatures: [MANA], mandatoryAttackers: [],
       attackingCreatures: [SPELL, TARGET], mustBeBlockedAttackers: [],
       validBlockTargets: { [MANA]: [TARGET] }, blockerMaxBlockCounts: {}, bands: [],
@@ -216,7 +216,7 @@ describe('browser live action origins', () => {
   it('uses the engine-offered total blocker cap for human assignments', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
-      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
       blockerAssignments: {}, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
       attackingCreatures: [TARGET], mustBeBlockedAttackers: [],
       validBlockTargets: { [MANA]: [TARGET], [SPELL]: [TARGET] },
@@ -236,7 +236,7 @@ describe('browser live action origins', () => {
   it('accepts blocks when an uncapped native offer serializes a null limit', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
-      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
       blockerAssignments: {}, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
       attackingCreatures: [TARGET], mustBeBlockedAttackers: [],
       validBlockTargets: { [MANA]: [TARGET], [SPELL]: [TARGET] },
@@ -253,7 +253,7 @@ describe('browser live action origins', () => {
   it('counts distinct blockers while honoring a zero cap and a native multi-block allowance', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
-      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
       blockerAssignments: {}, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
       attackingCreatures: [TARGET, SPELL], mustBeBlockedAttackers: [],
       validBlockTargets: { [MANA]: [TARGET, SPELL] },
@@ -271,7 +271,7 @@ describe('browser live action origins', () => {
   it('drops a stale blocker pair completely before confirming refreshed blocks', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
-      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [],
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
       blockerAssignments: { [MANA]: [SPELL] }, validCreatures: [MANA], mandatoryAttackers: [],
       attackingCreatures: [SPELL, TARGET], mustBeBlockedAttackers: [],
       validBlockTargets: { [MANA]: [SPELL] }, blockerMaxBlockCounts: {}, bands: [],

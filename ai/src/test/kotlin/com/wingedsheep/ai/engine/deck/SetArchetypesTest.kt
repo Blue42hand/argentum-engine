@@ -7,6 +7,64 @@ import io.kotest.matchers.shouldBe
 
 class SetArchetypesTest : StringSpec({
 
+    "Jumpstart 2022 exposes ten supported color-pair plans" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("j22"))
+
+        synergies.setName shouldBe "Jumpstart 2022"
+        synergies.archetypes.map { it.name } shouldContainExactly listOf(
+            "Blink Value",
+            "Draw and Attrition",
+            "Sacrifice and Raid",
+            "Ferocious Ramp",
+            "Counters and Tokens",
+            "Life Gain and Drain",
+            "Spells and Cycling",
+            "Morbid Recursion",
+            "Equipment Aggro",
+            "Ramp and Big Spells",
+        )
+        synergies.archetypes.map { it.colors.toSet() } shouldContainExactly ALL_COLOR_PAIRS.toList()
+    }
+
+    "Dominaria United exposes all ten limited color-pair archetypes" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("dmu"))
+
+        synergies.setName shouldBe "Dominaria United"
+        synergies.archetypes.map { it.name } shouldContainExactly listOf(
+            "Spells Tempo",
+            "Spells Recursion",
+            "Sacrifice Aggro",
+            "Domain Stompy",
+            "Tokens",
+            "Sacrifice Drain",
+            "Spells Aggro",
+            "Lands Graveyard",
+            "Power Aggro",
+            "Domain Ramp",
+        )
+        synergies.archetypes.map { it.colors.toSet() }.toSet() shouldBe ALL_COLOR_PAIRS
+    }
+
+    "The Brothers' War exposes all ten limited color-pair archetypes" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("bro"))
+
+        synergies.setName shouldBe "The Brothers' War"
+        synergies.archetypes.map { it.name } shouldContainExactly listOf(
+            "Soldiers",
+            "Card Draw",
+            "Artifact Sacrifice",
+            "Powerstone Ramp",
+            "Artifact Counters",
+            "Small Recursion",
+            "Noncreature Spells",
+            "Creatures Die",
+            "Go-Wide Aggro",
+            "Big Artifacts",
+        )
+        synergies.archetypes.map { it.colors.toSet() }.toSet() shouldBe ALL_COLOR_PAIRS
+        synergies.archetypes.single { it.name == "Soldiers" }.creatureTypes shouldContainExactly listOf("Soldier")
+    }
+
     "Wilds of Eldraine exposes all ten limited color-pair archetypes" {
         val woe = SetArchetypes.getForSet("woe")
 

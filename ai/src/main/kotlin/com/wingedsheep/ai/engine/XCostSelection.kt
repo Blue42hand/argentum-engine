@@ -198,13 +198,17 @@ object XCostSelection {
         // enumeration time the count could not be resolved, so the static value carries no
         // information (see LegalAction.targetCount).
         val maxTargets = if (requirement.xConstrainsCount) x else requirement.maxTargets
+        // "X target creatures" is exactly X (CR 601.2c): the floor is X too, and an X with fewer
+        // legal targets than that can't be cast at all.
+        val minTargets = if (requirement.xConstrainsCountExactly) x else minOf(requirement.minTargets, maxTargets)
+        if (requirement.xConstrainsCountExactly && valid.size < x) return null
         if (requirement.minTargets > 0 && (valid.isEmpty() || maxTargets < requirement.minTargets)) {
             return null
         }
         return requirement.copy(
             validTargets = valid,
             maxTargets = maxTargets,
-            minTargets = minOf(requirement.minTargets, maxTargets),
+            minTargets = minTargets,
         )
     }
 
@@ -228,6 +232,7 @@ object XCostSelection {
         xConstrainsManaValueExactly = action.xConstrainsTargetManaValueExactly,
         xConstrainsPower = action.xConstrainsTargetPower,
         xConstrainsCount = action.xConstrainsTargetCount,
+        xConstrainsCountExactly = action.xConstrainsTargetCountExactly,
     )
 
     /**
@@ -295,8 +300,8 @@ object XCostSelection {
      * The mana value the engine's own target filter will see.
      *
      * A face-down permanent has no mana cost and so mana value 0 (CR 708.2a), whatever is printed
-     * on the card — which is what `PredicateEvaluator` applies for `ManaValueAtMostX` and
-     * `ManaValueEqualsX`. Reading [CardComponent.manaValue] flat would derive X from a morph's
+     * on the card — which is what `PredicateEvaluator` applies for `manaValueAtMostX()` and
+     * `manaValueEqualsX()`. Reading [CardComponent.manaValue] flat would derive X from a morph's
      * printed cost and pick a target the engine then rejects.
      */
     private fun manaValueOf(state: GameState, id: EntityId): Int? =

@@ -317,7 +317,7 @@ export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): 
   const hasMorphCast = cardLegalActions.some((a) => a.actionType === 'CastFaceDown')
   const hasKickerCast = cardLegalActions.some((a) => a.actionType === 'CastWithKicker')
   const hasFlashbackCast = cardLegalActions.some((a) => a.actionType === 'CastWithFlashback')
-  const hasEscapeCast = cardLegalActions.some((a) => a.actionType === 'CastWithEscape')
+  const escapeCastCount = cardLegalActions.filter((a) => a.actionType === 'CastWithEscape').length
   const hasWarpCast = cardLegalActions.some((a) => a.actionType === 'CastWithWarp')
   const hasDashCast = cardLegalActions.some((a) => a.actionType === 'CastWithDash')
   // Disturb (CR 702.146) casts the card's back face from the graveyard, so it is a distinct
@@ -335,7 +335,7 @@ export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): 
   if (hasMorphCast) options++
   if (hasKickerCast) options++
   if (hasFlashbackCast) options++
-  if (hasEscapeCast) options++
+  options += escapeCastCount
   if (hasWarpCast) options++
   if (hasDashCast) options++
   if (hasDisturbCast) options++
@@ -391,8 +391,11 @@ export function shouldShowCastModal(
   }
   // A lone alternative play mode still implies a second (possibly-unaffordable) option the
   // menu surfaces as a grayed-out button: "Play land" for lands, "Cast" for everything else.
+  // A modal DFC's back-face land play counts too: dragging out Pinnacle Monk you can't afford
+  // must not silently put Mystic Peak onto the battlefield — the menu shows both faces first.
   return cardLegalActions.some(
     (a) =>
+      (a.action.type === 'PlayLand' && a.action.asBackFace === true) ||
       a.action.type === 'CycleCard' ||
       a.action.type === 'TypecycleCard' ||
       a.action.type === 'PlotCard' ||
@@ -808,6 +811,8 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   // battle's own defense badge over the printed shield, not in this marker-badge allowlist.
   CounterType.STORAGE,
   CounterType.HUNGER,
+  // Age counters (cumulative upkeep — Mystic Remora): the count *is* next upkeep's bill.
+  CounterType.AGE,
   // Phyrexia: All Will Be One's oil — spent, counted and proliferated by the cards that care.
   CounterType.OIL,
   CounterType.DOOM,
@@ -840,13 +845,26 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   CounterType.BLOODLINE,
   CounterType.INVITATION,
   CounterType.IMPOSTOR,
+  // Promise of Loyalty's vow marker: while it's on, the creature can't attack the caster.
+  CounterType.VOW,
   // Champions of Kamigawa. Bloodthirsty Ogre's devotion tally is the size of its -X/-X.
   CounterType.DEVOTION,
   // Night Dealings' theft tally is spent as X to tutor a card.
   CounterType.THEFT,
+  CounterType.ACORN,
+  CounterType.INGREDIENT,
   // Sensei Golden-Tail's training marker records which creatures it trained.
   CounterType.TRAINING,
   CounterType.MIRE,
+  // Scavenging Ghoul's corpse tally is spent one at a time to regenerate.
+  CounterType.CORPSE,
+  CounterType.BRICK,
+  // Living Artifact's vitality store is spent one at a time to gain life.
+  CounterType.VITALITY,
+  // Weatherlight Compleated's phyresis tally: a Phyrexian creature at four, card draw at seven.
+  CounterType.PHYRESIS,
+  // Assemble the Legion's muster tally sets how many Soldiers it makes each upkeep.
+  CounterType.MUSTER,
   CounterType.PLUS_ONE_PLUS_TWO,
   CounterType.PLUS_TWO_PLUS_TWO,
   CounterType.MINUS_TWO_MINUS_TWO,
@@ -879,6 +897,10 @@ export function getEffectIcon(icon: string): string {
       return '♻️'
     case 'emblem':
       return '👑'
+    case 'monarch':
+      return '👑'
+    case 'initiative':
+      return '🗝️'
     case 'copy-spell':
       return '📋'
     case 'free-cast':

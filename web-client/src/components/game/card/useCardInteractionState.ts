@@ -193,7 +193,7 @@ export function selectCardInteraction(state: GameStore, input: CardInteractionIn
   // Pending decision
   const decision = state.pendingDecision
   const isChooseTargetsDecision = decision?.type === 'ChooseTargetsDecision'
-  const isValidDecisionTarget = decision?.type === 'ChooseTargetsDecision' &&
+  const isValidDecisionTarget = !state.decisionSelectionState && decision?.type === 'ChooseTargetsDecision' &&
     decision.targetRequirements.length === 1 &&
     listHas(decision.legalTargets[0], cardId)
   const isTriggerYesNo = decision?.type === 'YesNoDecision'

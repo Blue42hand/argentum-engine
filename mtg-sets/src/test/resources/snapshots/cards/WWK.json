@@ -155,7 +155,10 @@
                             "source": {
                                 "type": "FromZone",
                                 "zone": "Graveyard",
-                                "player": "TargetPlayer"
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
                             },
                             "storeAs": "gathered0"
                         },
@@ -164,7 +167,11 @@
                             "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
-                                "zone": "Exile"
+                                "zone": "Exile",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
                             }
                         }
                     ]
@@ -371,6 +378,187 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Groundswell
+{
+    "name": "Groundswell",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gets +2/+2 until end of turn.\nLandfall — If you had a land enter the battlefield under your control this turn, that creature gets +4/+4 until end of turn instead.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LANDS_ENTERED_UNDER_CONTROL"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            "then": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": 4
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": 4
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                }
+            },
+            "otherwise": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "artist": "Chris Rahn",
+        "flavorText": "\"This world will not be tamed.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/c/4ca76e9a-672f-49eb-86c6-00fac60d3065.jpg?1783942045",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "Whether you had a land enter the battlefield under your control this turn is checked as this spell resolves, not as you cast it."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "The landfall ability checks for an action that has happened in the past. It doesn't matter if a land that entered the battlefield under your control previously in the turn is still on the battlefield, is still under your control, or is still a land."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "The effect of this spell's landfall ability replaces its normal effect. If you had a land enter under your control this turn, only the landfall-based effect happens."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Hammer of Ruin
+{
+    "name": "Hammer of Ruin",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +2/+0.\nWhenever equipped creature deals combat damage to a player, you may destroy target Equipment that player controls.\nEquip {2}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hammer of Ruin:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact Equipment ctrl:triggering-player"
+                    },
+                    "id": "t0"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Hammer of Ruin:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 0
+            }
+        ]
+    },
+    "equipCost": "{2}",
+    "metadata": {
+        "collectorNumber": "124",
+        "rarity": "UNCOMMON",
+        "artist": "Vincent Proce",
+        "flavorText": "By hammer forged, and by hammer undone.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/0/308c6bc5-701d-4ae8-bb52-c2e2c6956946.jpg?1783942040"
+    },
+    "colorIdentityOverride": []
 }
 
 // Jace, the Mind Sculptor
@@ -826,6 +1014,78 @@
     ]
 }
 
+// Marshal's Anthem
+{
+    "name": "Marshal's Anthem",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Multikicker {1}{W} (You may pay an additional {1}{W} any number of times as you cast this spell.)\nCreatures you control get +1/+1.\nWhen this enchantment enters, return up to X target creature cards from your graveyard to the battlefield, where X is the number of times this enchantment was kicked.",
+    "keywordAbilities": [
+        {
+            "type": "Kicker",
+            "manaCost": "{1}{W}",
+            "multi": true,
+            "displayPrefix": "Multikicker"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Marshal's Anthem:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0",
+                    "dynamicMaxCount": {
+                        "type": "CastChoice",
+                        "slot": "KICKED"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "RARE",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/3/f38b1b7a-2f20-4a82-b143-7aeafc686dee.jpg?1783942066"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Pilgrim's Eye
 {
     "name": "Pilgrim's Eye",
@@ -873,7 +1133,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",

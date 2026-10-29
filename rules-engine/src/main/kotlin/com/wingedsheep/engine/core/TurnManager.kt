@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.core
 
+import com.wingedsheep.engine.handlers.effects.copy.copyExpiryEvents
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.engine.handlers.ObjectReferenceEnvironment
 import com.wingedsheep.engine.state.components.identity.TextChanges
@@ -86,7 +87,7 @@ class TurnManager(
 ) {
 
     val cleanupPhaseManager = CleanupPhaseManager(cardRegistry, decisionHandler, conditionEvaluator = zones.predicateEvaluator.conditions)
-    val drawPhaseManager = DrawPhaseManager(cardRegistry, decisionHandler, effectExecutor, replacementProcessor, amountEvaluator = zones.predicateEvaluator.amounts)
+    val drawPhaseManager = DrawPhaseManager(cardRegistry, decisionHandler, effectExecutor, replacementProcessor, predicateEvaluator = zones.predicateEvaluator)
     val beginningPhaseManager = BeginningPhaseManager(cardRegistry, decisionHandler, cleanupPhaseManager, zones.predicateEvaluator)
 
     // ── Delegate methods for external callers ──
@@ -119,6 +120,7 @@ class TurnManager(
         var newState = state.copy(
             activePlayerId = playerId,
             turnNumber = newTurnNumber,
+            roundNumber = nextRoundNumber(state, playerId),
             phase = Phase.BEGINNING,
             step = Step.UNTAP,
             priorityPlayerId = null, // No priority during untap
@@ -148,7 +150,7 @@ class TurnManager(
             // "Spells you cast this turn cost {N} less" discounts (Will / Rowan, Scion of …) end
             // with the turn that installed them; "until your next turn" ones (Ral, Leyline
             // Prodigy) survive and expire after their controller's next untap step.
-            spellCostReductions = state.spellCostReductions.filter { it.duration != Duration.EndOfTurn },
+            spellCostModifiers = state.spellCostModifiers.filter { it.duration != Duration.EndOfTurn },
             spellWarpedThisTurn = false,
             damageCantBePreventedThisTurn = false,
             // Kang the Conqueror's "during that turn, power-up abilities can't be activated" is
@@ -160,6 +162,7 @@ class TurnManager(
             playersWhoCommittedCrimeThisTurn = emptySet(),
             playersDealtNoncombatDamageLastTurn = state.playersDealtNoncombatDamageThisTurn,
             playersDealtNoncombatDamageThisTurn = emptySet(),
+            playersWithPermanentDealtExcessDamageThisTurn = emptySet(),
             // "Since your last turn" ends with the outgoing active player's (or team's) own turn;
             // everyone else keeps accumulating across this boundary.
             playersDealtCombatDamageSinceTheirLastTurn = state.playersDealtCombatDamageSinceTheirLastTurn -
@@ -248,6 +251,21 @@ class TurnManager(
         }
 
         return ExecutionResult.success(ControlHistory.beginTurn(newState), events)
+    }
+
+    /**
+     * The display-only [GameState.roundNumber] for a turn [next] is about to begin. A new round
+     * starts when the turn wraps back around [GameState.turnOrder] — the incoming seat sits at or
+     * before the outgoing one. Comparing seats rather than watching for `turnOrder.first()` keeps
+     * it advancing after the opening seat is eliminated, and an extra turn for the same player
+     * (CR 500.7) stays in the round it was taken in.
+     */
+    private fun nextRoundNumber(state: GameState, next: EntityId): Int {
+        val previous = state.activePlayerId ?: return state.roundNumber + 1
+        if (previous == next) return state.roundNumber
+        val prevSeat = state.turnOrder.indexOf(previous)
+        val nextSeat = state.turnOrder.indexOf(next)
+        return if (prevSeat < 0 || nextSeat <= prevSeat) state.roundNumber + 1 else state.roundNumber
     }
 
     /**
@@ -394,7 +412,9 @@ class TurnManager(
                 it.without<InAdditionalCombatPhaseComponent>().without<InAdditionalBeginningPhaseComponent>()
             }
             .copy(step = Step.END, phase = Phase.ENDING, priorityPassedBy = emptySet())
+        val beforeCopyExpiry = redirectedState
         redirectedState = cleanupPhaseManager.performNextEndStepExpiry(redirectedState)
+        events += copyExpiryEvents(beforeCopyExpiry, redirectedState)
         events += PhaseChangedEvent(Phase.ENDING)
         events += StepChangedEvent(Step.END)
         return ExecutionResult.success(redirectedState.withPriority(activePlayer), events)
@@ -414,7 +434,7 @@ class TurnManager(
 
     /**
      * True when [step] belongs to a part of the turn [playerId] is skipping every instance of this
-     * turn (`SkippedTurnPartsComponent`, written by `SkipStepOrPhaseThisTurnEffect`).
+     * turn (`SkippedTurnPartsComponent`, written by a this-turn `SkipStepOrPhaseEffect`).
      *
      * One [com.wingedsheep.sdk.core.TurnPart] can cover several steps, which is the point: naming
      * `COMBAT_PHASE` skips all five combat steps one after another as this is consulted per step,
@@ -581,11 +601,13 @@ class TurnManager(
 
                 // An "until the next end step" effect created during the previous end step wears
                 // off now, on entry to this additional one (CR 500.9).
+                val beforeCopyExpiry = redirectedState
                 redirectedState = cleanupPhaseManager.performNextEndStepExpiry(redirectedState)
 
                 // Phase is unchanged (END and CLEANUP both live in the ending phase), so only the
                 // step-changed event is emitted — that re-fires the end-step triggers.
                 val events = mutableListOf<GameEvent>(StepChangedEvent(Step.END))
+                events += copyExpiryEvents(beforeCopyExpiry, redirectedState)
                 redirectedState = redirectedState.withPriority(activePlayer)
                 return ExecutionResult.success(redirectedState, events)
             }
@@ -757,8 +779,21 @@ class TurnManager(
             }
 
             Step.DECLARE_ATTACKERS -> {
+                // The step happens even when nothing can attack: CR 508.8 skips only the declare
+                // blockers and combat damage steps after an empty declaration, so "at the beginning
+                // of the declare attackers step" still triggers and players still get priority here
+                // (CR 508.2). With no creature able to attack, the only legal declaration is the
+                // empty one, so the turn-based action (CR 508.1) makes it instead of asking. The
+                // stamped markers then let the active player pass, and auto-pass carries clients
+                // through the window exactly as after a hand-made empty declaration.
                 if (!hasValidAttackers(newState, activePlayer)) {
-                    return advanceStep(newState.copy(step = Step.DECLARE_ATTACKERS))
+                    val declared = combatManager.declareAttackers(newState, activePlayer, emptyMap())
+                    // An empty declaration has no costs to pause on. Should a requirement still
+                    // reject it, leave the declaration to the player rather than wedge the turn.
+                    if (declared.outcome is Outcome.Done) {
+                        newState = declared.newState
+                        events.addAll(declared.events)
+                    }
                 }
                 newState = newState.withPriority(activePlayer)
             }
@@ -783,6 +818,7 @@ class TurnManager(
                 if (!hasAttackingCreatures(newState) || !hasCombatFirstStrikeOrDoubleStrike(newState)) {
                     return advanceStep(newState.copy(step = Step.FIRST_STRIKE_COMBAT_DAMAGE))
                 }
+                newState = combatManager.stampFirstStrikeStepAssigners(newState)
                 val damageResult = combatManager.applyCombatDamage(newState, firstStrike = true)
                 if (damageResult.outcome !is Outcome.Done) return damageResult
                 newState = damageResult.newState
@@ -842,7 +878,9 @@ class TurnManager(
             Step.END -> {
                 // "Until the next end step" effects and copies wear off on entry to the end step,
                 // alongside the paired "return it at the beginning of the next end step" triggers.
+                val beforeCopyExpiry = newState
                 newState = cleanupPhaseManager.performNextEndStepExpiry(newState)
+                events += copyExpiryEvents(beforeCopyExpiry, newState)
 
                 // "At the beginning of the next end step, you lose the game" (Final Fortune) is
                 // keyed to whoever took the extra turn. In a shared team turn (CR 805.8) that is
@@ -917,7 +955,8 @@ class TurnManager(
         var cleanedState = cleanupPhaseManager.cleanupEndOfTurn(state)
 
         cleanedState = cleanedState.copy(priorityPlayerId = null, priorityPassedBy = emptySet())
-        return selectNextTurn(cleanedState, cleanedState.getNextTeam(currentPlayer))
+        val next = selectNextTurn(cleanedState, cleanedState.getNextTeam(currentPlayer))
+        return next.copy(events = copyExpiryEvents(state, cleanedState) + next.events)
     }
 
     /** Walk skipped occurrences without allocating a recursive call per pending skip. */
@@ -951,7 +990,9 @@ class TurnManager(
             // Synthetic bypasses insert an extra turn ahead of the ordinary seat walk; departed
             // seats on that walk have not reached their would-be turns yet.
             if (!bypassedOrdinarySeats) {
+                val beforeCopyExpiry = current
                 current = expireEffectsOfDepartedSeatsWhoseTurnWouldBeginNow(current, previous, candidate)
+                events += copyExpiryEvents(beforeCopyExpiry, current)
             }
             bypassedOrdinarySeats = false
             val choices = turnStartChoices(current, team)
@@ -1104,7 +1145,7 @@ class TurnManager(
 
         // Advance to upkeep (this sets priority to the active player)
         val advanceResult = advanceStep(postUntapState)
-        return advanceResult.copy(events = goadEvents + advanceResult.events)
+        return advanceResult.copy(events = copyExpiryEvents(state, postUntapState) + goadEvents + advanceResult.events)
     }
 
     /** A standing skip affecting any member skips the shared team's step. */
@@ -1157,7 +1198,7 @@ class TurnManager(
      * the game and sits between them in seat order — plus any departed member of [to]'s own team,
      * whose shared turn is beginning (CR 805.4) — is a player whose next turn "would have begun"
      * right now. Their "until your next turn" / "until your next upkeep" / "until the end of your
-     * next turn" effects, their goads and their may-play permissions end here, the same hooks a
+     * next turn" effects and delayed triggers, their goads and their may-play permissions end here, the same hooks a
      * living player's untap step runs for them. Nothing to do while nobody has left.
      */
     private fun expireEffectsOfDepartedSeatsWhoseTurnWouldBeginNow(
@@ -1199,7 +1240,8 @@ class TurnManager(
                 mayPlayPermissions = s.mayPlayPermissions.filterNot { permission ->
                     !permission.permanent && permission.expiresAfterTurn != null &&
                         (permission.expiryControllerId ?: permission.controllerId) == leaver
-                }
+                },
+                delayedTriggers = s.delayedTriggers.filterNot { it.expiryPlayerId == leaver }
             )
         }
         return s
@@ -1394,6 +1436,13 @@ class TurnManager(
 
     fun getGlobalBlockerCountLimit(state: GameState): Int? =
         combatManager.getGlobalBlockerCountLimit(state)
+    /** See [com.wingedsheep.engine.mechanics.combat.AttackPhaseManager.legalDefendersFor]. */
+    fun legalDefendersFor(
+        state: GameState,
+        attackerId: EntityId,
+        attackingPlayer: EntityId,
+        candidates: List<EntityId>,
+    ): List<EntityId> = combatManager.legalDefendersFor(state, attackerId, attackingPlayer, candidates)
 
     fun getValidBlockers(state: GameState, playerId: EntityId): List<EntityId> {
         val battlefield = state.getBattlefield()

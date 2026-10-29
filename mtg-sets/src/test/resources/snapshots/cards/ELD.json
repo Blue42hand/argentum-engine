@@ -145,6 +145,49 @@
     ]
 }
 
+// Arcane Signet
+{
+    "name": "Arcane Signet",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add one mana of any color in your commander's color identity.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Arcane Signet:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": "ManaColorSet.CommanderIdentity"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "331",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "It started as a mere drop of water. The Magic Mirror crystallized it into much more.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/4/84128e98-87d6-4c2f-909b-9435a7833e63.jpg?1783932545",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If your commander is a card that has no colors in its color identity, Arcane Signet's ability produces no mana. It doesn't produce {C}."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If you have two commanders, the ability adds one mana of any color in their combined color identities."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If you don't have a commander, Arcane Signet's ability produces no mana."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Bake into a Pie
 {
     "name": "Bake into a Pie",
@@ -188,6 +231,75 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Bloodhaze Wolverine
+{
+    "name": "Bloodhaze Wolverine",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Wolverine",
+    "oracleText": "Whenever you draw your second card each turn, this creature gets +1/+1 and gains first strike until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bloodhaze Wolverine:1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Self"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "FIRST_STRIKE",
+                            "target": "Self"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "113",
+        "artist": "Evan Shipard",
+        "flavorText": "\"Build a moat. If we're lucky, it can't swim.\"\n—Syr Branigan, knight of Ardenvale",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/d/3d6c0bc1-cb07-4009-83b1-1122381cf9c4.jpg?1783932628",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If Bloodhaze Wolverine gains first strike after first-strike combat damage has been dealt, it will just deal regular combat damage."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability can trigger only once each turn. It doesn't matter whether the permanent with that ability was on the battlefield when the first card was drawn. If it's not on the battlefield when the second card is drawn, the ability can't trigger at all that turn. It won't trigger when the third or fourth card is drawn."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" it's not a card drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -585,7 +697,17 @@
         "collectorNumber": "319",
         "rarity": "RARE",
         "artist": "Winona Nelson",
-        "imageUri": "https://cards.scryfall.io/normal/front/8/c/8c298940-4277-4145-9f2f-a284fd2e1a9d.jpg?1783932550"
+        "imageUri": "https://cards.scryfall.io/normal/front/8/c/8c298940-4277-4145-9f2f-a284fd2e1a9d.jpg?1783932550",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "You can sacrifice Chittering Witch to pay the cost of its last ability."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "In a multiplayer game, opponents who have left the game aren't counted by Chittering Witch's triggered ability."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -740,6 +862,78 @@
     ]
 }
 
+// Faeburrow Elder
+{
+    "name": "Faeburrow Elder",
+    "manaCost": "{1}{G}{W}",
+    "typeLine": "Creature — Treefolk Druid",
+    "oracleText": "Vigilance\nThis creature gets +1/+1 for each color among permanents you control.\n{T}: For each color among permanents you control, add one mana of that color.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Faeburrow Elder:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddOneManaOfEachColorAmong",
+                    "filter": "permanent ctrl:you"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: For each color among permanents you control, add one mana of that color."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "permanent",
+                    "aggregation": "DISTINCT_COLORS"
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "permanent",
+                    "aggregation": "DISTINCT_COLORS"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "190",
+        "rarity": "RARE",
+        "artist": "Raoul Vitale",
+        "flavorText": "Its wide-reaching roots draw more than water.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1ca29912-88b1-413f-ad9d-63d7d1b1ca16.jpg?1783932597",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Faeburrow Elder's middle ability can give it at most +5/+5, that is, +1/+1 each for white, blue, black, red, and green. \"Gold,\" \"multicolor,\" and \"colorless\" aren't colors. Similarly, Faeburrow Elder's last ability can produce at most five mana."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "Since Faeburrow Elder is a green and white permanent, its middle ability usually gives it at least +2/+2 and its last ability usually produces at least {G}{W}."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Faerie Formation
 {
     "name": "Faerie Formation",
@@ -807,6 +1001,56 @@
     ]
 }
 
+// Faerie Vandal
+{
+    "name": "Faerie Vandal",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Faerie Rogue",
+    "oracleText": "Flash (You may cast this spell any time you could cast an instant.)\nFlying\nWhenever you draw your second card each turn, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Faerie Vandal:1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "UNCOMMON",
+        "artist": "Paul Scott Canavan",
+        "flavorText": "History may be written by the triumphant, but it's often rewritten by the troublesome.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/789c5c2b-3e51-4f6c-ac76-d276facf716f.jpg?1783932658",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability can trigger only once each turn. It doesn't matter whether the permanent with that ability was on the battlefield when the first card was drawn. If it's not on the battlefield when the second card is drawn, the ability can't trigger at all that turn. It won't trigger when the third or fourth card is drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Fierce Witchstalker
 {
     "name": "Fierce Witchstalker",
@@ -852,6 +1096,150 @@
         ]
     },
     "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Garruk, Cursed Huntsman
+{
+    "name": "Garruk, Cursed Huntsman",
+    "manaCost": "{4}{B}{G}",
+    "typeLine": "Legendary Planeswalker — Garruk",
+    "oracleText": "0: Create two 2/2 black and green Wolf creature tokens with \"When this token dies, put a loyalty counter on each Garruk you control.\"\n−3: Destroy target creature. Draw a card.\n−6: You get an emblem with \"Creatures you control get +3/+3 and have trample.\"",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Garruk, Cursed Huntsman:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 0
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK",
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Wolf"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/8/88452ed7-1065-41c3-94a6-dc41108c45c1.jpg?1783932479",
+                    "triggeredAbilities": [
+                        {
+                            "id": "Garruk, Cursed Huntsman:1",
+                            "trigger": {
+                                "type": "ZoneChangeEvent",
+                                "from": "Battlefield",
+                                "to": "Graveyard"
+                            },
+                            "effect": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "permanent Garruk ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "AddCounters",
+                                    "counterType": "LOYALTY",
+                                    "count": 1,
+                                    "target": "IterationEntity"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Garruk, Cursed Huntsman:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Garruk, Cursed Huntsman:4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -6
+                },
+                "effect": {
+                    "type": "CreatePermanentEmblem",
+                    "groupFilter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "powerBonus": 3,
+                    "toughnessBonus": 3,
+                    "grantedKeywords": [
+                        "TRAMPLE"
+                    ],
+                    "emblemDescription": "Creatures you control get +3/+3 and have trample."
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "191",
+        "rarity": "MYTHIC",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/abef512f-8f1d-4257-b16f-c0eed58670ec.jpg?1783932597",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If lethal damage is dealt to one of Garruk's Wolf tokens at the same time that Garruk's loyalty is brought to 0 or less, Garruk is put into your graveyard before the Wolf's triggered ability can save him."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If the target creature is an illegal target by the time Garruk's second ability tries to resolve, the ability won't resolve. You won't draw a card. If the target is legal but not destroyed (most likely because it has indestructible), you will still draw."
+            }
+        ]
+    },
+    "startingLoyalty": 5,
+    "colorIdentityOverride": [
+        "BLACK",
         "GREEN"
     ]
 }
@@ -1144,6 +1532,69 @@
     "colorIdentityOverride": []
 }
 
+// Irencrag Pyromancer
+{
+    "name": "Irencrag Pyromancer",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "Whenever you draw your second card each turn, this creature deals 3 damage to any target.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Irencrag Pyromancer:1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "rarity": "RARE",
+        "artist": "Jason Rainville",
+        "flavorText": "\"Fear of fire is a sensible instinct. If I were you, I'd be terrified.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/a/9a7b0ead-5629-429d-bede-8154f3fae96d.jpg?1783932622",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability can trigger only once each turn. It doesn't matter whether the permanent with that ability was on the battlefield when the first card was drawn. If it's not on the battlefield when the second card is drawn, the ability can't trigger at all that turn. It won't trigger when the third or fourth card is drawn."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If an effect instructs you to draw multiple cards, the ability triggers after you draw whichever is the second one for the turn. You choose a target (if any) for the ability after you've drawn and looked at all of the cards and finished resolving the spell or ability that caused you to draw them."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" it's not a card drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Jousting Dummy
 {
     "name": "Jousting Dummy",
@@ -1243,6 +1694,195 @@
         "imageUri": "https://cards.scryfall.io/normal/front/6/7/6754d6cf-3506-48b5-a0ef-8a90b8dd2701.jpg?1783932608"
     },
     "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Kenrith, the Returned King
+{
+    "name": "Kenrith, the Returned King",
+    "manaCost": "{4}{W}",
+    "typeLine": "Legendary Creature — Human Noble",
+    "oracleText": "{R}: All creatures gain trample and haste until end of turn.\n{1}{G}: Put a +1/+1 counter on target creature.\n{2}{W}: Target player gains 5 life.\n{3}{U}: Target player draws a card.\n{4}{B}: Put target creature card from a graveyard onto the battlefield under its owner's control.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Kenrith, the Returned King:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{R}"
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature"
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "TRAMPLE",
+                                "target": "IterationEntity"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": "IterationEntity"
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "All creatures gain trample and haste until end of turn."
+            },
+            {
+                "id": "Kenrith, the Returned King:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Put a +1/+1 counter on target creature."
+            },
+            {
+                "id": "Kenrith, the Returned King:3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t1"
+                    }
+                ],
+                "descriptionOverride": "Target player gains 5 life."
+            },
+            {
+                "id": "Kenrith, the Returned King:4",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{U}"
+                    }
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t2"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t2"
+                    }
+                ],
+                "descriptionOverride": "Target player draws a card."
+            },
+            {
+                "id": "Kenrith, the Returned King:5",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t3"
+                    },
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t3"
+                    }
+                ],
+                "descriptionOverride": "Put target creature card from a graveyard onto the battlefield under its owner's control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "303",
+        "rarity": "MYTHIC",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/56c1227e-bea7-47cb-bbec-389a3d585af5.jpg?1783932556",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Kenrith's first ability affects only creatures on the battlefield at the time it resolves. Creatures that enter the battlefield later in the turn won't gain trample or haste."
+            },
+            {
+                "date": "2023-04-14",
+                "text": "Kenrith's last ability can target a creature card in any player's graveyard. Its owner will control the creature, and it will remain on the battlefield even if you leave the game (if you don't own it)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "RED",
         "GREEN"
     ]
 }
@@ -1353,6 +1993,229 @@
     "colorIdentityOverride": []
 }
 
+// Mad Ratter
+{
+    "name": "Mad Ratter",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Goblin",
+    "oracleText": "Whenever you draw your second card each turn, create two 1/1 black Rat creature tokens.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mad Ratter:1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Rat"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/e/4/e43a205e-43ea-4b3e-92ab-c2ee2172a50a.jpg?1783932482"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "rarity": "UNCOMMON",
+        "artist": "Johann Bodin",
+        "flavorText": "\"Gather round and tell me all from the courts and castles.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/a/9a4cabcc-fb29-4bf2-b5ba-32b8c96aefd6.jpg?1783932620",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability can trigger only once each turn. It doesn't matter whether the permanent with that ability was on the battlefield when the first card was drawn. If it's not on the battlefield when the second card is drawn, the ability can't trigger at all that turn. It won't trigger when the third or fourth card is drawn."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" it's not a card drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Mantle of Tides
+{
+    "name": "Mantle of Tides",
+    "manaCost": "{U}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +1/+2.\nWhenever you draw your second card each turn, attach this Equipment to target creature you control.\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mantle of Tides:1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "t0"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Mantle of Tides:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 2
+            }
+        ]
+    },
+    "equipCost": "{3}",
+    "metadata": {
+        "collectorNumber": "52",
+        "artist": "Lie Setiawan",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c058d01e-f705-4407-bd9e-a2d127afdf04.jpg?1783932656",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability of Mantle of Tides can target the creature it's already attached to."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If the target creature is an illegal target by the time Mantle of Tides's triggered ability tries to resolve, the ability won't resolve. Mantle of Tides remains attached to what it was attached to or remains unattached if it wasn't attached."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability can trigger only once each turn. It doesn't matter whether the permanent with that ability was on the battlefield when the first card was drawn. If it's not on the battlefield when the second card is drawn, the ability can't trigger at all that turn. It won't trigger when the third or fourth card is drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Overwhelmed Apprentice
+{
+    "name": "Overwhelmed Apprentice",
+    "manaCost": "{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, each opponent mills two cards. Then you scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Overwhelmed Apprentice:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "player": "EachOpponent",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "Scry",
+                            "count": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "rarity": "UNCOMMON",
+        "artist": "Jason Rainville",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/8659092e-4fe8-42be-ab03-efc99ed37436.jpg?1783932651",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "You scry 2 once after each opponent has moved the top cards of their library. You don't scry 2 for each opponent."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Raging Redcap
 {
     "name": "Raging Redcap",
@@ -1374,6 +2237,71 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Realm-Cloaked Giant
+{
+    "name": "Realm-Cloaked Giant",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Creature — Giant",
+    "oracleText": "Vigilance",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "MYTHIC",
+        "artist": "Adam Paquette",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9e5c8cf1-1d7c-49e5-bfad-7e13c418118f.jpg?1783932668"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ],
+    "layout": "ADVENTURE",
+    "cardFaces": [
+        {
+            "name": "Cast Off",
+            "manaCost": "{3}{W}{W}",
+            "typeLine": "Sorcery — Adventure",
+            "oracleText": "Destroy all non-Giant creatures. (Then exile this card. You may cast the creature later from exile.)",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "NotSubtype",
+                                            "subtype": "Giant"
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                }
+            }
+        }
     ]
 }
 
@@ -1672,6 +2600,111 @@
     ]
 }
 
+// Sage of the Falls
+{
+    "name": "Sage of the Falls",
+    "manaCost": "{4}{U}",
+    "typeLine": "Creature — Merfolk Wizard",
+    "oracleText": "Whenever this creature or another non-Human creature you control enters, you may draw a card. If you do, discard a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sage of the Falls:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotSubtype",
+                                "subtype": "Human"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "hand"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "hand",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "discarded",
+                                        "prompt": "Choose 1 card to discard"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discarded",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "63",
+        "rarity": "UNCOMMON",
+        "artist": "Nicholas Gregory",
+        "flavorText": "Ask a merfolk even a simple question and the answer is a journey far beyond the known.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/274e3aa4-4b46-4daa-a7a8-400a20c59435.jpg?1783932649",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "You draw a card and discard a card all while Sage of the Falls's ability is resolving. Nothing can happen between the two, and no player may choose to take actions."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If more than one non-Human creature enters the battlefield at the same time, Sage of the Falls's ability triggers that many times. You'll resolve the abilities one at a time—you won't draw that many cards at once and then discard that many cards."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Scorching Dragonfire
 {
     "name": "Scorching Dragonfire",
@@ -1718,6 +2751,42 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Shambling Suit
+{
+    "name": "Shambling Suit",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "Shambling Suit's power is equal to the number of artifacts and/or enchantments you control.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "artifact|enchantment"
+            }
+        },
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "230",
+        "rarity": "UNCOMMON",
+        "artist": "Nicholas Gregory",
+        "flavorText": "\"The young squire gripped her sword as the clanking stranger emerged. It was no knight that had come to challenge her.\"\n—*Beyond the Great Henge*",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/1100b898-31a8-4fdf-a54f-a1470ec032f3.jpg?1783932584",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The ability that defines Shambling Suit's power works in all zones, not just the battlefield."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "A permanent that's both an artifact and an enchantment is only counted once."
+            }
+        ]
+    }
 }
 
 // Shimmer Dragon
@@ -1919,6 +2988,226 @@
     "colorIdentityOverride": []
 }
 
+// So Tiny
+{
+    "name": "So Tiny",
+    "manaCost": "{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Flash\nEnchant creature\nEnchanted creature gets -2/-0. It gets -6/-0 instead as long as its controller has seven or more cards in their graveyard.",
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                },
+                "powerBonus": {
+                    "type": "Subtract",
+                    "left": {
+                        "type": "Fixed",
+                        "amount": -2
+                    },
+                    "right": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "Min",
+                            "left": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "right": {
+                                "type": "IfPositive",
+                                "amount": {
+                                    "type": "Subtract",
+                                    "left": {
+                                        "type": "Count",
+                                        "player": "ControllerOfAffectedEntity",
+                                        "zone": "Graveyard"
+                                    },
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 6
+                                    }
+                                }
+                            }
+                        },
+                        "multiplier": 4
+                    }
+                },
+                "toughnessBonus": {
+                    "type": "Fixed",
+                    "amount": 0
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "artist": "Randy Vargas",
+        "flavorText": "His sword sounded like a silver chime on the glass jar, and the sprite laughed with delight.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/421650f2-1b34-4a36-9675-9424997c9d0b.jpg?1783932650",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "So Tiny continuously checks the enchanted creature's controller's graveyard to determine just how tiny the enchanted creature is."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Steelgaze Griffin
+{
+    "name": "Steelgaze Griffin",
+    "manaCost": "{4}{U}",
+    "typeLine": "Creature — Griffin",
+    "oracleText": "Flying\nWhenever you draw your second card each turn, this creature gets +2/+0 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Steelgaze Griffin:1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "65",
+        "artist": "J.P. Targete",
+        "flavorText": "\"If we didn't guard our secrets, they wouldn't remain secrets for long.\"\n—Gadwick, the Wizened",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d361328-8b0a-40a0-b5c0-215398fdfb47.jpg?1783932649",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The triggered ability can trigger only once each turn. It doesn't matter whether the permanent with that ability was on the battlefield when the first card was drawn. If it's not on the battlefield when the second card is drawn, the ability can't trigger at all that turn. It won't trigger when the third or fourth card is drawn."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If an effect instructs you to draw multiple cards, the ability triggers after you draw whichever is the second one for the turn. You choose a target (if any) for the ability after you've drawn and looked at all of the cards and finished resolving the spell or ability that caused you to draw them."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word “draw,” it's not a card drawn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Stolen by the Fae
+{
+    "name": "Stolen by the Fae",
+    "manaCost": "{X}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target creature with mana value X to its owner's hand. You create X 1/1 blue Faerie creature tokens with flying.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "CreateToken",
+                    "count": "XValue",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Faerie"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/c/bcd82cb0-ff4b-4f4d-b3d0-3ac53883b099.jpg?1783932483"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "CompareNumericProperty",
+                                "property": "MANA_VALUE",
+                                "operator": "EQ",
+                                "amount": "XValue"
+                            }
+                        ]
+                    }
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "rarity": "RARE",
+        "artist": "Ryan Alexander Lee",
+        "flavorText": "Denizens of the wilds don't always seek to harm intruders. Sometimes they simply misplace them.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/9/a98a7698-57fb-41f6-86d4-251c7d444c6a.jpg?1783932648",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If a creature on the battlefield has {X} in its mana cost, X is considered to be 0."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If the target creature is an illegal target by the time Stolen by the Fae tries to resolve, the spell won't resolve. You won't create any Faerie tokens."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Syr Alin, the Lion's Claw
 {
     "name": "Syr Alin, the Lion's Claw",
@@ -1971,6 +3260,231 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Syr Elenora, the Discerning
+{
+    "name": "Syr Elenora, the Discerning",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Legendary Creature — Human Knight",
+    "oracleText": "Syr Elenora's power is equal to the number of cards in your hand.\nWhen Syr Elenora enters, draw a card.\nSpells your opponents cast that target Syr Elenora cost {2} more to cast.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Count",
+                "player": "You",
+                "zone": "Hand"
+            }
+        },
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Syr Elenora, the Discerning:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "OpponentsCastTargeting",
+                    "targetFilter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "modification": {
+                    "type": "IncreaseGeneric",
+                    "amount": 2
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "67",
+        "rarity": "UNCOMMON",
+        "artist": "Mila Pesic",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/050a0817-2e9c-4d98-974c-2d3e5c37e1a2.jpg?1783932648",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "The ability that defines Syr Elenora's power works in all zones, not just the battlefield."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "To determine the total cost of an opponent's spell that targets Syr Elenora, start with the mana cost or alternative cost that player is paying, add any cost increases (such as that of Syr Elenora's effect), then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Syr Konrad, the Grim
+{
+    "name": "Syr Konrad, the Grim",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Legendary Creature — Human Knight",
+    "oracleText": "Whenever another creature dies, or a creature card is put into a graveyard from anywhere other than the battlefield, or a creature card leaves your graveyard, Syr Konrad deals 1 damage to each opponent.\n{1}{B}: Each player mills a card. (They each put the top card of their library into their graveyard.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Syr Konrad, the Grim:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                },
+                "descriptionOverride": "Syr Konrad deals 1 damage to each opponent."
+            },
+            {
+                "id": "Syr Konrad, the Grim:2",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature",
+                            "from": "Hand",
+                            "to": "Graveyard"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature",
+                            "from": "Library",
+                            "to": "Graveyard"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature",
+                            "from": "Stack",
+                            "to": "Graveyard"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature",
+                            "from": "Exile",
+                            "to": "Graveyard"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature",
+                            "from": "Command",
+                            "to": "Graveyard"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature own:you",
+                            "from": "Graveyard"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                },
+                "descriptionOverride": "Syr Konrad deals 1 damage to each opponent."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Syr Konrad, the Grim:3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "player": "Each",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "Each"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Each player mills a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "107",
+        "rarity": "UNCOMMON",
+        "artist": "Anna Steinbauer",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/8/a808868f-aea8-4651-9357-85a4d7b4f290.jpg?1783932632",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If one or more creatures die at the same time as Syr Konrad, its first ability triggers for each of those creatures."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "In a Two-Headed Giant game, Syr Konrad's first ability causes it to deal 1 damage twice."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -2094,6 +3608,110 @@
     ]
 }
 
+// The Great Henge
+{
+    "name": "The Great Henge",
+    "manaCost": "{7}{G}{G}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "This spell costs {X} less to cast, where X is the greatest power among creatures you control.\n{T}: Add {G}{G}. You gain 2 life.\nWhenever a nontoken creature you control enters, put a +1/+1 counter on it and draw a card.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "The Great Henge:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "TriggeringEntity"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "The Great Henge:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "GREEN",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "GreatestPropertyAmongPermanentsYouControl",
+                        "property": "Power",
+                        "filter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "rarity": "MYTHIC",
+        "artist": "Adam Paquette",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/f/af915ed2-1f34-43f6-85f5-2430325b720f.jpg?1783932609",
+        "rulings": [
+            {
+                "date": "2025-10-02",
+                "text": "The first step of casting a spell is to move it to the stack. If this causes the greatest power among creatures you control to change, that new power will be used to determine the cost reduction."
+            },
+            {
+                "date": "2025-10-02",
+                "text": "The cost reduction ability reduces only the generic mana in The Great Henge's cost. The colored mana must still be paid."
+            },
+            {
+                "date": "2025-10-02",
+                "text": "Once The Great Henge's last ability has triggered, you'll draw a card even if you can't put a +1/+1 counter on the creature for some reason (most likely because it has left the battlefield)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Thrill of Possibility
 {
     "name": "Thrill of Possibility",
@@ -2124,6 +3742,69 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Weapon Rack
+{
+    "name": "Weapon Rack",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters with three +1/+1 counters on it.\n{T}: Move a +1/+1 counter from this artifact onto target creature. Activate only as a sorcery.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Weapon Rack:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "MoveCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "source": "Self",
+                    "destination": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Move a +1/+1 counter onto target creature. Activate only as a sorcery."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 3,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "236",
+        "artist": "Joe Slucher",
+        "flavorText": "No weapon stays on the rack for long in the Burning Yard.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/89ca22d2-3ba5-4173-9c8c-6587a901ff4a.jpg?1783932580",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Once Weapon Rack runs out of +1/+1 counters, it remains on the battlefield. You can activate its last ability, but it won't do anything."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If Weapon Rack has left the battlefield or has no +1/+1 counters on it by the time its activated ability resolves, you won't put a +1/+1 counter on the target creature. If the creature becomes an illegal target or can't have a +1/+1 counter put onto it for some other reason, you won't remove a +1/+1 counter from Weapon Rack."
+            }
+        ]
+    }
 }
 
 // Weaselback Redcap
@@ -2170,6 +3851,214 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Wicked Guardian
+{
+    "name": "Wicked Guardian",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Human Noble",
+    "oracleText": "When this creature enters, you may have it deal 2 damage to another creature you control. If you do, draw a card.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Wicked Guardian:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "BattlefieldMatching",
+                                            "filter": "creature",
+                                            "player": "You",
+                                            "excludeSelf": true
+                                        },
+                                        "storeAs": "gathered0"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "gathered0",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "wickedGuardianDamaged",
+                                        "prompt": "Choose another creature you control to deal 2 damage to",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "ForEach",
+                                        "space": {
+                                            "type": "IterationSpace.Collection",
+                                            "collection": "wickedGuardianDamaged"
+                                        },
+                                        "body": {
+                                            "type": "DealDamage",
+                                            "amount": {
+                                                "type": "Fixed",
+                                                "amount": 2
+                                            },
+                                            "target": "IterationEntity"
+                                        }
+                                    }
+                                ]
+                            },
+                            "successCriterion": {
+                                "type": "SuccessCriterion.CollectionNonEmpty",
+                                "name": "wickedGuardianDamaged"
+                            }
+                        },
+                        "then": {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    }
+                },
+                "descriptionOverride": "When this creature enters, you may have it deal 2 damage to another creature you control. If you do, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "artist": "Matt Stewart",
+        "flavorText": "\"Some are born to greatness. You were born to scrub greatness's floors.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/71cd91b2-0f9b-4582-ad90-32fa3ee1fde7.jpg?1783932630",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If Wicked Guardian leaves the battlefield before its triggered ability resolves, you may still have it deal 2 damage to another creature you control and draw a card."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If the damage Wicked Guardian deals is prevented (perhaps because you chose for it to deal 2 damage to a creature with protection from black), you still draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Wicked Wolf
+{
+    "name": "Wicked Wolf",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Wolf",
+    "oracleText": "When this creature enters, it fights up to one target creature you don't control.\nSacrifice a Food: Put a +1/+1 counter on this creature. It gains indestructible until end of turn. Tap it.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Wicked Wolf:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Fight",
+                    "target1": "Self",
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, it fights up to one target creature you don't control."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Wicked Wolf:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "Food"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "INDESTRUCTIBLE",
+                            "target": "Self"
+                        },
+                        {
+                            "type": "TapUntap",
+                            "target": "Self"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Put a +1/+1 counter on this creature. It gains indestructible until end of turn. Tap it."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "181",
+        "rarity": "RARE",
+        "artist": "Tomasz Jedruszek",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/9/09476eac-55d2-4955-8951-ae4ce117c98b.jpg?1783932601",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "If an effect refers to a Food, it means any Food artifact, not just a Food artifact token."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If the target creature is an illegal target when Wicked Wolf's first ability tries to resolve, the ability doesn't resolve. If Wicked Wolf is no longer on the battlefield, the target creature won't deal or be dealt damage."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "You can activate Wicked Wolf's last ability any number of times while its first ability is on the stack."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "You can activate Wicked Wolf's last ability even if it's already tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -2292,7 +4181,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -2350,5 +4241,60 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Wolf's Quarry
+{
+    "name": "Wolf's Quarry",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create three 1/1 green Boar creature tokens with \"When this token dies, create a Food token.\" (A Food token is an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
+    "script": {
+        "spellEffect": {
+            "type": "CreateToken",
+            "count": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "power": 1,
+            "toughness": 1,
+            "colors": [
+                "GREEN"
+            ],
+            "creatureTypes": [
+                "Boar"
+            ],
+            "imageUri": "https://cards.scryfall.io/normal/front/3/6/365b2234-c29d-42db-a8e0-80685a4b6434.jpg?1783932482",
+            "triggeredAbilities": [
+                {
+                    "id": "Wolf's Quarry:1",
+                    "trigger": {
+                        "type": "ZoneChangeEvent",
+                        "from": "Battlefield",
+                        "to": "Graveyard"
+                    },
+                    "effect": {
+                        "type": "CreatePredefinedToken",
+                        "tokenType": "Food"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "184",
+        "artist": "Lars Grant-West",
+        "flavorText": "\"The monster was gaining on them. Twice it had found them. There was only one place left to hide.\"\n—Tales of the Fae",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d21c15f-378e-4abf-992f-9743aa6ab6b8.jpg?1783932600",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "Food is an artifact type. Even though it appears on some creatures, it's never a creature type."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }

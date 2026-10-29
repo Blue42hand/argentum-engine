@@ -568,7 +568,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land Forest or Plains or Island card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -798,7 +800,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land Mountain or Forest or Plains card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -1086,7 +1090,8 @@
                                     "type": "Fixed",
                                     "amount": 4
                                 }
-                            }
+                            },
+                            "description": "You gain 4 life"
                         }
                     ]
                 },
@@ -1233,7 +1238,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 1
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
                     }
                 },
                 "effect": {
@@ -1420,6 +1428,65 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Devilish Valet
+{
+    "name": "Devilish Valet",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Devil Warrior",
+    "oracleText": "Trample, haste\nAlliance — Whenever another creature you control enters, double this creature's power until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "TRAMPLE",
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Devilish Valet:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": "Power"
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "Alliance — Whenever another creature you control enters, double this creature's power until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "105",
+        "rarity": "RARE",
+        "artist": "Bud Cook",
+        "flavorText": "Nobody thought twice about checking their weapons at the door, until they were informed there was no weapon check at the door.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/45d3fc69-6c5e-4ede-9f8d-c1cee096a78a.jpg?1783923120",
+        "rulings": [
+            {
+                "date": "2022-04-29",
+                "text": "To double a creature's power means that creature gets +X/+0, where X is its power as the ability resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2018,6 +2085,121 @@
     ]
 }
 
+// Halo Fountain
+{
+    "name": "Halo Fountain",
+    "manaCost": "{2}{W}",
+    "typeLine": "Artifact",
+    "oracleText": "{W}, {T}, Untap a tapped creature you control: Create a 1/1 green and white Citizen creature token.\n{W}{W}, {T}, Untap two tapped creatures you control: Draw a card.\n{W}{W}{W}{W}{W}, {T}, Untap fifteen tapped creatures you control: You win the game.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Halo Fountain:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomTapPermanents",
+                                "filter": "creature",
+                                "direction": "UNTAP"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN",
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Citizen"
+                    ]
+                }
+            },
+            {
+                "id": "Halo Fountain:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}{W}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomTapPermanents",
+                                "count": 2,
+                                "filter": "creature",
+                                "direction": "UNTAP"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            {
+                "id": "Halo Fountain:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}{W}{W}{W}{W}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomTapPermanents",
+                                "count": 15,
+                                "filter": "creature",
+                                "direction": "UNTAP"
+                            }
+                        }
+                    ]
+                },
+                "effect": "WinGame"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "MYTHIC",
+        "artist": "Anastasia Ovchinnikova",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/e/0ee79399-715c-4c46-9fa1-e76b1087f009.jpg?1783923158"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Incandescent Aria
 {
     "name": "Incandescent Aria",
@@ -2260,6 +2442,180 @@
     ]
 }
 
+// Jetmir, Nexus of Revels
+{
+    "name": "Jetmir, Nexus of Revels",
+    "manaCost": "{1}{R}{G}{W}",
+    "typeLine": "Legendary Creature — Cat Demon",
+    "oracleText": "Creatures you control get +1/+0 and have vigilance as long as you control three or more creatures.\nCreatures you control also get +1/+0 and have trample as long as you control six or more creatures.\nCreatures you control also get +1/+0 and have double strike as long as you control nine or more creatures.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 0,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "VIGILANCE",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 0,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 6
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "TRAMPLE",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 6
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 0,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 9
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 9
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "193",
+        "rarity": "MYTHIC",
+        "artist": "Ryan Pancoast",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f9c69d75-651f-4b75-b65d-79999d2069f6.jpg?1783923081",
+        "rulings": [
+            {
+                "date": "2022-04-29",
+                "text": "If a creature with double strike loses double strike after dealing damage during the first combat damage step but before dealing damage in the second combat damage step, it will not deal damage during that second combat damage step. Notably, this means that if your ninth creature dies in the first combat damage step, the rest of your creatures won't deal combat damage again unless something else is granting them double strike."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Jewel Thief
 {
     "name": "Jewel Thief",
@@ -2468,7 +2824,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land Island or Swamp or Mountain card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -2503,6 +2861,60 @@
         "imageUri": "https://cards.scryfall.io/normal/front/5/1/51eb4a44-a5c8-49ed-b440-2462626bb638.jpg?1783923056"
     },
     "colorIdentityOverride": []
+}
+
+// Make Disappear
+{
+    "name": "Make Disappear",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Casualty 1 (As you cast this spell, you may sacrifice a creature with power 1 or greater. When you do, copy this spell and you may choose a new target for the copy.)\nCounter target spell unless its controller pays {2}.",
+    "keywords": [
+        "CASUALTY"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Casualty",
+            "threshold": 1
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Counter",
+            "condition": {
+                "type": "CounterCondition.UnlessPaysMana",
+                "cost": "{2}"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Inka Schulz",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/f/3f2d6a21-ea77-484b-9e3a-1bd49806f907.jpg?1783923144",
+        "rulings": [
+            {
+                "date": "2022-04-29",
+                "text": "If you pay the casualty cost of a spell, the copy will resolve before the original spell."
+            },
+            {
+                "date": "2022-04-29",
+                "text": "The copy of the spell is created on the stack, so it's not \"cast.\" Abilities that trigger when a player casts a spell won't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Midnight Assassin
@@ -2622,7 +3034,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -2720,7 +3134,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomSacrifice",
-                        "filter": "Treasure"
+                        "filter": "artifact Treasure"
                     }
                 },
                 "effect": {
@@ -2760,6 +3174,66 @@
         "rarity": "RARE",
         "artist": "Dan Murayama Scott",
         "imageUri": "https://cards.scryfall.io/normal/front/4/2/42acbf52-b137-44f0-a815-2817fe8d2da2.jpg?1783923119"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Pyre-Sledge Arsonist
+{
+    "name": "Pyre-Sledge Arsonist",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Lizard Shaman",
+    "oracleText": "{1}, {T}: This creature deals X damage to any target, where X is the number of permanents you've sacrificed this turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Pyre-Sledge Arsonist:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PERMANENTS_SACRIFICED"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "118",
+        "rarity": "UNCOMMON",
+        "artist": "Kekai Kotaki",
+        "flavorText": "Everything from damaged furniture to inconvenient corpses becomes fuel for Ziatora's ever-burning foundry.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/3/33c5fd3e-3799-4535-8c33-9c567f4f5709.jpg?1783923116"
     },
     "colorIdentityOverride": [
         "RED"
@@ -3017,7 +3491,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land Swamp or Mountain or Forest card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",

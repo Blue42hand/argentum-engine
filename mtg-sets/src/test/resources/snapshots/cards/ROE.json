@@ -106,6 +106,85 @@
     ]
 }
 
+// Ancient Stirrings
+{
+    "name": "Ancient Stirrings",
+    "manaCost": "{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top five cards of your library. You may reveal a colorless card from among them and put it into your hand. Then put the rest on the bottom of your library in any order.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": {
+                        "cardPredicates": [
+                            "IsColorless"
+                        ]
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "prompt": "You may reveal a colorless card from among them and put it into your hand",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "artist": "Vincent Proce",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/97ac2766-a597-4949-882d-c5e61e6dd268.jpg?1783941968",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Objects with no mana cost, including lands that could produce colored mana, are colorless by default."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Artisan of Kozilek
 {
     "name": "Artisan of Kozilek",
@@ -871,7 +950,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -1150,6 +1231,58 @@
     ]
 }
 
+// Goblin Arsonist
+{
+    "name": "Goblin Arsonist",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin Shaman",
+    "oracleText": "When this creature dies, you may have it deal 1 damage to any target.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Goblin Arsonist:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "147",
+        "artist": "Wayne Reynolds",
+        "flavorText": "With great power comes great risk of getting yourself killed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/707d396d-950b-4ab8-9db2-f40c8f7db062.jpg?1783941975"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Goblin Tunneler
 {
     "name": "Goblin Tunneler",
@@ -1420,6 +1553,114 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Kozilek, Butcher of Truth
+{
+    "name": "Kozilek, Butcher of Truth",
+    "manaCost": "{10}",
+    "typeLine": "Legendary Creature — Eldrazi",
+    "oracleText": "When you cast this spell, draw four cards.\nAnnihilator 4 (Whenever this creature attacks, defending player sacrifices four permanents of their choice.)\nWhen Kozilek is put into a graveyard from anywhere, its owner shuffles their graveyard into their library.",
+    "creatureStats": {
+        "power": 12,
+        "toughness": 12
+    },
+    "keywords": [
+        "ANNIHILATOR"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "ANNIHILATOR",
+            "n": 4
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kozilek, Butcher of Truth:1",
+                "trigger": "CastThisSpellEvent",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                "descriptionOverride": "When you cast this spell, draw four cards."
+            },
+            {
+                "id": "Kozilek, Butcher of Truth:2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "permanent",
+                    "count": 4,
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "DefendingPlayer"
+                    }
+                },
+                "descriptionOverride": "Annihilator 4"
+            },
+            {
+                "id": "Kozilek, Butcher of Truth:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard",
+                                "player": "OwnerOfSource"
+                            },
+                            "storeAs": "graveyardCards"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "graveyardCards",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "player": "OwnerOfSource",
+                                "placement": "Shuffled"
+                            }
+                        }
+                    ]
+                },
+                "activeZones": [
+                    "Graveyard"
+                ],
+                "descriptionOverride": "When Kozilek is put into a graveyard from anywhere, its owner shuffles their graveyard into their library."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "MYTHIC",
+        "artist": "Michael Komarck",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/6/067fac91-2483-4678-b86a-2c54a3a480cf.jpg?1783942013",
+        "rulings": [
+            {
+                "date": "2018-12-07",
+                "text": "Kozilek's first ability triggers as you cast it, and that ability resolves before the spell itself. It resolves even if the spell is countered."
+            },
+            {
+                "date": "2010-06-15",
+                "text": "Annihilator abilities trigger and resolve during the declare attackers step. The defending player chooses and sacrifices the required number of permanents before they declare blockers. Any creatures sacrificed this way won't be able to block."
+            },
+            {
+                "date": "2010-06-15",
+                "text": "If a creature with annihilator is attacking a planeswalker, and the defending player chooses to sacrifice that planeswalker, the attacking creature continues to attack. It may be blocked. If it isn't blocked, it simply won't deal combat damage to anything."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Lagac Lizard
@@ -1784,6 +2025,51 @@
     ]
 }
 
+// Might of the Masses
+{
+    "name": "Might of the Masses",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gets +1/+1 until end of turn for each creature you control.",
+    "script": {
+        "spellEffect": {
+            "type": "ModifyStats",
+            "powerModifier": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "creature"
+            },
+            "toughnessModifier": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "creature"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "196",
+        "artist": "Johann Bodin",
+        "flavorText": "The Joraga elves never need ask a troll to leave their territory. They merely grant it their combined strength, and it can't resist embarking on a merry rampage.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/0/10465f4f-f4ff-45d8-bc97-3ec85e5eea70.jpg?1783941962"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Nema Siltlurker
 {
     "name": "Nema Siltlurker",
@@ -1967,7 +2253,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
                             },
                             {
                                 "type": "MoveCollection",
@@ -2372,6 +2660,52 @@
         "artist": "Ryan Pancoast",
         "flavorText": "Built of wood and iron. Held together by hope and prayer.",
         "imageUri": "https://cards.scryfall.io/normal/front/4/3/437a91e7-f98e-4ed8-9ab7-f4db62979f5b.jpg?1783941955"
+    },
+    "colorIdentityOverride": []
+}
+
+// Runed Servitor
+{
+    "name": "Runed Servitor",
+    "manaCost": "{2}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "When this creature dies, each player draws a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Runed Servitor:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "224",
+        "rarity": "UNCOMMON",
+        "artist": "Mike Bierek",
+        "flavorText": "Scholars had puzzled for centuries over the ruins at Tal Terig. Its secrets had always lived within one rune-carved head.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9dbbbbf6-e3ed-4a36-bedf-11c3514ff965.jpg?1783941955"
     },
     "colorIdentityOverride": []
 }
@@ -2900,7 +3234,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for an Aura card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -2930,6 +3266,164 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Training Grounds
+{
+    "name": "Training Grounds",
+    "manaCost": "{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Activated abilities of creatures you control cost {2} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ReduceActivatedAbilityCost",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "manaFloor": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "91",
+        "rarity": "RARE",
+        "artist": "James Ryman",
+        "flavorText": "\"Under the master's eye, skills are honed sharper and spells cut deeper.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2cf16f8-6e69-46b3-8453-1d1a2a5670e2.jpg?1783941990",
+        "rulings": [
+            {
+                "date": "2025-10-02",
+                "text": "Training Grounds affects only creatures you control on the battlefield. The costs of activated abilities that work in other zones (such as cycling or unearth) won't be reduced."
+            },
+            {
+                "date": "2025-10-02",
+                "text": "If an activated ability of a creature you control costs no generic mana to activate (for example, if it costs {R}{R}, it costs {0}, or it costs only nonmana actions such as {T} or \"Sacrifice a creature\"), Training Grounds simply won't affect it. In particular, it won't increase the cost to include a mana payment of {1}."
+            },
+            {
+                "date": "2025-10-02",
+                "text": "Training Grounds can reduce the part of an activation cost represented by generic mana symbols down to nothing, as long as it still costs at least one mana. For example, if an activation cost is {2}{G}, you'd have to pay only {G}. If an activation cost is {2}, though, you'd still have to pay {1}."
+            }
+        ]
+    }
+}
+
+// Ulamog, the Infinite Gyre
+{
+    "name": "Ulamog, the Infinite Gyre",
+    "manaCost": "{11}",
+    "typeLine": "Legendary Creature — Eldrazi",
+    "oracleText": "When you cast this spell, destroy target permanent.\nIndestructible\nAnnihilator 4 (Whenever this creature attacks, defending player sacrifices four permanents of their choice.)\nWhen Ulamog is put into a graveyard from anywhere, its owner shuffles their graveyard into their library.",
+    "creatureStats": {
+        "power": 10,
+        "toughness": 10
+    },
+    "keywords": [
+        "INDESTRUCTIBLE",
+        "ANNIHILATOR"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "ANNIHILATOR",
+            "n": 4
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ulamog, the Infinite Gyre:1",
+                "trigger": "CastThisSpellEvent",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "permanent"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When you cast this spell, destroy target permanent."
+            },
+            {
+                "id": "Ulamog, the Infinite Gyre:2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "permanent",
+                    "count": 4,
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "DefendingPlayer"
+                    }
+                },
+                "descriptionOverride": "Annihilator 4"
+            },
+            {
+                "id": "Ulamog, the Infinite Gyre:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard",
+                                "player": "OwnerOfSource"
+                            },
+                            "storeAs": "graveyardCards"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "graveyardCards",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "player": "OwnerOfSource",
+                                "placement": "Shuffled"
+                            }
+                        }
+                    ]
+                },
+                "activeZones": [
+                    "Graveyard"
+                ],
+                "descriptionOverride": "When Ulamog is put into a graveyard from anywhere, its owner shuffles their graveyard into their library."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "12",
+        "rarity": "MYTHIC",
+        "artist": "Aleksi Briclot",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/225e3cc6-34d0-4f81-9f49-162d97e2ea59.jpg?1783942011",
+        "rulings": [
+            {
+                "date": "2018-12-07",
+                "text": "Ulamog's ability triggers as you cast it, and that ability resolves before the spell itself. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2010-06-15",
+                "text": "Annihilator abilities trigger and resolve during the declare attackers step. The defending player chooses and sacrifices the required number of permanents before they declare blockers. Any creatures sacrificed this way won't be able to block."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Virulent Swipe

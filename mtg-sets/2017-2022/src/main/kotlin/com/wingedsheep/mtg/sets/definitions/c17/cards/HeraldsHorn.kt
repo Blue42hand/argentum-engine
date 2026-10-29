@@ -15,18 +15,21 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
- * Herald's Horn
- * {3}
- * Artifact
+ * Herald's Horn — Commander 2017 #53 (canonical printing)
+ * {3} · Artifact
+ *
+ * As this artifact enters, choose a creature type.
+ * Creature spells you cast of the chosen type cost {1} less to cast.
+ * At the beginning of your upkeep, look at the top card of your library. If it's a creature card
+ * of the chosen type, you may reveal it and put it into your hand.
+ *
+ * Gathering Stone's shape narrowed to creature cards, without the graveyard option: the looked-at
+ * card is split on "creature card of the chosen type"; a match may be revealed into hand, and
+ * anything not taken stays on top of the library unrevealed. With no chosen type (the Horn entered
+ * some other way) `withChosenSubtype()` matches nothing, so nothing gets cheaper and nothing is
+ * ever put into hand, as the ruling says.
  */
 val HeraldsHorn = card("Herald's Horn") {
     manaCost = "{3}"
@@ -49,20 +52,15 @@ val HeraldsHorn = card("Herald's Horn") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
-                val lookedCard = gather(CardSource.TopOfLibrary(1))
-                val matchingCreature = filter(lookedCard, GameObjectFilter.Creature.withChosenSubtype())
-                val cardToHand = chooseUpTo(
-                    count = 1,
-                    from = matchingCreature,
-                    selectedLabel = "Reveal and put into your hand",
-                    remainderLabel = "Leave on top of your library",
-                )
-                move(
-                    from = cardToHand,
-                    destination = CardDestination.ToZone(Zone.HAND),
-                    revealed = true,
-                    revealToSelf = false,
-                )
+            val looked = gather(CardSource.TopOfLibrary(1))
+            val matching = filter(looked, GameObjectFilter.Creature.withChosenSubtype())
+            val toHand = chooseUpTo(
+                1,
+                from = matching,
+                selectedLabel = "Reveal and put into your hand",
+                remainderLabel = "Leave on top of your library"
+            )
+            move(toHand, CardDestination.ToZone(Zone.HAND), revealed = true, revealToSelf = false)
         }
     }
 
@@ -75,6 +73,7 @@ val HeraldsHorn = card("Herald's Horn") {
         ruling("2017-08-25", "You can't choose multiple creature types, such as \"Cat Warrior.\" A Cat Warrior is both a Cat and a Warrior. It's affected by anything that affects either type and unaffected by things that affect non-Cat or non-Warrior creatures.")
         ruling("2017-08-25", "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was.")
         ruling("2017-08-25", "You must choose an existing creature type, such as Vampire or Cat. Card types such as \"artifact\" can't be chosen.")
+        ruling("2017-08-25", "If you somehow control a Herald's Horn with no chosen creature type, no spells will cost less to cast, not even creature spells with no creature type. You'll be able to look at the top card of your library at the beginning of each of your upkeeps, but you can never put it into your hand this way, even if it's a creature card with no creature type.")
         ruling("2017-08-25", "If you don't put the top card of your library into your hand, you put it back on top of your library without revealing it. You'll draw it in that turn's draw step.")
     }
 }

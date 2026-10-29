@@ -69,6 +69,16 @@ sealed interface PreventionSourceFilter {
      */
     @SerialName("PreventFromChosen") @Serializable
     data class Chosen(val eligible: GameObjectFilter = GameObjectFilter.Any) : PreventionSourceFilter
+
+    /**
+     * Only damage dealt by the effect's own source — "~ deals 2 damage to that player. Prevent X of
+     * that damage" (Power Leak). Bound to the source's id at resolution, so it is the *object* that
+     * is covered (CR 400.7), not anything matching it. Needs `nextInstanceOnly` and a single
+     * recipient: the shield covers just the next instance from this source and is spent by it, so a
+     * paid amount larger than that instance never lingers to soften later damage.
+     */
+    @SerialName("PreventFromThisSource") @Serializable
+    data object ThisSource : PreventionSourceFilter
 }
 
 /**
@@ -157,7 +167,8 @@ data class PreventDamageEffect(
      * of Solace). When false (default), an amount-less chosen-source shield prevents **all** damage
      * from that source for its [duration] (Samite Ministration). This is orthogonal to which
      * sources are covered ([sourceFilter]) — set it explicitly rather than inferring it from the
-     * filter.
+     * filter. With [PreventionSourceFilter.ThisSource] an [amount] caps what the single instance
+     * loses ("prevent X of that damage" — Power Leak); the shield is spent by that instance either way.
      */
     val nextInstanceOnly: Boolean = false,
     /**
@@ -230,6 +241,7 @@ data class PreventDamageEffect(
             }
             is PreventionSourceFilter.Matching ->
                 append(" by ${sourceFilter.filter.description.replaceFirstChar { it.lowercase() }}")
+            PreventionSourceFilter.ThisSource -> append(" by this source")
         }
         append(" this turn")
         onPrevented?.let { append(". When damage is prevented this way, ${it.description}") }
@@ -258,7 +270,7 @@ data class PreventDamageEffect(
                 val newObjFilter = sourceFilter.eligible.applyTextReplacement(replacer)
                 if (newObjFilter !== sourceFilter.eligible) PreventionSourceFilter.Chosen(newObjFilter) else sourceFilter
             }
-            PreventionSourceFilter.AnySource -> sourceFilter
+            PreventionSourceFilter.AnySource, PreventionSourceFilter.ThisSource -> sourceFilter
         }
         val newOnPrevented = onPrevented?.applyTextReplacement(replacer)
         val newRecipientGroup = recipientGroup?.applyTextReplacement(replacer)
@@ -466,6 +478,33 @@ data class CantBlockGroupEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = "${filter.description} can't block this turn"
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * All creatures matching a filter can't be blocked this turn.
+ * Used for Jace, Arcane Strategist's −7: "Creatures you control can't be blocked this turn."
+ *
+ * The group sibling of granting [com.wingedsheep.sdk.core.AbilityFlag.CANT_BE_BLOCKED] to one
+ * creature. "Can't be blocked" changes no characteristic, so per Rule 611.2c the affected set is
+ * not locked in at resolution: a creature that matches later in the turn (cast with haste, a
+ * crewed Vehicle, one you gain control of) can't be blocked either. "You" in [filter] stays the
+ * controller of the resolving spell or ability, even after its source leaves the battlefield.
+ *
+ * @property filter Which creatures can't be blocked (e.g., GroupFilter.AllCreaturesYouControl)
+ * @property duration How long the evasion lasts
+ */
+@SerialName("CantBeBlockedGroup")
+@Serializable
+data class CantBeBlockedGroupEffect(
+    val filter: GroupFilter,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    override val description: String = "${filter.description} can't be blocked this turn"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -816,7 +855,9 @@ data class GrantKeywordToAttackersBlockedByEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String =
-        "Creatures that were blocked by ${target.description} gain ${keyword.lowercase().replace('_', ' ')} ${duration.description}"
+        com.wingedsheep.sdk.scripting.util.describeKeywordGrant(
+            "Creatures that were blocked by ${target.description}", keyword, plural = true
+        ) + " ${duration.description}"
 }
 
 @SerialName("RedirectCombatDamageToController")

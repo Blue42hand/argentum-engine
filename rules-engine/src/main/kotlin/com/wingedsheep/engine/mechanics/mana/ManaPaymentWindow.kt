@@ -13,7 +13,11 @@ import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaActionPaymentContinuation
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -54,6 +58,21 @@ object ManaPaymentWindow {
         val decision = state.pendingDecision as? SelectManaSourcesDecision ?: return null
         return decision.takeIf { state.actorFor(it.playerId) == actorId }
     }
+
+    /**
+     * Whether [playerId] can produce mana that auto-pay deliberately never spends: a life-funded
+     * mana action (Channel) or a mana ability that functions from the hand (Simian Spirit Guide,
+     * CR 605.1a — its cost spends a card). A cast or activation auto-pay can't cover then opens this
+     * window instead of failing, so the player produces that mana themselves (CR 605.3a).
+     */
+    fun hasManualOnlyMana(state: GameState, playerId: EntityId, cardRegistry: CardRegistry): Boolean =
+        state.playerActionPermissions.any {
+            it.playerId == playerId && it.action.timing == com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility
+        } || state.getZone(ZoneKey(playerId, Zone.HAND)).any { cardId ->
+            val card = state.getEntity(cardId)?.get<CardComponent>() ?: return@any false
+            cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities
+                ?.any { it.isManaAbility && it.activateFromZone == Zone.HAND } == true
+        }
 
     /**
      * Builds a mana-payment window for [cost] — the source menu, the auto-pay suggestion, and the
@@ -180,10 +199,7 @@ object ManaPaymentWindow {
             // Bonus mana from mana auras / "whenever you tap for mana" riders isn't in
             // manaProduced; credit it or the cost comes up short (mirrors CostPaymentService.payMana).
             for (source in solution.sources) {
-                val bonusColor = source.bonusManaColor
-                if (source.bonusManaPerTap > 0 && bonusColor != null) {
-                    produced = produced.add(bonusColor, source.bonusManaPerTap)
-                }
+                for ((color, amount) in source.fixedBonusMana) produced = produced.add(color, amount)
             }
         } else {
             for (sourceId in response.selectedSources) {
@@ -200,6 +216,12 @@ object ManaPaymentWindow {
                     source.producesColorless -> produced.addColorless(source.manaAmount)
                     else -> produced
                 }.let { if (actual.isSnow && restriction == null) it.markSnow(color, source.manaAmount) else it }
+                // A composite tap ("{T}: Add {W}{U}{B}{R}{G}") adds its extra fixed colors too.
+                for ((extraColor, amount) in actual.compositeBonusMana) {
+                    val extraRestriction = actual.colorRestrictions[extraColor] ?: actual.restriction
+                    produced = if (extraRestriction != null) produced.addRestricted(extraColor, amount, extraRestriction)
+                        else produced.add(extraColor, amount)
+                }
             }
         }
 
@@ -219,7 +241,7 @@ object ManaPaymentWindow {
         fallbackControllerId: EntityId
     ): Pair<GameState, List<GameEvent>> {
         if (!source.requiresSacrifice) {
-            return com.wingedsheep.engine.core.tapForMana(state, sourceId, fallbackControllerId)
+            return ManaAbilityLifeCost.tapForManaPayingLife(zones, state, sourceId, fallbackControllerId, ManaAbilityLifeCost.creditedProduction(source.producesColors))
         }
         val controller = state.getEntity(sourceId)
             ?.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
@@ -270,6 +292,7 @@ object ManaPaymentWindow {
                     snowMana = (pool.snowMana.keys + produced.snowMana.keys).associateWith {
                         (pool.snowMana[it] ?: 0) + (produced.snowMana[it] ?: 0)
                     },
+                    manaUnits = pool.manaUnits,
                     snowColorless = pool.snowColorless + produced.snowColorless
                 )
             )

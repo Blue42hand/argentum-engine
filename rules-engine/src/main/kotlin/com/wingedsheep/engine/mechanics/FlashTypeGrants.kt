@@ -8,8 +8,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ControllerComponent
-import com.wingedsheep.engine.state.components.player.FlashGrantsThisTurnComponent
+import com.wingedsheep.engine.state.components.player.FlashGrantsComponent
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
@@ -29,9 +28,13 @@ import com.wingedsheep.sdk.scripting.StaticAbility
  * Three sources are consulted, in order:
  *
  * 1. **The card's own `conditionalFlash`** — "this spell has flash as long as …" printed on the
- *    card itself (ferocious and friends), evaluated in the caster's context.
- * 2. **Turn-scoped player grants** — `GrantFlashToSpellsEffect` writes
- *    [FlashGrantsThisTurnComponent] filters onto the caster (Borne Upon a Wind).
+ *    card itself (ferocious and friends), evaluated in the caster's context. A condition over the
+ *    announced X ("you may cast this spell as though it had flash if X is 3 or less", Silver
+ *    Scrutiny) reads the `xValue` passed in: the cast-time re-check passes the announced X, and
+ *    enumeration — which has no X yet — passes none, so the condition sees X = 0 and the offer's
+ *    X ceiling is then capped by [maxFlashX].
+ * 2. **Duration-bounded player grants** — `GrantFlashToSpellsEffect` writes
+ *    [FlashGrantsComponent] grants onto the caster (Borne Upon a Wind, Teferi, Time Raveler).
  * 3. **[GrantFlashToSpellType] statics on battlefield permanents** — Quick Sliver, Raff Capashen,
  *    Radagast of Rhosgobel, Captain Mar-Vell.
  *
@@ -56,31 +59,31 @@ object FlashTypeGrants {
     /**
      * Whether [spellCardId] may currently be cast as though it had flash by something other than a
      * printed flash keyword. Callers `||` this with their own printed-keyword check.
+     * [casterId] is explicit because the player casting a card may differ from its owner.
      */
     fun hasGrantedFlash(
         state: GameState,
         spellCardId: EntityId,
+        casterId: EntityId,
         cardRegistry: CardRegistry,
         predicateEvaluator: PredicateEvaluator,
         conditionEvaluator: ConditionEvaluator,
+        xValue: Int? = null,
     ): Boolean {
-        val spellOwner = state.getEntity(spellCardId)?.get<ControllerComponent>()?.playerId
-            ?: return false
-
         // 1. The card's own conditionalFlash (e.g. Ferocious).
         val spellDef = state.getEntity(spellCardId)?.get<CardComponent>()
             ?.let { cardRegistry.getCard(it.cardDefinitionId) }
         val conditionalFlash = spellDef?.script?.conditionalFlash
         if (conditionalFlash != null) {
-            val effectContext = EffectContext(sourceId = spellCardId, controllerId = spellOwner)
+            val effectContext = EffectContext(sourceId = spellCardId, controllerId = casterId, xValue = xValue)
             if (conditionEvaluator.evaluate(state, conditionalFlash, effectContext)) return true
         }
 
-        val context = PredicateContext(controllerId = spellOwner)
+        val context = PredicateContext(controllerId = casterId)
 
-        // 2. Turn-scoped grants on the spell owner (Borne Upon a Wind etc., via
-        // GrantFlashToSpellsEffect → FlashGrantsThisTurnComponent).
-        val turnGrants = state.getEntity(spellOwner)?.get<FlashGrantsThisTurnComponent>()
+        // 2. Duration-bounded grants on the caster (Borne Upon a Wind, Teferi, Time Raveler's +1,
+        // via GrantFlashToSpellsEffect → FlashGrantsComponent).
+        val turnGrants = state.getEntity(casterId)?.get<FlashGrantsComponent>()
         if (turnGrants != null) {
             for (filter in turnGrants.filters) {
                 if (predicateEvaluator.matches(state, state.projectedState, spellCardId, filter, context)) {
@@ -103,10 +106,10 @@ object FlashTypeGrants {
                     val ability = activeGrant(state, raw, entityId, playerId, conditionEvaluator)
                         ?: continue
                     // If controllerOnly, only the permanent's controller benefits.
-                    if (ability.controllerOnly && playerId != spellOwner) continue
+                    if (ability.controllerOnly && playerId != casterId) continue
                     // "The first [type] spell you cast each turn" — the grant covers only one
                     // spell per turn (Radagast of Rhosgobel).
-                    if (!nthGateAllows(state, spellOwner, ability, predicateEvaluator)) continue
+                    if (!nthGateAllows(state, casterId, ability, predicateEvaluator)) continue
                     if (predicateEvaluator.matches(state, state.projectedState, spellCardId, ability.filter, context)) {
                         return true
                     }
@@ -114,6 +117,25 @@ object FlashTypeGrants {
             }
         }
         return false
+    }
+
+    /**
+     * The largest X in `0..maxX` for which [spellCardId] may be cast as though it had flash, or null
+     * when no X allows it. Only the card's own `conditionalFlash` can depend on X, so when another
+     * source grants flash outright (or the card has no `conditionalFlash`) the ceiling is [maxX]
+     * unchanged. Used by enumeration to cap an instant-speed offer's X (Silver Scrutiny: "if X is 3
+     * or less"), so the client never offers an X the cast-time re-check would reject.
+     */
+    fun maxFlashX(
+        state: GameState,
+        spellCardId: EntityId,
+        casterId: EntityId,
+        maxX: Int,
+        cardRegistry: CardRegistry,
+        predicateEvaluator: PredicateEvaluator,
+        conditionEvaluator: ConditionEvaluator,
+    ): Int? = (maxX downTo 0).firstOrNull { x ->
+        hasGrantedFlash(state, spellCardId, casterId, cardRegistry, predicateEvaluator, conditionEvaluator, xValue = x)
     }
 
     /**

@@ -2,7 +2,6 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseTargetsDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.definitions.chk.cards.Rootrunner
@@ -58,8 +57,6 @@ class RootrunnerScenarioTest : ScenarioTestBase() {
 
                 // Soulshift triggers off the sacrifice.
                 game.resolveStack()
-                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
-                game.answerYesNo(true)
                 val decision = game.getPendingDecision()
                 decision.shouldBeInstanceOf<ChooseTargetsDecision>()
                 val kami = game.findCardsInGraveyard(1, "Kami of the Hunt").single()

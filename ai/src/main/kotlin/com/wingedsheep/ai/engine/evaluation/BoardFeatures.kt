@@ -1,16 +1,14 @@
 package com.wingedsheep.ai.engine.evaluation
 
-import com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
-import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.ai.engine.OpponentAggregate
+import com.wingedsheep.ai.engine.PlaneswalkerThreat
 import com.wingedsheep.ai.engine.knowledge.CardIntent
 import com.wingedsheep.ai.engine.knowledge.IntentCatalog
 import com.wingedsheep.ai.engine.lifePoolsOf
 import com.wingedsheep.ai.engine.sidesFor
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
@@ -18,6 +16,7 @@ import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
+import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
@@ -89,7 +88,7 @@ data class CreatureValuation(
      * Stop discounting a creature for damage marked on it.
      *
      * Marked damage wears off at cleanup (CR 514.2), so a 3/3 with one damage on it is a 3/3 next
-     * turn — exactly the case the `temporaryPTModification` subtraction a few lines above it exists
+     * turn — exactly the case the end-of-turn subtraction in `creatureValue` exists
      * to avoid, arrived at from the other direction. The old `0.5 + 0.5 × healthFraction` made
      * *pinging* the opponent's 3/3 look like 0.7 of board progress, which is `activate-04`: one
      * damage at a creature it cannot kill, bought with the Sorcerer's whole turn.
@@ -116,6 +115,29 @@ data class CreatureValuation(
      * actually gets to keep using.
      */
     val cantAttackCostsPower: Boolean = false,
+    /**
+     * Read an "until end of turn" P/T change only on a creature in a fight that has not dealt its
+     * damage yet — everywhere else, read the stats it will have after cleanup.
+     *
+     * `BoardPresence` took the modification off its base stats already, but its power-scaled
+     * keyword bonuses and the whole of `ThreatAssessment` read it whole, so a pump bought for
+     * nothing scored as board progress. See [ExpiringStats] for the production game and for why
+     * the simulation, not this term, covers the uses that matter (a pump in response to burn,
+     * firebreathing once blockers are declared). Off is the historical reading.
+     */
+    val expiringStatsNeedAFight: Boolean = false,
+    /**
+     * Price a planeswalker continuously in its loyalty, net of the attack it faces before its
+     * controller acts again ([PlaneswalkerThreat.boardValue] / [PlaneswalkerThreat.expectedDamage]),
+     * instead of `max(4.0, prior + 0.8 × loyalty)`.
+     *
+     * Not a creature correction — it rides this carrier because it travels exactly the same
+     * evaluator-only path to `permanentValue`. The flat floor hid every loyalty change below it,
+     * so a walker about to die looked as healthy as a fresh one: nothing told the AI to spend its
+     * loyalty first, to keep a blocker home for it, or that a −1 left it dead to the next attack.
+     * [com.wingedsheep.ai.engine.AiProfile.defendPlaneswalkers] sets it.
+     */
+    val walkersFaceTheNextAttack: Boolean = false,
 ) {
     companion object {
         /** Neither correction: what every number published before 2026-08-10 was measured on. */
@@ -153,13 +175,50 @@ object BoardPresence : BoardFeature {
         intents: IntentCatalog,
         sequenceLandsByUsableMana: Boolean = false,
         creatureValuation: CreatureValuation = CreatureValuation.LEGACY,
+        pendingLandDropIsMana: Boolean = false,
+        handAtRoot: Set<EntityId>? = null,
+        modalLandRoot: ModalLandRoot? = null,
     ): Double {
         val sides = state.sidesFor(playerId) ?: return 0.0
         val mine = boardValue(state, projected, sides.mine, intents, creatureValuation) +
-            if (sequenceLandsByUsableMana) landSequencing(state, projected, playerId, intents) else 0.0
+            if (sequenceLandsByUsableMana) {
+                landSequencing(state, projected, playerId, intents, pendingLandDropIsMana, handAtRoot, modalLandRoot)
+            } else {
+                0.0
+            }
         return sides.against(OpponentAggregate.THREAT) { opponent ->
             mine - boardValue(state, projected, opponent, intents, creatureValuation)
         }
+    }
+
+    /**
+     * [score] with its profile switches bound — the feature `EvaluationWeights.toEvaluator` puts in
+     * the composite. It exists as a class rather than a lambda for [rootedAt]: the land-sequencing
+     * refund needs the decision root's hand (`handAtRoot`), and only a feature that knows its own
+     * parameters can hand back a copy carrying it.
+     */
+    class Bound(
+        private val intents: IntentCatalog,
+        private val sequenceLandsByUsableMana: Boolean,
+        private val creatureValuation: CreatureValuation,
+        private val pendingLandDropIsMana: Boolean,
+        private val surplusAwareLands: Boolean = false,
+        private val handAtRoot: Set<EntityId>? = null,
+        private val modalLandRoot: ModalLandRoot? = null,
+    ) : BoardFeature {
+        override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
+            score(
+                state, projected, playerId, intents, sequenceLandsByUsableMana, creatureValuation,
+                pendingLandDropIsMana, handAtRoot, modalLandRoot,
+            )
+
+        override fun rootedAt(root: GameState, playerId: EntityId): BoardFeature =
+            if (!sequenceLandsByUsableMana) this
+            else Bound(
+                intents, sequenceLandsByUsableMana, creatureValuation, pendingLandDropIsMana, surplusAwareLands,
+                handAtRoot = root.getZone(playerId, Zone.HAND).toSet(),
+                modalLandRoot = if (surplusAwareLands) ModalLandRoot.of(root, playerId) else null,
+            )
     }
 
     private fun boardValue(
@@ -212,12 +271,34 @@ object BoardPresence : BoardFeature {
      * only has to rank two land drops against each other and a solver call per evaluated state is
      * not affordable. And the untap check counts lands, the same thing [Tempo] counts, not every
      * permanent that could make mana.
+     *
+     * **The land drop still to come is mana too** ([pendingLandDropIsMana]). Without it the window
+     * "castable once the tapped lands untap" is read off the battlefield alone, so it slides up by
+     * one the moment a land is played: tapped out on four lands with only 5-drops in hand, the four
+     * tapped lands are refunded as idle; play the fifth land and the 5-drops fall into the window,
+     * the refund (4 × [IDLE_MANA_REFUND]) vanishes, and the land drop scores *below* passing. On our
+     * own turn, with a land drop left and a land in hand, that land counts as one more untapped
+     * land — so playing an untapped land leaves the window exactly where it was and is worth its
+     * full [LAND_UNTAPPED], while a tapland still pays for the mana it withholds.
+     *
+     * **A card the line itself put into hand never closes the window** ([handAtRoot]). The window is
+     * a question about the lands — would their mana have been spent — so it is asked of the hand the
+     * decision started from. Asked of the leaf's hand instead, any draw or tutor while tapped out
+     * pays for itself twice: the card it fetches lands in the window, the refund (up to
+     * tapped × [IDLE_MANA_REFUND]) vanishes, and on four tapped lands that outweighs the card. That
+     * is how Goblin Matron declined its own search for a two-drop (2026-10-11 logs, game 3 turn 9).
+     * The comparisons the term exists for are untouched: a land drop or a spell leaves the root's
+     * other hand cards where they were, and those are exactly the ones still counted. `null` — no
+     * root known, a leaf scored on its own — counts the whole hand, as before.
      */
     private fun landSequencing(
         state: GameState,
         projected: ProjectedState,
         playerId: EntityId,
         intents: IntentCatalog,
+        pendingLandDropIsMana: Boolean,
+        handAtRoot: Set<EntityId>? = null,
+        modalLandRoot: ModalLandRoot? = null,
     ): Double {
         // Projection on the battlefield, base state in hand: an animated Mishra's Factory is still a
         // land and a Dryad Arbor is one from the moment it arrives, and only the projection knows.
@@ -230,8 +311,28 @@ object BoardPresence : BoardFeature {
         val hand = state.getZone(playerId, Zone.HAND)
             .mapNotNull { state.getEntity(it)?.get<CardComponent>() }
 
+        val pending = if (
+            pendingLandDropIsMana &&
+            state.activePlayerId == playerId &&
+            state.getEntity(playerId)?.get<LandDropsComponent>()?.canPlayLand == true &&
+            hand.any { it.isLand }
+        ) 1 else 0
+
+        val window = (untapped + pending + 1)..(lands.size + pending)
+        val windowManaValues = state.getZone(playerId, Zone.HAND)
+            .filter { handAtRoot == null || it in handAtRoot }
+            .mapNotNull { state.getEntity(it)?.get<CardComponent>() }
+            .filter { !it.isLand }
+            .map { it.manaValue } +
+            // A spell the line played away as its land face still asks the question. Throwing it
+            // away did not make the mana idle — it removed what the mana was for, which the hand
+            // count already charges. Without this, playing Pinnacle Monk as a seventh land while
+            // tapped out refunded every tapped land (2026-10-12 logs, game 3 turn 13).
+            modalLandRoot?.let { root -> root.playedAsLands(projected, playerId).map { root.frontManaValues.getValue(it) } }
+                .orEmpty()
+
         var score = 0.0
-        if (tapped > 0 && hand.none { !it.isLand && it.manaValue in (untapped + 1)..lands.size }) {
+        if (tapped > 0 && windowManaValues.none { it in window }) {
             score += tapped * IDLE_MANA_REFUND
         }
         score -= TAPLAND_IN_HAND * hand.count {
@@ -273,6 +374,13 @@ object BoardPresence : BoardFeature {
         // number that has to be in here; the intent prior carries what its abilities *do*.
         if (card.isPlaneswalker) {
             val loyalty = container.get<CountersComponent>()?.getCount(CounterType.LOYALTY) ?: 0
+            if (creatureValuation.walkersFaceTheNextAttack) {
+                // Continuous in loyalty, net of the attack it faces before its controller acts
+                // again — see [PlaneswalkerThreat.boardValue].
+                val damage = projected.getController(entityId)
+                    ?.let { PlaneswalkerThreat.expectedDamage(state, projected, it) } ?: 0
+                return PlaneswalkerThreat.boardValue(!intents.loyaltyIsOnlyFuel(card.name), prior, loyalty, damage)
+            }
             return maxOf(4.0, prior + loyalty * LOYALTY_VALUE)
         }
 
@@ -416,7 +524,8 @@ object BoardPresence : BoardFeature {
      *
      * The keyword bonuses scale with [power] rather than [settledPower] deliberately: a Giant Growth
      * on a flier really is buying evasive damage right now, even though the stats it buys are gone
-     * at cleanup. Off the battlefield there are no temporary modifications, so the two coincide and
+     * at cleanup — when the flier is in a fight to deal it in, which is the reading
+     * [CreatureValuation.expiringStatsNeedAFight] gives `creatureValue`'s caller. Off the battlefield there are no temporary modifications, so the two coincide and
      * the defaults are the printed numbers.
      */
     private fun creatureBodyValue(
@@ -477,13 +586,22 @@ object BoardPresence : BoardFeature {
         // Discount temporary P/T modifications. "Until end of turn" effects expire
         // at cleanup — evaluate using the permanent stats so killing a 2/2 with -2/-2
         // scores better than merely shrinking a 2/3 (which recovers next turn).
-        val tempMod = temporaryPTModification(state, entityId)
+        val tempMod = ExpiringStats.temporaryModification(state, entityId)
         val settledPower = (power - tempMod.first).coerceAtLeast(0)
         val settledToughness = (toughness - tempMod.second).coerceAtLeast(0)
 
+        // The keyword bonuses scale with the power this creature will actually hit with. Under
+        // [CreatureValuation.expiringStatsNeedAFight] that is the pumped power only while it is in
+        // a fight still ahead — a pumped flier at home deals no evasive damage before cleanup.
+        val strikingPower = if (valuation.expiringStatsNeedAFight && !ExpiringStats.inFightStillAhead(state, entityId)) {
+            settledPower
+        } else {
+            power
+        }
+
         // Everything that is a property of the card's own body — stats, keywords, DEFENDER — is
         // [creatureBodyValue]; everything below is a property of this permanent in this position.
-        var value = creatureBodyValue(power, toughness, keywords, settledPower, settledToughness)
+        var value = creatureBodyValue(strikingPower, toughness, keywords, settledPower, settledToughness)
 
         // ── Drawbacks ──
         // "Can't attack" hung on the creature by a Pacifism takes away the same thing DEFENDER
@@ -545,25 +663,6 @@ object BoardPresence : BoardFeature {
         return value.coerceAtLeast(0.1)
     }
 
-    /**
-     * Sum temporary P/T modifications from "until end of turn" floating effects.
-     * Returns (powerMod, toughnessMod) that will expire at cleanup.
-     */
-    private fun temporaryPTModification(state: GameState, entityId: EntityId): Pair<Int, Int> {
-        var powerMod = 0
-        var toughnessMod = 0
-        for (effect in state.floatingEffects) {
-            if (effect.duration != Duration.EndOfTurn) continue
-            if (entityId !in effect.effect.affectedEntities) continue
-            val mod = effect.effect.modification
-            if (mod is SerializableModification.ModifyPowerToughness) {
-                powerMod += mod.powerMod
-                toughnessMod += mod.toughnessMod
-            }
-        }
-        return powerMod to toughnessMod
-    }
-
     /** What a land is worth on the battlefield. Historical constants; [landSequencing] refines them. */
     private const val LAND_UNTAPPED = 0.6
     private const val LAND_TAPPED = 0.3
@@ -580,6 +679,51 @@ object BoardPresence : BoardFeature {
      * this term exists to stop, in the opposite direction.
      */
     private const val TAPLAND_IN_HAND = 0.1
+}
+
+/**
+ * What a decision root knew about the modal double-faced cards in its player's hand whose front face
+ * is a spell — the cards a line can play as a land and so throw the spell away. Read by
+ * [CardAdvantage]'s modal-face charge and [BoardPresence]'s land-sequencing window under
+ * `AiProfile.surplusAwareLands`. Own seat only: it reads hand contents.
+ *
+ * @property frontManaValues each such card's front-face mana value, by entity.
+ * @property holdsALand whether the root hand also held a real land card.
+ * @property waived the card was the only land on offer and its controller is behind on lands — fewer
+ *   in play than both the turns it has taken and the costliest spell in hand.
+ */
+class ModalLandRoot(
+    val frontManaValues: Map<EntityId, Int>,
+    val holdsALand: Boolean,
+    val waived: Boolean,
+) {
+    /** The cards of [frontManaValues] that the line put onto [playerId]'s battlefield as a land. */
+    fun playedAsLands(projected: ProjectedState, playerId: EntityId): List<EntityId> {
+        if (frontManaValues.isEmpty()) return emptyList()
+        val battlefield = projected.getBattlefieldControlledBy(playerId).toSet()
+        return frontManaValues.keys.filter { it in battlefield && projected.hasType(it, "LAND") }
+    }
+
+    companion object {
+        private val NONE = ModalLandRoot(emptyMap(), holdsALand = false, waived = false)
+
+        fun of(root: GameState, playerId: EntityId): ModalLandRoot {
+            val hand = root.getZone(playerId, Zone.HAND)
+                .mapNotNull { id -> root.getEntity(id)?.get<CardComponent>()?.let { id to it } }
+            // Off the battlefield a modal DFC shows its front face (CR 712.8a), so a double-faced
+            // card in hand that is not a land is one whose land face, if it has one, is the back.
+            val fronts = hand.filter { (_, card) -> card.isDoubleFaced && !card.isLand }
+                .associate { (id, card) -> id to card.manaValue }
+            if (fronts.isEmpty()) return NONE
+            val holdsALand = hand.any { (_, card) -> card.isLand }
+            val curveTop = hand.filter { (_, card) -> !card.isLand }.maxOfOrNull { it.second.manaValue } ?: 0
+            val turnsTaken = root.getEntity(playerId)?.get<PlayerTurnsTakenComponent>()?.count ?: 0
+            val projected = root.projectedState
+            val landsInPlay = projected.getBattlefieldControlledBy(playerId).count { projected.hasType(it, "LAND") }
+            val behind = landsInPlay < minOf(turnsTaken, curveTop)
+            return ModalLandRoot(fronts, holdsALand, waived = !holdsALand && behind)
+        }
+    }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -608,16 +752,88 @@ object CardAdvantage : BoardFeature {
         topdeckPenalty: Double,
         landDropIsNotCardLoss: Boolean = false,
         priceLandsInHandAsMana: Boolean = false,
+        surplusAwareLands: Boolean = false,
+        modalLandRoot: ModalLandRoot? = null,
     ): Double {
         val sides = state.sidesFor(playerId) ?: return 0.0
+        // The earmark model only: the mana model already prices a flood on its own schedule.
+        val surplus = surplusAwareLands && landDropIsNotCardLoss && !priceLandsInHandAsMana
         val mine = sideHandValue(
-            state, projected, sides.mine, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
-        )
+            state, projected, sides.mine, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana, surplus,
+        ) - if (surplus && modalLandRoot != null) {
+            modalFaceCharge(state, projected, playerId, topdeckPenalty, modalLandRoot)
+        } else {
+            0.0
+        }
         return sides.against(OpponentAggregate.FIELD) { opponent ->
             mine - sideHandValue(
                 state, projected, opponent, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
+                surplus,
             )
         }
+    }
+
+    /**
+     * [score] with its profile switches bound — the feature `EvaluationWeights.toEvaluator` puts in
+     * the composite. A class rather than a lambda for [rootedAt], for the same reason as
+     * [BoardPresence.Bound]: the modal-face charge asks what a line cost, so it has to know which
+     * spells were in hand where the line started.
+     */
+    class Bound(
+        private val topdeckPenalty: Double,
+        private val landDropIsNotCardLoss: Boolean,
+        private val priceLandsInHandAsMana: Boolean,
+        private val surplusAwareLands: Boolean,
+        private val modalLandRoot: ModalLandRoot? = null,
+    ) : BoardFeature {
+        override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
+            score(
+                state, projected, playerId, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
+                surplusAwareLands, modalLandRoot,
+            )
+
+        override fun rootedAt(root: GameState, playerId: EntityId): BoardFeature =
+            if (!surplusAwareLands) this
+            else Bound(
+                topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana, surplusAwareLands,
+                ModalLandRoot.of(root, playerId),
+            )
+    }
+
+    /**
+     * What playing a modal double-faced card as its land face cost, on top of what the hand count
+     * already moved: the spell's hand value, net.
+     *
+     * [heldCardCount] earmarks the land drop with a land in hand, and a modal DFC whose front is a
+     * spell is not a land there. So with a real land in hand the earmark sits on that land, and
+     * playing the modal card instead comes out exactly as card-neutral as playing the basic — the
+     * spell it threw away was invisible. 2026-10-12 AI-vs-AI logs (`live`), game 3 turn 1: Drowner
+     * of Truth played as its land face with Forest, Mountain and Shattered Landscape in hand.
+     *
+     * The intended total is one spell's worth (the marginal of [cardValue] at the leaf's count),
+     * waived — zero — when the card was the only land on offer and its controller is behind on
+     * lands, because that is the spot the land face is printed for. The hand count gets there on
+     * its own in one case and overshoots in another, so this charges the difference:
+     *  - another land was in hand: the count moved nothing, so charge the spell;
+     *  - the only land, waived: the count already charged the spell as a lost card, so refund it;
+     *  - the only land, not waived: the count already charged it, so add nothing.
+     */
+    private fun modalFaceCharge(
+        state: GameState,
+        projected: ProjectedState,
+        playerId: EntityId,
+        topdeckPenalty: Double,
+        root: ModalLandRoot,
+    ): Double {
+        val played = root.playedAsLands(projected, playerId).size
+        if (played == 0) return 0.0
+        val sign = when {
+            root.holdsALand -> 1.0
+            root.waived -> -1.0
+            else -> return 0.0
+        }
+        val held = heldCardCount(state, playerId, landDropIsNotCardLoss = true, surplusAwareLands = true)
+        return sign * (cardValue(held + played, topdeckPenalty) - cardValue(held, topdeckPenalty))
     }
 
     private fun sideHandValue(
@@ -627,9 +843,13 @@ object CardAdvantage : BoardFeature {
         topdeckPenalty: Double,
         landDropIsNotCardLoss: Boolean,
         priceLandsInHandAsMana: Boolean,
+        surplusAwareLands: Boolean,
     ): Double =
         side.sumOf {
-            handValue(state, projected, it, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana)
+            handValue(
+                state, projected, it, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
+                surplusAwareLands,
+            )
         }
 
     /**
@@ -652,9 +872,10 @@ object CardAdvantage : BoardFeature {
         topdeckPenalty: Double,
         landDropIsNotCardLoss: Boolean,
         priceLandsInHandAsMana: Boolean,
+        surplusAwareLands: Boolean = false,
     ): Double {
         if (!priceLandsInHandAsMana) {
-            return cardValue(heldCardCount(state, playerId, landDropIsNotCardLoss), topdeckPenalty)
+            return cardValue(heldCardCount(state, playerId, landDropIsNotCardLoss, surplusAwareLands), topdeckPenalty)
         }
         val hand = state.getZone(playerId, Zone.HAND)
         val lands = hand.count { state.getEntity(it)?.get<CardComponent>()?.isLand == true }
@@ -750,23 +971,75 @@ object CardAdvantage : BoardFeature {
      * hand". Fixing it means restoring neutrality at the land's *realized* value rather than at zero,
      * and that is a new flag with its own attribution column and arena run — not an edit to a term
      * that has already shipped and been measured.
+     *
+     * ## [surplusAwareLands]: a flood is not a full hand
+     *
+     * The opposite end of the same count. Past the earmarked land every land was a whole card, so
+     * three lands in hand scored like three spells and a land returned to hand was a card gained even
+     * when two others were already queued for the next drops. With the flag on, a land past the drops
+     * of this turn and the next [LOOKAHEAD_LAND_DROPS] ([surplusLands]) counts [SURPLUS_LAND_CARD] of
+     * a card. A land drop stays exactly card-neutral: it spends one drop and one land, so the surplus
+     * count does not move.
      */
-    private fun heldCardCount(state: GameState, playerId: EntityId, landDropIsNotCardLoss: Boolean): Int {
+    private fun heldCardCount(
+        state: GameState,
+        playerId: EntityId,
+        landDropIsNotCardLoss: Boolean,
+        surplusAwareLands: Boolean = false,
+    ): Double {
         val hand = state.getZone(playerId, Zone.HAND)
-        if (!landDropIsNotCardLoss) return hand.size
+        if (!landDropIsNotCardLoss) return hand.size.toDouble()
         val drops = state.getEntity(playerId)?.get<LandDropsComponent>()?.remaining ?: 0
-        if (drops <= 0) return hand.size
         val lands = hand.count { state.getEntity(it)?.get<CardComponent>()?.isLand == true }
-        return hand.size - minOf(lands, drops)
+        val earmarked = if (drops <= 0) 0 else minOf(lands, drops)
+        if (!surplusAwareLands) return (hand.size - earmarked).toDouble()
+        return hand.size - earmarked - surplusLands(lands, drops) * (1.0 - SURPLUS_LAND_CARD)
     }
 
-    private fun cardValue(count: Int, topdeckPenalty: Double): Double = when {
-        count <= 0 -> topdeckPenalty
-        count == 1 -> 1.0
-        count <= 3 -> 1.0 + (count - 1) * 1.5
-        count <= 7 -> 4.0 + (count - 3) * 0.8
+    /**
+     * How many of [playerId]'s lands in hand no land drop in sight reaches: more than the drops left
+     * this turn plus [lookahead] turns' worth after it.
+     *
+     * One land a turn is the cap, so a land past it is not mana the next turn or two can use — it
+     * waits behind the others. Under `AiProfile.surplusAwareLands` the hand counts such a land as
+     * [SURPLUS_LAND_CARD] of a card rather than a whole one ([LOOKAHEAD_LAND_DROPS]), and
+     * `DecisionResponder` uses the one-turn reading to tell a free bounce of its own land from one
+     * that costs a land drop.
+     */
+    fun surplusLands(state: GameState, playerId: EntityId, lookahead: Int = LOOKAHEAD_LAND_DROPS): Int {
+        val drops = state.getEntity(playerId)?.get<LandDropsComponent>()?.remaining ?: 0
+        val lands = state.getZone(playerId, Zone.HAND)
+            .count { state.getEntity(it)?.get<CardComponent>()?.isLand == true }
+        return surplusLands(lands, drops, lookahead)
+    }
+
+    private fun surplusLands(landsInHand: Int, dropsLeft: Int, lookahead: Int = LOOKAHEAD_LAND_DROPS): Int =
+        (landsInHand - maxOf(dropsLeft, 0) - lookahead).coerceAtLeast(0)
+
+    /** Turns of land drops after this one that a land in hand still counts for: "the next turn or two". */
+    const val LOOKAHEAD_LAND_DROPS = 2
+
+    /**
+     * What a surplus land in hand is worth, as a fraction of a card. Near zero rather than zero: a
+     * flood still has uses (discard fodder, a replacement for a destroyed land), but it is not a card
+     * that does anything this game is likely to see.
+     */
+    const val SURPLUS_LAND_CARD = 0.1
+
+    /**
+     * The hand curve over a fractional count — piecewise linear, and equal to the historical integer
+     * curve at every whole number, so a profile without `surplusAwareLands` scores exactly as before.
+     * Below one card it runs straight from the empty-hand value to the first card's.
+     */
+    private fun cardValue(count: Double, topdeckPenalty: Double): Double = when {
+        count <= 0.0 -> topdeckPenalty
+        count <= 1.0 -> topdeckPenalty + count * (1.0 - topdeckPenalty)
+        count <= 3.0 -> 1.0 + (count - 1) * 1.5
+        count <= 7.0 -> 4.0 + (count - 3) * 0.8
         else -> 7.2 + (count - 7) * 0.2 // past 7 cards, you're discarding anyway
     }
+
+    private fun cardValue(count: Int, topdeckPenalty: Double): Double = cardValue(count.toDouble(), topdeckPenalty)
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -840,31 +1113,60 @@ object ThreatAssessment : BoardFeature {
     override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
         score(state, projected, playerId, discountedRaceClock = false)
 
+    /** The pre-[com.wingedsheep.ai.engine.AiProfile.evasionAfterAttacking] signature. */
+    fun score(
+        state: GameState,
+        projected: ProjectedState,
+        playerId: EntityId,
+        discountedRaceClock: Boolean,
+    ): Double = score(state, projected, playerId, discountedRaceClock, evasionAfterAttacking = false)
+
+    /** The pre-[CreatureValuation.expiringStatsNeedAFight] signature. */
+    fun score(
+        state: GameState,
+        projected: ProjectedState,
+        playerId: EntityId,
+        discountedRaceClock: Boolean,
+        evasionAfterAttacking: Boolean,
+    ): Double = score(
+        state, projected, playerId, discountedRaceClock, evasionAfterAttacking, expiringStatsNeedAFight = false,
+    )
+
     /**
      * @param discountedRaceClock score the race in urgency rather than in turns, so a distant clock
      *   is discounted and an absent one is zero. `EvaluationWeights.toEvaluator` binds this from
      *   [com.wingedsheep.ai.engine.AiProfile.discountedRaceClock]; see [RACE_URGENCY_SCALE].
+     * @param evasionAfterAttacking keep tapped attackers in evasive power and stop counting a
+     *   can't-block flier as air cover; see
+     *   [com.wingedsheep.ai.engine.AiProfile.evasionAfterAttacking].
+     * @param expiringStatsNeedAFight read an until-end-of-turn P/T change only on a creature in a
+     *   fight still ahead; see [CreatureValuation.expiringStatsNeedAFight]. Every term here is about
+     *   the *next* combat, and for a creature not already in this one, that combat comes after
+     *   cleanup has taken the bonus away.
      */
     fun score(
         state: GameState,
         projected: ProjectedState,
         playerId: EntityId,
         discountedRaceClock: Boolean,
+        evasionAfterAttacking: Boolean,
+        expiringStatsNeedAFight: Boolean,
     ): Double {
+        val fight = expiringStatsNeedAFight
         val sides = state.sidesFor(playerId) ?: return 0.0
 
         val myLife = sideLife(state, sides.mine)
 
         // Calculate attack potential (power of untapped, non-sick creatures)
-        val myAttackPower = attackPotential(state, projected, sides.mine)
+        val myAttackPower = attackPotential(state, projected, sides.mine, fight)
 
         // Calculate defense capability (total toughness of untapped creatures that can block)
-        val myDefense = defensePotential(state, projected, sides.mine)
+        val myDefense = defensePotential(state, projected, sides.mine, fight)
 
         return sides.against(OpponentAggregate.THREAT) { opponent ->
             val theirLife = sideLife(state, opponent)
-            val theirAttackPower = attackPotential(state, projected, opponent)
-            val theirDefense = defensePotential(state, projected, opponent)
+            val theirAttackPower = attackPotential(state, projected, opponent, fight)
+            val theirDefense = defensePotential(state, projected, opponent, fight)
 
             // Score: positive if we're the faster clock
             var score = 0.0
@@ -893,8 +1195,8 @@ object ThreatAssessment : BoardFeature {
             if (hasLethalOnBoard(theirAttackPower, myLife, myDefense)) score -= 10.0
 
             // Evasive damage (flying power they can't block)
-            val theirEvasivePower = evasivePower(state, projected, opponent, sides.mine)
-            val myEvasivePower = evasivePower(state, projected, sides.mine, opponent)
+            val theirEvasivePower = evasivePower(state, projected, opponent, sides.mine, evasionAfterAttacking, fight)
+            val myEvasivePower = evasivePower(state, projected, sides.mine, opponent, evasionAfterAttacking, fight)
             score += (myEvasivePower - theirEvasivePower) * 0.5
 
             score
@@ -937,7 +1239,12 @@ object ThreatAssessment : BoardFeature {
     private fun sideLife(state: GameState, side: List<EntityId>): Int =
         state.lifePoolsOf(side).minOrNull() ?: 20
 
-    private fun attackPotential(state: GameState, projected: ProjectedState, side: List<EntityId>): Int {
+    private fun attackPotential(
+        state: GameState,
+        projected: ProjectedState,
+        side: List<EntityId>,
+        needAFight: Boolean = false,
+    ): Int {
         // Don't filter by TappedComponent — tapped creatures untap on the next
         // turn and can attack again. Filtering them out massively penalizes the
         // post-combat state (where our creatures are tapped from attacking),
@@ -950,11 +1257,16 @@ object ThreatAssessment : BoardFeature {
                         (state.getEntity(entityId)?.has<SummoningSicknessComponent>() != true ||
                             projected.hasKeyword(entityId, Keyword.HASTE) || projected.canAttackAsThoughHasty(entityId))
                 }
-                .sumOf { (projected.getPower(it) ?: 0).coerceAtLeast(0) }
+                .sumOf { ExpiringStats.power(state, projected, it, needAFight) }
         }
     }
 
-    private fun defensePotential(state: GameState, projected: ProjectedState, side: List<EntityId>): Int {
+    private fun defensePotential(
+        state: GameState,
+        projected: ProjectedState,
+        side: List<EntityId>,
+        needAFight: Boolean = false,
+    ): Int {
         return side.sumOf { playerId ->
             projected.getBattlefieldControlledBy(playerId)
                 .filter { entityId ->
@@ -962,21 +1274,37 @@ object ThreatAssessment : BoardFeature {
                         !projected.cantBlock(entityId) &&
                         state.getEntity(entityId)?.has<TappedComponent>() != true
                 }
-                .sumOf { (projected.getToughness(it) ?: 0).coerceAtLeast(0) }
+                .sumOf { ExpiringStats.toughness(state, projected, it, needAFight) }
         }
     }
 
-    /** Power of creatures with flying/evasion that the defending side can't block. */
+    /**
+     * Power of creatures with flying/evasion that the defending side can't block.
+     *
+     * The defenders' fliers are counted only while untapped — a tapped one cannot block — but the
+     * attackers' were too, which is the mistake [attackPotential] documents avoiding: the state an
+     * attack plan is scored on is the post-combat one, where every flier that just attacked is
+     * tapped, so attacking with an unblockable flier erased its own evasive power from the score.
+     *
+     * The same post-combat state exposes a second miscount: a flier that *can't block* (Aesthir
+     * Glider) was counted as the defenders' air cover while it stood untapped at home, so sending it
+     * in looked like it opened the skies to the opponent's fliers. It never covered them.
+     *
+     * [afterAttacking] fixes both; off, the historical reading.
+     */
     private fun evasivePower(
         state: GameState,
         projected: ProjectedState,
         attackers: List<EntityId>,
-        defenders: List<EntityId>
+        defenders: List<EntityId>,
+        afterAttacking: Boolean,
+        needAFight: Boolean = false,
     ): Int {
         val defenderHasFlyers = defenders.any { defenderId ->
             projected.getBattlefieldControlledBy(defenderId).any { entityId ->
                 projected.isCreature(entityId) &&
                     state.getEntity(entityId)?.has<TappedComponent>() != true &&
+                    !(afterAttacking && projected.cantBlock(entityId)) &&
                     (Keyword.FLYING.name in projected.getKeywords(entityId) ||
                         Keyword.REACH.name in projected.getKeywords(entityId))
             }
@@ -989,11 +1317,11 @@ object ThreatAssessment : BoardFeature {
                 .filter { entityId ->
                     projected.isCreature(entityId) &&
                         Keyword.FLYING.name in projected.getKeywords(entityId) &&
-                        state.getEntity(entityId)?.has<TappedComponent>() != true &&
+                        (afterAttacking || state.getEntity(entityId)?.has<TappedComponent>() != true) &&
                         (state.getEntity(entityId)?.has<SummoningSicknessComponent>() != true ||
                             projected.hasKeyword(entityId, Keyword.HASTE) || projected.canAttackAsThoughHasty(entityId))
                 }
-                .sumOf { (projected.getPower(it) ?: 0).coerceAtLeast(0) }
+                .sumOf { ExpiringStats.power(state, projected, it, needAFight) }
         }
     }
 }

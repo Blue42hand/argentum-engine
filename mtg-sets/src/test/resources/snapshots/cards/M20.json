@@ -46,6 +46,163 @@
     ]
 }
 
+// Ajani, Strength of the Pride
+{
+    "name": "Ajani, Strength of the Pride",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Legendary Planeswalker — Ajani",
+    "oracleText": "+1: You gain life equal to the number of creatures you control plus the number of planeswalkers you control.\n−2: Create a 2/2 white Cat Soldier creature token named Ajani's Pridemate with \"Whenever you gain life, put a +1/+1 counter on this token.\"\n0: If you have at least 15 life more than your starting life total, exile Ajani and each artifact and creature your opponents control.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Ajani, Strength of the Pride:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Add",
+                        "left": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "creature"
+                        },
+                        "right": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "planeswalker"
+                        }
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Ajani, Strength of the Pride:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Cat",
+                        "Soldier"
+                    ],
+                    "name": "Ajani's Pridemate",
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/0/b0819e8e-fb7e-43c7-a7cf-d768f43193ac.jpg?1783932857",
+                    "triggeredAbilities": [
+                        {
+                            "id": "Ajani, Strength of the Pride:2",
+                            "trigger": "LifeGainEvent",
+                            "binding": "ANY",
+                            "effect": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "Self"
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Ajani, Strength of the Pride:4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 0
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "LifeTotal",
+                                "player": "You"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Add",
+                                "left": {
+                                    "type": "StartingLifeTotal",
+                                    "player": "You"
+                                },
+                                "right": {
+                                    "type": "Fixed",
+                                    "amount": 15
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "artifact|creature ctrl:opponent"
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": "Self",
+                                "destination": "Exile"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "gathered0",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rallis",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/9/79883468-a37c-4894-8d05-6a4d150b7d59.jpg?1783933034",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If a planeswalker you control is also a creature (most likely because it's Gideon), it will be counted twice as Ajani's first ability resolves."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "The tokens created by Ajani's second ability are similar to the card Ajani's Pridemate, but they have no mana cost and their mana value is 0."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Whether you have at least 15 life more than your starting life total is determined as Ajani's last ability resolves."
+            }
+        ]
+    },
+    "startingLoyalty": 5,
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Angel of Vitality
 {
     "name": "Angel of Vitality",
@@ -103,6 +260,163 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Bag of Holding
+{
+    "name": "Bag of Holding",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "Whenever you discard a card, exile that card from your graveyard.\n{2}, {T}: Draw a card, then discard a card.\n{4}, {T}, Sacrifice this artifact: Return all cards exiled with this artifact to their owner's hand.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bag of Holding:1",
+                "trigger": "DiscardEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "TriggeringEntity",
+                    "destination": "Exile",
+                    "fromZone": "Graveyard",
+                    "linkToSource": true
+                },
+                "descriptionOverride": "Whenever you discard a card, exile that card from your graveyard."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Bag of Holding:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "descriptionOverride": "{2}, {T}: Draw a card, then discard a card."
+            },
+            {
+                "id": "Bag of Holding:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "{4}, {T}, Sacrifice this artifact: Return all cards exiled with this artifact to their owner's hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "222",
+        "rarity": "RARE",
+        "artist": "Dmitry Burmak",
+        "flavorText": "There's no prepared like overprepared.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49283832-54f2-4619-b4a9-750493c93292.jpg?1783932947",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If you discard a card but that card is not in your graveyard as Bag of Holding's first ability resolves, that card remains wherever it has moved."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If you control more than one Bag of Holding, you choose which one will hold the discarded card. Other Bags of Holding can't return that card."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "You both draw and discard while Bag of Holding's second ability is resolving. No player may take any action—nor can anything else happen—until you've both drawn and discarded."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If Bag of Holding is moved to exile when you sacrifice it (most likely due to Leyline of the Void's effect), it remains in exile. It won't be returned to your hand."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If Bag of Holding leaves the battlefield, the items it contained are exiled forever (and, perhaps, scattered throughout the Astral Plane). If the same Bag of Holding card returns to the battlefield, it's considered a new object without access to the cards stored by the old object."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Bloodthirsty Aerialist
@@ -184,6 +498,165 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Chandra, Flame's Fury
+{
+    "name": "Chandra, Flame's Fury",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Legendary Planeswalker — Chandra",
+    "oracleText": "+1: Chandra deals 2 damage to any target.\n−2: Chandra deals 4 damage to target creature and 2 damage to that creature's controller.\n−8: Chandra deals 10 damage to target player and each creature that player controls.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Chandra, Flame's Fury:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Chandra, Flame's Fury:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 4
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": "TargetController"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Chandra, Flame's Fury:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -8
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 10
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t2"
+                            }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": {
+                                        "cardPredicates": [
+                                            "IsCreature"
+                                        ],
+                                        "controllerPredicate": {
+                                            "type": "ControlledByReferencedPlayer",
+                                            "target": {
+                                                "type": "BoundVariable",
+                                                "name": "t2"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "body": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 10
+                                },
+                                "target": "IterationEntity"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t2"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "294",
+        "rarity": "MYTHIC",
+        "artist": "Magali Villeneuve",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d1c6c4b-62ab-4d44-a2d7-64b44d163606.jpg?1783932919",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If the target creature is an illegal target by the time Chandra's second ability resolves, the ability doesn't resolve. No player is dealt damage. Similarly, if the target player is an illegal target by the time Chandra's last ability resolves, no creatures are dealt damage."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Chandra's last ability targets the player, not their creatures. A creature with hexproof may be dealt damage this way."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -603,6 +1076,122 @@
     ]
 }
 
+// Elvish Reclaimer
+{
+    "name": "Elvish Reclaimer",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Elf Warrior",
+    "oracleText": "This creature gets +2/+2 as long as there are three or more land cards in your graveyard.\n{2}, {T}, Sacrifice a land: Search your library for a land card, put it onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Elvish Reclaimer:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "land"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "land"
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 2,
+                    "toughnessBonus": 2,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "land"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "169",
+        "rarity": "RARE",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/9/39c431d7-d94b-46c4-bb89-f3db56214ab4.jpg?1783932966"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Empyrean Eagle
 {
     "name": "Empyrean Eagle",
@@ -684,6 +1273,186 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Field of the Dead
+{
+    "name": "Field of the Dead",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\n{T}: Add {C}.\nWhenever this land or another land you control enters, if you control seven or more lands with different names, create a 2/2 black Zombie creature token.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Field of the Dead:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Zombie"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/8/18f0436e-9328-4266-9cf8-80b557a0c17c.jpg?1783932856"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "land",
+                        "aggregation": "DISTINCT_NAMES"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                },
+                "descriptionOverride": "Whenever this land or another land you control enters, if you control seven or more lands with different names, create a 2/2 black Zombie creature token."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Field of the Dead:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "247",
+        "rarity": "RARE",
+        "artist": "Kev Walker",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/470ca3f4-29aa-4c4c-8ff2-8cdd70c69943.jpg?1783932937",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "Field of the Dead's last ability counts itself and the land entering the battlefield in addition to whichever other lands you control."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If you control multiple lands with the same name, only one of those lands will count toward the seven or more required to create a Zombie. For example, if you control four lands named Plains, two named Island, and one named Field of the Dead, you control three lands with different names."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If multiple lands enter the battlefield simultaneously, possibly including Field of the Dead itself, all of those lands are counted. For example, if you sacrifice eight lands while resolving Scapeshift and search your library for five different basic land cards, two Field of the Dead cards, and one other land card with a different name, you'll create sixteen Zombie tokens."
+            }
+        ]
+    }
+}
+
+// Glint-Horn Buccaneer
+{
+    "name": "Glint-Horn Buccaneer",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Creature — Minotaur Pirate",
+    "oracleText": "Haste\nWhenever you discard a card, this creature deals 1 damage to each opponent.\n{1}{R}, Discard a card: Draw a card. Activate only if this creature is attacking.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Glint-Horn Buccaneer:1",
+                "trigger": "DiscardEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                },
+                "descriptionOverride": "Whenever you discard a card, this creature deals 1 damage to each opponent."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Glint-Horn Buccaneer:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{R}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": "attacking"
+                        }
+                    }
+                ],
+                "descriptionOverride": "{1}{R}, Discard a card: Draw a card. Activate only if this creature is attacking."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "rarity": "RARE",
+        "artist": "Zack Stella",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/df2df9cb-14f5-470f-b438-20f4ae8d0d59.jpg?1783932979",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "The middle ability of Glint-Horn Buccaneer is a triggered ability, not an activated ability. It doesn't allow you to discard a card whenever you want; rather, you need some other way of discarding a card, such as by activating its last ability."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "In a Two-Headed Giant game, Glint-Horn Buccaneer's triggered ability causes the opposing team to be dealt 1 damage twice."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -780,6 +1549,82 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Gorging Vulture
+{
+    "name": "Gorging Vulture",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Bird",
+    "oracleText": "Flying\nWhen this creature enters, mill four cards. You gain 1 life for each creature card milled this way. (To mill four cards, put the top four cards of your library into your graveyard.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Gorging Vulture:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": "SelectAll",
+                            "filter": "creature",
+                            "storeSelected": "selected2"
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "DistinctEntitiesInCollections",
+                                "collections": [
+                                    "selected2"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, mill four cards. You gain 1 life for each creature card milled this way."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "102",
+        "artist": "Caio Monteiro",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/7/37cbe5f2-5b6b-41de-9586-c7cc83464cf2.jpg?1783932992"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -1119,6 +1964,89 @@
     },
     "colorIdentityOverride": [
         "BLACK",
+        "GREEN"
+    ]
+}
+
+// Nightpack Ambusher
+{
+    "name": "Nightpack Ambusher",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Wolf",
+    "oracleText": "Flash\nOther Wolves and Werewolves you control get +1/+1.\nAt the beginning of your end step, if you didn't cast a spell this turn, create a 2/2 green Wolf creature token.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nightpack Ambusher:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Wolf"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd05e304-1a16-436d-a05c-4a38a839759b.jpg?1783932856",
+                    "controller": "Controller"
+                },
+                "interveningIf": {
+                    "type": "Not",
+                    "condition": {
+                        "type": "PlayerCastSpellsThisTurn",
+                        "atLeast": 1
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, if you didn't cast a spell this turn, create a 2/2 green Wolf creature token."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature Wolf|Werewolf ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "185",
+        "rarity": "RARE",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "A strong leader means a growing pack.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/c/2c9b1f70-9861-4c66-a52f-c40002679e75.jpg?1783932960",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "A creature that's both a Wolf and a Werewolf gets only +1/+1 from Nightpack Ambusher's ability."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Nightpack Ambusher looks at the entire turn to see if you have cast a spell, even if Nightpack Ambusher wasn't on the battlefield when that spell was cast. Notably, you won't get a Wolf token during your end step if you cast Nightpack Ambusher during your turn."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If you cast a spell that was countered, Nightpack Ambusher's last ability doesn't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
         "GREEN"
     ]
 }
@@ -1490,7 +2418,9 @@
                                         "baseFilter": "creature Vampire ctrl:you"
                                     }
                                 },
-                                "storeAs": "target0"
+                                "storeAs": "target0",
+                                "nonTargeting": true,
+                                "prompt": "Choose a Vampire to sacrifice"
                             },
                             {
                                 "type": "SacrificeTarget",
@@ -1799,6 +2729,83 @@
     ]
 }
 
+// Wildfire Elemental
+{
+    "name": "Wildfire Elemental",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Elemental",
+    "oracleText": "Whenever an opponent is dealt noncombat damage, creatures you control get +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Wildfire Elemental:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageNonCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 0
+                        },
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Whenever an opponent is dealt noncombat damage, creatures you control get +1/+0 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "297",
+        "artist": "Svetlin Velinov",
+        "flavorText": "\"Fire is always dancing, leaping and whirling, seeking more fuel. It never rests, so why should I?\"\n—Chandra Nalaar",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/272e317c-55c4-43b2-91aa-3e0009cfd7d5.jpg?1783932917",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "Combat damage is the damage that's dealt automatically by attacking and blocking creatures. Any other damage is noncombat damage, even if it's dealt during a combat phase by an attacking or blocking creature."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "The last ability of Wildfire Elemental triggers once for each event in which an opponent is dealt noncombat damage, regardless of how much damage that player is dealt."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Wildfire Elemental's triggered ability affects only creatures you control at the time it resolves. Creatures you begin to control later in the turn won't get +1/+0."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "In a multiplayer game, if a source deals damage to multiple opponents at the same time, the last ability of Wildfire Elemental will trigger that many times."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Winged Words
 {
     "name": "Winged Words",
@@ -1836,5 +2843,56 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Woodland Champion
+{
+    "name": "Woodland Champion",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Scout",
+    "oracleText": "Whenever one or more tokens you control enter, put that many +1/+1 counters on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Woodland Champion:1",
+                "trigger": {
+                    "type": "PermanentsEnteredEvent",
+                    "filter": "token"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "amount": {
+                        "type": "DistinctEntitiesInCollections",
+                        "collections": [
+                            "trigger.captured"
+                        ]
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "205",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "flavorText": "\"Every footfall on the forest floor is a heartbeat sending strength into my veins.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/5/250f5303-428a-478c-9bd5-2410f7fcc4dd.jpg?1783932953",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "The number of +1/+1 counters you put on Woodland Champion is the number of tokens that entered the battlefield under your control, even if some or all of them leave the battlefield before the triggered ability resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }

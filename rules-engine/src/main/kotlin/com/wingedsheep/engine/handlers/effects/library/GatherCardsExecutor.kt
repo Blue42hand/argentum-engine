@@ -24,6 +24,9 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CrewSaddleContributorsComponent
 import com.wingedsheep.engine.state.components.battlefield.CraftedFromExiledComponent
+import com.wingedsheep.engine.state.components.battlefield.entitiesChoice
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.components.stack.entityIds
 import kotlin.reflect.KClass
 
@@ -54,13 +57,14 @@ class GatherCardsExecutor(
                 val playerIds = resolvePlayers(source.player, context, state)
                     ?: return EffectResult.error(state, "Could not resolve player for GatherCards")
                 playerIds.flatMap { playerId ->
-                    // For a mill, apply ModifyMillAmount replacement effects to the announced
-                    // count per milling player (CR 701.13 — "mill that many plus four instead").
-                    // A scry likewise applies ModifyScryAmount (CR 701.22 — "scry that many
-                    // cards plus one instead").
+                    // For a mill, scry or surveil, apply ModifyKeywordActionAmount replacement
+                    // effects to the announced count per acting player — "mill that many plus
+                    // four instead" (CR 701.17), "scry that many cards plus one instead"
+                    // (CR 701.22), "look at an additional two cards" (CR 701.25b).
                     val effectiveCount = when {
-                        source.isMill -> MillAmountModifier.apply(state, playerId, count, predicateEvaluator)
-                        source.isScry -> ScryAmountModifier.apply(state, playerId, count, predicateEvaluator)
+                        source.isMill -> KeywordActionAmountModifier.mill(state, playerId, count, predicateEvaluator)
+                        source.isScry -> KeywordActionAmountModifier.scry(state, playerId, count, predicateEvaluator)
+                        source.isSurveil -> KeywordActionAmountModifier.surveil(state, playerId, count, predicateEvaluator)
                         else -> count
                     }
                     state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(effectiveCount)
@@ -252,7 +256,10 @@ class GatherCardsExecutor(
                         is com.wingedsheep.engine.state.components.stack.ChosenTarget.Spell -> chosen.spellEntityId
                         is com.wingedsheep.engine.state.components.stack.ChosenTarget.Player -> null
                     }
-                }
+                    // One object may fill several instances of "target" (CR 115.3) — an artifact
+                    // creature chosen as both "target artifact" and "target creature". A gathered
+                    // collection is a set of objects, so it is visited, moved and counted once.
+                }.distinct()
             }
 
             is CardSource.SourceLinkedBattlefield -> {
@@ -321,17 +328,30 @@ class GatherCardsExecutor(
                     .filter { it in battlefield }
             }
 
-            is CardSource.CreaturesThatSaddledSource -> {
-                // CR 702.171c — the creatures tapped to saddle this Mount this turn, recorded on
+            is CardSource.CreaturesThatCrewedOrSaddledSource -> {
+                // CR 702.122 / 702.171c — the creatures tapped to crew or saddle the source this turn, recorded on
                 // the source's CrewSaddleContributorsComponent. Restrict to creatures still on the
                 // battlefield; one that already left can't be exiled/returned.
                 val sourceId = context.sourceId
-                    ?: return EffectResult.error(state, "No source entity for CreaturesThatSaddledSource")
+                    ?: return EffectResult.error(state, "No source entity for CreaturesThatCrewedOrSaddledSource")
                 val battlefield = state.getBattlefield().toSet()
                 state.getEntity(sourceId)
                     ?.get<CrewSaddleContributorsComponent>()
                     ?.creatureIds
                     ?.filter { it in battlefield }
+                    ?: emptyList()
+            }
+
+            is CardSource.CreaturesThatConvokedSource -> {
+                // CR 702.51c — every creature tapped for the source's convoke, in tap order, read off
+                // the spell's record (or, for a permanent spell that has resolved, the cast-choices
+                // bag it carried). Departed convokers are kept, because an instruction may still
+                // apply to them through last-known information (CR 701.50b — connive).
+                val source = context.sourceId?.let { state.getEntity(it) }
+                    ?: return EffectResult.error(state, "No source entity for CreaturesThatConvokedSource")
+                (source.entitiesChoice(ChoiceSlot.CONVOKED_CREATURES)?.entryStamps
+                    ?: source.get<SpellOnStackComponent>()?.convokedCreatures)
+                    ?.keys?.toList()
                     ?: emptyList()
             }
 
@@ -438,7 +458,22 @@ class GatherCardsExecutor(
             state
         }
 
-        val collections = mapOf(effect.storeAs to cards)
+        // A search marks what it found, so the pick that follows can say it is one (a found card is
+        // a gain; an empty pick is "fail to find"). A later non-search gather into the same name
+        // clears a stale mark.
+        val searchedKey = com.wingedsheep.engine.handlers.PipelineState.searchedKey(effect.storeAs)
+        val searchCollections = when {
+            effect.search -> mapOf(effect.storeAs to cards, searchedKey to cards)
+            searchedKey in context.pipeline.storedCollections -> mapOf(effect.storeAs to cards, searchedKey to emptyList())
+            else -> mapOf(effect.storeAs to cards)
+        }
+        // A mill marks what it took, so the move that follows is reported as a mill (CR 701.17).
+        val milledKey = com.wingedsheep.engine.handlers.PipelineState.milledKey(effect.storeAs)
+        val collections = when {
+            (effect.source as? CardSource.TopOfLibrary)?.isMill == true -> searchCollections + (milledKey to cards)
+            milledKey in context.pipeline.storedCollections -> searchCollections + (milledKey to emptyList())
+            else -> searchCollections
+        }
         val sourceVariable = effect.source as? CardSource.FromVariable
         val updatedCollections = if (sourceVariable != null) {
             com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.propagateUnknown(

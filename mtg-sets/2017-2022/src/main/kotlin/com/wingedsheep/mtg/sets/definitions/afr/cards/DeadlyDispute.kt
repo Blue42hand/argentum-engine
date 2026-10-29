@@ -12,7 +12,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Instant
  *
  * As an additional cost to cast this spell, sacrifice an artifact or creature.
- * Draw two cards and create a Treasure token.
+ * Draw two cards and create a Treasure token. (It's an artifact with
+ * "{T}, Sacrifice this token: Add one mana of any color.")
  */
 val DeadlyDispute = card("Deadly Dispute") {
     manaCost = "{1}{B}"

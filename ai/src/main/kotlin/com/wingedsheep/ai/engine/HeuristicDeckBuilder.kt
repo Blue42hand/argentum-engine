@@ -1,7 +1,20 @@
 package com.wingedsheep.ai.engine
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.ManaSymbol
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEffect
+import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
+import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
+import com.wingedsheep.sdk.scripting.effects.AddManaEffect
+import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
+import com.wingedsheep.sdk.scripting.effects.AddOneManaOfEachColorAmongEffect
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.values.ManaColorSet
+import kotlin.math.pow
 
 /**
  * Heuristic sealed deck builder that uses [LimitedCardRater] to evaluate card quality.
@@ -10,7 +23,8 @@ import com.wingedsheep.sdk.model.CardDefinition
  * 1. Rate every card in the pool
  * 2. Score each color by the total rating of its cards (weighted toward creatures)
  * 3. Pick the best 2 colors
- * 4. Select the top 23 on-color spells by rating, with mana curve awareness
+ * 4. Select the top 23 on-color spells by rating, with mana curve awareness — each copy valued at
+ *    its marginal worth, so a legend's duplicates rank below its first copy ([rankByMarginalValue])
  * 5. Fill to 40 cards with basic lands split proportionally by mana symbols
  *
  * When [locked] is non-empty the builder switches to **completion mode**: the locked cards are
@@ -49,7 +63,7 @@ private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): M
     val colorScores = mutableMapOf<Color, Double>()
     for (card in nonLands) {
         val rating = ratings[card] ?: 0.0
-        for (color in card.colors) {
+        for (color in spellColors(card)) {
             colorScores[color] = (colorScores[color] ?: 0.0) + rating
         }
     }
@@ -57,43 +71,43 @@ private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): M
     // Pick top 2 colors
     val bestColors = colorScores.entries.sortedByDescending { it.value }.take(2).map { it.key }.toSet()
 
-    // Select on-color + colorless cards, sorted by rating (best first)
-    val candidates = nonLands.filter { card ->
-        card.colors.isEmpty() || card.colors.all { it in bestColors }
-    }.sortedByDescending { ratings[it] ?: 0.0 }
+    // Select cards castable off the chosen colors, best first — by each copy's *marginal* value, so
+    // a second copy of a legend ranks below the first (see [rankByMarginalValue]).
+    val candidates = rankByMarginalValue(nonLands.filter { castableWithColors(it, bestColors) }) { ratings[it] ?: 0.0 }
+    val copyValue = candidates.associate { it.slot to it.value }
+    fun value(slot: PoolSlot) = copyValue[slot] ?: 0.0
 
     // Pick top 23, but ensure a reasonable mana curve:
     // At least 5 creatures at CMC <= 3, and at least 13 creatures total
-    val selected = mutableListOf<CardDefinition>()
-    val remaining = candidates.toMutableList()
+    val selected = mutableListOf<PoolSlot>()
+    val remaining = candidates.map { it.slot }.toMutableList()
 
     // Spell slots scale with deck size (23 nonland cards in a 40-card limited deck).
     val spellTarget = (targetSize * 23) / 40
 
-    // First pass: grab the best cards by rating, capped at 4 copies per name (sealed rule)
+    // First pass: grab the best cards by value, capped at 4 copies per name (sealed rule)
     val picksByName = mutableMapOf<String, Int>()
-    val topPicks = mutableListOf<CardDefinition>()
+    val topPicks = mutableListOf<PoolSlot>()
     val iter = remaining.iterator()
     while (iter.hasNext() && topPicks.size < spellTarget) {
-        val card = iter.next()
-        val current = picksByName[card.name] ?: 0
+        val slot = iter.next()
+        val current = picksByName[slot.card.name] ?: 0
         if (current >= 4) continue
-        picksByName[card.name] = current + 1
-        topPicks.add(card)
+        picksByName[slot.card.name] = current + 1
+        topPicks.add(slot)
         iter.remove()
     }
     selected.addAll(topPicks)
 
     // Check curve: if too few cheap creatures, swap in some
-    val cheapCreatures = selected.count { it.typeLine.isCreature && it.cmc <= 3 }
-    val totalCreatures = selected.count { it.typeLine.isCreature }
+    val cheapCreatures = selected.count { it.card.typeLine.isCreature && it.card.cmc <= 3 }
+    val totalCreatures = selected.count { it.card.typeLine.isCreature }
 
     if (cheapCreatures < 5 || totalCreatures < 13) {
-        // Find cheap creatures we didn't pick
-        val cheapReplacements = remaining.filter { it.typeLine.isCreature && it.cmc <= 3 }
-            .sortedByDescending { ratings[it] ?: 0.0 }
+        // Find cheap creatures we didn't pick (already in value order)
+        val cheapReplacements = remaining.filter { it.card.typeLine.isCreature && it.card.cmc <= 3 }
         // Find expensive non-creatures or weak cards to cut
-        val cuttable = selected.sortedBy { ratings[it] ?: 0.0 }
+        val cuttable = selected.sortedBy { value(it) }
 
         var neededCheap = (5 - cheapCreatures).coerceAtLeast(0)
         var neededCreatures = (13 - totalCreatures).coerceAtLeast(0)
@@ -104,13 +118,13 @@ private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): M
         var swapsDone = 0
         while (swapsDone < swapCount && cutIdx < cuttable.size && replaceIdx < cheapReplacements.size) {
             val replacement = cheapReplacements[replaceIdx]
-            val current = picksByName[replacement.name] ?: 0
+            val current = picksByName[replacement.card.name] ?: 0
             if (current >= 4) { replaceIdx++; continue }
             val cut = cuttable[cutIdx]
             if (selected.remove(cut)) {
-                picksByName[cut.name] = ((picksByName[cut.name] ?: 0) - 1).coerceAtLeast(0)
+                picksByName[cut.card.name] = ((picksByName[cut.card.name] ?: 0) - 1).coerceAtLeast(0)
                 selected.add(replacement)
-                picksByName[replacement.name] = current + 1
+                picksByName[replacement.card.name] = current + 1
                 swapsDone++
             }
             cutIdx++
@@ -118,12 +132,13 @@ private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): M
         }
     }
 
-    for (card in selected) {
-        deck[card.name] = (deck[card.name] ?: 0) + 1
+    for (slot in selected) {
+        deck[slot.card.name] = (deck[slot.card.name] ?: 0) + 1
     }
 
     // Add on-color non-basic lands (capped at 4 per name)
     for (land in poolLands) {
+        if (!landFitsColors(land, bestColors)) continue
         val current = deck[land.name] ?: 0
         if (current >= 4) continue
         deck[land.name] = current + 1
@@ -131,7 +146,7 @@ private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): M
 
     // Fill to target size with basic lands split by color
     val landsNeeded = (targetSize - deck.values.sum()).coerceAtLeast(0)
-    addBasicLands(deck, bestColors, landsNeeded) { color -> selected.sumOf { it.manaCost.colorCount[color] ?: 0 } }
+    addBasicLands(deck, bestColors, landsNeeded) { color -> selected.sumOf { it.card.manaCost.colorCount[color] ?: 0 } }
 
     return deck
 }
@@ -158,12 +173,12 @@ private fun completeSealedDeck(
     for ((name, count) in deck) {
         val def = defOf(name) ?: continue
         if (def.typeLine.isLand) continue
-        for (color in def.colors) colorScores[color] = (colorScores[color] ?: 0.0) + count
+        for (color in spellColors(def)) colorScores[color] = (colorScores[color] ?: 0.0) + count
     }
     if (colorScores.isEmpty()) {
         for (card in pool.filter { !it.typeLine.isLand }) {
             val rating = ratings[card] ?: 0.0
-            for (color in card.colors) colorScores[color] = (colorScores[color] ?: 0.0) + rating
+            for (color in spellColors(card)) colorScores[color] = (colorScores[color] ?: 0.0) + rating
         }
     }
     val bestColors = colorScores.entries.sortedByDescending { it.value }.take(2).map { it.key }.toSet()
@@ -173,9 +188,12 @@ private fun completeSealedDeck(
     fun nonLandCount() = deck.entries.sumOf { (n, c) -> if (defOf(n)?.typeLine?.isLand == true) 0 else c }
 
     // Fill spell slots with the best on-color (or colorless) candidates not already maxed out.
-    val candidates = pool
-        .filter { !it.typeLine.isLand && (it.colors.isEmpty() || it.colors.all { c -> c in bestColors }) }
-        .sortedByDescending { ratings[it] ?: 0.0 }
+    // Copies the player already locked count toward the legend discount: a locked legend's next
+    // copy from the pool is already its second.
+    val candidates = rankByMarginalValue(
+        pool.filter { !it.typeLine.isLand && castableWithColors(it, bestColors) },
+        alreadyIncluded = { name -> locked[name] ?: 0 },
+    ) { ratings[it] ?: 0.0 }.map { it.slot.card }
     for (card in candidates) {
         if (nonLandCount() >= spellTarget || total() >= targetSize) break
         val have = deck[card.name] ?: 0
@@ -185,7 +203,7 @@ private fun completeSealedDeck(
     }
 
     // On-color non-basic lands from the pool.
-    for (land in pool.filter { it.typeLine.isLand && !it.typeLine.isBasicLand }) {
+    for (land in pool.filter { it.typeLine.isLand && !it.typeLine.isBasicLand && landFitsColors(it, bestColors) }) {
         if (total() >= targetSize) break
         val have = deck[land.name] ?: 0
         val available = poolCounts[land.name] ?: 0
@@ -238,5 +256,124 @@ private fun addBasicLands(
             deck[land] = (deck[land] ?: 0) + landsNeeded
         }
         else -> deck["Forest"] = (deck["Forest"] ?: 0) + landsNeeded
+    }
+}
+
+/**
+ * One physical card in the pool. Copies of the same name share a [CardDefinition] (equal, often the
+ * same instance), so the builder tracks them by position to tell "the first Yargle" from the second.
+ */
+internal data class PoolSlot(val index: Int, val card: CardDefinition)
+
+/** A pool copy and what adding it to the deck is worth, given the copies of its name ranked above it. */
+internal data class RankedCopy(val slot: PoolSlot, val value: Double)
+
+/**
+ * What the second and later copies of a legendary permanent are worth, relative to the first, per
+ * copy already in the deck. The legend rule (CR 704.5j) makes a drawn duplicate dead while the first
+ * is on the battlefield — it is only insurance against removal — so `0.65^k` for the copy with `k`
+ * copies ahead of it: a strong legend's second copy still makes a deck, a filler legend's doesn't.
+ */
+internal const val LEGEND_EXTRA_COPY_FACTOR = 0.65
+
+/**
+ * Rank [cards] best first by each copy's *marginal* value: [rating] for the first copy of a name,
+ * discounted by [LEGEND_EXTRA_COPY_FACTOR] per earlier copy for a legendary permanent (copies already
+ * in the deck, [alreadyIncluded], count as earlier). Non-legendary copies are worth their full
+ * rating every time, so for a pool without legend duplicates this is exactly a by-rating sort.
+ *
+ * Ties keep pool order, so the result is deterministic.
+ */
+internal fun rankByMarginalValue(
+    cards: List<CardDefinition>,
+    alreadyIncluded: (String) -> Int = { 0 },
+    rating: (CardDefinition) -> Double,
+): List<RankedCopy> {
+    val seen = mutableMapOf<String, Int>()
+    return cards.mapIndexed { index, card ->
+        val earlier = alreadyIncluded(card.name) + (seen[card.name] ?: 0)
+        seen[card.name] = (seen[card.name] ?: 0) + 1
+        val legendDuplicate = earlier > 0 && card.typeLine.isLegendary && card.typeLine.isPermanent
+        val value = if (legendDuplicate) rating(card) * LEGEND_EXTRA_COPY_FACTOR.pow(earlier) else rating(card)
+        RankedCopy(PoolSlot(index, card), value)
+    }.sortedByDescending { it.value }
+}
+
+/**
+ * The colors a spell asks of its caster: the colored symbols in its mana cost (hybrid and Phyrexian
+ * pips count for their colors), plus a color indicator. Deliberately *not* [CardDefinition.colors] —
+ * devoid makes a card colorless (CR 702.114a) without making its `{U}` payable with any mana.
+ */
+internal fun spellColors(card: CardDefinition): Set<Color> =
+    card.manaCost.colors + (card.colorIndicator ?: emptySet())
+
+/**
+ * Whether a deck whose mana comes from [deckColors] basics can pay [card]'s mana cost. Every pip
+ * must be payable: a colored pip needs its color, a hybrid either half, a Phyrexian pip can always
+ * be paid with 2 life (CR 107.4f) and a monocolored hybrid `{2/W}` with two generic (CR 107.4e).
+ * A `{C}` pip needs a colorless *source*, which a basic-land mana base doesn't have. A card with no
+ * mana cost at all (cast only by suspend or the like) falls back to its color indicator.
+ */
+internal fun castableWithColors(card: CardDefinition, deckColors: Set<Color>): Boolean {
+    if (card.manaCost.symbols.isEmpty()) return (card.colorIndicator ?: emptySet()).all { it in deckColors }
+    return manaCostPayableWith(card.manaCost, deckColors)
+}
+
+internal fun manaCostPayableWith(cost: ManaCost, deckColors: Set<Color>): Boolean =
+    cost.symbols.all { symbol ->
+        when (symbol) {
+            is ManaSymbol.Phyrexian, is ManaSymbol.HybridPhyrexian, is ManaSymbol.MonocolorHybrid -> true
+            is ManaSymbol.Colorless -> false
+            else -> symbol.colors.isEmpty() || symbol.colors.any { it in deckColors }
+        }
+    }
+
+private val BASIC_TYPE_COLORS = mapOf(
+    Subtype.PLAINS to Color.WHITE, Subtype.ISLAND to Color.BLUE, Subtype.SWAMP to Color.BLACK,
+    Subtype.MOUNTAIN to Color.RED, Subtype.FOREST to Color.GREEN,
+)
+
+/**
+ * Whether a non-basic [land] belongs in a deck playing [deckColors]:
+ *  - a land that taps for colored mana (its basic land types, CR 305.6, and the `Add …` effects of
+ *    its activated abilities) fits when at least one of those colors is a deck color — Goblin-town
+ *    ({B} or {R}) is in a B/x deck, never a G/W one; a five-color land fits everywhere;
+ *  - a land that only fetches (Wooded Foothills) fits when a basic land type it names is on-color,
+ *    or when it names none ("a basic land card", Evolving Wilds);
+ *  - anything else (colorless mana, pure utility) fits when every colored symbol in its rules text
+ *    — the cost of its other abilities — is a deck color.
+ */
+internal fun landFitsColors(land: CardDefinition, deckColors: Set<Color>): Boolean {
+    val produced = mutableSetOf<Color>()
+    land.typeLine.subtypes.forEach { BASIC_TYPE_COLORS[it]?.let(produced::add) }
+    land.script.activatedAbilities.forEach { collectProducedColors(it.effect, produced) }
+    if (produced.isNotEmpty()) return produced.any { it in deckColors }
+
+    val fetched = BASIC_TYPE_COLORS.filterKeys { type ->
+        Regex("""\b${type.value}\b""").containsMatchIn(land.oracleText)
+    }.values.toSet()
+    if (fetched.isNotEmpty()) return fetched.any { it in deckColors }
+
+    return land.colorIdentity.all { it in deckColors }
+}
+
+private fun collectProducedColors(effect: Effect, out: MutableSet<Color>) {
+    when (effect) {
+        is AddManaEffect -> out.add(effect.color)
+        is AddColorlessManaEffect -> Unit
+        is AddManaOfChoiceEffect -> collectChoiceColors(effect.colorSet, out)
+        is AddDynamicManaEffect -> out.addAll(effect.allowedColors)
+        is AddAnyColorManaSpendOnChosenTypeEffect, is AddOneManaOfEachColorAmongEffect -> out.addAll(Color.entries)
+        is CompositeEffect -> effect.effects.forEach { collectProducedColors(it, out) }
+        else -> Unit
+    }
+}
+
+/** State-dependent color sets (chosen color, colors among permanents, …) could be any color. */
+private fun collectChoiceColors(colorSet: ManaColorSet, out: MutableSet<Color>) {
+    when (colorSet) {
+        is ManaColorSet.Specific -> out.addAll(colorSet.colors)
+        is ManaColorSet.Union -> colorSet.members.forEach { collectChoiceColors(it, out) }
+        else -> out.addAll(Color.entries)
     }
 }
