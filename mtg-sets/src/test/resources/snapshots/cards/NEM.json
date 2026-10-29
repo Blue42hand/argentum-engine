@@ -960,6 +960,78 @@
     ]
 }
 
+// Mogg Salvage
+{
+    "name": "Mogg Salvage",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "If an opponent controls an Island and you control a Mountain, you may cast this spell without paying its mana cost.\nDestroy target artifact.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact"
+                },
+                "id": "t0"
+            }
+        ],
+        "selfAlternativeCost": {
+            "manaCost": "",
+            "condition": {
+                "type": "All",
+                "conditions": [
+                    {
+                        "type": "Exists",
+                        "player": "EachOpponent",
+                        "zone": "Battlefield",
+                        "filter": "land Island"
+                    },
+                    {
+                        "type": "Exists",
+                        "player": "You",
+                        "zone": "Battlefield",
+                        "filter": "land Mountain"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "94",
+        "rarity": "UNCOMMON",
+        "artist": "Paolo Parente",
+        "flavorText": "Three moggs, one treasure, too bad.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/0/403aa48c-b684-4c54-8863-460958055a1f.jpg?1783945818",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "To cast Mogg Salvage without paying its mana cost, any opponent may control an Island, not just the one who controls the target artifact."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "Who controls what lands is important only as you cast Mogg Salvage. Once it has been cast, you no longer controlling a Mountain or each opponent no longer controlling any Islands won't affect Mogg Salvage."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "Casting a spell without paying its mana cost has no effect on its mana value. Mogg Salvage's mana value is always 3."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Moggcatcher
 {
     "name": "Moggcatcher",

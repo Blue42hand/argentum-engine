@@ -1165,6 +1165,95 @@
     ]
 }
 
+// Goblin War Party
+{
+    "name": "Goblin War Party",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one —\n• Create three 1/1 red Goblin creature tokens.\n• Creatures you control get +1/+1 and gain haste until end of turn.\nEntwine {2}{R} (Choose both if you pay the entwine cost.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "CreateToken",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "RED"
+                        ],
+                        "creatureTypes": [
+                            "Goblin"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/c/5/c5522b39-802a-4508-a671-2f73b0633032.jpg?1783933225"
+                    },
+                    "description": "Create three 1/1 red Goblin creature tokens"
+                },
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "ModifyStats",
+                                    "powerModifier": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    },
+                                    "toughnessModifier": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    },
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "HASTE",
+                                    "target": "IterationEntity"
+                                }
+                            ]
+                        }
+                    },
+                    "description": "Creatures you control get +1/+1 and gain haste until end of turn"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1,
+            "additionalManaCostPerExtraMode": "{2}{R}"
+        }
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "artist": "Deruchenko Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/b/2b4155d1-0a87-4d2c-a1a0-06b2553eaae4.jpg?1783933111",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Goblin War Party’s second mode affects only creatures you control at the time the spell resolves. Creatures you begin to control later in the turn won’t get +1/+1 or gain haste."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If Goblin War Party is entwined, its modes are performed in order. The Goblin tokens you create get +1/+1 and gain haste."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Good-Fortune Unicorn
 {
     "name": "Good-Fortune Unicorn",
