@@ -81,6 +81,7 @@ class CostCalculator(
         fromZone: Zone? = null,
         declaredCostSlot: ChoiceSlot? = null,
         baseCost: ManaCost = cardDef.manaCost,
+        commanderCardName: String = cardDef.name,
     ): ManaCost {
         var totalReduction = 0
         var totalIncrease = 0
@@ -150,7 +151,7 @@ class CostCalculator(
         }
 
         // Commander tax (CR 903.8).
-        totalIncrease += calculateCommanderTax(state, cardDef, casterId, fromZone)
+        totalIncrease += calculateCommanderTax(state, commanderCardName, casterId, fromZone)
 
         // CR 601.2f: the total cost is the base cost plus all cost increases, then minus all cost
         // reductions; the mana component is floored at {0} (it can't be reduced below {0}). Apply
@@ -183,7 +184,7 @@ class CostCalculator(
      */
     private fun calculateCommanderTax(
         state: GameState,
-        cardDef: CardDefinition,
+        commanderCardName: String,
         casterId: EntityId,
         fromZone: Zone?,
     ): Int {
@@ -196,7 +197,7 @@ class CostCalculator(
             val card = container.get<CardComponent>() ?: return@firstNotNullOfOrNull null
             val commander = container.get<CommanderComponent>() ?: return@firstNotNullOfOrNull null
             if (commander.ownerId != casterId) return@firstNotNullOfOrNull null
-            if (card.name != cardDef.name) return@firstNotNullOfOrNull null
+            if (card.name != commanderCardName) return@firstNotNullOfOrNull null
             commander
         } ?: return 0
         return 2 * match.castsFromCommandZone
@@ -842,7 +843,9 @@ class CostCalculator(
     fun calculateMinPossibleCost(
         state: GameState,
         cardDef: CardDefinition,
-        casterId: EntityId
+        casterId: EntityId,
+        baseCost: ManaCost = cardDef.manaCost,
+        declaredCostSlot: ChoiceSlot? = null,
     ): ManaCost {
         val optimisticTargets = mutableListOf<EntityId>()
         for (ability in cardDef.script.staticAbilities) {
@@ -854,7 +857,7 @@ class CostCalculator(
                 if (match != null) optimisticTargets += match
             }
         }
-        return calculateEffectiveCost(state, cardDef, casterId, optimisticTargets)
+        return calculateEffectiveCost(state, cardDef, casterId, optimisticTargets, declaredCostSlot = declaredCostSlot, baseCost = baseCost)
     }
 
     private fun sourceFromModification(modification: CostModification): CostReductionSource? = when (modification) {
@@ -1457,8 +1460,8 @@ class CostCalculator(
      * The base cost is {3}, reduced by any [ModifySpellCost] with target
      * [SpellCostTarget.FaceDownYouCast] on permanents the caster controls.
      */
-    fun calculateFaceDownCost(state: GameState, casterId: EntityId): ManaCost {
-        val baseMorphCost = ManaCost.parse("{3}")
+    fun calculateFaceDownCost(state: GameState, casterId: EntityId, additionalMana: ManaCost = ManaCost.ZERO): ManaCost {
+        val baseMorphCost = ManaCost.parse("{3}") + additionalMana
         var totalReduction = 0
 
         for ((sourceId, ability) in scanBattlefieldModifySpellCost(state)) {
@@ -1820,46 +1823,31 @@ class CostCalculator(
         return oncePerTurnCandidate
     }
 
-    /**
-     * Calculate the effective cost of casting a spell using an alternative base cost.
-     * Applies cost increases (tax effects) to the alternative cost.
-     * Per Rule 118.9a, cost reductions and increases apply to alternative costs.
-     *
-     * Note: Self-reduction (`SpellCostTarget.SelfCast`) and Affinity are NOT applied to
-     * alternative costs, since those modify the card's own mana cost. Only
-     * battlefield-sourced AnyCaster and OpponentsCast increases apply (CR 118.9d).
-     */
+    /** Alternative costs replace the base, not the increases or reductions applied to it. */
     fun calculateEffectiveCostWithAlternativeBase(
         state: GameState,
         cardDef: CardDefinition,
         alternativeCost: ManaCost,
         casterId: EntityId,
-    ): ManaCost {
-        var totalIncrease = 0
-        for ((sourceId, ability) in scanBattlefieldModifySpellCost(state)) {
-            val applies = when (val target = ability.target) {
-                is SpellCostTarget.AnyCaster ->
-                    matchesCardDefinition(cardDef, target.filter, sourceId, state, state.projectedState)
-                is SpellCostTarget.OpponentsCast ->
-                    opponentsCastMatches(target, cardDef, casterId, sourceId, state)
-                else -> false
-            }
-            if (!applies) continue
-            when (val mod = ability.modification) {
-                is CostModification.IncreaseGeneric -> totalIncrease += mod.amount
-                is CostModification.IncreaseGenericBy ->
-                    totalIncrease += evaluateReduction(
-                        state, mod.source, casterId, abilitySourceId = sourceId
-                    )
-                is CostModification.IncreaseGenericPerOtherSpellThisTurn -> {
-                    val spellsCast = state.playerSpellsCastThisTurn[casterId] ?: 0
-                    totalIncrease += spellsCast * mod.amountPerSpell
-                }
-                else -> { /* Battlefield reductions don't apply to alternative casting costs. */ }
-            }
-        }
-        return LifePayableMana.apply(state, cardRegistry, casterId, increaseGenericCost(alternativeCost, totalIncrease))
-    }
+        fromZone: Zone? = null,
+    ): ManaCost = calculateEffectiveCost(state, cardDef, casterId, fromZone = fromZone, baseCost = alternativeCost)
+
+    /** A selected spell face supplies the characteristics used by cost filters. */
+    fun calculateFaceCost(
+        state: GameState,
+        cardDef: CardDefinition,
+        face: com.wingedsheep.sdk.model.CardFace,
+        casterId: EntityId,
+        fromZone: Zone? = null,
+        baseCost: ManaCost = face.manaCost,
+        chosenTargets: List<EntityId> = emptyList(),
+    ): ManaCost = calculateEffectiveCost(
+        state,
+        CardDefinition(name = face.name, manaCost = face.manaCost, typeLine = face.typeLine,
+            oracleText = face.oracleText, keywords = face.keywords, script = face.script),
+        casterId, chosenTargets = chosenTargets, fromZone = fromZone, baseCost = baseCost,
+        commanderCardName = cardDef.name,
+    )
 
     /**
      * Calculate the additional life [casterId] must pay as part of casting a spell with

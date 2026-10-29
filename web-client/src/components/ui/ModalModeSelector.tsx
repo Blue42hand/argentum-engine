@@ -84,7 +84,8 @@ function ModalModePanel({ state }: { state: ModalModeSelectionState }) {
   const remove = (i: number) => { if (canRemove(i)) setCounts((p) => p.map((c, j) => (j === i ? c - 1 : c))) }
   const toggle = (i: number) => { if ((counts[i] ?? 0) > 0) remove(i); else add(i) }
 
-  // Live cost preview from the currently-selected modes.
+  // These are printed additions, not a final quote: reductions may also apply to them.
+  // The server determines the total after the modes and other costs are declared.
   const additionalCost = combineManaCosts([
     ...counts.flatMap((c, i) => Array.from({ length: c }, () => modes[i]?.additionalManaCost ?? '')),
     ...Array.from(
@@ -92,7 +93,6 @@ function ModalModePanel({ state }: { state: ModalModeSelectionState }) {
       () => additionalManaCostPerExtraMode ?? ''
     ),
   ])
-  const totalCost = combineManaCosts([baseManaCost, additionalCost])
 
   // Non-mana escalate is paid after this panel closes, so name what the current selection owes.
   const extraModes = Math.max(0, totalChosen - 1)
@@ -221,10 +221,12 @@ function ModalModePanel({ state }: { state: ModalModeSelectionState }) {
       {/* Cost summary */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 4, fontSize: 'var(--font-sm)' }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
-          Additional: {additionalCost ? <ManaCost cost={additionalCost} size={15} /> : <span>—</span>}
+          Additional before reductions: {additionalCost ? <ManaCost cost={additionalCost} size={15} /> : <span>—</span>}
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)', fontWeight: 600 }}>
-          Total: <ManaCost cost={totalCost} size={15} />
+          {additionalCost
+            ? 'Final cost is applied when you cast.'
+            : <>Mana preview: <ManaCost cost={baseManaCost} size={15} /></>}
         </span>
       </div>
 
