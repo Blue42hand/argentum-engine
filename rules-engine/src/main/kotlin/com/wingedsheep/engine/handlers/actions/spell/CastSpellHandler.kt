@@ -948,17 +948,13 @@ class CastSpellHandler(
             action.useWithoutPayingManaCost
         val computed = castCostTotaller.validationCost(
             state,
-            action,
+            action.copy(chosenModes = chosenIndices),
             cardDef,
             cardComponent,
             playForFree,
             castingFromCommandZone = zoneResolver.hasCommanderCastPermission(state, action.playerId, action.cardId)
         ) ?: return false
-        var cost = computed.cost
-        for (extra in extraCosts) {
-            cost = cost + ManaCost.parse(extra)
-        }
-        return castCostPayer.validateManaPayment(state, action, cost, computed.paymentXValue) == null
+        return castCostPayer.validateManaPayment(state, action, computed.cost, computed.paymentXValue) == null
     }
 
     /**
