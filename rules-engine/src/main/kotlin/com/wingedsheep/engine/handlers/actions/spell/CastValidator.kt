@@ -799,13 +799,8 @@ internal class CastValidator(
             state.getEntity(action.cardId)?.has<PlayWithFixedAlternativeManaCostComponent>() == true)) {
             return "Bestow cannot be combined with another alternative cost"
         }
-        // The engine, not the client, decides what a convoke/delve/improvise choice is worth: every
-        // chosen permanent or card must be one the payment could actually use, or the cost stage
-        // would price a payment `execute` then silently declines to apply. A free cast has no
-        // generic to pay, so `execute` ignores tap-for-generic permanents on one; validation ignores
-        // them the same way rather than rejecting a cast whose taps simply do nothing.
+        // Free casts can still owe additions or taxes, payable with eligible tap/exile choices.
         val alternativePayment = action.alternativePayment
-            ?.let { if (playForFree) it.copy(tapForGenericPermanents = emptySet()) else it }
         if (alternativePayment != null && !alternativePayment.isEmpty && cardDef != null) {
             val waterbendCap = castCostTotaller.spellWaterbendAmount(cardDef, action) +
                 castCostTotaller.fixedAltWaterbendAmount(state, action, playForFree)

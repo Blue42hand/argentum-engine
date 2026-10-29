@@ -135,7 +135,7 @@ class SneakCastEnumerator : ActionEnumerator {
                 ) continue
 
                 val sneakMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(
-                    state, cardDef, graveyardSneakCost, playerId
+                    state, cardDef, graveyardSneakCost, playerId, fromZone = com.wingedsheep.sdk.core.Zone.GRAVEYARD
                 )
                 if (!context.manaSolver.canPay(state, playerId, sneakMana, precomputedSources = cachedSources)) continue
 

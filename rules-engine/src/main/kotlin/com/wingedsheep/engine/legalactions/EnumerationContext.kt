@@ -62,6 +62,29 @@ class EnumerationContext(
     val castPermissionUtils by lazy { CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator) }
     // The one legality kernel the handlers' `validate` also asks, so what is offered is what is accepted.
     val legality by lazy { LegalityKernel(cardRegistry, conditionEvaluator) }
+    // Additional-cost variants must re-price the declaration, not append to a reduced quote.
+    private val castZoneResolver by lazy {
+        com.wingedsheep.engine.handlers.actions.spell.CastZoneResolver(cardRegistry, conditionEvaluator, legality)
+    }
+    private val castCostTotaller by lazy {
+        com.wingedsheep.engine.handlers.actions.spell.CastCostTotaller(
+            cardRegistry, costCalculator,
+            com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler(grantedKeywordResolver),
+            castZoneResolver, predicateEvaluator
+        )
+    }
+
+    internal fun declaredCastCost(action: com.wingedsheep.engine.core.CastSpell): ManaCost? {
+        val component = state.getEntity(action.cardId)
+            ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>() ?: return null
+        return castCostTotaller.totalCost(
+            state, action, cardRegistry.getCard(component.name), component,
+            playForFree = action.useWithoutPayingManaCost ||
+                castZoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId),
+            castingFromCommandZone = castZoneResolver.hasCommanderCastPermission(state, action.playerId, action.cardId)
+        )
+    }
+
     // Plot (CR 718) cost reduction — Doc Aurlock-style "plotting cards costs {N} less".
     val plotCostReducer by lazy { com.wingedsheep.engine.mechanics.mana.PlotCostReducer(cardRegistry) }
 
